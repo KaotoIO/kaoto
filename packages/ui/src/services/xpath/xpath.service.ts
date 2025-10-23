@@ -140,6 +140,17 @@ export class XPathService {
     return undefined;
   }
 
+  private static isRelativeFromFunctionCall(relativePathExpr: CstElement): boolean {
+    const funcName = XPathService.getSingleNode(relativePathExpr, [
+      'StepExpr',
+      'FilterExpr',
+      'FunctionCall',
+      'QName',
+      'NCName',
+    ]);
+    return !!funcName && 'image' in funcName && !!funcName.image;
+  }
+
   private static extractPathExpressionFromNode(node: CstNode, contextPath?: PathExpression): PathExpression {
     const isRelative = !('Slash' in node.children || 'DoubleSlash' in node.children);
 
@@ -150,15 +161,16 @@ export class XPathService {
     if (!relativePathExpr) {
       return new PathExpression(isRelative ? contextPath : undefined);
     }
+    const isRelativeFromFunctionCall = XPathService.isRelativeFromFunctionCall(relativePathExpr);
+
     const stepExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr']);
     if (!stepExpr) {
       return new PathExpression(isRelative ? contextPath : undefined);
     }
 
     const answer = XPathService.extractPathExpressionBaseFromStepExpr(
-      relativePathExpr,
       stepExpr,
-      isRelative,
+      isRelative || isRelativeFromFunctionCall,
       contextPath,
     );
 
@@ -166,7 +178,6 @@ export class XPathService {
   }
 
   private static extractPathExpressionBaseFromStepExpr(
-    relativePathExpr: CstElement,
     stepExpr: CstElement,
     isRelative: boolean,
     contextPath?: PathExpression,
@@ -195,7 +206,7 @@ export class XPathService {
         if (segment) {
           answer.pathSegments.push(segment);
         } else {
-          throw Error('Unknown RelativePathExpr: ' + relativePathExpr);
+          throw new Error(`Unsupported XPath syntax (StepExpr). The mapping line will not be drawn.`);
         }
       }
     }
@@ -410,6 +421,7 @@ export class XPathService {
       answer.push(...XPathService.extractPathExprNode(node));
       return answer;
     }
+
     return Object.entries(node.children).reduce((acc, [key, value]) => {
       if (key === 'PathExpr') {
         acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
@@ -425,7 +437,13 @@ export class XPathService {
   }
 
   private static extractPathExprNode(pathExprNode: CstNode): CstElement[] {
-    const filterExpr = XPathService.getSingleNode(pathExprNode, ['RelativePathExpr', 'StepExpr', 'FilterExpr']);
+    const relativePathExpr = XPathService.getSingleNode(pathExprNode, ['RelativePathExpr']);
+    if (!relativePathExpr) return [pathExprNode];
+
+    // path expression following function call e.g. current()/path/to
+    if (XPathService.getNodes(relativePathExpr, ['ChildPathSegmentExpr'])) return [pathExprNode];
+
+    const filterExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr', 'FilterExpr']);
     if (!filterExpr) return [pathExprNode];
 
     const literal = XPathService.getSingleNode(filterExpr, ['Literal']);

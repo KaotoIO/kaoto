@@ -14,6 +14,7 @@ import {
   shipOrderToShipOrderCollectionIndexXslt,
   shipOrderToShipOrderMultipleForEachXslt,
   shipOrderToShipOrderXslt,
+  shipOrderWithCurrentXslt,
   TestUtil,
   x12837PDfdlXsd,
   x12837PXslt,
@@ -192,6 +193,29 @@ describe('MappingLinksService', () => {
         (link) => link.sourceNodePath.includes('Email') && link.targetNodePath.includes('Email'),
       );
       expect(emailLink).toBeDefined();
+    });
+
+    it('should generate mapping links for current() expressions', () => {
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(shipOrderWithCurrentXslt, targetDoc, tree, paramsMap);
+
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+
+      expect(links.length).toEqual(7);
+      expect(links[0].sourceNodePath).toMatch('OrderPerson');
+      expect(links[0].targetNodePath).toMatch('OrderPerson');
+      expect(links[1].sourceNodePath).toMatch('ShipTo');
+      expect(links[1].targetNodePath).toMatch('ShipTo');
+      expect(links[2].sourceNodePath).toMatch('Item');
+      expect(links[2].targetNodePath).toMatch('/for-each');
+      expect(links[3].sourceNodePath).toMatch('Title');
+      expect(links[3].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Title-.*/);
+      expect(links[4].sourceNodePath).toMatch('OrderPerson');
+      expect(links[4].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Note-.*/);
+      expect(links[5].sourceNodePath).toMatch('Quantity');
+      expect(links[5].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Quantity-.*/);
+      expect(links[6].sourceNodePath).toMatch('Price');
+      expect(links[6].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Price-.*/);
     });
   });
 
