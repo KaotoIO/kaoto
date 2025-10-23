@@ -4,11 +4,22 @@
   @include dnd.cursor-grab;
 }
 
-.xpath-editor-layout-grid {
+.xpath-editor {
   height: 90%;
-}
 
-.xpath-editor-layout-tab-content {
-  position: relative;
-  height: 100%;
+  &__tab {
+    display: flex;
+    flex-flow: column;
+
+    &__functions-list {
+      display: block;
+      flex: 1 1 auto;
+      overflow: scroll;
+    }
+  }
+
+  &--full-height {
+    position: relative;
+    height: 100%;
+  }
 }

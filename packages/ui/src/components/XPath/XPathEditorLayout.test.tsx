@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
@@ -27,12 +27,24 @@ describe('XPathEditorLayout - Search Field', () => {
 
   it('renders the search field', () => {
     setup();
+
+    const tab = screen.getByTestId('xpath-editor-tab-function');
+    act(() => {
+      fireEvent.click(tab);
+    });
+
     const searchInput = screen.getByTestId('functions-menu-search-input');
     expect(searchInput).toBeInTheDocument();
   });
 
   it('allows typing in the search field', async () => {
     setup();
+
+    const tab = screen.getByTestId('xpath-editor-tab-function');
+    act(() => {
+      fireEvent.click(tab);
+    });
+
     const searchInput = screen.getByTestId('functions-menu-search-input').querySelector('input');
     expect(searchInput).toBeInTheDocument();
 
@@ -43,6 +55,11 @@ describe('XPathEditorLayout - Search Field', () => {
 
   it('filters function list based on search input', async () => {
     setup();
+
+    const tab = screen.getByTestId('xpath-editor-tab-function');
+    act(() => {
+      fireEvent.click(tab);
+    });
 
     const searchInput = screen.getByTestId('functions-menu-search-input').querySelector('input');
     expect(searchInput).toBeInTheDocument();

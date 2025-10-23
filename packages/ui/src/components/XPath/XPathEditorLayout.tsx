@@ -11,7 +11,7 @@ import {
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
-import { FunctionComponent, MouseEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorNodeData, FunctionNodeData } from '../../models/datamapper';
 import { ExpressionItem } from '../../models/datamapper/mapping';
 import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
@@ -47,49 +47,53 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
   };
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState('');
-  const focusOnSearchInput = useCallback(() => {
-    searchInputRef.current?.focus();
-  }, []);
+
   const handleOnSearchChange = useCallback((_event: unknown, value: string) => {
     setSearchValue(value);
   }, []);
+
+  useEffect(() => {
+    searchInputRef.current?.focus();
+  }, [activeTabKey]);
 
   const getSearchValue = searchValue.toLowerCase();
 
   return (
     <DatamapperDndProvider handler={dndHandler}>
-      <Grid hasGutter className="xpath-editor-layout-grid">
+      <Grid hasGutter className="xpath-editor">
         <GridItem key={0} span={4} rowSpan={10}>
-          <Tabs isFilled activeKey={activeTabKey} onSelect={handleTabClick}>
+          <Tabs isFilled mountOnEnter unmountOnExit activeKey={activeTabKey} onSelect={handleTabClick}>
             <Tab
+              id="fields"
               eventKey={0}
               key={0}
               title={<TabTitleText>Field</TabTitleText>}
-              className="xpath-editor-layout-tab-content"
+              className="xpath-editor--full-height"
+              data-testid="xpath-editor-tab-field"
             >
-              <TabContent id="fields" className="xpath-editor-layout-tab-content">
+              <TabContent id="fields" className="xpath-editor--full-height xpath-editor__tab">
                 <SourcePanel isReadOnly={true} />
               </TabContent>
             </Tab>
+
             <Tab
+              id="functions"
               eventKey={1}
               key={1}
               title={<TabTitleText>Function</TabTitleText>}
-              className="xpath-editor-layout-tab-content"
+              className="xpath-editor--full-height"
+              data-testid="xpath-editor-tab-function"
             >
-              <TabContent id="functions" className="xpath-editor-layout-tab-content">
-                <Menu isScrollable className="xpath-editor-layout-tab-content">
-                  <MenuContent menuHeight="100%" maxMenuHeight="100%">
-                    <MenuItem data-testid="functions-menu-search-item" onFocus={focusOnSearchInput}>
-                      <SearchInput
-                        data-testid="functions-menu-search-input"
-                        ref={searchInputRef}
-                        placeholder="Filter functions..."
-                        value={searchValue}
-                        onChange={handleOnSearchChange}
-                      />
-                    </MenuItem>
-
+              <TabContent id="functions" className="xpath-editor--full-height xpath-editor__tab">
+                <SearchInput
+                  data-testid="functions-menu-search-input"
+                  ref={searchInputRef}
+                  placeholder="Filter functions..."
+                  value={searchValue}
+                  onChange={handleOnSearchChange}
+                />
+                <Menu className="xpath-editor__tab__functions-list">
+                  <MenuContent>
                     {Object.keys(functionDefinitions).map((value) => (
                       <MenuGroup
                         key={value}
@@ -135,7 +139,7 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
         <GridItem key={1} span={6} rowSpan={10}>
           <DroppableContainer
             id="xpath-editor"
-            className="xpath-editor-layout-tab-content"
+            className="xpath-editor--full-height"
             nodeData={new EditorNodeData(mapping)}
           >
             <XPathEditor mapping={mapping} onChange={handleExpressionChange} />
