@@ -8,8 +8,8 @@ import { cloneDeep } from 'lodash';
 import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
-import { processOnCopyAddonRecursively } from '../ContextMenu/item-interaction-helper';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 
 export const useDuplicateStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext)!;
@@ -18,8 +18,11 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
   let vizNodeContent = vizNode.getCopiedContent();
 
   if (vizNodeContent) {
-    vizNodeContent = processOnCopyAddonRecursively(vizNode, vizNodeContent, (vn) =>
-      nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vn),
+    vizNodeContent = processOnCopyAddon(
+      vizNode,
+      vizNodeContent,
+      (vn) =>
+        nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vn) as IOnCopyAddon[],
     );
   }
   const parentVizNode = vizNode.getParentNode();

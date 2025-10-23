@@ -2,7 +2,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
+import { IInteractionType, IOnDeleteAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
   findOnDeleteModalCustomizationRecursively,
@@ -20,8 +20,9 @@ export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
   const onDeleteStep = useCallback(async () => {
     if (!vizNode) return;
 
-    const modalCustoms = findOnDeleteModalCustomizationRecursively(vizNode, (vn) =>
-      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
+    const modalCustoms = findOnDeleteModalCustomizationRecursively(
+      vizNode,
+      (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
 
     let modalAnswer: string | undefined = ACTION_ID_CONFIRM;
@@ -39,8 +40,10 @@ export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
       if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
     }
 
-    processOnDeleteAddonRecursively(vizNode, modalAnswer, (vn) =>
-      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
+    processOnDeleteAddonRecursively(
+      vizNode,
+      modalAnswer,
+      (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
 
     vizNode.removeChild();

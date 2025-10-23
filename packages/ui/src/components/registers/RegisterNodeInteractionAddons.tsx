@@ -10,8 +10,8 @@ import { onCopyDataMapper } from '../DataMapper/on-copy-datamapper';
 import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
 import {
   IInteractionType,
-  IOnDeleteAddon,
   IOnCopyAddon,
+  IOnDeleteAddon,
   IRegisteredInteractionAddon,
 } from './interactions/node-interaction-addon.model';
 import { ButtonVariant } from '@patternfly/react-core';
@@ -23,7 +23,7 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
     {
       type: IInteractionType.ON_DELETE,
       activationFn: datamapperActivationFn,
-      callback: (vizNode, modalAnswer) => {
+      callback: ({ vizNode, modalAnswer }) => {
         metadataApi && onDeleteDataMapper(metadataApi, vizNode, modalAnswer);
       },
       modalCustomization: {

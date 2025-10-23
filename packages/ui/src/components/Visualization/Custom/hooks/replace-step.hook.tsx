@@ -9,7 +9,7 @@ import {
   MetadataContext,
 } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
+import { IInteractionType, IOnDeleteAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
   findOnDeleteModalCustomizationRecursively,
@@ -29,8 +29,9 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
   const onReplaceNode = useCallback(async () => {
     if (!entitiesContext) return;
 
-    const modalCustoms = findOnDeleteModalCustomizationRecursively(vizNode, (vn) =>
-      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
+    const modalCustoms = findOnDeleteModalCustomizationRecursively(
+      vizNode,
+      (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
     let modalAnswer: string | undefined = ACTION_ID_CONFIRM;
     if (hasChildren && !isPlaceholderNode) {
@@ -54,8 +55,10 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     const definedComponent = await catalogModalContext?.getNewComponent(catalogFilter);
     if (!definedComponent) return;
 
-    processOnDeleteAddonRecursively(vizNode, modalAnswer, (vn) =>
-      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
+    processOnDeleteAddonRecursively(
+      vizNode,
+      modalAnswer,
+      (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
 
     /** Add new node to the entities */

@@ -1,18 +1,18 @@
 import { IVisualizationNode } from '../../models';
 import { IClipboardCopyObject } from '../../models/visualization/clipboard';
 
-export const onCopyDataMapper = (
-  _sourceVizNode: IVisualizationNode,
-  content: IClipboardCopyObject | undefined,
-): IClipboardCopyObject | undefined => {
-  if (!content) return undefined;
+export const onCopyDataMapper = (parameters: {
+  sourceVizNode: IVisualizationNode;
+  content: IClipboardCopyObject | undefined;
+}): IClipboardCopyObject | undefined => {
+  if (!parameters.content) return undefined;
 
-  if (content.name === 'kaoto-datamapper') {
+  if (parameters.content.name === 'kaoto-datamapper') {
     return {
-      ...content,
+      ...parameters.content,
       name: 'step',
     };
   }
 
-  return content;
+  return parameters.content;
 };

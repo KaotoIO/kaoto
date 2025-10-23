@@ -1,15 +1,15 @@
 import { IVisualizationNode } from '../../../../models';
 import {
-  IInteractionType,
   IModalCustomization,
-  IRegisteredInteractionAddon,
+  IOnCopyAddon,
+  IOnDeleteAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 
 export const processOnDeleteAddonRecursively = (
   parentVizNode: IVisualizationNode,
   modalAnswer: string | undefined,
-  getAddons: (vizNode: IVisualizationNode) => IRegisteredInteractionAddon<IInteractionType.ON_DELETE>[],
+  getAddons: (vizNode: IVisualizationNode) => IOnDeleteAddon[],
 ) => {
   const vizNodeChildren = parentVizNode.getChildren() || [];
   for (const child of vizNodeChildren) {
@@ -17,13 +17,13 @@ export const processOnDeleteAddonRecursively = (
   }
 
   for (const addon of getAddons(parentVizNode)) {
-    addon.callback(parentVizNode, modalAnswer);
+    addon.callback({ vizNode: parentVizNode, modalAnswer: modalAnswer });
   }
 };
 
 export const findOnDeleteModalCustomizationRecursively = (
   parentVizNode: IVisualizationNode,
-  getAddons: (vizNode: IVisualizationNode) => IRegisteredInteractionAddon<IInteractionType.ON_DELETE>[],
+  getAddons: (vizNode: IVisualizationNode) => IOnDeleteAddon[],
 ) => {
   const modalCustomizations: IModalCustomization[] = [];
   // going breadth-first while addon processes depth-first... do we want?
@@ -45,34 +45,20 @@ export const findOnDeleteModalCustomizationRecursively = (
 };
 
 /**
- * This is supposed to process "Copy" interaction addons recursively, but is not yet implemented.
- * Currently, it only applies to the parent {@link IVisualizationNode} which is passed-in as a 1st argument.
- * In order to implement  recursive processing, we need to merge {@link IClipboardCopyObject} from children
- * into the parent one.
+ * Process ON_COPY addons on the passed in visualization node.
  * @param parentVizNode
  * @param content
  * @param getAddons
  */
-export const processOnCopyAddonRecursively = (
+export const processOnCopyAddon = (
   parentVizNode: IVisualizationNode,
   content: IClipboardCopyObject | undefined,
-  getAddons: (vizNode: IVisualizationNode) => IRegisteredInteractionAddon<IInteractionType.ON_COPY>[],
+  getAddons: (vizNode: IVisualizationNode) => IOnCopyAddon[],
 ): IClipboardCopyObject | undefined => {
   let processedContent = content;
 
-  /* TODO merge updated children into the parent IClipboardCopyObject to apply copy addons recursively
-    const vizNodeChildren = parentVizNode.getChildren() || [];
-    const copiedChildren: (IClipboardCopyObject | undefined)[] = [];
-    for (const child of vizNodeChildren) {
-      let copied = child.getCopiedContent();
-      copied = processOnCopyAddonRecursively(child, copied, getAddons);
-      copiedChildren.push(copied);
-    }
-    // merge "copiedChildren" into "content"
-  */
-
   for (const addon of getAddons(parentVizNode)) {
-    processedContent = addon.callback(parentVizNode, processedContent);
+    processedContent = addon.callback({ sourceVizNode: parentVizNode, content: processedContent });
   }
 
   return processedContent;

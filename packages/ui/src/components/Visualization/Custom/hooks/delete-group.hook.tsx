@@ -3,7 +3,7 @@ import { IVisualizationNode } from '../../../../models/visualization/base-visual
 import { ACTION_ID_CANCEL, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
+import { IInteractionType, IOnDeleteAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import {
   findOnDeleteModalCustomizationRecursively,
   processOnDeleteAddonRecursively,
@@ -18,8 +18,9 @@ export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
 
   const onDeleteGroup = useCallback(async () => {
     if (!vizNode) return;
-    const modalCustoms = findOnDeleteModalCustomizationRecursively(vizNode, (vn) =>
-      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
+    const modalCustoms = findOnDeleteModalCustomizationRecursively(
+      vizNode,
+      (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
     const additionalModalText = modalCustoms.length > 0 ? modalCustoms[0].additionalText : undefined;
     const buttonOptions = modalCustoms.length > 0 ? modalCustoms[0].buttonOptions : undefined;
@@ -33,8 +34,10 @@ export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
 
     if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
 
-    processOnDeleteAddonRecursively(vizNode, modalAnswer, (vn) =>
-      getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn),
+    processOnDeleteAddonRecursively(
+      vizNode,
+      modalAnswer,
+      (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
 
     entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined);

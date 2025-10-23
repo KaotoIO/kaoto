@@ -2,8 +2,8 @@ import { useCallback, useContext, useMemo } from 'react';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionType } from '../../../registers/interactions/node-interaction-addon.model';
-import { processOnCopyAddonRecursively } from '../ContextMenu/item-interaction-helper';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 
 export const useCopyStep = (vizNode: IVisualizationNode) => {
   const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
@@ -13,8 +13,11 @@ export const useCopyStep = (vizNode: IVisualizationNode) => {
 
     if (!copiedNodeContent) return;
 
-    copiedNodeContent = processOnCopyAddonRecursively(vizNode, copiedNodeContent, (vizNode) =>
-      nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vizNode),
+    copiedNodeContent = processOnCopyAddon(
+      vizNode,
+      copiedNodeContent,
+      (vizNode) =>
+        nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vizNode) as IOnCopyAddon[],
     );
 
     /** Copy the node model */

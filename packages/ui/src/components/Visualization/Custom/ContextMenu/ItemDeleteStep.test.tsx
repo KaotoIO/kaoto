@@ -72,13 +72,13 @@ describe('ItemDeleteStep', () => {
     const mockAddon = jest.fn();
     const mockNodeInteractionAddonContext = {
       registerInteractionAddon: jest.fn(),
-      getRegisteredInteractionAddons: <T extends IInteractionType>(
+      getRegisteredInteractionAddons: (
         _interaction: IInteractionType,
         _vizNode: IVisualizationNode,
-      ): IRegisteredInteractionAddon<T>[] =>
+      ): IRegisteredInteractionAddon[] =>
         [
           { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: mockAddon } as IOnDeleteAddon,
-        ] as IRegisteredInteractionAddon<T>[],
+        ] as IRegisteredInteractionAddon[],
     };
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>

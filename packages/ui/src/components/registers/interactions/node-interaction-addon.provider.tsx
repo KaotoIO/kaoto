@@ -14,21 +14,15 @@ export const NodeInteractionAddonContext = createContext<INodeInteractionAddonCo
 export const NodeInteractionAddonProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const registeredInteractionAddons = useRef<IRegisteredInteractionAddon[]>([]);
 
-  const registerInteractionAddon = useCallback(
-    <T extends IInteractionType>(interaction: IRegisteredInteractionAddon<T>) => {
-      registeredInteractionAddons.current.push(interaction);
-    },
-    [],
-  );
+  const registerInteractionAddon = useCallback((interaction: IRegisteredInteractionAddon) => {
+    registeredInteractionAddons.current.push(interaction);
+  }, []);
 
-  const getRegisteredInteractionAddons = useCallback(
-    <T extends IInteractionType>(interaction: T, vizNode: IVisualizationNode) => {
-      return registeredInteractionAddons.current.filter(
-        (addon) => addon.type === interaction && addon.activationFn(vizNode),
-      ) as IRegisteredInteractionAddon<T>[];
-    },
-    [],
-  );
+  const getRegisteredInteractionAddons = useCallback((interaction: IInteractionType, vizNode: IVisualizationNode) => {
+    return registeredInteractionAddons.current.filter(
+      (addon) => addon.type === interaction && addon.activationFn(vizNode),
+    );
+  }, []);
 
   const value = useMemo(
     () => ({

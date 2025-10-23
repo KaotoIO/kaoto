@@ -29,7 +29,7 @@ describe('onCopyDataMapper', () => {
       },
     };
 
-    const result = onCopyDataMapper(mockVizNode, content);
+    const result = onCopyDataMapper({ sourceVizNode: mockVizNode, content: content });
 
     expect(result).toBeDefined();
     expect(result!.name).toBe('step');
@@ -60,7 +60,7 @@ describe('onCopyDataMapper', () => {
       },
     };
 
-    const result = onCopyDataMapper(mockVizNode, content);
+    const result = onCopyDataMapper({ sourceVizNode: mockVizNode, content: content });
 
     expect(result).toBeDefined();
     expect(result!.name).toBe('log');
@@ -68,7 +68,7 @@ describe('onCopyDataMapper', () => {
   });
 
   it('should handle undefined content', () => {
-    const result = onCopyDataMapper(mockVizNode, undefined);
+    const result = onCopyDataMapper({ sourceVizNode: mockVizNode, content: undefined });
 
     expect(result).toBeUndefined();
   });
