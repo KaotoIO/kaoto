@@ -48,13 +48,18 @@ export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) =
     if (!expressionItem) return [];
     const actions = [
       <XPathInputAction key="xpath-input" mapping={expressionItem} onUpdate={handleUpdate} />,
-      <XPathEditorAction key="xpath-editor" nodeData={documentNodeData} mapping={expressionItem} onUpdate={handleUpdate} />,
+      <XPathEditorAction
+        key="xpath-editor"
+        nodeData={documentNodeData}
+        mapping={expressionItem}
+        onUpdate={handleUpdate}
+      />,
     ];
 
     // Add delete action if the mapping is deletable
     if (VisualizationService.isDeletableNode(documentNodeData)) {
       actions.push(
-        <DeleteMappingItemAction key="delete-mapping" nodeData={documentNodeData} onDelete={handleUpdate} />
+        <DeleteMappingItemAction key="delete-mapping" nodeData={documentNodeData} onDelete={handleUpdate} />,
       );
     }
 
