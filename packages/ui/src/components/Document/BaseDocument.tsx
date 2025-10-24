@@ -84,7 +84,7 @@ export const BaseDocument: FunctionComponent<DocumentProps> = ({
 
   return (
     <div
-      data-testid={`node-source-${isSelected ? 'selected-' : ''}${nodeData.id}`}
+      data-testid={`node-${nodeData.isSource ? 'source' : 'target'}-${isSelected ? 'selected-' : ''}${nodeData.id}`}
       className={'document__container'}
       onClick={handleClickField}
     >
@@ -96,8 +96,8 @@ export const BaseDocument: FunctionComponent<DocumentProps> = ({
         >
           {hasChildren && (
             <Icon className="node__expand node__spacer" onClick={handleClickToggle}>
-              {isExpanded && <ChevronDown data-testid={`expand-source-icon-${nodeData.title}`} />}
-              {!isExpanded && <ChevronRight data-testid={`collapse-source-icon-${nodeData.title}`} />}
+              {isExpanded && <ChevronDown data-testid={`expand-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`} />}
+              {!isExpanded && <ChevronRight data-testid={`collapse-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`} />}
             </Icon>
           )}
           {header}
@@ -107,21 +107,25 @@ export const BaseDocument: FunctionComponent<DocumentProps> = ({
             onClick={handleStopPropagation}
             className={'document__actions'}
           >
-            <ActionListItem>
-              <AttachSchemaButton
-                documentType={documentType}
-                documentId={nodeData.document.documentId}
-                documentReferenceId={documentReferenceId}
-                hasSchema={!nodeData.isPrimitive}
-              />
-            </ActionListItem>
-            <ActionListItem>
-              <DetachSchemaButton
-                documentType={documentType}
-                documentId={nodeData.document.documentId}
-                documentReferenceId={documentReferenceId}
-              />
-            </ActionListItem>
+            {!isReadOnly && (
+              <>
+                <ActionListItem>
+                  <AttachSchemaButton
+                    documentType={documentType}
+                    documentId={nodeData.document.documentId}
+                    documentReferenceId={documentReferenceId}
+                    hasSchema={!nodeData.isPrimitive}
+                  />
+                </ActionListItem>
+                <ActionListItem>
+                  <DetachSchemaButton
+                    documentType={documentType}
+                    documentId={nodeData.document.documentId}
+                    documentReferenceId={documentReferenceId}
+                  />
+                </ActionListItem>
+              </>
+            )}
             {additionalActions.map((action, index) => (
               <ActionListItem key={'additional-action' + index}>{action}</ActionListItem>
             ))}
