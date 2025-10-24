@@ -19,7 +19,6 @@ import { NodeReference } from '../../models/datamapper';
 import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
-import { SourceDocument } from './SourceDocument';
 import { ParameterDocument } from './ParameterDocument';
 
 type ParametersProps = {

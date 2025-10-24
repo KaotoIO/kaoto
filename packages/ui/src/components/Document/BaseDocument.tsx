@@ -1,7 +1,7 @@
-import { ActionListGroup, ActionListItem, Icon, Title } from '@patternfly/react-core';
+import { ActionListGroup, ActionListItem, Icon } from '@patternfly/react-core';
 import { ChevronDown, ChevronRight } from '@carbon/icons-react';
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, ReactNode, useCallback, useMemo, useRef } from 'react';
+import { FunctionComponent, MouseEvent, ReactNode, useCallback, useRef } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
@@ -41,6 +41,10 @@ export const BaseDocument: FunctionComponent<DocumentProps> = ({
   const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
   const nodeData = treeNode.nodeData;
   const { mappingTree } = useDataMapper();
+
+  if (!nodeData.document) {
+    throw new Error('BaseDocument requires a document node');
+  }
 
   const documentType = nodeData.document.documentType;
   const documentReferenceId = nodeData.document.getReferenceId(mappingTree.namespaceMap);
@@ -96,8 +100,14 @@ export const BaseDocument: FunctionComponent<DocumentProps> = ({
         >
           {hasChildren && (
             <Icon className="node__expand node__spacer" onClick={handleClickToggle}>
-              {isExpanded && <ChevronDown data-testid={`expand-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`} />}
-              {!isExpanded && <ChevronRight data-testid={`collapse-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`} />}
+              {isExpanded && (
+                <ChevronDown data-testid={`expand-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`} />
+              )}
+              {!isExpanded && (
+                <ChevronRight
+                  data-testid={`collapse-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`}
+                />
+              )}
             </Icon>
           )}
           {header}
