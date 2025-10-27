@@ -71,7 +71,7 @@ export class MappingLinksService {
     const namespaces = sourceExpressionItem.mappingTree.namespaceMap;
     const sourceXPath = sourceExpressionItem.expression;
     const validationResult = XPathService.validate(sourceXPath);
-    if (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) return [];
+    if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
     const fieldPaths = XPathService.extractFieldPaths(sourceXPath, sourceExpressionItem.parent.contextPath);
     return fieldPaths.reduce((acc, xpath) => {
       const absolutePath = XPathService.toAbsolutePath(xpath);

@@ -14,7 +14,8 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 're
 import { XPathEditorLayout } from './XPathEditorLayout';
 import { ExpressionItem } from '../../models/datamapper';
 import './XPathEditorModal.scss';
-import { ValidatedXPathParseResult, XPathService } from '../../services/xpath/xpath.service';
+import { ValidatedXPathParseResult } from '../../services/xpath/xpath-model';
+import { XPathService } from '../../services/xpath/xpath.service';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
 
@@ -61,7 +62,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   const headerHelper = useMemo(
     () => (
       <section id="xpath-editor-modal" className="xpath-editor-modal__header">
-        {validationResult && (!validationResult.getCst() || validationResult.dataMapperErrors.length > 0) && (
+        {validationResult && (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) && (
           <Popover bodyContent={errorContent}>
             <Button
               data-testid="xpath-editor-error-btn"

@@ -8,6 +8,7 @@ describe('XPathService / JSON', () => {
       expect(result.lexErrors.length).toEqual(0);
       expect(result.parseErrors.length).toEqual(0);
       expect(result.cst).toBeDefined();
+      expect(result.exprNode).toBeDefined();
 
       result = XPathService.parse(
         "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
@@ -15,6 +16,7 @@ describe('XPathService / JSON', () => {
       expect(result.lexErrors.length).toEqual(0);
       expect(result.parseErrors.length).toEqual(0);
       expect(result.cst).toBeDefined();
+      expect(result.exprNode).toBeDefined();
     });
   });
 
