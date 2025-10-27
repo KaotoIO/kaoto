@@ -13,7 +13,8 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { ValidatedXPathParseResult, XPathService } from '../../../services/xpath/xpath.service';
+import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
+import { XPathService } from '../../../services/xpath/xpath.service';
 import './XPathInputAction.scss';
 
 type XPathInputProps = {
@@ -75,7 +76,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
           />
         </InputGroupItem>
         {validationResult &&
-          (!validationResult.getCst() ||
+          (!validationResult.getExprNode() ||
             validationResult.dataMapperErrors.length > 0 ||
             validationResult.hasWarnings()) && (
             <InputGroupItem>

@@ -1,5 +1,5 @@
 import { IFunctionDefinition } from '../../../models/datamapper/mapping';
-import { FunctionGroup } from '../xpath-parser';
+import { FunctionGroup } from '../xpath-model';
 import { numericFunctions } from './xpath-2.0-functions-numeric';
 import { patternMatchingFunctions, stringFunctions, substringMatchingFunctions } from './xpath-2.0-functions-string';
 import { dateAndTimeFunctions } from './xpath-2.0-functions-datetime';

@@ -1,9 +1,3 @@
-import { XPath2Parser } from './2.0/xpath-2.0-parser';
-import { FunctionGroup, XPathParserResult } from './xpath-parser';
-import { IFunctionDefinition } from '../../models/datamapper/mapping';
-import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
-import { monacoXPathLanguageMetadata } from './monaco-language';
-import { CstElement, CstNode, TokenType } from 'chevrotain';
 import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   PathExpression,
@@ -13,59 +7,52 @@ import {
   PredicateOperatorSymbol,
 } from '../../models/datamapper/xpath';
 import { DocumentUtilService } from '../document-util.service';
-
-export class ValidatedXPathParseResult {
-  constructor(public parserResult?: XPathParserResult) {}
-  dataMapperErrors: string[] = [];
-  warnings: string[] = [];
-
-  hasErrors(): boolean {
-    return (
-      (this.parserResult && this.parserResult.lexErrors.length > 0) ||
-      (this.parserResult && this.parserResult?.parseErrors.length > 0) ||
-      this.dataMapperErrors.length > 0
-    );
-  }
-
-  getErrors(): string[] {
-    const answer = [];
-    if (this.parserResult) {
-      answer.push(...this.parserResult.lexErrors.map((e) => e.message));
-      answer.push(...this.parserResult.parseErrors.map((e) => e.message));
-    }
-    answer.push(...this.dataMapperErrors);
-    return answer;
-  }
-
-  hasWarnings(): boolean {
-    return this.warnings.length > 0;
-  }
-
-  getWarnings(): string[] {
-    return this.warnings;
-  }
-
-  getCst(): CstNode | undefined {
-    return this.parserResult?.cst;
-  }
-}
+import { IFunctionDefinition } from '../../models/datamapper/mapping';
+import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './xpath-model';
+import { monacoXPathLanguageMetadata } from './monaco-language';
+import {
+  ExprNode,
+  PathExprNode,
+  StepExprNode,
+  XPathNodeType,
+  PredicateNode,
+  ComparisonExprNode,
+  XPathNode,
+  FilterExprNode,
+  VarRefNode,
+  LiteralNode,
+} from './syntaxtree/xpath-syntaxtree-model';
+import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
+import { XPath2Parser } from './2.0/xpath-2.0-parser';
+import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
+import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 
 /**
- * The collection of logic to parse/unparse XPath expression.
- * {@link parse()} method parses the XPath string and returns {@link XPathParserResult}.
- * If the parse is successful, {@link XPathParserResult.cst} would contain a parsed CST (Concrete Syntax Tree)
- * represented by {@link CstNode} object. For more information about CST, see https://chevrotain.io/.
- * The other methods contained in this class are mostly to introspect {@link CstNode} generated as a result of
- * parsing the XPath string and feed them into DataMapper mapping model objects.
+ * The collection of logic to parse/unparse XPath expressions.
+ * The parse() method parses the XPath string and returns a syntax tree representation.
+ * The other methods are used to introspect the parsed syntax tree and convert between
+ * XPath expressions and DataMapper mapping model objects.
  */
 export class XPathService {
-  static parser = new XPath2Parser();
-  static functions = XPATH_2_0_FUNCTIONS;
+  static readonly parser = new XPath2Parser();
+  static readonly functions = XPATH_2_0_FUNCTIONS;
 
+  /**
+   * Parses an XPath expression string into a parser result
+   * @param xpath XPath expression string to parse
+   * @returns parser result with CST, errors, and expression node
+   */
   static parse(xpath: string): XPathParserResult {
-    return XPathService.parser.parseXPath(xpath);
+    const cstResult = XPathService.parser.parseXPath(xpath);
+    const exprNode = cstResult.cst ? CstVisitor.visit(cstResult.cst) : undefined;
+    return { ...cstResult, exprNode };
   }
 
+  /**
+   * Validates an XPath expression and returns validation results
+   * @param xpath XPath expression string to validate
+   * @returns validation result with errors and warnings
+   */
   static validate(xpath: string): ValidatedXPathParseResult {
     if (!xpath) {
       const answer = new ValidatedXPathParseResult();
@@ -74,289 +61,298 @@ export class XPathService {
     }
     const parserResult = XPathService.parse(xpath);
     const validationResult = new ValidatedXPathParseResult(parserResult);
-    if (!validationResult.getCst()) return validationResult;
+    const exprNode = parserResult.exprNode;
+    if (!exprNode) return validationResult;
 
     try {
-      XPathService.extractFieldPaths(xpath);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+      XPathService.extractFieldPathsFromExprNode(exprNode);
+    } catch (error) {
       const errorString =
         'DataMapper internal error: failed to render a mapping line from a valid XPath expression: ' +
-        ('message' in error ? error.message : error.toString());
+        (error instanceof Error ? error.message : String(error));
       validationResult.dataMapperErrors.push(errorString);
     }
     return validationResult;
   }
 
+  /**
+   * Gets all XPath function definitions grouped by function category
+   * @returns record of function definitions organized by function group
+   */
   static getXPathFunctionDefinitions(): Record<FunctionGroup, IFunctionDefinition[]> {
     return XPathService.functions;
   }
 
-  static getXPathFunctionNames(): string[] {
+  private static getXPathFunctionNames(): string[] {
     return Object.values(XPathService.getXPathFunctionDefinitions()).reduce((acc, functions) => {
       acc.push(...functions.map((f) => f.name));
       return acc;
     }, [] as string[]);
   }
 
+  /**
+   * Gets Monaco editor language metadata for XPath with function names
+   * @returns Monaco language metadata configuration
+   */
   static getMonacoXPathLanguageMetadata() {
     monacoXPathLanguageMetadata.tokensProvider.actions = XPathService.getXPathFunctionNames();
     return monacoXPathLanguageMetadata;
   }
 
-  static getAllTokens(): TokenType[] {
-    return XPathService.parser.getAllTokens();
+  /**
+   * Extracts PathExpression objects representing field paths in the XPath expression.
+   * This is used to find all the source fields referred from the expression so that the mapping
+   * lines in the DataMapper UI could be drawn. The ability to analyze XPath is limited.
+   * When the contextPath argument is passed in, the generated PathExpression
+   * will be a relative path from the context path.
+   * @param expression XPath expression string to parse
+   * @param contextPath Optional context path for relative path generation
+   */
+  static extractFieldPaths(expression: string, contextPath?: PathExpression): PathExpression[] {
+    const parsed = XPathService.parse(expression);
+    if (!parsed.exprNode) {
+      return [];
+    }
+    return XPathService.extractFieldPathsFromExprNode(parsed.exprNode, contextPath);
   }
 
-  static getSingleNode(node: CstElement, paths: string[]) {
-    const nodes = XPathService.getNodes(node, paths);
-    return nodes?.[0];
+  private static isNonRelevantFilterExpr(pathNode: PathExprNode): boolean {
+    if (pathNode.steps.length !== 1 || !pathNode.steps[0].filterExpr) {
+      return false;
+    }
+    const primaryType = pathNode.steps[0].filterExpr.primary.type;
+    return (
+      primaryType === XPathNodeType.Literal ||
+      primaryType === XPathNodeType.FunctionCall ||
+      primaryType === XPathNodeType.ParenthesizedExpr
+    );
   }
 
-  static getNodes(node: CstElement, paths: string[]) {
-    let answer: CstElement[] = [node];
-    for (const path of paths) {
-      if (!('children' in answer[0]) || !answer[0].children[path]) return undefined;
-      answer = answer[0].children[path];
+  private static shouldSkipPath(pathNode: PathExprNode): boolean {
+    return (
+      pathNode.steps.length === 0 ||
+      XPathService.isPathInsidePredicate(pathNode) ||
+      XPathService.isNonRelevantFilterExpr(pathNode)
+    );
+  }
+
+  private static tryAddUniquePath(paths: PathExpression[], pathNode: PathExprNode, contextPath?: PathExpression): void {
+    const pathExpr = XPathService.extractPathExpression(pathNode, contextPath);
+    const existing = paths.find((comp) => XPathService.matchPath(comp, pathExpr));
+    if (!existing) {
+      paths.push(pathExpr);
+    }
+  }
+
+  private static extractFieldPathsFromExprNode(astNode: ExprNode, contextPath?: PathExpression): PathExpression[] {
+    const pathExprNodes = XPathUtil.getAllNodesOfType<PathExprNode>(astNode, XPathNodeType.PathExpr);
+    const paths: PathExpression[] = [];
+
+    for (const pathNode of pathExprNodes) {
+      if (XPathService.shouldSkipPath(pathNode)) {
+        continue;
+      }
+      XPathService.tryAddUniquePath(paths, pathNode, contextPath);
+    }
+
+    return paths;
+  }
+
+  private static isPathInsidePredicate(pathNode: PathExprNode): boolean {
+    let current: XPathNode | undefined = pathNode.parent;
+    while (current) {
+      if (current.type === XPathNodeType.Predicate) {
+        return true;
+      }
+      current = current.parent;
+    }
+    return false;
+  }
+
+  private static handleEmptyPath(isRelative: boolean, contextPath?: PathExpression): PathExpression {
+    return new PathExpression(isRelative ? contextPath : undefined, isRelative);
+  }
+
+  private static handleVarRefPath(pathNode: PathExprNode, varRef: string): PathExpression {
+    const answer = new PathExpression();
+    answer.isRelative = false;
+    answer.documentReferenceName = varRef;
+    XPathService.addSegmentsFromSteps(answer, pathNode.steps, 1);
+    return answer;
+  }
+
+  private static handleSingleContextItem(contextPath?: PathExpression): PathExpression {
+    if (!contextPath) {
+      const answer = new PathExpression();
+      answer.isRelative = false;
+      return answer;
+    }
+    const answer = new PathExpression();
+    answer.isRelative = false;
+    answer.documentReferenceName = contextPath.documentReferenceName;
+    answer.pathSegments = [...contextPath.pathSegments];
+    return answer;
+  }
+
+  private static handleMultiStepContextItem(
+    pathNode: PathExprNode,
+    isRelative: boolean,
+    contextPath?: PathExpression,
+  ): PathExpression {
+    const answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
+    XPathService.addSegmentsFromSteps(answer, pathNode.steps, 1);
+    return answer;
+  }
+
+  private static handleContextItemPath(
+    pathNode: PathExprNode,
+    isRelative: boolean,
+    contextPath?: PathExpression,
+  ): PathExpression {
+    if (pathNode.steps.length === 1) {
+      return XPathService.handleSingleContextItem(contextPath);
+    }
+    return XPathService.handleMultiStepContextItem(pathNode, isRelative, contextPath);
+  }
+
+  private static handleFunctionCallPath(
+    pathNode: PathExprNode,
+    isRelative: boolean,
+    contextPath?: PathExpression,
+  ): PathExpression {
+    const answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
+    XPathService.addSegmentsFromStepsWithParentRefs(answer, pathNode.steps, 1);
+    return answer;
+  }
+
+  private static addSegmentsFromSteps(answer: PathExpression, steps: StepExprNode[], startIndex: number): void {
+    for (let i = startIndex; i < steps.length; i++) {
+      const stepNode = steps[i];
+      if (stepNode.nodeTest) {
+        const segment = XPathService.extractSegmentFromStepExpr(stepNode);
+        if (segment) {
+          answer.pathSegments.push(segment);
+        }
+      }
+    }
+  }
+
+  private static addSegmentsFromStepsWithParentRefs(
+    answer: PathExpression,
+    steps: StepExprNode[],
+    startIndex: number,
+  ): void {
+    for (let i = startIndex; i < steps.length; i++) {
+      const stepNode = steps[i];
+      if (stepNode.reverseStep?.isParentReference) {
+        answer.pathSegments.push(new PathSegment('..', false));
+      } else if (stepNode.nodeTest) {
+        const segment = XPathService.extractSegmentFromStepExpr(stepNode);
+        if (segment) {
+          answer.pathSegments.push(segment);
+        }
+      }
+    }
+  }
+
+  private static handleSimplePath(
+    pathNode: PathExprNode,
+    isRelative: boolean,
+    contextPath?: PathExpression,
+  ): PathExpression {
+    const answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
+    for (const stepNode of pathNode.steps) {
+      if (stepNode.reverseStep?.isParentReference) {
+        answer.pathSegments.push(new PathSegment('..', false));
+        continue;
+      }
+      if (stepNode.nodeTest) {
+        const segment = XPathService.extractSegmentFromStepExpr(stepNode);
+        if (segment) {
+          answer.pathSegments.push(segment);
+        }
+      }
     }
     return answer;
   }
 
-  /**
-   * Extracts the token image from either a direct token or an Identifier node.
-   * The Identifier rule can contain NCName or keyword tokens, so we need to traverse into it.
-   */
-  private static extractTokenImage(node: CstElement | undefined): string | undefined {
-    if (!node) return undefined;
-    if ('image' in node) return node.image as string;
-    if ('children' in node) {
-      const children = node.children as Record<string, CstElement[]>;
-      for (const childArray of Object.values(children)) {
-        if (childArray && childArray.length > 0 && 'image' in childArray[0]) {
-          return childArray[0].image as string;
-        }
-      }
+  private static extractPathExpression(pathNode: PathExprNode, contextPath?: PathExpression): PathExpression {
+    const isRelative = !pathNode.isAbsolute;
+
+    if (pathNode.steps.length === 0) {
+      return XPathService.handleEmptyPath(isRelative, contextPath);
+    }
+
+    const firstStep = pathNode.steps[0];
+    if (!firstStep.filterExpr) {
+      return XPathService.handleSimplePath(pathNode, isRelative, contextPath);
+    }
+
+    const varRef = XPathService.extractVarRefFromFilterExpr(firstStep.filterExpr);
+    if (varRef) {
+      return XPathService.handleVarRefPath(pathNode, varRef);
+    }
+
+    const isContextItem = firstStep.filterExpr.primary.type === XPathNodeType.ContextItemExpr;
+    if (isContextItem) {
+      return XPathService.handleContextItemPath(pathNode, isRelative, contextPath);
+    }
+
+    const isFunctionCall = firstStep.filterExpr.primary.type === XPathNodeType.FunctionCall;
+    if (isFunctionCall && pathNode.steps.length > 1) {
+      return XPathService.handleFunctionCallPath(pathNode, isRelative, contextPath);
+    }
+
+    return XPathService.handleSimplePath(pathNode, isRelative, contextPath);
+  }
+
+  private static extractVarRefFromFilterExpr(filterExpr: FilterExprNode): string | undefined {
+    if (filterExpr.primary.type === XPathNodeType.VarRef) {
+      return filterExpr.primary.localName;
     }
     return undefined;
   }
 
-  private static isRelativeFromFunctionCall(relativePathExpr: CstElement): boolean {
-    const funcName = XPathService.getSingleNode(relativePathExpr, [
-      'StepExpr',
-      'FilterExpr',
-      'FunctionCall',
-      'QName',
-      'NCName',
-    ]);
-    return !!funcName && 'image' in funcName && !!funcName.image;
+  private static extractSegmentFromStepExpr(stepNode: StepExprNode): PathSegment | undefined {
+    if (!stepNode.nodeTest) return undefined;
+
+    const predicates = stepNode.predicates.map((predNode) => XPathService.extractPredicate(predNode));
+
+    return new PathSegment(
+      stepNode.nodeTest.localName,
+      stepNode.isAttribute,
+      stepNode.nodeTest.prefix || '',
+      predicates,
+    );
   }
 
-  private static extractPathExpressionFromNode(node: CstNode, contextPath?: PathExpression): PathExpression {
-    const isRelative = !('Slash' in node.children || 'DoubleSlash' in node.children);
-
-    if (!('children' in node.children.RelativePathExpr[0])) {
-      return new PathExpression(isRelative ? contextPath : undefined);
-    }
-    const relativePathExpr = XPathService.getSingleNode(node, ['RelativePathExpr']);
-    if (!relativePathExpr) {
-      return new PathExpression(isRelative ? contextPath : undefined);
-    }
-    const isRelativeFromFunctionCall = XPathService.isRelativeFromFunctionCall(relativePathExpr);
-
-    const stepExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr']);
-    if (!stepExpr) {
-      return new PathExpression(isRelative ? contextPath : undefined);
-    }
-
-    const answer = XPathService.extractPathExpressionBaseFromStepExpr(
-      stepExpr,
-      isRelative || isRelativeFromFunctionCall,
-      contextPath,
+  private static extractPredicate(predicateNode: PredicateNode): Predicate {
+    const comparisonNodes = XPathUtil.getAllNodesOfType<ComparisonExprNode>(
+      predicateNode,
+      XPathNodeType.ComparisonExpr,
     );
 
-    return XPathService.extractSegmentsFromRelativePathExpr(answer, relativePathExpr);
-  }
+    if (comparisonNodes.length > 0) {
+      const compNode = comparisonNodes[0];
+      const left = XPathService.extractOperand(compNode.left);
+      const right = compNode.right ? XPathService.extractOperand(compNode.right) : '';
 
-  private static extractPathExpressionBaseFromStepExpr(
-    stepExpr: CstElement,
-    isRelative: boolean,
-    contextPath?: PathExpression,
-  ): PathExpression {
-    const varNameIdentifier = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'VarRef', 'VarName', 'Identifier']);
-    const contextItem = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'ContextItemExpr']);
-    const functionCall = XPathService.getSingleNode(stepExpr, ['FilterExpr', 'FunctionCall']);
-
-    const varName = XPathService.extractTokenImage(varNameIdentifier);
-
-    let answer: PathExpression;
-
-    if (varName) {
-      answer = new PathExpression();
-      answer.isRelative = false;
-      answer.documentReferenceName = varName;
-    } else {
-      answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
-      if (contextItem && 'image' in contextItem) {
-        answer.pathSegments.push(new PathSegment(contextItem.image, false));
-      } else if (functionCall) {
-        // Skip function calls in the path expression as they don't represent field paths
-        // The function arguments are already processed by extractPathExprNode/collectPathExprNodes
-      } else {
-        const segment = XPathService.extractSegmentFromStepExpr(stepExpr);
-        if (segment) {
-          answer.pathSegments.push(segment);
-        } else {
-          throw new Error(`Unsupported XPath syntax (StepExpr). The mapping line will not be drawn.`);
-        }
-      }
-    }
-    return answer;
-  }
-
-  private static extractSegmentsFromRelativePathExpr(
-    pathExpression: PathExpression,
-    relativePathExpr: CstElement,
-  ): PathExpression {
-    const following =
-      relativePathExpr && 'children' in relativePathExpr && relativePathExpr.children.ChildPathSegmentExpr;
-
-    if (!following) return pathExpression;
-
-    return following.reduce((acc, value) => {
-      const stepExpr = XPathService.getSingleNode(value, ['StepExpr']);
-      const segment = stepExpr && XPathService.extractSegmentFromStepExpr(stepExpr);
-      if (segment) acc.pathSegments.push(segment);
-      return acc;
-    }, pathExpression);
-  }
-
-  private static extractSegmentFromStepExpr(stepExpr: CstElement): PathSegment | undefined {
-    const relativeParent = XPathService.getSingleNode(stepExpr, ['ReverseStep', 'AbbrevReverseStep']);
-    if (relativeParent && 'image' in relativeParent) {
-      const predicateList = XPathService.getSingleNode(stepExpr, ['PredicateList']);
-      const predicates = XPathService.extractPredicates(predicateList);
-      return new PathSegment('..', false, '', predicates);
+      return new Predicate(left, compNode.operator, right);
     }
 
-    const isAttribute = !!('children' in stepExpr && stepExpr.children['At']);
-    const nameTest = XPathService.getSingleNode(stepExpr, ['NodeTest', 'NameTest']);
-    if (!nameTest || !('children' in nameTest)) return;
+    return new Predicate('', PredicateOperator.Unknown, '');
+  }
 
-    // Extract identifiers - these can be either Identifier nodes or NCName tokens
-    const identifiers = nameTest.children['Identifier'];
-    const colon = nameTest.children['Colon'];
-
-    let segmentPrefix = '';
-    let segmentName = '';
-    if (identifiers && identifiers.length === 1 && (!colon || colon.length === 0)) {
-      segmentName = XPathService.extractTokenImage(identifiers[0]) ?? '';
-    } else if (identifiers && identifiers.length === 2 && colon?.length === 1) {
-      segmentPrefix = XPathService.extractTokenImage(identifiers[0]) ?? '';
-      segmentName = XPathService.extractTokenImage(identifiers[1]) ?? '';
+  private static extractOperand(operand: PathExprNode | LiteralNode | VarRefNode): PathExpression | string {
+    if ('steps' in operand) {
+      return XPathService.extractPathExpression(operand);
     }
 
-    const predicateList = XPathService.getSingleNode(stepExpr, ['PredicateList']);
-    const predicates = XPathService.extractPredicates(predicateList);
-
-    return new PathSegment(segmentName, isAttribute, segmentPrefix, predicates);
-  }
-
-  private static extractPredicates(predicateList: CstElement | undefined): Predicate[] {
-    if (!predicateList || !('children' in predicateList) || Object.keys(predicateList.children).length === 0) return [];
-    const predicatesCst = predicateList.children;
-    if (!('LSquare' in predicatesCst) || !('Expr' in predicatesCst) || !('RSquare' in predicatesCst)) return [];
-
-    const answer: Predicate[] = [];
-    const comparisonExpr = XPathService.getSingleNode(predicateList, [
-      'Expr',
-      'ExprSingle',
-      'OrExpr',
-      'AndExpr',
-      'ComparisonExpr',
-    ]);
-    if (!comparisonExpr) return [];
-
-    const operator = XPathService.extractPredicateOperator(comparisonExpr);
-    const { left, right } = XPathService.extractOperands(comparisonExpr);
-    if (operator && left && right) {
-      answer.push(new Predicate(left, operator, right));
+    if (operand.type === XPathNodeType.Literal) {
+      return String(operand.value);
     }
-    return answer;
-  }
 
-  private static extractOperands(comparisonExpr: CstElement): {
-    left?: PathExpression | string;
-    right?: PathExpression | string;
-  } {
-    const rangeExprArray = XPathService.getNodes(comparisonExpr, ['RangeExpr']);
-    if (!rangeExprArray || rangeExprArray.length < 2) return {};
-
-    const left = XPathService.extractPredicateRangeExpr(rangeExprArray[0]);
-    const right = XPathService.extractPredicateRangeExpr(rangeExprArray[1]);
-
-    return { left, right };
-  }
-
-  private static extractPredicateRangeExpr(rangeExpr: CstElement): PathExpression | string {
-    const leftPathExpr = XPathService.getSingleNode(rangeExpr, [
-      'AdditiveExpr',
-      'MultiplicativeExpr',
-      'UnionExpr',
-      'IntersectExceptExpr',
-      'InstanceofExpr',
-      'PathExpr',
-    ]);
-    if (!leftPathExpr) return '';
-
-    const literal = XPathService.extractLiteralFromPathExpr(leftPathExpr);
-    if (literal) return literal;
-
-    return XPathService.extractPathExpressionFromNode(leftPathExpr as CstNode);
-  }
-
-  private static extractLiteralFromPathExpr(pathExpr: CstElement): string | undefined {
-    const literal = XPathService.getSingleNode(pathExpr, ['RelativePathExpr', 'StepExpr', 'FilterExpr', 'Literal']);
-    if (!literal || !('children' in literal)) return;
-
-    const literalEntry = Object.entries(literal.children)[0];
-    const literalValue = 'image' in literalEntry[1][0] ? (literalEntry[1][0].image as string) : undefined;
-    return literalValue && literalEntry[0] === 'StringLiteral'
-      ? literalValue.replace(/^['"](.*)['"]/, '$1')
-      : literalValue;
-  }
-
-  private static extractPredicateOperator(comparisonExpr: CstElement): PredicateOperator {
-    const compChildren = 'children' in comparisonExpr && comparisonExpr.children;
-    if (!compChildren) return PredicateOperator.Unknown;
-
-    const operator = Object.values(PredicateOperator).find((operator) => operator in compChildren);
-    return operator ?? PredicateOperator.Unknown;
-  }
-
-  /**
-   * Extracts {@link PathExpression} object representing a field path in the XPath expression.
-   * This is used to find all the source fields referred from the expression so that the mapping
-   * lines in the DataMapper UI could be drawn. The ability to analyze XPath is limited.
-   * When the 2nd argument {@link contextPath} is passed in, the generated {@link PathExpression}
-   * will be a relative path from the context path.
-   * @param expression
-   * @param contextPath
-   */
-  static extractFieldPaths(expression: string, contextPath?: PathExpression): PathExpression[] {
-    const parsed = XPathService.parse(expression);
-    if (!parsed.cst) return [];
-    const paths = XPathService.collectPathExprNodes(parsed.cst);
-    return paths.reduce((acc, node) => {
-      if ('children' in node) {
-        const pathObj = XPathService.extractPathExpressionFromNode(node, contextPath);
-        const existing = acc.find((comp) => XPathService.matchPath(comp, pathObj));
-        !existing && acc.push(pathObj);
-      } else if ('image' in node && node.image === '.') {
-        const pathObj = contextPath ?? new PathExpression();
-        acc.push(pathObj);
-      }
-      return acc;
-    }, [] as PathExpression[]);
+    return '';
   }
 
   private static matchPath(path1: PathExpression, path2: PathExpression): boolean {
@@ -364,10 +360,11 @@ export class XPathService {
       path1.isRelative !== path2.isRelative ||
       path1.documentReferenceName !== path2.documentReferenceName ||
       path1.pathSegments.length !== path2.pathSegments.length
-    )
+    ) {
       return false;
+    }
 
-    return !path1.pathSegments.find((path1Segment, index) => {
+    return !path1.pathSegments.some((path1Segment, index) => {
       const path2Segment = path2.pathSegments[index];
       if (
         path1Segment.name !== path2Segment.name ||
@@ -388,9 +385,11 @@ export class XPathService {
   }
 
   private static matchPredicate(predicate1: Predicate, predicate2: Predicate): boolean {
-    if (predicate1.operator !== predicate2.operator) return false;
+    if (predicate1.operator !== predicate2.operator) {
+      return false;
+    }
 
-    let left1Match = false;
+    let left1Match: boolean;
     if (typeof predicate1.left === 'string') {
       left1Match =
         (typeof predicate2.left === 'string' && predicate1.left === predicate2.left) ||
@@ -401,7 +400,7 @@ export class XPathService {
         (predicate2.right instanceof PathExpression && XPathService.matchPath(predicate1.left, predicate2.right));
     }
 
-    let right1Match = false;
+    let right1Match: boolean;
     if (typeof predicate1.right === 'string') {
       right1Match =
         (typeof predicate2.left === 'string' && predicate1.right === predicate2.left) ||
@@ -415,73 +414,18 @@ export class XPathService {
     return left1Match && right1Match;
   }
 
-  private static collectPathExprNodes(node: CstNode): CstElement[] {
-    const answer: CstElement[] = [];
-    if (node.name === 'PathExpr') {
-      answer.push(...XPathService.extractPathExprNode(node));
-      return answer;
-    }
-
-    return Object.entries(node.children).reduce((acc, [key, value]) => {
-      if (key === 'PathExpr') {
-        acc.push(...XPathService.extractPathExprNode(value[0] as CstNode));
-      } else {
-        value.forEach((child) => {
-          if ('children' in child) {
-            acc.push(...XPathService.collectPathExprNodes(child));
-          }
-        });
-      }
-      return acc;
-    }, [] as CstElement[]);
-  }
-
-  private static extractPathExprNode(pathExprNode: CstNode): CstElement[] {
-    const relativePathExpr = XPathService.getSingleNode(pathExprNode, ['RelativePathExpr']);
-    if (!relativePathExpr) return [pathExprNode];
-
-    // path expression following function call e.g. current()/path/to
-    if (XPathService.getNodes(relativePathExpr, ['ChildPathSegmentExpr'])) return [pathExprNode];
-
-    const filterExpr = XPathService.getSingleNode(relativePathExpr, ['StepExpr', 'FilterExpr']);
-    if (!filterExpr) return [pathExprNode];
-
-    const literal = XPathService.getSingleNode(filterExpr, ['Literal']);
-    if (literal) return [];
-
-    const contextItemExpr = XPathService.getSingleNode(filterExpr, ['ContextItemExpr']);
-    if (contextItemExpr) return [contextItemExpr];
-
-    // Extract contents in parenthesis
-    const parenthesizedExpr = XPathService.getSingleNode(filterExpr, ['ParenthesizedExpr']);
-    if (parenthesizedExpr && 'children' in parenthesizedExpr) {
-      const expr = parenthesizedExpr.children['Expr'];
-      return expr && expr.length > 0 ? XPathService.collectPathExprNodes(expr[0] as CstNode) : [];
-    }
-
-    // Extract arguments in FunctionCall
-    const functionCall = XPathService.getSingleNode(filterExpr, ['FunctionCall']);
-    if (functionCall && 'children' in functionCall) {
-      return functionCall.children.ExprSingle
-        ? functionCall.children.ExprSingle.flatMap((arg) =>
-            'children' in arg ? XPathService.collectPathExprNodes(arg) : [],
-          )
-        : [];
-    }
-
-    return [pathExprNode];
-  }
-
   /**
-   * Tests if the field matches with the passed in {@link PathSegment}.
-   * @param namespaces
-   * @param field
-   * @param segment
+   * Tests if the field matches with the passed in PathSegment.
+   * @param namespaces Namespace prefix to URI mapping
+   * @param field Field to test
+   * @param segment PathSegment to match against
    */
   static matchSegment(namespaces: { [p: string]: string }, field: IField, segment: PathSegment): boolean {
     const hasNamespace = !!segment.prefix;
     const namespaceUri = namespaces[segment.prefix];
-    if ((hasNamespace && field.namespaceURI !== namespaceUri) || field.name !== segment.name) return false;
+    if ((hasNamespace && field.namespaceURI !== namespaceUri) || field.name !== segment.name) {
+      return false;
+    }
 
     return field.predicates.every((fieldPredicate) => {
       return segment.predicates.find((segmentPredicate) =>
@@ -491,11 +435,11 @@ export class XPathService {
   }
 
   /**
-   * Generates {@link PathExpression} object representing the passed in document or field.
-   * If {@link contextPath} is specified, this will return a relative path from the context path.
-   * @param namespaceMap
-   * @param source
-   * @param contextPath
+   * Generates PathExpression object representing the passed in document or field.
+   * If contextPath is specified, this will return a relative path from the context path.
+   * @param namespaceMap Namespace prefix to URI mapping
+   * @param source Document or field to convert to path expression
+   * @param contextPath Optional context path for relative path generation
    */
   static toPathExpression(
     namespaceMap: { [p: string]: string },
@@ -524,7 +468,6 @@ export class XPathService {
       sourceAbsPath.pathSegments.push(segment);
     }
 
-    // If source and context are from different documents, return absolute path
     if (parentAbsPath.documentReferenceName !== sourceAbsPath.documentReferenceName) {
       answer.isRelative = false;
       answer.pathSegments = sourceAbsPath.pathSegments;
@@ -555,20 +498,15 @@ export class XPathService {
   }
 
   private static extractSegmentFromField(namespaceMap: { [p: string]: string }, field: IField): PathSegment {
-    const nsEntry = Object.entries(namespaceMap).find(([_prefix, uri]) => field.namespaceURI === uri);
+    const nsEntry = Object.entries(namespaceMap).find(([, uri]) => field.namespaceURI === uri);
     return new PathSegment(field.name, field.isAttribute, nsEntry ? nsEntry[0] : '', field.predicates);
   }
 
   /**
-   * Generates XPath string representation from the passed in {@link PathExpression} object.
-   * This is used when D&D is performed in UI, so that the source field could be added into the xpath
-   * expression. As of now the ability to handle predicate is limited for that purpose only.
-   * Note that currently it assumes that the predicate operands are always string if it's a literal,
-   * i.e. wrapped with single quotations. While this should be enough for supporting JSON as `key`
-   * attribute always holds a string, it might need a reconsideration when it's extended to the other
-   * formats.
-   * @see {@link PathExpression}
-   * @param pathExpression
+   * Generates XPath string representation from the passed in PathExpression object.
+   * This is used when drag and drop is performed in UI, so that the source field could be added into the XPath
+   * expression. The ability to handle predicates is currently limited to supporting string literals.
+   * @param pathExpression PathExpression object to convert to XPath string
    */
   static toXPathString(pathExpression: PathExpression): string {
     if (pathExpression.isRelative && pathExpression.pathSegments.length === 0) {
@@ -610,16 +548,21 @@ export class XPathService {
   }
 
   /**
-   * Adds a source field represented with the passed in {@link PathExpression} object into the expression.
+   * Adds a source field represented with the passed in PathExpression object into the expression.
    * For now it just adds it with a leading comma.
-   * @param expression
-   * @param source
+   * @param expression Existing XPath expression string
+   * @param source PathExpression to add to the expression
    */
   static addSource(expression: string, source: PathExpression): string {
     const sourceString = XPathService.toXPathString(source);
     return expression ? `${expression}, ${sourceString}` : sourceString;
   }
 
+  /**
+   * Converts a relative path to an absolute path by resolving context paths
+   * @param relativePath PathExpression to convert to absolute
+   * @returns absolute PathExpression
+   */
   static toAbsolutePath(relativePath: PathExpression): PathExpression {
     if (!relativePath.isRelative || !relativePath.contextPath) return relativePath;
 
