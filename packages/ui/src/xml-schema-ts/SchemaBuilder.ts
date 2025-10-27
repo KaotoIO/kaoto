@@ -49,6 +49,7 @@ import { XmlSchemaKey } from './constraint/XmlSchemaKey';
 import { XmlSchemaDocumentation } from './annotation/XmlSchemaDocumentation';
 import { XmlSchemaRedefine } from './external/XmlSchemaRedefine';
 import { XmlSchemaFacetConstructor } from './facet/XmlSchemaFacetConstructor';
+import { MaxOccursType } from './constants';
 
 export class SchemaBuilder {
   private resolvedSchemas = new Map<string, XmlSchema>();
@@ -112,13 +113,13 @@ export class SchemaBuilder {
     }
   }
 
-  getMaxOccurs(el: Element): number | null {
+  getMaxOccurs(el: Element): MaxOccursType | null {
     if (el.getAttributeNode('maxOccurs') != null) {
       const value = el.getAttribute('maxOccurs')!;
       if ('unbounded' === value) {
-        return Number.MAX_SAFE_INTEGER;
+        return 'unbounded';
       } else {
-        return parseInt(value);
+        return Number.parseInt(value);
       }
     }
     return null;
@@ -127,11 +128,7 @@ export class SchemaBuilder {
   getMinOccurs(el: Element): number | null {
     if (el.getAttributeNode('minOccurs') != null) {
       const value = el.getAttribute('minOccurs')!;
-      if ('unbounded' === value) {
-        return Number.MAX_SAFE_INTEGER;
-      } else {
-        return parseInt(value);
-      }
+      return Number.parseInt(value);
     }
     return null;
   }

@@ -7,3 +7,13 @@
     display: inline-block;
   }
 }
+
+.popover {
+  &__row {
+    display: table-row;
+  }
+
+  &__cell {
+    display: table-cell;
+  }
+}

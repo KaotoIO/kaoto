@@ -71,7 +71,7 @@ describe('XmlSchemaCollection', () => {
     expect(shipTo.getMaxOccurs()).toEqual(1);
 
     const item = shipOrderSequenceMembers[2] as XmlSchemaElement;
-    expect(item.getMaxOccurs()).toBe(Number.MAX_SAFE_INTEGER);
+    expect(item.getMaxOccurs()).toBe('unbounded');
     const itemSchemaType = item.getSchemaType() as XmlSchemaComplexType;
     const itemSequence = itemSchemaType.getParticle() as XmlSchemaSequence;
     const itemSequenceMembers = itemSequence.getItems();
@@ -156,7 +156,7 @@ describe('XmlSchemaCollection', () => {
     const shipOrderSequence = shipOrderComplexType.getParticle() as XmlSchemaSequence;
     const item = shipOrderSequence.getItems()[2] as XmlSchemaElement;
     expect(item.getName()).toEqual('Item');
-    expect(item.getMaxOccurs()).toBe(Number.MAX_SAFE_INTEGER);
+    expect(item.getMaxOccurs()).toBe('unbounded');
     expect(item.isMaxOccursExplicit()).toBe(true);
     expect(item.isMinOccursExplicit()).toBe(false);
 

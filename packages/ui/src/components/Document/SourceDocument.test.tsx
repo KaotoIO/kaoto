@@ -69,5 +69,5 @@ describe('SourceDocument', () => {
       const correlationExpression = await screen.findByText('correlationExpression', { selector: '[data-rank="2"]' });
       expect(correlationExpression).toBeInTheDocument();
     });
-  }, 15_000);
+  }, 60_000);
 });

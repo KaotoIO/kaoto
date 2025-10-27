@@ -266,7 +266,7 @@ export class DocumentService {
   }
 
   static isCollectionField(field: IField) {
-    return !!field.maxOccurs && field.maxOccurs > 1;
+    return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
   }
 
   static renameDocument(document: IDocument, newDocumentId: string): void {
