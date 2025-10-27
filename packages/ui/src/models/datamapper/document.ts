@@ -3,6 +3,7 @@ import { NodePath } from './nodepath';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { Predicate } from './xpath';
 import { XmlSchemaParticle } from '../../xml-schema-ts/particle/XmlSchemaParticle';
+import { MaxOccursType } from '../../xml-schema-ts/constants';
 
 export const DEFAULT_MIN_OCCURS = XmlSchemaParticle.DEFAULT_MIN_OCCURS;
 export const DEFAULT_MAX_OCCURS = XmlSchemaParticle.DEFAULT_MAX_OCCURS;
@@ -29,8 +30,8 @@ export interface IField {
   fields: IField[];
   isAttribute: boolean;
   defaultValue: string | null;
-  minOccurs: number | string;
-  maxOccurs: number | string;
+  minOccurs: number;
+  maxOccurs: MaxOccursType;
   namespacePrefix: string | null;
   namespaceURI: string | null;
   namedTypeFragmentRefs: string[];
@@ -61,8 +62,8 @@ export interface IField {
 
 export interface ITypeFragment {
   type?: Types;
-  minOccurs?: number | string;
-  maxOccurs?: number | string;
+  minOccurs?: number;
+  maxOccurs?: MaxOccursType;
   fields: IField[];
   namedTypeFragmentRefs: string[];
 }
@@ -124,8 +125,8 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   ownerDocument: IDocument = this;
   defaultValue: string | null = null;
   isAttribute: boolean = false;
-  maxOccurs: number | string = 1;
-  minOccurs: number | string = 0;
+  maxOccurs: MaxOccursType = 1;
+  minOccurs: number = 0;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
   parent: IParentType = this;
@@ -165,8 +166,8 @@ export class BaseField implements IField {
   fields: IField[] = [];
   isAttribute: boolean = false;
   type = Types.AnyType;
-  minOccurs: number | string = DEFAULT_MIN_OCCURS;
-  maxOccurs: number | string = DEFAULT_MAX_OCCURS;
+  minOccurs: number = DEFAULT_MIN_OCCURS;
+  maxOccurs: MaxOccursType = DEFAULT_MAX_OCCURS;
   defaultValue: string | null = null;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;

@@ -81,3 +81,5 @@ export class MetaDataConstants {
   static readonly EXTERNAL_ATTRIBUTES = 'EXTERNAL_ATTRIBUTES';
   static readonly EXTERNAL_ELEMENTS = 'EXTERNAL_ELEMENTS';
 }
+
+export type MaxOccursType = number | 'unbounded';

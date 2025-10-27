@@ -266,7 +266,6 @@ export class DocumentService {
   }
 
   static isCollectionField(field: IField) {
-    if (!field.maxOccurs) return false;
     return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
   }
 
