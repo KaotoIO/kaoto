@@ -251,7 +251,7 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
       act(() => {
@@ -281,8 +281,8 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.queryByTestId(`expand-source-icon-${leafNode!.nodeData.title}`);
-      const collapseIcon = screen.queryByTestId(`collapse-source-icon-${leafNode!.nodeData.title}`);
+      const expandIcon = screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`);
+      const collapseIcon = screen.queryByTestId(`collapse-icon-${leafNode!.nodeData.title}`);
 
       expect(expandIcon).not.toBeInTheDocument();
       expect(collapseIcon).not.toBeInTheDocument();
@@ -313,10 +313,10 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
-      const collapseIcon = screen.queryByTestId(`collapse-source-icon-${tree.root.nodeData.title}`);
+      const collapseIcon = screen.queryByTestId(`collapse-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).not.toBeInTheDocument();
     });
 
@@ -345,10 +345,10 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const collapseIcon = screen.getByTestId(`collapse-source-icon-${tree.root.nodeData.title}`);
+      const collapseIcon = screen.getByTestId(`collapse-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).toBeInTheDocument();
 
-      const expandIcon = screen.queryByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.queryByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).not.toBeInTheDocument();
     });
 
@@ -379,7 +379,7 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
       act(() => {
         fireEvent.click(expandIcon);
@@ -722,7 +722,7 @@ describe('SourceDocumentNode', () => {
       });
 
       // Expand icon should still be visible
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
       // Should be able to click the expand icon
@@ -761,7 +761,7 @@ describe('SourceDocumentNode', () => {
         { wrapper },
       );
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
       act(() => {
         fireEvent.click(expandIcon);
@@ -811,8 +811,8 @@ describe('SourceDocumentNode', () => {
       });
 
       // Should not have expand/collapse icons
-      expect(screen.queryByTestId(`expand-source-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
-      expect(screen.queryByTestId(`collapse-source-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`collapse-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
 
       // Clicking the node should still work for selection
       const nodeContainer = screen.getByTestId(`node-source-${leafNode!.nodeData.id}`);
