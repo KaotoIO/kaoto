@@ -14,9 +14,38 @@ import type { XsltComponentDef } from '../utils/is-xslt-component';
 import { EMPTY_XSL } from './mapping-serializer.service';
 
 export class DataMapperMetadataService {
-  static getDataMapperMetadataId(vizNode: IVisualizationNode) {
+  static getDataMapperMetadataId(vizNode: IVisualizationNode): string {
     const model = vizNode.getComponentSchema()?.definition;
     return model.id;
+  }
+
+  static createMetadata(xsltPath: string = ''): IDataMapperMetadata {
+    return {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      xsltPath,
+    };
+  }
+
+  static cloneMetadata(originalMetadata: IDataMapperMetadata, newXsltPath: string): IDataMapperMetadata {
+    return {
+      sourceBody: originalMetadata.sourceBody,
+      sourceParameters: originalMetadata.sourceParameters,
+      targetBody: originalMetadata.targetBody,
+      xsltPath: newXsltPath,
+    };
+  }
+
+  static async duplicateXsltFile(
+    api: IMetadataApi,
+    originalMetadata: IDataMapperMetadata,
+    newXsltPath: string,
+  ): Promise<void> {
+    const originalXsltContent = await api.getResourceContent(originalMetadata.xsltPath);
+    if (originalXsltContent) {
+      await api.saveResourceContent(newXsltPath, originalXsltContent);
+    }
   }
 
   static async initializeDataMapperMetadata(
@@ -37,17 +66,7 @@ export class DataMapperMetadataService {
       entitiesContext.updateSourceCodeFromEntities();
     }
 
-    const metadata = {
-      sourceBody: {
-        type: DocumentDefinitionType.Primitive,
-      },
-      sourceParameters: {},
-      targetBody: {
-        type: DocumentDefinitionType.Primitive,
-      },
-      xsltPath: documentName,
-    } as IDataMapperMetadata;
-
+    const metadata = this.createMetadata(documentName);
     const metadataPromise = api.setMetadata(metadataId, metadata);
     const contentPromise = api.saveResourceContent(metadata.xsltPath, EMPTY_XSL);
     await Promise.allSettled([metadataPromise, contentPromise]);

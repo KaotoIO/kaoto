@@ -5,6 +5,8 @@ import { IClipboardCopyObject } from '../../../models/visualization/clipboard';
 export enum IInteractionType {
   ON_DELETE = 'onDelete',
   ON_COPY = 'onCopy',
+  ON_DUPLICATE = 'onDuplicate',
+  ON_PASTE = 'onPaste',
 }
 
 export interface IModalCustomization {
@@ -14,9 +16,8 @@ export interface IModalCustomization {
 
 /**
  * Registered interaction addon.
- * @template T The type of interaction addon (ON_DELETE, ON_COPY, etc)
  */
-export type IRegisteredInteractionAddon = IOnDeleteAddon | IOnCopyAddon;
+export type IRegisteredInteractionAddon = IOnDeleteAddon | IOnCopyAddon | IOnDuplicateAddon | IOnPasteAddon;
 
 export interface IOnDeleteAddon {
   type: IInteractionType.ON_DELETE;
@@ -32,6 +33,25 @@ export interface IOnCopyAddon {
     sourceVizNode: IVisualizationNode;
     content: IClipboardCopyObject | undefined;
   }) => IClipboardCopyObject;
+}
+
+export interface IOnDuplicateAddon {
+  type: IInteractionType.ON_DUPLICATE;
+  activationFn: (vizNode: IVisualizationNode) => boolean;
+  callback: (parameters: {
+    sourceVizNode: IVisualizationNode;
+    content: IClipboardCopyObject | undefined;
+  }) => Promise<IClipboardCopyObject>;
+}
+
+export interface IOnPasteAddon {
+  type: IInteractionType.ON_PASTE;
+  activationFn: (vizNode: IVisualizationNode) => boolean;
+  callback: (parameters: {
+    targetVizNode: IVisualizationNode;
+    originalContent: IClipboardCopyObject | undefined;
+    updatedContent: IClipboardCopyObject | undefined;
+  }) => Promise<void>;
 }
 
 export interface INodeInteractionAddonContext {
@@ -66,11 +86,11 @@ export interface INodeInteractionAddonContext {
    *    });
    * ```
    * @param type   The interaction addon type enum value
-   * @param vizNode   The visualization node to pass to the interaction
+   * @param vizNode   The visualization node to pass to the interaction. If not provided, returns all addons of the given type.
    * @returns `IRegisteredInteraction` An array of registered interactions
    */
   getRegisteredInteractionAddons: (
     type: IInteractionType,
-    vizNode: IVisualizationNode,
+    vizNode?: IVisualizationNode,
   ) => IRegisteredInteractionAddon[];
 }

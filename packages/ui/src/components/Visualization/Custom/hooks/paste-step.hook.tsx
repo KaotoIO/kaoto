@@ -10,11 +10,17 @@ import { CamelComponentSchemaService } from '../../../../models/visualization/fl
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { isDefined } from '../../../../utils/is-defined';
 import { useVisualizationController } from '@patternfly/react-topology';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { IInteractionType, IOnPasteAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { processOnPasteAddon } from '../ContextMenu/item-interaction-helper';
+import { updateIds } from '../../../../utils/update-ids';
+import { cloneDeep } from 'lodash';
 
 export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => {
   const entitiesContext = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const pasteModalContext = useContext(ActionConfirmationModalContext);
+  const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
   const [isCompatible, setIsCompatible] = useState(false);
   const controller = useVisualizationController();
 
@@ -52,7 +58,8 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
       try {
         await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
         const pastedNodeValue = await ClipboardManager.paste();
-        const compatible = checkClipboardCompatibility(pastedNodeValue);
+        const updatedNodeValue = updateIds(pastedNodeValue);
+        const compatible = checkClipboardCompatibility(updatedNodeValue);
         setIsCompatible(compatible);
       } catch (error) {
         // fallback to allow pasting incase of permission issues (for Firefox or other browsers)
@@ -78,8 +85,18 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
       return;
     }
 
+    const originalContent = cloneDeep(pastedNodeValue);
+    const updatedContent = updateIds(cloneDeep(pastedNodeValue));
+
+    await processOnPasteAddon(
+      vizNode,
+      originalContent,
+      updatedContent,
+      () => nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_PASTE) as IOnPasteAddon[],
+    );
+
     /** Paste copied node to the entities */
-    vizNode.pasteBaseEntityStep(pastedNodeValue, mode);
+    vizNode.pasteBaseEntityStep(updatedContent, mode);
 
     // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
     if (mode === AddStepMode.InsertSpecialChildStep) {
@@ -90,7 +107,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
         stepsProperties.some(
           (property) =>
             property.type === 'array-clause' &&
-            property.name === pastedNodeValue.name &&
+            property.name === updatedContent.name &&
             isDefined(vizNode.getChildren()),
         )
       ) {
@@ -103,7 +120,15 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [checkClipboardCompatibility, controller, entitiesContext, mode, pasteModalContext, vizNode]);
+  }, [
+    checkClipboardCompatibility,
+    controller,
+    entitiesContext,
+    mode,
+    nodeInteractionAddonContext,
+    pasteModalContext,
+    vizNode,
+  ]);
 
   const value = useMemo(
     () => ({

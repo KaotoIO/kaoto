@@ -1,5 +1,4 @@
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
-import { updateIds } from './update-ids';
 
 export class ClipboardManager {
   static readonly KAOTO_MIME_TYPE = 'web text/kaoto';
@@ -56,8 +55,7 @@ export class ClipboardManager {
           item.types.includes(ClipboardManager.KAOTO_MIME_TYPE)
         ) {
           const blob = await item.getType(ClipboardManager.KAOTO_MIME_TYPE);
-          const parsedContent = JSON.parse(await blob.text());
-          return updateIds(parsedContent);
+          return JSON.parse(await blob.text());
         } else if (item.types.includes(ClipboardManager.TEXT_MIME_TYPE)) {
           const blob = await item.getType(ClipboardManager.TEXT_MIME_TYPE);
           const parsedContent = JSON.parse(await blob.text());
@@ -65,7 +63,7 @@ export class ClipboardManager {
           // Validate the marker to ensure it's Kaoto-specific content
           if (parsedContent.__kaoto_marker === ClipboardManager.KAOTO_MARKER) {
             delete parsedContent.__kaoto_marker;
-            return updateIds(parsedContent);
+            return parsedContent;
           }
         }
       }

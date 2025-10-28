@@ -76,7 +76,7 @@ describe('ItemReplaceStep', () => {
       registerInteractionAddon: jest.fn(),
       getRegisteredInteractionAddons: (
         _interaction: IInteractionType,
-        _vizNode: IVisualizationNode,
+        _vizNode?: IVisualizationNode,
       ): IRegisteredInteractionAddon[] =>
         [
           { type: IInteractionType.ON_DELETE, activationFn: () => true, callback: mockAddon } as IOnDeleteAddon,

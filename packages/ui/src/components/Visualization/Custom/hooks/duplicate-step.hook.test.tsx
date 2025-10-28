@@ -9,6 +9,7 @@ import { CamelRouteResource } from '../../../../models/camel/camel-route-resourc
 import { useDuplicateStep } from './duplicate-step.hook';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { updateIds } from '../../../../utils/update-ids';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 
 // Mock the `updateIds` function
 jest.mock('../../../../utils/update-ids', () => ({
@@ -59,9 +60,19 @@ describe('useDuplicateStep', () => {
     checkCompatibility: jest.fn(),
   };
 
+  // Mock NodeInteractionAddonContext
+  const mockNodeInteractionAddonContext = {
+    registerInteractionAddon: jest.fn(),
+    getRegisteredInteractionAddons: jest.fn().mockReturnValue([]),
+  };
+
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
+      <CatalogModalContext.Provider value={mockCatalogModalContext}>
+        <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+          {children}
+        </NodeInteractionAddonContext.Provider>
+      </CatalogModalContext.Provider>
     </EntitiesContext.Provider>
   );
 
@@ -112,23 +123,23 @@ describe('useDuplicateStep', () => {
   });
 
   describe('onDuplicate functionality', () => {
-    it('should return without calling pasteBaseEntityStep() and updateEntitiesFromCamelResource()', () => {
+    it('should return without calling pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
       const VizNodeGetCopiedContentSpy = jest.spyOn(vizNode, 'getCopiedContent').mockReturnValueOnce(undefined);
       const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const { result } = renderHook(() => useDuplicateStep(vizNode), { wrapper });
-      result.current.onDuplicate();
+      await result.current.onDuplicate();
 
       expect(VizNodeGetCopiedContentSpy).toHaveBeenCalledTimes(1);
       expect(VizNodePasteBaseEntityStepSpy).not.toHaveBeenCalled();
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).not.toHaveBeenCalled();
     });
 
-    it('should call pasteBaseEntityStep() and finally updateEntitiesFromCamelResource()', () => {
+    it('should call pasteBaseEntityStep() and finally updateEntitiesFromCamelResource()', async () => {
       const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const { result } = renderHook(() => useDuplicateStep(vizNode), { wrapper });
-      result.current.onDuplicate();
+      await result.current.onDuplicate();
 
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledTimes(1);
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledWith(
@@ -138,11 +149,11 @@ describe('useDuplicateStep', () => {
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
     });
 
-    it('should call entitiesContext.camelResource.addNewEntity() and finally updateEntitiesFromCamelResource()', () => {
+    it('should call entitiesContext.camelResource.addNewEntity() and finally updateEntitiesFromCamelResource()', async () => {
       const camelResourceAddNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
       const routeVizNodeContent = updateIds(routeVizNode.getCopiedContent()!);
       const { result } = renderHook(() => useDuplicateStep(routeVizNode), { wrapper });
-      result.current.onDuplicate();
+      await result.current.onDuplicate();
 
       expect(camelResourceAddNewEntitySpy).toHaveBeenCalledTimes(1);
       expect(camelResourceAddNewEntitySpy).toHaveBeenCalledWith(routeVizNodeContent.name as string, {
