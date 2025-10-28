@@ -85,6 +85,40 @@ describe('ExpressionField', () => {
     expect(expressionField).toBeInTheDocument();
   });
 
+  it('onExpressionChange should handle empty string values', async () => {
+    const onPropertyChangeSpy = jest.fn();
+    const EXPRESSION_STRING = 'Test';
+
+    render(
+      <FormComponentFactoryProvider>
+        <ModelContextProvider
+          model={{
+            id: 'setHeader-1891',
+            expression: {
+              simple: {
+                expression: EXPRESSION_STRING,
+              },
+            },
+          }}
+          onPropertyChange={onPropertyChangeSpy}
+        >
+          <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
+            <SchemaProvider schema={setHeaderExpressionSchema}>
+              <ExpressionField propName={ROOT_PATH} required={true} />
+            </SchemaProvider>
+          </SchemaDefinitionsProvider>
+        </ModelContextProvider>
+      </FormComponentFactoryProvider>,
+    );
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.inputText('Expression', '');
+
+    expect(onPropertyChangeSpy).toHaveBeenCalled();
+    const lastCall = onPropertyChangeSpy.mock.calls[onPropertyChangeSpy.mock.calls.length - 1];
+    expect(lastCall[1].simple.expression).toBeUndefined();
+  });
+
   it('should call onPropertyChange with the preserved expression after selection change', async () => {
     const onPropertyChangeSpy = jest.fn();
     const EXPRESSION_STRING = 'Test';

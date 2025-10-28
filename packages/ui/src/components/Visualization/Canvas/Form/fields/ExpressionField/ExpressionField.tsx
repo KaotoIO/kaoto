@@ -40,7 +40,11 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
     let localValue = parsedModel ?? {};
 
     ExpressionService.updateExpressionFromModel(parsedModel, model as Record<string, unknown>);
-    setValue(localValue, propName, model);
+    let updatedValue = model;
+    if (typeof model === 'string' && model.trim() === '') {
+      updatedValue = undefined;
+    }
+    setValue(localValue, propName, updatedValue);
 
     if (isEmpty(localValue)) {
       localValue = undefined as unknown as Record<string, unknown>;
