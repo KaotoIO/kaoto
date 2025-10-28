@@ -4,6 +4,7 @@ import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.prov
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { SourceDocument } from './SourceDocument';
+import { ParameterDocument } from './ParameterDocument';
 
 describe('SourceDocument', () => {
   it('should render primitive document', async () => {
@@ -23,7 +24,7 @@ describe('SourceDocument', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <SourceDocument document={document} isReadOnly={false} />
+          <ParameterDocument document={document} isReadOnly={false} />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
