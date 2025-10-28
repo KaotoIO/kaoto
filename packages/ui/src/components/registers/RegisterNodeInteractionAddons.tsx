@@ -7,17 +7,21 @@ import {
   onDeleteDataMapper,
 } from '../DataMapper/on-delete-datamapper';
 import { onCopyDataMapper } from '../DataMapper/on-copy-datamapper';
+import { onDuplicateDataMapper } from '../DataMapper/on-duplicate-datamapper';
+import { onPasteDataMapper } from '../DataMapper/on-paste-data-mapper';
 import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
 import {
   IInteractionType,
   IOnCopyAddon,
   IOnDeleteAddon,
+  IOnDuplicateAddon,
+  IOnPasteAddon,
   IRegisteredInteractionAddon,
 } from './interactions/node-interaction-addon.model';
 import { ButtonVariant } from '@patternfly/react-core';
 
 export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren> = ({ children }) => {
-  const metadataApi = useContext(MetadataContext)!;
+  const metadataApi = useContext(MetadataContext);
   const { registerInteractionAddon } = useContext(NodeInteractionAddonContext);
   const addonsToRegister = useRef<IRegisteredInteractionAddon[]>([
     {
@@ -46,6 +50,16 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
       activationFn: datamapperActivationFn,
       callback: onCopyDataMapper,
     } as IOnCopyAddon,
+    {
+      type: IInteractionType.ON_DUPLICATE,
+      activationFn: datamapperActivationFn,
+      callback: (parameters) => onDuplicateDataMapper(metadataApi, parameters),
+    } as IOnDuplicateAddon,
+    {
+      type: IInteractionType.ON_PASTE,
+      activationFn: datamapperActivationFn,
+      callback: (parameters) => onPasteDataMapper(metadataApi, parameters),
+    } as IOnPasteAddon,
   ]);
 
   for (const interaction of addonsToRegister.current) {
