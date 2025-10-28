@@ -100,14 +100,8 @@ export const BaseDocument: FunctionComponent<DocumentProps> = ({
         >
           {hasChildren && (
             <Icon className="node__expand node__spacer" onClick={handleClickToggle}>
-              {isExpanded && (
-                <ChevronDown data-testid={`expand-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`} />
-              )}
-              {!isExpanded && (
-                <ChevronRight
-                  data-testid={`collapse-${nodeData.isSource ? 'source' : 'target'}-icon-${nodeData.title}`}
-                />
-              )}
+              {isExpanded && <ChevronDown data-testid={`expand-icon-${nodeData.title}`} />}
+              {!isExpanded && <ChevronRight data-testid={`collapse-icon-${nodeData.title}`} />}
             </Icon>
           )}
           {header}
