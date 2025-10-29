@@ -5,6 +5,7 @@ import { AddMappingNodeData, DocumentNodeData, NodeData } from '../../models/dat
 import { isDefined } from '../../utils';
 import './NodeContainer.scss';
 import { VisualizationService } from '../../services/visualization.service';
+import { DocumentType } from '../../models/datamapper/document';
 
 type DnDContainerProps = PropsWithChildren & {
   nodeData: NodeData;
@@ -78,15 +79,27 @@ type NodeContainerProps = PropsWithChildren & {
 
 export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(
   ({ children, className, nodeData }, forwardedRef) => {
-    return nodeData &&
-      !(nodeData instanceof DocumentNodeData && !nodeData.isPrimitive) &&
-      !(nodeData instanceof AddMappingNodeData) ? (
+    if (!nodeData) {
+      return (
+        <div ref={forwardedRef} className={className}>
+          {children}
+        </div>
+      );
+    }
+
+    const isPrimitiveSourceBody =
+      nodeData.isPrimitive &&
+      nodeData instanceof DocumentNodeData &&
+      nodeData.document?.documentType === DocumentType.SOURCE_BODY;
+
+    const noDnD =
+      isPrimitiveSourceBody ||
+      nodeData instanceof AddMappingNodeData ||
+      (nodeData instanceof DocumentNodeData && !nodeData.isPrimitive);
+
+    return (
       <div ref={forwardedRef} className={className}>
-        <DnDContainer nodeData={nodeData}>{children}</DnDContainer>
-      </div>
-    ) : (
-      <div ref={forwardedRef} className={className}>
-        {children}
+        {!noDnD ? <DnDContainer nodeData={nodeData}>{children}</DnDContainer> : <>{children}</>}
       </div>
     );
   },
