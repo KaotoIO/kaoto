@@ -61,8 +61,11 @@ describe('Test for camel route root containers configuration', () => {
     cy.interactWithConfigInputObject('routeConfigurationId', 'test.routeConfigurationId');
     cy.interactWithConfigInputObject('routePolicy', 'test.routePolicy');
     cy.interactWithConfigInputObject('startupOrder', 'test.startupOrder');
-    cy.interactWithConfigInputObject('streamCache');
     cy.interactWithConfigInputObject('trace');
+    cy.configureNewBeanReference('streamCache');
+    cy.get(`input[name="#.name"]`).clear().type('test');
+    cy.get(`input[name="#.type"]`).clear().type('org.acme');
+    cy.get('[data-testid="create-bean-btn"').click();
 
     cy.openSourceCode();
 
@@ -86,7 +89,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkCodeSpanLine('routeConfigurationId: test.routeConfigurationId');
     cy.checkCodeSpanLine('routePolicy: test.routePolicy');
     cy.checkCodeSpanLine('startupOrder: test.startupOrder');
-    cy.checkCodeSpanLine('streamCache: true');
+    cy.checkCodeSpanLine('streamCache: "#test"');
     cy.checkCodeSpanLine('trace: true');
   });
 
