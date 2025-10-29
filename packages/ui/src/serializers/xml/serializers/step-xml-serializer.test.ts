@@ -168,16 +168,17 @@ describe('step-xml-serializer tests', () => {
 
     it('creates URI from kamelet parameters correctly', () => {
       const kameletStep = {
-        uri: 'kamelet:beer-source',
+        uri: 'kamelet:log-action',
         parameters: {
-          period: 1000,
-          beers: 'Pilsner Urquell',
+          level: 'DEBUG',
+          multiline: true,
+          showHeaders: false,
         },
       };
 
       const result = StepXmlSerializer.serialize('from', kameletStep, getDocument());
       expect(result.tagName).toBe('from');
-      expect(result.getAttribute('uri')).toBe('kamelet:beer-source?period=1000&beers=Pilsner%20Urquell');
+      expect(result.getAttribute('uri')).toBe('kamelet:log-action?level=DEBUG&multiline=true&showHeaders=false');
     });
 
     it('should not call decorateDoTry when doCatch and doFinally are in the catalog', () => {

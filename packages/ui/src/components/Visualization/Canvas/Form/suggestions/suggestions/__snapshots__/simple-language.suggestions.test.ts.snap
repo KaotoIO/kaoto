@@ -19,6 +19,46 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${env.name}",
   },
   {
+    "description": "The DataHandler for the given attachment.",
+    "group": "Simple Language",
+    "value": "\${attachment(key)}",
+  },
+  {
+    "description": "The content of the attachment",
+    "group": "Simple Language",
+    "value": "\${attachmentContent}",
+  },
+  {
+    "description": "The content of the attachment, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentContentAs(type)}",
+  },
+  {
+    "description": "The content of the attachment as text (ie String).",
+    "group": "Simple Language",
+    "value": "\${attachmentContentAsText}",
+  },
+  {
+    "description": "The attachment header with the given name.",
+    "group": "Simple Language",
+    "value": "\${attachmentHeader(key,name)}",
+  },
+  {
+    "description": "The attachment header with the given name, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentHeader(key,name,type)}",
+  },
+  {
+    "description": "All the attachments as a Map<String,DataHandler.",
+    "group": "Simple Language",
+    "value": "\${attachments}",
+  },
+  {
+    "description": "The number of attachments. Is 0 if there are no attachments.",
+    "group": "Simple Language",
+    "value": "\${attachments.size}",
+  },
+  {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
     "group": "Simple Language",
     "value": "\${bean(name.method)}",
@@ -59,7 +99,7 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${date-with-timezone(command:timezone:pattern)}",
   },
   {
-    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.HashMap\`.",
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
   },
@@ -144,9 +184,19 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${jsonpath(input,exp)}",
   },
   {
+    "description": "The list function creates an ArrayList with the given set of values.",
+    "group": "Simple Language",
+    "value": "\${list(val...)}",
+  },
+  {
     "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
     "group": "Simple Language",
     "value": "\${mandatoryBodyAs(type)}",
+  },
+  {
+    "description": "The map function creates a LinkedHashMap with the given set of pairs.",
+    "group": "Simple Language",
+    "value": "\${map(key1,value1,...)}",
   },
   {
     "description": "Converts the message to the given type (classname).",
@@ -295,6 +345,46 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${env.name}",
   },
   {
+    "description": "The DataHandler for the given attachment.",
+    "group": "Simple Language",
+    "value": "\${attachment(key)}",
+  },
+  {
+    "description": "The content of the attachment",
+    "group": "Simple Language",
+    "value": "\${attachmentContent}",
+  },
+  {
+    "description": "The content of the attachment, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentContentAs(type)}",
+  },
+  {
+    "description": "The content of the attachment as text (ie String).",
+    "group": "Simple Language",
+    "value": "\${attachmentContentAsText}",
+  },
+  {
+    "description": "The attachment header with the given name.",
+    "group": "Simple Language",
+    "value": "\${attachmentHeader(key,name)}",
+  },
+  {
+    "description": "The attachment header with the given name, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentHeader(key,name,type)}",
+  },
+  {
+    "description": "All the attachments as a Map<String,DataHandler.",
+    "group": "Simple Language",
+    "value": "\${attachments}",
+  },
+  {
+    "description": "The number of attachments. Is 0 if there are no attachments.",
+    "group": "Simple Language",
+    "value": "\${attachments.size}",
+  },
+  {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
     "group": "Simple Language",
     "value": "\${bean(name.method)}",
@@ -335,7 +425,7 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${date-with-timezone(command:timezone:pattern)}",
   },
   {
-    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.HashMap\`.",
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
   },
@@ -420,9 +510,19 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${jsonpath(input,exp)}",
   },
   {
+    "description": "The list function creates an ArrayList with the given set of values.",
+    "group": "Simple Language",
+    "value": "\${list(val...)}",
+  },
+  {
     "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
     "group": "Simple Language",
     "value": "\${mandatoryBodyAs(type)}",
+  },
+  {
+    "description": "The map function creates a LinkedHashMap with the given set of pairs.",
+    "group": "Simple Language",
+    "value": "\${map(key1,value1,...)}",
   },
   {
     "description": "Converts the message to the given type (classname).",
@@ -593,6 +693,46 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${env.name}",
   },
   {
+    "description": "The DataHandler for the given attachment.",
+    "group": "Simple Language",
+    "value": "\${attachment(key)}",
+  },
+  {
+    "description": "The content of the attachment",
+    "group": "Simple Language",
+    "value": "\${attachmentContent}",
+  },
+  {
+    "description": "The content of the attachment, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentContentAs(type)}",
+  },
+  {
+    "description": "The content of the attachment as text (ie String).",
+    "group": "Simple Language",
+    "value": "\${attachmentContentAsText}",
+  },
+  {
+    "description": "The attachment header with the given name.",
+    "group": "Simple Language",
+    "value": "\${attachmentHeader(key,name)}",
+  },
+  {
+    "description": "The attachment header with the given name, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentHeader(key,name,type)}",
+  },
+  {
+    "description": "All the attachments as a Map<String,DataHandler.",
+    "group": "Simple Language",
+    "value": "\${attachments}",
+  },
+  {
+    "description": "The number of attachments. Is 0 if there are no attachments.",
+    "group": "Simple Language",
+    "value": "\${attachments.size}",
+  },
+  {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
     "group": "Simple Language",
     "value": "\${bean(name.method)}",
@@ -633,7 +773,7 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${date-with-timezone(command:timezone:pattern)}",
   },
   {
-    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.HashMap\`.",
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
   },
@@ -718,9 +858,19 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${jsonpath(input,exp)}",
   },
   {
+    "description": "The list function creates an ArrayList with the given set of values.",
+    "group": "Simple Language",
+    "value": "\${list(val...)}",
+  },
+  {
     "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
     "group": "Simple Language",
     "value": "\${mandatoryBodyAs(type)}",
+  },
+  {
+    "description": "The map function creates a LinkedHashMap with the given set of pairs.",
+    "group": "Simple Language",
+    "value": "\${map(key1,value1,...)}",
   },
   {
     "description": "Converts the message to the given type (classname).",

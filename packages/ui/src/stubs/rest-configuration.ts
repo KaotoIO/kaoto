@@ -70,7 +70,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     },
     useXForwardHeaders: {
       type: 'boolean',
-      default: false,
+      default: 'false',
       title: 'Use XForward Headers',
       description:
         'Whether to use X-Forward headers to set host etc. for OpenApi. This may be needed in special cases involving reverse-proxy and networking going from HTTP to HTTPS etc. Then the proxy can send X-Forward headers (X-Forwarded-Proto) that influences the host names in the OpenAPI schema that camel-openapi-java generates from Rest DSL routes.',
@@ -116,7 +116,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     },
     apiVendorExtension: {
       type: 'boolean',
-      default: false,
+      default: 'false',
       title: 'Api Vendor Extension',
       description:
         'Whether vendor extension is enabled in the Rest APIs. If enabled then Camel will include additional information as vendor extension (eg keys starting with x-) such as route ids, class names etc. Not all 3rd party API gateways and tools supports vendor-extensions when importing your API docs.',
@@ -148,7 +148,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     },
     skipBindingOnErrorCode: {
       type: 'boolean',
-      default: false,
+      default: 'false',
       title: 'Skip Binding On Error Code',
       description:
         'Whether to skip binding on output if there is a custom HTTP error code header. This allows to build custom error messages that do not bind to json / xml etc, as success messages otherwise will do.',
@@ -156,7 +156,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
     },
     clientRequestValidation: {
       type: 'boolean',
-      default: false,
+      default: 'false',
       title: 'Client Request Validation',
       description:
         'Whether to enable validation of the client request to check: 1) Content-Type header matches what the Rest DSL consumes; returns HTTP Status 415 if validation error. 2) Accept header matches what the Rest DSL produces; returns HTTP Status 406 if validation error. 3) Missing required data (query parameters, HTTP headers, body); returns HTTP Status 400 if validation error. 4) Parsing error of the message body (JSon, XML or Auto binding mode must be enabled); returns HTTP Status 400 if validation error.',
@@ -168,18 +168,18 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
         'Whether to check what Camel is returning as response to the client: 1) Status-code and Content-Type matches Rest DSL response messages. 2) Check whether expected headers is included according to the Rest DSL repose message headers. 3) If the response body is JSon then check whether its valid JSon. Returns 500 if validation error detected.',
       title: 'Client Response Validation',
       type: 'boolean',
-      default: false,
+      default: 'false',
     },
     enableCORS: {
       type: 'boolean',
-      default: false,
+      default: 'false',
       title: 'Enable CORS',
       description: 'Whether to enable CORS headers in the HTTP response. The default value is false.',
       $comment: 'group:consumer (advanced)',
     },
     enableNoContentResponse: {
       type: 'boolean',
-      default: false,
+      default: 'false',
       title: 'Enable No Content Response',
       description:
         'Whether to return HTTP 204 with an empty body when a response contains an empty JSON object or XML root object. The default value is false.',
@@ -191,7 +191,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       description:
         'Inline routes in rest-dsl which are linked using direct endpoints. Each service in Rest DSL is an individual route, meaning that you would have at least two routes per service (rest-dsl, and the route linked from rest-dsl). By inlining (default) allows Camel to optimize and inline this as a single route, however this requires to use direct endpoints, which must be unique per service. If a route is not using direct endpoint then the rest-dsl is not inlined, and will become an individual route. This option is default true.',
       $comment: 'group:consumer',
-      default: true,
+      default: 'true',
     },
     jsonDataFormat: {
       type: 'string',
