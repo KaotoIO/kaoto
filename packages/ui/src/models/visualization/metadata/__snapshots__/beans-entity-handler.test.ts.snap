@@ -74,7 +74,7 @@ exports[`BeansEntityHandler should handle beans in CamelRouteResource initial st
     },
     "scriptPropertyPlaceholders": {
       "$comment": "group:advanced",
-      "default": true,
+      "default": "true",
       "description": "Whether the script should support using Camel property placeholder syntax {{ }}.",
       "title": "Script Property Placeholders",
       "type": "boolean",

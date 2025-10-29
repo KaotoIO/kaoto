@@ -15,7 +15,7 @@ describe('KameletSchemaService', () => {
 
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
-      'beer-source': (kameletCatalogMap as any)['beer-source'],
+      'log-action': (kameletCatalogMap as any)['log-action'],
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       'xj-template-action': (kameletCatalogMap as any)['xj-template-action'],
     });
@@ -38,11 +38,11 @@ describe('KameletSchemaService', () => {
         ref: {
           kind: 'Kamelet',
           apiVersion: 'camel.apache.org/v1',
-          name: 'beer-source',
+          name: 'log-action',
         },
       });
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'beer-source');
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'log-action');
       expect(result).toMatchSnapshot();
     });
 
@@ -62,7 +62,7 @@ describe('KameletSchemaService', () => {
     });
 
     it('should provide a default empty string if the kamelet name is not found', () => {
-      const namelessKamelet = cloneDeep((kameletCatalogMap as any)['beer-source']);
+      const namelessKamelet = cloneDeep((kameletCatalogMap as any)['log-action']);
       namelessKamelet.metadata.name = undefined as unknown as string;
       jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(namelessKamelet);
 
@@ -70,7 +70,7 @@ describe('KameletSchemaService', () => {
         ref: {
           kind: 'Kamelet',
           apiVersion: 'camel.apache.org/v1',
-          name: 'beer-source',
+          name: 'log-action',
         },
       });
 
@@ -122,12 +122,12 @@ describe('KameletSchemaService', () => {
         ref: {
           kind: 'Kamelet',
           apiVersion: 'camel.apache.org/v1',
-          name: 'beer-source',
+          name: 'log-action',
         },
       };
-      const result = KameletSchemaService.getTooltipContent(step, 'source');
+      const result = KameletSchemaService.getTooltipContent(step, 'steps.0');
 
-      expect(result).toEqual('Produces periodic events about beers!');
+      expect(result).toEqual('Logs all data that flows between source and sink, useful for debugging purposes.');
     });
 
     it('should return the Kamelet name as the tooltip content', () => {

@@ -142,6 +142,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
           apiVendorExtension: true,
           skipBindingOnErrorCode: true,
           clientRequestValidation: true,
+          clientResponseValidation: true,
           enableCORS: true,
           enableNoContentResponse: true,
           inlineRoutes: true,
@@ -177,6 +178,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
 '/apiVendorExtension' must be boolean,
 '/skipBindingOnErrorCode' must be boolean,
 '/clientRequestValidation' must be boolean,
+'/clientResponseValidation' must be boolean,
 '/enableCORS' must be boolean,
 '/enableNoContentResponse' must be boolean,
 '/inlineRoutes' must be boolean`);

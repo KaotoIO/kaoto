@@ -456,18 +456,21 @@ describe('CanvasForm', () => {
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('barcode');
 
-      let inputBarcodeFormat = formPageObject.getFieldByDisplayName('Barcode Format');
+      let inputBarcodeFormat = formPageObject.getTypeaheadInputForProperty('#.barcode.barcodeFormat');
       expect(inputBarcodeFormat).toBeInTheDocument();
 
-      await formPageObject.inputText('Barcode Format', 'EAN-13');
+      await formPageObject.toggleTypeaheadFieldForProperty('#.barcode.barcodeFormat');
+      await formPageObject.selectTypeaheadItem('ean_13');
 
       await formPageObject.showModifiedFields();
       dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
       expect(dataformatField).toBeInTheDocument();
 
-      inputBarcodeFormat = formPageObject.getFieldByDisplayName('Barcode Format');
+      inputBarcodeFormat = formPageObject
+        .getTypeaheadInputForProperty('#.barcode.barcodeFormat')!
+        .querySelector('input');
       expect(inputBarcodeFormat).toBeInTheDocument();
-      expect(inputBarcodeFormat).toHaveAttribute('value', 'EAN-13');
+      expect(inputBarcodeFormat).toHaveAttribute('value', 'EAN_13');
     });
 
     it('loadbalancer field', async () => {
