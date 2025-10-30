@@ -92,14 +92,15 @@ export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(
       nodeData instanceof DocumentNodeData &&
       nodeData.document?.documentType === DocumentType.SOURCE_BODY;
 
-    const noDnD =
+    const hasDnD = !(
       isPrimitiveSourceBody ||
       nodeData instanceof AddMappingNodeData ||
-      (nodeData instanceof DocumentNodeData && !nodeData.isPrimitive);
+      (nodeData instanceof DocumentNodeData && !nodeData.isPrimitive)
+    );
 
     return (
       <div ref={forwardedRef} className={className}>
-        {!noDnD ? <DnDContainer nodeData={nodeData}>{children}</DnDContainer> : <>{children}</>}
+        {hasDnD ? <DnDContainer nodeData={nodeData}>{children}</DnDContainer> : <>{children}</>}
       </div>
     );
   },
