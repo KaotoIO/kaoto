@@ -9,6 +9,7 @@ export class SourceTargetDnDHandler implements DnDHandler {
     const fromNode = event.active.data.current as NodeData;
     const toNode = event.over?.data.current as NodeData;
     if (!fromNode || !toNode) return;
+
     const { sourceNode, targetNode } = VisualizationService.testNodePair(fromNode, toNode);
     if (sourceNode && targetNode) {
       VisualizationService.engageMapping(mappingTree, sourceNode, targetNode);
