@@ -4,13 +4,13 @@ import { PathExpression, PredicateOperator } from '../../models/datamapper/xpath
 describe('XPathService / JSON', () => {
   describe('parse()', () => {
     it('should parse JSON representation', () => {
-      let result = XPathService.parse("$Account-x/xf:map/xf:string[@key='AccountId']");
+      let result = XPathService.parse("$Account-x/fn:map/fn:string[@key='AccountId']");
       expect(result.lexErrors.length).toEqual(0);
       expect(result.parseErrors.length).toEqual(0);
       expect(result.cst).toBeDefined();
 
       result = XPathService.parse(
-        "upper-case(concat('ORD-', $Account-x/xf:map/xf:string[@key='AccountId'], '-', $OrderSequence))",
+        "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
       );
       expect(result.lexErrors.length).toEqual(0);
       expect(result.parseErrors.length).toEqual(0);
@@ -20,12 +20,12 @@ describe('XPathService / JSON', () => {
 
   describe('validate()', () => {
     it('should validate JSON representation', () => {
-      let result = XPathService.validate("$Account-x/xf:map/xf:string[@key='AccountId']");
+      let result = XPathService.validate("$Account-x/fn:map/fn:string[@key='AccountId']");
       expect(result.hasErrors()).toBeFalsy();
       expect(result.hasWarnings()).toBeFalsy();
 
       result = XPathService.validate(
-        "upper-case(concat('ORD-', $Account-x/xf:map/xf:string[@key='AccountId'], '-', $OrderSequence))",
+        "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
       );
       expect(result.hasErrors()).toBeFalsy();
       expect(result.hasWarnings()).toBeFalsy();
@@ -34,16 +34,16 @@ describe('XPathService / JSON', () => {
 
   describe('extractFieldPaths()', () => {
     it('extract JSON representation', () => {
-      const paths = XPathService.extractFieldPaths("$Account-x/xf:map/xf:string[@key='AccountId']");
+      const paths = XPathService.extractFieldPaths("$Account-x/fn:map/fn:string[@key='AccountId']");
       expect(paths.length).toEqual(1);
       expect(paths[0].isRelative).toEqual(false);
       expect(paths[0].pathSegments.length).toEqual(2);
       expect(paths[0].pathSegments[0].isAttribute).toEqual(false);
-      expect(paths[0].pathSegments[0].prefix).toEqual('xf');
+      expect(paths[0].pathSegments[0].prefix).toEqual('fn');
       expect(paths[0].pathSegments[0].name).toEqual('map');
       expect(paths[0].pathSegments[0].predicates).toEqual([]);
       expect(paths[0].pathSegments[1].isAttribute).toEqual(false);
-      expect(paths[0].pathSegments[1].prefix).toEqual('xf');
+      expect(paths[0].pathSegments[1].prefix).toEqual('fn');
       expect(paths[0].pathSegments[1].name).toEqual('string');
       expect(paths[0].pathSegments[1].predicates).toBeDefined();
 
@@ -58,17 +58,17 @@ describe('XPathService / JSON', () => {
 
     it('extract JSON representation inside function call', () => {
       const paths = XPathService.extractFieldPaths(
-        "upper-case(concat('ORD-', $Account-x/xf:map/xf:string[@key='AccountId'], '-', $OrderSequence))",
+        "upper-case(concat('ORD-', $Account-x/fn:map/fn:string[@key='AccountId'], '-', $OrderSequence))",
       );
       expect(paths.length).toEqual(2);
       expect(paths[0].isRelative).toEqual(false);
       expect(paths[0].pathSegments.length).toEqual(2);
       expect(paths[0].pathSegments[0].isAttribute).toEqual(false);
-      expect(paths[0].pathSegments[0].prefix).toEqual('xf');
+      expect(paths[0].pathSegments[0].prefix).toEqual('fn');
       expect(paths[0].pathSegments[0].name).toEqual('map');
       expect(paths[0].pathSegments[0].predicates).toEqual([]);
       expect(paths[0].pathSegments[1].isAttribute).toEqual(false);
-      expect(paths[0].pathSegments[1].prefix).toEqual('xf');
+      expect(paths[0].pathSegments[1].prefix).toEqual('fn');
       expect(paths[0].pathSegments[1].name).toEqual('string');
       expect(paths[0].pathSegments[1].predicates).toBeDefined();
 

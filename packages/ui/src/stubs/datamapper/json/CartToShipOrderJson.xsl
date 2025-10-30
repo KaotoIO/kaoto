@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0" xmlns:xf="http://www.w3.org/2005/xpath-functions">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0" xmlns:fn="http://www.w3.org/2005/xpath-functions">
     <xsl:output method="text" indent="yes"/>
     <xsl:param name="cart"/>
     <xsl:variable name="cart-x" select="json-to-xml($cart)"/>
@@ -8,13 +8,13 @@
             <array key="Item">
                 <map>
                     <string key="Title">
-                        <xsl:value-of select="$cart-x/xf:array/xf:map/xf:string[@key='Title']"/>
+                        <xsl:value-of select="$cart-x/fn:array/fn:map/fn:string[@key='Title']"/>
                     </string>
                     <number key="Quantity">
-                        <xsl:value-of select="$cart-x/xf:array/xf:map/xf:number[@key='Quantity']"/>
+                        <xsl:value-of select="$cart-x/fn:array/fn:map/fn:number[@key='Quantity']"/>
                     </number>
                     <number key="Price">
-                        <xsl:value-of select="$cart-x/xf:array/xf:map/xf:number[@key='Price']"/>
+                        <xsl:value-of select="$cart-x/fn:array/fn:map/fn:number[@key='Price']"/>
                     </number>
                 </map>
             </array>

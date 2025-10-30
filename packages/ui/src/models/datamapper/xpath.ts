@@ -5,8 +5,8 @@
  * the path separated with `/` (slash). {@link PathSegment} holds an array of {@link Predicate},
  * which represent the predicates for the segment to identify the fields. This is introduced specifically
  * to support JSON lossless representation in XSLT, where it uses `key` attribute to specify the property
- * key. For example, an object field with the name `someField` will be `xf:map[@key = 'someField']` in XPath
- * while an anonymous object field will be just `xf:map`.
+ * key. For example, an object field with the name `someField` will be `fn:map[@key = 'someField']` in XPath
+ * while an anonymous object field will be just `fn:map`.
  * {@link PathExpression.contextPath} represents context path, for example inside the XSLT `for-each` loop,
  * the relative path is calculated from what is specified in the `for-each` selector. In this case, the path
  * of `for-each` selector is the context path and {@link PathExpression.pathSegments} only holds the relative

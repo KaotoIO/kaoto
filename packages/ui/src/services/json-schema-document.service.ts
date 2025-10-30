@@ -68,8 +68,8 @@ export type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
  * Until we get a concrete idea of how to handle this in DataMapper UI, just pick one type and use it.
  *
  * Unlike XML, JSON could have anonymous object and array. In the JSON lossless representation in XSLT,
- * object is represented by `xf:map` and array is represented by `xf:array` while the name is specified with
- * `key` attribute, such as `xf:map[@key='objectName']` and `xf:map[@key='arrayName']`. `xf:map` and `xf:array`
+ * object is represented by `fn:map` and array is represented by `fn:array` while the name is specified with
+ * `key` attribute, such as `fn:map[@key='objectName']` and `fn:map[@key='arrayName']`. `fn:map` and `fn:array`
  * simply represents anonymous object and array. In order to take this into account, {@link JsonSchemaField.name}
  * holds the field type such as `map` or `array`, and {@link JsonSchemaField.key} holds the name if it's named one.
  * The `key` will be an empty string for the anonymous JSON field. Alternatively {@link JsonSchemaField.displayName}
@@ -80,7 +80,7 @@ export type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
 export class JsonSchemaField extends BaseField {
   fields: JsonSchemaField[] = [];
   namespaceURI: string = NS_XPATH_FUNCTIONS;
-  namespacePrefix: string = 'xf';
+  namespacePrefix: string = 'fn';
   isAttribute = false;
   predicates: Predicate[] = [];
   required: string[] = [];
