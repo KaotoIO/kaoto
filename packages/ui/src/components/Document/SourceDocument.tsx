@@ -1,10 +1,12 @@
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { Title } from '@patternfly/react-core';
 import { IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import './Document.scss';
 import { SourceDocumentNode } from './SourceDocumentNode';
+import { BaseDocument } from './BaseDocument';
 
 type DocumentTreeProps = {
   document: IDocument;
@@ -28,5 +30,15 @@ export const SourceDocument: FunctionComponent<DocumentTreeProps> = ({ document,
     return <div>Loading tree...</div>;
   }
 
-  return <SourceDocumentNode treeNode={treeNode.root} documentId={documentId} isReadOnly={isReadOnly} rank={0} />;
+  return (
+    <BaseDocument
+      treeNode={treeNode.root}
+      documentId={documentId}
+      isReadOnly={isReadOnly}
+      header={<Title headingLevel="h5">Body</Title>}
+      renderNodes={(childNode, readOnly) => (
+        <SourceDocumentNode treeNode={childNode} documentId={documentId} isReadOnly={readOnly} rank={1} />
+      )}
+    />
+  );
 };

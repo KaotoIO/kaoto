@@ -53,7 +53,7 @@ describe('TargetDocument', () => {
 
     await screen.findByText('OrderPerson');
 
-    const expandIcon = screen.getByTestId('expand-target-icon-Body');
+    const expandIcon = screen.getByTestId('expand-icon-Body');
     expect(expandIcon).toBeInTheDocument();
 
     act(() => {
@@ -61,17 +61,17 @@ describe('TargetDocument', () => {
     });
 
     await waitFor(() => {
-      const collapseIcon = screen.getByTestId('collapse-target-icon-Body');
+      const collapseIcon = screen.getByTestId('collapse-icon-Body');
       expect(collapseIcon).toBeInTheDocument();
     });
 
     act(() => {
-      const collapseIcon = screen.getByTestId('collapse-target-icon-Body');
+      const collapseIcon = screen.getByTestId('collapse-icon-Body');
       fireEvent.click(collapseIcon);
     });
 
     await waitFor(() => {
-      const expandIconAgain = screen.getByTestId('expand-target-icon-Body');
+      const expandIconAgain = screen.getByTestId('expand-icon-Body');
       expect(expandIconAgain).toBeInTheDocument();
     });
   });
@@ -82,13 +82,13 @@ describe('TargetDocument', () => {
 
     await screen.findByText('OrderPerson');
 
-    const expandIcon = screen.getByTestId('expand-target-icon-Body');
+    const expandIcon = screen.getByTestId('expand-icon-Body');
     act(() => {
       fireEvent.click(expandIcon);
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('collapse-target-icon-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('collapse-icon-Body')).toBeInTheDocument();
     });
 
     const store = useDocumentTreeStore.getState();
@@ -101,7 +101,7 @@ describe('TargetDocument', () => {
       const expansionStateAfter = storeAfter.expansionState[documentId];
 
       expect(expansionStateAfter).toBeDefined();
-      expect(screen.getByTestId('collapse-target-icon-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('collapse-icon-Body')).toBeInTheDocument();
     });
   });
 
