@@ -493,15 +493,15 @@ describe('DataMapperProvider', () => {
       expect(root?.children.length).toEqual(4);
       const forEachItem = root?.children[3].children[0];
       expect(forEachItem instanceof ForEachItem).toBeTruthy();
-      expect((forEachItem as ForEachItem).expression).toEqual('$Cart-x/xf:array/xf:map');
+      expect((forEachItem as ForEachItem).expression).toEqual('$Cart-x/fn:array/fn:map');
 
       expect(forEachItem?.children[0].children.length).toEqual(3);
       const title = forEachItem?.children[0].children[0].children[0] as ValueSelector;
-      expect(title.expression).toEqual("xf:string[@key='Title']");
+      expect(title.expression).toEqual("fn:string[@key='Title']");
       const quantity = forEachItem?.children[0].children[1].children[0] as ValueSelector;
-      expect(quantity.expression).toEqual("xf:number[@key='Quantity']");
+      expect(quantity.expression).toEqual("fn:number[@key='Quantity']");
       const price = forEachItem?.children[0].children[2].children[0] as ValueSelector;
-      expect(price.expression).toEqual("xf:number[@key='Price']");
+      expect(price.expression).toEqual("fn:number[@key='Price']");
 
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(latestXslt, 'application/xml');
@@ -714,6 +714,60 @@ describe('DataMapperProvider', () => {
 
       expect(result.current.sourceParameterMap.has('testParam')).toBeTruthy();
       expect(result.current.sourceParameterMap.get('testParam')).toEqual(mockDocument);
+    });
+  });
+
+  describe('XPath functions namespace initialization', () => {
+    it('should always have fn namespace initialized for XPath functions', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(result.current.mappingTree.namespaceMap['fn']).toEqual('http://www.w3.org/2005/xpath-functions');
+    });
+
+    it('should preserve fn namespace after document updates', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
+        Account: accountJsonSchema,
+      });
+
+      const mockDocument = {
+        documentType: DocumentType.PARAM,
+        documentId: 'Account',
+        definitionType: DocumentDefinitionType.JSON_SCHEMA,
+      } as IDocument;
+
+      act(() => {
+        result.current.updateDocument(mockDocument, docDef, 'test');
+      });
+
+      await waitFor(() => {
+        expect(result.current.mappingTree.namespaceMap['fn']).toEqual('http://www.w3.org/2005/xpath-functions');
+      });
+    });
+
+    it('should preserve fn namespace after reset', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.resetMappingTree();
+      });
+
+      await waitFor(() => {
+        expect(result.current.mappingTree.namespaceMap['fn']).toEqual('http://www.w3.org/2005/xpath-functions');
+      });
     });
   });
 

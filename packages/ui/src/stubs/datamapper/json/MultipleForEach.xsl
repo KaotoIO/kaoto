@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0" xmlns:ns0="kaoto.datamapper.test" xmlns:xf="http://www.w3.org/2005/xpath-functions">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="3.0" xmlns:ns0="kaoto.datamapper.test" xmlns:fn="http://www.w3.org/2005/xpath-functions">
     <xsl:output method="text" indent="yes"/>
     <xsl:param name="cart"/>
     <xsl:param name="cart2"/>
@@ -8,29 +8,29 @@
     <xsl:variable name="mapped-xml">
         <map xmlns="http://www.w3.org/2005/xpath-functions">
             <array key="Item">
-                <xsl:for-each select="$cart-x/xf:array/xf:map">
+                <xsl:for-each select="$cart-x/fn:array/fn:map">
                     <map>
                         <string key="Title">
-                            <xsl:value-of select="xf:string[@key='Title']"/>
+                            <xsl:value-of select="fn:string[@key='Title']"/>
                         </string>
                         <number key="Quantity">
-                            <xsl:value-of select="xf:number[@key='Quantity']"/>
+                            <xsl:value-of select="fn:number[@key='Quantity']"/>
                         </number>
                         <number key="Price">
-                            <xsl:value-of select="xf:number[@key='Price']"/>
+                            <xsl:value-of select="fn:number[@key='Price']"/>
                         </number>
                     </map>
                 </xsl:for-each>
-                <xsl:for-each select="$cart2-x/xf:array/xf:map">
+                <xsl:for-each select="$cart2-x/fn:array/fn:map">
                     <map>
                         <string key="Title">
-                            <xsl:value-of select="xf:string[@key='Title']"/>
+                            <xsl:value-of select="fn:string[@key='Title']"/>
                         </string>
                         <number key="Quantity">
-                            <xsl:value-of select="xf:number[@key='Quantity']"/>
+                            <xsl:value-of select="fn:number[@key='Quantity']"/>
                         </number>
                         <number key="Price">
-                            <xsl:value-of select="xf:number[@key='Price']"/>
+                            <xsl:value-of select="fn:number[@key='Price']"/>
                         </number>
                     </map>
                 </xsl:for-each>

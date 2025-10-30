@@ -31,6 +31,7 @@ import { MappingService } from '../services/mapping.service';
 import { DocumentService } from '../services/document.service';
 import { Alert, AlertActionCloseButton, AlertGroup, AlertProps, AlertVariant } from '@patternfly/react-core';
 import { SendAlertProps } from '../models/datamapper';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -97,9 +98,21 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
     new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
   );
-  const [mappingTree, setMappingTree] = useState<MappingTree>(
-    new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType),
+
+  /**
+   * The namespace {@link NS_XPATH_FUNCTIONS} is required not only for JSON mapping,
+   * but also for the function calls in the xpath. We should prefill this from beginning.
+   */
+  const initialNamespaceMap = useMemo(() => {
+    return { fn: NS_XPATH_FUNCTIONS };
+  }, []);
+  const initialMappingTree = new MappingTree(
+    DocumentType.TARGET_BODY,
+    BODY_DOCUMENT_ID,
+    targetBodyDocument.definitionType,
   );
+  initialMappingTree.namespaceMap = { ...initialNamespaceMap };
+  const [mappingTree, setMappingTree] = useState<MappingTree>(initialMappingTree);
 
   const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
 
@@ -163,9 +176,10 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
 
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
+    newMapping.namespaceMap = { ...initialNamespaceMap };
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
-  }, [onUpdateMappings, sourceParameterMap, targetBodyDocument.definitionType]);
+  }, [initialNamespaceMap, onUpdateMappings, sourceParameterMap, targetBodyDocument.definitionType]);
 
   const renameSourceParameter = useCallback(
     (oldName: string, newName: string) => {

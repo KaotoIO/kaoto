@@ -186,7 +186,7 @@ describe('MappingService', () => {
 
       expect(tree.children[0].children[0].children.length).toEqual(1);
       const forEach = tree.children[0].children[0].children[0] as ForEachItem;
-      expect(forEach.expression).toEqual('$cart-x/xf:array/xf:map');
+      expect(forEach.expression).toEqual('$cart-x/fn:array/fn:map');
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
       expect(tree.children.length).toEqual(0);
@@ -201,13 +201,13 @@ describe('MappingService', () => {
       expect(tree.children[0].children[0].children.length).toEqual(2);
       let forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
       const forEach2 = tree.children[0].children[0].children[1] as ForEachItem;
-      expect(forEach1.expression).toEqual('$cart-x/xf:array/xf:map');
-      expect(forEach2.expression).toEqual('$cart2-x/xf:array/xf:map');
+      expect(forEach1.expression).toEqual('$cart-x/fn:array/fn:map');
+      expect(forEach2.expression).toEqual('$cart2-x/fn:array/fn:map');
 
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart-x');
       expect(tree.children[0].children[0].children.length).toEqual(1);
       forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
-      expect(forEach1.expression).toEqual('$cart2-x/xf:array/xf:map');
+      expect(forEach1.expression).toEqual('$cart2-x/fn:array/fn:map');
     });
 
     it('should not remove parameter mappings when detaching schema from source body', () => {
