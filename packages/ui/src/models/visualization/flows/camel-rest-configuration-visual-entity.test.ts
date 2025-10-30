@@ -168,6 +168,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         apiVendorExtension: 'true' as unknown as RestConfiguration['apiVendorExtension'],
         skipBindingOnErrorCode: 'true' as unknown as RestConfiguration['skipBindingOnErrorCode'],
         clientRequestValidation: 'true' as unknown as RestConfiguration['clientRequestValidation'],
+        clientResponseValidation: 'true' as unknown as RestConfiguration['clientResponseValidation'],
         enableCORS: 'true' as unknown as RestConfiguration['enableCORS'],
         enableNoContentResponse: 'true' as unknown as RestConfiguration['enableNoContentResponse'],
         inlineRoutes: 'true' as unknown as RestConfiguration['inlineRoutes'],
