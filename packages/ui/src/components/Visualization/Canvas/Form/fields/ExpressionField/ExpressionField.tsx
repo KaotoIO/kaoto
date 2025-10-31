@@ -2,6 +2,7 @@ import {
   FieldProps,
   FieldWrapper,
   ModelContextProvider,
+  OneOfField,
   SchemaContext,
   SchemaProvider,
   useFieldValue,
@@ -10,7 +11,6 @@ import { isEmpty } from 'lodash';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { ROOT_PATH, setValue } from '../../../../../../utils';
 import { ExpressionService } from './expression.service';
-import { ExpressionFieldInner } from './ExpressionFieldInner';
 
 /**
  * ExpressionField component.
@@ -34,7 +34,12 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
 
   const isRootExpression = schema.format === 'expression';
   const parsedModel = ExpressionService.parseExpressionModel(originalModel);
-  const expressionsSchema = useMemo(() => ExpressionService.getExpressionsSchema(schema), [schema]);
+  const expressionsSchema = useMemo(() => {
+    const normalizedSchema = ExpressionService.getExpressionsSchema(schema);
+    // Preserve format information
+    setValue(normalizedSchema, 'format', schema.format);
+    return normalizedSchema;
+  }, [schema]);
 
   const onExpressionChange = (propName: string, model: unknown) => {
     let localValue = parsedModel ?? {};
@@ -57,7 +62,7 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
     return (
       <ModelContextProvider model={parsedModel} onPropertyChange={onExpressionChange}>
         <SchemaProvider schema={expressionsSchema}>
-          <ExpressionFieldInner propName={ROOT_PATH} required={required} />
+          <OneOfField propName={ROOT_PATH} required={required} />
         </SchemaProvider>
       </ModelContextProvider>
     );
@@ -74,7 +79,7 @@ export const ExpressionField: FunctionComponent<FieldProps> = ({ propName, requi
     >
       <ModelContextProvider model={parsedModel} onPropertyChange={onExpressionChange}>
         <SchemaProvider schema={expressionsSchema}>
-          <ExpressionFieldInner propName={ROOT_PATH} required={required} />
+          <OneOfField propName={ROOT_PATH} required={required} />
         </SchemaProvider>
       </ModelContextProvider>
     </FieldWrapper>
