@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { IVisualizationNode } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
@@ -82,12 +82,19 @@ describe('DataMapperPage', () => {
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
     );
-    await screen.findByTestId('card-source-parameters-header');
-    expect(screen.getByTestId('node-source-doc-param-testparam1')).toBeInTheDocument();
-    expect(screen.getByTestId('node-source-doc-sourceBody-Body')).toBeInTheDocument();
-    expect(screen.getByTestId('node-target-doc-targetBody-Body')).toBeInTheDocument();
-    expect(screen.getByTestId(/node-source-fx-OrderId-\n*/)).toBeInTheDocument();
-    expect(screen.getByTestId(/node-target-fx-OrderId-\n*/)).toBeInTheDocument();
+
+    let executed = false;
+    await waitFor(() => {
+      expect(screen.getByTestId('card-source-parameters-header')).toBeInTheDocument();
+      expect(screen.getByTestId('node-source-doc-param-testparam1')).toBeInTheDocument();
+      expect(screen.getByTestId('node-source-doc-sourceBody-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('node-target-doc-targetBody-Body')).toBeInTheDocument();
+      expect(screen.getByTestId(/node-source-fx-OrderId-\n*/)).toBeInTheDocument();
+      expect(screen.getByTestId(/node-target-fx-OrderId-\n*/)).toBeInTheDocument();
+      executed = true;
+    });
+    /** We cannot rely on expect.assertions(6) since when there's a failure, an extra expectation is run */
+    expect(executed).toBeTruthy();
     // TODO assert mappings are restored even without loading schema... But how? Lines are not drawn...
   });
 
