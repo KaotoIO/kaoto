@@ -2,6 +2,10 @@ import { useCallback, useContext, useMemo } from 'react';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { useVisualizationController } from '@patternfly/react-topology';
+import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
+import { isDefined } from '../../../../utils/is-defined';
 
 export const useInsertStep = (
   vizNode: IVisualizationNode,
@@ -9,6 +13,7 @@ export const useInsertStep = (
 ) => {
   const entitiesContext = useContext(EntitiesContext);
   const catalogModalContext = useContext(CatalogModalContext);
+  const controller = useVisualizationController();
 
   const onInsertStep = useCallback(async () => {
     if (!vizNode || !entitiesContext) return;
@@ -28,9 +33,29 @@ export const useInsertStep = (
     /** Add new node to the entities */
     vizNode.addBaseEntityStep(definedComponent, mode, targetProperty);
 
+    // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
+    if (mode === AddStepMode.InsertSpecialChildStep) {
+      const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+        (vizNode.data as CamelRouteVisualEntityData).processorName,
+      );
+      if (
+        stepsProperties.some(
+          (property) =>
+            property.type === 'array-clause' &&
+            property.name === definedComponent.name &&
+            isDefined(vizNode.getChildren()),
+        )
+      ) {
+        controller.fromModel({
+          nodes: [],
+          edges: [],
+        });
+      }
+    }
+
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [catalogModalContext, entitiesContext, mode, vizNode]);
+  }, [catalogModalContext, controller, entitiesContext, mode, vizNode]);
 
   const value = useMemo(
     () => ({

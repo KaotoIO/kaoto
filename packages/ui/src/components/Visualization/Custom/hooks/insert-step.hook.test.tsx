@@ -7,6 +7,16 @@ import { createVisualizationNode } from '../../../../models/visualization/visual
 import { CatalogModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { useInsertStep } from './insert-step.hook';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
+import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+
+const mockController = {
+  fromModel: jest.fn(),
+};
+
+jest.mock('@patternfly/react-topology', () => ({
+  useVisualizationController: () => mockController,
+}));
 
 describe('useInsertStep', () => {
   const camelResource = new CamelRouteResource();
@@ -34,12 +44,15 @@ describe('useInsertStep', () => {
   };
 
   const mockCompatibleComponents = (item: ITile) => ['log', 'to'].includes(item.type);
+  const getProcessorStepsPropertiesMock = jest.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
 
   beforeEach(() => {
-    mockVizNode = createVisualizationNode('test', {});
+    mockVizNode = createVisualizationNode('test', { processorName: 'test' });
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getComponentSchema = jest.fn().mockReturnValue({ definition: {} });
+    mockVizNode.getChildren = jest.fn().mockReturnValue([mockVizNode]);
     jest.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
+    mockController.fromModel.mockClear();
   });
 
   afterEach(() => {
@@ -143,7 +156,31 @@ describe('useInsertStep', () => {
       AddStepMode.InsertSpecialChildStep,
       undefined,
     );
+    expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(
+      (mockVizNode.data as CamelRouteVisualEntityData).processorName,
+    );
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+  });
+
+  it('should call controller.fromModel() when mode is InsertSpecialChildStep and conditions are met', async () => {
+    getProcessorStepsPropertiesMock.mockReturnValue([
+      { name: 'when', type: 'array-clause' },
+      { name: 'otherwise', type: 'array-clause' },
+    ]);
+
+    mockCatalogModalContext.getNewComponent.mockResolvedValue({
+      ...mockDefinedComponent,
+      name: 'when',
+    });
+
+    const { result } = renderHook(() => useInsertStep(mockVizNode, AddStepMode.InsertSpecialChildStep), { wrapper });
+
+    await result.current.onInsertStep();
+
+    expect(mockController.fromModel).toHaveBeenCalledWith({
+      nodes: [],
+      edges: [],
+    });
   });
 
   it('should return early when catalog modal returns no component', async () => {
