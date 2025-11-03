@@ -110,6 +110,7 @@ import icon_component_couchdb from '../assets/components/couchdb.svg';
 import icon_component_cql from '../assets/components/cql.svg';
 import icon_component_crypto from '../assets/components/crypto.svg';
 import icon_component_cxf from '../assets/components/cxf.png';
+import icon_component_daffodil from '../assets/components/daffodil.svg';
 import icon_component_datamapper from '../assets/components/datamapper.png';
 import icon_component_debezium from '../assets/components/debezium.svg';
 import icon_component_dhis2 from '../assets/components/dhis2.svg';
@@ -119,6 +120,7 @@ import icon_component_docker from '../assets/components/docker.svg';
 import icon_component_drill from '../assets/components/drill.svg';
 import icon_component_dropbox from '../assets/components/dropbox.svg';
 import icon_component_elasticsearch from '../assets/components/elasticsearch.svg';
+import icon_component_email from '../assets/components/email.svg';
 import icon_component_email_receive from '../assets/components/email_receive.svg';
 import icon_component_email_send from '../assets/components/email_send.svg';
 import icon_component_etcd3 from '../assets/components/etcd3.svg';
@@ -128,6 +130,7 @@ import icon_component_fhir from '../assets/components/fhir.svg';
 import icon_component_file from '../assets/components/file.svg';
 import icon_component_file_watch from '../assets/components/file-watch.svg';
 import icon_component_flink from '../assets/components/flink.svg';
+import icon_component_flowable from '../assets/components/flowable.svg';
 import icon_component_freemarker from '../assets/components/freemarker.svg';
 import icon_component_ftp from '../assets/components/ftp.png';
 import icon_component_generic from '../assets/components/generic-component.png';
@@ -158,7 +161,10 @@ import icon_component_jdbc from '../assets/components/jdbc.png';
 import icon_component_jetty from '../assets/components/jetty.svg';
 import icon_component_jira from '../assets/components/jira.svg';
 import icon_component_jms from '../assets/components/jms.png';
+import icon_component_jte from '../assets/components/jte.svg';
 import icon_component_kafka from '../assets/components/kafka.svg';
+import icon_component_keycloak from '../assets/components/keycloak.svg';
+import icon_component_kserve from '../assets/components/kserve.svg';
 import icon_component_kubernetes_generic from '../assets/components/kubernetes.svg';
 import icon_component_kubernetes_config_maps from '../assets/components/kubernetes-config-maps.svg';
 import icon_component_kubernetes_cronjob from '../assets/components/kubernetes-cronjob.svg';
@@ -188,6 +194,7 @@ import icon_component_mongodb from '../assets/components/mongodb.svg';
 import icon_component_mqtt from '../assets/components/mqtt.svg';
 import icon_component_mustache from '../assets/components/mustache.svg';
 import icon_component_mybatis from '../assets/components/mybatis.svg';
+import icon_component_neo4j from '../assets/components/neo4j.svg';
 import icon_component_netty from '../assets/components/netty.png';
 import icon_component_nitrite from '../assets/components/nitrite.svg';
 import icon_component_odata from '../assets/components/odata.svg';
@@ -195,9 +202,11 @@ import icon_component_openapi from '../assets/components/openapi.svg';
 import icon_component_opensearch from '../assets/components/opensearch.svg';
 import icon_component_openshift from '../assets/components/openshift.svg';
 import icon_component_openstack from '../assets/components/openstack.svg';
+import icon_component_pdf from '../assets/components/pdf.svg';
 import icon_component_pinecone from '../assets/components/pinecone.svg';
 import icon_component_platformhttp from '../assets/components/platformhttp.png';
 import icon_component_policy from '../assets/components/policy.png';
+import icon_component_postgresql from '../assets/components/postgresql.svg';
 import icon_component_printer from '../assets/components/printer.svg';
 import icon_component_pulsar from '../assets/components/pulsar.svg';
 import icon_component_qdrant from '../assets/components/qdrant.svg';
@@ -218,6 +227,7 @@ import icon_component_sql from '../assets/components/sql_db.png';
 import icon_component_stitch from '../assets/components/stitch.svg';
 import icon_component_telegram from '../assets/components/telegram.svg';
 import icon_component_template from '../assets/components/template.svg';
+import icon_component_tensorflow from '../assets/components/tensorflow.svg';
 import icon_component_thymeleaf from '../assets/components/thymeleaf.svg';
 import icon_component_timer from '../assets/components/timer.svg';
 import icon_component_twilio from '../assets/components/twilio.svg';
@@ -297,8 +307,13 @@ export class NodeIconResolver {
         return icon_component_amqp;
       case 'arangodb':
         return icon_component_arangodb;
+      case 'atom':
+        return icon_component_rss;
       case 'avro':
         return icon_component_avro;
+      case 'aws2-textract':
+      case 'aws2-transcribe':
+        return icon_component_aws;
       case 'aws-bedrock':
       case 'aws-bedrock-agent':
       case 'aws-bedrock-agent-runtime':
@@ -393,6 +408,7 @@ export class NodeIconResolver {
       case 'cics':
         return icon_component_cics;
       case 'class':
+        return icon_component_bean_component;
       case 'cm-sms':
       case 'coap':
       case 'coap+tcp':
@@ -429,6 +445,8 @@ export class NodeIconResolver {
       case 'debezium-postgres':
       case 'debezium-sqlserver':
         return icon_component_debezium;
+      case 'dfdl':
+        return icon_component_daffodil;
       case 'dhis2':
         return icon_component_dhis2;
       case 'digitalocean':
@@ -470,6 +488,8 @@ export class NodeIconResolver {
         return icon_component_generic;
       case 'flink':
         return icon_component_flink;
+      case 'flowable':
+        return icon_component_flowable;
       case 'fop':
         return icon_component_generic;
       case 'freemarker':
@@ -540,6 +560,8 @@ export class NodeIconResolver {
       case 'hwcloud-obs':
       case 'hwcloud-smn':
         return icon_component_huawei;
+      case 'ibm-secrets-manager':
+        return icon_component_ibm;
       case 'iec60870-client':
       case 'iec60870-server':
         return icon_component_generic;
@@ -553,7 +575,7 @@ export class NodeIconResolver {
         return icon_component_ignite;
       case 'imap':
       case 'imaps':
-        return icon_component_email_receive;
+        return icon_component_email;
       case 'infinispan':
       case 'infinispan-embedded':
         return icon_component_infinispan;
@@ -589,10 +611,14 @@ export class NodeIconResolver {
       case 'jt400':
         return icon_component_ibm;
       case 'jte':
-        return icon_component_generic;
+        return icon_component_jte;
       case 'kafka':
         return icon_component_kafka;
       /** case 'kamelet': --> handled elsewhere **/
+      case 'keycloak':
+        return icon_component_keycloak;
+      case 'kserve':
+        return icon_component_kserve;
       case 'knative':
         return icon_component_generic;
       case 'kubernetes-config-maps':
@@ -631,6 +657,7 @@ export class NodeIconResolver {
         return icon_component_kubernetes_services;
       case 'kudu':
         return icon_component_kudu;
+      case 'langchain4j-agent':
       case 'langchain4j-chat':
       case 'langchain4j-embeddings':
       case 'langchain4j-tools':
@@ -678,6 +705,8 @@ export class NodeIconResolver {
         return icon_component_mybatis;
       case 'nats':
         return icon_component_generic;
+      case 'neo4j':
+        return icon_component_neo4j;
       case 'netty':
       case 'netty-http':
         return icon_component_netty;
@@ -707,9 +736,10 @@ export class NodeIconResolver {
       case 'paho-mqtt5':
         return icon_component_mqtt;
       case 'pdf':
+        return icon_component_pdf;
       case 'pg-replication-slot':
       case 'pgevent':
-        return icon_component_generic;
+        return icon_component_postgresql;
       case 'pinecone':
         return icon_component_pinecone;
       case 'platform-http':
@@ -748,6 +778,7 @@ export class NodeIconResolver {
       case 'sap-netweaver':
         return icon_component_sap;
       case 'scheduler':
+        return icon_component_timer;
       case 'schematron':
       case 'scp':
       case 'seda':
@@ -811,6 +842,8 @@ export class NodeIconResolver {
         return icon_component_generic;
       case 'telegram':
         return icon_component_telegram;
+      case 'tensorflow-serving':
+        return icon_component_tensorflow;
       case 'thrift':
         return icon_component_generic;
       case 'thymeleaf':
