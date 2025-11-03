@@ -3094,21 +3094,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/forms@npm:^1.5.6":
-  version: 1.5.6
-  resolution: "@kaoto/forms@npm:1.5.6"
+"@kaoto/forms@npm:^1.5.9":
+  version: 1.5.9
+  resolution: "@kaoto/forms@npm:1.5.9"
   dependencies:
     ajv: "npm:^8.12.0"
     clsx: "npm:^2.1.0"
     lodash.clonedeep: "npm:^4.5.0"
     usehooks-ts: "npm:^3.0.0"
   peerDependencies:
-    "@patternfly/patternfly": ^6.3.0
+    "@patternfly/patternfly": 6.4.0
     "@patternfly/react-core": 6.4.0
-    "@patternfly/react-icons": ^6.3.0
-    react: ^18.2.0
-    react-dom: ^18.2.0
-  checksum: 10/d106835b0be1d07c6dd0df5df7ef61e58f52e759dc5a867b6cd85526897372221ccced73f0e66b9b0b1a90b04797f2d9bd783b7e7fa7032e94447c09a469d6ec
+    "@patternfly/react-icons": 6.4.0
+    react: ^18.3.1
+    react-dom: ^18.3.1
+  checksum: 10/ff3234f89153d84c6b6a71da2e594d185049a09769e4c381f4ab121da12b75fc556cf80e8b3bccb6065cb35cd3eabab78be26419fede272bd8a53f0a25c718fb
   languageName: node
   linkType: hard
 
@@ -3119,7 +3119,7 @@ __metadata:
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.2.10"
-    "@kaoto/forms": "npm:^1.5.6"
+    "@kaoto/forms": "npm:^1.5.9"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.4.0"
     "@patternfly/react-code-editor": "npm:^6.4.0"
@@ -3178,7 +3178,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.2.10"
-    "@kaoto/forms": "npm:^1.5.6"
+    "@kaoto/forms": "npm:^1.5.9"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
     "@patternfly/patternfly": "npm:^6.4.0"
@@ -3227,12 +3227,12 @@ __metadata:
     monaco-yaml: "npm:^5.1.1"
     postcss: "npm:^8.4.45"
     prettier: "npm:^3.0.0"
-    react: "npm:^18.2.0"
-    react-dom: "npm:^18.2.0"
+    react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
     react-markdown: "npm:^10.0.0"
     react-monaco-editor: "npm:^0.59.0"
     react-router-dom: "npm:^6.14.1"
-    react-test-renderer: "npm:^18.2.0"
+    react-test-renderer: "npm:^18.3.1"
     remark-gfm: "npm:^4.0.1"
     rimraf: "npm:^6.0.0"
     sass-embedded: "npm:^1.79.5"
@@ -3257,15 +3257,15 @@ __metadata:
     zustand: "npm:^4.3.9"
   peerDependencies:
     "@kaoto/camel-catalog": ^0.2.2
-    "@patternfly/patternfly": ^6.3.0
-    "@patternfly/react-code-editor": ^6.3.0
-    "@patternfly/react-core": 6.3.1
-    "@patternfly/react-icons": ^6.3.0
-    "@patternfly/react-table": ^6.3.0
-    "@patternfly/react-topology": ^6.3.0
+    "@patternfly/patternfly": ^6.4.0
+    "@patternfly/react-code-editor": ^6.4.0
+    "@patternfly/react-core": ^6.4.0
+    "@patternfly/react-icons": ^6.4.0
+    "@patternfly/react-table": ^6.4.0
+    "@patternfly/react-topology": ^6.4.0
     monaco-yaml: ^5.1.1
-    react: ^18.2.0
-    react-dom: ^18.2.0
+    react: ^18.3.1
+    react-dom: ^18.3.1
     react-monaco-editor: ^0.56.0
   languageName: unknown
   linkType: soft
@@ -16889,7 +16889,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:^18.2.0":
+"react-test-renderer@npm:^18.3.1":
   version: 18.3.1
   resolution: "react-test-renderer@npm:18.3.1"
   dependencies:

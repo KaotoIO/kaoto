@@ -106,6 +106,9 @@ export default {
     '\\.(c|le|sc)ss$': '<rootDir>/src/__mocks__/styleMock.ts',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/src/__mocks__/fileMock.ts',
+    // Force all packages to use the same React instance
+    '^react$': '<rootDir>/../../node_modules/react',
+    '^react-dom$': '<rootDir>/../../node_modules/react-dom',
   },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -201,7 +204,7 @@ export default {
   transformIgnorePatterns: [
     // A RegExp to exclude `@patternfly/*` and `yaml` packages from the transformation ignore
     // This means that both packages will be transformed by babel to support ES modules
-    '\\\\node_modules/(?!(@patternfly|@kaoto-forms|yaml)/)\\\\',
+    '\\\\node_modules/(?!(@patternfly|@kaoto/forms|yaml)/)\\\\',
   ],
 
   workerThreads: false,
