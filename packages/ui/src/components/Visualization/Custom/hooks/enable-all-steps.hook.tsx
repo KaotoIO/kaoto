@@ -9,14 +9,14 @@ export const useEnableAllSteps = () => {
   const controller = useVisualizationController();
   const disabledNodes = useMemo(() => {
     return getVisualizationNodesFromGraph(controller.getGraph(), (node) => {
-      return node.getComponentSchema()?.definition?.disabled;
+      return node.getNodeDefinition()?.disabled;
     });
   }, [controller]);
   const areMultipleStepsDisabled = disabledNodes.length > 1;
 
   const onEnableAllSteps = useCallback(() => {
     disabledNodes.forEach((node) => {
-      const newModel = node.getComponentSchema()?.definition || {};
+      const newModel = node.getNodeDefinition() || {};
       setValue(newModel, 'disabled', false);
       node.updateModel(newModel);
     });

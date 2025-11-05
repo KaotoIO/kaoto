@@ -96,7 +96,7 @@ describe('getVisualizationNodesFromGraph', () => {
     visualizationController.fromModel(model);
 
     const predicate = (vizNode: IVisualizationNode) => {
-      return vizNode.getComponentSchema()?.definition?.disabled;
+      return vizNode.getNodeDefinition()?.disabled;
     };
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph(), predicate);
 

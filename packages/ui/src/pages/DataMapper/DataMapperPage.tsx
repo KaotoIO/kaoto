@@ -26,7 +26,7 @@ export const DataMapperPage: FunctionComponent = () => {
 
   const vizNode = getVisualizationNodesFromGraph(
     controller.getGraph(),
-    (node: IVisualizationNode) => node.getComponentSchema()?.definition?.id === params.id,
+    (node: IVisualizationNode) => node.getNodeDefinition()?.id === params.id,
   )[0];
 
   return <DataMapper vizNode={vizNode} />;

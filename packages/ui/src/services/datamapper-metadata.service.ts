@@ -15,7 +15,7 @@ import { EMPTY_XSL } from './mapping-serializer.service';
 
 export class DataMapperMetadataService {
   static getDataMapperMetadataId(vizNode: IVisualizationNode): string {
-    const model = vizNode.getComponentSchema()?.definition;
+    const model = vizNode.getNodeDefinition();
     return model.id;
   }
 
@@ -54,7 +54,7 @@ export class DataMapperMetadataService {
     api: IMetadataApi,
     metadataId: string,
   ): Promise<IDataMapperMetadata> {
-    const model = vizNode.getComponentSchema()?.definition;
+    const model = vizNode.getNodeDefinition();
     const xsltStep = (model.steps as ProcessorDefinition[] | undefined)?.find(isXSLTComponent);
     let documentName = this.getXSLTDocumentName(xsltStep);
 

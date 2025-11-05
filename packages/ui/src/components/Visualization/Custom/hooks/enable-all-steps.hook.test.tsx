@@ -99,14 +99,10 @@ describe('useEnableAllSteps', () => {
 
     // Test the filter function
     const enabledNode = createVisualizationNode('enabled', {});
-    enabledNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: false },
-    });
+    enabledNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
 
     const disabledNode = createVisualizationNode('disabled', {});
-    disabledNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: true },
-    });
+    disabledNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
 
     expect(filterFunction?.(enabledNode)).toBe(false);
     expect(filterFunction?.(disabledNode)).toBe(true);
@@ -115,12 +111,12 @@ describe('useEnableAllSteps', () => {
   it('should enable all disabled steps when onEnableAllSteps is called', () => {
     const disabledNode1 = createVisualizationNode('disabled-step-1', {});
     const mockDefinition1 = { disabled: true, id: 'step1' };
-    disabledNode1.getComponentSchema = jest.fn().mockReturnValue({ definition: mockDefinition1 });
+    disabledNode1.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition1);
     disabledNode1.updateModel = jest.fn();
 
     const disabledNode2 = createVisualizationNode('disabled-step-2', {});
     const mockDefinition2 = { disabled: true, id: 'step2' };
-    disabledNode2.getComponentSchema = jest.fn().mockReturnValue({ definition: mockDefinition2 });
+    disabledNode2.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition2);
     disabledNode2.updateModel = jest.fn();
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
@@ -140,7 +136,7 @@ describe('useEnableAllSteps', () => {
   it('should handle nodes with empty definition objects', () => {
     const disabledNode = createVisualizationNode('disabled-step', {});
     const mockDefinition = {};
-    disabledNode.getComponentSchema = jest.fn().mockReturnValue({ definition: mockDefinition });
+    disabledNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
     disabledNode.updateModel = jest.fn();
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
@@ -156,7 +152,7 @@ describe('useEnableAllSteps', () => {
 
   it('should handle nodes with undefined definition', () => {
     const disabledNode = createVisualizationNode('disabled-step', {});
-    disabledNode.getComponentSchema = jest.fn().mockReturnValue({ definition: undefined });
+    disabledNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
     disabledNode.updateModel = jest.fn();
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
@@ -201,9 +197,9 @@ describe('useEnableAllSteps', () => {
 
     // Now simulate nodes becoming disabled
     const disabledNode1 = createVisualizationNode('disabled-step-1', {});
-    disabledNode1.getComponentSchema = jest.fn().mockReturnValue({ definition: { disabled: true } });
+    disabledNode1.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
     const disabledNode2 = createVisualizationNode('disabled-step-2', {});
-    disabledNode2.getComponentSchema = jest.fn().mockReturnValue({ definition: { disabled: true } });
+    disabledNode2.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
 
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
 

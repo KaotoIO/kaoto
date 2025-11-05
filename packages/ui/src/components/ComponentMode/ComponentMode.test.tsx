@@ -21,7 +21,8 @@ describe('ComponentMode', () => {
   const getMockVizNode = (processorName = 'to'): IVisualizationNode => {
     return {
       data: { processorName, path: `route.from.steps.0.${processorName}` },
-      getComponentSchema: () => ({ definition: {} }),
+      getNodeSchema: () => undefined,
+      getNodeDefinition: () => ({}),
       updateModel: jest.fn(),
     } as unknown as IVisualizationNode;
   };

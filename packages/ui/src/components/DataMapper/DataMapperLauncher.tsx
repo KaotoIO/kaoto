@@ -39,7 +39,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const navigate = useNavigate();
   const metadata = useContext(MetadataContext);
   const xsltDocument = useMemo(() => {
-    const xsltComponent = vizNode?.getComponentSchema()?.definition?.steps?.find(isXSLTComponent) as XsltComponentDef;
+    const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
     return DataMapperMetadataService.getXSLTDocumentName(xsltComponent);
   }, [vizNode]);
   const isXsltDocumentDefined = useMemo(() => {
@@ -47,7 +47,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   }, [xsltDocument]);
 
   const onClick = useCallback(() => {
-    navigate(`${Links.DataMapper}/${vizNode?.getComponentSchema()?.definition?.id}`);
+    navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
   }, [navigate, vizNode]);
 
   if (!isDefined(metadata)) {

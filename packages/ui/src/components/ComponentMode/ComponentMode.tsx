@@ -19,7 +19,7 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
 
       const path = vizNode.data.path;
       const rootEipPath = path?.split('.').slice(0, -1).join('.');
-      const definition = vizNode.getComponentSchema()?.definition;
+      const definition = vizNode.getNodeDefinition();
       if (!definition || !rootEipPath) return;
 
       /**

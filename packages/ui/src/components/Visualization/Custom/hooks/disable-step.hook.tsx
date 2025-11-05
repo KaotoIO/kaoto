@@ -1,14 +1,14 @@
+import { setValue } from '@kaoto/forms';
 import { useCallback, useContext, useMemo } from 'react';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { setValue } from '@kaoto/forms';
 
 export const useDisableStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);
-  const isDisabled = !!vizNode.getComponentSchema()?.definition?.disabled;
+  const isDisabled = !!vizNode.getNodeDefinition()?.disabled;
 
   const onToggleDisableNode = useCallback(() => {
-    const newModel = vizNode.getComponentSchema()?.definition || {};
+    const newModel = vizNode.getNodeDefinition() || {};
     setValue(newModel, 'disabled', !isDisabled);
     vizNode.updateModel(newModel);
 

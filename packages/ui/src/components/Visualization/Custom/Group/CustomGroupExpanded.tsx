@@ -20,11 +20,11 @@ import { LayoutType } from '../../Canvas';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { AddStepIcon } from '../Edge/AddStepIcon';
+import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import './CustomGroupExpanded.scss';
 import { CustomGroupProps } from './Group.models';
-import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 
 export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(
   ({ element, onContextMenu, onCollapseToggle, dndDropRef, droppable, selected, onSelect }) => {
@@ -36,7 +36,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const lastUpdate = vizNode?.lastUpdate;
     const settingsAdapter = useContext(SettingsContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-    const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
+    const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
     const tooltipContent = vizNode?.getTooltipContent();

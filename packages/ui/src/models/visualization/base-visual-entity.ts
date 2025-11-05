@@ -1,8 +1,8 @@
-import { IClipboardCopyObject } from '../visualization/clipboard';
 import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
+import { IClipboardCopyObject } from '../visualization/clipboard';
 
 /**
  * BaseVisualCamelEntity
@@ -119,7 +119,12 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   getNodeInteraction(): NodeInteraction;
 
-  getComponentSchema(): VisualComponentSchema | undefined;
+  /** This method returns the node's associated schema used for the configuration form */
+  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined;
+
+  /** This method returns the node's underlying definition in JSON format */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  getNodeDefinition(): any;
 
   /** Returnt fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];
@@ -162,6 +167,7 @@ export interface IVisualizationNodeData {
  *
  * This interface is used to represent a component through
  * the name and the schema of the component.
+ * @deprecated
  */
 export interface VisualComponentSchema {
   schema: KaotoSchemaDefinition['schema'];
