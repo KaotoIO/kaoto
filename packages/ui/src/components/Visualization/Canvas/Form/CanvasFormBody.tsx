@@ -14,13 +14,13 @@ interface CanvasFormTabsProps {
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
   const entitiesContext = useContext(EntitiesContext);
   const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
-  const schema = useMemo(() => vizNode.getComponentSchema()?.schema, [vizNode]);
+  const schema = useMemo(() => vizNode.getNodeSchema(), [vizNode]);
 
   const isUnknownComponent = useMemo(() => {
     return !isDefined(schema) || Object.keys(schema).length === 0;
   }, [schema]);
 
-  const model = vizNode.getComponentSchema()?.definition;
+  const model = vizNode.getNodeDefinition();
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
@@ -29,7 +29,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
         updatedValue = undefined;
       }
 
-      const newModel = vizNode.getComponentSchema()?.definition ?? {};
+      const newModel = vizNode.getNodeDefinition() ?? {};
       setValue(newModel, path, updatedValue);
       vizNode.updateModel(newModel);
       entitiesContext?.updateSourceCodeFromEntities();

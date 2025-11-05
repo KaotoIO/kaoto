@@ -47,16 +47,28 @@ describe('VisualizationNode', () => {
     expect(node.getId()).toEqual('route-8888');
   });
 
-  it('should return the component schema from the underlying BaseVisualCamelEntity', () => {
-    const getComponentSchemaSpy = jest.fn();
+  it('should return the node schema from the underlying BaseVisualCamelEntity', () => {
+    const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
-      getComponentSchema: getComponentSchemaSpy,
+      getComponentSchema: getNodeSchemaSpy,
     } as unknown as BaseVisualCamelEntity;
 
     node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
-    node.getComponentSchema();
+    node.getNodeSchema();
 
-    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.data.path);
+    expect(getNodeSchemaSpy).toHaveBeenCalledWith(node.data.path);
+  });
+
+  it('should return the node definition from the underlying BaseVisualCamelEntity', () => {
+    const getNodeDefinitionSpy = jest.fn();
+    const visualEntity = {
+      getComponentSchema: getNodeDefinitionSpy,
+    } as unknown as BaseVisualCamelEntity;
+
+    node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
+    node.getNodeDefinition();
+
+    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path);
   });
 
   it('should delegate getOmitFormFields() to the underlying BaseVisualCamelEntity', () => {
@@ -115,21 +127,38 @@ describe('VisualizationNode', () => {
     });
   });
 
-  it('should return the component schema from the root node', () => {
+  it('should return the node schema from the root node', () => {
     /** Arrange */
-    const getComponentSchemaSpy = jest.fn();
+    const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
-      getComponentSchema: getComponentSchemaSpy,
+      getComponentSchema: getNodeSchemaSpy,
     } as unknown as BaseVisualCamelEntity;
 
     const rootNode = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
     node.setParentNode(rootNode);
 
     /** Act */
-    node.getComponentSchema();
+    node.getNodeSchema();
 
     /** Assert */
-    expect(getComponentSchemaSpy).toHaveBeenCalledWith(node.data.path);
+    expect(getNodeSchemaSpy).toHaveBeenCalledWith(node.data.path);
+  });
+
+  it('should return the node definition from the root node', () => {
+    /** Arrange */
+    const getNodeDefinitionSpy = jest.fn();
+    const visualEntity = {
+      getComponentSchema: getNodeDefinitionSpy,
+    } as unknown as BaseVisualCamelEntity;
+
+    const rootNode = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
+    node.setParentNode(rootNode);
+
+    /** Act */
+    node.getNodeDefinition();
+
+    /** Assert */
+    expect(getNodeDefinitionSpy).toHaveBeenCalledWith(node.data.path);
   });
 
   describe('updateModel', () => {

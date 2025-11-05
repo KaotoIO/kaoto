@@ -1,6 +1,8 @@
 import { action, makeObservable, observable } from 'mobx';
 import { DefinedComponent } from '../camel-catalog-index';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
+import { IClipboardCopyObject } from '../visualization/clipboard';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -8,9 +10,7 @@ import {
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from './base-visual-entity';
-import { IClipboardCopyObject } from '../visualization/clipboard';
 
 export const createVisualizationNode = <T extends IVisualizationNodeData = IVisualizationNodeData>(
   id: string,
@@ -82,8 +82,12 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeInteraction(this.data) ?? this.DISABLED_NODE_INTERACTION;
   }
 
-  getComponentSchema(): VisualComponentSchema | undefined {
-    return this.getBaseEntity()?.getComponentSchema(this.data.path);
+  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined {
+    return this.getBaseEntity()?.getComponentSchema(this.data.path)?.schema;
+  }
+
+  getNodeDefinition(): unknown {
+    return this.getBaseEntity()?.getComponentSchema(this.data.path)?.definition;
   }
 
   getOmitFormFields(): string[] {

@@ -12,10 +12,8 @@ describe('datamapperActivationFn', () => {
 
   it('should return false if stepDefinition is undefined', () => {
     const result = datamapperActivationFn({
-      getComponentSchema: () => ({
-        definition: undefined,
-        schema: {} as KaotoSchemaDefinition['schema'],
-      }),
+      getNodeSchema: () => ({}) as KaotoSchemaDefinition['schema'],
+      getNodeDefinition: () => undefined,
     } as unknown as IVisualizationNode);
 
     expect(result).toBe(false);
@@ -23,10 +21,8 @@ describe('datamapperActivationFn', () => {
 
   it('should return `true` if stepDefinition is a DataMapper node', () => {
     const result = datamapperActivationFn({
-      getComponentSchema: () => ({
-        definition: datamapperRouteDefinitionStub.from.steps[0].step as Step,
-        schema: {} as KaotoSchemaDefinition['schema'],
-      }),
+      getNodeSchema: () => ({}) as KaotoSchemaDefinition['schema'],
+      getNodeDefinition: () => datamapperRouteDefinitionStub.from.steps[0].step as Step,
     } as unknown as IVisualizationNode);
 
     expect(result).toBe(true);

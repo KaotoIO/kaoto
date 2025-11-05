@@ -11,7 +11,7 @@ import {
   ICamelProcessorDefinition,
   IKameletDefinition,
 } from '../../../../models';
-import { IVisualizationNode, VisualComponentSchema } from '../../../../models/visualization/base-visual-entity';
+import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -370,20 +370,16 @@ describe('CanvasFormBody', () => {
   it('should show suggestions', async () => {
     const { Provider, camelResource } = TestProvidersWrapper();
     const vizNode = camelResource.getVisualEntities()[0].toVizNode();
-    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue({
-      schema: {
-        type: 'object',
-        properties: {
-          name: {
-            type: 'string',
-            title: 'Name',
-          },
+    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue({
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          title: 'Name',
         },
       },
-      definition: {
-        name: 'test-component',
-      },
-    } as VisualComponentSchema);
+    });
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ name: 'test-component' });
 
     const wrapper = render(
       <Provider>

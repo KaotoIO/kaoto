@@ -1,18 +1,18 @@
-import { useCallback, useContext, useMemo } from 'react';
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
-import { isDefined } from '../../../../utils/is-defined';
-import { updateIds } from '../../../../utils/update-ids';
 import { cloneDeep } from 'lodash';
+import { useCallback, useContext, useMemo } from 'react';
 import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { isDefined } from '../../../../utils/is-defined';
+import { updateIds } from '../../../../utils/update-ids';
 import {
   IInteractionType,
   IOnCopyAddon,
   IOnDuplicateAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { processOnCopyAddon, processOnDuplicateAddonRecursively } from '../ContextMenu/item-interaction-helper';
 
 export const useDuplicateStep = (vizNode: IVisualizationNode) => {
@@ -39,7 +39,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         AddStepMode.AppendStep,
         vizNode.data,
-        vizNode.getComponentSchema()?.definition,
+        vizNode.getNodeDefinition(),
       );
 
       /** Check paste compatibility */
@@ -51,7 +51,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
       const filter = entitiesContext.camelResource.getCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         parentVizNode.data,
-        parentVizNode.getComponentSchema()?.definition,
+        parentVizNode.getNodeDefinition(),
       );
 
       /** Check paste compatibility */

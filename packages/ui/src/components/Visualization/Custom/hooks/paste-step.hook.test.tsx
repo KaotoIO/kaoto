@@ -95,7 +95,8 @@ describe('usePasteStep', () => {
   it('should call pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
     jest.spyOn(navigator.permissions, 'query').mockResolvedValue({ state: 'granted' } as PermissionStatus);
     const mockVizNode = {
-      getComponentSchema: jest.fn(),
+      getNodeSchema: jest.fn(),
+      getNodeDefinition: jest.fn(),
       pasteBaseEntityStep: jest.fn(),
     } as unknown as IVisualizationNode;
 

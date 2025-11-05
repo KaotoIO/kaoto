@@ -26,7 +26,7 @@ describe('useDisableStep', () => {
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test-step', {});
-    mockVizNode.getComponentSchema = jest.fn();
+    mockVizNode.getNodeDefinition = jest.fn();
     mockVizNode.updateModel = jest.fn();
   });
 
@@ -39,9 +39,7 @@ describe('useDisableStep', () => {
   );
 
   it('should return onToggleDisableNode function and isDisabled status', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: false },
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -52,9 +50,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as false when step is not disabled', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: false },
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -62,9 +58,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as true when step is disabled', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: true },
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -72,9 +66,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as false when disabled property is undefined', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: {},
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -82,17 +74,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as false when definition is undefined', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: undefined,
-    });
-
-    const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
-
-    expect(result.current.isDisabled).toBe(false);
-  });
-
-  it('should return isDisabled as false when component schema is undefined', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue(undefined);
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -101,9 +83,7 @@ describe('useDisableStep', () => {
 
   it('should enable step when currently disabled', () => {
     const mockDefinition = { disabled: true, id: 'test-step' };
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: mockDefinition,
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -116,9 +96,7 @@ describe('useDisableStep', () => {
 
   it('should disable step when currently enabled', () => {
     const mockDefinition = { disabled: false, id: 'test-step' };
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: mockDefinition,
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -131,9 +109,7 @@ describe('useDisableStep', () => {
 
   it('should work with empty definition object', () => {
     const mockDefinition = {};
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: mockDefinition,
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -145,9 +121,7 @@ describe('useDisableStep', () => {
   });
 
   it('should create new definition object when undefined', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: undefined,
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -159,9 +133,7 @@ describe('useDisableStep', () => {
   });
 
   it('should maintain stable reference when dependencies do not change', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: false },
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
 
     const { result, rerender } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -172,17 +144,12 @@ describe('useDisableStep', () => {
   });
 
   it('should update references when disabled status changes', () => {
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: false },
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
 
     const { result, rerender } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
     const firstResult = result.current;
-
-    mockVizNode.getComponentSchema = jest.fn().mockReturnValue({
-      definition: { disabled: true },
-    });
+    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
 
     rerender();
 

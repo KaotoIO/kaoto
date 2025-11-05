@@ -14,7 +14,7 @@ import {
   KameletVisualEntity,
   KaotoSchemaDefinition,
 } from '../../../../models';
-import { IVisualizationNode, VisualComponentSchema } from '../../../../models/visualization/base-visual-entity';
+import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
@@ -90,7 +90,8 @@ describe('CanvasForm', () => {
       },
     };
 
-    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
     const { container } = render(
       <EntitiesContext.Provider value={null}>
@@ -108,11 +109,6 @@ describe('CanvasForm', () => {
   });
 
   it('should render nothing if no schema and no definition is available', () => {
-    const visualComponentSchema: VisualComponentSchema = {
-      schema: null as unknown as KaotoSchemaDefinition['schema'],
-      definition: null,
-    };
-
     const vizNode = createVisualizationNode('route', {
       path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
@@ -128,7 +124,8 @@ describe('CanvasForm', () => {
       },
     };
 
-    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue(visualComponentSchema);
+    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
 
     const { container } = render(
       <EntitiesContext.Provider value={null}>

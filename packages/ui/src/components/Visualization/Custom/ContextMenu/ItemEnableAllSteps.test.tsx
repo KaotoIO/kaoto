@@ -65,7 +65,7 @@ describe('ItemEnableAllSteps', () => {
     const visualizationController = ControllerService.createController();
     visualizationController.fromModel(model);
     const disabledNodes = getVisualizationNodesFromGraph(visualizationController.getGraph(), (node) => {
-      return node.getComponentSchema()?.definition?.disabled;
+      return node.getNodeDefinition()?.disabled;
     });
 
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
@@ -84,7 +84,7 @@ describe('ItemEnableAllSteps', () => {
 
     await waitFor(async () => {
       disabledNodes.forEach((node) => {
-        expect(node.getComponentSchema()?.definition?.disabled).toBe(false);
+        expect(node.getNodeDefinition()?.disabled).toBe(false);
       });
     });
 

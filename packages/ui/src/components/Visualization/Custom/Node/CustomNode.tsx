@@ -27,7 +27,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useRef, useMemo } from 'react';
+import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
@@ -38,11 +38,11 @@ import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
-import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
@@ -70,7 +70,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
     const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
     const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
-    const isDisabled = !!vizNode?.getComponentSchema()?.definition?.disabled;
+    const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
@@ -178,7 +178,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               const filter = entitiesContext.camelResource.getCompatibleComponents(
                 mode,
                 filterNode.data,
-                filterNode.getComponentSchema()?.definition,
+                filterNode.getNodeDefinition(),
               );
               return catalogModalContext?.checkCompatibility(compatibilityCheckNodeName, filter) ?? false;
             },
