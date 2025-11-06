@@ -9,6 +9,16 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
+
+const mockController = {
+  fromModel: jest.fn(),
+};
+
+jest.mock('@patternfly/react-topology', () => ({
+  useVisualizationController: () => mockController,
+}));
 
 // Mock the permission API
 Object.assign(navigator, {
@@ -145,5 +155,74 @@ describe('usePasteStep', () => {
     expect(getTypeSpy).toHaveBeenCalledTimes(1);
     expect(mockVizNode.pasteBaseEntityStep as jest.Mock).toHaveBeenCalledTimes(0);
     expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(0);
+  });
+
+  describe('onPasteStep', () => {
+    const mockChoiceVizNode = createVisualizationNode('choice', { processorName: 'choice' });
+    mockChoiceVizNode.pasteBaseEntityStep = jest.fn();
+
+    const getProcessorStepsPropertiesMock = jest.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
+
+    const whenContent = {
+      type: SourceSchemaType.Route,
+      name: 'when',
+      definition: {
+        steps: [],
+        simple: {
+          expression: '${header.foo} == 1',
+        },
+      },
+    } as IClipboardCopyObject;
+
+    beforeEach(() => {
+      // Mock the ClipboardManager.paste() to return a content which isn't compatible
+      jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(whenContent);
+      // Mock the compatibility check to return true
+      jest.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(true);
+      mockController.fromModel.mockClear();
+    });
+
+    it('should paste step with InsertSpecialChildStep mode', async () => {
+      mockChoiceVizNode.getChildren = jest.fn().mockReturnValue(undefined);
+
+      const { result } = renderHook(() => usePasteStep(mockChoiceVizNode, AddStepMode.InsertSpecialChildStep), {
+        wrapper,
+      });
+
+      await result.current.onPasteStep();
+
+      expect(mockChoiceVizNode.pasteBaseEntityStep).toHaveBeenCalledWith(
+        whenContent,
+        AddStepMode.InsertSpecialChildStep,
+      );
+
+      expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(
+        (mockChoiceVizNode.data as CamelRouteVisualEntityData).processorName,
+      );
+
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    });
+
+    it('should call controller.fromModel() when mode is InsertSpecialChildStep and conditions are met', async () => {
+      mockChoiceVizNode.getChildren = jest
+        .fn()
+        .mockReturnValue([createVisualizationNode('test-when', { processorName: 'when' })]);
+
+      getProcessorStepsPropertiesMock.mockReturnValue([
+        { name: 'when', type: 'array-clause' },
+        { name: 'otherwise', type: 'array-clause' },
+      ]);
+
+      const { result } = renderHook(() => usePasteStep(mockChoiceVizNode, AddStepMode.InsertSpecialChildStep), {
+        wrapper,
+      });
+
+      await result.current.onPasteStep();
+
+      expect(mockController.fromModel).toHaveBeenCalledWith({
+        nodes: [],
+        edges: [],
+      });
+    });
   });
 });

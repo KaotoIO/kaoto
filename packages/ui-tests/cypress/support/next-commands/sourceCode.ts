@@ -90,6 +90,11 @@ Cypress.Commands.add('editorScrollToTop', () => {
   cy.get('.pf-v6-c-code-editor').click().type('{ctrl}{home}', { release: false });
 });
 
+Cypress.Commands.add('editorScrollToMiddle', () => {
+  cy.waitForEditorToLoad();
+  cy.get('.pf-v6-c-code-editor').scrollTo('center', { ensureScrollable: false });
+});
+
 Cypress.Commands.add('editorClickUndoXTimes', (repeatCount: number) => {
   repeatCount = repeatCount ?? 1;
   Array.from({ length: repeatCount }).forEach(() => {
