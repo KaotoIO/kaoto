@@ -357,7 +357,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       setValue(this.entityDef, `${data.path}.${property.name}`, defaultValue);
     } else {
       const arrayPath: ProcessorDefinition[] = getArrayProperty(this.entityDef, `${data.path}.${property.name}`);
-      arrayPath.unshift(defaultValue);
+      mode === AddStepMode.InsertChildStep ? arrayPath.unshift(defaultValue) : arrayPath.push(defaultValue);
     }
   }
 }

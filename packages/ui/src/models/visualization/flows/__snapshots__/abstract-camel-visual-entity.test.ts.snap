@@ -423,9 +423,6 @@ exports[`AbstractCamelVisualEntity pasteStep should insert a new special child s
     },
     "when": [
       {
-        "expression": "simple("\${body} contains 'test'")",
-      },
-      {
         "simple": "\${header.myChoice} == 1",
         "steps": [
           {
@@ -435,6 +432,9 @@ exports[`AbstractCamelVisualEntity pasteStep should insert a new special child s
             },
           },
         ],
+      },
+      {
+        "expression": "simple("\${body} contains 'test'")",
       },
     ],
   },

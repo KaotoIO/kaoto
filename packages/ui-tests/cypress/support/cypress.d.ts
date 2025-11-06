@@ -138,6 +138,7 @@ declare global {
       addMetadataField(fieldName: string): Chainable<JQuery<Element>>;
       // sourceCode
       editorScrollToTop(): Chainable<JQuery<Element>>;
+      editorScrollToMiddle(): Chainable<JQuery<Element>>;
       waitForEditorToLoad(): Chainable<JQuery<Element>>;
       editorAddText(line: number, text: string): Chainable<JQuery<Element>>;
       uploadFixture(fixture: string): Chainable<JQuery<Element>>;

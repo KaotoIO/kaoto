@@ -6,12 +6,17 @@ import { CatalogModalContext } from '../../../../providers/catalog-modal.provide
 import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
+import { isDefined } from '../../../../utils/is-defined';
+import { useVisualizationController } from '@patternfly/react-topology';
 
 export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => {
   const entitiesContext = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const pasteModalContext = useContext(ActionConfirmationModalContext);
   const [isCompatible, setIsCompatible] = useState(false);
+  const controller = useVisualizationController();
 
   /** validate compatibility of the clipboard node */
   const checkClipboardCompatibility = useCallback(
@@ -75,9 +80,30 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
 
     /** Paste copied node to the entities */
     vizNode.pasteBaseEntityStep(pastedNodeValue, mode);
+
+    // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
+    if (mode === AddStepMode.InsertSpecialChildStep) {
+      const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+        (vizNode.data as CamelRouteVisualEntityData).processorName,
+      );
+      if (
+        stepsProperties.some(
+          (property) =>
+            property.type === 'array-clause' &&
+            property.name === pastedNodeValue.name &&
+            isDefined(vizNode.getChildren()),
+        )
+      ) {
+        controller.fromModel({
+          nodes: [],
+          edges: [],
+        });
+      }
+    }
+
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [checkClipboardCompatibility, entitiesContext, mode, pasteModalContext, vizNode]);
+  }, [checkClipboardCompatibility, controller, entitiesContext, mode, pasteModalContext, vizNode]);
 
   const value = useMemo(
     () => ({

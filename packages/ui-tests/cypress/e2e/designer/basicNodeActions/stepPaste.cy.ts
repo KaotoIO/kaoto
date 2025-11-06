@@ -13,7 +13,7 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.checkNodeExist('when-setHeader', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
+    cy.editorScrollToMiddle();
 
     cy.checkMultipleCodeSpanEntry('- description: when-setHeader', 2);
   });
