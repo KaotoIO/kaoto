@@ -159,6 +159,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "title": "Id",
             "type": "string",
           },
+          "note": {
+            "$comment": "group:common",
+            "description": "Sets the note of this node",
+            "title": "Note",
+            "type": "string",
+          },
           "parameters": {
             "type": "object",
           },
@@ -203,6 +209,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "title": "Id",
             "type": "string",
           },
+          "note": {
+            "$comment": "group:common",
+            "description": "Sets the note of this node",
+            "title": "Note",
+            "type": "string",
+          },
           "urn": {
             "$comment": "group:common",
             "description": "The input type URN.",
@@ -237,6 +249,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
             "$comment": "group:common",
             "description": "Sets the id of this node",
             "title": "Id",
+            "type": "string",
+          },
+          "note": {
+            "$comment": "group:common",
+            "description": "Sets the note of this node",
+            "title": "Note",
             "type": "string",
           },
           "urn": {
@@ -1034,6 +1052,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "title": "Node Prefix Id",
         "type": "string",
       },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
+        "type": "string",
+      },
       "outputType": {
         "$comment": "group:advanced",
         "$ref": "#/definitions/org.apache.camel.model.OutputTypeDefinition",
@@ -1085,10 +1109,10 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
       },
       "streamCache": {
         "$comment": "group:common",
+        "default": false,
         "description": "Whether stream caching is enabled on this route.",
-        "format": "bean:java.lang.Booleam",
         "title": "Stream Cache",
-        "type": "string",
+        "type": "boolean",
       },
       "trace": {
         "$comment": "group:common",
@@ -1135,6 +1159,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "$comment": "group:common",
         "description": "Sets the id of this node",
         "title": "Id",
+        "type": "string",
+      },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
         "type": "string",
       },
       "parameters": {
@@ -1229,6 +1259,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "$comment": "group:common",
         "description": "Sets the id of this node",
         "title": "Id",
+        "type": "string",
+      },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
         "type": "string",
       },
       "parameters": {
@@ -1600,6 +1636,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "title": "Message",
         "type": "string",
       },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
+        "type": "string",
+      },
     },
     "required": [
       "message",
@@ -1639,6 +1681,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should build the a
         "$comment": "group:common",
         "description": "Sets the id of this node",
         "title": "Id",
+        "type": "string",
+      },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
         "type": "string",
       },
       "parameters": {
@@ -2952,6 +3000,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should not build a
         "title": "Id",
         "type": "string",
       },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
+        "type": "string",
+      },
       "pattern": {
         "$comment": "group:advanced",
         "description": "Sets the optional ExchangePattern used to invoke this endpoint",
@@ -3065,6 +3119,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "title": "Message",
         "type": "string",
       },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
+        "type": "string",
+      },
     },
     "required": [
       "message",
@@ -3107,6 +3167,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "$comment": "group:common",
         "description": "Sets the id of this node",
         "title": "Id",
+        "type": "string",
+      },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
         "type": "string",
       },
       "parameters": {
@@ -3254,6 +3320,12 @@ exports[`CamelComponentSchemaService getVisualComponentSchema should transform a
         "description": "Whether to ignore invalid endpoint URIs and skip sending the message.",
         "title": "Ignore Invalid Endpoint",
         "type": "boolean",
+      },
+      "note": {
+        "$comment": "group:common",
+        "description": "Sets the note of this node",
+        "title": "Note",
+        "type": "string",
       },
       "parameters": {
         "description": "Endpoint properties description",
