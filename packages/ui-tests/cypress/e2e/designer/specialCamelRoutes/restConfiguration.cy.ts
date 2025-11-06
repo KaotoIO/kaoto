@@ -33,8 +33,8 @@ describe('Test for root on rest configuration container', () => {
     cy.interactWithConfigInputObject('enableCORS');
     cy.interactWithConfigInputObject('enableNoContentResponse');
     cy.interactWithConfigInputObject('inlineRoutes');
-    cy.interactWithConfigInputObject('jsonDataFormat', 'testJsonDataFormat');
-    cy.interactWithConfigInputObject('xmlDataFormat', 'testXmlDataFormat');
+    cy.selectInTypeaheadField('jsonDataFormat', 'gson');
+    cy.selectInTypeaheadField('xmlDataFormat', 'jacksonXml');
 
     cy.addSingleKVProperty('componentProperty', 'componentTestKey', 'componentTestValue');
     cy.addSingleKVProperty('endpointProperty', 'endpointTestKey', 'endpointTestValue');
@@ -60,13 +60,13 @@ describe('Test for root on rest configuration container', () => {
     cy.checkCodeSpanLine('enableNoContentResponse: true');
     cy.checkCodeSpanLine('host: testHost');
     cy.checkCodeSpanLine('hostNameResolver: localIp');
-    cy.checkCodeSpanLine('jsonDataFormat: testJsonDataFormat');
+    cy.checkCodeSpanLine('jsonDataFormat: gson');
     cy.checkCodeSpanLine('port: "8080"');
     cy.checkCodeSpanLine('producerApiDoc: testProducerApiDoc');
     cy.checkCodeSpanLine('producerComponent: vertx-http');
     cy.checkCodeSpanLine('scheme: testScheme');
     cy.checkCodeSpanLine('skipBindingOnErrorCode: true');
-    cy.checkCodeSpanLine('xmlDataFormat: testXmlDataFormat');
+    cy.checkCodeSpanLine('xmlDataFormat: jacksonXml');
     cy.checkCodeSpanLine('componentProperty:');
     cy.checkCodeSpanLine('- key: componentTestKey');
     cy.checkCodeSpanLine('value: componentTestValue');

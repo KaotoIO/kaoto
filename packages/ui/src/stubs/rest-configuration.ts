@@ -197,14 +197,18 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Json Data Format',
       description:
-        'Name of specific json data format to use. By default jackson will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
+        'Name of specific json data format to use. By default, jackson will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
+      default: 'jackson',
+      enum: ['jackson', 'jsonb', 'fastjson', 'gson'],
       $comment: 'group:advanced',
     },
     xmlDataFormat: {
       type: 'string',
       title: 'Xml Data Format',
       description:
-        'Name of specific XML data format to use. By default jaxb will be used. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
+        'Name of specific XML data format to use. By default jaxb will be used, but jacksonXml is also supported. Important: This option is only for setting a custom name of the data format, not to refer to an existing data format instance.',
+      default: 'jaxb',
+      enum: ['jaxb', 'jacksonXml'],
       $comment: 'group:advanced',
     },
     componentProperty: {

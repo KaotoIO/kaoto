@@ -3,7 +3,7 @@ describe('Test for Metadata Editor support', () => {
     cy.openHomePage();
   });
 
-  it.only('Metadata Editor - edit metadata using metadata editor', () => {
+  it('Metadata Editor - edit metadata using metadata editor', () => {
     cy.uploadFixture('flows/kameletBinding/kafkaSourceSink.yaml');
     cy.openMetadata();
 
@@ -98,8 +98,8 @@ describe('Test for Metadata Editor support', () => {
     cy.checkCodeSpanLine('creationTimestamp: updatedCreationTimestamp');
     cy.checkCodeSpanLine('deletionTimestamp: updatedDeletionTimestamp');
     cy.checkCodeSpanLine('generateName: updatedGenerateName');
-    cy.checkCodeSpanLine('generation: "20"');
-    cy.checkCodeSpanLine('deletionGracePeriodSeconds: "2000"');
+    cy.checkCodeSpanLine('generation: 20');
+    cy.checkCodeSpanLine('deletionGracePeriodSeconds: 2000');
     cy.checkCodeSpanLine('namespace: updatedNamespace');
     cy.checkCodeSpanLine('resourceVersion: updatedResourceVersion');
     cy.checkCodeSpanLine('selfLink: updatedSelfLink');
