@@ -9,10 +9,9 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
+import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from './support/camel-component-types';
-import { NodeMapperService } from './nodes/node-mapper.service';
-import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class CamelInterceptFromVisualEntity
   extends AbstractCamelVisualEntity<{ interceptFrom: InterceptFrom }>
@@ -92,13 +91,6 @@ export class CamelInterceptFromVisualEntity
       canRemoveFlow: data.path === CamelInterceptFromVisualEntity.ROOT_PATH,
       canBeDisabled,
     };
-  }
-
-  getNodeValidationText(path?: string | undefined): string | undefined {
-    const componentVisualSchema = this.getComponentSchema(path);
-    if (!componentVisualSchema) return undefined;
-
-    return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {

@@ -50,7 +50,7 @@ describe('VisualizationNode', () => {
   it('should return the node schema from the underlying BaseVisualCamelEntity', () => {
     const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
-      getComponentSchema: getNodeSchemaSpy,
+      getNodeSchema: getNodeSchemaSpy,
     } as unknown as BaseVisualCamelEntity;
 
     node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
@@ -62,7 +62,7 @@ describe('VisualizationNode', () => {
   it('should return the node definition from the underlying BaseVisualCamelEntity', () => {
     const getNodeDefinitionSpy = jest.fn();
     const visualEntity = {
-      getComponentSchema: getNodeDefinitionSpy,
+      getNodeDefinition: getNodeDefinitionSpy,
     } as unknown as BaseVisualCamelEntity;
 
     node = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
@@ -131,7 +131,7 @@ describe('VisualizationNode', () => {
     /** Arrange */
     const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
-      getComponentSchema: getNodeSchemaSpy,
+      getNodeSchema: getNodeSchemaSpy,
     } as unknown as BaseVisualCamelEntity;
 
     const rootNode = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });
@@ -148,7 +148,7 @@ describe('VisualizationNode', () => {
     /** Arrange */
     const getNodeDefinitionSpy = jest.fn();
     const visualEntity = {
-      getComponentSchema: getNodeDefinitionSpy,
+      getNodeDefinition: getNodeDefinitionSpy,
     } as unknown as BaseVisualCamelEntity;
 
     const rootNode = createVisualizationNode('test', { path: 'test-path', entity: visualEntity });

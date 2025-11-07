@@ -3,10 +3,10 @@ import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 
 describe('CamelRestConfigurationVisualEntity', () => {
   const REST_CONFIGURATION_ID_REGEXP = /^restConfiguration-[a-zA-Z0-9]{4}$/;
@@ -75,18 +75,16 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getTooltipContent()).toEqual('restConfiguration');
   });
 
-  describe('getComponentSchema', () => {
-    it('should return entity current definition', () => {
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+  it('should return entity current definition', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-      expect(entity.getComponentSchema().definition).toEqual(restConfigurationDef.restConfiguration);
-    });
+    expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
+  });
 
-    it('should return schema from store', () => {
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+  it('should return schema from store', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-      expect(entity.getComponentSchema().schema).toEqual(restConfigurationSchema);
-    });
+    expect(entity.getNodeSchema()).toEqual(restConfigurationSchema);
   });
 
   describe('updateModel', () => {

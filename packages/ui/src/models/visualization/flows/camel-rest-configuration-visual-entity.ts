@@ -3,18 +3,18 @@ import { getValidator } from '@kaoto/forms';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { NodeIconResolver, NodeIconType, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from '../base-visual-entity';
+import { IClipboardCopyObject } from '../clipboard';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
-import { IClipboardCopyObject } from '../clipboard';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -97,13 +97,13 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return;
   }
 
-  getComponentSchema(): VisualComponentSchema {
+  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined {
     const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'restConfiguration');
+    return schema?.propertiesSchema ?? {};
+  }
 
-    return {
-      definition: Object.assign({}, this.restConfigurationDef.restConfiguration),
-      schema: schema?.propertiesSchema ?? {},
-    };
+  getNodeDefinition(): unknown {
+    return { ...this.restConfigurationDef.restConfiguration };
   }
 
   getOmitFormFields(): string[] {
@@ -134,11 +134,11 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   }
 
   getNodeValidationText(): string | undefined {
-    const componentVisualSchema = this.getComponentSchema();
-    if (!componentVisualSchema) return undefined;
+    const schema = this.getNodeSchema();
+    if (!schema) return undefined;
 
     if (!this.schemaValidator) {
-      this.schemaValidator = getValidator<RestConfiguration>(componentVisualSchema.schema, { useDefaults: 'empty' });
+      this.schemaValidator = getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
     }
 
     this.schemaValidator?.({ ...this.restConfigurationDef.restConfiguration });

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`CamelErrorHandlerVisualEntity getComponentSchema should return schema from store 1`] = `
+exports[`CamelErrorHandlerVisualEntity should return schema from store 1`] = `
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,

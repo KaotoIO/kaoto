@@ -2,7 +2,6 @@ import { resolveSchemaWithRef } from '@kaoto/forms';
 import { ExpressionService } from '../../../../../components/Visualization/Canvas/Form/fields/ExpressionField/expression.service';
 import { isDefined } from '../../../../../utils/is-defined';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
-import { VisualComponentSchema } from '../../../base-visual-entity';
 
 interface IValidationResult {
   level: 'error' | 'warning' | 'info';
@@ -30,16 +29,11 @@ function isEmptyOrNotArray(value: unknown): boolean {
  * property file.
  */
 export class ModelValidationService {
-  static validateNodeStatus(schema: VisualComponentSchema | undefined): string {
-    if (!schema?.schema) return '';
+  static validateNodeStatus(schema: KaotoSchemaDefinition['schema'], definition: unknown): string {
+    if (!schema) return '';
     let message = '';
 
-    const validationResult = this.validateRequiredProperties(
-      schema.schema,
-      schema.definition,
-      '',
-      schema.schema.definitions,
-    );
+    const validationResult = this.validateRequiredProperties(schema, definition, '', schema.definitions);
     const missingProperties = validationResult
       .filter((result) => result.type === 'missingRequired')
       .map((result) => result.propertyName);

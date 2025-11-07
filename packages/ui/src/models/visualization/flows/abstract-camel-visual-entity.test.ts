@@ -1,10 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
+import { NonStringEIP } from '../../camel/types';
 import { CatalogKind } from '../../catalog-kind';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode } from '../base-visual-entity';
@@ -126,56 +127,62 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
-  describe('getComponentSchema', () => {
+  describe('getNodeSchema', () => {
     it('should return undefined if path is not provided', () => {
-      const result = abstractVisualEntity.getComponentSchema();
+      const result = abstractVisualEntity.getNodeSchema();
       expect(result).toBeUndefined();
     });
 
-    it('should return visualComponentSchema when path is valid', () => {
-      const path = 'from.steps.0';
-      const visualComponentSchema = {
-        schema: {},
-        definition: {
-          parameters: { some: 'parameter' },
-        },
-      };
+    it('should return schema when path is valid', () => {
+      const path = 'route.from.steps.1.choice';
 
-      jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema').mockReturnValue(visualComponentSchema);
+      const result = abstractVisualEntity.getNodeSchema(path);
 
-      const result = abstractVisualEntity.getComponentSchema(path);
-      expect(result).toEqual(visualComponentSchema);
+      expect(result).toMatchObject({ type: 'object', title: 'Choice' });
+    });
+  });
+
+  describe('getNodeDefinition', () => {
+    it('should return undefined if path is not provided', () => {
+      const result = abstractVisualEntity.getNodeDefinition();
+      expect(result).toBeUndefined();
     });
 
-    it('should override parameters with an empty object when parameters is null', () => {
-      const path = 'from.steps.0';
-      const visualComponentSchema = {
-        schema: {},
-        definition: {
-          parameters: null,
-        },
+    it('should return updated node definition when path is valid', () => {
+      const path = 'route.from.steps.2.to';
+      const definition = {
+        uri: 'direct',
+        parameters: { name: 'my-route', bridgeErrorHandler: true },
       };
 
-      jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema').mockReturnValue(visualComponentSchema);
-
-      const result = abstractVisualEntity.getComponentSchema(path);
-      expect(result?.definition.parameters).toEqual({});
+      const result = abstractVisualEntity.getNodeDefinition(path);
+      expect(result).toEqual(definition);
     });
 
-    it.each([undefined, { property: 'value' }])('should not do anything when parameters is not null', (value) => {
-      const path = 'from.steps.0';
-      const visualComponentSchema = {
-        schema: {},
-        definition: {
-          parameters: value,
-        },
-      };
-      const expected = JSON.parse(JSON.stringify(visualComponentSchema));
+    it.each([null, undefined])(
+      'should override parameters with an empty object when parameters is null or undefined',
+      (parameters) => {
+        const path = 'route.from.steps.2.to';
+        (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
+        (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters =
+          parameters as unknown as Record<string, unknown>;
 
-      jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema').mockReturnValue(visualComponentSchema);
+        const definition = abstractVisualEntity.getNodeDefinition(path);
+        expect((definition as NonStringEIP<To>).parameters).toEqual({});
+      },
+    );
 
-      const result = abstractVisualEntity.getComponentSchema(path);
-      expect(result).toEqual(expected);
+    it('should not do anything when parameters is not null', () => {
+      const path = 'route.from.steps.2.to';
+      (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
+      (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters = { prop: true };
+
+      const definition = abstractVisualEntity.getNodeDefinition(path);
+
+      expect(definition).toEqual({
+        uri: 'direct',
+        parameters: { prop: true },
+      });
     });
   });
 

@@ -3,16 +3,16 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getCustomSchemaFromKamelet, isDefined, setValue, updateKameletFromCustomSchema } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
+import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition, IKameletSpec } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings';
-import { AddStepMode, IVisualizationNodeData, VisualComponentSchema } from '../base-visual-entity';
+import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
+import { IClipboardCopyObject } from '../clipboard';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
-import { IClipboardCopyObject } from '../clipboard';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {
   id: string;
@@ -82,15 +82,20 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return { from: this.entityDef.template.from };
   }
 
-  getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
+  getNodeSchema(path?: string | undefined): KaotoSchemaDefinition['schema'] | undefined {
     if (path === this.getRootPath()) {
-      return {
-        schema: this.getRootKameletSchema(),
-        definition: getCustomSchemaFromKamelet(this.kamelet),
-      };
+      return this.getRootKameletSchema();
     }
 
-    return super.getComponentSchema(path);
+    return super.getNodeSchema(path);
+  }
+
+  getNodeDefinition(path?: string): unknown {
+    if (path === this.getRootPath()) {
+      return getCustomSchemaFromKamelet(this.kamelet);
+    }
+
+    return super.getNodeDefinition(path);
   }
 
   getCopiedContent(path?: string): IClipboardCopyObject | undefined {

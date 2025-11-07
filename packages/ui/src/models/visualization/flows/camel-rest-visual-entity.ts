@@ -3,12 +3,12 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -46,24 +46,32 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     this.id = id;
   }
 
-  getComponentSchema(path?: string): VisualComponentSchema | undefined {
+  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (path === CamelRestVisualEntity.ROOT_PATH) {
-      return {
-        definition: Object.assign({}, this.restDef.rest),
-        schema: CamelCatalogService.getComponent(CatalogKind.Entity, 'rest')?.propertiesSchema ?? {},
-      };
+      return CamelCatalogService.getComponent(CatalogKind.Entity, 'rest')?.propertiesSchema ?? {};
     }
 
     /** If we're targetting a Rest method, the path would be `rest.get.0` */
     const method = path?.split('.')[1] ?? '';
     if (isDefined(path) && CamelComponentFilterService.REST_DSL_METHODS.includes(method)) {
-      return {
-        definition: Object.assign({}, getValue(this.restDef, path)),
-        schema: CamelCatalogService.getComponent(CatalogKind.Pattern, method)?.propertiesSchema ?? {},
-      };
+      return CamelCatalogService.getComponent(CatalogKind.Pattern, method)?.propertiesSchema ?? {};
     }
 
-    return super.getComponentSchema(path);
+    return super.getNodeSchema(path);
+  }
+
+  getNodeDefinition(path?: string): unknown {
+    if (path === CamelRestVisualEntity.ROOT_PATH) {
+      return { ...this.restDef.rest };
+    }
+
+    /** If we're targetting a Rest method, the path would be `rest.get.0` */
+    const method = path?.split('.')[1] ?? '';
+    if (isDefined(path) && CamelComponentFilterService.REST_DSL_METHODS.includes(method)) {
+      return { ...getValue(this.restDef, path) };
+    }
+
+    return super.getNodeDefinition(path);
   }
 
   getOmitFormFields(): string[] {

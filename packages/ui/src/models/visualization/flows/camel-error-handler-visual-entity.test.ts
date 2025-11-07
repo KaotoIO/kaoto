@@ -1,11 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
-import { EntityType } from '../../camel/entities';
-import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { CamelCatalogService } from './camel-catalog.service';
-import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
+import { CatalogKind } from '../../catalog-kind';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 
 describe('CamelErrorHandlerVisualEntity', () => {
   const ERROR_HANDLER_ID_REGEXP = /^errorHandler-[a-zA-Z0-9]{4}$/;
@@ -87,18 +87,16 @@ describe('CamelErrorHandlerVisualEntity', () => {
     expect(entity.getTooltipContent()).toEqual('errorHandler');
   });
 
-  describe('getComponentSchema', () => {
-    it('should return entity current definition', () => {
-      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+  it('should return entity current definition', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-      expect(entity.getComponentSchema().definition).toEqual(errorHandlerDef.errorHandler);
-    });
+    expect(entity.getNodeDefinition()).toEqual(errorHandlerDef.errorHandler);
+  });
 
-    it('should return schema from store', () => {
-      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+  it('should return schema from store', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-      expect(entity.getComponentSchema().schema).toMatchSnapshot();
-    });
+    expect(entity.getNodeSchema()).toMatchSnapshot();
   });
 
   describe('updateModel', () => {

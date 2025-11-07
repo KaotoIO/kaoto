@@ -2,33 +2,32 @@ import { Pipe } from '@kaoto/camel-catalog/types';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import {
   getArrayProperty,
-  NodeIconResolver,
-  NodeIconType,
   getCustomSchemaFromPipe,
-  updatePipeFromCustomSchema,
-  setValue,
   getValue,
   isDefined,
+  NodeIconResolver,
+  NodeIconType,
+  setValue,
+  updatePipeFromCustomSchema,
 } from '../../../utils';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { PipeStep } from '../../camel/entities/pipe-overrides';
+import { SourceSchemaType } from '../../camel/source-schema-type';
+import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from '../base-visual-entity';
+import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
+import { CamelCatalogService } from './camel-catalog.service';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
-import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import { CamelCatalogService } from './camel-catalog.service';
-import { CatalogKind } from '../../catalog-kind';
-import { IClipboardCopyObject } from '../clipboard';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export class PipeVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -90,17 +89,27 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return KameletSchemaService.getTooltipContent(stepModel, path);
   }
 
-  getComponentSchema(path?: string): VisualComponentSchema | undefined {
+  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (!path) return undefined;
     if (path === this.getRootPath()) {
-      return {
-        schema: this.getRootPipeSchema(),
-        definition: getCustomSchemaFromPipe(this.pipe),
-      };
+      return this.getRootPipeSchema();
     }
 
     const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return KameletSchemaService.getVisualComponentSchema(stepModel);
+    return (
+      KameletSchemaService.getKameletCatalogEntry(stepModel)?.propertiesSchema ??
+      ({} as KaotoSchemaDefinition['schema'])
+    );
+  }
+
+  getNodeDefinition(path?: string): unknown {
+    if (!path) return undefined;
+    if (path === this.getRootPath()) {
+      return getCustomSchemaFromPipe(this.pipe);
+    }
+
+    const stepModel: PipeStep = getValue(this.pipe.spec, path);
+    return stepModel?.properties ?? {};
   }
 
   getOmitFormFields(): string[] {
@@ -216,10 +225,11 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   getNodeValidationText(path?: string | undefined): string | undefined {
-    const componentVisualSchema = this.getComponentSchema(path);
-    if (!componentVisualSchema) return undefined;
+    const schema = this.getNodeSchema(path);
+    const definition = this.getNodeDefinition(path);
+    if (!schema || !definition) return undefined;
 
-    return ModelValidationService.validateNodeStatus(componentVisualSchema);
+    return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
   toVizNode(): IVisualizationNode {
@@ -285,7 +295,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   private getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): IVisualizationNode {
-    const kameletDefinition = KameletSchemaService.getKameletDefinition(step);
+    const kameletDefinition = KameletSchemaService.getKameletCatalogEntry(step);
     const isPlaceholder = step?.ref?.name === undefined;
     const icon = isPlaceholder
       ? NodeIconResolver.getPlaceholderIcon()
