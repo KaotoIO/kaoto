@@ -83,11 +83,11 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined {
-    return this.getBaseEntity()?.getComponentSchema(this.data.path)?.schema;
+    return this.getBaseEntity()?.getNodeSchema(this.data.path);
   }
 
   getNodeDefinition(): unknown {
-    return this.getBaseEntity()?.getComponentSchema(this.data.path)?.definition;
+    return this.getBaseEntity()?.getNodeDefinition(this.data.path);
   }
 
   getOmitFormFields(): string[] {

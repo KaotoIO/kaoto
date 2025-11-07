@@ -2,10 +2,10 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { CamelCatalogService } from '../../camel-catalog.service';
 import { CamelComponentSchemaService } from '../camel-component-schema.service';
 import { ModelValidationService } from './model-validation.service';
-import { VisualComponentSchema } from '../../../base-visual-entity';
 
 describe('ModelValidationService', () => {
   const camelRoute = {
@@ -52,93 +52,92 @@ describe('ModelValidationService', () => {
 
   describe('validateNodeStatus()', () => {
     it('should return a validation text pointing to a single missing property', () => {
+      const schema = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'activemq' });
       const model = camelRoute.route.from.steps[0].to;
-      const path = 'route.from.steps[0].to';
-      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
 
-      const result = ModelValidationService.validateNodeStatus(schema);
+      const result = ModelValidationService.validateNodeStatus(schema, model);
 
       expect(result).toEqual('1 required parameter is not yet configured: [ destinationName ]');
     });
 
     it('should return a validation text pointing to multiple missing properties', () => {
+      const schema = CamelComponentSchemaService.getSchema({
+        processorName: 'to',
+        componentName: 'kamelet:kafka-not-secured-sink',
+      });
       const model = camelRoute.route.from.steps[2].to;
-      const path = 'route.from.steps[2].to';
-      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
 
-      const result = ModelValidationService.validateNodeStatus(schema);
+      const result = ModelValidationService.validateNodeStatus(schema, model);
 
       expect(result).toEqual('2 required parameters are not yet configured: [ topic,bootstrapServers ]');
     });
 
     it('should return a validation text for setheader pointing to multiple missing properties', () => {
+      const schema = CamelComponentSchemaService.getSchema({ processorName: 'setHeader' });
       const model = camelRoute.route.from.steps[1].setHeader;
-      const path = 'route.from.steps[1].setHeader';
-      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
 
-      const result = ModelValidationService.validateNodeStatus(schema);
+      const result = ModelValidationService.validateNodeStatus(schema, model);
 
       expect(result).toEqual('2 required parameters are not yet configured: [ expression,name ]');
     });
 
     it('should return a validation text for setheader with a different model dialect', () => {
+      const schema = CamelComponentSchemaService.getSchema({ processorName: 'setHeader' });
       const model = {
         name: 'test',
         constant: 'Hello Camel',
       };
-      const path = 'route.from.steps[1].setHeader';
-      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
 
-      const result = ModelValidationService.validateNodeStatus(schema);
+      const result = ModelValidationService.validateNodeStatus(schema, model);
 
       expect(result).toEqual('');
     });
 
     it('should return an empty string if there is no missing property', () => {
+      const schema = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'activemq' });
       const model = { ...camelRoute.route.from.steps[0].to, parameters: { destinationName: 'myQueue' } };
-      const path = 'route.from.steps[0].to';
-      const schema = CamelComponentSchemaService.getVisualComponentSchema(path, model);
 
-      const result = ModelValidationService.validateNodeStatus(schema);
+      const result = ModelValidationService.validateNodeStatus(schema, model);
 
       expect(result).toEqual('');
     });
 
     it('should return an empty string if the schema is undefined', () => {
-      const result = ModelValidationService.validateNodeStatus(undefined);
+      const result = ModelValidationService.validateNodeStatus(
+        undefined as unknown as KaotoSchemaDefinition['schema'],
+        {},
+      );
 
       expect(result).toEqual('');
     });
   });
 
   describe('validateNodeStatus() - array required property', () => {
-    const arraySchema = {
-      schema: {
-        properties: {
-          items: {
-            type: 'array',
-          },
+    const arraySchema: KaotoSchemaDefinition['schema'] = {
+      properties: {
+        items: {
+          type: 'array',
         },
-        required: ['items'],
-        definitions: {},
       },
-      definition: {},
-    } as VisualComponentSchema;
+      required: ['items'],
+      definitions: {},
+    };
 
     it('should report missing required array property when not present', () => {
-      const result = ModelValidationService.validateNodeStatus(arraySchema);
+      const model = {};
+      const result = ModelValidationService.validateNodeStatus(arraySchema, model);
       expect(result).toEqual('1 required parameter is not yet configured: [ items ]');
     });
 
     it('should report missing required array property when empty', () => {
       const model = { items: [] };
-      const result = ModelValidationService.validateNodeStatus({ ...arraySchema, definition: model });
+      const result = ModelValidationService.validateNodeStatus(arraySchema, model);
       expect(result).toEqual('1 required parameter is not yet configured: [ items ]');
     });
 
     it('should not report missing required array property when array is non-empty', () => {
       const model = { items: [1, 2, 3] };
-      const result = ModelValidationService.validateNodeStatus({ ...arraySchema, definition: model });
+      const result = ModelValidationService.validateNodeStatus(arraySchema, model);
       expect(result).toEqual('');
     });
   });

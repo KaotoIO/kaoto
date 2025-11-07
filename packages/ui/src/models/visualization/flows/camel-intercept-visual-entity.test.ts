@@ -82,9 +82,9 @@ describe('CamelInterceptVisualEntity', () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });
-    interceptVisualEntity.getNodeValidationText('a-path');
+    interceptVisualEntity.getNodeValidationText('intercept');
 
-    expect(validateNodeStatusSpy).toHaveBeenCalledWith(expect.anything());
+    expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
   it('should return the vizualization node', () => {

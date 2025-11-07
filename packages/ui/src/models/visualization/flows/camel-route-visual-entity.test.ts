@@ -4,7 +4,6 @@ import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { EntityType } from '../../camel/entities/base-entity';
-import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import { IVisualizationNode } from '../base-visual-entity';
 import { CamelRouteVisualEntity, isCamelFrom, isCamelRoute } from './camel-route-visual-entity';
@@ -98,30 +97,86 @@ describe('Camel Route', () => {
     });
   });
 
-  describe('getComponentSchema', () => {
+  describe('getNodeSchema', () => {
     it('should return undefined if no path is provided', () => {
-      expect(camelEntity.getComponentSchema()).toBeUndefined();
+      expect(camelEntity.getNodeSchema()).toBeUndefined();
     });
 
-    it('should return undefined if no component model is found', () => {
-      const result = camelEntity.getComponentSchema('test');
+    it('should return empty object if no component model is found', () => {
+      const result = camelEntity.getNodeSchema('test');
 
-      expect(result).toEqual({
-        schema: {},
-        definition: undefined,
-      });
+      expect(result).toEqual({});
     });
 
     it('should return the component schema', () => {
-      const spy = jest.spyOn(CamelComponentSchemaService, 'getVisualComponentSchema');
-      spy.mockReturnValueOnce({
-        schema: {} as KaotoSchemaDefinition['schema'],
-        definition: {},
+      const spy = jest.spyOn(CamelComponentSchemaService, 'getSchema');
+      spy.mockReturnValueOnce({ type: 'string' });
+
+      camelEntity.getNodeSchema('route.from');
+
+      expect(spy).toHaveBeenCalledWith({ processorName: 'from', componentName: 'timer' });
+    });
+  });
+
+  describe('getNodeDefinition', () => {
+    it('should return undefined if no path is provided', () => {
+      expect(camelEntity.getNodeDefinition()).toBeUndefined();
+    });
+
+    it('should return undefined if path does not exist in the entity', () => {
+      const result = camelEntity.getNodeDefinition('invalid.path');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return the updated definition for a valid path', () => {
+      const getUpdatedDefinitionSpy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+
+      const result = camelEntity.getNodeDefinition('route.from.steps.2.to');
+
+      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(
+        { processorName: 'to', componentName: 'direct' },
+        camelRouteJson.route.from.steps[2].to,
+      );
+      expect(result).toEqual({
+        uri: 'direct',
+        parameters: {
+          bridgeErrorHandler: true,
+        },
       });
+    });
 
-      camelEntity.getComponentSchema('route.from.uri');
+    it('should override null parameters with an empty object', () => {
+      const getUpdatedDefinitionSpy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const mockDefinition = { uri: 'timer', parameters: null };
+      getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
 
-      expect(spy).toHaveBeenCalledWith('route.from.uri', 'timer');
+      const result = camelEntity.getNodeDefinition('route.from');
+
+      expect(result).toEqual({ uri: 'timer', parameters: {} });
+    });
+
+    it('should handle nested step definitions', () => {
+      const getUpdatedDefinitionSpy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const mockDefinition = { message: 'We got a one.', id: 'log-1' };
+      getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
+
+      camelEntity.getNodeDefinition('route.from.steps.1.choice.when.0.steps.0.log');
+
+      expect(getUpdatedDefinitionSpy).toHaveBeenCalledWith(
+        { processorName: 'log' },
+        { message: 'We got a one.', id: 'log-1' },
+      );
+    });
+
+    it('should preserve original definition when parameters is undefined', () => {
+      const spy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const mockDefinition = { uri: 'direct' };
+      spy.mockReturnValueOnce(mockDefinition);
+
+      const result = camelEntity.getNodeDefinition('route.from.steps.2.to');
+
+      expect(result).toEqual({ uri: 'direct' });
     });
   });
 

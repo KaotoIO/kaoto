@@ -4,10 +4,10 @@ import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
-import { CamelCatalogService } from './camel-catalog.service';
-import { CamelRestVisualEntity } from './camel-rest-visual-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
+import { CamelCatalogService } from './camel-catalog.service';
+import { CamelRestVisualEntity } from './camel-rest-visual-entity';
 
 describe('CamelRestVisualEntity', () => {
   const REST_ID_REGEXP = /^rest-[a-zA-Z0-9]{4}$/;
@@ -39,6 +39,12 @@ describe('CamelRestVisualEntity', () => {
       [true, restStub],
       [false, { from: { id: 'from-1234', steps: [] } }],
       [false, { rest: { bindingMode: 'off' }, anotherProperty: true }],
+      [false, undefined],
+      [false, null],
+      [false, []],
+      [false, 'string'],
+      [false, 123],
+      [false, {}],
     ])('should return %s for %s', (result, definition) => {
       expect(CamelRestVisualEntity.isApplicable(definition)).toEqual(result);
     });
@@ -86,18 +92,107 @@ describe('CamelRestVisualEntity', () => {
     expect(superGetNodeLabelSpy).toHaveBeenCalled();
   });
 
-  describe('getComponentSchema', () => {
-    it('should return entity current definition', () => {
-      const entity = new CamelRestVisualEntity(restDef);
+  it('should return entity current definition', () => {
+    const entity = new CamelRestVisualEntity(restDef);
 
-      expect(entity.getComponentSchema(CamelRestVisualEntity.ROOT_PATH)?.definition).toEqual(restDef.rest);
+    expect(entity.getNodeDefinition(CamelRestVisualEntity.ROOT_PATH)).toEqual(restDef.rest);
+  });
+
+  describe('getNodeDefinition', () => {
+    it('should return REST method definition for REST DSL methods', () => {
+      const restDefWithGet = {
+        rest: {
+          ...restDef.rest,
+          get: [{ path: '/hello', to: { uri: 'direct:hello' } }],
+        },
+      };
+      const entity = new CamelRestVisualEntity(restDefWithGet);
+
+      const definition = entity.getNodeDefinition('rest.get.0');
+
+      expect(definition).toEqual({ path: '/hello', to: { uri: 'direct:hello' } });
     });
 
-    it('should return schema from store', () => {
-      const entity = new CamelRestVisualEntity(restDef);
+    it('should return REST method definition for POST method', () => {
+      const restDefWithPost = {
+        rest: {
+          ...restDef.rest,
+          post: [{ path: '/update', to: { uri: 'direct:update' } }],
+        },
+      };
+      const entity = new CamelRestVisualEntity(restDefWithPost);
 
-      expect(entity.getComponentSchema(CamelRestVisualEntity.ROOT_PATH)?.schema).toEqual(restSchema);
+      const definition = entity.getNodeDefinition('rest.post.0');
+
+      expect(definition).toEqual({ path: '/update', to: { uri: 'direct:update' } });
     });
+
+    it('should delegate to super for non-REST method paths', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+      const superGetNodeDefinitionSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeDefinition');
+
+      // Use a path where method is NOT in REST_DSL_METHODS
+      entity.getNodeDefinition('rest.unknown.0');
+
+      expect(superGetNodeDefinitionSpy).toHaveBeenCalledWith('rest.unknown.0');
+    });
+  });
+
+  it('should return schema from store', () => {
+    const entity = new CamelRestVisualEntity(restDef);
+
+    expect(entity.getNodeSchema(CamelRestVisualEntity.ROOT_PATH)).toEqual(restSchema);
+  });
+
+  describe('getNodeSchema', () => {
+    it('should return REST method schema for REST DSL methods', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+
+      entity.getNodeSchema('rest.get.0');
+
+      expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'get');
+    });
+
+    it('should return REST method schema for POST method', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+
+      entity.getNodeSchema('rest.post.0');
+
+      expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'post');
+    });
+
+    it('should delegate to super for non-REST method paths', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+      const superGetNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
+
+      // Use a path where method is NOT in REST_DSL_METHODS
+      entity.getNodeSchema('rest.unknown.0');
+
+      expect(superGetNodeSchemaSpy).toHaveBeenCalledWith('rest.unknown.0');
+    });
+
+    it('should handle undefined path by delegating to super', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+      const superGetNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
+
+      entity.getNodeSchema();
+
+      expect(superGetNodeSchemaSpy).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  it('should return omit form fields', () => {
+    const entity = new CamelRestVisualEntity(restDef);
+
+    expect(entity.getOmitFormFields()).toEqual(['get', 'post', 'put', 'delete', 'head', 'patch']);
+  });
+
+  it('should return root path', () => {
+    const entity = new CamelRestVisualEntity(restDef);
+
+    expect(entity.getRootPath()).toEqual('rest');
   });
 
   describe('updateModel', () => {
@@ -125,6 +220,18 @@ describe('CamelRestVisualEntity', () => {
 
       entity.updateModel('rest', {});
 
+      expect(restDef.rest).toEqual({});
+    });
+
+    it('should initialize rest object if undefined after update', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+
+      entity.restDef.rest = undefined as unknown as Rest;
+
+      entity.updateModel('rest', null);
+
+      // The updateModel should reinitialize rest to an empty object
+      expect(restDef.rest).toBeDefined();
       expect(restDef.rest).toEqual({});
     });
   });

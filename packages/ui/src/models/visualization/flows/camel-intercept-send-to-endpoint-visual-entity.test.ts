@@ -88,9 +88,9 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
       interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
     });
-    interceptSendToEndpointVisualEntity.getNodeValidationText('a-path');
+    interceptSendToEndpointVisualEntity.getNodeValidationText('interceptSendToEndpoint');
 
-    expect(validateNodeStatusSpy).toHaveBeenCalledWith(expect.anything());
+    expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
   it('should return the vizualization node', () => {

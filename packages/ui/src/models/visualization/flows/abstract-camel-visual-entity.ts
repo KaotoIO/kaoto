@@ -4,6 +4,8 @@ import { getArrayProperty, getValue, isDefined, setValue } from '../../../utils'
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
+import { SourceSchemaType } from '../../camel/source-schema-type';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import {
   AddStepMode,
@@ -11,16 +13,14 @@ import {
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from '../base-visual-entity';
+import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
-import { IClipboardCopyObject } from '../clipboard';
-import { SourceSchemaType } from '../../camel/source-schema-type';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
   constructor(public entityDef: T) {}
@@ -84,18 +84,27 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return content;
   }
 
-  getComponentSchema(path?: string): VisualComponentSchema | undefined {
+  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (!path) return undefined;
 
-    const componentModel = getValue(this.entityDef, path);
-    const visualComponentSchema = CamelComponentSchemaService.getVisualComponentSchema(path, componentModel);
+    const definition = getValue(this.entityDef, path);
+    const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
+    return CamelComponentSchemaService.getSchema(camelElementLookup);
+  }
+
+  getNodeDefinition(path?: string): unknown {
+    if (!path) return undefined;
+
+    const definition = getValue(this.entityDef, path);
+    const camelElementLookup = CamelComponentSchemaService.getCamelComponentLookup(path, definition);
+    const updatedDefinition = CamelComponentSchemaService.getUpdatedDefinition(camelElementLookup, definition);
 
     /** Overriding parameters with an empty object When the parameters property is mistakenly set to null */
-    if (visualComponentSchema?.definition?.parameters === null) {
-      visualComponentSchema.definition.parameters = {};
+    if (updatedDefinition?.parameters === null) {
+      updatedDefinition.parameters = {};
     }
 
-    return visualComponentSchema;
+    return updatedDefinition;
   }
 
   getOmitFormFields(): string[] {
@@ -233,10 +242,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   getNodeValidationText(path?: string | undefined): string | undefined {
-    const componentVisualSchema = this.getComponentSchema(path);
-    if (!componentVisualSchema) return undefined;
+    const schema = this.getNodeSchema(path);
+    const definition = this.getNodeDefinition(path);
+    if (!schema || !definition) return undefined;
 
-    return ModelValidationService.validateNodeStatus(componentVisualSchema);
+    return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
   toVizNode(): IVisualizationNode {

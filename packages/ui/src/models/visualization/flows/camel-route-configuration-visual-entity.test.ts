@@ -88,23 +88,21 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     expect(superGetTooltipContentSpy).toHaveBeenCalled();
   });
 
-  describe('getComponentSchema', () => {
-    it('should return entity current definition', () => {
-      const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
+  it('should return entity current definition', () => {
+    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-      expect(entity.getComponentSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH)?.definition).toEqual(
-        routeConfigurationDef.routeConfiguration,
-      );
-    });
+    expect(entity.getNodeDefinition(CamelRouteConfigurationVisualEntity.ROOT_PATH)).toEqual(
+      routeConfigurationDef.routeConfiguration,
+    );
+  });
 
-    it('should return schema from store', () => {
-      const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+  it('should return schema from store', () => {
+    const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
 
-      const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-      entity.getComponentSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
+    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
+    entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
 
-      expect(catalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'routeConfiguration');
-    });
+    expect(catalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'routeConfiguration');
   });
 
   describe('updateModel', () => {

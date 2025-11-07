@@ -12,11 +12,10 @@ import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
-import { VisualComponentSchema } from '../../base-visual-entity';
+import { IClipboardCopyObject } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CamelComponentFilterService } from './camel-component-filter.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
-import { IClipboardCopyObject } from '../../clipboard';
 
 export class CamelComponentSchemaService {
   static DISABLED_SIBLING_STEPS = [
@@ -53,17 +52,6 @@ export class CamelComponentSchemaService {
     removeHeaders: 'pattern',
     kamelet: 'name',
   };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getVisualComponentSchema(path: string, definition: any): VisualComponentSchema | undefined {
-    const camelElementLookup = this.getCamelComponentLookup(path, definition);
-    const updatedDefinition = this.getUpdatedDefinition(camelElementLookup, definition);
-
-    return {
-      schema: this.getSchema(camelElementLookup),
-      definition: updatedDefinition,
-    };
-  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getCamelComponentLookup(path: string, definition: any): ICamelElementLookupResult {
@@ -306,6 +294,137 @@ export class CamelComponentSchemaService {
   }
 
   /**
+   * Extract the component name from the endpoint uri
+   * An URI is composed by a component name and query parameters, separated by a colon
+   * For instance:
+   *    - `log:MyLogger`
+   *    - `timer:tick?period=1000`
+   *    - `file:inbox?fileName=orders.txt&noop=true`
+   *    - `kamelet:kafka-not-secured-sink?topic=foobar&bootstrapServers=localhost`
+   */
+  static getComponentNameFromUri(uri: string): string | undefined {
+    if (!uri) {
+      return undefined;
+    }
+    const uriParts = uri.split(':');
+    if (uriParts[0] === 'kamelet' && uriParts.length > 1) {
+      const kameletName = uriParts[1].split('?')[0];
+      return uriParts[0] + ':' + kameletName;
+    }
+    return uriParts[0];
+  }
+
+  /**
+   * Get the definition for a given component and property
+   */
+  static getNodeDefinitionValue(clipboardContent: IClipboardCopyObject): ProcessorDefinition {
+    const { name, definition: defaultValue } = clipboardContent;
+
+    if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {
+      return defaultValue as ProcessorDefinition;
+    } else {
+      return { [name]: defaultValue } as ProcessorDefinition;
+    }
+  }
+
+  static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {
+    let catalogKind: CatalogKind;
+    switch (camelElementLookup.processorName) {
+      case 'route' as keyof ProcessorDefinition:
+      case 'intercept' as keyof ProcessorDefinition:
+      case 'interceptFrom' as keyof ProcessorDefinition:
+      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
+      case 'onException' as keyof ProcessorDefinition:
+      case 'onCompletion' as keyof ProcessorDefinition:
+      case 'from' as keyof ProcessorDefinition:
+        catalogKind = CatalogKind.Entity;
+        break;
+      default:
+        catalogKind = CatalogKind.Pattern;
+    }
+
+    const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
+
+    let schema = {} as unknown as KaotoSchemaDefinition['schema'];
+    if (processorDefinition?.propertiesSchema === undefined) {
+      return schema;
+    }
+    schema = cloneDeep(processorDefinition.propertiesSchema);
+
+    if (camelElementLookup.componentName !== undefined) {
+      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
+      const componentSchema: KaotoSchemaDefinition['schema'] =
+        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
+
+      // Filter out producer/consumer properties depending upon the endpoint usage
+      const actualComponentProperties = Object.fromEntries(
+        Object.entries(componentSchema.properties ?? {}).filter((property) => {
+          if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
+            return !property[1].$comment?.includes('producer');
+          } else {
+            return !property[1].$comment?.includes('consumer');
+          }
+        }),
+      );
+
+      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
+        schema.properties!.parameters = {
+          type: 'object',
+          title: 'Endpoint Properties',
+          description: 'Endpoint properties description',
+          properties: actualComponentProperties,
+          required: componentSchema.required,
+        };
+      }
+    }
+
+    return schema;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static getUpdatedDefinition(camelElementLookup: ICamelElementLookupResult, definition: any) {
+    /** Clone the original definition since we want to preserve the original one, until the form is changed */
+    let updatedDefinition = cloneDeep(definition);
+
+    const prop = this.PROCESSOR_STRING_DEFINITIONS[camelElementLookup.processorName];
+    if (prop && typeof definition === 'string') {
+      updatedDefinition = { [prop]: definition };
+    }
+
+    if (camelElementLookup.componentName !== undefined) {
+      updatedDefinition.parameters = updatedDefinition.parameters ?? {};
+      this.applyParametersFromSyntax(camelElementLookup.componentName, updatedDefinition);
+      this.readMultiValue(camelElementLookup.componentName, updatedDefinition);
+    }
+
+    return updatedDefinition;
+  }
+
+  static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
+    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
+
+    return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
+  }
+
+  static getComponentDefinitionFromUri(uri: string): { uri: string; parameters?: ParsedParameters } {
+    const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
+    if (!componentName) return { uri: uri };
+
+    const component = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
+    if (!component) {
+      return { uri: uri };
+    }
+
+    const [path, query] = uri.split('?');
+    const pathParams = CamelUriHelper.getParametersFromPathString(component?.component.syntax, path, {
+      requiredParameters: component?.propertiesSchema.required as [],
+    });
+
+    const queryParams = CamelUriHelper.getParametersFromQueryString(query);
+    return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
+  }
+
+  /**
    * If the processor is a `from` or `to` processor, we need to extract the component name from the uri property
    * and return both the processor name and the underlying component name to build the combined schema
    */
@@ -348,114 +467,6 @@ export class CamelComponentSchemaService {
       default:
         return { processorName };
     }
-  }
-
-  /**
-   * Extract the component name from the endpoint uri
-   * An URI is composed by a component name and query parameters, separated by a colon
-   * For instance:
-   *    - `log:MyLogger`
-   *    - `timer:tick?period=1000`
-   *    - `file:inbox?fileName=orders.txt&noop=true`
-   *    - `kamelet:kafka-not-secured-sink?topic=foobar&bootstrapServers=localhost`
-   */
-  static getComponentNameFromUri(uri: string): string | undefined {
-    if (!uri) {
-      return undefined;
-    }
-    const uriParts = uri.split(':');
-    if (uriParts[0] === 'kamelet' && uriParts.length > 1) {
-      const kameletName = uriParts[1].split('?')[0];
-      return uriParts[0] + ':' + kameletName;
-    }
-    return uriParts[0];
-  }
-
-  /**
-   * Get the definition for a given component and property
-   */
-  static getNodeDefinitionValue(clipboardContent: IClipboardCopyObject): ProcessorDefinition {
-    const { name, definition: defaultValue } = clipboardContent;
-
-    if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {
-      return defaultValue as ProcessorDefinition;
-    } else {
-      return { [name]: defaultValue } as ProcessorDefinition;
-    }
-  }
-
-  private static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {
-    let catalogKind: CatalogKind;
-    switch (camelElementLookup.processorName) {
-      case 'route' as keyof ProcessorDefinition:
-      case 'intercept' as keyof ProcessorDefinition:
-      case 'interceptFrom' as keyof ProcessorDefinition:
-      case 'interceptSendToEndpoint' as keyof ProcessorDefinition:
-      case 'onException' as keyof ProcessorDefinition:
-      case 'onCompletion' as keyof ProcessorDefinition:
-      case 'from' as keyof ProcessorDefinition:
-        catalogKind = CatalogKind.Entity;
-        break;
-      default:
-        catalogKind = CatalogKind.Pattern;
-    }
-
-    const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
-
-    if (processorDefinition === undefined) return {} as unknown as KaotoSchemaDefinition['schema'];
-
-    let schema = {} as unknown as KaotoSchemaDefinition['schema'];
-    if (processorDefinition.propertiesSchema !== undefined) {
-      schema = cloneDeep(processorDefinition.propertiesSchema);
-    }
-
-    if (camelElementLookup.componentName !== undefined) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      const componentSchema: KaotoSchemaDefinition['schema'] =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
-
-      // Filter out producer/consumer properties depending upon the endpoint usage
-      const actualComponentProperties = Object.fromEntries(
-        Object.entries(componentSchema.properties ?? {}).filter((property) => {
-          if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
-            return !property[1].$comment?.includes('producer');
-          } else {
-            return !property[1].$comment?.includes('consumer');
-          }
-        }),
-      );
-
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        schema.properties!.parameters = {
-          type: 'object',
-          title: 'Endpoint Properties',
-          description: 'Endpoint properties description',
-          properties: actualComponentProperties,
-          required: componentSchema.required,
-        };
-      }
-    }
-
-    return schema;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static getUpdatedDefinition(camelElementLookup: ICamelElementLookupResult, definition: any) {
-    /** Clone the original definition since we want to preserve the original one, until the form is changed */
-    let updatedDefinition = cloneDeep(definition);
-
-    const prop = this.PROCESSOR_STRING_DEFINITIONS[camelElementLookup.processorName];
-    if (prop && typeof definition === 'string') {
-      updatedDefinition = { [prop]: definition };
-    }
-
-    if (camelElementLookup.componentName !== undefined) {
-      updatedDefinition.parameters = updatedDefinition.parameters ?? {};
-      this.applyParametersFromSyntax(camelElementLookup.componentName, updatedDefinition);
-      this.readMultiValue(camelElementLookup.componentName, updatedDefinition);
-    }
-
-    return updatedDefinition;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -517,29 +528,5 @@ export class CamelComponentSchemaService {
       definition.uri = this.getComponentNameFromUri(definition.uri);
       Object.assign(definition.parameters, parametersFromSyntax);
     }
-  }
-
-  static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
-    const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
-
-    return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
-  }
-
-  static getComponentDefinitionFromUri(uri: string): { uri: string; parameters?: ParsedParameters } {
-    const componentName = CamelComponentSchemaService.getComponentNameFromUri(uri);
-    if (!componentName) return { uri: uri };
-
-    const component = CamelCatalogService.getComponent(CatalogKind.Component, componentName);
-    if (!component) {
-      return { uri: uri };
-    }
-
-    const [path, query] = uri.split('?');
-    const pathParams = CamelUriHelper.getParametersFromPathString(component?.component.syntax, path, {
-      requiredParameters: component?.propertiesSchema.required as [],
-    });
-
-    const queryParams = CamelUriHelper.getParametersFromQueryString(query);
-    return { uri: componentName, parameters: { ...pathParams, ...queryParams } };
   }
 }

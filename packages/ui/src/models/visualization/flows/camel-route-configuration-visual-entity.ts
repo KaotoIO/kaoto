@@ -3,19 +3,18 @@ import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
-import { ModelValidationService } from './support/validators/model-validation.service';
 
 export class CamelRouteConfigurationVisualEntity
   extends AbstractCamelVisualEntity<{ routeConfiguration: RouteConfigurationDefinition }>
@@ -81,16 +80,21 @@ export class CamelRouteConfigurationVisualEntity
     return super.getTooltipContent(path);
   }
 
-  getComponentSchema(path?: string | undefined): VisualComponentSchema | undefined {
+  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (path === this.getRootPath()) {
       const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeConfiguration');
-      return {
-        schema: schema?.propertiesSchema || {},
-        definition: Object.assign({}, this.routeConfigurationDef.routeConfiguration),
-      };
+      return schema?.propertiesSchema ?? {};
     }
 
-    return super.getComponentSchema(path);
+    return super.getNodeSchema(path);
+  }
+
+  getNodeDefinition(path?: string): unknown {
+    if (path === this.getRootPath()) {
+      return { ...this.routeConfigurationDef.routeConfiguration };
+    }
+
+    return super.getNodeDefinition(path);
   }
 
   getOmitFormFields(): string[] {
@@ -122,13 +126,6 @@ export class CamelRouteConfigurationVisualEntity
     }
 
     return super.getNodeInteraction(data);
-  }
-
-  getNodeValidationText(path?: string | undefined): string | undefined {
-    const componentVisualSchema = this.getComponentSchema(path);
-    if (!componentVisualSchema) return undefined;
-
-    return ModelValidationService.validateNodeStatus(componentVisualSchema);
   }
 
   toVizNode(): IVisualizationNode {

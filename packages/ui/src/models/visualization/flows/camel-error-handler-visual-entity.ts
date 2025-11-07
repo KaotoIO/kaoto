@@ -2,18 +2,18 @@ import { ErrorHandlerDeserializer, ProcessorDefinition } from '@kaoto/camel-cata
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
+import { SourceSchemaType } from '../../camel/source-schema-type';
+import { CatalogKind } from '../../catalog-kind';
+import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
-  VisualComponentSchema,
 } from '../base-visual-entity';
-import { NodeMapperService } from './nodes/node-mapper.service';
-import { CamelCatalogService } from './camel-catalog.service';
-import { CatalogKind } from '../../catalog-kind';
 import { IClipboardCopyObject } from '../clipboard';
-import { SourceSchemaType } from '../../camel/source-schema-type';
+import { CamelCatalogService } from './camel-catalog.service';
+import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   id: string;
@@ -116,13 +116,13 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
     return;
   }
 
-  getComponentSchema(): VisualComponentSchema {
+  getNodeSchema(): KaotoSchemaDefinition['schema'] {
     const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'errorHandler');
+    return schema?.propertiesSchema ?? {};
+  }
 
-    return {
-      definition: Object.assign({}, this.errorHandlerDef.errorHandler),
-      schema: schema?.propertiesSchema ?? {},
-    };
+  getNodeDefinition(): unknown {
+    return { ...this.errorHandlerDef.errorHandler };
   }
 
   getOmitFormFields(): string[] {
