@@ -5,10 +5,14 @@ import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
 import { getPotentialPath } from '../../../../utils/get-potential-path';
+import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 
 export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.AppendStep | AddStepMode.PrependStep) => {
   const entitiesContext = useContext(EntitiesContext);
   const controller = useVisualizationController();
+  const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
 
   const targetNode = useMemo(() => {
     const nodePath = vizNode.data.path;
@@ -36,10 +40,22 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
   const canBeMoved = isDefined(targetNode);
 
   const onMoveStep = useCallback(async () => {
-    if (!vizNode || !entitiesContext) return;
+    if (!vizNode || !entitiesContext || !targetNode) return;
 
-    const currentNodeContent = vizNode.getCopiedContent();
-    const targetNodeContent = targetNode?.getCopiedContent();
+    let currentNodeContent = vizNode.getCopiedContent();
+    currentNodeContent = processOnCopyAddon(
+      vizNode,
+      currentNodeContent,
+      (vizNode) =>
+        nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vizNode) as IOnCopyAddon[],
+    );
+    let targetNodeContent = targetNode.getCopiedContent();
+    targetNodeContent = processOnCopyAddon(
+      targetNode,
+      targetNodeContent,
+      (vizNode) =>
+        nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vizNode) as IOnCopyAddon[],
+    );
 
     if (!currentNodeContent || !targetNodeContent) return;
 
