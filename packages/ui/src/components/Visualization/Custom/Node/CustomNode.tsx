@@ -44,8 +44,6 @@ import { TargetAnchor } from '../target-anchor';
 import './CustomNode.scss';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -66,7 +64,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const entitiesContext = useEntityContext();
     const catalogModalContext = useContext(CatalogModalContext);
     const settingsAdapter = useContext(SettingsContext);
-    const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
     const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
     const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
@@ -122,15 +119,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             const droppedVizNode = dropResult.getData().vizNode as IVisualizationNode;
 
             // handle successful drop
-            handleValidNodeDrop(
-              draggedVizNode,
-              droppedVizNode,
-              (flowId?: string) => entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined),
-              (vn) =>
-                nodeInteractionAddonContext.getRegisteredInteractionAddons(
-                  IInteractionType.ON_COPY,
-                  vn,
-                ) as IOnCopyAddon[],
+            handleValidNodeDrop(draggedVizNode, droppedVizNode, (flowId?: string) =>
+              entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined),
             );
 
             // Set an empty model to clear the graph
@@ -153,7 +143,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           }
         },
       }),
-      [canDragNode, dndSettingsEnabled, element, entitiesContext, nodeInteractionAddonContext],
+      [canDragNode, dndSettingsEnabled, element, entitiesContext],
     );
 
     const customNodeDropTargetSpec: DropTargetSpec<
