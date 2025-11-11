@@ -1,7 +1,5 @@
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { isDefined } from '../../../../utils/is-defined';
-import { IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
-import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 
 export const getNodeDragAndDropDirection = (
   draggedVizNode: IVisualizationNode,
@@ -28,13 +26,8 @@ export const handleValidNodeDrop = (
   draggedVizNode: IVisualizationNode,
   droppedVizNode: IVisualizationNode,
   removeFlow: (flowId?: string) => void,
-  getOnCopyAddons: (vizNode: IVisualizationNode) => IOnCopyAddon[],
 ) => {
-  let draggedNodeContent = draggedVizNode.getCopiedContent();
-  if (!isDefined(draggedNodeContent)) return;
-
-  draggedNodeContent = processOnCopyAddon(draggedVizNode, draggedNodeContent, getOnCopyAddons);
-
+  const draggedNodeContent = draggedVizNode.getCopiedContent();
   if (!isDefined(draggedNodeContent)) return;
 
   /** Handle the drag and drop operation based on the direction differently:
