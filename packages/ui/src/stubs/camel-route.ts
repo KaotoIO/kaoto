@@ -148,3 +148,28 @@ export const doTryCamelRouteJson = {
 };
 
 export const camelRoute = new CamelRouteVisualEntity(camelRouteJson);
+
+export const camelRouteYamlWithDM = `
+- route:
+    id: route-3076
+    from:
+      id: from-1837
+      uri: timer
+      parameters:
+        period: "1000"
+        timerName: template
+      steps:
+        - step:
+            id: kaoto-datamapper-657b6637
+            steps:
+              - to:
+                  id: kaoto-datamapper-xslt-3158
+                  uri: xslt-saxon
+                  parameters:
+                    failOnNullBody: false
+        - to:
+            id: to-4027
+            uri: activemq
+            parameters: {}
+`;
+export const camelRouteJsonWithDM: { route: RouteDefinition } = parse(camelRouteYamlWithDM)[0];
