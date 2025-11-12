@@ -64,10 +64,7 @@ describe('useMoveStep', () => {
   };
 
   beforeEach(() => {
-    jest.spyOn(vizNode, 'getComponentSchema').mockReturnValue({
-      definition: { id: 'testSchema' },
-      schema: {},
-    });
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'testSchema' });
     jest.clearAllMocks();
   });
 
@@ -150,7 +147,7 @@ describe('useMoveStep', () => {
       const targetVizNode = {
         getCopiedContent: jest.fn().mockReturnValue(undefined),
         pasteBaseEntityStep: jest.fn(),
-        getComponentSchema: jest.fn().mockReturnValue({ definition: { id: 'test' } }),
+        getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
@@ -219,7 +216,7 @@ describe('useMoveStep', () => {
       const targetVizNode = {
         getCopiedContent: jest.fn().mockReturnValue(targetVizNodeCopiedContent),
         pasteBaseEntityStep: jest.fn(),
-        getComponentSchema: jest.fn().mockReturnValue({ definition: { id: 'test' } }),
+        getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.1');
@@ -250,7 +247,7 @@ describe('useMoveStep', () => {
       const targetVizNode = {
         getCopiedContent: jest.fn().mockReturnValue(targetVizNodeCopiedContent),
         pasteBaseEntityStep: jest.fn(),
-        getComponentSchema: jest.fn().mockReturnValue({ definition: { id: 'test' } }),
+        getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
