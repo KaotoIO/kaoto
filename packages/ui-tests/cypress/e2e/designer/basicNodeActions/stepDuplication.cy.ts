@@ -59,7 +59,7 @@ describe('Tests for Design page', () => {
     cy.checkMultipleCodeSpanEntry('- interceptSendToEndpoint:', 2);
   });
 
-  it('Design - duplicate RouteConiguration', () => {
+  it('Design - duplicate RouteConfiguration', () => {
     cy.uploadFixture('flows/camelRoute/routeConfiguration.yaml');
     cy.openDesignPage();
 
