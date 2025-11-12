@@ -39,6 +39,7 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
     if (!hasSameIds) {
       visualFlowsApi.initVisibleFlows(visualEntitiesIds);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visualEntitiesIds, visualFlowsApi]);
 
   const value = useMemo(() => {
