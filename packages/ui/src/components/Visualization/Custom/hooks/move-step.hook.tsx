@@ -66,6 +66,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entitiesContext, targetNode, vizNode]);
 
   const value = useMemo(

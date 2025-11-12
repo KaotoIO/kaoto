@@ -35,6 +35,7 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
     } else if (page === 0 && itemCount > 0) setPage(1);
 
     catalogBodyRef.current!.scrollTop = 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.tiles]);
 
   const onSelectDataListItem = useCallback(
