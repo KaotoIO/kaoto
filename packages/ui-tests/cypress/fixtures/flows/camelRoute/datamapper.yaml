@@ -1,0 +1,20 @@
+- route:
+    id: camel-route
+    from:
+      uri: timer:test
+      steps:
+        - setHeader:
+            constant: test
+            name: test
+        - marshal:
+            id: marshal-3801
+        - step:
+            id: kaoto-datamapper-69ab8b35
+            steps:
+              - to:
+                  id: kaoto-datamapper-xslt-3129
+                  uri: xslt-saxon
+                  parameters:
+                    failOnNullBody: false
+        - to:
+            uri: log:test
