@@ -1,34 +1,19 @@
 import { ActionList, ActionListGroup, ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { LayerGroupIcon, PlusCircleIcon, PlusIcon } from '@patternfly/react-icons';
-import clsx from 'clsx';
-import { FunctionComponent, useCallback, useRef } from 'react';
-import { useCanvas } from '../../hooks/useCanvas';
+import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../hooks/useDataMapper';
-import { AddMappingNodeData, NodeReference } from '../../models/datamapper/visualization';
+import { AddMappingNodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
 import { ConditionMenuAction } from './actions/ConditionMenuAction';
-import './Document.scss';
-import { NodeContainer } from './NodeContainer';
 import { NodeTitle } from './NodeTitle';
+import { BaseNode } from './Nodes/BaseNode';
+import './AddMappingNode.scss';
 
-export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData }> = ({ nodeData }) => {
+export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; rank: number }> = ({
+  nodeData,
+  rank,
+}) => {
   const { refreshMappingTree } = useDataMapper();
-  const { getNodeReference, setNodeReference } = useCanvas();
-
-  const headerRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const nodeRefId = nodeData.path.toString();
-  const nodeReference = useRef<NodeReference>({
-    path: nodeRefId,
-    isSource: false,
-    get headerRef() {
-      return headerRef.current;
-    },
-    get containerRef() {
-      return containerRef.current;
-    },
-  });
-  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   const handleAddMapping = useCallback(() => {
     VisualizationService.addMapping(nodeData);
@@ -36,44 +21,44 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData }>
   }, [nodeData, refreshMappingTree]);
 
   return (
-    <div data-testid={`node-target-${nodeData.id}`} className={clsx({ node__container: true })}>
-      <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div className={clsx({ node__add__mapping__header: true })}>
-          <NodeContainer ref={headerRef} nodeData={nodeData}>
-            <section className="node__row" data-draggable={false}>
-              <span className="node__row">
-                <Icon className="node__spacer">
-                  <PlusIcon className="node__add__mapping__icon" />
-                </Icon>
-                <Icon className="node__spacer">
-                  <LayerGroupIcon className="node__add__mapping__icon" />
-                </Icon>
-                <NodeTitle
-                  className="node__spacer node__add__mapping__text"
-                  nodeData={nodeData}
-                  isDocument={false}
-                  rank={0}
-                />
-              </span>
-
-              <ActionList>
-                <ActionListGroup className="node__add__mapping__actions">
-                  <ActionListItem>
-                    <Button icon={<PlusCircleIcon />} variant="tertiary" onClick={handleAddMapping}>
-                      Add Mapping
-                    </Button>
-                  </ActionListItem>
-                  <ConditionMenuAction
-                    nodeData={nodeData}
-                    dropdownLabel="Add Conditional Mapping"
-                    onUpdate={refreshMappingTree}
-                  />
-                </ActionListGroup>
-              </ActionList>
-            </section>
-          </NodeContainer>
-        </div>
-      </NodeContainer>
+    <div data-testid={`node-target-${nodeData.id}`} className="node__container">
+      <BaseNode
+        data-testid={nodeData.title}
+        isExpandable={false}
+        isDraggable={false}
+        title={
+          <>
+            <Icon className="node__spacer">
+              <PlusIcon className="node__add__mapping__icon" />
+            </Icon>
+            <NodeTitle
+              className="node__spacer node__add__mapping__text"
+              nodeData={nodeData}
+              isDocument={false}
+              rank={rank}
+            />
+            <Icon className="node__spacer">
+              <LayerGroupIcon className="node__add__mapping__icon" />
+            </Icon>
+          </>
+        }
+        rank={rank}
+      >
+        <ActionList>
+          <ActionListGroup className="node__add__mapping__actions">
+            <ActionListItem>
+              <Button icon={<PlusCircleIcon />} variant="tertiary" onClick={handleAddMapping}>
+                Add Mapping
+              </Button>
+            </ActionListItem>
+            <ConditionMenuAction
+              nodeData={nodeData}
+              dropdownLabel="Add Conditional Mapping"
+              onUpdate={refreshMappingTree}
+            />
+          </ActionListGroup>
+        </ActionList>
+      </BaseNode>
     </div>
   );
 };

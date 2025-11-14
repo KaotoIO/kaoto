@@ -1,0 +1,45 @@
+.document {
+  &__container {
+    padding: var(--pf-t--global--spacer--xs) 0;
+  }
+
+  &__header {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+  }
+
+  &__actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+
+    --pf-v6-c-action-list--child--spacer-base: 0.5rem;
+    --pf-v6-c-action-list--group--spacer-base: 0.5rem;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-button {
+      --pf-v6-c-button--PaddingLeft: 0.5rem;
+      --pf-v6-c-button--PaddingRight: 0.5rem;
+    }
+
+    /* Make input group expand like in BaseNode */
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-input-group {
+      flex: 1;
+    }
+
+    /* Make ActionListItem with input group expand */
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-action-list__item {
+      display: flex;
+
+      &.input-group {
+        flex: 1;
+      }
+    }
+  }
+}

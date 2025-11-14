@@ -11,7 +11,7 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
     cy.importMappings('datamapper/xslt/ShipOrderToShipOrder.xsl');
 
-    cy.get('[data-testid^="node-source-fx-OrderId"]').click();
+    cy.get('[data-testid^="node-source-fx-OrderId"]').click({ force: true });
 
     cy.checkFieldSelected('source', 'fx', 'OrderId', true);
     cy.checkFieldSelected('target', 'fx', 'OrderId', true);
@@ -34,8 +34,8 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
 
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-AccountId'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-OrderId'],
+      ['document-doc-param-Account', 'node-source-fx-AccountId'],
+      ['document-doc-targetBody-Body', 'node-target-fx-OrderId'],
       '$Account/ns0:Account/@AccountId',
     );
 
@@ -44,50 +44,50 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.get('[data-testid^="mapping-link-"]').should('be.visible').click({ force: true });
 
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Name'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
+      ['document-doc-param-Account', 'node-source-fx-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
       '$Account/ns0:Account/Name',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Address'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
+      ['document-doc-param-Account', 'node-source-fx-Address'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
       '$Account/ns0:Account/Address',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-City'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-City'],
+      ['document-doc-param-Account', 'node-source-fx-City'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-City'],
       '$Account/ns0:Account/City',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Country'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
+      ['document-doc-param-Account', 'node-source-fx-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
 
     cy.engageForEachMapping(
-      ['node-source-fx-Cart', 'node-source-fx-Item'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-Item'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Item'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Item'],
       '/ns0:Cart/Item',
     );
 
     cy.engageMapping(
-      ['node-source-fx-Cart', 'node-source-fx-Item', 'node-source-fx-Title'],
-      ['node-target-fx-ShipOrder', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Title'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Title'],
+      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Title'],
       'Title',
     );
     cy.engageMapping(
-      ['node-source-fx-Cart', 'node-source-fx-Item', 'node-source-fx-Note'],
-      ['node-target-fx-ShipOrder', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Note'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Note'],
+      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Note'],
       'Note',
     );
     cy.engageMapping(
-      ['node-source-fx-Cart', 'node-source-fx-Item', 'node-source-fx-Quantity'],
-      ['node-target-fx-ShipOrder', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Quantity'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Quantity'],
+      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Quantity'],
       'Quantity',
     );
     cy.engageMapping(
-      ['node-source-fx-Cart', 'node-source-fx-Item', 'node-source-fx-Price'],
-      ['node-target-fx-ShipOrder', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Price'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Price'],
+      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Price'],
       'Price',
     );
 
@@ -101,29 +101,29 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
 
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-AccountId'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-OrderId'],
+      ['document-doc-param-Account', 'node-source-fx-AccountId'],
+      ['document-doc-targetBody-Body', 'node-target-fx-OrderId'],
       '$Account/ns0:Account/@AccountId',
     );
 
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Name'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
+      ['document-doc-param-Account', 'node-source-fx-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
       '$Account/ns0:Account/Name',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Address'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
+      ['document-doc-param-Account', 'node-source-fx-Address'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
       '$Account/ns0:Account/Address',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-City'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-City'],
+      ['document-doc-param-Account', 'node-source-fx-City'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-City'],
       '$Account/ns0:Account/City',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Country'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
+      ['document-doc-param-Account', 'node-source-fx-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
 
@@ -140,29 +140,29 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
 
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-AccountId'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-OrderId'],
+      ['document-doc-param-Account', 'node-source-fx-AccountId'],
+      ['document-doc-targetBody-Body', 'node-target-fx-OrderId'],
       '$Account/ns0:Account/@AccountId',
     );
 
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Name'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
+      ['document-doc-param-Account', 'node-source-fx-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
       '$Account/ns0:Account/Name',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Address'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
+      ['document-doc-param-Account', 'node-source-fx-Address'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
       '$Account/ns0:Account/Address',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-City'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-City'],
+      ['document-doc-param-Account', 'node-source-fx-City'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-City'],
       '$Account/ns0:Account/City',
     );
     cy.engageMapping(
-      ['node-source-fx-Account', 'node-source-fx-Country'],
-      ['node-target-fx-ShipOrder', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
+      ['document-doc-param-Account', 'node-source-fx-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
 

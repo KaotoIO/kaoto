@@ -297,5 +297,105 @@ describe('MappingLinksService', () => {
       expect(lineProps[10].targetNodePath).toContain('fx-OrderId');
       expect(lineProps[10].isSelected).toBeTruthy();
     });
+
+    it('should handle null source or target rect', () => {
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: {
+          getBoundingClientRect: () => ({ left: 0, top: 0, right: 100, bottom: 100 }),
+        } as unknown as SVGSVGElement,
+      };
+
+      // Create mock header ref with null getBoundingClientRect
+      const mockHeaderRefWithNull = {
+        getBoundingClientRect: () => null,
+        getClientRects: () => ({ length: 1 }),
+      } as unknown as HTMLDivElement;
+
+      const nodeRefConfig: NodeReference = {
+        path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: true,
+        containerRef: null,
+        headerRef: mockHeaderRefWithNull,
+      };
+
+      const { result: sourceRefWithNull } = renderHook(() => useRef<NodeReference>(nodeRefConfig));
+      nodeReferences.set('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', sourceRefWithNull.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          targetNodePath: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      // Should return empty array when rect is null
+      expect(lineProps.length).toEqual(0);
+    });
+
+    it('should calculate coordinates using node row rects when available', () => {
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: {
+          getBoundingClientRect: () => ({ left: 10, top: 20, right: 500, bottom: 600 }),
+        } as unknown as SVGSVGElement,
+      };
+
+      // Mock node rows with querySelector
+      const mockNodeRow = {
+        getBoundingClientRect: () => ({ left: 50, top: 100, right: 200, bottom: 120 }),
+      };
+
+      // Create mock header refs with querySelector
+      const mockSourceHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 100, right: 190, bottom: 120 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => mockNodeRow,
+      } as unknown as HTMLDivElement;
+
+      const mockTargetHeaderRef = {
+        getBoundingClientRect: () => ({ left: 300, top: 100, right: 450, bottom: 120 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => mockNodeRow,
+      } as unknown as HTMLDivElement;
+
+      const sourceNodeRefConfig: NodeReference = {
+        path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: true,
+        containerRef: null,
+        headerRef: mockSourceHeaderRef,
+      };
+
+      const targetNodeRefConfig: NodeReference = {
+        path: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: false,
+        containerRef: null,
+        headerRef: mockTargetHeaderRef,
+      };
+
+      const { result: sourceRefWithRow } = renderHook(() => useRef<NodeReference>(sourceNodeRefConfig));
+      const { result: targetRefWithRow } = renderHook(() => useRef<NodeReference>(targetNodeRefConfig));
+
+      nodeReferences.set('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', sourceRefWithRow.current);
+      nodeReferences.set('targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', targetRefWithRow.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          targetNodePath: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      expect(lineProps.length).toEqual(1);
+      expect(lineProps[0].x1).toBeDefined();
+      expect(lineProps[0].y1).toBeDefined();
+      expect(lineProps[0].x2).toBeDefined();
+      expect(lineProps[0].y2).toBeDefined();
+      // Verify that coordinates were calculated using node row rect
+      expect(lineProps[0].x1).toBeGreaterThan(0);
+      expect(lineProps[0].x2).toBeGreaterThan(0);
+    });
   });
 });

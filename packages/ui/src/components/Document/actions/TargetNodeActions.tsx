@@ -6,7 +6,7 @@ import { ConditionMenuAction } from './ConditionMenuAction';
 import { XPathEditorAction } from './XPathEditorAction';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
-import '../Document.scss';
+import './TargetNodeActions.scss';
 
 type TargetNodeActionsProps = {
   className?: string;

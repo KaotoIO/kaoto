@@ -2,7 +2,6 @@ import { ActionListGroup, ActionListItem } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, useCallback } from 'react';
 import { DocumentType } from '../../../models/datamapper/document';
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
-import '../Document.scss';
 import { AttachSchemaButton } from './AttachSchemaButton';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { DetachSchemaButton } from './DetachSchemaButton';

@@ -1,0 +1,21 @@
+.node {
+  &__add__mapping {
+    &__text {
+      color: var(--pf-t--global--text--color--disabled);
+    }
+
+    &__icon {
+      fill: var(--pf-t--global--icon--color--disabled);
+    }
+
+    &__actions {
+      margin-left: auto;
+    }
+  }
+
+  // Remove left border from AddMappingNode row only
+  // stylelint-disable-next-line selector-class-pattern
+  &__row:has(.node__add__mapping__text) {
+    border-left: none;
+  }
+}
