@@ -3384,118 +3384,104 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@kie-tools-core/backend@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/backend@npm:10.0.0"
-  dependencies:
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/notifications": "npm:10.0.0"
-    "@kie-tools-core/workspace": "npm:10.0.0"
-    axios: "npm:^1.6.8"
-    fast-xml-parser: "npm:^4.3.1"
-    portfinder: "npm:^1.0.32"
-    semver: "npm:^7.5.4"
-    sinon: "npm:^11.1.1"
-  checksum: 10/79e38abbb9a68746e95477ffde1688a048f10bb779ecf716728f3d40a450553c9a21c047f07c0efbee78ee79aa0bdabdf2ed50ce9d6e8e9186c31c82652bc1f4
-  languageName: node
-  linkType: hard
-
 "@kie-tools-core/editor@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/editor@npm:10.0.0"
+  version: 10.1.0
+  resolution: "@kie-tools-core/editor@npm:10.1.0"
   dependencies:
-    "@kie-tools-core/backend": "npm:10.0.0"
-    "@kie-tools-core/envelope": "npm:10.0.0"
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/keyboard-shortcuts": "npm:10.0.0"
-    "@kie-tools-core/notifications": "npm:10.0.0"
-    "@kie-tools-core/operating-system": "npm:10.0.0"
-    "@kie-tools-core/patternfly-base": "npm:10.0.0"
-    "@kie-tools-core/workspace": "npm:10.0.0"
+    "@kie-tools-core/envelope": "npm:10.1.0"
+    "@kie-tools-core/envelope-bus": "npm:10.1.0"
+    "@kie-tools-core/i18n": "npm:10.1.0"
+    "@kie-tools-core/keyboard-shortcuts": "npm:10.1.0"
+    "@kie-tools-core/notifications": "npm:10.1.0"
+    "@kie-tools-core/operating-system": "npm:10.1.0"
+    "@kie-tools-core/patternfly-base": "npm:10.1.0"
+    "@kie-tools-core/workspace": "npm:10.1.0"
     "@patternfly/react-core": "npm:^4.276.6"
     "@patternfly/react-icons": "npm:^4.93.6"
     csstype: "npm:^3.0.11"
     minimatch: "npm:^3.0.5"
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/a17f99f537dfb5408cbc4e2672f8435246552d0945809a5daa43eef19502a4d187563630598c2e2d028339d7cacd9136a3b4a032fef55ab18aa1a1f10b9ef180
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/2a197097a4819fdcea13d284e57c1d88e2d800d562bbc2356ff035e388f389781e0d08d29b0e88dfffcb6bf2502be4a2dd52c508451fbbb0dedebf6a95b5e102
   languageName: node
   linkType: hard
 
-"@kie-tools-core/envelope-bus@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/envelope-bus@npm:10.0.0"
-  dependencies:
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/3b152757d1c990ab85cba78ce4b63ebe22c5c6220cbe6d4a5c9e0eafe44f89dd7a9e5f21e555b520ee47bb12536d799ebfbd38284890c26a62504e7b3684ef43
+"@kie-tools-core/envelope-bus@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/envelope-bus@npm:10.1.0"
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/29251db16e734a2cfe0ebee9b2e4235287b5c4c482fba4a127d87786575091d2e6895522aaa402fcce66bb8602b24e33adfcc6be35b0611681c6d9448e6617b5
   languageName: node
   linkType: hard
 
-"@kie-tools-core/envelope@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/envelope@npm:10.0.0"
+"@kie-tools-core/envelope@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/envelope@npm:10.1.0"
   dependencies:
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
+    "@kie-tools-core/envelope-bus": "npm:10.1.0"
     csstype: "npm:^3.0.11"
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/de6e4f5173dbdf220595f72fef192c131d91ac7258e5c0f1a20c3ab8f5f9eac9ac6196b8ec16e83bdb2d107ee9054f445b3628a1e2ed1ebd57e90ae47d8267d1
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/9134c569e838ec07835cfe6a0dd048f4dbbf8ada10a248afab30d36b440187c650c6969c38bd2743f7fd8c218fca519168954eb94937aef07643eb83cbac10cb
   languageName: node
   linkType: hard
 
-"@kie-tools-core/i18n@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/i18n@npm:10.0.0"
+"@kie-tools-core/i18n@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/i18n@npm:10.1.0"
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+    react-dom: ">=17.0.2 <19.0.0"
+  checksum: 10/2685ef111acd14f4602db724f0028c4dd7ce6a4eeb5199309932d62ae5e7c136cf62712b3529e2beee8d81e45f98677198640d5b5eabbec79e1e1a87a4f23a37
+  languageName: node
+  linkType: hard
+
+"@kie-tools-core/keyboard-shortcuts@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/keyboard-shortcuts@npm:10.1.0"
   dependencies:
-    react: "npm:^17.0.2"
-    react-dom: "npm:^17.0.2"
-  checksum: 10/54964ee26047ab9b9a6719fe7a2fcc7d2449a8861d7026f7ee9b0c505962e69c1ac8021cae9c984b6734f852da8ddc4f52e65e1fa78e7aee24067059467f76ed
+    "@kie-tools-core/envelope-bus": "npm:10.1.0"
+    "@kie-tools-core/operating-system": "npm:10.1.0"
+  peerDependencies:
+    react: ">=17.0.2 <19.0.0"
+  checksum: 10/a30c7aee37523a8fe1b869242c7c39df779818b1aea51dda43a1688f731fe9e0d410b26085eae1bc680a4bc1a71c970bfbde10a9c4df4b29e5c5f422bd0fc7b9
   languageName: node
   linkType: hard
 
-"@kie-tools-core/keyboard-shortcuts@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/keyboard-shortcuts@npm:10.0.0"
+"@kie-tools-core/notifications@npm:10.1.0, @kie-tools-core/notifications@npm:^10.0.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/notifications@npm:10.1.0"
   dependencies:
-    "@kie-tools-core/envelope-bus": "npm:10.0.0"
-    "@kie-tools-core/operating-system": "npm:10.0.0"
-    react: "npm:^17.0.2"
-  checksum: 10/4399642c1dc54399c40a1ba5af0301d15dd99a4482885281f821b4d7328dc0b2d902bcd5009f8231b79165215087c5598165221b5f12f128baa8c88140d10d63
+    "@kie-tools-core/i18n": "npm:10.1.0"
+    "@kie-tools-core/workspace": "npm:10.1.0"
+  checksum: 10/c20534857a9a3da5424f013cbdba0d42ff2ca0b39fd479eede98995c3a5ed215912910b4033f35295375cb1b6b628a9058315de91104892b9367fb0050641f08
   languageName: node
   linkType: hard
 
-"@kie-tools-core/notifications@npm:10.0.0, @kie-tools-core/notifications@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/notifications@npm:10.0.0"
+"@kie-tools-core/operating-system@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/operating-system@npm:10.1.0"
+  checksum: 10/2dbf3f039b65af561a692a982cfa1397a30901bf6cc839d4f6bcfad2a36d6f36ed253395efeb8840176dbfde574acb1e2708abd3e88148818685e48088bea081
+  languageName: node
+  linkType: hard
+
+"@kie-tools-core/patternfly-base@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/patternfly-base@npm:10.1.0"
+  checksum: 10/2c5a7a9b878dbea6c80535bda0a42358a4caec4bc3e7ac27dc4e18ef038af498f1573697fe530720852f2b096bfb1f05c9609ac610001c6c2d3110157efdcf05
+  languageName: node
+  linkType: hard
+
+"@kie-tools-core/workspace@npm:10.1.0":
+  version: 10.1.0
+  resolution: "@kie-tools-core/workspace@npm:10.1.0"
   dependencies:
-    "@kie-tools-core/i18n": "npm:10.0.0"
-    "@kie-tools-core/workspace": "npm:10.0.0"
-  checksum: 10/925acb957b86360f7dbab42675b808b783cb1788168a320904ceea3221388a747af2db5852f8f13f54d603fea52e38bf11639d8a73b75d28a64977af38a362cc
-  languageName: node
-  linkType: hard
-
-"@kie-tools-core/operating-system@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/operating-system@npm:10.0.0"
-  checksum: 10/0115802801de4fbf1994efe1902468da4e30612ecfd92c5403bca852f4bd4d746ae37c5ee849a3f248dbc83b93815cacd4344157077d8a904deb4e1051c8fbe4
-  languageName: node
-  linkType: hard
-
-"@kie-tools-core/patternfly-base@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/patternfly-base@npm:10.0.0"
-  checksum: 10/9759c356bd5af574bda5c5ec18d0f4e504e6bb3082a651dd353428aff18164d9d0870adc1495804dbfa837c562979a64dd8ce591011b957d08be1420ceb04e87
-  languageName: node
-  linkType: hard
-
-"@kie-tools-core/workspace@npm:10.0.0":
-  version: 10.0.0
-  resolution: "@kie-tools-core/workspace@npm:10.0.0"
-  dependencies:
-    "@kie-tools-core/operating-system": "npm:10.0.0"
-  checksum: 10/4b4db2acb0839894ae25b6ce3390789353f6cccb0b57bd43dabe53276b44bae99a9a09eaee43a423d6cda8d0434a79cbfd17bd9bb78c8324a6613038af239087
+    "@kie-tools-core/operating-system": "npm:10.1.0"
+  checksum: 10/3e8288ca52c06abadb92a2cd7c17d0278d2f5ee202714f1cebe0e7b03cec19b22d743c2b948481715db53b1c3376af65dbf5f3dddb2d9d27b81f43e9b8c329cc
   languageName: node
   linkType: hard
 
@@ -4613,15 +4599,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sinonjs/commons@npm:^1.6.0, @sinonjs/commons@npm:^1.7.0, @sinonjs/commons@npm:^1.8.3":
-  version: 1.8.6
-  resolution: "@sinonjs/commons@npm:1.8.6"
-  dependencies:
-    type-detect: "npm:4.0.8"
-  checksum: 10/51987338fd8b4d1e135822ad593dd23a3288764aa41d83c695124d512bc38b87eece859078008651ecc7f1df89a7e558a515dc6f02d21a93be4ba50b39a28914
-  languageName: node
-  linkType: hard
-
 "@sinonjs/commons@npm:^3.0.0":
   version: 3.0.1
   resolution: "@sinonjs/commons@npm:3.0.1"
@@ -4637,42 +4614,6 @@ __metadata:
   dependencies:
     "@sinonjs/commons": "npm:^3.0.0"
   checksum: 10/78155c7bd866a85df85e22028e046b8d46cf3e840f72260954f5e3ed5bd97d66c595524305a6841ffb3f681a08f6e5cef572a2cce5442a8a232dc29fb409b83e
-  languageName: node
-  linkType: hard
-
-"@sinonjs/fake-timers@npm:^11.2.2":
-  version: 11.2.2
-  resolution: "@sinonjs/fake-timers@npm:11.2.2"
-  dependencies:
-    "@sinonjs/commons": "npm:^3.0.0"
-  checksum: 10/da7dfa677b2362bc5a321fc1563184755b5c62fbb1a72457fb9e901cd187ba9dc834f9e8a0fb5a4e1d1e6e6ad4c5b54e90900faa44dd6c82d3c49c92ec23ecd4
-  languageName: node
-  linkType: hard
-
-"@sinonjs/fake-timers@npm:^7.1.2":
-  version: 7.1.2
-  resolution: "@sinonjs/fake-timers@npm:7.1.2"
-  dependencies:
-    "@sinonjs/commons": "npm:^1.7.0"
-  checksum: 10/ea3270c3300eb4c1fa4c126e0295ee75657794465f2ec2ebaa2929c8b178da74d26f65ed284d07b469a0516649a3c164778dfddc7a21f16366013b6c58a653e8
-  languageName: node
-  linkType: hard
-
-"@sinonjs/samsam@npm:^6.0.2":
-  version: 6.1.3
-  resolution: "@sinonjs/samsam@npm:6.1.3"
-  dependencies:
-    "@sinonjs/commons": "npm:^1.6.0"
-    lodash.get: "npm:^4.4.2"
-    type-detect: "npm:^4.0.8"
-  checksum: 10/eb3ebce7bad483584f80b2aab7ff83da64ccc030bd883d9d93ef0500f7db77ec05b4471a16878a3f0f6fd228fffccb494171426a96144dd9e03aedd8b4ba0436
-  languageName: node
-  linkType: hard
-
-"@sinonjs/text-encoding@npm:^0.7.2":
-  version: 0.7.2
-  resolution: "@sinonjs/text-encoding@npm:0.7.2"
-  checksum: 10/ec713fb44888c852d84ca54f6abf9c14d036c11a5d5bfab7825b8b9d2b22127dbe53412c68f4dbb0c05ea5ed61c64679bd2845c177d81462db41e0d3d7eca499
   languageName: node
   linkType: hard
 
@@ -7623,15 +7564,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^2.6.4":
-  version: 2.6.4
-  resolution: "async@npm:2.6.4"
-  dependencies:
-    lodash: "npm:^4.17.14"
-  checksum: 10/df8e52817d74677ab50c438d618633b9450aff26deb274da6dfedb8014130909482acdc7753bce9b72e6171ce9a9f6a92566c4ced34c3cb3714d57421d58ad27
-  languageName: node
-  linkType: hard
-
 "async@npm:^3.2.0":
   version: 3.2.5
   resolution: "async@npm:3.2.5"
@@ -9617,7 +9549,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:^3.1.0, debug@npm:^3.2.7":
+"debug@npm:^3.1.0":
   version: 3.2.7
   resolution: "debug@npm:3.2.7"
   dependencies:
@@ -9862,13 +9794,6 @@ __metadata:
   version: 4.0.2
   resolution: "diff@npm:4.0.2"
   checksum: 10/ec09ec2101934ca5966355a229d77afcad5911c92e2a77413efda5455636c4cf2ce84057e2d7715227a2eeeda04255b849bd3ae3a4dd22eb22e86e76456df069
-  languageName: node
-  linkType: hard
-
-"diff@npm:^5.0.0":
-  version: 5.2.0
-  resolution: "diff@npm:5.2.0"
-  checksum: 10/01b7b440f83a997350a988e9d2f558366c0f90f15be19f4aa7f1bb3109a4e153dfc3b9fbf78e14ea725717017407eeaa2271e3896374a0181e8f52445740846d
   languageName: node
   linkType: hard
 
@@ -10921,17 +10846,6 @@ __metadata:
   version: 2.0.6
   resolution: "fast-levenshtein@npm:2.0.6"
   checksum: 10/eb7e220ecf2bab5159d157350b81d01f75726a4382f5a9266f42b9150c4523b9795f7f5d9fbbbeaeac09a441b2369f05ee02db48ea938584205530fe5693cfe1
-  languageName: node
-  linkType: hard
-
-"fast-xml-parser@npm:^4.3.1":
-  version: 4.5.3
-  resolution: "fast-xml-parser@npm:4.5.3"
-  dependencies:
-    strnum: "npm:^1.1.1"
-  bin:
-    fxparser: src/cli/cli.js
-  checksum: 10/ca22bf9d65c10b8447c1034c13403e90ecee210e2b3852690df3d8a42b8a46ec655fae7356096abd98a15b89ddaf11878587b1773e0c3be4cbc2ac4af4c7bf95
   languageName: node
   linkType: hard
 
@@ -13790,13 +13704,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"just-extend@npm:^6.2.0":
-  version: 6.2.0
-  resolution: "just-extend@npm:6.2.0"
-  checksum: 10/1f487b074b9e5773befdd44dc5d1b446f01f24f7d4f1f255d51c0ef7f686e8eb5f95d983b792b9ca5c8b10cd7e60a924d64103725759eddbd7f18bcb22743f92
-  languageName: node
-  linkType: hard
-
 "kaoto@workspace:.":
   version: 0.0.0-use.local
   resolution: "kaoto@workspace:."
@@ -14050,13 +13957,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.get@npm:^4.4.2":
-  version: 4.4.2
-  resolution: "lodash.get@npm:4.4.2"
-  checksum: 10/2a4925f6e89bc2c010a77a802d1ba357e17ed1ea03c2ddf6a146429f2856a216663e694a6aa3549a318cbbba3fd8b7decb392db457e6ac0b83dc745ed0a17380
-  languageName: node
-  linkType: hard
-
 "lodash.merge@npm:^4.6.2":
   version: 4.6.2
   resolution: "lodash.merge@npm:4.6.2"
@@ -14078,7 +13978,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.21, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.21, lodash@npm:~4.17.15":
+"lodash@npm:4.17.21, lodash@npm:^4.17.15, lodash@npm:^4.17.21, lodash@npm:~4.17.15":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10/c08619c038846ea6ac754abd6dd29d2568aa705feb69339e836dfa8d8b09abbb2f859371e86863eda41848221f9af43714491467b5b0299122431e202bb0c532
@@ -15159,17 +15059,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:^0.5.6":
-  version: 0.5.6
-  resolution: "mkdirp@npm:0.5.6"
-  dependencies:
-    minimist: "npm:^1.2.6"
-  bin:
-    mkdirp: bin/cmd.js
-  checksum: 10/0c91b721bb12c3f9af4b77ebf73604baf350e64d80df91754dc509491ae93bf238581e59c7188360cec7cb62fc4100959245a42cfe01834efedc5e9d068376c2
-  languageName: node
-  linkType: hard
-
 "mkdirp@npm:^1.0.3, mkdirp@npm:^1.0.4":
   version: 1.0.4
   resolution: "mkdirp@npm:1.0.4"
@@ -15429,19 +15318,6 @@ __metadata:
   dependencies:
     type-fest: "npm:^2.5.1"
   checksum: 10/3d4ae0f3b775623ceed8e558b6f9850e897aea981a9c937d3ad4e018669c829beccb2c4b5a6af996726ebf86c5b7638368dfc01f3ac2e395d1df29309bc0c5ca
-  languageName: node
-  linkType: hard
-
-"nise@npm:^5.1.0":
-  version: 5.1.9
-  resolution: "nise@npm:5.1.9"
-  dependencies:
-    "@sinonjs/commons": "npm:^3.0.0"
-    "@sinonjs/fake-timers": "npm:^11.2.2"
-    "@sinonjs/text-encoding": "npm:^0.7.2"
-    just-extend: "npm:^6.2.0"
-    path-to-regexp: "npm:^6.2.1"
-  checksum: 10/971caf7638d42a0e106eadd63f05adac1217f864b0a7e4519546aea82a0dbfac68586e7ff430704d54a01ff5dbf6cad58f5f67c067e21112a7deacd7789c2172
   languageName: node
   linkType: hard
 
@@ -16249,13 +16125,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:^6.2.1":
-  version: 6.2.2
-  resolution: "path-to-regexp@npm:6.2.2"
-  checksum: 10/f7d11c1a9e02576ce0294f4efdc523c11b73894947afdf7b23a0d0f7c6465d7a7772166e770ddf1495a8017cc0ee99e3e8a15ed7302b6b948b89a6dd4eea895e
-  languageName: node
-  linkType: hard
-
 "path-to-regexp@npm:^6.3.0":
   version: 6.3.0
   resolution: "path-to-regexp@npm:6.3.0"
@@ -16435,17 +16304,6 @@ __metadata:
   version: 1.16.1
   resolution: "popper.js@npm:1.16.1"
   checksum: 10/71338c86faf9b66ce60c3cdd7fb2ed742944e5d2765a188f269239fee2980aa6223b77b41302d1b6eb7d724e611092f9a2576d0048ac2071b605291abc72c0cf
-  languageName: node
-  linkType: hard
-
-"portfinder@npm:^1.0.32":
-  version: 1.0.32
-  resolution: "portfinder@npm:1.0.32"
-  dependencies:
-    async: "npm:^2.6.4"
-    debug: "npm:^3.2.7"
-    mkdirp: "npm:^0.5.6"
-  checksum: 10/842058052fb3c3da829589f3f44b13369cf504b16f6ab72fedec78a9438ac3fc53047f5c88a771511b17d6a94f50f83a94cef5fa625027b675d8f7241f7f2185
   languageName: node
   linkType: hard
 
@@ -18182,20 +18040,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sinon@npm:^11.1.1":
-  version: 11.1.2
-  resolution: "sinon@npm:11.1.2"
-  dependencies:
-    "@sinonjs/commons": "npm:^1.8.3"
-    "@sinonjs/fake-timers": "npm:^7.1.2"
-    "@sinonjs/samsam": "npm:^6.0.2"
-    diff: "npm:^5.0.0"
-    nise: "npm:^5.1.0"
-    supports-color: "npm:^7.2.0"
-  checksum: 10/e6013a364280dfb5f513212713c685d8445b1709d9ee5f887edb0ef1594ab8271757af1c22b6194aa08a24f3ddc9011cf7273f9e7a9e3cad6883c70d5dd7e024
-  languageName: node
-  linkType: hard
-
 "sisteransi@npm:^1.0.5":
   version: 1.0.5
   resolution: "sisteransi@npm:1.0.5"
@@ -18846,13 +18690,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strnum@npm:^1.1.1":
-  version: 1.1.2
-  resolution: "strnum@npm:1.1.2"
-  checksum: 10/ccd6297a1fdaf0fc8ea0ea904acdae76878d49a4b0d98a70155df4bc081fd88eac5ec99fb150f3d1d1af065c1898d38420705259ba6c39aa850c671bcd54e35d
-  languageName: node
-  linkType: hard
-
 "strnum@npm:^2.1.0":
   version: 2.1.1
   resolution: "strnum@npm:2.1.1"
@@ -19020,7 +18857,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"supports-color@npm:^7.0.0, supports-color@npm:^7.1.0, supports-color@npm:^7.2.0":
+"supports-color@npm:^7.0.0, supports-color@npm:^7.1.0":
   version: 7.2.0
   resolution: "supports-color@npm:7.2.0"
   dependencies:
