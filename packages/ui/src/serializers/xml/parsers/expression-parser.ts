@@ -50,7 +50,7 @@ export class ExpressionParser {
 
     return {
       [expressionType]: {
-        expression: expressionTypeProperties?.expression ? expressionElement.textContent : undefined,
+        expression: expressionTypeProperties?.expression ? expressionElement.textContent?.trim() : undefined,
         ...expressionAttributes,
         namespace: namespaces.length > 0 ? namespaces : undefined,
       },

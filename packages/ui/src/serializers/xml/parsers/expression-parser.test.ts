@@ -61,4 +61,18 @@ describe('Expression parser', () => {
     const result = ExpressionParser.parse(parentElement, props?.expression, 'when');
     expect(result).not.toBeDefined();
   });
+
+  it('should trim whitespace and newlines from expression text content', () => {
+    const expression = xmlParser.parseFromString(
+      `
+          <simple>
+                    \${header.foo} == 1
+                </simple>
+      `,
+      'application/xml',
+    ).documentElement;
+
+    const result = ExpressionParser.parse(expression);
+    expect(result).toEqual({ simple: { expression: '${header.foo} == 1' } });
+  });
 });
