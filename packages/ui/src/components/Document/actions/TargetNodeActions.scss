@@ -1,0 +1,9 @@
+.node {
+  &__target__actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+    right: var(--pf-t--global--spacer--md);
+  }
+}

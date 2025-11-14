@@ -82,9 +82,9 @@ describe('DataMapperPage', () => {
     let executed = false;
     await waitFor(() => {
       expect(screen.getByTestId('card-source-parameters-header')).toBeInTheDocument();
-      expect(screen.getByTestId('node-source-doc-param-testparam1')).toBeInTheDocument();
-      expect(screen.getByTestId('node-source-doc-sourceBody-Body')).toBeInTheDocument();
-      expect(screen.getByTestId('node-target-doc-targetBody-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('document-doc-param-testparam1')).toBeInTheDocument();
+      expect(screen.getByTestId('document-doc-sourceBody-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('document-doc-targetBody-Body')).toBeInTheDocument();
       expect(screen.getByTestId(/node-source-fx-OrderId-\n*/)).toBeInTheDocument();
       expect(screen.getByTestId(/node-target-fx-OrderId-\n*/)).toBeInTheDocument();
       executed = true;

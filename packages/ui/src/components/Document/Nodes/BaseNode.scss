@@ -1,0 +1,63 @@
+@use '../../../styles/dnd';
+
+.node {
+  &__row {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    height: 2rem;
+
+    // Rank-based indentation - expand icon + margins = ~1.5rem per level
+    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+
+    &[data-draggable='true'] {
+      @include dnd.cursor-grab;
+    }
+
+    // Leaf nodes (no children) have grey font color
+    &:not([data-expandable='true']) {
+      color: var(--pf-t--global--color--text--subtle);
+      border-left: 1px dotted gray;
+      padding-left: var(--pf-t--global--spacer--sm);
+    }
+
+    // Make inputs/buttons fit within row height
+    // stylelint-disable-next-line selector-class-pattern
+    .pf-v6-c-action-list__item,
+    .pf-v6-c-input-group {
+      height: 1.75rem;
+    }
+
+    .pf-v6-c-input-group {
+      flex: 1;
+    }
+
+    input,
+    button,
+    .pf-v6-c-text-input,
+    .pf-v6-c-button {
+      height: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  // Selected row styling - blue font color and bold (overrides leaf node grey)
+  &__row[data-selected='true'] {
+    color: var(--pf-t--global--color--brand--default) !important;
+    font-weight: bold;
+  }
+
+  &__expand {
+    left: var(--pf-t--global--spacer--sm);
+  }
+
+  &__spacer {
+    margin: 0 var(--pf-t--global--spacer--sm);
+
+    svg {
+      display: block;
+    }
+  }
+}

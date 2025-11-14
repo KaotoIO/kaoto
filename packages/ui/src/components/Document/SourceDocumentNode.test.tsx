@@ -251,7 +251,7 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
       act(() => {
@@ -281,8 +281,8 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.queryByTestId(`expand-source-icon-${leafNode!.nodeData.title}`);
-      const collapseIcon = screen.queryByTestId(`collapse-source-icon-${leafNode!.nodeData.title}`);
+      const expandIcon = screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`);
+      const collapseIcon = screen.queryByTestId(`collapse-icon-${leafNode!.nodeData.title}`);
 
       expect(expandIcon).not.toBeInTheDocument();
       expect(collapseIcon).not.toBeInTheDocument();
@@ -313,10 +313,10 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
-      const collapseIcon = screen.queryByTestId(`collapse-source-icon-${tree.root.nodeData.title}`);
+      const collapseIcon = screen.queryByTestId(`collapse-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).not.toBeInTheDocument();
     });
 
@@ -345,10 +345,10 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const collapseIcon = screen.getByTestId(`collapse-source-icon-${tree.root.nodeData.title}`);
+      const collapseIcon = screen.getByTestId(`collapse-icon-${tree.root.nodeData.title}`);
       expect(collapseIcon).toBeInTheDocument();
 
-      const expandIcon = screen.queryByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.queryByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).not.toBeInTheDocument();
     });
 
@@ -379,7 +379,7 @@ describe('SourceDocumentNode', () => {
         );
       });
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
       act(() => {
         fireEvent.click(expandIcon);
@@ -414,8 +414,7 @@ describe('SourceDocumentNode', () => {
         fireEvent.click(nodeContainer);
       });
 
-      const selectedNode = screen.getByTestId(`node-source-selected-${documentNodeData.id}`);
-      expect(selectedNode).toBeInTheDocument();
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
 
     it('should apply selected-container class when selected', () => {
@@ -465,8 +464,7 @@ describe('SourceDocumentNode', () => {
         fireEvent.click(nodeContainer);
       });
 
-      const selectedNode = screen.getByTestId(`node-source-selected-${documentNodeData.id}`);
-      expect(selectedNode).toBeInTheDocument();
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
 
       act(() => {
         fireEvent.click(nodeContainer);
@@ -544,59 +542,6 @@ describe('SourceDocumentNode', () => {
       );
 
       expect(screen.getByTestId(`node-source-${documentNodeData.id}`)).toBeInTheDocument();
-    });
-  });
-
-  describe('Parameter Renaming', () => {
-    it('should show ParameterInputPlaceholder when renaming', () => {
-      const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      expect(screen.getByText('param1')).toBeInTheDocument();
-
-      const renameButton = screen.getByTestId('rename-parameter-param1-button');
-      fireEvent.click(renameButton);
-
-      expect(screen.getByTestId('new-parameter-name-input')).toBeInTheDocument();
-    });
-
-    it('should call toggleOffRenamingParameter on complete', () => {
-      const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      const renameButton = screen.getByTestId('rename-parameter-param1-button');
-      fireEvent.click(renameButton);
-
-      expect(screen.getByTestId('new-parameter-name-input')).toBeInTheDocument();
-
-      const cancelButton = screen.getByTestId('new-parameter-cancel-btn');
-      fireEvent.click(cancelButton);
-
-      expect(screen.queryByTestId('new-parameter-name-input')).not.toBeInTheDocument();
-    });
-
-    it('should not show DocumentActions for non-document nodes', () => {
-      const document = TestUtil.createSourceOrderDoc();
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-      TreeParsingService.parseTree(tree);
-      const fieldNode = tree.root.children[0]; // Get a field node, not a document node
-
-      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
-        wrapper,
-      });
-
-      expect(screen.queryByTestId(`rename-parameter-${fieldNode.nodeData.id}-button`)).not.toBeInTheDocument();
     });
   });
 
@@ -689,18 +634,6 @@ describe('SourceDocumentNode', () => {
   });
 
   describe('Read-only Mode', () => {
-    it('should hide DocumentActions when isReadOnly is true', () => {
-      const document = new PrimitiveDocument(DocumentType.PARAM, 'param1');
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={true} rank={0} />, {
-        wrapper,
-      });
-
-      expect(screen.queryByTestId('rename-parameter-param1-button')).not.toBeInTheDocument();
-    });
-
     it('should still allow expansion/collapse in read-only mode', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
@@ -722,7 +655,7 @@ describe('SourceDocumentNode', () => {
       });
 
       // Expand icon should still be visible
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
       expect(expandIcon).toBeInTheDocument();
 
       // Should be able to click the expand icon
@@ -761,7 +694,7 @@ describe('SourceDocumentNode', () => {
         { wrapper },
       );
 
-      const expandIcon = screen.getByTestId(`expand-source-icon-${tree.root.nodeData.title}`);
+      const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
       act(() => {
         fireEvent.click(expandIcon);
@@ -811,8 +744,8 @@ describe('SourceDocumentNode', () => {
       });
 
       // Should not have expand/collapse icons
-      expect(screen.queryByTestId(`expand-source-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
-      expect(screen.queryByTestId(`collapse-source-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`expand-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`collapse-icon-${leafNode!.nodeData.title}`)).not.toBeInTheDocument();
 
       // Clicking the node should still work for selection
       const nodeContainer = screen.getByTestId(`node-source-${leafNode!.nodeData.id}`);
@@ -821,7 +754,7 @@ describe('SourceDocumentNode', () => {
       });
 
       // Node should be selected
-      expect(screen.getByTestId(`node-source-selected-${leafNode!.nodeData.id}`)).toBeInTheDocument();
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
   });
 });

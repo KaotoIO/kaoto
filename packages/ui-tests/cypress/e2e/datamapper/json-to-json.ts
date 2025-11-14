@@ -13,7 +13,7 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.addParameter('OrderSequence');
     cy.importMappings('datamapper/xslt/ShipOrderJson.xsl');
 
-    cy.get('[data-testid^="node-source-fj-string-AccountId"]').click();
+    cy.get('[data-testid^="node-source-fj-string-AccountId"]').click({ force: true });
 
     cy.checkFieldSelected('source', 'fj', 'string-AccountId', true);
     cy.checkFieldSelected('target', 'fj', 'string-OrderId', true);
@@ -38,58 +38,58 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.addParameter('OrderSequence');
 
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-AccountId'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderId'],
+      ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderId'],
       "$Account-x/fn:map/fn:string[@key='AccountId']",
     );
     cy.engageMapping(
-      ['node-source-doc-param-OrderSequence'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderId'],
+      ['document-doc-param-OrderSequence'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderId'],
       "$Account-x/fn:map/fn:string[@key='AccountId'], $OrderSequence",
     );
-    cy.get('[data-testid^="mapping-link-"]').should('be.visible').first().click();
+    cy.get('[data-testid^="mapping-link-"]').should('be.visible').first().click({ force: true });
 
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-Name'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderPerson'],
+      ['document-doc-param-Account', 'node-source-fj-string-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderPerson'],
       "$Account-x/fn:map/fn:string[@key='Name']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-Name'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
+      ['document-doc-param-Account', 'node-source-fj-string-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
       "$Account-x/fn:map/fn:string[@key='Name']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Street']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='City']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='State']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
     );
 
     cy.engageForEachMapping(
-      ['node-source-fj-array', 'node-source-fj-map'],
-      ['node-target-fj-map', 'node-target-fj-array-Item', 'node-target-fj-map'],
+      ['document-doc-param-Cart', 'node-source-fj-map'],
+      ['document-doc-targetBody-Body', 'node-target-fj-array-Item', 'node-target-fj-map'],
       '$Cart-x/fn:array/fn:map',
     );
 
     cy.engageMapping(
-      ['node-source-fj-array', 'node-source-fj-map', 'node-source-fj-string-Title'],
+      ['document-doc-param-Cart', 'node-source-fj-map', 'node-source-fj-string-Title'],
       [
-        'node-target-fj-map',
+        'document-doc-targetBody-Body',
         'node-target-fj-array-Item',
         'node-target-for-each',
         'node-target-fj-map',
@@ -98,9 +98,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
       "fn:string[@key='Title']",
     );
     cy.engageMapping(
-      ['node-source-fj-array', 'node-source-fj-map', 'node-source-fj-number-Quantity'],
+      ['document-doc-param-Cart', 'node-source-fj-map', 'node-source-fj-number-Quantity'],
       [
-        'node-target-fj-map',
+        'document-doc-targetBody-Body',
         'node-target-fj-array-Item',
         'node-target-for-each',
         'node-target-fj-map',
@@ -109,9 +109,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
       "fn:number[@key='Quantity']",
     );
     cy.engageMapping(
-      ['node-source-fj-array', 'node-source-fj-map', 'node-source-fj-number-Price'],
+      ['document-doc-param-Cart', 'node-source-fj-map', 'node-source-fj-number-Price'],
       [
-        'node-target-fj-map',
+        'document-doc-targetBody-Body',
         'node-target-fj-array-Item',
         'node-target-for-each',
         'node-target-fj-map',
@@ -130,39 +130,39 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
 
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-AccountId'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderId'],
+      ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderId'],
       "$Account-x/fn:map/fn:string[@key='AccountId']",
     );
 
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-Name'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderPerson'],
+      ['document-doc-param-Account', 'node-source-fj-string-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderPerson'],
       "$Account-x/fn:map/fn:string[@key='Name']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-Name'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
+      ['document-doc-param-Account', 'node-source-fj-string-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
       "$Account-x/fn:map/fn:string[@key='Name']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Street']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='City']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='State']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
     );
 
@@ -179,39 +179,39 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
 
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-AccountId'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderId'],
+      ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderId'],
       "$Account-x/fn:map/fn:string[@key='AccountId']",
     );
 
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-Name'],
-      ['node-target-fj-map', 'node-target-fj-string-OrderPerson'],
+      ['document-doc-param-Account', 'node-source-fj-string-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderPerson'],
       "$Account-x/fn:map/fn:string[@key='Name']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-string-Name'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
+      ['document-doc-param-Account', 'node-source-fj-string-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Name'],
       "$Account-x/fn:map/fn:string[@key='Name']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-Street'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Street'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Street']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-City'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-City'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='City']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-State'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-State'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='State']",
     );
     cy.engageMapping(
-      ['node-source-fj-map', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
-      ['node-target-fj-map', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
+      ['document-doc-param-Account', 'node-source-fj-map-Address', 'node-source-fj-string-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
     );
 

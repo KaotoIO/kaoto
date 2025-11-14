@@ -57,7 +57,9 @@ describe('DebugLayout', () => {
       </DataMapperProvider>,
     );
     await screen.findAllByText('ShipOrder');
-    const targetNodes = screen.getAllByTestId(/node-target-.*/);
+    const targetDocuments = screen.queryAllByTestId(/^document-doc-targetBody-.*/);
+    const targetFields = screen.queryAllByTestId(/^node-target-.*/);
+    const targetNodes = [...targetDocuments, ...targetFields];
     expect(targetNodes.length).toEqual(21);
     expect(mappingLinks.length).toEqual(11);
     expect(mappingLinks.filter((link) => link.isSelected).length).toEqual(0);
@@ -106,7 +108,7 @@ describe('DebugLayout', () => {
       expect(selectedNodeReference?.current.path).toMatch(/targetBody:Body:\/\/fx-ShipOrder-.*\/fx-OrderId-.*/);
     });
 
-    const sourceOrderId = await screen.findByTestId(/node-source-selected-fx-OrderId-.*/);
+    const sourceOrderId = await screen.findByTestId(/node-source-fx-OrderId-.*/);
     act(() => {
       fireEvent.click(sourceOrderId);
     });

@@ -1,0 +1,20 @@
+.parameter-card {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card__header {
+    padding-block: 0;
+    padding-inline: 0;
+  }
+}
+
+.parameter-actions {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+
+  --pf-v6-c-action-list--child--spacer-base: 0.5rem;
+  --pf-v6-c-action-list--group--spacer-base: 0.5rem;
+
+  .pf-v6-c-button {
+    --pf-v6-c-button--PaddingLeft: 0.5rem;
+    --pf-v6-c-button--PaddingRight: 0.5rem;
+  }
+}

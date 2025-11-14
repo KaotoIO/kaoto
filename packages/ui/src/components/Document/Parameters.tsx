@@ -16,10 +16,10 @@ import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
 import { NodeReference } from '../../models/datamapper';
-import './Document.scss';
 import { NodeContainer } from './NodeContainer';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
-import { SourceDocument } from './SourceDocument';
+import { ParameterDocument } from './ParameterDocument';
+import './Parameters.scss';
 
 type ParametersProps = {
   isReadOnly: boolean;
@@ -106,7 +106,7 @@ export const Parameters: FunctionComponent<ParametersProps> = ({ isReadOnly }) =
             )}
             {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
               <StackItem key={documentId}>
-                <SourceDocument document={doc} isReadOnly={isReadOnly} />
+                <ParameterDocument document={doc} isReadOnly={isReadOnly} />
               </StackItem>
             ))}
           </Stack>

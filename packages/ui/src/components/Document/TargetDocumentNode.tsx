@@ -1,6 +1,3 @@
-import { At, ChevronDown, ChevronRight, Draggable } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
-import { LayerGroupIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
 import { useCanvas } from '../../hooks/useCanvas';
@@ -19,9 +16,8 @@ import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
-import './Document.scss';
-import { FieldIcon } from './FieldIcon';
 import { NodeContainer } from './NodeContainer';
+import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle';
 
 type DocumentNodeProps = {
@@ -90,41 +86,27 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
 
   return (
     <div
-      data-testid={`node-target-${isSelected ? 'selected-' : ''}${nodeData.id}`}
-      className={clsx({ node__container: !isDocument })}
+      data-testid={`node-target-${nodeData.id}`}
+      data-selected={isSelected}
+      className="node__container"
       onClick={handleClickField}
     >
       <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div className={clsx({ node__header: !isDocument })}>
+        <div className="node__header">
           <NodeContainer nodeData={nodeData} ref={headerRef} className={clsx({ 'selected-container': isSelected })}>
-            <section className="node__row" data-draggable={isDraggable}>
-              {hasChildren && (
-                <Icon className="node__expand node__spacer" onClick={handleClickToggle}>
-                  {isExpanded && <ChevronDown data-testid={`expand-target-icon-${nodeData.title}`} />}
-                  {!isExpanded && <ChevronRight data-testid={`collapse-target-icon-${nodeData.title}`} />}
-                </Icon>
-              )}
-
-              <Icon className="node__spacer" data-drag-handler>
-                <Draggable />
-              </Icon>
-
-              <FieldIcon className="node__spacer" type={nodeData.type} />
-
-              {isCollectionField && (
-                <Icon className="node__spacer">
-                  <LayerGroupIcon />
-                </Icon>
-              )}
-
-              {isAttributeField && (
-                <Icon className="node__spacer">
-                  <At />
-                </Icon>
-              )}
-
-              <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />
-
+            <BaseNode
+              data-testid={nodeData.title}
+              isExpandable={hasChildren}
+              isExpanded={isExpanded}
+              onExpandChange={handleClickToggle}
+              isDraggable={isDraggable}
+              iconType={nodeData.type}
+              isCollectionField={isCollectionField}
+              isAttributeField={isAttributeField}
+              title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
+              rank={rank}
+              isSelected={isSelected}
+            >
               {showNodeActions ? (
                 <TargetNodeActions
                   className="node__target__actions"
@@ -136,15 +118,15 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               )}
 
               {isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} onRenameClick={() => {}} />}
-            </section>
+            </BaseNode>
           </NodeContainer>
         </div>
 
         {hasChildren && isExpanded && (
-          <div className={clsx({ node__children: !isDocument })}>
+          <div className="node__children">
             {treeNode.children.map((childTreeNode) =>
               childTreeNode.nodeData instanceof AddMappingNodeData ? (
-                <AddMappingNode nodeData={childTreeNode.nodeData} key={childTreeNode.path} />
+                <AddMappingNode nodeData={childTreeNode.nodeData} key={childTreeNode.path} rank={rank} />
               ) : (
                 <TargetDocumentNode
                   treeNode={childTreeNode}
