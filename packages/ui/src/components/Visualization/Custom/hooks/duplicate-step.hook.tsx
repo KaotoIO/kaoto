@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useMemo } from 'react';
+
 import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';

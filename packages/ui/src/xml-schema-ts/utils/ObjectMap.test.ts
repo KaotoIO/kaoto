@@ -1,7 +1,7 @@
-import { QNameMap, SchemaKeyMap } from './ObjectMap';
-import { XmlSchema } from '../XmlSchema';
-import { SchemaKey } from '../SchemaKey';
 import { QName } from '../QName';
+import { SchemaKey } from '../SchemaKey';
+import { XmlSchema } from '../XmlSchema';
+import { QNameMap, SchemaKeyMap } from './ObjectMap';
 
 describe('ObjectMap', () => {
   describe('SchemaKeyMap', () => {

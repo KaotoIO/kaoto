@@ -1,7 +1,8 @@
-import { SourceSchemaType } from './source-schema-type';
+import { KameletBinding as KameletBindingType } from '@kaoto/camel-catalog/types';
+
 import { PipeVisualEntity } from '../visualization/flows';
 import { PipeResource } from './pipe-resource';
-import { KameletBinding as KameletBindingType } from '@kaoto/camel-catalog/types';
+import { SourceSchemaType } from './source-schema-type';
 
 /**
  * @deprecated KameletBinding was renamed to Pipe in Camel K 2.0. While KameletBinding is still supported,

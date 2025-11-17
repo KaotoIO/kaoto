@@ -1,11 +1,12 @@
-import { XPathEditorAction } from './XPathEditorAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { XPathEditorAction } from './XPathEditorAction';
 
 describe('XPathEditorAction', () => {
   it('should open xpath editor modal', async () => {

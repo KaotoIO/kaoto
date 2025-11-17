@@ -1,20 +1,21 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NodeTitle } from './NodeTitle';
-import {
-  DocumentNodeData,
-  FieldNodeData,
-  MappingNodeData,
-  TargetDocumentNodeData,
-} from '../../models/datamapper/visualization';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinitionType,
   DocumentType,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { IfItem, MappingTree } from '../../models/datamapper/mapping';
+import {
+  DocumentNodeData,
+  FieldNodeData,
+  MappingNodeData,
+  TargetDocumentNodeData,
+} from '../../models/datamapper/visualization';
+import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { NodeTitle } from './NodeTitle';
 
 describe('NodeTitle', () => {
   const createMockField = () => {

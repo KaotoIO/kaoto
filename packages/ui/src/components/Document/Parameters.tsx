@@ -1,3 +1,5 @@
+import './Parameters.scss';
+
 import {
   ActionList,
   ActionListItem,
@@ -12,14 +14,14 @@ import {
 } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
 import { NodeReference } from '../../models/datamapper';
 import { NodeContainer } from './NodeContainer';
-import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { ParameterDocument } from './ParameterDocument';
-import './Parameters.scss';
+import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 
 type ParametersProps = {
   isReadOnly: boolean;

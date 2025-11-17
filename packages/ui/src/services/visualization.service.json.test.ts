@@ -16,7 +16,6 @@ import {
   TargetNodeData,
   ValueSelector,
 } from '../models/datamapper';
-import { JsonSchemaDocumentService } from './json-schema-document.service';
 import {
   accountJsonSchema,
   camelYamlDslJsonSchema,
@@ -24,8 +23,9 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
-import { VisualizationService } from './visualization.service';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
+import { VisualizationService } from './visualization.service';
 
 describe('VisualizationService / JSON', () => {
   const accountDoc = JsonSchemaDocumentService.createJsonSchemaDocument(

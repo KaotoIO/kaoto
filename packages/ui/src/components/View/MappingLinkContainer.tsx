@@ -1,10 +1,12 @@
+import './MappingLinkContainer.scss';
+
 import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
 import { MappingLinksService } from '../../services/mapping-links.service';
 import { MappingLink } from './MappingLink';
-import './MappingLinkContainer.scss';
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);

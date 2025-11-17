@@ -1,12 +1,13 @@
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, createContext, useEffect, useState } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
+
+import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { CamelCatalogIndex, KaotoSchemaDefinition, LoadingStatus } from '../models';
 import { sourceSchemaConfig } from '../models/camel';
 import { useSchemasStore } from '../store';
 import { CatalogSchemaLoader } from '../utils';
-import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 
 export const SchemasContext = createContext<Record<string, KaotoSchemaDefinition>>({});
 

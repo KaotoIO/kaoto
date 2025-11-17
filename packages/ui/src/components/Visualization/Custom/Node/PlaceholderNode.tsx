@@ -1,3 +1,5 @@
+import './PlaceholderNode.scss';
+
 import { Icon } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import type {
@@ -11,26 +13,26 @@ import type {
 import {
   AnchorEnd,
   DEFAULT_LAYER,
-  Layer,
-  Rect,
   isNode,
+  Layer,
   observer,
+  Rect,
   useAnchor,
   useDndDrop,
 } from '@patternfly/react-topology';
+import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
-import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { CanvasNode } from '../../Canvas/canvas.models';
-import { useReplaceStep } from '../hooks/replace-step.hook';
-import { TargetAnchor } from '../target-anchor';
-import './PlaceholderNode.scss';
-import clsx from 'clsx';
-import { NODE_DRAG_TYPE } from '../customComponentUtils';
-import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { isDefined } from '../../../../utils/is-defined';
+import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { CanvasNode } from '../../Canvas/canvas.models';
+import { NODE_DRAG_TYPE } from '../customComponentUtils';
+import { useReplaceStep } from '../hooks/replace-step.hook';
+import { TargetAnchor } from '../target-anchor';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 interface PlaceholderNodeInnerProps extends DefaultNodeProps {

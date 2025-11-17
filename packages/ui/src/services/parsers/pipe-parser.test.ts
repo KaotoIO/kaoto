@@ -1,10 +1,10 @@
-import { PipeParser } from './pipe-parser';
-import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { kameletBindingYaml, pipeYaml } from '../../stubs';
 import { KameletBindingVisualEntity, PipeVisualEntity } from '../../models';
-import { PipeErrorHandlerEntity } from '../../models/visualization/metadata/pipeErrorHandlerEntity';
+import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
 import { ParsedTable } from '../../models/documentation';
+import { PipeErrorHandlerEntity } from '../../models/visualization/metadata/pipeErrorHandlerEntity';
+import { kameletBindingYaml, pipeYaml } from '../../stubs';
 import { pipeTimerSourceYaml } from '../../stubs/pipe-timer-source';
+import { PipeParser } from './pipe-parser';
 
 describe('PipeParser', () => {
   describe('parsePipeEntity()', () => {

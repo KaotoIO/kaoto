@@ -1,6 +1,6 @@
 import { XPathService } from '../xpath.service';
 import { CstVisitor } from './xpath-syntaxtree-cst-visitor';
-import { XPathNodeType, PathExprNode } from './xpath-syntaxtree-model';
+import { PathExprNode, XPathNodeType } from './xpath-syntaxtree-model';
 
 describe('CstVisitor', () => {
   describe('visit()', () => {

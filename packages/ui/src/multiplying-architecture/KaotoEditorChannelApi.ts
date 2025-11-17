@@ -1,5 +1,6 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
+
 import { CatalogKind, StepUpdateAction } from '../models';
 import {
   CamelMainMavenInformation,

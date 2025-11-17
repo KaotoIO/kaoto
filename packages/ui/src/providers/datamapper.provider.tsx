@@ -13,10 +13,11 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import { Alert, AlertActionCloseButton, AlertGroup, AlertProps, AlertVariant } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Loading } from '../components/Loading';
-import { MappingTree } from '../models/datamapper/mapping';
+import { SendAlertProps } from '../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -25,13 +26,12 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../models/datamapper/document';
+import { MappingTree } from '../models/datamapper/mapping';
 import { CanvasView } from '../models/datamapper/view';
-import { MappingSerializerService } from '../services/mapping-serializer.service';
-import { MappingService } from '../services/mapping.service';
-import { DocumentService } from '../services/document.service';
-import { Alert, AlertActionCloseButton, AlertGroup, AlertProps, AlertVariant } from '@patternfly/react-core';
-import { SendAlertProps } from '../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
+import { DocumentService } from '../services/document.service';
+import { MappingService } from '../services/mapping.service';
+import { MappingSerializerService } from '../services/mapping-serializer.service';
 
 export interface IDataMapperContext {
   isLoading: boolean;

@@ -1,6 +1,7 @@
-import { DataMapperProvider } from './datamapper.provider';
-import { MappingLinksProvider } from './data-mapping-links.provider';
 import { render, screen } from '@testing-library/react';
+
+import { MappingLinksProvider } from './data-mapping-links.provider';
+import { DataMapperProvider } from './datamapper.provider';
 
 describe('DataMappingLinksProvider', () => {
   it('should render', async () => {

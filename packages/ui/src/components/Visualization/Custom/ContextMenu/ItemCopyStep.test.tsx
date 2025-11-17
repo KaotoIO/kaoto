@@ -1,7 +1,8 @@
 import { fireEvent, render } from '@testing-library/react';
+
 import { createVisualizationNode } from '../../../../models';
-import { ItemCopyStep } from './ItemCopyStep';
 import { useCopyStep } from '../hooks/copy-step.hook';
+import { ItemCopyStep } from './ItemCopyStep';
 
 // Mock the `useCopyStep` hook
 jest.mock('../hooks/copy-step.hook', () => ({

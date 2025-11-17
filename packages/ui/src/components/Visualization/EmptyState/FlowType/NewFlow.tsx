@@ -1,8 +1,9 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
+
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { ISourceSchema, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';

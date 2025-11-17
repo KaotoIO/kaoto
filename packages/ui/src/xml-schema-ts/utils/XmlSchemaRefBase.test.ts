@@ -1,7 +1,7 @@
-import { XmlSchemaRefBase } from './XmlSchemaRefBase';
-import { XmlSchema } from '../XmlSchema';
 import { QName } from '../QName';
+import { XmlSchema } from '../XmlSchema';
 import { XmlSchemaNamedImpl } from './XmlSchemaNamedImpl';
+import { XmlSchemaRefBase } from './XmlSchemaRefBase';
 
 // Concrete implementation for testing
 class TestXmlSchemaRefBase extends XmlSchemaRefBase {

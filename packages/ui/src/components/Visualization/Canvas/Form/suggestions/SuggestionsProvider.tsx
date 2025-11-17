@@ -1,5 +1,6 @@
 import { useSuggestionRegistry } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren, useContext, useEffect } from 'react';
+
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
 import { getSimpleLanguageSuggestionProvider } from './suggestions/simple-language.suggestions';

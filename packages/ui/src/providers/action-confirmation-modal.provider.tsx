@@ -1,3 +1,5 @@
+import './action-confirmation-modal.provider.scss';
+
 import {
   Button,
   ButtonVariant,
@@ -9,8 +11,7 @@ import {
   Split,
   SplitItem,
 } from '@patternfly/react-core';
-import { FunctionComponent, PropsWithChildren, createContext, useCallback, useMemo, useRef, useState } from 'react';
-import './action-confirmation-modal.provider.scss';
+import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef, useState } from 'react';
 
 export const ACTION_ID_CANCEL = 'cancel';
 export const ACTION_ID_CONFIRM = 'confirm';

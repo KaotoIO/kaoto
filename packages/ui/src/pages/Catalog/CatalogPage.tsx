@@ -1,4 +1,5 @@
 import { FunctionComponent, useCallback, useContext, useState } from 'react';
+
 import { Catalog, ITile } from '../../components/Catalog';
 import { PropertiesModal } from '../../components/PropertiesModal';
 import { CatalogTilesContext } from '../../providers/catalog-tiles.provider';

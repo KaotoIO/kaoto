@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
+import { BeanFactory } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind } from '../../../models';
 import { ElementType, StepXmlSerializer } from './step-xml-serializer';
-import { BeanFactory } from '@kaoto/camel-catalog/types';
 
 export class BeansXmlSerializer {
   static serialize(beanElement: BeanFactory, doc: Document): Element | undefined {

@@ -1,5 +1,6 @@
-import { MappingLinksContext, IMappingLinksContext } from '../providers/data-mapping-links.provider';
 import { useContext } from 'react';
+
+import { IMappingLinksContext, MappingLinksContext } from '../providers/data-mapping-links.provider';
 
 export const errorMessage = 'useMappingLinks should be called into MappingLinksProvider';
 

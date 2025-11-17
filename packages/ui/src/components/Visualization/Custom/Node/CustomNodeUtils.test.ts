@@ -1,7 +1,7 @@
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from './CustomNodeUtils';
 
 describe('CustomNodeUtils', () => {

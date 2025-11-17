@@ -1,6 +1,7 @@
 import { ElementModel, Node } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext } from '../../../../providers/entities.provider';

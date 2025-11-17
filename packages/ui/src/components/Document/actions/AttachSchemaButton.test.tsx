@@ -1,4 +1,3 @@
-import { AttachSchemaButton } from './AttachSchemaButton';
 import {
   act,
   findByLabelText,
@@ -9,13 +8,13 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
+
+import { useDataMapper } from '../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { useDataMapper } from '../../../hooks/useDataMapper';
+import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DocumentService } from '../../../services/document.service';
-import { readFileAsString } from '../../../stubs/read-file-as-string';
-
+import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
 import {
   multipleElementsXsd,
   noTopElementXsd,
@@ -24,7 +23,8 @@ import {
   shipOrderJsonXslt,
   shipOrderXsd,
 } from '../../../stubs/datamapper/data-mapper';
-import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
+import { readFileAsString } from '../../../stubs/read-file-as-string';
+import { AttachSchemaButton } from './AttachSchemaButton';
 
 jest.mock('../../../stubs/read-file-as-string');
 const mockReadFileAsString = readFileAsString as jest.MockedFunction<typeof readFileAsString>;

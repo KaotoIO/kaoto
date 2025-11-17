@@ -15,11 +15,10 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { CamelCatalogService, CatalogKind } from '../../../models';
 
+import { CamelCatalogService, CatalogKind } from '../../../models';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { BeansXmlParser } from './beans-xml-parser';
 
 export const getElementFromXml = (xml: string): Element => {

@@ -1,4 +1,3 @@
-import { PropertiesHeaders, PropertiesTableType } from './PropertiesModal.models';
 import {
   ICamelComponentApi,
   ICamelComponentApiMethod,
@@ -19,6 +18,7 @@ import {
   getClassNameOnlyFunctionExportedForTesting,
   kameletToPropertiesTable,
 } from './camel-to-table.adapter';
+import { PropertiesHeaders, PropertiesTableType } from './PropertiesModal.models';
 
 describe('camelComponentToTable', () => {
   const componentDef = {

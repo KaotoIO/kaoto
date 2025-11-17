@@ -1,5 +1,6 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
-import { FunctionComponent, PropsWithChildren, createContext } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren } from 'react';
+
 import { StepUpdateAction } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
 

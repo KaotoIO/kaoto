@@ -1,10 +1,10 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { SourceTargetView } from './SourceTargetView';
-
-import { camelYamlDslJsonSchema, shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
+import { camelYamlDslJsonSchema, shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { SourceTargetView } from './SourceTargetView';
 
 describe('SourceTargetView', () => {
   describe('Source Body Document', () => {

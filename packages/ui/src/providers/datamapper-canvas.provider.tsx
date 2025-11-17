@@ -8,13 +8,14 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { DnDHandler } from './dnd/DnDHandler';
+
+import { useDataMapper } from '../hooks/useDataMapper';
+import { NodeReference } from '../models/datamapper';
 import { DocumentType } from '../models/datamapper/document';
 import { NodePath } from '../models/datamapper/nodepath';
-import { DatamapperDndProvider } from './datamapper-dnd.provider';
-import { useDataMapper } from '../hooks/useDataMapper';
 import { MappingLinksProvider } from './data-mapping-links.provider';
-import { NodeReference } from '../models/datamapper';
+import { DatamapperDndProvider } from './datamapper-dnd.provider';
+import { DnDHandler } from './dnd/DnDHandler';
 
 export interface ICanvasContext {
   setNodeReference: (path: string, ref: MutableRefObject<NodeReference>) => void;

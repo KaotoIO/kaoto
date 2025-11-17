@@ -1,17 +1,19 @@
+import './Canvas.scss';
+
 import { CatalogIcon } from '@patternfly/react-icons';
 import {
+  action,
+  createTopologyControlButtons,
+  defaultControlButtonsOptions,
   Model,
   SELECTION_EVENT,
   SelectionEventListener,
   TopologyControlBar,
   TopologyControlButton,
   TopologyView,
-  VisualizationSurface,
-  action,
-  createTopologyControlButtons,
-  defaultControlButtonsOptions,
   useEventListener,
   useVisualizationController,
+  VisualizationSurface,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import {
@@ -24,6 +26,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+
 import { useLocalStorage } from '../../../hooks';
 import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
@@ -32,13 +35,12 @@ import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
+import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 import { VisualizationEmptyState } from '../EmptyState';
-import './Canvas.scss';
-import { CanvasSideBar } from './CanvasSideBar';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
+import { CanvasSideBar } from './CanvasSideBar';
 import { FlowService } from './flow.service';
-import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 
 interface CanvasProps {
   entities: BaseVisualCamelEntity[];

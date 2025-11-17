@@ -1,12 +1,14 @@
+import './TargetNodeActions.scss';
+
 import { ActionListGroup } from '@patternfly/react-core';
-import { FunctionComponent, MouseEvent, KeyboardEvent, useCallback } from 'react';
-import { XPathInputAction } from './XPathInputAction';
-import { DeleteMappingItemAction } from './DeleteMappingItemAction';
-import { ConditionMenuAction } from './ConditionMenuAction';
-import { XPathEditorAction } from './XPathEditorAction';
+import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
+
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
-import './TargetNodeActions.scss';
+import { ConditionMenuAction } from './ConditionMenuAction';
+import { DeleteMappingItemAction } from './DeleteMappingItemAction';
+import { XPathEditorAction } from './XPathEditorAction';
+import { XPathInputAction } from './XPathInputAction';
 
 type TargetNodeActionsProps = {
   className?: string;

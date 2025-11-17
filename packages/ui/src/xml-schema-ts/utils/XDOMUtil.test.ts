@@ -1,5 +1,6 @@
-import { XDOMUtil } from './XDOMUtil';
 import { JSDOM } from 'jsdom';
+
+import { XDOMUtil } from './XDOMUtil';
 
 describe('XDOMUtil', () => {
   describe('getNextSiblingElement', () => {

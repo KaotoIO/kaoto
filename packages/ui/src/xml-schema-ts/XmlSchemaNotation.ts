@@ -1,7 +1,7 @@
-import type { XmlSchema } from './XmlSchema';
 import type { XmlSchemaNamed } from './utils/XmlSchemaNamed';
-import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
 import { XmlSchemaNamedImpl } from './utils/XmlSchemaNamedImpl';
+import type { XmlSchema } from './XmlSchema';
+import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
 
 export class XmlSchemaNotation extends XmlSchemaAnnotated implements XmlSchemaNamed {
   private system: string | null = null;

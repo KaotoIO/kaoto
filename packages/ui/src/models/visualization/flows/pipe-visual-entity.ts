@@ -1,4 +1,5 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
+
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import {
   getArrayProperty,
@@ -10,10 +11,10 @@ import {
   setValue,
   updatePipeFromCustomSchema,
 } from '../../../utils';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { PipeStep } from '../../camel/entities/pipe-overrides';
 import { SourceSchemaType } from '../../camel/source-schema-type';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {

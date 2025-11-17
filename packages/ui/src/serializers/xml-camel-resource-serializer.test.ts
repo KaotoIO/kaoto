@@ -1,5 +1,5 @@
-import { XmlCamelResourceSerializer } from './xml-camel-resource-serializer';
 import { CamelRouteResource } from '../models/camel';
+import { XmlCamelResourceSerializer } from './xml-camel-resource-serializer';
 
 describe('XmlCamelResourceSerializer', () => {
   let serializer: XmlCamelResourceSerializer;

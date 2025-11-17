@@ -1,6 +1,6 @@
+import { BODY_DOCUMENT_ID, DocumentType, Types } from '../models/datamapper';
 import { camelSpringXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
-import { BODY_DOCUMENT_ID, DocumentType, Types } from '../models/datamapper';
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 
 describe('DocumentUtilService', () => {

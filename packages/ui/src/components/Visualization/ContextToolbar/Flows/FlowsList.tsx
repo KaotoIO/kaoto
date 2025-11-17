@@ -1,7 +1,10 @@
+import './FlowsList.scss';
+
 import { Button, Icon, SearchInput } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
+
 import { ValidationResult } from '../../../../models';
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import {
@@ -12,7 +15,6 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { InlineEdit } from '../../../InlineEdit';
 import { RouteIdValidator } from '../../../InlineEdit/routeIdValidator';
-import './FlowsList.scss';
 import { FlowsListEmptyState } from './FlowsListEmptyState';
 
 interface IFlowsList {

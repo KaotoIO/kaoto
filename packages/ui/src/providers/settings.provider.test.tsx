@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react';
 import { useContext, useEffect, useState } from 'react';
+
 import { DefaultSettingsAdapter, SettingsModel } from '../models/settings';
 import { SettingsContext, SettingsProvider } from './settings.provider';
 

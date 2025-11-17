@@ -1,3 +1,5 @@
+import './TopBar.scss';
+
 import {
   Button,
   Divider,
@@ -19,13 +21,13 @@ import { EllipsisVIcon, ExternalLinkAltIcon, FireIcon, GithubIcon } from '@patte
 import { BarsIcon } from '@patternfly/react-icons/dist/js/icons/bars-icon';
 import React, { FunctionComponent } from 'react';
 import { Link } from 'react-router-dom';
+
 import camelLogo from '../assets/camel-logo.svg';
 import logo from '../assets/logo-kaoto.png';
 import { useComponentLink } from '../hooks/ComponentLink';
 import { DEFAULT_POPPER_PROPS } from '../models/popper-default';
 import { Links } from '../router/links.models';
 import { KaotoAboutModal } from './KaotoAboutModal';
-import './TopBar.scss';
 
 interface ITopBar {
   navToggle: () => void;

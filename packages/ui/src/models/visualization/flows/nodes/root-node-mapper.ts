@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { IVisualizationNode } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
 import { INodeMapper } from './node-mapper';

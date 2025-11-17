@@ -1,8 +1,9 @@
 import { renderHook } from '@testing-library/react';
-import { useCopyStep } from './copy-step.hook';
+
+import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { useCopyStep } from './copy-step.hook';
 
 describe('useCopyStep', () => {
   const copySpy = jest.spyOn(ClipboardManager, 'copy').mockImplementation(async (__object) => Promise.resolve());

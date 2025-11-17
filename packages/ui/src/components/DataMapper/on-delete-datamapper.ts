@@ -13,9 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { IMetadataApi } from '../../providers';
 import { IVisualizationNode } from '../../models';
+import { IMetadataApi } from '../../providers';
+import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 
 export const ACTION_ID_DELETE_STEP_AND_FILE = 'del-step-and-file';
 export const ACTION_ID_DELETE_STEP_ONLY = 'del-step-only';

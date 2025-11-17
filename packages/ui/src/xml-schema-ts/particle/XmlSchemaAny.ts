@@ -2,11 +2,11 @@
  * Enables any element from the specified namespace or namespaces to appear in the containing complexType
  * element. Represents the World Wide Web Consortium (W3C) any element.
  */
+import { XmlSchemaContentProcessing } from '../XmlSchemaContentProcessing';
 import type { XmlSchemaAllMember } from './XmlSchemaAllMember';
 import type { XmlSchemaChoiceMember } from './XmlSchemaChoiceMember';
-import type { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
-import { XmlSchemaContentProcessing } from '../XmlSchemaContentProcessing';
 import { XmlSchemaParticle } from './XmlSchemaParticle';
+import type { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
 
 export class XmlSchemaAny
   extends XmlSchemaParticle

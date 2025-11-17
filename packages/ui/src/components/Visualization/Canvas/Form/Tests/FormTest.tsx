@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { KaotoForm } from '@kaoto/forms';
 import { render } from '@testing-library/react';
+
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../models';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { getSchemasSlice } from './get-schemas-slices';

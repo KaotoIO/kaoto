@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import { TestProvidersWrapper } from '../../../stubs';
 import { VisualizationEmptyState } from './VisualizationEmptyState';
 

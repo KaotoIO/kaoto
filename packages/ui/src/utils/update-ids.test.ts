@@ -1,5 +1,5 @@
-import { updateIds } from './update-ids';
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
+import { updateIds } from './update-ids';
 
 // Mock the getCamelRandomId function
 jest.mock('../camel-utils/camel-random-id', () => ({

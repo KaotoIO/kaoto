@@ -1,7 +1,7 @@
 import { KameletBindingVisualEntity, PipeVisualEntity } from '../../models';
 import { ParsedTable } from '../../models/documentation';
-import { CommonParser } from './common-parser';
 import { PipeErrorHandlerEntity } from '../../models/visualization/metadata/pipeErrorHandlerEntity';
+import { CommonParser } from './common-parser';
 
 export class PipeParser {
   static parsePipeEntity(entity: PipeVisualEntity) {

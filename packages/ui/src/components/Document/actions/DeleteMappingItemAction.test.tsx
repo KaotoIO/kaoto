@@ -1,12 +1,13 @@
-import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
-import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
+import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { conditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { conditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 
 describe('DeleteMappingItemAction', () => {
   it('should invoke onDelete()', async () => {

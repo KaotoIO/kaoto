@@ -1,6 +1,7 @@
 import { CatalogLibrary } from '@kaoto/camel-catalog/catalog-index.d.ts';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, render } from '@testing-library/react';
+
 import { CamelCatalogService, CatalogKind, IVisualizationNode } from '../../models';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { ComponentMode } from './ComponentMode';

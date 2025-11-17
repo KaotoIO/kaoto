@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';

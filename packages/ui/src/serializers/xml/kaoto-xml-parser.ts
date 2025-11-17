@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import { RouteXmlParser } from './parsers/route-xml-parser';
+import { BeanFactory } from '@kaoto/camel-catalog/types';
+
 import { BeansXmlParser } from './parsers/beans-xml-parser';
 import { RestXmlParser } from './parsers/rest-xml-parser';
-import { BeanFactory } from '@kaoto/camel-catalog/types';
+import { RouteXmlParser } from './parsers/route-xml-parser';
 import { StepParser } from './parsers/step-parser';
 
 export function isXML(code: unknown): boolean {

@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { IVisualizationNode } from '../models';
 import {
   BODY_DOCUMENT_ID,

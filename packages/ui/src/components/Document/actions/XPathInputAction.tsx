@@ -1,5 +1,5 @@
-import { ExpressionItem } from '../../../models/datamapper/mapping';
-import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import './XPathInputAction.scss';
+
 import {
   ActionListItem,
   Button,
@@ -13,9 +13,11 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
+import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+
+import { ExpressionItem } from '../../../models/datamapper/mapping';
 import { XPathService } from '../../../services/xpath/xpath.service';
-import './XPathInputAction.scss';
+import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
 
 type XPathInputProps = {
   mapping: ExpressionItem;

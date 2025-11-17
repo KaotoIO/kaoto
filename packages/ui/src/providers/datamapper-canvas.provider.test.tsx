@@ -1,12 +1,13 @@
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
+
 import { SourceTargetView } from '../components/View/SourceTargetView';
 import { useCanvas } from '../hooks/useCanvas';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../models/datamapper/document';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
-import { DataMapperCanvasProvider } from './datamapper-canvas.provider';
 import { DataMapperProvider } from './datamapper.provider';
+import { DataMapperCanvasProvider } from './datamapper-canvas.provider';
 
 describe('CanvasProvider', () => {
   const wrapper = ({ children }: PropsWithChildren) => (

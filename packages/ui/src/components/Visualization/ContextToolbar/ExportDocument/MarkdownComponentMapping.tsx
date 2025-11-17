@@ -1,7 +1,8 @@
-import { Components } from 'react-markdown';
+import './ExportDocument.scss';
+
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
-import './ExportDocument.scss';
+import { Components } from 'react-markdown';
 
 export const markdownComponentMapping: Components = {
   p: ({ children }) => <Content component={ContentVariants.p}>{children}</Content>,

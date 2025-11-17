@@ -1,9 +1,3 @@
-import { DocumentType } from '../models/datamapper/document';
-import {
-  FROM_JSON_SOURCE_SUFFIX,
-  MappingSerializerJsonAddon,
-  TO_JSON_TARGET_VARIABLE,
-} from './mapping-serializer-json-addon';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinitionType,
@@ -13,11 +7,17 @@ import {
   PrimitiveDocument,
   Types,
 } from '../models/datamapper';
-import { MappingSerializerService } from './mapping-serializer.service';
-import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.service';
+import { DocumentType } from '../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
-import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 import { cartToShipOrderJsonXslt, shipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.service';
+import { MappingSerializerService } from './mapping-serializer.service';
+import {
+  FROM_JSON_SOURCE_SUFFIX,
+  MappingSerializerJsonAddon,
+  TO_JSON_TARGET_VARIABLE,
+} from './mapping-serializer-json-addon';
+import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
 
 describe('mappingSerializerJsonAddon', () => {
   describe('populateXmlToJsonVariable()', () => {

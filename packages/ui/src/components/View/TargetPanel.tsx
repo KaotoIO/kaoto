@@ -1,9 +1,11 @@
+import './TargetPanel.scss';
+
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { TargetDocument } from '../Document/TargetDocument';
-import './TargetPanel.scss';
 
 export const TargetPanel: FunctionComponent = () => {
   const { targetBodyDocument } = useDataMapper();

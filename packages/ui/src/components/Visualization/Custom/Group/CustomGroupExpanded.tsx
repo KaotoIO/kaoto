@@ -1,29 +1,31 @@
+import './CustomGroupExpanded.scss';
+
 import { Icon } from '@patternfly/react-core';
 import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   GROUPS_LAYER,
+  isNode,
   Layer,
   Node,
+  observer,
   Rect,
   TOP_LAYER,
-  isNode,
-  observer,
   useAnchor,
   useHover,
   withDndDrop,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useRef } from 'react';
+
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { LayoutType } from '../../Canvas';
-import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
+import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
-import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
-import './CustomGroupExpanded.scss';
 import { CustomGroupProps } from './Group.models';
 
 export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(

@@ -1,11 +1,13 @@
+import './BaseNode.scss';
+
 import { At, ChevronDown, ChevronRight, Draggable } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
+
 import { IDataTestID } from '../../../models';
 import { Types } from '../../../models/datamapper';
 import { FieldIcon } from '../FieldIcon';
-import './BaseNode.scss';
 
 interface BaseNodeProps extends IDataTestID {
   /** Controls whether the Expansion icon is shown */

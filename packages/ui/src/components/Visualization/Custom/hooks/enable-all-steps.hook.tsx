@@ -1,5 +1,6 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { useCallback, useContext, useMemo } from 'react';
+
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { getVisualizationNodesFromGraph } from '../../../../utils';
 import { setValue } from '../../../../utils/set-value';

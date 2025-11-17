@@ -1,4 +1,5 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';

@@ -1,3 +1,5 @@
+import { MutableRefObject, RefObject } from 'react';
+
 import {
   ExpressionItem,
   FieldItem,
@@ -11,9 +13,8 @@ import {
   PrimitiveDocument,
   ValueSelector,
 } from '../models/datamapper';
-import { MutableRefObject, RefObject } from 'react';
-import { XPathService } from './xpath/xpath.service';
 import { DocumentService } from './document.service';
+import { XPathService } from './xpath/xpath.service';
 
 /**
  * A collection of the business logic for rendering mapping link lines.

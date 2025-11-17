@@ -1,10 +1,6 @@
-import { MappingLinksService } from './mapping-links.service';
-import {
-  accountJsonSchema,
-  cartJsonSchema,
-  shipOrderJsonSchema,
-  shipOrderJsonXslt,
-} from '../stubs/datamapper/data-mapper';
+import { renderHook } from '@testing-library/react';
+import { MutableRefObject, RefObject, useRef } from 'react';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinitionType,
@@ -14,11 +10,16 @@ import {
 } from '../models/datamapper/document';
 import { MappingTree } from '../models/datamapper/mapping';
 import { NodeReference } from '../models/datamapper/visualization';
-import { MappingSerializerService } from './mapping-serializer.service';
-import { MutableRefObject, RefObject, useRef } from 'react';
-import { renderHook } from '@testing-library/react';
-import { JsonSchemaDocument, JsonSchemaDocumentService } from './json-schema-document.service';
 import { mockRandomValues } from '../stubs';
+import {
+  accountJsonSchema,
+  cartJsonSchema,
+  shipOrderJsonSchema,
+  shipOrderJsonXslt,
+} from '../stubs/datamapper/data-mapper';
+import { JsonSchemaDocument, JsonSchemaDocumentService } from './json-schema-document.service';
+import { MappingLinksService } from './mapping-links.service';
+import { MappingSerializerService } from './mapping-serializer.service';
 
 describe('MappingLinksService : JSON', () => {
   let cartParamDoc: JsonSchemaDocument;

@@ -1,4 +1,5 @@
 import { EnumField } from '@kaoto/forms';
+
 import { KaotoSchemaDefinition } from '../../../../../models/kaoto-schema';
 import { PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';

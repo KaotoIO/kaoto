@@ -1,11 +1,11 @@
-import { XPathService } from './xpath.service';
 import { BODY_DOCUMENT_ID, PathExpression, PathSegment } from '../../models/datamapper';
-import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
-import { XPathNodeType, LiteralNode } from './syntaxtree/xpath-syntaxtree-model';
-import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
-import { XmlSchemaDocumentService } from '../xml-schema-document.service';
+import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
 import { cartXsd, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { XmlSchemaDocumentService } from '../xml-schema-document.service';
+import { LiteralNode, XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
+import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
+import { XPathService } from './xpath.service';
 
 describe('XPathService', () => {
   describe('parse()', () => {

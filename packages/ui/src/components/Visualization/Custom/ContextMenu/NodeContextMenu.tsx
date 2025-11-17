@@ -9,19 +9,20 @@ import {
 } from '@patternfly/react-icons';
 import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
+
 import { AddStepMode, IVisualizationNode, NodeInteraction } from '../../../../models/visualization/base-visual-entity';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { ItemAddStep } from './ItemAddStep';
+import { ItemCopyStep } from './ItemCopyStep';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
 import { ItemDeleteStep } from './ItemDeleteStep';
 import { ItemDisableStep } from './ItemDisableStep';
+import { ItemDuplicateStep } from './ItemDuplicateStep';
 import { ItemEnableAllSteps } from './ItemEnableAllSteps';
 import { ItemInsertStep } from './ItemInsertStep';
-import { ItemReplaceStep } from './ItemReplaceStep';
-import { ItemCopyStep } from './ItemCopyStep';
-import { ItemPasteStep } from './ItemPasteStep';
 import { ItemMoveStep } from './ItemMoveStep';
-import { ItemDuplicateStep } from './ItemDuplicateStep';
+import { ItemPasteStep } from './ItemPasteStep';
+import { ItemReplaceStep } from './ItemReplaceStep';
 
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];

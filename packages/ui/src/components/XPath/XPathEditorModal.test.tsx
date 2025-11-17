@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { XPathEditorModal } from './XPathEditorModal';
 
 describe('XPathEditorModal', () => {

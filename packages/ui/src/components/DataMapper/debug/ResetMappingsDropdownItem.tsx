@@ -1,6 +1,7 @@
 import { DropdownItem } from '@patternfly/react-core';
-import { FunctionComponent, useCallback } from 'react';
 import { UndoIcon } from '@patternfly/react-icons';
+import { FunctionComponent, useCallback } from 'react';
+
 import { useDataMapper } from '../../../hooks/useDataMapper';
 
 type ResetMappingsDropdownItemProps = {

@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';
 import { LoadDefaultCatalog } from './LoadDefaultCatalog';

@@ -1,4 +1,3 @@
-import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import {
   ChooseItem,
@@ -11,18 +10,18 @@ import {
   WhenItem,
 } from '../models/datamapper/mapping';
 import { Types } from '../models/datamapper/types';
-
+import { NS_XSL } from '../models/datamapper/xslt';
 import {
-  shipOrderToShipOrderXslt,
+  invoice850Xsd,
+  shipOrderToShipOrderCollectionIndexXslt,
   shipOrderToShipOrderInvalidForEachXslt,
+  shipOrderToShipOrderMultipleForEachXslt,
+  shipOrderToShipOrderXslt,
   TestUtil,
   x12850ForEachXslt,
-  invoice850Xsd,
-  shipOrderToShipOrderMultipleForEachXslt,
-  shipOrderToShipOrderCollectionIndexXslt,
 } from '../stubs/datamapper/data-mapper';
+import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
 import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
-import { NS_XSL } from '../models/datamapper/xslt';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();

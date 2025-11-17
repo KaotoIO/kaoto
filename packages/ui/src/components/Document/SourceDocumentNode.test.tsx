@@ -1,11 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';

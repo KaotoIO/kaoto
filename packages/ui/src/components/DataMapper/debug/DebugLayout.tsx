@@ -13,16 +13,18 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import './DebugLayout.scss';
+
 import { Masthead, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
 import { FunctionComponent, memo, useEffect } from 'react';
+
 import { useDataMapper } from '../../../hooks/useDataMapper';
+import { DataMapperDnDMonitor } from '../../../providers/dnd/DataMapperDndMonitor';
 import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
 import { DataMapperControl } from '../DataMapperControl';
 import { CanvasMonitor } from './CanvasMonitor';
 import { ContextToolbar } from './ContextToolbar';
 import { DataMapperMonitor } from './DataMapperMonitor';
-import './DebugLayout.scss';
-import { DataMapperDnDMonitor } from '../../../providers/dnd/DataMapperDndMonitor';
 
 export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
   const { setDebug } = useDataMapper()!;

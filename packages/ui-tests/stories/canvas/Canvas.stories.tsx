@@ -6,19 +6,20 @@ import {
   CatalogTilesProvider,
   ControllerService,
   EntitiesProvider,
+  kameletJson,
   KameletVisualEntity,
+  pipeJson,
   PipeVisualEntity,
   RuntimeProvider,
   SchemasLoaderProvider,
   SourceCodeProvider,
   VisibleFlowsContext,
   VisibleFlowsContextResult,
-  kameletJson,
-  pipeJson,
 } from '@kaoto/kaoto/testing';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
 import { useMemo } from 'react';
+
 import complexRouteMock from '../../cypress/fixtures/complexRouteMock.json';
 import iconsRouteMock from '../../cypress/fixtures/iconsRouteMock.json';
 

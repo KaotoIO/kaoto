@@ -14,9 +14,9 @@
     limitations under the License.
 */
 import { AlertVariant, Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import { ExportIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
-import { ExportIcon } from '@patternfly/react-icons';
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';

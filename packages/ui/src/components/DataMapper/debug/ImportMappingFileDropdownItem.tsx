@@ -1,8 +1,9 @@
 import { DropdownItem } from '@patternfly/react-core';
-import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 import { ImportIcon } from '@patternfly/react-icons';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
+
 import { useDataMapper } from '../../../hooks/useDataMapper';
+import { MappingSerializerService } from '../../../services/mapping-serializer.service';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
 type ImportMappingFileDropdownItemProps = {

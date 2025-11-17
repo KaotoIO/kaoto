@@ -4,12 +4,12 @@
  * for simple content.
  */
 
-import type { QName } from '../QName';
-import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import type { XmlSchemaAttributeOrGroupRef } from '../attribute/XmlSchemaAttributeOrGroupRef';
 import type { XmlSchemaFacet } from '../facet/XmlSchemaFacet';
-import type { XmlSchemaSimpleType } from './XmlSchemaSimpleType';
+import type { QName } from '../QName';
+import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import { XmlSchemaContent } from '../XmlSchemaContent';
+import type { XmlSchemaSimpleType } from './XmlSchemaSimpleType';
 
 export class XmlSchemaSimpleContentRestriction extends XmlSchemaContent {
   anyAttribute: XmlSchemaAnyAttribute | null = null;

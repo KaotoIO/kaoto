@@ -1,11 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+
 import { pipeJson } from '../../../stubs/pipe';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition } from '../../kamelets-catalog';
 import { AddStepMode } from '../base-visual-entity';

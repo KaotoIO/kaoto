@@ -1,6 +1,6 @@
+import { isEnumType } from '../../utils';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { SourceSchemaType } from './source-schema-type';
-import { isEnumType } from '../../utils';
 
 export interface ISourceSchema {
   schema: KaotoSchemaDefinition | undefined;

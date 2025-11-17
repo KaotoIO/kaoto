@@ -10,6 +10,7 @@ import {
   useFieldValue,
 } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+
 import { BeansEntityHandler } from '../../../../../../models/visualization/metadata/beans-entity-handler';
 import { EntitiesContext } from '../../../../../../providers';
 import { getSerializedModel } from '../../../../../../utils';

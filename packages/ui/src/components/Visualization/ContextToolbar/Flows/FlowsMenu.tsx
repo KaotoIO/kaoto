@@ -1,11 +1,12 @@
+import './FlowsMenu.scss';
+
 import { Badge, Icon, MenuToggle, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useContext, useState } from 'react';
+
 import { getVisibleFlowsInformation } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
-
 import { FlowsList } from './FlowsList';
-import './FlowsMenu.scss';
 
 export const FlowsMenu: FunctionComponent = () => {
   const { visibleFlows } = useContext(VisibleFlowsContext)!;

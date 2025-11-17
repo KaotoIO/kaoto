@@ -1,5 +1,6 @@
 import { render } from '@testing-library/react';
 import { useContext } from 'react';
+
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../models/visualization/visualization-node';
 import { RenderingAnchorContext, RenderingProvider } from './rendering.provider';

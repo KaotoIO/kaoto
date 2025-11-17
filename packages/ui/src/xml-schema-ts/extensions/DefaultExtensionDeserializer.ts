@@ -1,7 +1,7 @@
-import type { ExtensionDeserializer } from './ExtensionDeserializer';
+import { MetaDataConstants } from '../constants';
 import type { QName } from '../QName';
 import type { XmlSchemaObject } from '../XmlSchemaObject';
-import { MetaDataConstants } from '../constants';
+import type { ExtensionDeserializer } from './ExtensionDeserializer';
 
 /**
  * Default deserializer. The action taken when there is nothing specific to be done would be to attach the raw

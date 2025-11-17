@@ -1,11 +1,12 @@
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { Title } from '@patternfly/react-core';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+
 import { IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
-import { SourceDocumentNode } from './SourceDocumentNode';
 import { BaseDocument } from './BaseDocument';
+import { SourceDocumentNode } from './SourceDocumentNode';
 
 type DocumentTreeProps = {
   document: IDocument;

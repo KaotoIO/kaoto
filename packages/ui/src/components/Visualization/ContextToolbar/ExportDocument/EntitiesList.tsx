@@ -1,8 +1,10 @@
+import './EntitiesList.scss';
+
 import { Divider, Icon, MenuItemAction, SelectGroup, SelectList, SelectOption } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon } from '@patternfly/react-icons';
 import { FunctionComponent } from 'react';
+
 import { DocumentationEntity } from '../../../../models/documentation';
-import './EntitiesList.scss';
 
 type IEntityLabel = {
   index?: number;

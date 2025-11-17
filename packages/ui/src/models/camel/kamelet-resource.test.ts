@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash';
+
 import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';
 import { AddStepMode } from '../visualization/base-visual-entity';

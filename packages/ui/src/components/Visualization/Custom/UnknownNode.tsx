@@ -8,8 +8,8 @@ import {
   CodeBlock,
   CodeBlockCode,
 } from '@patternfly/react-core';
-import { stringify } from 'yaml';
 import { FunctionComponent } from 'react';
+import { stringify } from 'yaml';
 
 interface UnknownNodeProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

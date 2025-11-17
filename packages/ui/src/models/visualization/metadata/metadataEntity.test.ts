@@ -1,5 +1,5 @@
-import { MetadataEntity } from './metadataEntity';
 import { pipeJson } from '../../../stubs/pipe';
+import { MetadataEntity } from './metadataEntity';
 
 describe('MetadataEntity', () => {
   it('should return JSON', () => {

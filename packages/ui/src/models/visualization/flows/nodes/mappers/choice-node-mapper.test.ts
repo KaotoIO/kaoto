@@ -1,9 +1,10 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { RootNodeMapper } from '../root-node-mapper';
 import { ChoiceNodeMapper } from './choice-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
-import { WhenNodeMapper } from './when-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
+import { WhenNodeMapper } from './when-node-mapper';
 
 describe('ChoiceNodeMapper', () => {
   let mapper: ChoiceNodeMapper;

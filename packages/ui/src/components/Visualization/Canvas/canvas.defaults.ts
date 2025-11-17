@@ -1,4 +1,5 @@
 import { NodeShape } from '@patternfly/react-topology';
+
 import { LayoutType } from './canvas.models';
 
 export class CanvasDefaults {

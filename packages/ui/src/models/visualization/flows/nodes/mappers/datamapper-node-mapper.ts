@@ -1,4 +1,5 @@
 import { Step } from '@kaoto/camel-catalog/types';
+
 import { DATAMAPPER_ID_PREFIX, isDataMapperNode } from '../../../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
 import { IVisualizationNode } from '../../../base-visual-entity';

@@ -1,4 +1,5 @@
 import { FunctionComponent } from 'react';
+
 import { IVisualizationNode } from '../../models';
 
 export interface IRegisteredComponent {

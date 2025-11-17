@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo } from 'react';
+
 import { StepUpdateAction } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../../providers';

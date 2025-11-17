@@ -1,3 +1,3 @@
-export * from './Shell';
-export * from './Navigation';
 export * from './KaotoAboutModal';
+export * from './Navigation';
+export * from './Shell';

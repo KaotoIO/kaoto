@@ -1,4 +1,5 @@
-import type { ElementModel, GraphElement, DefaultGroup as TopologyDefaultGroup } from '@patternfly/react-topology';
+import type { DefaultGroup as TopologyDefaultGroup, ElementModel, GraphElement } from '@patternfly/react-topology';
+
 import { CanvasNode } from '../../Canvas';
 
 type DefaultGroupProps = Parameters<typeof TopologyDefaultGroup>[0];

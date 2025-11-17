@@ -1,5 +1,6 @@
 import { KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+
 import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { isDefined, setValue } from '../../../../utils';

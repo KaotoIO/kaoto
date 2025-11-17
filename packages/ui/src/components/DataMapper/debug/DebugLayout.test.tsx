@@ -1,16 +1,17 @@
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FunctionComponent, MutableRefObject, PropsWithChildren, useEffect } from 'react';
+
+import { useCanvas } from '../../../hooks/useCanvas';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { useMappingLinks } from '../../../hooks/useMappingLinks';
+import { MappingTree } from '../../../models/datamapper/mapping';
+import { IMappingLink, NodeReference } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { DebugLayout } from './DebugLayout';
-import { FunctionComponent, MutableRefObject, PropsWithChildren, useEffect } from 'react';
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { useCanvas } from '../../../hooks/useCanvas';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
-import { MappingTree } from '../../../models/datamapper/mapping';
-import { shipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
-import { IMappingLink, NodeReference } from '../../../models/datamapper/visualization';
-import { useMappingLinks } from '../../../hooks/useMappingLinks';
 import { MappingLinksService } from '../../../services/mapping-links.service';
+import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { shipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { DebugLayout } from './DebugLayout';
 
 describe('DebugLayout', () => {
   afterAll(() => {

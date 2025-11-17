@@ -1,10 +1,12 @@
+import './Catalog.scss';
+
 import { FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
+
 import { useLocalStorage } from '../../hooks';
 import { LocalStorageKeys } from '../../models';
 import { BaseCatalog } from './BaseCatalog';
 import { CatalogLayout, ITile } from './Catalog.models';
-import './Catalog.scss';
 import { CatalogFilter } from './CatalogFilter';
 import { filterTiles } from './filter-tiles';
 import { sortTags } from './sort-tags';

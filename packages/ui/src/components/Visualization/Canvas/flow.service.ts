@@ -1,4 +1,5 @@
 import { EdgeStyle } from '@patternfly/react-topology';
+
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges } from './canvas.models';

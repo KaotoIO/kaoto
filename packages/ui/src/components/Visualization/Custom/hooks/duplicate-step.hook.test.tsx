@@ -1,15 +1,16 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
-import { camelRouteJson } from '../../../../stubs/camel-route';
-import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { useDuplicateStep } from './duplicate-step.hook';
+import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
+import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
+import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { camelRouteJson } from '../../../../stubs/camel-route';
 import { updateIds } from '../../../../utils/update-ids';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { useDuplicateStep } from './duplicate-step.hook';
 
 // Mock the `updateIds` function
 jest.mock('../../../../utils/update-ids', () => ({

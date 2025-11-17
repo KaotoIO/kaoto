@@ -1,8 +1,8 @@
+import { DocumentType, IDocument } from './document';
 import { DocumentTree, INITIAL_PARSE_DEPTH } from './document-tree';
 import { DocumentTreeNode } from './document-tree-node';
-import { DocumentNodeData } from './visualization';
 import { NodePath } from './nodepath';
-import { IDocument, DocumentType } from './document';
+import { DocumentNodeData } from './visualization';
 
 describe('document-tree.ts', () => {
   describe('INITIAL_PARSE_DEPTH', () => {

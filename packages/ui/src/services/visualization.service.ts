@@ -24,8 +24,8 @@ import {
   TargetNodeData,
   TargetNodeDataType,
 } from '../models/datamapper/visualization';
-import { DocumentUtilService } from './document-util.service';
 import { DocumentService } from './document.service';
+import { DocumentUtilService } from './document-util.service';
 import { MappingService } from './mapping.service';
 
 type MappingNodePairType = {

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+import { DoTry } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
-import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../utils/xml-utils';
-import { ExpressionXmlSerializer } from './expression-xml-serializer';
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelUriHelper, ParsedParameters } from '../../../utils';
-import { DoTry } from '@kaoto/camel-catalog/types';
+import { ARRAY_TYPE_NAMES, PROCESSOR_NAMES } from '../utils/xml-utils';
+import { ExpressionXmlSerializer } from './expression-xml-serializer';
 
 export type ElementType = { [key: string]: unknown; steps?: ElementType[] };
 

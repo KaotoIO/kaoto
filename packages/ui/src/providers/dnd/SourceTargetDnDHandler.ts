@@ -1,8 +1,9 @@
-import { DnDHandler } from './DnDHandler';
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+
 import { MappingTree } from '../../models/datamapper/mapping';
 import { NodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
+import { DnDHandler } from './DnDHandler';
 
 export class SourceTargetDnDHandler implements DnDHandler {
   handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): void {

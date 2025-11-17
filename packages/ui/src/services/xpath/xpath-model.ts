@@ -1,4 +1,5 @@
 import type { CstNode, ILexingError, IRecognitionException, TokenType } from 'chevrotain';
+
 import type { ExprNode } from './syntaxtree/xpath-syntaxtree-model';
 
 /**

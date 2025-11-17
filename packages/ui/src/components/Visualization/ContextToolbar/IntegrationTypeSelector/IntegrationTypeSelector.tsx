@@ -1,4 +1,5 @@
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
+
 import { SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';

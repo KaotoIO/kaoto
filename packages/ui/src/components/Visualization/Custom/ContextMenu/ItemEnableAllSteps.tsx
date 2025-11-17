@@ -1,6 +1,7 @@
 import { PowerOffIcon } from '@patternfly/react-icons';
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { IDataTestID } from '../../../../models';
 import { useEnableAllSteps } from '../hooks/enable-all-steps.hook';
 

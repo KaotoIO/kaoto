@@ -1,7 +1,9 @@
 import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be first
+
 import { createRoot } from 'react-dom/client';
-import { DataMapperDebugger } from './DataMapperDebugger';
+
 import { DocumentDefinition } from '../../../models/datamapper/document';
+import { DataMapperDebugger } from './DataMapperDebugger';
 
 const onUpdateMappings = (xsltFile: string) => {
   console.log('onUpdateMappings() >>>>> ' + xsltFile);

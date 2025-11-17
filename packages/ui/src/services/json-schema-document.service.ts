@@ -1,4 +1,6 @@
-import { DocumentType, IParentType } from '../models/datamapper/document';
+import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
+
+import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import {
   BaseDocument,
   BaseField,
@@ -9,13 +11,12 @@ import {
   PathSegment,
   Types,
 } from '../models/datamapper';
-import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
-import { getCamelRandomId } from '../camel-utils/camel-random-id';
-import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
-import { FROM_JSON_SOURCE_SUFFIX } from './mapping-serializer-json-addon';
+import { DocumentType, IParentType } from '../models/datamapper/document';
 import { NodePath } from '../models/datamapper/nodepath';
 import { Predicate, PredicateOperator } from '../models/datamapper/xpath';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import { DocumentUtilService } from './document-util.service';
+import { FROM_JSON_SOURCE_SUFFIX } from './mapping-serializer-json-addon';
 
 export interface JsonSchemaTypeFragment extends ITypeFragment {
   type?: Types;

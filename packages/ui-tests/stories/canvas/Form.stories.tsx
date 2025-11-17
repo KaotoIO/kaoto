@@ -13,6 +13,7 @@ import {
 } from '@kaoto/kaoto/testing';
 import { NodeShape } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
+
 import { storybookCamelRouteEntity } from './canvas.stub';
 
 export default {

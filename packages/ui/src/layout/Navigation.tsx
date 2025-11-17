@@ -2,10 +2,11 @@ import { Nav, NavExpandable, NavItem, NavList, PageSidebar, PageSidebarBody } fr
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+
+import { SourceSchemaType } from '../models/camel';
+import { EntitiesContext } from '../providers';
 import { Links } from '../router/links.models';
 import { NavElements } from './navigation.models';
-import { EntitiesContext } from '../providers';
-import { SourceSchemaType } from '../models/camel';
 interface INavigationSidebar {
   isNavOpen: boolean;
 }

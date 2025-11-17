@@ -1,6 +1,7 @@
 import { List, ListItem } from '@patternfly/react-core';
 import { Td, Th } from '@patternfly/react-table';
 import { ReactNode } from 'react';
+
 import { IPropertiesRow, PropertiesHeaders } from '../PropertiesModal.models';
 
 /**

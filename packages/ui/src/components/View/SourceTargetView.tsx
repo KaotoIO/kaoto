@@ -1,11 +1,13 @@
+import './SourceTargetView.scss';
+
 import { Split, SplitItem } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useRef } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { MappingLinksContainer } from './MappingLinkContainer';
 import { SourcePanel } from './SourcePanel';
-import './SourceTargetView.scss';
 import { TargetPanel } from './TargetPanel';
 
 export const SourceTargetView: FunctionComponent = () => {

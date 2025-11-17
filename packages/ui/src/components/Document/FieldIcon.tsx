@@ -15,6 +15,7 @@ import {
 } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import { FunctionComponent, useMemo } from 'react';
+
 import { Types } from '../../models/datamapper';
 
 interface FieldIconProps {

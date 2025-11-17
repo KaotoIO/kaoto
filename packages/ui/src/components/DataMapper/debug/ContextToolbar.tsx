@@ -13,8 +13,9 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent } from 'react';
 import { Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
+import { FunctionComponent } from 'react';
+
 import { MainMenuToolbarItem } from './MainMenuToolbarItem';
 import { ToggleDebugToolbarItem } from './ToggleDebugToolbarItem';
 

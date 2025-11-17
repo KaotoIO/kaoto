@@ -1,7 +1,6 @@
-import type { XmlSchemaSimpleType } from './XmlSchemaSimpleType';
 import type { XmlSchemaFacet } from '../facet/XmlSchemaFacet';
 import type { QName } from '../QName';
-
+import type { XmlSchemaSimpleType } from './XmlSchemaSimpleType';
 import { XmlSchemaSimpleTypeContent } from './XmlSchemaSimpleTypeContent';
 
 export class XmlSchemaSimpleTypeRestriction extends XmlSchemaSimpleTypeContent {

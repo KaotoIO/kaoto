@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo, useRef } from 'react';
+
 import { BaseVisualCamelEntityDefinition, BaseVisualCamelEntityDefinitionItem } from '../models/camel/camel-resource';
 import { EntityType } from '../models/camel/entities';
 import { EntitiesContext } from '../providers/entities.provider';

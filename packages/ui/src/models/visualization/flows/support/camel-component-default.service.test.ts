@@ -1,6 +1,7 @@
-import { CamelComponentDefaultService } from './camel-component-default.service';
-import { DefinedComponent } from '../../../camel-catalog-index';
 import { DoCatch, OnFallback } from '@kaoto/camel-catalog/types';
+
+import { DefinedComponent } from '../../../camel-catalog-index';
+import { CamelComponentDefaultService } from './camel-component-default.service';
 
 describe('CamelComponentDefaultService', () => {
   describe('getDefaultNodeDefinitionValue', () => {

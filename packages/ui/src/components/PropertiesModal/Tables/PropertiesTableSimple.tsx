@@ -1,5 +1,6 @@
 import { Caption, Table, Tbody, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent } from 'react';
+
 import { IPropertiesTable } from '../PropertiesModal.models';
 import { renderHeaders, renderRowData } from './PropertiesTableCommon';
 

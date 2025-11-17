@@ -1,5 +1,6 @@
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import xmlFormat from 'xml-formatter';
+
 import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
 import { EntityType } from '../models/camel/entities';
 import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';

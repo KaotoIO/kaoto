@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { MemoryRouter } from 'react-router-dom';
+
 import { IVisualizationNode } from '../../models';
 import { IMetadataApi, MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';

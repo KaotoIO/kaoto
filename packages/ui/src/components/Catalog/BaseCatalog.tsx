@@ -1,6 +1,8 @@
+import './BaseCatalog.scss';
+
 import { DataList, Gallery, Pagination } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
-import './BaseCatalog.scss';
+
 import { CatalogLayout, ITile } from './Catalog.models';
 import { CatalogDataListItem } from './DataListItem';
 import { Tile } from './Tile';

@@ -1,19 +1,20 @@
 import {
-  AlertVariant,
   ActionList,
   ActionListGroup,
   ActionListItem,
-  TextInput,
+  AlertVariant,
+  Button,
   HelperText,
   HelperTextItem,
-  Button,
+  TextInput,
 } from '@patternfly/react-core';
 import { CheckIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { qname } from 'xml-name-validator';
+
 import { useDataMapper } from '../../hooks/useDataMapper';
-import { DocumentService } from '../../services/document.service';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
+import { DocumentService } from '../../services/document.service';
 
 enum ParameterNameValidation {
   EMPTY,

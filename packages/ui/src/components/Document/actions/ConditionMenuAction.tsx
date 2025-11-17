@@ -8,6 +8,7 @@ import {
 } from '@patternfly/react-core';
 import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, Ref, useCallback, useState } from 'react';
+
 import { ChooseItem } from '../../../models/datamapper/mapping';
 import { MappingNodeData, TargetFieldNodeData, TargetNodeData } from '../../../models/datamapper/visualization';
 import { DEFAULT_POPPER_PROPS } from '../../../models/popper-default';

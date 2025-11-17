@@ -1,7 +1,8 @@
 import { mountStoreDevtool } from 'simple-zustand-devtools';
+
+import { useDocumentTreeStore } from './document-tree.store';
 import { useSchemasStore } from './schemas.store';
 import { useSourceCodeStore } from './sourcecode.store';
-import { useDocumentTreeStore } from './document-tree.store';
 
 let isDevMode = true;
 try {
@@ -16,6 +17,6 @@ if (isDevMode) {
   mountStoreDevtool('Document Tree Store', useDocumentTreeStore);
 }
 
+export * from './document-tree.store';
 export * from './schemas.store';
 export * from './sourcecode.store';
-export * from './document-tree.store';

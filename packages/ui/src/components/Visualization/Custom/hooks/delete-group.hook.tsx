@@ -1,9 +1,10 @@
 import { useCallback, useContext, useMemo } from 'react';
+
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ACTION_ID_CANCEL, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionType, IOnDeleteAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import {
   findOnDeleteModalCustomizationRecursively,
   processOnDeleteAddonRecursively,

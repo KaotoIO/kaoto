@@ -3,6 +3,7 @@ import { ChannelType, StateControlCommand } from '@kie-tools-core/editor/dist/ap
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, useEffect, useMemo } from 'react';
+
 import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from '../../components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from '../../components/registers/RegisterNodeInteractionAddons';

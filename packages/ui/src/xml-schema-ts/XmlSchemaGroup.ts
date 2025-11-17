@@ -1,12 +1,11 @@
-import type { XmlSchema } from './XmlSchema';
 import type { XmlSchemaAllMember } from './particle/XmlSchemaAllMember';
 import type { XmlSchemaChoiceMember } from './particle/XmlSchemaChoiceMember';
 import type { XmlSchemaGroupParticle } from './particle/XmlSchemaGroupParticle';
 import type { XmlSchemaSequenceMember } from './particle/XmlSchemaSequenceMember';
 import type { XmlSchemaNamed } from './utils/XmlSchemaNamed';
-
-import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
 import { XmlSchemaNamedImpl } from './utils/XmlSchemaNamedImpl';
+import type { XmlSchema } from './XmlSchema';
+import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
 
 export class XmlSchemaGroup
   extends XmlSchemaAnnotated

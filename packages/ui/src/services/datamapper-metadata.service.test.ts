@@ -1,9 +1,10 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { createVisualizationNode } from '../models';
-import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { IDataMapperMetadata } from '../models/datamapper/metadata';
-import { IMetadataApi, EntitiesContextResult } from '../providers';
+import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
+import { EntitiesContextResult, IMetadataApi } from '../providers';
 import { XSLT_COMPONENT_NAME } from '../utils';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
 import { EMPTY_XSL } from './mapping-serializer.service';

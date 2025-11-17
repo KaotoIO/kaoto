@@ -1,5 +1,6 @@
 import { BarsIcon, GripHorizontalIcon, UnknownIcon } from '@patternfly/react-icons';
 import * as React from 'react';
+
 import { CatalogLayout } from './Catalog.models';
 
 const getCatalogLayoutIcon = (layout: CatalogLayout): React.ReactNode => {

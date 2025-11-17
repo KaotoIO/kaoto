@@ -1,6 +1,5 @@
-import type { XmlSchemaSimpleTypeContent } from './XmlSchemaSimpleTypeContent';
-
 import { XmlSchemaType } from '../XmlSchemaType';
+import type { XmlSchemaSimpleTypeContent } from './XmlSchemaSimpleTypeContent';
 
 export class XmlSchemaSimpleType extends XmlSchemaType {
   content?: XmlSchemaSimpleTypeContent;

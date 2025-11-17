@@ -15,10 +15,11 @@
  */
 
 import { DoCatch, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition, ICamelProcessorProperty } from '../../../models';
+import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionParser } from './expression-parser';
-import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 
 export type ElementTransformer = (element: Element) => unknown;
 

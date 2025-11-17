@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { XSLT_COMPONENT_NAME } from './is-datamapper';
 import type { ToObjectDef } from './is-to-processor';
 import { isToProcessor } from './is-to-processor';

@@ -1,7 +1,8 @@
-import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { SourcePanel } from './SourcePanel';
 import { render, screen } from '@testing-library/react';
+
+import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { SourcePanel } from './SourcePanel';
 
 describe('SourcePanel', () => {
   it('should render action buttons by default', () => {

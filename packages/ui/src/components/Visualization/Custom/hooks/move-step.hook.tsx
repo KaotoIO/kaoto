@@ -1,13 +1,14 @@
-import { useCallback, useContext, useMemo } from 'react';
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
 import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
-import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
+import { useCallback, useContext, useMemo } from 'react';
+
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { EntitiesContext } from '../../../../providers/entities.provider';
 import { getPotentialPath } from '../../../../utils/get-potential-path';
-import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
 import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 
 export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.AppendStep | AddStepMode.PrependStep) => {
   const entitiesContext = useContext(EntitiesContext);

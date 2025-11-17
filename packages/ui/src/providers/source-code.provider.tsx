@@ -1,4 +1,5 @@
-import { FunctionComponent, PropsWithChildren, createContext, useCallback, useLayoutEffect, useMemo } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useCallback, useLayoutEffect, useMemo } from 'react';
+
 import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
 

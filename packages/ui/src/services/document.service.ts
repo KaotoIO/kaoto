@@ -1,3 +1,4 @@
+import { PathSegment } from '../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
   CreateDocumentResult,
@@ -12,11 +13,10 @@ import {
   RootElementOption,
 } from '../models/datamapper/document';
 import { IMetadataApi } from '../providers';
+import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
-import { PathSegment } from '../models/datamapper';
 import { XPathService } from './xpath/xpath.service';
-import { DocumentUtilService } from './document-util.service';
 
 interface InitialDocumentsSet {
   sourceBodyDocument?: IDocument;

@@ -15,31 +15,9 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { StepParser } from './step-parser';
-import { getElementFromXml } from './route-xml-parser.test';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary, DoTry } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
-import {
-  aggregateXml,
-  choiceXml,
-  circuitBreakerXml,
-  deadLetterChannelXml,
-  doTryXml,
-  dynamicRouterXml,
-  enrichXml,
-  filterXml,
-  loadBalanceXml,
-  loopXml,
-  multicastXml,
-  pipelineXml,
-  recipientListXml,
-  resequenceXml,
-  routingSlipXml,
-  sagaXml,
-  splitXml,
-  throttleXml,
-} from '../../../stubs/eip-xml-snippets';
 import {
   aggregateEntity,
   choiceEntity,
@@ -60,7 +38,30 @@ import {
   splitEntity,
   throttleEntity,
 } from '../../../stubs/eip-entity-snippets';
+import {
+  aggregateXml,
+  choiceXml,
+  circuitBreakerXml,
+  deadLetterChannelXml,
+  doTryXml,
+  dynamicRouterXml,
+  enrichXml,
+  filterXml,
+  loadBalanceXml,
+  loopXml,
+  multicastXml,
+  pipelineXml,
+  recipientListXml,
+  resequenceXml,
+  routingSlipXml,
+  sagaXml,
+  splitXml,
+  throttleXml,
+} from '../../../stubs/eip-xml-snippets';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { getDocument } from '../serializers/serializer-test-utils';
+import { getElementFromXml } from './route-xml-parser.test';
+import { StepParser } from './step-parser';
 
 describe('parser basics', () => {
   let mockDocument: Document;

@@ -1,5 +1,6 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
+
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
 import { RootNodeMapper } from '../root-node-mapper';
 import { DataMapperNodeMapper } from './datamapper-node-mapper';

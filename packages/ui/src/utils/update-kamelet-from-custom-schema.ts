@@ -1,11 +1,11 @@
 import {
+  IKameletCustomProperty,
   IKameletDefinition,
   IKameletMetadataAnnotations,
   IKameletMetadataLabels,
+  IKameletSpecProperty,
   KameletKnownAnnotations,
   KameletKnownLabels,
-  IKameletSpecProperty,
-  IKameletCustomProperty,
 } from '../models/kamelets-catalog';
 import { getValue } from './get-value';
 import { setValue } from './set-value';

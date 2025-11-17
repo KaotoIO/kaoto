@@ -1,4 +1,6 @@
 import { CstElement, CstNode, IToken } from 'chevrotain';
+
+import { PredicateOperator } from '../../../models/datamapper/xpath';
 import {
   ComparisonExprNode,
   ExprNode,
@@ -6,18 +8,17 @@ import {
   FunctionCallNode,
   LiteralNode,
   NameTestNode,
+  ParenthesizedExprNode,
   PathExprNode,
   PredicateNode,
+  PrimaryExprNode,
   ReverseStepNode,
   SourceRange,
   StepExprNode,
   VarRefNode,
   XPathNodeType,
-  ParenthesizedExprNode,
-  PrimaryExprNode,
 } from './xpath-syntaxtree-model';
 import { XPathUtil } from './xpath-syntaxtree-util';
-import { PredicateOperator } from '../../../models/datamapper/xpath';
 
 /**
  * A visitor that converts Chevrotain Concrete Syntax Tree (CST) nodes to a logical syntax tree node object {@link ExprNode}

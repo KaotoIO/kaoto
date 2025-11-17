@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
+
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { ReloadContext } from './reload.provider';

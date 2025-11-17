@@ -1,5 +1,5 @@
-import type { XmlSchemaXPath } from '../XmlSchemaXPath';
 import { XmlSchemaAnnotated } from '../XmlSchemaAnnotated';
+import type { XmlSchemaXPath } from '../XmlSchemaXPath';
 
 export class XmlSchemaIdentityConstraint extends XmlSchemaAnnotated {
   private fields: XmlSchemaXPath[] = [];

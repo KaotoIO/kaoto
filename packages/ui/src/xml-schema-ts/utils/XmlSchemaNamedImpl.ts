@@ -1,7 +1,7 @@
+import { QName } from '../QName';
 import type { XmlSchema } from '../XmlSchema';
 import type { XmlSchemaNamed } from './XmlSchemaNamed';
 import type { XmlSchemaRefBase } from './XmlSchemaRefBase';
-import { QName } from '../QName';
 
 export class XmlSchemaNamedImpl implements XmlSchemaNamed {
   protected parentSchema: XmlSchema;

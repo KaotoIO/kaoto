@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import { ExpressionParser } from './expression-parser';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { ExpressionParser } from './expression-parser';
 
 describe('Expression parser', () => {
   const xmlParser = new DOMParser();

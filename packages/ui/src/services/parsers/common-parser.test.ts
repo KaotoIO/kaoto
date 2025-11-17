@@ -1,8 +1,8 @@
-import { CommonParser } from './common-parser';
+import { CamelRouteVisualEntity } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
 import { camelRouteYaml } from '../../stubs';
-import { CamelRouteVisualEntity } from '../../models';
 import { datamapperRouteDefinitionStub } from '../../stubs/datamapper/data-mapper';
+import { CommonParser } from './common-parser';
 
 describe('CommonParser', () => {
   const camelRouteEntity = CamelResourceFactory.createCamelResource(

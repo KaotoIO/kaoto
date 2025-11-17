@@ -1,20 +1,21 @@
+import { useVisualizationController } from '@patternfly/react-topology';
+import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { ClipboardManager } from '../../../../utils/ClipboardManager';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
-import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
+import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
+import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { isDefined } from '../../../../utils/is-defined';
-import { useVisualizationController } from '@patternfly/react-topology';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionType, IOnPasteAddon } from '../../../registers/interactions/node-interaction-addon.model';
-import { processOnPasteAddon } from '../ContextMenu/item-interaction-helper';
 import { updateIds } from '../../../../utils/update-ids';
-import { cloneDeep } from 'lodash';
+import { IInteractionType, IOnPasteAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { processOnPasteAddon } from '../ContextMenu/item-interaction-helper';
 
 export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => {
   const entitiesContext = useContext(EntitiesContext)!;

@@ -15,12 +15,13 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { KaotoXmlParser, isXML } from './kaoto-xml-parser';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+
+import { CamelCatalogService, CatalogKind } from '../../models';
 import { doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs';
 import { beanWithConstructorAandProperties, beanWithConstructorAandPropertiesXML } from '../../stubs/beans';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService, CatalogKind } from '../../models';
+import { isXML, KaotoXmlParser } from './kaoto-xml-parser';
 
 describe('XmlParser', () => {
   let parser: KaotoXmlParser;

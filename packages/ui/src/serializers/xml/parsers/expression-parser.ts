@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { collectNamespaces, extractAttributesFromXmlElement } from '../utils/xml-utils';
-import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
 import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
+
+import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
+import { collectNamespaces, extractAttributesFromXmlElement } from '../utils/xml-utils';
 
 export class ExpressionParser {
   static parse(

@@ -1,12 +1,13 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+
 import {
   CamelUriHelper,
   DATAMAPPER_ID_PREFIX,
-  ParsedParameters,
   getValue,
   isDataMapperNode,
   isDefined,
+  ParsedParameters,
 } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';

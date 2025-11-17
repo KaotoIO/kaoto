@@ -1,6 +1,6 @@
-import { XmlSchemaNamedImpl } from './XmlSchemaNamedImpl';
-import { XmlSchema } from '../XmlSchema';
 import { QName } from '../QName';
+import { XmlSchema } from '../XmlSchema';
+import { XmlSchemaNamedImpl } from './XmlSchemaNamedImpl';
 import { XmlSchemaRefBase } from './XmlSchemaRefBase';
 
 // Mock XmlSchemaRefBase for testing

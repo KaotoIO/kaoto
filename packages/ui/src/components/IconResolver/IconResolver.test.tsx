@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import { CatalogKind } from '../../models';
 import { ITile } from '../Catalog';
 import { IconResolver } from './IconResolver';

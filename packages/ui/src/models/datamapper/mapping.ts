@@ -1,9 +1,9 @@
+import { getCamelRandomId } from '../../camel-utils/camel-random-id';
+import { XPathService } from '../../services/xpath/xpath.service';
 import { DocumentDefinitionType, DocumentType, IField } from './document';
 import { NodePath } from './nodepath';
 import { Types } from './types';
-import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { PathExpression } from './xpath';
-import { XPathService } from '../../services/xpath/xpath.service';
 
 export type MappingParentType = MappingTree | MappingItem;
 

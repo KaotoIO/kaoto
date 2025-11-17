@@ -1,9 +1,10 @@
-import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
-import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
+import { DataMapperProvider } from '../../../providers/datamapper.provider';
+import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { RenameParameterButton } from './RenameParameterButton';
 
 describe('RenameParameterButton', () => {

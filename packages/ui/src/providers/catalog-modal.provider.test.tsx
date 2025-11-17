@@ -1,9 +1,10 @@
-import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import { renderHook } from '@testing-library/react';
-import { CatalogModalProvider, CatalogModalContext } from './catalog-modal.provider';
-import { CatalogTilesContext } from './catalog-tiles.provider';
+import { FunctionComponent, PropsWithChildren, useContext } from 'react';
+
 import { ITile } from '../components/Catalog';
 import { CatalogKind } from '../models/catalog-kind';
+import { CatalogModalContext, CatalogModalProvider } from './catalog-modal.provider';
+import { CatalogTilesContext } from './catalog-tiles.provider';
 
 describe('CatalogModalProvider', () => {
   const mockTiles: ITile[] = [

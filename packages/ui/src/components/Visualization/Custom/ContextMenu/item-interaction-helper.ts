@@ -1,4 +1,7 @@
+import { get, set } from 'lodash';
+
 import { IVisualizationNode } from '../../../../models';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import {
   IModalCustomization,
   IOnCopyAddon,
@@ -6,8 +9,6 @@ import {
   IOnDuplicateAddon,
   IOnPasteAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
-import { get, set } from 'lodash';
 
 const ARRAY_INDEX_REGEXP = /\.(\d+)/g;
 

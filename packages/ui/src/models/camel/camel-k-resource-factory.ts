@@ -1,16 +1,17 @@
-import { SourceSchemaType } from './source-schema-type';
-import { CamelResource } from './camel-resource';
-import { IntegrationResource } from './integration-resource';
-import { KameletResource } from './kamelet-resource';
-import { KameletBindingResource } from './kamelet-binding-resource';
-import { PipeResource } from './pipe-resource';
-import { IKameletDefinition } from '../kamelets-catalog';
 import {
   Integration as IntegrationType,
   KameletBinding as KameletBindingType,
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
+
 import { isDefined } from '../../utils';
+import { IKameletDefinition } from '../kamelets-catalog';
+import { CamelResource } from './camel-resource';
+import { IntegrationResource } from './integration-resource';
+import { KameletBindingResource } from './kamelet-binding-resource';
+import { KameletResource } from './kamelet-resource';
+import { PipeResource } from './pipe-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 export class CamelKResourceFactory {
   static getCamelKResource(

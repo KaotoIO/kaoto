@@ -1,8 +1,10 @@
+import './FlowClipboard.scss';
+
 import { Button, Icon } from '@patternfly/react-core';
 import { CopyIcon } from '@patternfly/react-icons';
 import { useContext, useState } from 'react';
+
 import { SourceCodeContext } from '../../../../providers';
-import './FlowClipboard.scss';
 
 export const successTooltipText = 'Content added to clipboard';
 

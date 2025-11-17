@@ -8,6 +8,7 @@ import {
 } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { setHeaderExpressionSchema } from '../../../../../../stubs/expression-definition-schema';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';

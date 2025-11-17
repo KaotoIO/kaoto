@@ -5,7 +5,9 @@
  * TODO: Check how to split this from the bundle
  */
 import 'monaco-editor';
+
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+
 import yamlWorker from './yaml-worker.ts?worker';
 
 self.MonacoEnvironment = {

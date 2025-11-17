@@ -1,15 +1,17 @@
-import { Icon, Tab, TabTitleIcon, TabTitleText, Tabs, TabsProps } from '@patternfly/react-core';
+import './KaotoEditor.scss';
+
+import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
 import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { useContext, useMemo, useRef } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
+
 import icon_component_datamapper from '../assets/components/datamapper.png';
 import bean from '../assets/eip/bean.png';
 import camelIcon from '../assets/logo-kaoto.svg';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { EntitiesContext } from '../providers/entities.provider';
 import { Links } from '../router/links.models';
-import './KaotoEditor.scss';
 
 const enum TabList {
   Design,

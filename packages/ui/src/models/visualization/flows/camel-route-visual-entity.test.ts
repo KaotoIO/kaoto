@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+
 import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { camelRouteJson } from '../../../stubs/camel-route';

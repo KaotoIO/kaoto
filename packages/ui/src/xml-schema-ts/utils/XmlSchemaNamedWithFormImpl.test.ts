@@ -1,7 +1,7 @@
-import { XmlSchemaNamedWithFormImpl } from './XmlSchemaNamedWithFormImpl';
+import { QName } from '../QName';
 import { XmlSchema } from '../XmlSchema';
 import { XmlSchemaForm } from '../XmlSchemaForm';
-import { QName } from '../QName';
+import { XmlSchemaNamedWithFormImpl } from './XmlSchemaNamedWithFormImpl';
 import { XmlSchemaRefBase } from './XmlSchemaRefBase';
 
 // Mock XmlSchemaRefBase for testing

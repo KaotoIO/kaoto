@@ -1,19 +1,19 @@
 import {
+  camelRouteYaml,
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   CatalogTilesProvider,
   ContextToolbar,
   EntitiesProvider,
-  RuntimeProvider,
-  SchemasLoaderProvider,
-  SourceCodeApiContext,
-  SourceCodeProvider,
   IntegrationTypeSelector,
-  SerializerSelector,
-  VisibleFlowsProvider,
-  camelRouteYaml,
   kameletYaml,
   pipeYaml,
+  RuntimeProvider,
+  SchemasLoaderProvider,
+  SerializerSelector,
+  SourceCodeApiContext,
+  SourceCodeProvider,
+  VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import { Meta, StoryFn } from '@storybook/react';

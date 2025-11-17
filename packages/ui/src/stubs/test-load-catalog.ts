@@ -1,4 +1,5 @@
 import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
+
 import {
   CamelCatalogIndex,
   ICamelComponentDefinition,

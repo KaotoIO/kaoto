@@ -1,4 +1,5 @@
 import { Node, Point, Rect } from '@patternfly/react-topology';
+
 import { TargetAnchor } from './target-anchor';
 
 describe('TargetAnchor', () => {

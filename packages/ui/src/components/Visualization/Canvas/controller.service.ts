@@ -9,6 +9,7 @@ import {
   TOP_TO_BOTTOM,
   Visualization,
 } from '@patternfly/react-topology';
+
 import { CustomGroupWithSelection, CustomNodeWithSelection, NoBendpointsEdge } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
 import { CustomGraphWithSelection } from '../Custom/Graph/CustomGraph';

@@ -1,9 +1,10 @@
 import { FromDefinition } from '@kaoto/camel-catalog/types';
+
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getCustomSchemaFromKamelet, isDefined, setValue, updateKameletFromCustomSchema } from '../../../utils';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { IKameletDefinition, IKameletSpec } from '../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';

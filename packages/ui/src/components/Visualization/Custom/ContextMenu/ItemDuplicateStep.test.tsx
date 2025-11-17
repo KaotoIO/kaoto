@@ -1,7 +1,8 @@
 import { fireEvent, render } from '@testing-library/react';
+
 import { createVisualizationNode } from '../../../../models';
-import { ItemDuplicateStep } from './ItemDuplicateStep';
 import { useDuplicateStep } from '../hooks/duplicate-step.hook';
+import { ItemDuplicateStep } from './ItemDuplicateStep';
 
 // Mock the `useDuplicateStep` hook
 jest.mock('../hooks/duplicate-step.hook', () => ({

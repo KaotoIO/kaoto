@@ -1,11 +1,13 @@
+import './ErrorPage.scss';
+
 import { Bullseye, Button, EmptyState, EmptyStateBody, EmptyStateVariant, Icon } from '@patternfly/react-core';
 import { ArrowLeftIcon } from '@patternfly/react-icons/dist/esm/icons/arrow-left-icon';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { FunctionComponent } from 'react';
 import { useRouteError } from 'react-router-dom';
-import { Links } from '../router/links.models';
-import './ErrorPage.scss';
+
 import { useComponentLink } from '../hooks/ComponentLink';
+import { Links } from '../router/links.models';
 
 const ErrorIcon: FunctionComponent = () => (
   <Icon className="error__icon" status="danger" size="xl">

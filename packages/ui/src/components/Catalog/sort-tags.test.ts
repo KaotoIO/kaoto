@@ -1,5 +1,5 @@
-import { sortTags } from './sort-tags';
 import { ITile } from './Catalog.models';
+import { sortTags } from './sort-tags';
 
 describe('sortTags()', () => {
   it('should return empty', () => {

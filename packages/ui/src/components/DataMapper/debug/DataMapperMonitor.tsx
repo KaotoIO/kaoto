@@ -1,5 +1,6 @@
-import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useEffect } from 'react';
+
+import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useMappingLinks } from '../../../hooks/useMappingLinks';
 import { MappingLinksService } from '../../../services/mapping-links.service';
 

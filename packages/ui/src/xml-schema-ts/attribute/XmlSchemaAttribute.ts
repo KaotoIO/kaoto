@@ -1,16 +1,15 @@
 import type { QName } from '../QName';
-import type { XmlSchema } from '../XmlSchema';
-import type { XmlSchemaAttributeGroupMember } from './XmlSchemaAttributeGroupMember';
-import type { XmlSchemaItemWithRef } from '../XmlSchemaItemWithRef';
 import type { XmlSchemaSimpleType } from '../simple/XmlSchemaSimpleType';
-import type { XmlSchemaNamedWithForm } from '../utils/XmlSchemaNamedWithForm';
-
-import { XmlSchemaNamedWithFormImpl } from '../utils/XmlSchemaNamedWithFormImpl';
 import { XmlSchemaNamedType } from '../utils/XmlSchemaNamedType';
+import type { XmlSchemaNamedWithForm } from '../utils/XmlSchemaNamedWithForm';
+import { XmlSchemaNamedWithFormImpl } from '../utils/XmlSchemaNamedWithFormImpl';
 import { XmlSchemaRef } from '../utils/XmlSchemaRef';
-import { XmlSchemaAttributeOrGroupRef } from './XmlSchemaAttributeOrGroupRef';
+import type { XmlSchema } from '../XmlSchema';
 import { XmlSchemaForm } from '../XmlSchemaForm';
+import type { XmlSchemaItemWithRef } from '../XmlSchemaItemWithRef';
 import { XmlSchemaUse } from '../XmlSchemaUse';
+import type { XmlSchemaAttributeGroupMember } from './XmlSchemaAttributeGroupMember';
+import { XmlSchemaAttributeOrGroupRef } from './XmlSchemaAttributeOrGroupRef';
 
 export class XmlSchemaAttribute
   extends XmlSchemaAttributeOrGroupRef

@@ -1,12 +1,13 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import {
   componentCronTile,
   componentKubernetesSecretsTile,
   componentSlackTile,
   kameletBeerSourceTile,
-  kameletSSHSinkTile,
   kameletSinkTile,
   kameletSourceTile,
+  kameletSSHSinkTile,
   kameletStringTemplateActionTile,
   processorCircuitBreakerTile,
   processorInterceptTile,

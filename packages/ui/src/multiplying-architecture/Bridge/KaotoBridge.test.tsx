@@ -1,7 +1,8 @@
 import { ChannelType } from '@kie-tools-core/editor/dist/api';
 import { render } from '@testing-library/react';
-import { KaotoBridge } from './KaotoBridge';
 import { ComponentProps } from 'react';
+
+import { KaotoBridge } from './KaotoBridge';
 
 describe('KaotoBridge', () => {
   const mockOnReady = jest.fn();

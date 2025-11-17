@@ -1,5 +1,6 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
-import { updatePipeFromCustomSchema, getCustomSchemaFromPipe } from './';
+
+import { getCustomSchemaFromPipe, updatePipeFromCustomSchema } from './';
 
 describe('pipeCustomSchema', () => {
   let inputPipeStruct: Pipe;

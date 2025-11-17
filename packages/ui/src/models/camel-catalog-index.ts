@@ -1,4 +1,5 @@
-import { CatalogDefinitionEntry, CatalogDefinition, KaotoFunction } from '@kaoto/camel-catalog/types';
+import { CatalogDefinition, CatalogDefinitionEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
+
 import { ICamelComponentDefinition } from './camel-components-catalog';
 import { ICamelDataformatDefinition } from './camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from './camel-languages-catalog';

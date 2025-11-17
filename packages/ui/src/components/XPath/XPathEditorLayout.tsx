@@ -1,3 +1,5 @@
+import './XPathEditorLayout.scss';
+
 import {
   Grid,
   GridItem,
@@ -12,17 +14,17 @@ import {
   TabTitleText,
 } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import { EditorNodeData, FunctionNodeData } from '../../models/datamapper';
 import { ExpressionItem } from '../../models/datamapper/mapping';
 import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
 import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
-import { FunctionGroup } from '../../services/xpath/xpath-model';
 import { XPathService } from '../../services/xpath/xpath.service';
+import { FunctionGroup } from '../../services/xpath/xpath-model';
 import { DraggableContainer, DroppableContainer } from '../Document/NodeContainer';
 import { SourcePanel } from '../View/SourcePanel';
 import { XPathEditor } from './XPathEditor';
-import './XPathEditorLayout.scss';
 
 type XPathEditorLayoutProps = {
   mapping: ExpressionItem;

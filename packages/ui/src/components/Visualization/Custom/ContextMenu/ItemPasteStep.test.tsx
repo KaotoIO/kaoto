@@ -1,7 +1,8 @@
 import { fireEvent, render } from '@testing-library/react';
+
 import { AddStepMode, createVisualizationNode } from '../../../../models';
-import { ItemPasteStep } from './ItemPasteStep';
 import { usePasteStep } from '../hooks/paste-step.hook';
+import { ItemPasteStep } from './ItemPasteStep';
 
 // Mock the `usePasteStep` hook
 jest.mock('../hooks/paste-step.hook', () => ({

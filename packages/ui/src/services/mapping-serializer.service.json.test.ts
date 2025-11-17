@@ -11,7 +11,7 @@ import {
   Types,
   ValueSelector,
 } from '../models/datamapper';
-import { MappingSerializerService } from './mapping-serializer.service';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import {
   accountJsonSchema,
   cartJsonSchema,
@@ -19,7 +19,7 @@ import {
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocumentService, JsonSchemaField } from './json-schema-document.service';
-import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
+import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 describe('MappingSerializerService / JSON', () => {

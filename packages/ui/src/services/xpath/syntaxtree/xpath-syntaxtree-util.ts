@@ -1,16 +1,16 @@
 import {
-  SourceRange,
-  XPathNodeType,
-  XPathNode,
-  PathExprNode,
-  StepExprNode,
-  FilterExprNode,
-  FunctionCallNode,
-  PredicateNode,
   ComparisonExprNode,
   ExprNode,
+  FilterExprNode,
+  FunctionCallNode,
   ParenthesizedExprNode,
+  PathExprNode,
+  PredicateNode,
   ReverseStepNode,
+  SourceRange,
+  StepExprNode,
+  XPathNode,
+  XPathNodeType,
 } from './xpath-syntaxtree-model';
 
 /**

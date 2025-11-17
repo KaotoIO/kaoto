@@ -1,5 +1,6 @@
 import { act, render } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
+
 import { KeyboardShortcutsProvider } from './keyboard-shortcuts.provider';
 
 // Mock the useUndoRedo hook

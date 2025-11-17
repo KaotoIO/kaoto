@@ -1,5 +1,5 @@
-import type { NamespacePrefixList } from './NamespacePrefixList';
 import { NULL_NS_URI, XML_NS_PREFIX, XML_NS_URI, XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI } from '../constants';
+import type { NamespacePrefixList } from './NamespacePrefixList';
 import { PrefixCollector } from './PrefixCollector';
 
 export class NodeNamespaceContext implements NamespacePrefixList {

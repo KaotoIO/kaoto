@@ -13,21 +13,23 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import './DataMapperHowToPage.scss';
+
 import { Bullseye, List, ListComponent, ListItem, OrderType, Stack, StackItem, Title } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import icon_component_datamapper from '../../assets/components/datamapper.png';
-import './DataMapperHowToPage.scss';
-import catalog_datamapper from '../../assets/data-mapper/kaoto-datamapper-catalog.png';
-import datamapper_step from '../../assets/data-mapper/datamapper-step.png';
-import configure_button from '../../assets/data-mapper/configure-button.png';
-import kaoto_design from '../../assets/data-mapper/kaoto-design.png';
-import source_target from '../../assets/data-mapper/source-target.png';
-import add_parameter from '../../assets/data-mapper/add-parameter.png';
 import add_parameter_confirm from '../../assets/data-mapper/add_parameter_confirm.png';
+import add_parameter from '../../assets/data-mapper/add-parameter.png';
+import attach_schema_parameter from '../../assets/data-mapper/attach-schema-parameter.png';
 import attach_schema_source_body from '../../assets/data-mapper/attach-schema-source-body.png';
 import attach_schema_target_body from '../../assets/data-mapper/attach-schema-target-body.png';
-import attach_schema_parameter from '../../assets/data-mapper/attach-schema-parameter.png';
+import configure_button from '../../assets/data-mapper/configure-button.png';
 import data_mapping from '../../assets/data-mapper/data-mapping.png';
+import datamapper_step from '../../assets/data-mapper/datamapper-step.png';
+import catalog_datamapper from '../../assets/data-mapper/kaoto-datamapper-catalog.png';
+import kaoto_design from '../../assets/data-mapper/kaoto-design.png';
+import source_target from '../../assets/data-mapper/source-target.png';
 
 export const DataMapperHowToPage: FunctionComponent = () => {
   return (

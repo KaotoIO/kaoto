@@ -13,11 +13,13 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import './AboutPage.scss';
+
 import { Bullseye, Content } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import logo from '../../assets/logo-kaoto-dark.png';
 import { About } from '../../components/About/About';
-import './AboutPage.scss';
 
 export const AboutPage: FunctionComponent = () => {
   return (

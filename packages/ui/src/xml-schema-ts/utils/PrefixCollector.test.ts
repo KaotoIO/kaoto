@@ -1,4 +1,5 @@
 import { JSDOM } from 'jsdom';
+
 import { DEFAULT_NS_PREFIX } from '../constants';
 import { PrefixCollector } from './PrefixCollector';
 

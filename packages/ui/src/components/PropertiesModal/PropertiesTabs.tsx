@@ -1,4 +1,5 @@
 import { FunctionComponent } from 'react';
+
 import { IPropertiesTab, PropertiesTableType } from './PropertiesModal.models';
 import { PropertiesTableSimple, PropertiesTableTree } from './Tables';
 

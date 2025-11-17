@@ -1,4 +1,5 @@
 import { CatalogDefinitionEntry } from '@kaoto/camel-catalog/types';
+
 import { CatalogSchemaLoader } from './catalog-schema-loader';
 
 describe('CatalogSchemaLoader', () => {

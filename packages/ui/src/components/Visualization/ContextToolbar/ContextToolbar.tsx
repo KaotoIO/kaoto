@@ -1,10 +1,12 @@
+import './ContextToolbar.scss';
+
 import { Button, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
 import { RedoIcon, UndoIcon } from '@patternfly/react-icons';
 import { FunctionComponent, JSX, useContext } from 'react';
+
 import { useUndoRedo } from '../../../hooks/undo-redo.hook';
 import { sourceSchemaConfig } from '../../../models/camel';
 import { EntitiesContext } from '../../../providers/entities.provider';
-import './ContextToolbar.scss';
 import { ExportDocument } from './ExportDocument/ExportDocument';
 import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 import { FlowExportImage } from './FlowExportImage/FlowExportImage';

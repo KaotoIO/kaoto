@@ -1,3 +1,5 @@
+import './DataListItem.scss';
+
 import {
   DataListCell,
   DataListItem,
@@ -8,9 +10,9 @@ import {
   LabelGroup,
 } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import { IconResolver } from '../IconResolver';
 import { ITile } from './Catalog.models';
-import './DataListItem.scss';
 import { CatalogTag, CatalogTagsPanel } from './Tags';
 
 interface ICatalogDataListItemProps {

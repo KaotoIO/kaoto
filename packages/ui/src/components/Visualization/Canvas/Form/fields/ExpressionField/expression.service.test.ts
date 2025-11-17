@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ExpressionService } from './expression.service';

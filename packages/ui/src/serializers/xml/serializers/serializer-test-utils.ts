@@ -15,6 +15,7 @@
  */
 
 import { XMLParser } from 'fast-xml-parser';
+
 import { XmlFormatter } from '../utils/xml-formatter';
 
 export const normalizeXml = (xml: string) =>

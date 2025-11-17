@@ -1,5 +1,6 @@
-import { FunctionComponent } from 'react';
 import './FunctionIcon.scss';
+
+import { FunctionComponent } from 'react';
 
 export const FunctionIcon: FunctionComponent = () => {
   return (

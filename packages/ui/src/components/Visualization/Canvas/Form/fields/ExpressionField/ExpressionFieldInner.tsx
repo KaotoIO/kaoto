@@ -7,6 +7,7 @@ import {
   useOneOfField,
 } from '@kaoto/forms';
 import { FunctionComponent } from 'react';
+
 import { isDefined } from '../../../../../../utils';
 
 export const ExpressionFieldInner: FunctionComponent<FieldProps> = ({ propName }) => {

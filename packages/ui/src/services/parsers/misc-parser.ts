@@ -1,5 +1,5 @@
-import { MetadataEntity } from '../../models/visualization/metadata';
 import { ParsedTable } from '../../models/documentation';
+import { MetadataEntity } from '../../models/visualization/metadata';
 import { CommonParser } from './common-parser';
 
 export class MiscParser {

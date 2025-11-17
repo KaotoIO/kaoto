@@ -1,20 +1,19 @@
+import type { XmlSchemaIdentityConstraint } from '../constraint/XmlSchemaIdentityConstraint';
 import type { QName } from '../QName';
 import type { TypeReceiver } from '../TypeReceiver';
-import type { XmlSchema } from '../XmlSchema';
-import type { XmlSchemaAllMember } from './XmlSchemaAllMember';
-import type { XmlSchemaChoiceMember } from './XmlSchemaChoiceMember';
-import type { XmlSchemaForm } from '../XmlSchemaForm';
-import type { XmlSchemaIdentityConstraint } from '../constraint/XmlSchemaIdentityConstraint';
-import type { XmlSchemaItemWithRef } from '../XmlSchemaItemWithRef';
-import type { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
-import type { XmlSchemaType } from '../XmlSchemaType';
+import { XmlSchemaNamedType } from '../utils/XmlSchemaNamedType';
 import type { XmlSchemaNamedWithForm } from '../utils/XmlSchemaNamedWithForm';
-
 import { XmlSchemaNamedWithFormImpl } from '../utils/XmlSchemaNamedWithFormImpl';
 import { XmlSchemaRef } from '../utils/XmlSchemaRef';
-import { XmlSchemaNamedType } from '../utils/XmlSchemaNamedType';
-import { XmlSchemaParticle } from './XmlSchemaParticle';
+import type { XmlSchema } from '../XmlSchema';
 import { XmlSchemaDerivationMethod } from '../XmlSchemaDerivationMethod';
+import type { XmlSchemaForm } from '../XmlSchemaForm';
+import type { XmlSchemaItemWithRef } from '../XmlSchemaItemWithRef';
+import type { XmlSchemaType } from '../XmlSchemaType';
+import type { XmlSchemaAllMember } from './XmlSchemaAllMember';
+import type { XmlSchemaChoiceMember } from './XmlSchemaChoiceMember';
+import { XmlSchemaParticle } from './XmlSchemaParticle';
+import type { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
 
 export class XmlSchemaElement
   extends XmlSchemaParticle

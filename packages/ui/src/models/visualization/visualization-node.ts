@@ -1,4 +1,5 @@
 import { action, makeObservable, observable } from 'mobx';
+
 import { DefinedComponent } from '../camel-catalog-index';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';

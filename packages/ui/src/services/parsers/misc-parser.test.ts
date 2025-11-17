@@ -1,6 +1,6 @@
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { pipeYaml } from '../../stubs';
 import { MetadataEntity } from '../../models/visualization/metadata';
+import { pipeYaml } from '../../stubs';
 import { MiscParser } from './misc-parser';
 
 describe('MiscParser', () => {

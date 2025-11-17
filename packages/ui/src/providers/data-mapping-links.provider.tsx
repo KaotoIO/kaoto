@@ -9,8 +9,9 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { IMappingLink, NodeReference } from '../models/datamapper';
+
 import { useDataMapper } from '../hooks/useDataMapper';
+import { IMappingLink, NodeReference } from '../models/datamapper';
 import { MappingLinksService } from '../services/mapping-links.service';
 
 export interface IMappingLinksContext {

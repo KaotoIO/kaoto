@@ -1,10 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import { EntitiesContext } from '../../providers/entities.provider';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { PipeResource } from '../../models/camel';
-import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
 import { CatalogKind } from '../../models/catalog-kind';
+import { CamelCatalogService } from '../../models/visualization/flows/camel-catalog.service';
+import { EntitiesContext } from '../../providers/entities.provider';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { MetadataPage } from './MetadataPage';
 

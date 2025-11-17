@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinitionType,
@@ -7,9 +8,9 @@ import {
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';
-import { MappingSerializerService } from '../../services/mapping-serializer.service';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { MappingSerializerService } from '../../services/mapping-serializer.service';
 import { useDocumentTreeStore } from '../../store';
 import { shipOrderToShipOrderXslt, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { TargetDocument } from './TargetDocument';

@@ -1,7 +1,8 @@
 import { renderHook } from '@testing-library/react';
-import { useEntityContext, errorMessage } from './useEntityContext';
-import { EntitiesProvider } from '../../providers/entities.provider';
 import { PropsWithChildren } from 'react';
+
+import { EntitiesProvider } from '../../providers/entities.provider';
+import { errorMessage, useEntityContext } from './useEntityContext';
 
 const wrapper = ({ children }: PropsWithChildren) => <EntitiesProvider>{children}</EntitiesProvider>;
 

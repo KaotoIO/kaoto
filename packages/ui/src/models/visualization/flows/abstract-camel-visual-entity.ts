@@ -1,10 +1,11 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { camelCaseToSpaces } from '@kaoto/forms';
+
 import { getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import {

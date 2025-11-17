@@ -1,5 +1,6 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
+
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers';

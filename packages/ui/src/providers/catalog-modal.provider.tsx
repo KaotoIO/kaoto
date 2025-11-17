@@ -1,20 +1,22 @@
+import './catalog-modal.provider.scss';
+
 import { Modal, ModalBody, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import {
+  createContext,
   FunctionComponent,
   PropsWithChildren,
-  createContext,
   useCallback,
   useContext,
   useMemo,
   useRef,
   useState,
 } from 'react';
+
 import { Catalog, ITile, TileFilter } from '../components/Catalog';
 import { CatalogKind, DefinedComponent } from '../models';
 import { isDefined } from '../utils';
-import './catalog-modal.provider.scss';
-import { CatalogTilesContext } from './catalog-tiles.provider';
 import { CatalogContext } from './catalog.provider';
+import { CatalogTilesContext } from './catalog-tiles.provider';
 
 interface CatalogModalContextValue {
   setIsModalOpen: (isOpen: boolean) => void;

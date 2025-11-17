@@ -16,6 +16,7 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 import { useParams } from 'react-router-dom';
+
 import DataMapper from '../../components/DataMapper/DataMapper';
 import { IVisualizationNode } from '../../models';
 import { getVisualizationNodesFromGraph } from '../../utils';

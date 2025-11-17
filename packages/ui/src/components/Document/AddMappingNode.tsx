@@ -1,13 +1,15 @@
+import './AddMappingNode.scss';
+
 import { ActionList, ActionListGroup, ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { LayerGroupIcon, PlusCircleIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
+
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { AddMappingNodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
 import { ConditionMenuAction } from './actions/ConditionMenuAction';
-import { NodeTitle } from './NodeTitle';
 import { BaseNode } from './Nodes/BaseNode';
-import './AddMappingNode.scss';
+import { NodeTitle } from './NodeTitle';
 
 export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; rank: number }> = ({
   nodeData,

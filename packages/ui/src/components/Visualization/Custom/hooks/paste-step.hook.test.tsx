@@ -1,16 +1,17 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { ClipboardManager } from '../../../../utils/ClipboardManager';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
-import { usePasteStep } from './paste-step.hook';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
+import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { ClipboardManager } from '../../../../utils/ClipboardManager';
+import { usePasteStep } from './paste-step.hook';
 
 const mockController = {
   fromModel: jest.fn(),

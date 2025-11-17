@@ -1,6 +1,9 @@
+import './NodeTitle.scss';
+
 import { Label, Popover, Title } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
+
 import {
   AddMappingNodeData,
   FieldItemNodeData,
@@ -8,7 +11,6 @@ import {
   MappingNodeData,
   NodeData,
 } from '../../models/datamapper/visualization';
-import './NodeTitle.scss';
 
 interface INodeTitle {
   className?: string;

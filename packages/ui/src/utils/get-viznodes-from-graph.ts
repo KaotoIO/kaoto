@@ -15,6 +15,7 @@
  */
 
 import type { Graph, GraphElement } from '@patternfly/react-topology';
+
 import { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
 import { isDefined } from './is-defined';

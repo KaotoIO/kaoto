@@ -1,3 +1,5 @@
+import './XPathEditorModal.scss';
+
 import {
   Button,
   ButtonVariant,
@@ -10,14 +12,14 @@ import {
   ModalVariant,
   Popover,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
-import { XPathEditorLayout } from './XPathEditorLayout';
-import { ExpressionItem } from '../../models/datamapper';
-import './XPathEditorModal.scss';
-import { ValidatedXPathParseResult } from '../../services/xpath/xpath-model';
-import { XPathService } from '../../services/xpath/xpath.service';
-import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
+import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+
+import { ExpressionItem } from '../../models/datamapper';
+import { XPathService } from '../../services/xpath/xpath.service';
+import { ValidatedXPathParseResult } from '../../services/xpath/xpath-model';
+import { XPathEditorLayout } from './XPathEditorLayout';
 
 type XPathEditorModalProps = {
   isOpen: boolean;

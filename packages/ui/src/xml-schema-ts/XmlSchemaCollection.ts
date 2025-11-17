@@ -1,26 +1,25 @@
-import type { QName } from './QName';
-import type { SchemaKey } from './SchemaKey';
-import type { TypeReceiver } from './TypeReceiver';
+import * as Constants from './constants';
+import { ExtensionRegistry } from './extensions/ExtensionRegistry';
 import type { XmlSchemaFacet } from './facet/XmlSchemaFacet';
-import type { XmlSchemaType } from './XmlSchemaType';
-import type { CollectionURIResolver } from './resolver/CollectionURIResolver';
-import type { URIResolver } from './resolver/URIResolver';
-import type { NamespacePrefixList } from './utils/NamespacePrefixList';
-
-import { XmlSchema } from './XmlSchema';
+import { XmlSchemaFractionDigitsFacet } from './facet/XmlSchemaFractionDigitsFacet';
 import { XmlSchemaMaxInclusiveFacet } from './facet/XmlSchemaMaxInclusiveFacet';
 import { XmlSchemaMinInclusiveFacet } from './facet/XmlSchemaMinInclusiveFacet';
 import { XmlSchemaPatternFacet } from './facet/XmlSchemaPatternFacet';
 import { XmlSchemaWhiteSpaceFacet } from './facet/XmlSchemaWhiteSpaceFacet';
-import { XmlSchemaSimpleTypeRestriction } from './simple/XmlSchemaSimpleTypeRestriction';
-import { XmlSchemaSimpleTypeList } from './simple/XmlSchemaSimpleTypeList';
-import { SchemaBuilder } from './SchemaBuilder';
-import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
-import { ExtensionRegistry } from './extensions/ExtensionRegistry';
-import * as Constants from './constants';
+import type { QName } from './QName';
+import type { CollectionURIResolver } from './resolver/CollectionURIResolver';
 import { DefaultURIResolver } from './resolver/DefaultURIResolver';
-import { XmlSchemaFractionDigitsFacet } from './facet/XmlSchemaFractionDigitsFacet';
+import type { URIResolver } from './resolver/URIResolver';
+import { SchemaBuilder } from './SchemaBuilder';
+import type { SchemaKey } from './SchemaKey';
+import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+import { XmlSchemaSimpleTypeList } from './simple/XmlSchemaSimpleTypeList';
+import { XmlSchemaSimpleTypeRestriction } from './simple/XmlSchemaSimpleTypeRestriction';
+import type { TypeReceiver } from './TypeReceiver';
+import type { NamespacePrefixList } from './utils/NamespacePrefixList';
 import { QNameMap, SchemaKeyMap } from './utils/ObjectMap';
+import { XmlSchema } from './XmlSchema';
+import type { XmlSchemaType } from './XmlSchemaType';
 
 export class XmlSchemaCollection {
   baseUri: string | null;

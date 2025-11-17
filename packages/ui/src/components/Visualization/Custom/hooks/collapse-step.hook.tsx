@@ -1,6 +1,7 @@
 import type { ElementModel, GraphElement } from '@patternfly/react-topology';
 import { action, Dimensions, isNode } from '@patternfly/react-topology';
 import { useCallback, useMemo } from 'react';
+
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 
 export const useCollapseStep = (element: GraphElement<ElementModel, unknown>) => {

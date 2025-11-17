@@ -2,6 +2,7 @@ import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFor
 import { MetadataPage } from '@kaoto/kaoto';
 import { KaotoSchemaDefinition } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
+
 import mockModel from '../../cypress/fixtures/metadata/metadataModel.json';
 import mockSchema from '../../cypress/fixtures/metadata/metadataSchema.json';
 

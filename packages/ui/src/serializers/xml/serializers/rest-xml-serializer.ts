@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { StepXmlSerializer } from './step-xml-serializer';
 import { Rest } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import { StepXmlSerializer } from './step-xml-serializer';
 
 export class RestXmlSerializer {
   private static readonly REST_ELEMENT_NAME = 'rest';
