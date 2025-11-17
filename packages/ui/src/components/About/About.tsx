@@ -1,5 +1,6 @@
 import { Content, Timestamp, TimestampFormat, TimestampTooltipVariant } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
+
 import { GIT_DATE, GIT_HASH, KAOTO_VERSION } from '../../version';
 
 const TOOLTIP_PROPS = { variant: TimestampTooltipVariant.default } as const;

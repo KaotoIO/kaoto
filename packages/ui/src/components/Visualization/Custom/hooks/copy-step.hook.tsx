@@ -1,8 +1,9 @@
 import { useCallback, useContext, useMemo } from 'react';
+
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 
 export const useCopyStep = (vizNode: IVisualizationNode) => {

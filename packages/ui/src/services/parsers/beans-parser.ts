@@ -1,7 +1,8 @@
+import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
+
+import { ParsedTable } from '../../models/documentation';
 import { BeansEntity } from '../../models/visualization/metadata';
 import { RouteTemplateBeansEntity } from '../../models/visualization/metadata/routeTemplateBeansEntity';
-import { ParsedTable } from '../../models/documentation';
-import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
 import { CommonParser } from './common-parser';
 
 export class BeansParser {

@@ -1,7 +1,7 @@
-import { KameletParser } from './kamelet-parser';
+import { KameletVisualEntity } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
 import { kameletYaml } from '../../stubs';
-import { KameletVisualEntity } from '../../models';
+import { KameletParser } from './kamelet-parser';
 
 describe('KameletParser', () => {
   describe('parseKameletEntity()', () => {

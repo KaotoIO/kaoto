@@ -1,5 +1,6 @@
 import hotkeys from 'hotkeys-js';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+
 import { useUndoRedo } from '../hooks/undo-redo.hook';
 
 export const KeyboardShortcutsProvider: FunctionComponent<PropsWithChildren> = (props) => {

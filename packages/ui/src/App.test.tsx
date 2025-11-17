@@ -3,6 +3,7 @@ jest.mock('./utils/color-scheme', () => ({
 }));
 
 import { act, render } from '@testing-library/react';
+
 import App from './App';
 import { ColorScheme } from './models';
 import { ReloadProvider } from './providers';

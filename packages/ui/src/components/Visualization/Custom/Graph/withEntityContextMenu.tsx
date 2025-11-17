@@ -1,5 +1,6 @@
 import { WithContextMenuProps } from '@patternfly/react-topology';
 import React, { ComponentType, FunctionComponent, useMemo } from 'react';
+
 import { useCanvasEntities } from '../../../../hooks/useCanvasEntities';
 import { generateEntityContextMenu } from './generateEntityContextMenu';
 

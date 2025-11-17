@@ -1,8 +1,10 @@
+import './AddStepIcon.scss';
+
 import clsx from 'clsx';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, useCallback } from 'react';
+
 import { AddStepMode, IDataTestID, IVisualizationNode } from '../../../../models';
 import { useAddStep } from '../hooks/add-step.hook';
-import './AddStepIcon.scss';
 
 interface AddStepIconProps extends PropsWithChildren<IDataTestID> {
   vizNode: IVisualizationNode;

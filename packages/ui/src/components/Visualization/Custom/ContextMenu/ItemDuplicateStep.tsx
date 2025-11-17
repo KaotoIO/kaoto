@@ -1,5 +1,6 @@
 import { ContextMenuItem } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { IDataTestID } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { useDuplicateStep } from '../hooks/duplicate-step.hook';

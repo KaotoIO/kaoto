@@ -1,3 +1,5 @@
+import './CustomEdge.scss';
+
 import { Icon } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import {
@@ -12,11 +14,11 @@ import {
   Point,
 } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
+
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { AddStepIcon } from './AddStepIcon';
-import './CustomEdge.scss';
 
 type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
 interface CustomEdgeProps extends DefaultEdgeProps {

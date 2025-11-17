@@ -1,3 +1,5 @@
+import './InlineEdit.scss';
+
 import {
   Button,
   Form,
@@ -18,8 +20,8 @@ import {
   useCallback,
   useState,
 } from 'react';
+
 import { IDataTestID, ValidationResult, ValidationStatus } from '../../models';
-import './InlineEdit.scss';
 
 interface IInlineEdit extends IDataTestID {
   editTitle?: string;

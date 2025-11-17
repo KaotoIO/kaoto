@@ -1,5 +1,7 @@
+import { ButtonVariant } from '@patternfly/react-core';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, useContext } from 'react';
+
 import {
   ACTION_ID_CANCEL,
   ACTION_ID_CONFIRM,
@@ -7,7 +9,6 @@ import {
   ActionConfirmationModalContext,
   ActionConfirmationModalContextProvider,
 } from './action-confirmation-modal.provider';
-import { ButtonVariant } from '@patternfly/react-core';
 
 let actionConfirmationResult: string | undefined;
 

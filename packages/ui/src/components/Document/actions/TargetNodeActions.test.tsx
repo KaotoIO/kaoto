@@ -1,11 +1,12 @@
-import { TargetNodeActions } from './TargetNodeActions';
 import { render, screen } from '@testing-library/react';
-import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
-import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
+import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { TargetNodeActions } from './TargetNodeActions';
 
 describe('TargetNodeActions', () => {
   it('should render', async () => {

@@ -1,5 +1,5 @@
-import type { XmlSchemaContent } from './XmlSchemaContent';
 import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
+import type { XmlSchemaContent } from './XmlSchemaContent';
 
 /**
  * An abstract class for the schema content model.

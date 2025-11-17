@@ -1,10 +1,12 @@
+import './SourcePanel.scss';
+
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { Parameters } from '../Document/Parameters';
 import { SourceDocument } from '../Document/SourceDocument';
-import './SourcePanel.scss';
 
 type SourcePanelProps = {
   isReadOnly?: boolean;

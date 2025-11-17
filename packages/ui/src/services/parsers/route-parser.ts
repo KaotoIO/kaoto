@@ -1,4 +1,3 @@
-import { CamelRouteVisualEntity } from '../../models';
 import {
   ErrorHandler,
   Intercept,
@@ -8,15 +7,17 @@ import {
   OnException,
   ProcessorDefinition,
 } from '@kaoto/camel-catalog/types';
-import { CommonParser } from './common-parser';
-import { CamelRouteConfigurationVisualEntity } from '../../models/visualization/flows/camel-route-configuration-visual-entity';
+
+import { CamelRouteVisualEntity } from '../../models';
+import { HeadingLevel, ParsedTable } from '../../models/documentation';
 import { CamelErrorHandlerVisualEntity } from '../../models/visualization/flows/camel-error-handler-visual-entity';
-import { CamelInterceptVisualEntity } from '../../models/visualization/flows/camel-intercept-visual-entity';
 import { CamelInterceptFromVisualEntity } from '../../models/visualization/flows/camel-intercept-from-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from '../../models/visualization/flows/camel-intercept-send-to-endpoint-visual-entity';
+import { CamelInterceptVisualEntity } from '../../models/visualization/flows/camel-intercept-visual-entity';
 import { CamelOnCompletionVisualEntity } from '../../models/visualization/flows/camel-on-completion-visual-entity';
 import { CamelOnExceptionVisualEntity } from '../../models/visualization/flows/camel-on-exception-visual-entity';
-import { HeadingLevel, ParsedTable } from '../../models/documentation';
+import { CamelRouteConfigurationVisualEntity } from '../../models/visualization/flows/camel-route-configuration-visual-entity';
+import { CommonParser } from './common-parser';
 
 type ObjectWithSteps = {
   id?: string;

@@ -1,8 +1,9 @@
 import { render } from '@testing-library/react';
+
 import { createVisualizationNode, IVisualizationNode } from '../../models';
-import { RenderingAnchor } from './RenderingAnchor';
 import { RenderingAnchorContext } from './rendering.provider';
 import { IRegisteredValidatedComponent, IRenderingAnchorContext } from './rendering.provider.model';
+import { RenderingAnchor } from './RenderingAnchor';
 
 describe('RenderingAnchor', () => {
   const anchorTag = 'example-anchor';

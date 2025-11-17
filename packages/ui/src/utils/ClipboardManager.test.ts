@@ -1,7 +1,7 @@
+import { SourceSchemaType } from '../models/camel/source-schema-type';
+import { IClipboardCopyObject } from '../models/visualization/clipboard';
 import { ClipboardManager } from './ClipboardManager';
 import { updateIds } from './update-ids';
-import { IClipboardCopyObject } from '../models/visualization/clipboard';
-import { SourceSchemaType } from '../models/camel/source-schema-type';
 
 // Mock the `updateIds` function
 jest.mock('./update-ids', () => ({

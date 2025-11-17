@@ -7,10 +7,11 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
+
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
-import { CustomNodeWithSelection } from '../Node/CustomNode';
 import { useCollapseStep } from '../hooks/collapse-step.hook';
+import { CustomNodeWithSelection } from '../Node/CustomNode';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 type IDefaultGroup = Parameters<typeof DefaultGroup>[0];

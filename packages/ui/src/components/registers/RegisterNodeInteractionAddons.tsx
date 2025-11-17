@@ -1,15 +1,16 @@
+import { ButtonVariant } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useContext, useRef } from 'react';
-import { datamapperActivationFn } from './datamapper.activationfn';
+
 import { MetadataContext } from '../../providers';
+import { onCopyDataMapper } from '../DataMapper/on-copy-datamapper';
 import {
   ACTION_ID_DELETE_STEP_AND_FILE,
   ACTION_ID_DELETE_STEP_ONLY,
   onDeleteDataMapper,
 } from '../DataMapper/on-delete-datamapper';
-import { onCopyDataMapper } from '../DataMapper/on-copy-datamapper';
 import { onDuplicateDataMapper } from '../DataMapper/on-duplicate-datamapper';
 import { onPasteDataMapper } from '../DataMapper/on-paste-data-mapper';
-import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
+import { datamapperActivationFn } from './datamapper.activationfn';
 import {
   IInteractionType,
   IOnCopyAddon,
@@ -18,7 +19,7 @@ import {
   IOnPasteAddon,
   IRegisteredInteractionAddon,
 } from './interactions/node-interaction-addon.model';
-import { ButtonVariant } from '@patternfly/react-core';
+import { NodeInteractionAddonContext } from './interactions/node-interaction-addon.provider';
 
 export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const metadataApi = useContext(MetadataContext);

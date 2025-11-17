@@ -1,8 +1,9 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { ExportDocument } from './ExportDocument';
-import { TestProvidersWrapper } from '../../../../stubs';
-import { EntityType } from '../../../../models/camel/entities';
+
 import { CamelResource, CamelRouteResource } from '../../../../models/camel';
+import { EntityType } from '../../../../models/camel/entities';
+import { TestProvidersWrapper } from '../../../../stubs';
+import { ExportDocument } from './ExportDocument';
 
 describe('FlowExportDocument.tsx', () => {
   let camelResource: CamelResource;

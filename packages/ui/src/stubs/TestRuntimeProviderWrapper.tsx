@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { IRuntimeContext, RuntimeContext } from '../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../utils';
 

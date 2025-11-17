@@ -1,14 +1,15 @@
 import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useToggle } from '../../hooks/useToggle';
-import { BaseDocument } from './BaseDocument';
-import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
-import { DeleteParameterButton } from './actions/DeleteParameterButton';
-import { RenameParameterButton } from './actions/RenameParameterButton';
 import { DocumentNodeData, IDocument } from '../../models/datamapper';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { TreeUIService } from '../../services/tree-ui.service';
+import { DeleteParameterButton } from './actions/DeleteParameterButton';
+import { RenameParameterButton } from './actions/RenameParameterButton';
+import { BaseDocument } from './BaseDocument';
+import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNode } from './SourceDocumentNode';
 
 type EditableParameterTitleProps = {

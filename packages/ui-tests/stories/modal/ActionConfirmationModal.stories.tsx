@@ -1,11 +1,11 @@
 import {
-  ActionConfirmationModalContextProvider,
-  ActionConfirmationModalContext,
   ActionConfirmationButtonOption,
+  ActionConfirmationModalContext,
+  ActionConfirmationModalContextProvider,
 } from '@kaoto/kaoto/testing';
+import { ButtonVariant } from '@patternfly/react-core';
 import { Meta, StoryFn } from '@storybook/react';
 import { FunctionComponent, useContext, useState } from 'react';
-import { ButtonVariant } from '@patternfly/react-core';
 
 export default {
   title: 'Modal/ActionConfirmationModal',

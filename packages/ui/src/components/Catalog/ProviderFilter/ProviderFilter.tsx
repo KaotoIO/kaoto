@@ -1,7 +1,8 @@
+import './ProviderFilter.scss';
+
 import { Badge, Menu, MenuContent, MenuItem, MenuList, MenuToggle, Popper } from '@patternfly/react-core';
 import { FilterIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useRef, useState } from 'react';
-import './ProviderFilter.scss';
 
 interface ProviderFilterProps {
   providers: string[];

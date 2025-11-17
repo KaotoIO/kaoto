@@ -1,9 +1,10 @@
 import { act, fireEvent, render } from '@testing-library/react';
+
 import { KaotoSchemaDefinition } from '../../../../models';
-import { SourceSchemaType, sourceSchemaConfig, CamelRouteResource } from '../../../../models/camel';
+import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { XmlCamelResourceSerializer } from '../../../../serializers';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { IntegrationTypeSelector } from './IntegrationTypeSelector';
-import { XmlCamelResourceSerializer } from '../../../../serializers';
 
 describe('IntegrationTypeSelector.tsx', () => {
   const config = sourceSchemaConfig;

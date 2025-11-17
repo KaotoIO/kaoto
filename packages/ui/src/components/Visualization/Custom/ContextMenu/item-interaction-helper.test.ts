@@ -1,11 +1,8 @@
-import {
-  findOnDeleteModalCustomizationRecursively,
-  processOnCopyAddon,
-  processOnDeleteAddonRecursively,
-  processOnDuplicateAddonRecursively,
-  processOnPasteAddon,
-} from './item-interaction-helper';
+import { ButtonVariant } from '@patternfly/react-core';
+
 import { createVisualizationNode } from '../../../../models';
+import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { ACTION_ID_CONFIRM } from '../../../../providers';
 import {
   IInteractionType,
   IModalCustomization,
@@ -15,9 +12,13 @@ import {
   IOnPasteAddon,
   IRegisteredInteractionAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
-import { ACTION_ID_CONFIRM } from '../../../../providers';
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
-import { ButtonVariant } from '@patternfly/react-core';
+import {
+  findOnDeleteModalCustomizationRecursively,
+  processOnCopyAddon,
+  processOnDeleteAddonRecursively,
+  processOnDuplicateAddonRecursively,
+  processOnPasteAddon,
+} from './item-interaction-helper';
 
 describe('item-interaction-helper', () => {
   describe('processOnDeleteAddonRecursively', () => {

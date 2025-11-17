@@ -1,11 +1,13 @@
+import './ComponentMode.scss';
+
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useState } from 'react';
+
 import { useProcessorIcon } from '../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
 import { IVisualizationNode } from '../../models';
 import { CamelRouteVisualEntityData } from '../../models/visualization/flows/support/camel-component-types';
-import './ComponentMode.scss';
 
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const { updateSourceCodeFromEntities } = useEntityContext();

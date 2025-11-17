@@ -1,6 +1,6 @@
 import { DocumentTreeNode } from './document-tree-node';
-import { NodeData } from './visualization';
 import { NodePath } from './nodepath';
+import { NodeData } from './visualization';
 
 describe('DocumentTreeNode', () => {
   let mockNodeData: NodeData;

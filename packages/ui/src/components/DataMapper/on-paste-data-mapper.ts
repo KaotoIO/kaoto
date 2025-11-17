@@ -1,11 +1,12 @@
 import { Step } from '@kaoto/camel-catalog/types';
+
 import { IVisualizationNode } from '../../models';
+import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IClipboardCopyObject } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
-import { isDataMapperNode } from '../../utils/is-datamapper';
-import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { clearXsltUri, setXsltUri } from './datamapper-utils';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { isDataMapperNode } from '../../utils/is-datamapper';
+import { clearXsltUri, setXsltUri } from './datamapper-utils';
 
 type DataMapperNodeCollection = { idMap: Map<string, string>; updatedNodes: Map<string, Step> };
 

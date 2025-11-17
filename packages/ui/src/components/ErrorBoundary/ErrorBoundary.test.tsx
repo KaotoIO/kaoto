@@ -1,6 +1,7 @@
 import { act, fireEvent, render } from '@testing-library/react';
-import { ErrorBoundary } from './ErrorBoundary';
 import { useState } from 'react';
+
+import { ErrorBoundary } from './ErrorBoundary';
 
 describe('ErrorBoundary', () => {
   beforeAll(() => {

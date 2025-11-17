@@ -1,5 +1,5 @@
-import { XPathService } from './xpath.service';
 import { PathExpression, PredicateOperator } from '../../models/datamapper/xpath';
+import { XPathService } from './xpath.service';
 
 describe('XPathService / JSON', () => {
   describe('parse()', () => {

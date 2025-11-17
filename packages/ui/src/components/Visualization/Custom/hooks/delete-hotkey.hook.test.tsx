@@ -1,9 +1,10 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
+
+import { IVisualizationNode } from '../../../../models';
+import { useDeleteGroup } from './delete-group.hook';
 import useDeleteHotkey from './delete-hotkey.hook';
 import { useDeleteStep } from './delete-step.hook';
-import { useDeleteGroup } from './delete-group.hook';
-import { IVisualizationNode } from '../../../../models';
 
 // Mock hotkeys-js
 jest.mock('hotkeys-js', () => {

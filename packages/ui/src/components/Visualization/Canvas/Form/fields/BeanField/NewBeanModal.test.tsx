@@ -2,10 +2,10 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { resolveSchemaWithRef, SuggestionRegistryProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
-import { NewBeanModal, NewBeanModalProps } from './NewBeanModal';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
+import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
+import { NewBeanModal, NewBeanModalProps } from './NewBeanModal';
 
 describe('NewBeanModal', () => {
   let beanSchema: KaotoSchemaDefinition['schema'];

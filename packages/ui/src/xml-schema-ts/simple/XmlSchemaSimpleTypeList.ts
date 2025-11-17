@@ -1,6 +1,5 @@
 import type { QName } from '../QName';
 import type { XmlSchemaSimpleType } from './XmlSchemaSimpleType';
-
 import { XmlSchemaSimpleTypeContent } from './XmlSchemaSimpleTypeContent';
 
 export class XmlSchemaSimpleTypeList extends XmlSchemaSimpleTypeContent {

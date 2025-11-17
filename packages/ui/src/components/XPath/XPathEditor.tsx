@@ -1,9 +1,11 @@
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import './XPathEditor.scss';
-import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
-import { XPathService } from '../../services/xpath/xpath.service';
+
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
+
 import { ExpressionItem } from '../../models/datamapper';
+import { XPathService } from '../../services/xpath/xpath.service';
+import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
 
 type XPathEditorProps = {
   mapping: ExpressionItem;

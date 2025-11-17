@@ -2,6 +2,7 @@ import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@
 import { Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import settingsSchema from '../../assets/settingsSchema.json';
 import { useReloadContext } from '../../hooks/useReloadContext/useReloadContext';
 import { KaotoSchemaDefinition } from '../../models';

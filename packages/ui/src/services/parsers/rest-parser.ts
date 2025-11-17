@@ -1,7 +1,8 @@
+import { Delete, Get, Head, Patch, Post, Put } from '@kaoto/camel-catalog/types';
+
+import { ParsedTable } from '../../models/documentation';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
-import { ParsedTable } from '../../models/documentation';
-import { Delete, Get, Head, Patch, Post, Put } from '@kaoto/camel-catalog/types';
 import { CommonParser } from './common-parser';
 
 export class RestParser {

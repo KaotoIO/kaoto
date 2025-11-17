@@ -1,2 +1,2 @@
-export * from './router-exports';
 export * from './PipeErrorHandlerPage';
+export * from './router-exports';

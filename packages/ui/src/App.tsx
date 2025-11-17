@@ -2,11 +2,12 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { useLayoutEffect, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
-import { RenderingProvider } from './components/RenderingAnchor/rendering.provider';
-import { ControllerService } from './components/Visualization/Canvas/controller.service';
+
+import { NodeInteractionAddonProvider } from './components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from './components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from './components/registers/RegisterNodeInteractionAddons';
-import { NodeInteractionAddonProvider } from './components/registers/interactions/node-interaction-addon.provider';
+import { RenderingProvider } from './components/RenderingAnchor/rendering.provider';
+import { ControllerService } from './components/Visualization/Canvas/controller.service';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {

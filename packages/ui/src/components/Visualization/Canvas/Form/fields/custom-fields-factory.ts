@@ -1,4 +1,5 @@
 import { CustomFieldsFactory, EnumField } from '@kaoto/forms';
+
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 

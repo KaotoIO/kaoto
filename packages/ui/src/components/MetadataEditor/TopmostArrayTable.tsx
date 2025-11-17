@@ -1,3 +1,5 @@
+import './MetadataEditor.scss';
+
 import { Button, EmptyState, EmptyStateBody, Truncate } from '@patternfly/react-core';
 import { PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
 import {
@@ -11,7 +13,6 @@ import {
   Thead,
   Tr,
 } from '@patternfly/react-table';
-import './MetadataEditor.scss';
 
 type TopmostArrayTableProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

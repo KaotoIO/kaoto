@@ -1,3 +1,5 @@
+import './StepToolbar.scss';
+
 import { Button } from '@patternfly/react-core';
 import {
   BanIcon,
@@ -12,15 +14,15 @@ import {
 } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
+
 import { AddStepMode, IDataTestID, IVisualizationNode } from '../../../../models';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';
 import { useDeleteStep } from '../../Custom/hooks/delete-step.hook';
 import { useDisableStep } from '../../Custom/hooks/disable-step.hook';
+import { useDuplicateStep } from '../../Custom/hooks/duplicate-step.hook';
 import { useEnableAllSteps } from '../../Custom/hooks/enable-all-steps.hook';
 import { useInsertStep } from '../../Custom/hooks/insert-step.hook';
 import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
-import './StepToolbar.scss';
-import { useDuplicateStep } from '../../Custom/hooks/duplicate-step.hook';
 
 interface IStepToolbar extends IDataTestID {
   vizNode: IVisualizationNode;

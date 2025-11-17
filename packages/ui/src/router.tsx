@@ -1,8 +1,9 @@
 import { createHashRouter } from 'react-router-dom';
+
 import App from './App';
 import { ErrorPage } from './pages/ErrorPage';
-import { Links } from './router/links.models';
 import { ReloadProvider } from './providers';
+import { Links } from './router/links.models';
 
 export const router = createHashRouter([
   {

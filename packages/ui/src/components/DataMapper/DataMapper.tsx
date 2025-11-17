@@ -14,15 +14,16 @@
     limitations under the License.
 */
 import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
+import { Loading } from '../../components/Loading';
+import { IVisualizationNode } from '../../models';
+import { DocumentDefinition, DocumentInitializationModel, DocumentType } from '../../models/datamapper/document';
+import { IDataMapperMetadata } from '../../models/datamapper/metadata';
+import { EntitiesContext, MetadataContext } from '../../providers';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { DocumentDefinition, DocumentInitializationModel, DocumentType } from '../../models/datamapper/document';
-import { IVisualizationNode } from '../../models';
-import { EntitiesContext, MetadataContext } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { Loading } from '../../components/Loading';
 
 export interface IDataMapperProps {
   vizNode?: IVisualizationNode;

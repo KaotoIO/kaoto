@@ -1,13 +1,14 @@
 import {
+  createContext,
   FunctionComponent,
   PropsWithChildren,
-  createContext,
   useCallback,
   useContext,
   useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
+
 import { BaseVisualCamelEntity } from '../models';
 import { CamelResource, SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';

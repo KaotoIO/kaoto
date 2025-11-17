@@ -1,5 +1,6 @@
-import { ParsedStep } from '../../models/documentation';
 import { FromDefinition, ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
+
+import { ParsedStep } from '../../models/documentation';
 import { isDataMapperNode, XSLT_COMPONENT_NAME } from '../../utils';
 
 type ComponentDefinition = {

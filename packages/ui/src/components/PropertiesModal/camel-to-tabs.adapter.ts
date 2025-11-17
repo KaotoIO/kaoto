@@ -1,10 +1,10 @@
 import { ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
 import { isDefined } from '../../utils';
 import {
-  IPropertiesTableFilter,
   camelComponentApisToTable,
   camelComponentPropertiesToTable,
   camelProcessorPropertiesToTable,
+  IPropertiesTableFilter,
   kameletToPropertiesTable,
 } from './camel-to-table.adapter';
 import { IPropertiesTab, IPropertiesTable } from './PropertiesModal.models';

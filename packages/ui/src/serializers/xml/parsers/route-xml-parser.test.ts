@@ -15,11 +15,12 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { RouteXmlParser } from './route-xml-parser';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { KaotoXmlParser } from '../kaoto-xml-parser';
+import { RouteXmlParser } from './route-xml-parser';
 
 export const getElementFromXml = (xml: string): Element => {
   const parser = new DOMParser();

@@ -1,7 +1,9 @@
+import './generateEntityContextMenu.scss';
+
 import { ContextMenuItem, ContextSubMenuItem } from '@patternfly/react-topology';
 import React from 'react';
+
 import { CanvasEntities } from '../../../../hooks/useCanvasEntities';
-import './generateEntityContextMenu.scss';
 
 export const generateEntityContextMenu = (entityData: CanvasEntities) => {
   const { commonEntities, groupedEntities, createEntity } = entityData;

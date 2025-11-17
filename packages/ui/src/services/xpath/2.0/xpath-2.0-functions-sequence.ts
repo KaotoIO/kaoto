@@ -1,5 +1,5 @@
-import { Types } from '../../../models/datamapper/types';
 import { IFunctionDefinition } from '../../../models/datamapper/mapping';
+import { Types } from '../../../models/datamapper/types';
 
 /**
  * 15 Sequence - https://www.w3.org/TR/2010/REC-xpath-functions-20101214/#sequence-functions

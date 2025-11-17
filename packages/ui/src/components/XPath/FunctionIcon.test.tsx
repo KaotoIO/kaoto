@@ -1,5 +1,6 @@
-import { FunctionIcon } from './FunctionIcon';
 import { render, screen } from '@testing-library/react';
+
+import { FunctionIcon } from './FunctionIcon';
 
 describe('FunctionIcon', () => {
   it('should render', () => {

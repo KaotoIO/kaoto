@@ -1,5 +1,6 @@
 import { fireEvent } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
+
 import { InlineEdit } from './InlineEdit';
 import { minLengthValidator } from './min-length-validator';
 

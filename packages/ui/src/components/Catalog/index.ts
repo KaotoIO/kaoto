@@ -1,5 +1,5 @@
 export * from './Catalog';
-export * from './CatalogLayoutIcon';
 export * from './Catalog.models';
+export * from './CatalogLayoutIcon';
 export * from './DataListItem';
 export * from './Tile';

@@ -1,4 +1,5 @@
 import { FunctionComponent, useEffect } from 'react';
+
 import { useCanvas } from '../../../hooks/useCanvas';
 
 export const CanvasMonitor: FunctionComponent = () => {

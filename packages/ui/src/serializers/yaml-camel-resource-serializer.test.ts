@@ -1,7 +1,8 @@
-import { YamlCamelResourceSerializer } from './yaml-camel-resource-serializer';
-import { camelRouteJson, camelRouteYaml } from '../stubs';
-import { CamelRouteResource } from '../models/camel';
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
+
+import { CamelRouteResource } from '../models/camel';
+import { camelRouteJson, camelRouteYaml } from '../stubs';
+import { YamlCamelResourceSerializer } from './yaml-camel-resource-serializer';
 
 describe('YamlCamelResourceSerializer', () => {
   let serializer: YamlCamelResourceSerializer;

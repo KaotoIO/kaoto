@@ -1,7 +1,9 @@
+import './ExportDocument.scss';
+
 import { Button } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useState } from 'react';
-import './ExportDocument.scss';
+
 import { ExportDocumentPreviewModal } from './ExportDocumentPreviewModal';
 
 export const ExportDocument: FunctionComponent = () => {

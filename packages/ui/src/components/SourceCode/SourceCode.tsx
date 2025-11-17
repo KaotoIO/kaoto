@@ -1,15 +1,17 @@
+import './SourceCode.scss';
+import './workers/enable-workers';
+
 import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-editor';
 import { configureMonacoYaml, JSONSchema } from 'monaco-yaml';
 import { FunctionComponent, MutableRefObject, Ref, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { EditorDidMount } from 'react-monaco-editor';
+
 import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
 import { isXML } from '../../serializers/xml/kaoto-xml-parser';
 import { isDarkModeEnabled } from '../../utils/color-scheme';
 import { RedoButton } from './RedoButton';
-import './SourceCode.scss';
 import { UndoButton } from './UndoButton';
-import './workers/enable-workers';
 
 interface SourceCodeProps {
   code: string;

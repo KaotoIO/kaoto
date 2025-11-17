@@ -1,24 +1,23 @@
 import type { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
 import type { XmlSchemaAttributeGroup } from './attribute/XmlSchemaAttributeGroup';
-import type { XmlSchemaCollection } from './XmlSchemaCollection';
-import type { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { URI_2001_SCHEMA_XSD } from './constants';
 import type { XmlSchemaExternal } from './external/XmlSchemaExternal';
+import { XmlSchemaImport } from './external/XmlSchemaImport';
+import { XmlSchemaInclude } from './external/XmlSchemaInclude';
+import type { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { QName } from './QName';
+import { SchemaKey } from './SchemaKey';
+import type { NamespaceContextOwner } from './utils/NamespaceContextOwner';
+import type { NamespacePrefixList } from './utils/NamespacePrefixList';
+import { QNameMap } from './utils/ObjectMap';
+import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
+import type { XmlSchemaCollection } from './XmlSchemaCollection';
+import { XmlSchemaDerivationMethod } from './XmlSchemaDerivationMethod';
+import { XmlSchemaForm } from './XmlSchemaForm';
 import type { XmlSchemaGroup } from './XmlSchemaGroup';
 import type { XmlSchemaNotation } from './XmlSchemaNotation';
 import type { XmlSchemaObject } from './XmlSchemaObject';
 import type { XmlSchemaType } from './XmlSchemaType';
-import type { NamespaceContextOwner } from './utils/NamespaceContextOwner';
-import type { NamespacePrefixList } from './utils/NamespacePrefixList';
-
-import { QName } from './QName';
-import { SchemaKey } from './SchemaKey';
-import { URI_2001_SCHEMA_XSD } from './constants';
-import { XmlSchemaAnnotated } from './XmlSchemaAnnotated';
-import { XmlSchemaDerivationMethod } from './XmlSchemaDerivationMethod';
-import { XmlSchemaForm } from './XmlSchemaForm';
-import { XmlSchemaImport } from './external/XmlSchemaImport';
-import { XmlSchemaInclude } from './external/XmlSchemaInclude';
-import { QNameMap } from './utils/ObjectMap';
 
 export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwner {
   static readonly SCHEMA_NS = URI_2001_SCHEMA_XSD;

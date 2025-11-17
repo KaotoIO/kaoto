@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { TargetPanel } from './TargetPanel';
 
 describe('TargetPanel', () => {

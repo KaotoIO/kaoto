@@ -1,9 +1,10 @@
 import { render } from '@testing-library/react';
 import { ReactNode } from 'react';
+
 import { IMetadataApi, MetadataContext } from '../../../../../providers';
-import { SuggestionRegistrar } from './SuggestionsProvider';
-import { sqlSyntaxSuggestionProvider } from './suggestions/sql.suggestions';
 import { getPropertiesSuggestionProvider } from './suggestions/properties.suggestions';
+import { sqlSyntaxSuggestionProvider } from './suggestions/sql.suggestions';
+import { SuggestionRegistrar } from './SuggestionsProvider';
 
 // Mocks
 const registerProvider = jest.fn();

@@ -1,6 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { ArrowRightIcon, BoltIcon, DataSourceIcon, SyncAltIcon } from '@patternfly/react-icons';
 import { renderHook } from '@testing-library/react';
+
 import { CamelCatalogService, ComponentsCatalogTypes } from '../models';
 import { useProcessorIcon } from './processor-icon.hook';
 

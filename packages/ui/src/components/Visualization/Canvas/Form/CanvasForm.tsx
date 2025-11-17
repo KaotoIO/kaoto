@@ -1,11 +1,13 @@
+import './CanvasForm.scss';
+
 import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'react';
+
 import { VisibleFlowsContext } from '../../../../providers';
 import { ErrorBoundary } from '../../../ErrorBoundary';
 import { Anchors } from '../../../registers/anchors';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasNode } from '../canvas.models';
-import './CanvasForm.scss';
 import { CanvasFormBody } from './CanvasFormBody';
 import { CanvasFormHeader } from './CanvasFormHeader';
 

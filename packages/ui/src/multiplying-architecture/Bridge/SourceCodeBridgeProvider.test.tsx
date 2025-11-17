@@ -1,9 +1,10 @@
 import { act, render } from '@testing-library/react';
 import { FunctionComponent, useRef } from 'react';
+
 import { SourceCodeApiContext } from '../../providers';
 import { EventNotifier } from '../../utils/event-notifier';
-import { SourceCodeBridgeProvider } from './SourceCodeBridgeProvider';
 import { SourceCodeBridgeProviderRef } from './editor-api';
+import { SourceCodeBridgeProvider } from './SourceCodeBridgeProvider';
 
 describe('SourceCodeBridgeProvider', () => {
   const mockCamelRoute = `

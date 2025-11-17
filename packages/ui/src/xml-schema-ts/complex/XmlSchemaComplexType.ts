@@ -1,12 +1,11 @@
+import type { XmlSchemaAttributeOrGroupRef } from '../attribute/XmlSchemaAttributeOrGroupRef';
+import type { XmlSchemaParticle } from '../particle/XmlSchemaParticle';
 import type { XmlSchema } from '../XmlSchema';
 import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
-import type { XmlSchemaAttributeOrGroupRef } from '../attribute/XmlSchemaAttributeOrGroupRef';
 import type { XmlSchemaContentModel } from '../XmlSchemaContentModel';
 import type { XmlSchemaContentType } from '../XmlSchemaContentType';
-import type { XmlSchemaParticle } from '../particle/XmlSchemaParticle';
-
-import { XmlSchemaType } from '../XmlSchemaType';
 import { XmlSchemaDerivationMethod } from '../XmlSchemaDerivationMethod';
+import { XmlSchemaType } from '../XmlSchemaType';
 import { XmlSchemaComplexContentExtension } from './XmlSchemaComplexContentExtension';
 import { XmlSchemaComplexContentRestriction } from './XmlSchemaComplexContentRestriction';
 

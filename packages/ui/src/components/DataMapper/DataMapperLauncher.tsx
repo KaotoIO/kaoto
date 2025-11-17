@@ -13,6 +13,8 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import './DataMapperLauncher.scss';
+
 import {
   Alert,
   Button,
@@ -27,13 +29,13 @@ import {
 import { HelpIcon, WrenchIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { IVisualizationNode } from '../../models';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { isDefined, isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
-import './DataMapperLauncher.scss';
 
 export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const navigate = useNavigate();

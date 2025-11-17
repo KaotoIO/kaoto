@@ -1,4 +1,5 @@
 import { Pair, parse, stringify } from 'yaml';
+
 import { CamelRouteResource } from '../models/camel';
 import { CamelKResource } from '../models/camel/camel-k-resource';
 import { createCamelPropertiesSorter } from './create-camel-properties-sorter';

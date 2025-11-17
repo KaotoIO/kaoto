@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+
 import { EntitiesContext } from '../../providers/entities.provider';
 
 export const errorMessage = 'useEntityContext should be called into EntitiesProvider';

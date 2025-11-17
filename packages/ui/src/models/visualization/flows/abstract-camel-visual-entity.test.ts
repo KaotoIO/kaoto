@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';

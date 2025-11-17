@@ -1,11 +1,11 @@
 import { XPathService } from '../xpath.service';
 import {
-  XPathNodeType,
+  FunctionCallNode,
+  LiteralNode,
+  NameTestNode,
   PathExprNode,
   StepExprNode,
-  NameTestNode,
-  LiteralNode,
-  FunctionCallNode,
+  XPathNodeType,
 } from './xpath-syntaxtree-model';
 import { XPathUtil } from './xpath-syntaxtree-util';
 

@@ -1,4 +1,5 @@
 import { Suggestion, SuggestionProvider } from '@kaoto/forms';
+
 import { IMetadataApi } from '../../../../../../providers';
 
 export const getPropertiesSuggestionProvider = (metadata?: IMetadataApi['getSuggestions']): SuggestionProvider => {

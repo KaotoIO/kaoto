@@ -1,8 +1,9 @@
 import { OnCompletion } from '@kaoto/camel-catalog/types';
+
+import { mockRandomValues } from '../../../stubs';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
-import { mockRandomValues } from '../../../stubs';
 
 describe('CamelOnCompletionVisualEntity', () => {
   beforeAll(() => {

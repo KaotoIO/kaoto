@@ -10,6 +10,7 @@ import {
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
+
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { isDefined } from '../../../../../../utils';
 import { SuggestionRegistrar } from '../../suggestions/SuggestionsProvider';

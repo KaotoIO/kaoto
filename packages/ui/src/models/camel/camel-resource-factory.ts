@@ -1,4 +1,5 @@
 import { CamelYamlDsl, Integration, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
+
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { CamelKResourceFactory } from './camel-k-resource-factory';

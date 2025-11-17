@@ -1,13 +1,13 @@
-import { XmlSchemaFacet } from './XmlSchemaFacet';
 import { XmlSchemaEnumerationFacet } from './XmlSchemaEnumerationFacet';
+import { XmlSchemaFacet } from './XmlSchemaFacet';
 import { XmlSchemaFractionDigitsFacet } from './XmlSchemaFractionDigitsFacet';
 import { XmlSchemaLengthFacet } from './XmlSchemaLengthFacet';
 import { XmlSchemaMaxExclusiveFacet } from './XmlSchemaMaxExclusiveFacet';
 import { XmlSchemaMaxInclusiveFacet } from './XmlSchemaMaxInclusiveFacet';
 import { XmlSchemaMaxLengthFacet } from './XmlSchemaMaxLengthFacet';
-import { XmlSchemaMinLengthFacet } from './XmlSchemaMinLengthFacet';
 import { XmlSchemaMinExclusiveFacet } from './XmlSchemaMinExclusiveFacet';
 import { XmlSchemaMinInclusiveFacet } from './XmlSchemaMinInclusiveFacet';
+import { XmlSchemaMinLengthFacet } from './XmlSchemaMinLengthFacet';
 import { XmlSchemaPatternFacet } from './XmlSchemaPatternFacet';
 import { XmlSchemaTotalDigitsFacet } from './XmlSchemaTotalDigitsFacet';
 import { XmlSchemaWhiteSpaceFacet } from './XmlSchemaWhiteSpaceFacet';

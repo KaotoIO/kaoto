@@ -1,12 +1,12 @@
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { useToggle } from '../../../hooks/useToggle';
-import { MappingService } from '../../../services/mapping.service';
 
 import { useCanvas } from '../../../hooks/useCanvas';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { useToggle } from '../../../hooks/useToggle';
 import { DocumentType } from '../../../models/datamapper/document';
+import { MappingService } from '../../../services/mapping.service';
 
 type DeleteParameterProps = {
   parameterName: string;

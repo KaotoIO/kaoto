@@ -1,9 +1,9 @@
-import { Types } from './types';
-import { NodePath } from './nodepath';
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
-import { Predicate } from './xpath';
-import { XmlSchemaParticle } from '../../xml-schema-ts/particle/XmlSchemaParticle';
 import { MaxOccursType } from '../../xml-schema-ts/constants';
+import { XmlSchemaParticle } from '../../xml-schema-ts/particle/XmlSchemaParticle';
+import { NodePath } from './nodepath';
+import { Types } from './types';
+import { Predicate } from './xpath';
 
 export const DEFAULT_MIN_OCCURS = XmlSchemaParticle.DEFAULT_MIN_OCCURS;
 export const DEFAULT_MAX_OCCURS = XmlSchemaParticle.DEFAULT_MAX_OCCURS;

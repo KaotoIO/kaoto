@@ -15,8 +15,9 @@
  */
 
 import { Param, ResponseMessage, Rest, RestSecurity, SecurityDefinitions } from '@kaoto/camel-catalog/types';
-import { extractAttributesFromXmlElement } from '../utils/xml-utils';
+
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 import { RouteXmlParser } from './route-xml-parser';
 import { StepParser } from './step-parser';
 

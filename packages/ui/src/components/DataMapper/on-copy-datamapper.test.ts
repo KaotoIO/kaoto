@@ -1,7 +1,7 @@
-import { onCopyDataMapper } from './on-copy-datamapper';
 import { IVisualizationNode } from '../../models';
 import { SourceSchemaType } from '../../models/camel/source-schema-type';
 import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { onCopyDataMapper } from './on-copy-datamapper';
 
 describe('onCopyDataMapper', () => {
   let mockVizNode: jest.Mocked<IVisualizationNode>;

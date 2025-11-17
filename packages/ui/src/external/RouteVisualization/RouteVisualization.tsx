@@ -1,5 +1,6 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import React, { useContext, useEffect, useLayoutEffect, useMemo } from 'react';
+
 import { Visualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import {

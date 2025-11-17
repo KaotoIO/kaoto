@@ -1,5 +1,5 @@
-import { XmlSchemaAnnotated } from '../XmlSchemaAnnotated';
 import { MaxOccursType } from '../constants';
+import { XmlSchemaAnnotated } from '../XmlSchemaAnnotated';
 
 export abstract class XmlSchemaParticle extends XmlSchemaAnnotated {
   static readonly DEFAULT_MAX_OCCURS = 1;

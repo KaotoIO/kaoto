@@ -1,6 +1,7 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+
 import { KaotoSchemaDefinition } from '../../../../../models';
-import { SourceSchemaType, sourceSchemaConfig } from '../../../../../models/camel';
+import { sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
 import { TestProvidersWrapper } from '../../../../../stubs';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle';
 

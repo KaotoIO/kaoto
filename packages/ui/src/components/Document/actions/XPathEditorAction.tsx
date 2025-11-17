@@ -1,10 +1,11 @@
-import { TargetNodeData } from '../../../models/datamapper/visualization';
-import { ExpressionItem } from '../../../models/datamapper/mapping';
-import { FunctionComponent, useCallback, useState } from 'react';
 import { ActionListItem, Button } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
-import { XPathEditorModal } from '../../XPath/XPathEditorModal';
+import { FunctionComponent, useCallback, useState } from 'react';
+
 import { useCanvas } from '../../../hooks/useCanvas';
+import { ExpressionItem } from '../../../models/datamapper/mapping';
+import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { XPathEditorModal } from '../../XPath/XPathEditorModal';
 
 type XPathEditorProps = {
   nodeData: TargetNodeData;

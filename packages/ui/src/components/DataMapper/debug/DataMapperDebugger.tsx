@@ -1,8 +1,9 @@
 import { FunctionComponent } from 'react';
+
+import { DocumentDefinition, DocumentInitializationModel } from '../../../models/datamapper';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DebugLayout } from './DebugLayout';
-import { DocumentDefinition, DocumentInitializationModel } from '../../../models/datamapper';
 
 type DataMapperDebuggerProps = {
   documentInitializationModel?: DocumentInitializationModel;

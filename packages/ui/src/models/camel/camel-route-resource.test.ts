@@ -1,4 +1,5 @@
 import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';

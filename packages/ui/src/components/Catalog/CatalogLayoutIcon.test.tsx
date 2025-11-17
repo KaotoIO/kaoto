@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+
 import { CatalogLayout } from './Catalog.models';
 import { CatalogLayoutIcon } from './CatalogLayoutIcon';
 

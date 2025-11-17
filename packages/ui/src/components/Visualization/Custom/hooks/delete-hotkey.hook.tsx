@@ -1,8 +1,9 @@
-import { useCallback, useEffect } from 'react';
 import hotkeys from 'hotkeys-js';
-import { useDeleteStep } from './delete-step.hook';
+import { useCallback, useEffect } from 'react';
+
 import { IVisualizationNode } from '../../../../models';
 import { useDeleteGroup } from './delete-group.hook';
+import { useDeleteStep } from './delete-step.hook';
 
 export default function useDeleteHotkey(selectedVizNode: IVisualizationNode | undefined, clearSelected: () => void) {
   const { onDeleteStep } = useDeleteStep(selectedVizNode);

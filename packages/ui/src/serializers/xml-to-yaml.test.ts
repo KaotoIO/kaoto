@@ -1,11 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService, CatalogKind } from '../models';
 import fs from 'fs';
 import path from 'path';
-import { YamlCamelResourceSerializer } from './yaml-camel-resource-serializer';
+
+import { CamelCatalogService, CatalogKind } from '../models';
+import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { KaotoXmlParser } from './xml/kaoto-xml-parser';
+import { YamlCamelResourceSerializer } from './yaml-camel-resource-serializer';
 
 describe('XmlParser - XML to YAML comparison', () => {
   let parser: KaotoXmlParser;

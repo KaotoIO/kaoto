@@ -1,7 +1,7 @@
-import { BeansParser } from './beans-parser';
-import { beansWithParamsYaml, beansYaml } from '../../stubs/beans';
-import { BeansEntity } from '../../models/visualization/metadata';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
+import { BeansEntity } from '../../models/visualization/metadata';
+import { beansWithParamsYaml, beansYaml } from '../../stubs/beans';
+import { BeansParser } from './beans-parser';
 
 describe('BeansParser', () => {
   describe('parseBeansEntity()', () => {

@@ -1,4 +1,5 @@
 import { Step } from '@kaoto/camel-catalog/types';
+
 import {
   datamapperRouteDefinitionStub,
   twoDataMapperRouteDefinitionStub,

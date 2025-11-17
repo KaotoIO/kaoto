@@ -10,8 +10,9 @@ import {
 } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
-import { RefObject, createRef } from 'react';
+import { createRef, RefObject } from 'react';
 import { RouterProvider } from 'react-router-dom';
+
 import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter } from '../models/settings';
 import { CatalogLoaderProvider } from '../providers/catalog.provider';

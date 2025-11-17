@@ -1,6 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
-import { ItemDeleteStep } from './ItemDeleteStep';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
@@ -11,6 +11,7 @@ import {
   IRegisteredInteractionAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { ItemDeleteStep } from './ItemDeleteStep';
 
 describe('ItemDeleteStep', () => {
   let vizNode: IVisualizationNode;

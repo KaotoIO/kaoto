@@ -1,4 +1,5 @@
 import { ProcessorDefinition, Step, To } from '@kaoto/camel-catalog/types';
+
 import { XSLT_COMPONENT_NAME } from '../../utils';
 
 /**

@@ -1,11 +1,13 @@
+import './MappingLink.scss';
+
 import { curveMonotoneX } from '@visx/curve';
 import { Circle, LinePath } from '@visx/shape';
 import clsx from 'clsx';
 import { FunctionComponent, useCallback, useState } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
-import './MappingLink.scss';
 
 const getY = (d: number[]) => d[1];
 const getX = (d: number[]) => d[0];

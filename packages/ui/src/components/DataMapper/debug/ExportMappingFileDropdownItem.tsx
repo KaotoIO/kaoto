@@ -1,11 +1,12 @@
-import { Button, DropdownItem, Modal, ModalFooter, ModalHeader } from '@patternfly/react-core';
-import { CodeEditor, Language } from '@patternfly/react-code-editor';
-import { FunctionComponent, useCallback, useMemo, useState } from 'react';
-import { ExportIcon } from '@patternfly/react-icons';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
-import { useDataMapper } from '../../../hooks/useDataMapper';
 import { Monaco } from '@monaco-editor/react';
+import { CodeEditor, Language } from '@patternfly/react-code-editor';
+import { Button, DropdownItem, Modal, ModalFooter, ModalHeader } from '@patternfly/react-core';
+import { ExportIcon } from '@patternfly/react-icons';
 import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
+import { FunctionComponent, useCallback, useMemo, useState } from 'react';
+
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { MappingSerializerService } from '../../../services/mapping-serializer.service';
 import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
 
 export const ExportMappingFileDropdownItem: FunctionComponent<{

@@ -15,14 +15,15 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService, CatalogKind } from '../../../models';
-import { getDocument, testSerializerWithObjectComparison, testSerializer } from './serializer-test-utils';
-import { RestXmlSerializer } from './rest-xml-serializer';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import { CamelCatalogService, CatalogKind } from '../../../models';
 import { restWithVerbsStup } from '../../../stubs/rest';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { RestXmlSerializer } from './rest-xml-serializer';
+import { getDocument, testSerializer, testSerializerWithObjectComparison } from './serializer-test-utils';
 
 describe('RestXmlParser tests with latest catalog', () => {
   const doc = getDocument();

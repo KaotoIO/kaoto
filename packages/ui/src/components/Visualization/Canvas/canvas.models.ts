@@ -1,4 +1,5 @@
 import { EdgeModel, NodeModel } from '@patternfly/react-topology';
+
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 
 export const enum LayoutType {

@@ -1,10 +1,11 @@
+import './EntitiesMenu.scss';
+
 import { Badge, Icon, MenuToggle, MenuToggleAction, MenuToggleElement, Select } from '@patternfly/react-core';
 import { ListIcon } from '@patternfly/react-icons';
 import { FunctionComponent, Ref, useState } from 'react';
 
-import { EntitiesList } from './EntitiesList';
 import { DocumentationEntity } from '../../../../models/documentation';
-import './EntitiesMenu.scss';
+import { EntitiesList } from './EntitiesList';
 
 type IEntitiesMenu = {
   documentationEntities: DocumentationEntity[];

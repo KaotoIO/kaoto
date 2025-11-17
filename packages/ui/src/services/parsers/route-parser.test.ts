@@ -6,6 +6,7 @@ import {
   OnCompletion,
   OnException,
 } from '@kaoto/camel-catalog/types';
+
 import { CamelRouteVisualEntity } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
 import { ParsedTable } from '../../models/documentation';

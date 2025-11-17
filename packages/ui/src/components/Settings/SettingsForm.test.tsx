@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';
 import { SettingsForm } from './SettingsForm';
-import { MemoryRouter } from 'react-router-dom';
 
 describe('SettingsForm', () => {
   let reloadPage: jest.Mock;

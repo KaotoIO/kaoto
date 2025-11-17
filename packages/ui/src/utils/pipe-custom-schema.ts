@@ -1,4 +1,5 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
+
 import { getValue } from './get-value';
 import { setValue } from './set-value';
 

@@ -1,3 +1,17 @@
+import { getCamelRandomId } from '../camel-utils/camel-random-id';
+import {
+  BaseDocument,
+  BaseField,
+  DocumentDefinitionType,
+  DocumentType,
+  IField,
+  IParentType,
+  ITypeFragment,
+  RootElementOption,
+} from '../models/datamapper/document';
+import { NodePath } from '../models/datamapper/nodepath';
+import { Types } from '../models/datamapper/types';
+import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
   XmlSchema,
   XmlSchemaAll,
@@ -29,26 +43,12 @@ import {
   XmlSchemaType,
   XmlSchemaUse,
 } from '../xml-schema-ts';
-import {
-  BaseDocument,
-  BaseField,
-  DocumentType,
-  DocumentDefinitionType,
-  IField,
-  ITypeFragment,
-  IParentType,
-  RootElementOption,
-} from '../models/datamapper/document';
-import { Types } from '../models/datamapper/types';
-import { getCamelRandomId } from '../camel-utils/camel-random-id';
-import { NodePath } from '../models/datamapper/nodepath';
-import { DocumentUtilService } from './document-util.service';
 import { QName } from '../xml-schema-ts/QName';
-import { capitalize } from '../serializers/xml/utils/xml-utils';
-import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
-import { XmlSchemaSimpleTypeList } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeList';
-import { XmlSchemaSimpleTypeUnion } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeUnion';
 import { XmlSchemaSimpleTypeContent } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeContent';
+import { XmlSchemaSimpleTypeList } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeList';
+import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
+import { XmlSchemaSimpleTypeUnion } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeUnion';
+import { DocumentUtilService } from './document-util.service';
 
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];

@@ -1,8 +1,9 @@
+import './CanvasFormHeader.scss';
+
 import { CanvasFormTabsContext, FilteredFieldContext, FormTabsModes } from '@kaoto/forms';
 import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext } from 'react';
-import './CanvasFormHeader.scss';
 
 interface CanvasFormHeaderProps {
   nodeId: string;

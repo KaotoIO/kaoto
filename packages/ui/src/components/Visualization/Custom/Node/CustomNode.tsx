@@ -1,3 +1,5 @@
+import './CustomNode.scss';
+
 import { Icon } from '@patternfly/react-core';
 import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
@@ -28,12 +30,15 @@ import {
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
@@ -42,10 +47,7 @@ import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { TargetAnchor } from '../target-anchor';
-import './CustomNode.scss';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 

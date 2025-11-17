@@ -1,5 +1,6 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
+
 import { CamelRouteVisualEntity } from '../models';
 
 /**

@@ -1,5 +1,6 @@
 import { setValue } from '@kaoto/forms';
 import { useCallback, useContext, useMemo } from 'react';
+
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 

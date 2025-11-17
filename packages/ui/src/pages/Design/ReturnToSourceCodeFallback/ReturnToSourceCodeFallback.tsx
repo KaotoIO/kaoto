@@ -7,8 +7,9 @@ import {
   EmptyStateFooter,
 } from '@patternfly/react-core';
 import { ArrowLeftIcon, EyeSlashIcon } from '@patternfly/react-icons';
-import { Links } from '../../../router/links.models';
+
 import { useComponentLink } from '../../../hooks/ComponentLink';
+import { Links } from '../../../router/links.models';
 
 export const ReturnToSourceCodeFallback = () => {
   const backLink = useComponentLink(Links.SourceCode);

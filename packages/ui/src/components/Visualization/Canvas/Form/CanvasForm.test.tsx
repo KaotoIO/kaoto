@@ -3,6 +3,7 @@ import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, CanvasFormTabsProvider, SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import {
   CamelCatalogService,
   CamelRouteVisualEntity,

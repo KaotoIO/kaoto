@@ -1,10 +1,11 @@
 import { DagreGroupsLayout, ModelKind, Visualization } from '@patternfly/react-topology';
+
 import { CustomGroupWithSelection } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
+import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
-import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
 
 describe('ControllerService', () => {
   it('should not enable setFitToScreenOnLayout when creating the controller', () => {

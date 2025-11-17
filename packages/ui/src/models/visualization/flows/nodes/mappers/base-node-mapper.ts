@@ -1,4 +1,5 @@
 import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
+
 import { getValue } from '../../../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
 import { IVisualizationNode } from '../../../base-visual-entity';

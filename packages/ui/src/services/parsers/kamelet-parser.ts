@@ -1,8 +1,9 @@
+import { FromDefinition } from '@kaoto/camel-catalog/types';
+
 import { IKameletDataShape, IKameletSpecDefinition, KameletVisualEntity } from '../../models';
 import { HeadingLevel, ParsedTable } from '../../models/documentation';
 import { CommonParser } from './common-parser';
 import { RouteParser } from './route-parser';
-import { FromDefinition } from '@kaoto/camel-catalog/types';
 
 export class KameletParser {
   static parseKameletEntity(entity: KameletVisualEntity): ParsedTable[] {

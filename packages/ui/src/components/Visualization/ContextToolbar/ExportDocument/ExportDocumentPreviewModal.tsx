@@ -3,9 +3,9 @@ import {
   Button,
   Form,
   FormGroup,
+  Modal,
   ModalBody,
   ModalHeader,
-  Modal,
   ModalVariant,
   Spinner,
   Split,
@@ -14,16 +14,17 @@ import {
   Toolbar,
   ToolbarItem,
 } from '@patternfly/react-core';
+import { DownloadIcon } from '@patternfly/react-icons';
+import { Element } from 'hast';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
-import { EntitiesMenu } from './EntitiesMenu';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 import { DocumentationEntity } from '../../../../models/documentation';
 import { EntitiesContext, VisibleFlowsContext } from '../../../../providers';
 import { DocumentationService } from '../../../../services/documentation.service';
-import { DownloadIcon } from '@patternfly/react-icons';
+import { EntitiesMenu } from './EntitiesMenu';
 import { markdownComponentMapping } from './MarkdownComponentMapping';
-import remarkGfm from 'remark-gfm';
-import { Element } from 'hast';
 
 type IExportDocumentPreviewModal = {
   isOpen?: boolean;

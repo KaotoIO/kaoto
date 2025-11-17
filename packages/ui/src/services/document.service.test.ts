@@ -1,6 +1,3 @@
-import { DocumentService } from './document.service';
-
-import { TestUtil, cartJsonSchema, multipleElementsXsd } from '../stubs/datamapper/data-mapper';
 import {
   DocumentDefinitionType,
   DocumentType,
@@ -9,9 +6,11 @@ import {
   PrimitiveDocument,
   RootElementOption,
 } from '../models/datamapper';
-import { XmlSchemaDocument } from './xml-schema-document.service';
-import { JsonSchemaDocument } from './json-schema-document.service';
 import { IMetadataApi } from '../providers';
+import { cartJsonSchema, multipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { DocumentService } from './document.service';
+import { JsonSchemaDocument } from './json-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document.service';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();

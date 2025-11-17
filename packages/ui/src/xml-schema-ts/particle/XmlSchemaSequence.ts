@@ -4,9 +4,9 @@
  *
  * (element|group|choice|sequence|any)
  */
-import { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
 import { XmlSchemaChoiceMember } from './XmlSchemaChoiceMember';
 import { XmlSchemaGroupParticle } from './XmlSchemaGroupParticle';
+import { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
 
 export class XmlSchemaSequence
   extends XmlSchemaGroupParticle

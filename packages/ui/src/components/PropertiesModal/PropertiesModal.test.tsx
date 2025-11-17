@@ -1,6 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 
@@ -11,9 +10,9 @@ import {
   ICamelProcessorDefinition,
   IKameletDefinition,
 } from '../../models';
+import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { ITile } from '../Catalog';
 import { PropertiesModal } from './PropertiesModal';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 
 describe('PropertiesModal', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;

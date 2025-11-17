@@ -1,6 +1,7 @@
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+
 import { CamelKResource, CamelKResourceKinds } from '../../models/camel/camel-k-resource';
 import { CatalogKind } from '../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';

@@ -15,6 +15,7 @@
  */
 
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { createCamelPropertiesSorter, isDefined } from '../../utils';

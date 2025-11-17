@@ -1,5 +1,6 @@
-import { FunctionComponent, PropsWithChildren, createContext } from 'react';
-import { DefaultSettingsAdapter, AbstractSettingsAdapter } from '../models/settings';
+import { createContext, FunctionComponent, PropsWithChildren } from 'react';
+
+import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../models/settings';
 
 const defaultSettingsAdapter = new DefaultSettingsAdapter();
 export const SettingsContext = createContext<AbstractSettingsAdapter>(defaultSettingsAdapter);

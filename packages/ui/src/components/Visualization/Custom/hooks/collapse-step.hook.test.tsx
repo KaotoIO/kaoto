@@ -1,6 +1,7 @@
 import type { Controller, ElementModel, Graph, GraphElement, Node } from '@patternfly/react-topology';
 import { Dimensions } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
+
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { useCollapseStep } from './collapse-step.hook';
 

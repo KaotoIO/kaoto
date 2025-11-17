@@ -1,7 +1,7 @@
-import { onDeleteDataMapper, ACTION_ID_DELETE_STEP_AND_FILE, ACTION_ID_DELETE_STEP_ONLY } from './on-delete-datamapper';
-import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { IMetadataApi } from '../../providers';
 import { createVisualizationNode } from '../../models';
+import { IMetadataApi } from '../../providers';
+import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { ACTION_ID_DELETE_STEP_AND_FILE, ACTION_ID_DELETE_STEP_ONLY, onDeleteDataMapper } from './on-delete-datamapper';
 
 jest.mock('../../services/datamapper-metadata.service');
 

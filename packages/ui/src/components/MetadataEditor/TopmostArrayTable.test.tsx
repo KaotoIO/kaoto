@@ -1,7 +1,8 @@
-import { mockModel, mockSchema } from './TestUtil';
-import { TopmostArrayTable } from './TopmostArrayTable';
 import { screen } from '@testing-library/dom';
 import { fireEvent, render } from '@testing-library/react';
+
+import { mockModel, mockSchema } from './TestUtil';
+import { TopmostArrayTable } from './TopmostArrayTable';
 
 describe('TopmostArrayTable.tsx', () => {
   test('render empty state', () => {

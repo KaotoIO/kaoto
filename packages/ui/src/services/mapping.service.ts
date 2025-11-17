@@ -1,20 +1,20 @@
-import {
-  FieldItem,
-  MappingTree,
-  MappingItem,
-  ChooseItem,
-  WhenItem,
-  OtherwiseItem,
-  ConditionItem,
-  IfItem,
-  ValueSelector,
-  MappingParentType,
-  ForEachItem,
-  ExpressionItem,
-  ValueType,
-  IFunctionDefinition,
-} from '../models/datamapper/mapping';
 import { DocumentType, IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
+import {
+  ChooseItem,
+  ConditionItem,
+  ExpressionItem,
+  FieldItem,
+  ForEachItem,
+  IfItem,
+  IFunctionDefinition,
+  MappingItem,
+  MappingParentType,
+  MappingTree,
+  OtherwiseItem,
+  ValueSelector,
+  ValueType,
+  WhenItem,
+} from '../models/datamapper/mapping';
 import { DocumentService } from './document.service';
 import { XPathService } from './xpath/xpath.service';
 

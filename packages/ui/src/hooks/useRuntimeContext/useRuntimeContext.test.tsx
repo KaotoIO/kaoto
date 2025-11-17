@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
+
 import { RuntimeProvider } from '../../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { errorMessage, useRuntimeContext } from './useRuntimeContext';

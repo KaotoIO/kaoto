@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';

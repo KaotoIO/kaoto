@@ -1,19 +1,20 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { EntityType } from '../../../../models/camel/entities';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
-import { ItemDeleteGroup } from './ItemDeleteGroup';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import {
   IInteractionType,
   IOnDeleteAddon,
   IRegisteredInteractionAddon,
 } from '../../../registers/interactions/node-interaction-addon.model';
-import { EntityType } from '../../../../models/camel/entities';
-import { TestProvidersWrapper } from '../../../../stubs';
-import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { ItemDeleteGroup } from './ItemDeleteGroup';
 
 describe('ItemDeleteGroup', () => {
   let vizNode: IVisualizationNode;

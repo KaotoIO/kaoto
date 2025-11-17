@@ -1,4 +1,5 @@
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef } from 'react';
+
 import { IVisualizationNode } from '../../../models';
 import {
   IInteractionType,

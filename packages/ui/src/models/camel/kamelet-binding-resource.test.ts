@@ -1,6 +1,6 @@
-import { SourceSchemaType } from './source-schema-type';
-import { KameletBindingResource } from './kamelet-binding-resource';
 import { kameletBindingJson } from '../../stubs/kamelet-binding-route';
+import { KameletBindingResource } from './kamelet-binding-resource';
+import { SourceSchemaType } from './source-schema-type';
 
 describe('KameletBindingResource', () => {
   it('should create KameletBindingResource', () => {

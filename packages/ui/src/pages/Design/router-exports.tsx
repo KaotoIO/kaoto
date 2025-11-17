@@ -1,8 +1,9 @@
+import { ToolbarItem } from '@patternfly/react-core';
+
+import { IntegrationTypeSelector } from '../../components/Visualization/ContextToolbar/IntegrationTypeSelector/IntegrationTypeSelector';
+import { SerializerSelector } from '../../components/Visualization/ContextToolbar/SerializerSelector/SerializerSelector';
 import { DesignPage } from './DesignPage';
 import { ReturnToSourceCodeFallback } from './ReturnToSourceCodeFallback';
-import { SerializerSelector } from '../../components/Visualization/ContextToolbar/SerializerSelector/SerializerSelector';
-import { ToolbarItem } from '@patternfly/react-core';
-import { IntegrationTypeSelector } from '../../components/Visualization/ContextToolbar/IntegrationTypeSelector/IntegrationTypeSelector';
 
 const additionalControls = [
   <ToolbarItem key="toolbar-dsl-selector">

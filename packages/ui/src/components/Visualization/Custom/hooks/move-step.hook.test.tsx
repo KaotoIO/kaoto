@@ -1,17 +1,18 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import { useMoveStep } from './move-step.hook';
-import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesContext } from '../../../../providers/entities.provider';
-import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
-import { getPotentialPath } from '../../../../utils/get-potential-path';
-import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
-import { camelRouteJson, camelRouteJsonWithDM } from '../../../../stubs/camel-route';
-import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
+import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+import { EntitiesContext } from '../../../../providers/entities.provider';
+import { camelRouteJson, camelRouteJsonWithDM } from '../../../../stubs/camel-route';
+import { getPotentialPath } from '../../../../utils/get-potential-path';
+import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';
 import { NodeInteractionAddonProvider } from '../../../registers/interactions/node-interaction-addon.provider';
 import { RegisterNodeInteractionAddons } from '../../../registers/RegisterNodeInteractionAddons';
+import { useMoveStep } from './move-step.hook';
 
 const mockController = {
   getGraph: jest.fn(),

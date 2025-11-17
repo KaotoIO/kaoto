@@ -1,4 +1,5 @@
 import { resolveSchemaWithRef } from '@kaoto/forms';
+
 import { ExpressionService } from '../../../../../components/Visualization/Canvas/Form/fields/ExpressionField/expression.service';
 import { isDefined } from '../../../../../utils/is-defined';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';

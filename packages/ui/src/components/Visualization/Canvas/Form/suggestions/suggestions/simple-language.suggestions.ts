@@ -1,4 +1,5 @@
 import { Suggestion, SuggestionProvider } from '@kaoto/forms';
+
 import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { IMetadataApi } from '../../../../../../providers';
 

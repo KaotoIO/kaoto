@@ -1,8 +1,9 @@
 import { FromDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { isDefined, setValue } from '../../../utils';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { EntityType } from '../../camel/entities';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';

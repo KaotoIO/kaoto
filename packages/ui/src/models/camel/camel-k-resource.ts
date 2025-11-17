@@ -3,6 +3,7 @@ import {
   KameletBinding as KameletBindingType,
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
+
 import { TileFilter } from '../../components/Catalog';
 import { YamlCamelResourceSerializer } from '../../serializers';
 import { createCamelPropertiesSorter } from '../../utils';

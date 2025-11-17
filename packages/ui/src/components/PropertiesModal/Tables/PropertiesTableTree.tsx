@@ -1,6 +1,7 @@
 import { Caption, Table, Tbody, Td, TdProps, Th, Thead, Tr, TreeRowWrapper } from '@patternfly/react-table';
 import * as React from 'react';
 import { FunctionComponent, useState } from 'react';
+
 import { IPropertiesRow, IPropertiesTable } from '../PropertiesModal.models';
 import { renderHeaders, renderRowData } from './PropertiesTableCommon';
 

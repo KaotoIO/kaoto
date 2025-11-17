@@ -1,5 +1,6 @@
 import { EditorApi } from '@kie-tools-core/editor/dist/api';
 import { useCallback, useContext, useMemo, useRef } from 'react';
+
 import { useUndoRedo } from '../../hooks/undo-redo.hook';
 import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { useSourceCodeStore } from '../../store';

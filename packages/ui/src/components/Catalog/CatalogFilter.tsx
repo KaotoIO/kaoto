@@ -1,5 +1,8 @@
+import './CatalogFilter.scss';
+
 import {
   Badge,
+  capitalize,
   Form,
   FormGroup,
   Label,
@@ -7,12 +10,11 @@ import {
   SearchInput,
   ToggleGroup,
   ToggleGroupItem,
-  capitalize,
 } from '@patternfly/react-core';
 import { TimesCircleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useEffect, useRef } from 'react';
+
 import { CatalogLayout } from './Catalog.models';
-import './CatalogFilter.scss';
 import { CatalogLayoutIcon } from './CatalogLayoutIcon';
 import { ProviderFilter } from './ProviderFilter/ProviderFilter';
 

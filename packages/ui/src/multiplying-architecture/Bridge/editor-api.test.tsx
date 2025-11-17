@@ -1,10 +1,11 @@
-import { FunctionComponent, PropsWithChildren } from 'react';
-import { SourceCodeApiContext } from '../../providers/source-code.provider';
-import { act, renderHook } from '@testing-library/react';
-import { useEditorApi } from './editor-api';
 import { EditorTheme } from '@kie-tools-core/editor/dist/api';
+import { act, renderHook } from '@testing-library/react';
+import { FunctionComponent, PropsWithChildren } from 'react';
+
+import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils';
+import { useEditorApi } from './editor-api';
 
 describe('useEditorApi', () => {
   const mockSetCodeAndNotify = jest.fn();

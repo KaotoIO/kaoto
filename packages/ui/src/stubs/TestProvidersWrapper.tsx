@@ -1,5 +1,6 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { CamelResource } from '../models/camel/camel-resource';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';

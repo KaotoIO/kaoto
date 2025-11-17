@@ -1,13 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
-import { DetachSchemaButton } from './DetachSchemaButton';
-import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
-import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
-import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentService } from '../../../services/document.service';
-
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { DetachSchemaButton } from './DetachSchemaButton';
 
 describe('DetachSchemaButton', () => {
   it('should detach the schema', async () => {

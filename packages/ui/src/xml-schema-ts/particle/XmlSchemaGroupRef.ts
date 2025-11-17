@@ -1,9 +1,9 @@
 import type { QName } from '../QName';
-import type { XmlSchemaGroupParticle } from './XmlSchemaGroupParticle';
 import type { XmlSchemaAllMember } from './XmlSchemaAllMember';
 import type { XmlSchemaChoiceMember } from './XmlSchemaChoiceMember';
-import type { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
+import type { XmlSchemaGroupParticle } from './XmlSchemaGroupParticle';
 import { XmlSchemaParticle } from './XmlSchemaParticle';
+import type { XmlSchemaSequenceMember } from './XmlSchemaSequenceMember';
 
 /**
  * Class used within complex types that defines the reference to groups defined at the schema level.

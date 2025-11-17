@@ -1,5 +1,6 @@
 import { MenuToggle, Select, SelectList, SelectOption } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, RefObject, useCallback, useContext, useState } from 'react';
+
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
 import { EntitiesContext } from '../../../../../providers/entities.provider';
 import { getSupportedDsls } from '../../../../../serializers/serializer-dsl-lists';

@@ -1,6 +1,7 @@
-import { FunctionComponent } from 'react';
-import { useToggle } from '../../../hooks/useToggle';
 import { Dropdown, DropdownList, MenuToggle, ToolbarItem } from '@patternfly/react-core';
+import { FunctionComponent } from 'react';
+
+import { useToggle } from '../../../hooks/useToggle';
 import { ExportMappingFileDropdownItem } from './ExportMappingFileDropdownItem';
 import { ImportMappingFileDropdownItem } from './ImportMappingFileDropdownItem';
 import { ResetMappingsDropdownItem } from './ResetMappingsDropdownItem';

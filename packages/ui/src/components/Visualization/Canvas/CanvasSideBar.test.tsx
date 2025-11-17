@@ -1,6 +1,7 @@
 import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { act, fireEvent, render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { CamelRouteResource } from '../../../models/camel';
 import { EntityType } from '../../../models/camel/entities';
 import { mockRandomValues } from '../../../stubs';

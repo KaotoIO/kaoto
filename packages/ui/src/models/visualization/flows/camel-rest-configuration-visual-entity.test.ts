@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
+
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';

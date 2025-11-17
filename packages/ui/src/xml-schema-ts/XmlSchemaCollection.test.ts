@@ -1,13 +1,3 @@
-import { QName } from './QName';
-import { XmlSchemaCollection } from './XmlSchemaCollection';
-import { XmlSchemaUse } from './XmlSchemaUse';
-import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
-import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
-import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
-import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
-import { XmlSchemaElement } from './particle/XmlSchemaElement';
-import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
-import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 import {
   camelSpringXsd,
   namedTypesXsd,
@@ -16,7 +6,17 @@ import {
   shipOrderXsd,
   testDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
+import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
+import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
+import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
 import { XmlSchemaComplexContentRestriction } from './complex/XmlSchemaComplexContentRestriction';
+import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
+import { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
+import { QName } from './QName';
+import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+import { XmlSchemaCollection } from './XmlSchemaCollection';
+import { XmlSchemaUse } from './XmlSchemaUse';
 
 describe('XmlSchemaCollection', () => {
   it('should parse ShipOrder XML schema', () => {

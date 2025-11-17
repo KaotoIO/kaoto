@@ -1,6 +1,6 @@
+import { pipeJson } from '../../stubs/pipe';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
-import { pipeJson } from '../../stubs/pipe';
 
 describe('PipeResource', () => {
   it('should create KameletBindingResource', () => {

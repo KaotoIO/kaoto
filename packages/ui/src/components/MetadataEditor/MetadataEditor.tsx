@@ -1,8 +1,10 @@
+import './MetadataEditor.scss';
+
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useMemo, useState } from 'react';
-import './MetadataEditor.scss';
+
 import { TopmostArrayTable } from './TopmostArrayTable';
 
 interface MetadataEditorProps {

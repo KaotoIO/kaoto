@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
+
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { CatalogKind } from '../models';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';

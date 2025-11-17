@@ -1,12 +1,13 @@
 import { ActionListGroup, ActionListItem } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, useCallback } from 'react';
+
+import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentType } from '../../../models/datamapper/document';
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
 import { AttachSchemaButton } from './AttachSchemaButton';
 import { DeleteParameterButton } from './DeleteParameterButton';
 import { DetachSchemaButton } from './DetachSchemaButton';
 import { RenameParameterButton } from './RenameParameterButton';
-import { useDataMapper } from '../../../hooks/useDataMapper';
 
 type DocumentActionsProps = {
   className?: string;

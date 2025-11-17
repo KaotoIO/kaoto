@@ -1,5 +1,6 @@
 import { AboutModal } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import logo from '../assets/logo-kaoto-dark.png';
 import { About } from '../components/About/About';
 

@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
-import { Tile } from './Tile';
+
 import { ITile } from './Catalog.models';
+import { Tile } from './Tile';
 
 describe('Tile', () => {
   const tile: ITile = {

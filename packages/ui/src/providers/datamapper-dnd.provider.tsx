@@ -1,22 +1,24 @@
-import { DnDHandler } from './dnd/DnDHandler';
-import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
+import './datamapper-dnd.provider.scss';
+
 import {
   DataRef,
   DndContext,
   DragEndEvent,
-  DragOverlay,
   DragOverEvent,
+  DragOverlay,
   DragStartEvent,
-  useSensor,
+  KeyboardSensor,
   MouseSensor,
   TouchSensor,
-  KeyboardSensor,
+  useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { NodeData } from '../models/datamapper';
 import { Label } from '@patternfly/react-core';
+import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useState } from 'react';
+
 import { useDataMapper } from '../hooks/useDataMapper';
-import './datamapper-dnd.provider.scss';
+import { NodeData } from '../models/datamapper';
+import { DnDHandler } from './dnd/DnDHandler';
 
 export interface IDataMapperDndContext {
   handler?: DnDHandler;

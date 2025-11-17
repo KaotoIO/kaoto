@@ -1,4 +1,5 @@
 import { useCallback, useContext, useMemo } from 'react';
+
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';

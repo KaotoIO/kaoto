@@ -1,6 +1,6 @@
 import { IVisualizationNode } from '../../../models';
-import { ActionConfirmationButtonOption } from '../../../providers';
 import { IClipboardCopyObject } from '../../../models/visualization/clipboard';
+import { ActionConfirmationButtonOption } from '../../../providers';
 
 export enum IInteractionType {
   ON_DELETE = 'onDelete',

@@ -1,5 +1,6 @@
 import { AngleDoubleDownIcon, AngleDoubleUpIcon } from '@patternfly/react-icons';
 import { fireEvent, render } from '@testing-library/react';
+
 import { AddStepMode, createVisualizationNode } from '../../../../models';
 import { useMoveStep } from '../hooks/move-step.hook';
 import { ItemMoveStep } from './ItemMoveStep';

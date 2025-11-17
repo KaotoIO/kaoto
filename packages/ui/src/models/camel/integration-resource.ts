@@ -1,8 +1,9 @@
-import { BaseCamelEntity } from './entities';
-import { BaseVisualCamelEntity } from '../visualization/base-visual-entity';
 import { Integration as IntegrationType } from '@kaoto/camel-catalog/types';
-import { SourceSchemaType } from './source-schema-type';
+
+import { BaseVisualCamelEntity } from '../visualization/base-visual-entity';
 import { CamelKResource } from './camel-k-resource';
+import { BaseCamelEntity } from './entities';
+import { SourceSchemaType } from './source-schema-type';
 
 export class IntegrationResource extends CamelKResource {
   private integration;

@@ -1,17 +1,18 @@
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Title } from '@patternfly/react-core';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { ConditionMenuAction } from './actions/ConditionMenuAction';
+import { DeleteMappingItemAction } from './actions/DeleteMappingItemAction';
+import { XPathEditorAction } from './actions/XPathEditorAction';
+import { XPathInputAction } from './actions/XPathInputAction';
 import { BaseDocument } from './BaseDocument';
 import { TargetDocumentNode } from './TargetDocumentNode';
-import { XPathInputAction } from './actions/XPathInputAction';
-import { XPathEditorAction } from './actions/XPathEditorAction';
-import { DeleteMappingItemAction } from './actions/DeleteMappingItemAction';
-import { ConditionMenuAction } from './actions/ConditionMenuAction';
 
 type DocumentProps = {
   document: IDocument;

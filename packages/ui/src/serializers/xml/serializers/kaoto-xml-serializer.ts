@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { EntityType } from '../../../models/camel/entities';
 import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
-import { ElementType, StepXmlSerializer } from './step-xml-serializer';
-import { RestXmlSerializer } from './rest-xml-serializer';
 import { BeansXmlSerializer } from './beans-xml-serializer';
-import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { EntityDefinition } from './entitiy-definition';
+import { RestXmlSerializer } from './rest-xml-serializer';
+import { ElementType, StepXmlSerializer } from './step-xml-serializer';
 
 export class KaotoXmlSerializer {
   static serializeRoute(route: RouteDefinition, doc: Document): Element {

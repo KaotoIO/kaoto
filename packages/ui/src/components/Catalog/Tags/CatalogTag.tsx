@@ -1,5 +1,6 @@
 import { Label } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import { getTagColor } from './tag-color-resolver';
 
 interface ICatalogTagProps {

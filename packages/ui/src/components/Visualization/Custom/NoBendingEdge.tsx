@@ -1,4 +1,5 @@
 import { BaseEdge, getTopCollapsedParent, Point } from '@patternfly/react-topology';
+
 import { LayoutType } from '../Canvas';
 
 export class NoBendpointsEdge extends BaseEdge {

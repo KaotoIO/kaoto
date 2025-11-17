@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { EntityType, BaseCamelEntity } from '../../camel/entities';
+
+import { BaseCamelEntity, EntityType } from '../../camel/entities';
 import { IKameletMetadata } from '../../kamelets-catalog';
 
 type MetadataParentType = {

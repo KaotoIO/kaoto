@@ -1,6 +1,7 @@
+import './FloatingCircle.scss';
+
 import clsx from 'clsx';
 import { FunctionComponent, PropsWithChildren } from 'react';
-import './FloatingCircle.scss';
 
 export const FloatingCircle: FunctionComponent<PropsWithChildren<{ className?: string }>> = ({
   children,

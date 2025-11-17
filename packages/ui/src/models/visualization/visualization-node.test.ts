@@ -1,7 +1,9 @@
 import { cloneDeep } from 'lodash';
+
 import { camelRouteJson } from '../../stubs/camel-route';
 import { SourceSchemaType } from '../camel';
 import { NodeLabelType } from '../settings';
+import { IClipboardCopyObject } from '../visualization/clipboard';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -11,7 +13,6 @@ import {
 } from './base-visual-entity';
 import { CamelRouteVisualEntity } from './flows';
 import { createVisualizationNode } from './visualization-node';
-import { IClipboardCopyObject } from '../visualization/clipboard';
 
 describe('VisualizationNode', () => {
   let node: IVisualizationNode;

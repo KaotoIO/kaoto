@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import { KaotoSchemaDefinition } from '../../../../models';
-import { CamelRouteResource, SourceSchemaType, sourceSchemaConfig } from '../../../../models/camel';
+import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { XmlCamelResourceSerializer } from '../../../../serializers';

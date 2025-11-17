@@ -1,4 +1,5 @@
 import { FunctionComponent, PropsWithChildren } from 'react';
+
 import { CatalogKind } from '../../models';
 import { NodeIconResolver, NodeIconType } from '../../utils/node-icon-resolver';
 import { ITile } from '../Catalog/Catalog.models';

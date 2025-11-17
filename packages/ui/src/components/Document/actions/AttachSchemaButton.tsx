@@ -13,6 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
+import { Typeahead, TypeaheadItem } from '@kaoto/forms';
 import {
   Alert,
   Button,
@@ -31,10 +32,9 @@ import {
   StackItem,
   TextInput,
 } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
-import { Typeahead, TypeaheadItem } from '@kaoto/forms';
-
 import { FileImportIcon, ImportIcon } from '@patternfly/react-icons';
+import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import {

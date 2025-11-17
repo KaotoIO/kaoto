@@ -1,4 +1,5 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+
 import { RootNodeMapper } from '../root-node-mapper';
 import { OtherwiseNodeMapper } from './otherwise-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';

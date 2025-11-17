@@ -9,6 +9,7 @@ import {
 } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
+
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useToggle } from '../../../hooks/useToggle';
 import { ConditionItem } from '../../../models/datamapper/mapping';

@@ -1,9 +1,10 @@
-import { act, render, screen, fireEvent } from '@testing-library/react';
-import { XPathEditorLayout } from './XPathEditorLayout';
-import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+
 import { BODY_DOCUMENT_ID, ExpressionItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
+import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { XPathEditorLayout } from './XPathEditorLayout';
 
 describe('XPathEditorLayout - Search Field', () => {
   window.ResizeObserver = jest.fn().mockImplementation(() => ({

@@ -1,9 +1,10 @@
 import { FunctionComponent, lazy, PropsWithChildren, useContext, useRef } from 'react';
+
 import { RenderingAnchorContext } from '../RenderingAnchor/rendering.provider';
 import { IRegisteredComponent } from '../RenderingAnchor/rendering.provider.model';
 import { Anchors } from './anchors';
-import { datamapperActivationFn } from './datamapper.activationfn';
 import { componentModeActivationFn } from './component-mode.activationfn';
+import { datamapperActivationFn } from './datamapper.activationfn';
 
 export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const { registerComponent } = useContext(RenderingAnchorContext);

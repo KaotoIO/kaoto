@@ -1,9 +1,10 @@
-import { FunctionComponent, PropsWithChildren, createContext, useContext, useMemo } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useContext, useMemo } from 'react';
+
 import { camelComponentToTile, camelEntityToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { ITile } from '../components/Catalog';
 import { CatalogKind } from '../models';
-import { CatalogContext } from './catalog.provider';
 import { isDefined } from '../utils';
+import { CatalogContext } from './catalog.provider';
 
 export const CatalogTilesContext = createContext<ITile[]>([]);
 

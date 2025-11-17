@@ -1,5 +1,5 @@
-import { DefinedComponent } from '../camel-catalog-index';
 import { BaseCamelEntity, EntityType } from '../camel/entities';
+import { DefinedComponent } from '../camel-catalog-index';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
 import { IClipboardCopyObject } from '../visualization/clipboard';

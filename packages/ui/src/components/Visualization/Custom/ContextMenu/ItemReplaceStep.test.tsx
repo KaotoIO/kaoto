@@ -1,18 +1,19 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+
 import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
-import {
-  IInteractionType,
-  IOnDeleteAddon,
-  IRegisteredInteractionAddon,
-} from '../../../registers/interactions/node-interaction-addon.model';
 import { CatalogModalContext } from '../../../../providers';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import {
+  IInteractionType,
+  IOnDeleteAddon,
+  IRegisteredInteractionAddon,
+} from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { ItemReplaceStep } from './ItemReplaceStep';
 
 describe('ItemReplaceStep', () => {

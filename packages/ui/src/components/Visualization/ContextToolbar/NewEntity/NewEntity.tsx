@@ -1,9 +1,11 @@
+import './NewEntity.scss';
+
 import { Menu, MenuContainer, MenuContent, MenuItem, MenuList, MenuToggle } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, ReactElement, useCallback, useRef, useState } from 'react';
+
 import { useCanvasEntities } from '../../../../hooks/useCanvasEntities';
 import { EntityType } from '../../../../models/camel/entities';
-import './NewEntity.scss';
 
 export const NewEntity: FunctionComponent = () => {
   const [isOpen, setIsOpen] = useState(false);

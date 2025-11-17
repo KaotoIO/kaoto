@@ -1,7 +1,8 @@
-import { DnDHandler } from './DnDHandler';
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+
 import { EditorNodeData, FieldNodeData, FunctionNodeData, MappingTree, NodeData } from '../../models/datamapper';
 import { MappingService } from '../../services/mapping.service';
+import { DnDHandler } from './DnDHandler';
 
 export class ExpressionEditorDnDHandler implements DnDHandler {
   handleDragEnd(event: DragEndEvent, _mappingTree: MappingTree, onUpdate: () => void): void {

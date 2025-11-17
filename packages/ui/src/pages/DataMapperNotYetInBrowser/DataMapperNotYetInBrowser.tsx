@@ -15,6 +15,7 @@
 */
 import { Brand, Panel, PanelHeader, PanelMain, PanelMainBody, Title } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
+
 import icon_component_datamapper from '../../assets/components/datamapper.png';
 
 export const DataMapperNotYetInBrowserPage: FunctionComponent = () => {

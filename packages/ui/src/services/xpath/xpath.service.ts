@@ -1,4 +1,5 @@
 import { IField, PrimitiveDocument } from '../../models/datamapper/document';
+import { IFunctionDefinition } from '../../models/datamapper/mapping';
 import {
   PathExpression,
   PathSegment,
@@ -7,25 +8,24 @@ import {
   PredicateOperatorSymbol,
 } from '../../models/datamapper/xpath';
 import { DocumentUtilService } from '../document-util.service';
-import { IFunctionDefinition } from '../../models/datamapper/mapping';
-import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './xpath-model';
+import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
+import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { monacoXPathLanguageMetadata } from './monaco-language';
+import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
-  ExprNode,
-  PathExprNode,
-  StepExprNode,
-  XPathNodeType,
-  PredicateNode,
   ComparisonExprNode,
-  XPathNode,
+  ExprNode,
   FilterExprNode,
-  VarRefNode,
   LiteralNode,
+  PathExprNode,
+  PredicateNode,
+  StepExprNode,
+  VarRefNode,
+  XPathNode,
+  XPathNodeType,
 } from './syntaxtree/xpath-syntaxtree-model';
 import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
-import { XPath2Parser } from './2.0/xpath-2.0-parser';
-import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
-import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
+import { FunctionGroup, ValidatedXPathParseResult, XPathParserResult } from './xpath-model';
 
 /**
  * The collection of logic to parse/unparse XPath expressions.

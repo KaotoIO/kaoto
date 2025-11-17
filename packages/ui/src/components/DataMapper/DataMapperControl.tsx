@@ -14,6 +14,7 @@
     limitations under the License.
 */
 import { FunctionComponent, useMemo } from 'react';
+
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { CanvasView } from '../../models/datamapper/view';
 import { SourceTargetView } from '../View/SourceTargetView';

@@ -1,4 +1,5 @@
 import { FunctionComponent, useContext } from 'react';
+
 import { IVisualizationNode } from '../../models';
 import { isDefined } from '../../utils';
 import { RenderingAnchorContext } from './rendering.provider';

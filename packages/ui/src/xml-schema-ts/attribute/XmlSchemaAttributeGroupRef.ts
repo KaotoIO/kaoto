@@ -1,10 +1,10 @@
-import type { XmlSchema } from '../XmlSchema';
-import type { XmlSchemaAttributeGroup } from './XmlSchemaAttributeGroup';
-import type { XmlSchemaAttributeGroupMember } from './XmlSchemaAttributeGroupMember';
-import type { XmlSchemaItemWithRef } from '../XmlSchemaItemWithRef';
-import { XmlSchemaAttributeOrGroupRef } from './XmlSchemaAttributeOrGroupRef';
 import { XmlSchemaNamedType } from '../utils/XmlSchemaNamedType';
 import { XmlSchemaRef } from '../utils/XmlSchemaRef';
+import type { XmlSchema } from '../XmlSchema';
+import type { XmlSchemaItemWithRef } from '../XmlSchemaItemWithRef';
+import type { XmlSchemaAttributeGroup } from './XmlSchemaAttributeGroup';
+import type { XmlSchemaAttributeGroupMember } from './XmlSchemaAttributeGroupMember';
+import { XmlSchemaAttributeOrGroupRef } from './XmlSchemaAttributeOrGroupRef';
 
 /**
  * Class for the attribute group reference.

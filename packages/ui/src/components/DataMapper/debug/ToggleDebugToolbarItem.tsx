@@ -1,7 +1,8 @@
-import { FunctionComponent } from 'react';
-import { useDataMapper } from '../../../hooks/useDataMapper';
 import { ToggleGroup, ToggleGroupItem, ToolbarItem } from '@patternfly/react-core';
 import { BugIcon } from '@patternfly/react-icons';
+import { FunctionComponent } from 'react';
+
+import { useDataMapper } from '../../../hooks/useDataMapper';
 
 export const ToggleDebugToolbarItem: FunctionComponent = () => {
   const { debug, setDebug } = useDataMapper();

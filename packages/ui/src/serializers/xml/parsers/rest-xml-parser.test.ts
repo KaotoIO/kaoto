@@ -15,13 +15,14 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { RestXmlParser } from './rest-xml-parser';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CamelCatalogService, CatalogKind } from '../../../models';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
+
+import { CamelCatalogService, CatalogKind } from '../../../models';
 import { restWithVerbsStup } from '../../../stubs/rest';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { RestXmlParser } from './rest-xml-parser';
 
 describe('Rest XML Parser', () => {
   beforeAll(async () => {

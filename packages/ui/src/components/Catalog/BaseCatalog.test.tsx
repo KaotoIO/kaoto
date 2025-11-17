@@ -1,7 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { CatalogLayout } from './Catalog.models';
-import { BaseCatalog } from './BaseCatalog';
+
 import { longTileList } from '../../stubs';
+import { BaseCatalog } from './BaseCatalog';
+import { CatalogLayout } from './Catalog.models';
 
 describe('BaseCatalog', () => {
   it('renders correctly with Gallery Layout', () => {

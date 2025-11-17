@@ -1,5 +1,6 @@
-import { DataMapperDebugger } from './DataMapperDebugger';
 import { render, screen } from '@testing-library/react';
+
+import { DataMapperDebugger } from './DataMapperDebugger';
 
 describe('Debug', () => {
   it('should render', async () => {

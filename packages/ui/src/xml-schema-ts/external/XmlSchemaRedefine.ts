@@ -1,9 +1,9 @@
-import type { QName } from '../QName';
-import type { XmlSchemaGroup } from '../XmlSchemaGroup';
-import type { XmlSchemaType } from '../XmlSchemaType';
 import type { XmlSchemaAttributeGroup } from '../attribute/XmlSchemaAttributeGroup';
-import type { XmlSchemaObject } from '../XmlSchemaObject';
+import type { QName } from '../QName';
 import type { XmlSchema } from '../XmlSchema';
+import type { XmlSchemaGroup } from '../XmlSchemaGroup';
+import type { XmlSchemaObject } from '../XmlSchemaObject';
+import type { XmlSchemaType } from '../XmlSchemaType';
 import { XmlSchemaExternal } from './XmlSchemaExternal';
 
 /**

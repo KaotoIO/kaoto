@@ -1,4 +1,5 @@
 import { KaotoFunction } from '@kaoto/camel-catalog/catalog-index.d.ts';
+
 import { ComponentsCatalog, ComponentsCatalogTypes } from '../../camel-catalog-index';
 import { ICamelComponentDefinition } from '../../camel-components-catalog';
 import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';

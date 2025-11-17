@@ -1,12 +1,12 @@
-import { onDuplicateDataMapper } from './on-duplicate-datamapper';
-import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { IMetadataApi } from '../../providers';
 import { IVisualizationNode } from '../../models';
-import { IDataMapperMetadata } from '../../models/datamapper/metadata';
-import { DocumentDefinitionType } from '../../models/datamapper';
-import { IClipboardCopyObject } from '../../models/visualization/clipboard';
 import { SourceSchemaType } from '../../models/camel/source-schema-type';
+import { DocumentDefinitionType } from '../../models/datamapper';
+import { IDataMapperMetadata } from '../../models/datamapper/metadata';
+import { IClipboardCopyObject } from '../../models/visualization/clipboard';
+import { IMetadataApi } from '../../providers';
+import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { XSLT_COMPONENT_NAME } from '../../utils';
+import { onDuplicateDataMapper } from './on-duplicate-datamapper';
 
 describe('onDuplicateDataMapper', () => {
   let mockApi: jest.Mocked<IMetadataApi>;

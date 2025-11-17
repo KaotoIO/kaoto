@@ -1,6 +1,6 @@
 import type { XmlSchemaAttributeOrGroupRef } from '../attribute/XmlSchemaAttributeOrGroupRef';
-import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import type { QName } from '../QName';
+import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import { XmlSchemaContent } from '../XmlSchemaContent';
 
 /**

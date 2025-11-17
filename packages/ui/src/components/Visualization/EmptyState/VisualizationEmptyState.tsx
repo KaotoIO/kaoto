@@ -8,11 +8,12 @@ import {
   EmptyStateFooter,
 } from '@patternfly/react-core';
 import {
-  EyeIcon,
   CubesIcon as PatternFlyCubesIcon,
+  EyeIcon,
   EyeSlashIcon as PatternFlyEyeSlashIcon,
 } from '@patternfly/react-icons';
 import { FunctionComponent, useContext, useMemo } from 'react';
+
 import { IDataTestID } from '../../../models';
 import { VisibleFlowsContext } from '../../../providers';
 import { NewFlow } from './FlowType/NewFlow';

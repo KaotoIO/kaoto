@@ -1,9 +1,10 @@
-import { Parameters } from './Parameters';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
+import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { Parameters } from './Parameters';
 
 describe('Parameters', () => {
   it('should add, rename, and remove a parameter', async () => {

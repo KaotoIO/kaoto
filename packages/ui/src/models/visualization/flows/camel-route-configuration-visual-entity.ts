@@ -1,6 +1,7 @@
 import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
+
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { NodeIconResolver, NodeIconType, getValue, isDefined, setValue } from '../../../utils';
+import { getValue, isDefined, NodeIconResolver, NodeIconType, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';

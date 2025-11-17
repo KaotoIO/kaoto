@@ -1,9 +1,11 @@
+import './Tile.scss';
+
 import { Card, CardBody, CardFooter, CardHeader, CardTitle, LabelGroup } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
+
 import { IconResolver } from '../IconResolver';
 import { ITile } from './Catalog.models';
 import { CatalogTag, CatalogTagsPanel } from './Tags';
-import './Tile.scss';
 
 interface TileProps {
   tile: ITile;

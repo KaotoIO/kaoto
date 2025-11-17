@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useMappingLinks } from '../../hooks/useMappingLinks';

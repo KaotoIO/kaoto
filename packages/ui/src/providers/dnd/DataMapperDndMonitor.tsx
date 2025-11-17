@@ -1,7 +1,8 @@
-import { FunctionComponent, useContext } from 'react';
-import { DataMapperDndContext } from '../datamapper-dnd.provider';
-import { NodeData } from '../../models/datamapper';
 import { DragOverEvent, useDndMonitor } from '@dnd-kit/core';
+import { FunctionComponent, useContext } from 'react';
+
+import { NodeData } from '../../models/datamapper';
+import { DataMapperDndContext } from '../datamapper-dnd.provider';
 
 export const DataMapperDnDMonitor: FunctionComponent = () => {
   const { handler } = useContext(DataMapperDndContext);

@@ -1,13 +1,13 @@
 import { IFunctionDefinition } from '../../../models/datamapper/mapping';
 import { FunctionGroup } from '../xpath-model';
-import { numericFunctions } from './xpath-2.0-functions-numeric';
-import { patternMatchingFunctions, stringFunctions, substringMatchingFunctions } from './xpath-2.0-functions-string';
-import { dateAndTimeFunctions } from './xpath-2.0-functions-datetime';
 import { booleanFunctions } from './xpath-2.0-functions-boolean';
-import { qnameFunctions } from './xpath-2.0-functions-qname';
-import { nodeFunctions } from './xpath-2.0-functions-node';
-import { sequenceFunctions } from './xpath-2.0-functions-sequence';
 import { contextFunctions } from './xpath-2.0-functions-context';
+import { dateAndTimeFunctions } from './xpath-2.0-functions-datetime';
+import { nodeFunctions } from './xpath-2.0-functions-node';
+import { numericFunctions } from './xpath-2.0-functions-numeric';
+import { qnameFunctions } from './xpath-2.0-functions-qname';
+import { sequenceFunctions } from './xpath-2.0-functions-sequence';
+import { patternMatchingFunctions, stringFunctions, substringMatchingFunctions } from './xpath-2.0-functions-string';
 
 /**
  * The XPath 2.0 functions catalog.

@@ -15,11 +15,12 @@
  */
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+
 import { CamelCatalogService, CatalogKind } from '../../../models';
-import { getDocument, testSerializer } from './serializer-test-utils';
+import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { BeansXmlSerializer } from './beans-xml-serializer';
+import { getDocument, testSerializer } from './serializer-test-utils';
 
 describe('BeanXmlParser', () => {
   const doc = getDocument();

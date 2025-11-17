@@ -1,4 +1,4 @@
-import { MappingService } from './mapping.service';
+import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
@@ -10,9 +10,7 @@ import {
   ValueType,
   WhenItem,
 } from '../models/datamapper/mapping';
-import { MappingSerializerService } from './mapping-serializer.service';
-import { XmlSchemaDocument } from './xml-schema-document.service';
-import { DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
+import { mockRandomValues } from '../stubs';
 import {
   cartToShipOrderJsonXslt,
   cartToShipOrderXslt,
@@ -24,10 +22,12 @@ import {
   shipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
-import { XPathService } from './xpath/xpath.service';
-import { MappingLinksService } from './mapping-links.service';
 import { DocumentService } from './document.service';
-import { mockRandomValues } from '../stubs';
+import { MappingService } from './mapping.service';
+import { MappingLinksService } from './mapping-links.service';
+import { MappingSerializerService } from './mapping-serializer.service';
+import { XmlSchemaDocument } from './xml-schema-document.service';
+import { XPathService } from './xpath/xpath.service';
 
 describe('MappingService', () => {
   let sourceDoc: XmlSchemaDocument;

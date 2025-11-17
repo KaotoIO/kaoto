@@ -1,3 +1,5 @@
+import './FlowTypeSelector.scss';
+
 import {
   MenuToggle,
   MenuToggleAction,
@@ -7,9 +9,9 @@ import {
   SelectOption,
 } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, PropsWithChildren, Ref, useCallback, useContext, useState } from 'react';
+
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import './FlowTypeSelector.scss';
 import { getSupportedDsls } from '../../../../serializers/serializer-dsl-lists';
 
 interface ISourceTypeSelector extends PropsWithChildren {

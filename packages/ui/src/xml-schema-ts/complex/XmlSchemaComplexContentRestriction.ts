@@ -3,10 +3,10 @@
  * contents of the complex type to a subset of the inherited complex type. Represents the World Wide Web
  * Consortium (W3C) restriction element for complex content.
  */
-import type { QName } from '../QName';
-import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import type { XmlSchemaAttributeOrGroupRef } from '../attribute/XmlSchemaAttributeOrGroupRef';
 import type { XmlSchemaParticle } from '../particle/XmlSchemaParticle';
+import type { QName } from '../QName';
+import type { XmlSchemaAnyAttribute } from '../XmlSchemaAnyAttribute';
 import { XmlSchemaContent } from '../XmlSchemaContent';
 
 export class XmlSchemaComplexContentRestriction extends XmlSchemaContent {

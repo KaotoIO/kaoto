@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parse } from 'yaml';
+
 import {
   BaseDocument,
   BODY_DOCUMENT_ID,
@@ -9,9 +10,9 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
+import { JsonSchemaDocumentService } from '../../services/json-schema-document.service';
 import { XmlSchemaDocumentService } from '../../services/xml-schema-document.service';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
-import { JsonSchemaDocumentService } from '../../services/json-schema-document.service';
 
 export const datamapperRouteDefinitionStub = parse(`
   from:

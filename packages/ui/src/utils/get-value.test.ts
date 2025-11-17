@@ -1,4 +1,4 @@
-import { ROOT_PATH, getValue } from './get-value';
+import { getValue, ROOT_PATH } from './get-value';
 
 describe('getValue', () => {
   it('should return the value of the given path', () => {

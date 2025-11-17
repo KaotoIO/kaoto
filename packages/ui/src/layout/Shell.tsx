@@ -1,9 +1,11 @@
+import './Shell.scss';
+
 import { Page, PageSection } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
+
 import { useLocalStorage } from '../hooks/local-storage.hook';
 import { LocalStorageKeys } from '../models';
 import { Navigation } from './Navigation';
-import './Shell.scss';
 import { TopBar } from './TopBar';
 
 export const Shell: FunctionComponent<PropsWithChildren> = (props) => {

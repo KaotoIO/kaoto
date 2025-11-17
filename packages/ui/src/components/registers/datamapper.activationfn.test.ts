@@ -1,4 +1,5 @@
 import { Step } from '@kaoto/camel-catalog/types';
+
 import { IVisualizationNode, KaotoSchemaDefinition } from '../../models';
 import { datamapperRouteDefinitionStub } from '../../stubs/datamapper/data-mapper';
 import { datamapperActivationFn } from './datamapper.activationfn';

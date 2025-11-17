@@ -1,4 +1,5 @@
 import { JSDOM } from 'jsdom';
+
 import { NULL_NS_URI, XML_NS_PREFIX, XML_NS_URI, XMLNS_ATTRIBUTE, XMLNS_ATTRIBUTE_NS_URI } from '../constants';
 import { NodeNamespaceContext } from './NodeNamespaceContext';
 
