@@ -8,6 +8,7 @@ import { RegisterComponents } from './components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from './components/registers/RegisterNodeInteractionAddons';
 import { RenderingProvider } from './components/RenderingAnchor/rendering.provider';
 import { ControllerService } from './components/Visualization/Canvas/controller.service';
+import { DynamicCatalogRegistryProvider } from './dynamic-catalog';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
@@ -42,35 +43,37 @@ function App() {
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <EntitiesProvider>
-                <Shell>
-                  <CatalogTilesProvider>
-                    <VisualizationProvider controller={controller}>
-                      <VisibleFlowsProvider>
-                        <RenderingProvider>
-                          <RegisterComponents>
-                            <NodeInteractionAddonProvider>
-                              <RegisterNodeInteractionAddons>
-                                <SuggestionRegistryProvider>
-                                  <KeyboardShortcutsProvider>
-                                    <Outlet />
-                                  </KeyboardShortcutsProvider>
-                                </SuggestionRegistryProvider>
-                              </RegisterNodeInteractionAddons>
-                            </NodeInteractionAddonProvider>
-                          </RegisterComponents>
-                        </RenderingProvider>
-                      </VisibleFlowsProvider>
-                    </VisualizationProvider>
-                  </CatalogTilesProvider>
-                </Shell>
-              </EntitiesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
+        <DynamicCatalogRegistryProvider>
+          <RuntimeProvider catalogUrl={catalogUrl}>
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <Shell>
+                    <CatalogTilesProvider>
+                      <VisualizationProvider controller={controller}>
+                        <VisibleFlowsProvider>
+                          <RenderingProvider>
+                            <RegisterComponents>
+                              <NodeInteractionAddonProvider>
+                                <RegisterNodeInteractionAddons>
+                                  <SuggestionRegistryProvider>
+                                    <KeyboardShortcutsProvider>
+                                      <Outlet />
+                                    </KeyboardShortcutsProvider>
+                                  </SuggestionRegistryProvider>
+                                </RegisterNodeInteractionAddons>
+                              </NodeInteractionAddonProvider>
+                            </RegisterComponents>
+                          </RenderingProvider>
+                        </VisibleFlowsProvider>
+                      </VisualizationProvider>
+                    </CatalogTilesProvider>
+                  </Shell>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
+        </DynamicCatalogRegistryProvider>
       </SourceCodeLocalStorageProvider>
     </SettingsProvider>
   );
