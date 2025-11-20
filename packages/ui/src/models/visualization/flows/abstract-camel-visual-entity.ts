@@ -1,7 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { camelCaseToSpaces } from '@kaoto/forms';
+import { camelCaseToSpaces, isDefined } from '@kaoto/forms';
 
-import { getArrayProperty, getValue, isDefined, setValue } from '../../../utils';
+import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';

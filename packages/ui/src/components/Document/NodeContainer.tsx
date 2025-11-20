@@ -1,12 +1,12 @@
 import './NodeContainer.scss';
 
 import { useDraggable, useDroppable } from '@dnd-kit/core';
+import { isDefined } from '@kaoto/forms';
 import clsx from 'clsx';
 import { forwardRef, FunctionComponent, PropsWithChildren } from 'react';
 
 import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
-import { isDefined } from '../../utils';
 
 type DnDContainerProps = PropsWithChildren & {
   nodeData: NodeData;

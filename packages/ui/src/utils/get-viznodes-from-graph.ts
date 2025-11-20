@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
+import { isDefined } from '@kaoto/forms';
 import type { Graph, GraphElement } from '@patternfly/react-topology';
 
 import { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
 import { IVisualizationNode } from '../models/visualization/base-visual-entity';
-import { isDefined } from './is-defined';
 
 const getVisualizationNodeFromCanvasNode = (
   node: GraphElement<CanvasNode, CanvasNode['data']>,

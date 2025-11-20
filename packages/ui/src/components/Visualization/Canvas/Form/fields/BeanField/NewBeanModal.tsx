@@ -3,6 +3,7 @@ import {
   CanvasFormTabsContext,
   CanvasFormTabsContextResult,
   FilteredFieldProvider,
+  isDefined,
   KaotoForm,
   KaotoFormApi,
   KaotoFormProps,
@@ -12,7 +13,6 @@ import { cloneDeep } from 'lodash';
 import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
-import { isDefined } from '../../../../../../utils';
 import { SuggestionRegistrar } from '../../suggestions/SuggestionsProvider';
 
 export type NewBeanModalProps = {

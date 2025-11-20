@@ -1,3 +1,4 @@
+import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -11,7 +12,6 @@ import { ActionConfirmationModalContext } from '../../../../providers/action-con
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
-import { isDefined } from '../../../../utils/is-defined';
 import { updateIds } from '../../../../utils/update-ids';
 import { IInteractionType, IOnPasteAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';

@@ -1,11 +1,11 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { LoadingStatus, LocalStorageKeys } from '../models';
-import { isDefined } from '../utils';
 import { versionCompare } from '../utils/version-compare';
 
 export interface IRuntimeContext {

@@ -3,8 +3,8 @@ import {
   KameletBinding as KameletBindingType,
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
-import { isDefined } from '../../utils';
 import { IKameletDefinition } from '../kamelets-catalog';
 import { CamelResource } from './camel-resource';
 import { IntegrationResource } from './integration-resource';

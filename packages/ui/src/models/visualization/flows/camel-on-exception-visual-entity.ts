@@ -1,7 +1,8 @@
 import { OnException, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { isDefined, NodeIconResolver, NodeIconType } from '../../../utils';
+import { NodeIconResolver, NodeIconType } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import {
   BaseVisualCamelEntity,

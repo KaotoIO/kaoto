@@ -1,9 +1,9 @@
 import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
 import { CatalogKind } from '../../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../../models/kaoto-schema';
 import { CamelCatalogService } from '../../../../../../models/visualization/flows/camel-catalog.service';
-import { isDefined } from '../../../../../../utils';
 
 export class ExpressionService {
   static getExpressionsSchema(schema: KaotoSchemaDefinition['schema']): KaotoSchemaDefinition['schema'] {

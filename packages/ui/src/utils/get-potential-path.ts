@@ -1,4 +1,4 @@
-import { isDefined } from './is-defined';
+import { isDefined } from '@kaoto/forms';
 
 const isValidInteger = (value?: string): boolean => {
   if (value === undefined || value === null) return false;

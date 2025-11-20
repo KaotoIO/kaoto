@@ -1,4 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
 import { IVisualizationNode } from '../models';
 import {
@@ -10,7 +11,7 @@ import {
 } from '../models/datamapper';
 import { IDataMapperMetadata, IDocumentMetadata } from '../models/datamapper/metadata';
 import { EntitiesContextResult, IMetadataApi } from '../providers';
-import { isDefined, isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';
+import { isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';
 import type { XsltComponentDef } from '../utils/is-xslt-component';
 import { EMPTY_XSL } from './mapping-serializer.service';
 

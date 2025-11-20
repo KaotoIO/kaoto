@@ -1,8 +1,8 @@
 import { ProcessorDefinition, RestConfiguration } from '@kaoto/camel-catalog/types';
-import { getValidator } from '@kaoto/forms';
+import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { isDefined, NodeIconResolver, NodeIconType, setValue } from '../../../utils';
+import { NodeIconResolver, NodeIconType, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
