@@ -1,7 +1,6 @@
 import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
-import { resolveSchemaWithRef } from '@kaoto/forms';
+import { isDefined, resolveSchemaWithRef } from '@kaoto/forms';
 
-import { isDefined } from '../../../utils';
 import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';

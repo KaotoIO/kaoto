@@ -1,9 +1,9 @@
-import { KaotoForm } from '@kaoto/forms';
+import { isDefined, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { isDefined, setValue } from '../../../../utils';
+import { setValue } from '../../../../utils';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
 import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';

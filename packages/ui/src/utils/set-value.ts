@@ -1,7 +1,7 @@
+import { isDefined } from '@kaoto/forms';
 import { set } from 'lodash';
 
 import { ROOT_PATH } from './get-value';
-import { isDefined } from './is-defined';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const setValue = (obj: any, path: string | string[], value: any): void => {

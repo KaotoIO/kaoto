@@ -15,10 +15,11 @@
  */
 
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
 import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
-import { createCamelPropertiesSorter, isDefined } from '../../utils';
+import { createCamelPropertiesSorter } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';

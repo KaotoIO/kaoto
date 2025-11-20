@@ -1,4 +1,4 @@
-import { SuggestionRegistryProvider } from '@kaoto/forms';
+import { isDefined, SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { useLayoutEffect, useMemo } from 'react';
 import { Outlet } from 'react-router-dom';
@@ -21,7 +21,6 @@ import {
   SourceCodeLocalStorageProvider,
   VisibleFlowsProvider,
 } from './providers';
-import { isDefined } from './utils';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
 import { setColorScheme } from './utils/color-scheme';
 

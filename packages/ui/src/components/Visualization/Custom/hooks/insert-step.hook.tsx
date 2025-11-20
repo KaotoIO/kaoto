@@ -1,3 +1,4 @@
+import { isDefined } from '@kaoto/forms';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { useCallback, useContext, useMemo } from 'react';
 
@@ -6,7 +7,6 @@ import { CamelComponentSchemaService } from '../../../../models/visualization/fl
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { CatalogModalContext } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { isDefined } from '../../../../utils/is-defined';
 
 export const useInsertStep = (
   vizNode: IVisualizationNode,

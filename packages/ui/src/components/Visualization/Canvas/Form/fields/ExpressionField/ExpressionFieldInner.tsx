@@ -1,14 +1,13 @@
 import {
   ArrayFieldWrapper,
   FieldProps,
+  isDefined,
   ObjectFieldGrouping,
   SchemaList,
   SchemaProvider,
   useOneOfField,
 } from '@kaoto/forms';
 import { FunctionComponent } from 'react';
-
-import { isDefined } from '../../../../../../utils';
 
 export const ExpressionFieldInner: FunctionComponent<FieldProps> = ({ propName }) => {
   const { selectedOneOfSchema, oneOfSchemas, onSchemaChange, shouldRender } = useOneOfField(propName);

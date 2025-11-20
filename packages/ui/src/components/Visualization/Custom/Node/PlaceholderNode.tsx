@@ -1,5 +1,6 @@
 import './PlaceholderNode.scss';
 
+import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import type {
@@ -27,7 +28,6 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
-import { isDefined } from '../../../../utils/is-defined';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';

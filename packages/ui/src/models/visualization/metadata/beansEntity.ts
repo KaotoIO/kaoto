@@ -1,7 +1,7 @@
 import { BeansDeserializer } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 import { v4 as uuidv4 } from 'uuid';
 
-import { isDefined } from '../../../utils';
 import { BaseCamelEntity, EntityType } from '../../camel/entities';
 
 /** Very basic check to determine whether this object is a Beans */

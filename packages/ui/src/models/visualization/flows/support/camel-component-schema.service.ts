@@ -1,14 +1,8 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
-import {
-  CamelUriHelper,
-  DATAMAPPER_ID_PREFIX,
-  getValue,
-  isDataMapperNode,
-  isDefined,
-  ParsedParameters,
-} from '../../../../utils';
+import { CamelUriHelper, DATAMAPPER_ID_PREFIX, getValue, isDataMapperNode, ParsedParameters } from '../../../../utils';
 import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';

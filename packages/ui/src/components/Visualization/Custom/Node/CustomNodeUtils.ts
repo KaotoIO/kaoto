@@ -1,5 +1,6 @@
+import { isDefined } from '@kaoto/forms';
+
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { isDefined } from '../../../../utils/is-defined';
 import { IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 

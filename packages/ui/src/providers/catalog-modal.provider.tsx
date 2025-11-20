@@ -1,5 +1,6 @@
 import './catalog-modal.provider.scss';
 
+import { isDefined } from '@kaoto/forms';
 import { Modal, ModalBody, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import {
   createContext,
@@ -14,7 +15,6 @@ import {
 
 import { Catalog, ITile, TileFilter } from '../components/Catalog';
 import { CatalogKind, DefinedComponent } from '../models';
-import { isDefined } from '../utils';
 import { CatalogContext } from './catalog.provider';
 import { CatalogTilesContext } from './catalog-tiles.provider';
 

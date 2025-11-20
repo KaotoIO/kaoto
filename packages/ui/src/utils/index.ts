@@ -9,7 +9,6 @@ export * from './get-value';
 export * from './get-viznodes-from-graph';
 export * from './init-visible-flows';
 export * from './is-datamapper';
-export * from './is-defined';
 export * from './is-enum-type';
 export * from './is-raw-string';
 export * from './is-same-array';

@@ -1,3 +1,4 @@
+import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useMemo } from 'react';
 
@@ -6,7 +7,6 @@ import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { isDefined } from '../../../../utils/is-defined';
 import { updateIds } from '../../../../utils/update-ids';
 import {
   IInteractionType,

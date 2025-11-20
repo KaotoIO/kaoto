@@ -1,7 +1,8 @@
+import { isDefined } from '@kaoto/forms';
+
 import { ICamelElementLookupResult } from '../models/visualization/flows/support/camel-component-types';
 import { getParsedValue } from './get-parsed-value';
 import { getValue } from './get-value';
-import { isDefined } from './is-defined';
 
 export type ParsedParameters = Record<string, string | boolean | number>;
 

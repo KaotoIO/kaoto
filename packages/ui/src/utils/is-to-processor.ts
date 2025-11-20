@@ -1,6 +1,5 @@
 import { ProcessorDefinition, To } from '@kaoto/camel-catalog/types';
-
-import { isDefined } from './is-defined';
+import { isDefined } from '@kaoto/forms';
 
 export type ToObjectDef = { to: Exclude<To, string> };
 

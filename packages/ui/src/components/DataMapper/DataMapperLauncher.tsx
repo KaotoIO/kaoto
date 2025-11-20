@@ -15,6 +15,7 @@
 */
 import './DataMapperLauncher.scss';
 
+import { isDefined } from '@kaoto/forms';
 import {
   Alert,
   Button,
@@ -34,7 +35,7 @@ import { IVisualizationNode } from '../../models';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { isDefined, isXSLTComponent } from '../../utils';
+import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
 
 export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {

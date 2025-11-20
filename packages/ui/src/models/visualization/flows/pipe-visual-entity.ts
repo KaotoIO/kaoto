@@ -1,11 +1,11 @@
 import { Pipe } from '@kaoto/camel-catalog/types';
+import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import {
   getArrayProperty,
   getCustomSchemaFromPipe,
   getValue,
-  isDefined,
   NodeIconResolver,
   NodeIconType,
   setValue,
