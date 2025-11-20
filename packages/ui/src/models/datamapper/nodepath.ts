@@ -3,6 +3,11 @@ import { DocumentType } from './document';
 /**
  * The internal path representation which uses {@link IField.id} for source and {@link MappingItem.id} for target
  * to represent the node, and use '/' as a path separator.
+ * In order to distinguish all the nodes at the target side, we needed to use ID. While document field nodes are all
+ * unique with its path (when namespace is taken care) at the same level, e.g. it is guaranteed that `/ns0:ShipOrder/ns0:ShipTo`
+ * is unique, it is not the case at the target side once the mappings are overlaid. For example there could be
+ * multiple `for-each` element at the same level, for example `/ns0:ShipOrder/for-each` is ambiguous when there're
+ * multiple `for-each` at the same level, such as `/ns0:ShipOrder/for-each[0]` and `/ns0:ShipOrder/for-each[1]`.
  */
 export class NodePath {
   documentType: DocumentType = DocumentType.SOURCE_BODY;

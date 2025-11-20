@@ -8,13 +8,6 @@ import { Predicate } from './xpath';
 export const DEFAULT_MIN_OCCURS = XmlSchemaParticle.DEFAULT_MIN_OCCURS;
 export const DEFAULT_MAX_OCCURS = XmlSchemaParticle.DEFAULT_MAX_OCCURS;
 
-export interface INamespace {
-  alias: string;
-  uri: string;
-  locationUri: string;
-  isTarget: boolean;
-}
-
 export type IParentType = IDocument | IField;
 
 export const BODY_DOCUMENT_ID = 'Body';
