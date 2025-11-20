@@ -1,8 +1,9 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
-import React, { useContext, useEffect, useLayoutEffect, useMemo } from 'react';
+import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 
 import { Visualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
+import { DynamicCatalogRegistryProvider } from '../../dynamic-catalog';
 import {
   CatalogLoaderProvider,
   EntitiesContext,
@@ -15,7 +16,7 @@ import {
 } from '../../providers';
 import { EventNotifier } from '../../utils';
 
-const VisibleFlowsVisualization: React.FC<{ className?: string }> = ({ className = '' }) => {
+const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ className = '' }) => {
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const entitiesContext = useContext(EntitiesContext);
   const visualEntities = entitiesContext?.visualEntities ?? [];
@@ -27,22 +28,24 @@ const VisibleFlowsVisualization: React.FC<{ className?: string }> = ({ className
   return <Visualization className={`canvas-page ${className}`} entities={visualEntities} />;
 };
 
-const Viz: React.FC<{ catalogUrl: string; className?: string }> = ({ catalogUrl, className = '' }) => {
+const Viz: FunctionComponent<{ catalogUrl: string; className?: string }> = ({ catalogUrl, className = '' }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
     <ReloadProvider>
-      <RuntimeProvider catalogUrl={catalogUrl}>
-        <SchemasLoaderProvider>
-          <CatalogLoaderProvider>
-            <VisualizationProvider controller={controller}>
-              <VisibleFlowsProvider>
-                <VisibleFlowsVisualization className={`canvas-page ${className}`} />
-              </VisibleFlowsProvider>
-            </VisualizationProvider>
-          </CatalogLoaderProvider>
-        </SchemasLoaderProvider>
-      </RuntimeProvider>
+      <DynamicCatalogRegistryProvider>
+        <RuntimeProvider catalogUrl={catalogUrl}>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <VisualizationProvider controller={controller}>
+                <VisibleFlowsProvider>
+                  <VisibleFlowsVisualization className={`canvas-page ${className}`} />
+                </VisibleFlowsProvider>
+              </VisualizationProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
+      </DynamicCatalogRegistryProvider>
     </ReloadProvider>
   );
 };
