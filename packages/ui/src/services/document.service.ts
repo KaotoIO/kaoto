@@ -15,7 +15,8 @@ import {
 import { IMetadataApi } from '../providers';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 import { XPathService } from './xpath/xpath.service';
 
 interface InitialDocumentsSet {
@@ -139,18 +140,11 @@ export class DocumentService {
       return new PrimitiveDocument(definition.documentType, DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID);
     }
     if (!definition.definitionFiles || Object.keys(definition.definitionFiles).length === 0) return null;
-    const content = Object.values(definition.definitionFiles)[0];
-    const documentId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
     switch (definition.definitionType) {
       case DocumentDefinitionType.XML_SCHEMA:
-        return XmlSchemaDocumentService.createXmlSchemaDocument(
-          definition.documentType,
-          documentId,
-          content,
-          definition.rootElementChoice,
-        );
+        return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       case DocumentDefinitionType.JSON_SCHEMA:
-        return JsonSchemaDocumentService.createJsonSchemaDocument(definition.documentType, documentId, content);
+        return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       default:
         return null;
     }

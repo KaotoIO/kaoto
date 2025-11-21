@@ -3,6 +3,7 @@ import { MutableRefObject, RefObject, useRef } from 'react';
 
 import {
   BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IDocument,
@@ -17,7 +18,8 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocument, JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocument } from './json-schema-document-model.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 
@@ -34,23 +36,30 @@ describe('MappingLinksService : JSON', () => {
   });
 
   beforeEach(() => {
-    accountParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+    const accountDefinition = new DocumentDefinition(
       DocumentType.PARAM,
+      DocumentDefinitionType.JSON_SCHEMA,
       'Account',
-      accountJsonSchema,
+      { 'Account.json': accountJsonSchema },
     );
-    cartParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, 'Cart', cartJsonSchema);
+    accountParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+    const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
+      'Cart.json': cartJsonSchema,
+    });
+    cartParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
     const orderSequenceParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
     paramsMap = new Map<string, IDocument>([
       ['OrderSequence', orderSequenceParamDoc],
       ['Account', accountParamDoc],
       ['Cart', cartParamDoc],
     ]);
-    targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+    const targetDefinition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
-      'ShipOrder',
-      shipOrderJsonSchema,
+      DocumentDefinitionType.JSON_SCHEMA,
+      undefined,
+      { 'ShipOrder.json': shipOrderJsonSchema },
     );
+    targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
     MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, paramsMap);
   });

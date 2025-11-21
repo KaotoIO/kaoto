@@ -1,5 +1,6 @@
 import {
   BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IDocument,
@@ -42,7 +43,8 @@ import {
 } from '../stubs/datamapper/data-mapper';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { VisualizationService } from './visualization.service';
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -570,12 +572,17 @@ describe('VisualizationService', () => {
       });
     });
     it('should fill ContextItemExpr (.) and AbbrevReverseStep (..) in xpath when it maps under for-each', () => {
-      const orgDoc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'Org.xsd', orgXsd);
-      const contactsDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const orgDefinition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'Org', {
+        'Org.xsd': orgXsd,
+      });
+      const orgDoc = XmlSchemaDocumentService.createXmlSchemaDocument(orgDefinition);
+      const contactsDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
-        'Contacts.xsd',
-        contactsXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'Contacts.xsd': contactsXsd },
       );
+      const contactsDoc = XmlSchemaDocumentService.createXmlSchemaDocument(contactsDefinition);
 
       const orgToContactsTree = new MappingTree(
         contactsDoc.documentType,
@@ -653,11 +660,13 @@ describe('VisualizationService', () => {
     });
 
     it('should render ExtensionSimple.xsd', () => {
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        extensionSimpleXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'extensionSimple.xsd': extensionSimpleXsd },
       );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
       expect(docChildren.length).toEqual(1);
@@ -691,12 +700,14 @@ describe('VisualizationService', () => {
     });
 
     it('should render ExtensionComplex.xsd', () => {
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        extensionComplexXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'extensionComplex.xsd': extensionComplexXsd },
         { namespaceUri: 'http://www.example.com/TEST', name: 'Request' },
       );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
       expect(docChildren.length).toEqual(1);
@@ -718,11 +729,13 @@ describe('VisualizationService', () => {
     });
 
     it('should render SchemaTest.xsd', () => {
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        schemaTestXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'schemaTest.xsd': schemaTestXsd },
       );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
       expect(docChildren.length).toEqual(1);

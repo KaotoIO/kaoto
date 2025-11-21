@@ -5,7 +5,7 @@ import { DocumentNodeData, FieldNodeData } from '../models/datamapper/visualizat
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { TreeParsingService } from './tree-parsing.service';
 import { VisualizationService } from './visualization.service';
-import { XmlSchemaDocument } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('TreeParsingService', () => {
   let sourceDoc: XmlSchemaDocument;

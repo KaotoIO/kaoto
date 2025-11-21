@@ -28,7 +28,7 @@ import {
 } from '../models/datamapper/document';
 import { MappingTree } from '../models/datamapper/mapping';
 import { CanvasView } from '../models/datamapper/view';
-import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
+import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/xslt';
 import { DocumentService } from '../services/document.service';
 import { MappingService } from '../services/mapping.service';
 import { MappingSerializerService } from '../services/mapping-serializer.service';
@@ -104,7 +104,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
    * but also for the function calls in the xpath. We should prefill this from beginning.
    */
   const initialNamespaceMap = useMemo(() => {
-    return { fn: NS_XPATH_FUNCTIONS };
+    return { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
   }, []);
   const initialMappingTree = new MappingTree(
     DocumentType.TARGET_BODY,

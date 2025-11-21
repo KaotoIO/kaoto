@@ -5,7 +5,7 @@ import { useDocumentTreeStore } from '../store/document-tree.store';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { TreeParsingService } from './tree-parsing.service';
 import { TreeUIService } from './tree-ui.service';
-import { XmlSchemaDocument } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('TreeUIService', () => {
   let sourceDoc: XmlSchemaDocument;

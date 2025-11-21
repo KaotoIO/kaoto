@@ -1,220 +1,25 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
-import { getCamelRandomId } from '../camel-utils/camel-random-id';
-import {
-  BaseDocument,
-  BaseField,
-  DocumentDefinitionType,
-  IField,
-  ITypeFragment,
-  PathExpression,
-  PathSegment,
-  Types,
-} from '../models/datamapper';
-import { DocumentType, IParentType } from '../models/datamapper/document';
-import { NodePath } from '../models/datamapper/nodepath';
-import { Predicate, PredicateOperator } from '../models/datamapper/xpath';
-import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
+import { BODY_DOCUMENT_ID, DocumentDefinition } from '../models/datamapper';
+import { DocumentType } from '../models/datamapper/document';
+import { Types } from '../models/datamapper/types';
+import { QName } from '../xml-schema-ts/QName';
 import { DocumentUtilService } from './document-util.service';
-import { FROM_JSON_SOURCE_SUFFIX } from './mapping-serializer-json-addon';
-
-export interface JsonSchemaTypeFragment extends ITypeFragment {
-  type?: Types;
-  required?: string[];
-  fields: JsonSchemaField[];
-}
-
-export interface JSONSchemaMetadata extends JSONSchema7 {
-  path: string;
-}
-
-/**
- * Represents the JSON schema document.
- *
- * @see {@link JsonSchemaField}
- */
-export class JsonSchemaDocument extends BaseDocument {
-  isNamespaceAware: boolean = false;
-  totalFieldCount: number = 0;
-  fields: JsonSchemaField[] = [];
-  namedTypeFragments: Record<string, JsonSchemaTypeFragment> = {};
-  definitionType: DocumentDefinitionType;
-
-  constructor(documentType: DocumentType, documentId: string) {
-    super(documentType, documentId);
-    this.name = documentId;
-    this.definitionType = DocumentDefinitionType.JSON_SCHEMA;
-  }
-
-  getReferenceId(_namespaceMap: { [prefix: string]: string }): string {
-    // @TODO Currently JSON body is not supported, i.e. it should be always a param.
-    // We should change this accordingly when JSON body is supported.
-    return this.documentType === DocumentType.PARAM
-      ? `${this.documentId}${FROM_JSON_SOURCE_SUFFIX}`
-      : `body${FROM_JSON_SOURCE_SUFFIX}`;
-  }
-}
-
-export type JsonSchemaParentType = JsonSchemaDocument | JsonSchemaField;
-
-/**
- * Represents the field in JSON schema document.
- *
- * JSON schema allows to have an array of property types. We might eventually have to introduce an array
- * of field types at {@link IField} level. Then UI would also have to support handling it, such as
- * if this field is string, then do this, if it's object, then do that, etc.
- * For now, it chooses one type and use it.
- * Also in JSON schema, when `type` is omitted, it could be any type. This fact basically conflicts with what
- * we want to do with XSLT3 lossless JSON representation where it explicitly has to specify the type.
- * Until we get a concrete idea of how to handle this in DataMapper UI, just pick one type and use it.
- *
- * Unlike XML, JSON could have anonymous object and array. In the JSON lossless representation in XSLT,
- * object is represented by `fn:map` and array is represented by `fn:array` while the name is specified with
- * `key` attribute, such as `fn:map[@key='objectName']` and `fn:map[@key='arrayName']`. `fn:map` and `fn:array`
- * simply represents anonymous object and array. In order to take this into account, {@link JsonSchemaField.name}
- * holds the field type such as `map` or `array`, and {@link JsonSchemaField.key} holds the name if it's named one.
- * The `key` will be an empty string for the anonymous JSON field. Alternatively {@link JsonSchemaField.displayName}
- * provides human-readable label for the field, which shows JSON field type such as `map` and `array`, as well as
- * {@link JsonSchemaField.key} in case the field is a named one.
- * @see {@link XmlSchemaField}
- */
-export class JsonSchemaField extends BaseField {
-  fields: JsonSchemaField[] = [];
-  namespaceURI: string = NS_XPATH_FUNCTIONS;
-  namespacePrefix: string = 'fn';
-  isAttribute = false;
-  predicates: Predicate[] = [];
-  required: string[] = [];
-
-  constructor(
-    public parent: JsonSchemaParentType,
-    public key: string,
-    public type: Types,
-  ) {
-    const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as JsonSchemaDocument;
-    super(parent, ownerDocument, key);
-    this.type = type;
-    this.name = JsonSchemaDocumentService.toXsltTypeName(this.type);
-    const keyPart = this.key ? `-${this.key}` : '';
-    this.id = `fj-${this.name}${keyPart}${getCamelRandomId('', 4)}`;
-    this.path = NodePath.childOf(parent.path, this.id);
-    const queryPart = this.key ? ` [@key = ${this.key}]` : '';
-    this.displayName = `${this.name}${queryPart}`;
-
-    if (this.key) {
-      const left = new PathExpression();
-      left.isRelative = true;
-      left.pathSegments = [new PathSegment('key', true)];
-      this.predicates = [new Predicate(left, PredicateOperator.Equal, this.key)];
-    }
-  }
-
-  private createNew(parent: JsonSchemaField) {
-    const created = new JsonSchemaField(parent, this.key, this.type);
-    this.copyTo(created);
-    created.minOccurs = parent.required.includes(this.key) ? 1 : 0;
-    created.maxOccurs = parent.type === Types.Array ? Number.MAX_SAFE_INTEGER : 1;
-    return created;
-  }
-
-  adopt(parent: IField) {
-    if (!(parent instanceof JsonSchemaField)) return super.adopt(parent);
-
-    const existing = parent.fields.find((f) => f.isIdentical(this));
-    if (!existing) {
-      const adopted = this.createNew(parent);
-      parent.fields.push(adopted);
-      parent.ownerDocument.totalFieldCount++;
-      return adopted;
-    }
-
-    // Inherit field type if existing field is any type (i.e. not defined) - need to re-create the field object
-    if (this.type !== Types.AnyType && existing.type === Types.AnyType) {
-      const index = parent.fields.indexOf(existing);
-      const adopted = this.createNew(parent);
-      parent.fields[index] = adopted;
-      return adopted;
-    }
-
-    if (this.defaultValue !== null) existing.defaultValue = this.defaultValue;
-    for (const ref of this.namedTypeFragmentRefs) {
-      !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
-    }
-    for (const child of this.fields) child.adopt(existing);
-    return existing;
-  }
-
-  copyTo(to: JsonSchemaField) {
-    to.minOccurs = this.minOccurs;
-    to.maxOccurs = this.maxOccurs;
-    to.defaultValue = this.defaultValue;
-    to.namespacePrefix = this.namespacePrefix;
-    to.namespaceURI = this.namespaceURI;
-    to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
-    to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
-    return to;
-  }
-
-  getExpression(namespaceMap: { [p: string]: string }): string {
-    let nsPrefix = Object.keys(namespaceMap).find((key) => namespaceMap[key] === this.namespaceURI);
-    if (!nsPrefix) {
-      namespaceMap[this.namespacePrefix] = this.namespaceURI;
-      nsPrefix = this.namespacePrefix;
-    }
-
-    const prefix = nsPrefix ? `${nsPrefix}:` : '';
-    const keyQuery = this.key ? `[@key='${this.key}']` : '';
-    return `${prefix}${this.name}${keyQuery}`;
-  }
-
-  isIdentical(other: IField): boolean {
-    if (!('key' in other)) return false;
-    if (this.key !== other.key) return false;
-    return true;
-  }
-}
+import type {
+  JSONSchemaMetadata,
+  JsonSchemaParentType,
+  JsonSchemaTypeFragment,
+} from './json-schema-document-model.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document-model.service';
+import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 
 /**
  * The collection of JSON schema handling logic. {@link createJsonSchemaDocument} consumes JSON schema
  * file and generate a {@link JsonSchemaDocument} object.
+ *
+ * @see JsonSchemaDocumentUtilService
  */
 export class JsonSchemaDocumentService {
-  static getChildField(
-    parentField: IParentType,
-    type: Types,
-    fieldKey: string,
-    namespaceURI: string,
-  ): IField | undefined {
-    const resolvedParent = 'parent' in parentField ? DocumentUtilService.resolveTypeFragment(parentField) : parentField;
-    return resolvedParent.fields.find((f) => {
-      return (
-        'key' in f &&
-        f.key === fieldKey &&
-        JsonSchemaDocumentService.toXsltTypeName(f.type) === JsonSchemaDocumentService.toXsltTypeName(type) &&
-        ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI)
-      );
-    });
-  }
-
-  static toXsltTypeName(type: Types): string {
-    switch (type) {
-      case Types.String:
-        return 'string';
-      case Types.Numeric:
-        return 'number';
-      case Types.Integer:
-        return 'number';
-      case Types.Boolean:
-        return 'boolean';
-      case Types.Container:
-        return 'map';
-      case Types.Array:
-        return 'array';
-      default:
-        return 'map';
-    }
-  }
-
   static parseJsonSchema(content: string): JSONSchemaMetadata {
     try {
       const row = JSON.parse(content) as JSONSchema7;
@@ -237,15 +42,35 @@ export class JsonSchemaDocumentService {
    * {@link DocumentUtilService.adoptTypeFragment}.
    * After these 2 steps processing, this method returns the generated {@link JsonSchemaDocument} object.
    *
-   * @param documentType
-   * @param documentId
-   * @param content
+   * @param definition The DocumentDefinition containing schema information
    */
-  static createJsonSchemaDocument(documentType: DocumentType, documentId: string, content: string) {
-    const jsonService = new JsonSchemaDocumentService(documentType, documentId, content);
+  static createJsonSchemaDocument(definition: DocumentDefinition) {
+    const documentType = definition.documentType;
+    const docId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
+
+    const filePaths = Object.keys(definition.definitionFiles || {});
+    if (filePaths.length === 0) {
+      throw new Error('No schema files provided in DocumentDefinition');
+    }
+
+    const fileContent = definition.definitionFiles![filePaths[0]];
+
+    const jsonService = new JsonSchemaDocumentService(documentType, docId, fileContent);
     jsonService.populateFieldFromSchema(jsonService.jsonDocument, '', jsonService.jsonSchemaMetadata);
     jsonService.updateFieldTypes();
-    return jsonService.jsonDocument;
+
+    const document = jsonService.jsonDocument;
+
+    if (definition.fieldTypeOverrides?.length && definition.fieldTypeOverrides.length > 0) {
+      DocumentUtilService.applyFieldTypeOverrides(
+        document,
+        definition.fieldTypeOverrides,
+        definition.namespaceMap || {},
+        JsonSchemaDocumentUtilService.parseTypeOverride,
+      );
+    }
+
+    return document;
   }
 
   constructor(documentType: DocumentType, documentId: string, jsonSchemaContent: string) {
@@ -287,6 +112,15 @@ export class JsonSchemaDocumentService {
       }
 
       field.namedTypeFragmentRefs.push(schema.$ref);
+      const refQName = new QName(null, schema.$ref);
+      field.typeQName = refQName;
+      field.originalTypeQName = refQName;
+    } else if (schema.type) {
+      const typeArray = Array.isArray(schema.type) ? schema.type : [schema.type];
+      const typeString = typeArray[0];
+      const typeQName = new QName(null, typeString);
+      field.typeQName = typeQName;
+      field.originalTypeQName = typeQName;
     }
     if (schema.required) {
       field.required.push(...schema.required);

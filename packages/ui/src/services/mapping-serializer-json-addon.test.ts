@@ -1,23 +1,16 @@
-import {
-  BODY_DOCUMENT_ID,
-  DocumentDefinitionType,
-  FieldItem,
-  MappingTree,
-  NS_XSL,
-  PrimitiveDocument,
-  Types,
-} from '../models/datamapper';
-import { DocumentType } from '../models/datamapper/document';
+import { DocumentDefinitionType, FieldItem, MappingTree, NS_XSL, PrimitiveDocument, Types } from '../models/datamapper';
+import { DocumentDefinition, DocumentType } from '../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import { cartToShipOrderJsonXslt, shipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document-model.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import {
   FROM_JSON_SOURCE_SUFFIX,
   MappingSerializerJsonAddon,
   TO_JSON_TARGET_VARIABLE,
 } from './mapping-serializer-json-addon';
-import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaField } from './xml-schema-document-model.service';
 
 describe('mappingSerializerJsonAddon', () => {
   describe('populateXmlToJsonVariable()', () => {
@@ -183,11 +176,13 @@ describe('mappingSerializerJsonAddon', () => {
     });
 
     it('should not populate a FieldItem if not JSON field', () => {
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        shipOrderXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'shipOrder.xsd': shipOrderXsd },
       );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);
       const field = new XmlSchemaField(doc, '', false);
       const fieldItem = new FieldItem(mappings, field);

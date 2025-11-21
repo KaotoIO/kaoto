@@ -1,5 +1,5 @@
-import { BODY_DOCUMENT_ID, PathExpression, PathSegment } from '../../models/datamapper';
-import { DocumentType, IDocument } from '../../models/datamapper/document';
+import { PathExpression, PathSegment } from '../../models/datamapper';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, IDocument } from '../../models/datamapper/document';
 import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
 import { cartXsd, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../xml-schema-document.service';
@@ -747,12 +747,17 @@ describe('XPathService', () => {
     let cart2Doc: IDocument;
 
     beforeEach(() => {
-      bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const bodyDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        shipOrderXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'shipOrder.xsd': shipOrderXsd },
       );
-      cart2Doc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, 'Cart2', cartXsd);
+      bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(bodyDefinition);
+      const cart2Definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.XML_SCHEMA, 'Cart2', {
+        'cart.xsd': cartXsd,
+      });
+      cart2Doc = XmlSchemaDocumentService.createXmlSchemaDocument(cart2Definition);
     });
 
     it('should generate relative path when source and context are from same document', () => {

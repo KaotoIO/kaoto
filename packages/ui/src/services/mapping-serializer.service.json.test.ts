@@ -1,5 +1,6 @@
 import {
   BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   FieldItem,
@@ -18,28 +19,33 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocumentService, JsonSchemaField } from './json-schema-document.service';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaField } from './json-schema-document-model.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 describe('MappingSerializerService / JSON', () => {
-  const accountParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
-    DocumentType.PARAM,
-    'Account',
-    accountJsonSchema,
-  );
-  const cartParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, 'Cart', cartJsonSchema);
+  const accountDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
+    'Account.json': accountJsonSchema,
+  });
+  const accountParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+  const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
+    'Cart.json': cartJsonSchema,
+  });
+  const cartParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
   const orderSequenceParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
   const sourceParameterMap = new Map<string, IDocument>([
     ['OrderSequence', orderSequenceParamDoc],
     ['Account', accountParamDoc],
     ['Cart', cartParamDoc],
   ]);
-  const targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+  const targetDefinition = new DocumentDefinition(
     DocumentType.TARGET_BODY,
-    'ShipOrder',
-    shipOrderJsonSchema,
+    DocumentDefinitionType.JSON_SCHEMA,
+    undefined,
+    { 'ShipOrder.json': shipOrderJsonSchema },
   );
+  const targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
 
   describe('deserialize()', () => {
     it('should deserialize XSLT', () => {

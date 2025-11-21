@@ -4,7 +4,7 @@ import { parse } from 'yaml';
 
 import {
   BaseDocument,
-  BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IDocument,
@@ -128,42 +128,59 @@ export const invalidComplexExtensionXsd = fs
 export const simpleTypeInheritanceXsd = fs
   .readFileSync(path.resolve(__dirname, './xml/SimpleTypeInheritance.xsd'))
   .toString();
+export const simpleTypeRestrictionXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/SimpleTypeRestriction.xsd'))
+  .toString();
+export const lazyLoadingTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/LazyLoadingTest.xsd')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
-    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, shipOrderXsd);
+    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
+      'shipOrder.xsd': shipOrderXsd,
+    });
+    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
 
   static createJSONSourceOrderDoc() {
-    return JsonSchemaDocumentService.createJsonSchemaDocument(
-      DocumentType.SOURCE_BODY,
-      BODY_DOCUMENT_ID,
-      shipOrderJsonSchema,
-    );
+    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, undefined, {
+      'shipOrder.json': shipOrderJsonSchema,
+    });
+    return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
   }
 
   static createCamelSpringXsdSourceDoc() {
-    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, camelSpringXsd);
+    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
+      'camelSpring.xsd': camelSpringXsd,
+    });
+    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
 
   static createTargetOrderDoc() {
-    return XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, shipOrderXsd);
+    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
+      'shipOrder.xsd': shipOrderXsd,
+    });
+    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
 
   static createJSONTargetOrderDoc() {
-    return JsonSchemaDocumentService.createJsonSchemaDocument(
-      DocumentType.TARGET_BODY,
-      BODY_DOCUMENT_ID,
-      shipOrderJsonSchema,
-    );
+    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, undefined, {
+      'shipOrder.json': shipOrderJsonSchema,
+    });
+    return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
   }
 
   static createParamOrderDoc(name: string, schemaType?: DocumentDefinitionType, content?: string) {
     let answer: BaseDocument;
     if (schemaType === DocumentDefinitionType.JSON_SCHEMA) {
-      answer = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, name, content || cartJsonSchema);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, name, {
+        [`${name}.json`]: content || cartJsonSchema,
+      });
+      answer = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
     } else {
-      answer = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.PARAM, name, content || shipOrderXsd);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.XML_SCHEMA, name, {
+        [`${name}.xsd`]: content || shipOrderXsd,
+      });
+      answer = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     }
     answer.name = name;
     return answer;

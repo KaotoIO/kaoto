@@ -1,6 +1,7 @@
 import {
   AddMappingNodeData,
   BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentNodeData,
   DocumentType,
@@ -28,18 +29,22 @@ import { MappingSerializerService } from './mapping-serializer.service';
 import { VisualizationService } from './visualization.service';
 
 describe('VisualizationService / JSON', () => {
-  const accountDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
-    DocumentType.PARAM,
-    'Account',
-    accountJsonSchema,
-  );
-  const cartDoc = JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.PARAM, 'Cart', cartJsonSchema);
+  const accountDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
+    'Account.json': accountJsonSchema,
+  });
+  const accountDoc = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+  const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
+    'Cart.json': cartJsonSchema,
+  });
+  const cartDoc = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
   const orderSequenceDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
-  const targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+  const targetDefinition = new DocumentDefinition(
     DocumentType.TARGET_BODY,
-    'ShipOrder',
-    shipOrderJsonSchema,
+    DocumentDefinitionType.JSON_SCHEMA,
+    undefined,
+    { 'ShipOrder.json': shipOrderJsonSchema },
   );
+  const targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
 
   const sourceParameterMap = new Map<string, IDocument>([
     ['OrderSequence', orderSequenceDoc],
@@ -184,11 +189,13 @@ describe('VisualizationService / JSON', () => {
 
   it('should generate nodes from Camel YAML DSL JSON schema', () => {
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-    const camelYamlDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+    const camelYamlDefinition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
-      'CamelYamlDsl.json',
-      camelYamlDslJsonSchema,
+      DocumentDefinitionType.JSON_SCHEMA,
+      undefined,
+      { 'CamelYamlDsl.json': camelYamlDslJsonSchema },
     );
+    const camelYamlDoc = JsonSchemaDocumentService.createJsonSchemaDocument(camelYamlDefinition);
     targetDocNode = new TargetDocumentNodeData(camelYamlDoc, mappingTree);
     const targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     expect(targetChildren.length).toEqual(1);
