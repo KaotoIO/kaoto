@@ -9,12 +9,8 @@ import {
   Types,
 } from '../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
-import {
-  JsonSchemaDocument,
-  JsonSchemaDocumentService,
-  JsonSchemaField,
-  JsonSchemaParentType,
-} from './json-schema-document.service';
+import { JsonSchemaDocument, JsonSchemaField, JsonSchemaParentType } from './json-schema-document-model.service';
+import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 
 export const FROM_JSON_SOURCE_SUFFIX = '-x';
 export const TO_JSON_TARGET_VARIABLE = 'mapped-xml';
@@ -163,7 +159,7 @@ export class MappingSerializerJsonAddon {
     }
 
     const fieldKey = item.getAttribute('key') ?? '';
-    const existing = JsonSchemaDocumentService.getChildField(parentField, type, fieldKey, namespace);
+    const existing = JsonSchemaDocumentUtilService.getChildField(parentField, type, fieldKey, namespace);
     if (existing) return existing;
     const field = new JsonSchemaField(parentField as JsonSchemaParentType, fieldKey, type);
     field.namespaceURI = namespace;

@@ -29,3 +29,9 @@ export enum Types {
   Container = 'Container',
   Array = 'Array',
 }
+
+export enum TypeOverrideVariant {
+  NONE = 'NONE',
+  SAFE = 'SAFE',
+  FORCE = 'FORCE',
+}

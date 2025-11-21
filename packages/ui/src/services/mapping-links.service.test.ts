@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { MutableRefObject, RefObject, useRef } from 'react';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
 import { MappingTree } from '../models/datamapper/mapping';
 import { NodeReference } from '../models/datamapper/visualization';
 import { mockRandomValues } from '../stubs';
@@ -25,7 +25,8 @@ import {
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -74,16 +75,20 @@ describe('MappingLinksService', () => {
     });
 
     it('should generate mapping links for the cached type fragments field', () => {
-      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const sourceDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        x12837PDfdlXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'x12837PDfdl.xsd': x12837PDfdlXsd },
       );
-      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition);
+      const targetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
-        BODY_DOCUMENT_ID,
-        message837Xsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'message837.xsd': message837Xsd },
       );
+      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition);
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(x12837PXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
@@ -119,16 +124,20 @@ describe('MappingLinksService', () => {
     });
 
     it('should not generate mapping link from the source body root', () => {
-      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const sourceDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        x12850DfdlXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'x12850Dfdl.xsd': x12850DfdlXsd },
       );
-      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition);
+      const targetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
-        BODY_DOCUMENT_ID,
-        invoice850Xsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'invoice850.xsd': invoice850Xsd },
       );
+      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition);
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(x12850ForEachXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
@@ -148,26 +157,32 @@ describe('MappingLinksService', () => {
     });
 
     it('should generate mapping links for JSON documents', () => {
-      const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(
+      const jsonTargetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
-        BODY_DOCUMENT_ID,
-        shipOrderJsonSchema,
+        DocumentDefinitionType.JSON_SCHEMA,
+        undefined,
+        { 'shipOrder.json': shipOrderJsonSchema },
       );
+      const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(jsonTargetDefinition);
       tree = new MappingTree(jsonTargetDoc.documentType, jsonTargetDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(shipOrderToShipOrderXslt, jsonTargetDoc, tree, paramsMap);
     });
 
     it('should generate mapping links for parent references', () => {
-      const orgSourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const orgSourceDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
-        BODY_DOCUMENT_ID,
-        orgXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'org.xsd': orgXsd },
       );
-      const contactsTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      const orgSourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(orgSourceDefinition);
+      const contactsTargetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
-        BODY_DOCUMENT_ID,
-        contactsXsd,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        { 'contacts.xsd': contactsXsd },
       );
+      const contactsTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(contactsTargetDefinition);
 
       tree = new MappingTree(
         contactsTargetDoc.documentType,

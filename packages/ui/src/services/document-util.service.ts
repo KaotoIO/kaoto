@@ -1,4 +1,14 @@
 import { IDocument, IField, IParentType, ITypeFragment, PrimitiveDocument } from '../models/datamapper';
+import { IFieldTypeOverride } from '../models/datamapper/metadata';
+import { TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { QName } from '../xml-schema-ts/QName';
+import { XPathService } from './xpath/xpath.service';
+
+type ParseTypeOverrideFn = (
+  typeString: string,
+  namespaceMap: Record<string, string>,
+  field: IField,
+) => { type: Types; typeQName: QName; variant: TypeOverrideVariant };
 
 /**
  * The collection of utility functions shared among {@link DocumentService}, {@link XmlSchemaDocumentService}
@@ -51,5 +61,75 @@ export class DocumentUtilService {
       fieldStack.push(next);
     }
     return fieldStack;
+  }
+
+  static applyFieldTypeOverrides(
+    document: IDocument,
+    overrides: IFieldTypeOverride[],
+    namespaceMap: Record<string, string>,
+    parseTypeOverride: ParseTypeOverrideFn,
+  ): void {
+    for (const override of overrides) {
+      const field = DocumentUtilService.navigateToFieldByPath(document, override.path, namespaceMap);
+      if (field) {
+        DocumentUtilService.applyTypeOverrideToField(field, override.type, namespaceMap, parseTypeOverride);
+      }
+    }
+  }
+
+  private static navigateToFieldByPath(
+    document: IDocument,
+    xpathString: string,
+    namespaceMap: Record<string, string>,
+  ): IField | undefined {
+    const pathExpressions = XPathService.extractFieldPaths(xpathString);
+    if (pathExpressions.length === 0) {
+      return undefined;
+    }
+
+    const pathExpression = pathExpressions[0];
+    let current: IDocument | IField = document;
+
+    for (const segment of pathExpression.pathSegments) {
+      if (segment.isAttribute) {
+        continue;
+      }
+
+      if ('parent' in current && current.namedTypeFragmentRefs.length > 0) {
+        DocumentUtilService.resolveTypeFragment(current);
+      }
+
+      const childField: IField | undefined = current.fields.find((f) =>
+        XPathService.matchSegment(namespaceMap, f, segment),
+      );
+
+      if (!childField) {
+        return undefined;
+      }
+
+      current = childField;
+    }
+
+    return 'parent' in current ? current : undefined;
+  }
+
+  private static applyTypeOverrideToField(
+    field: IField,
+    typeString: string,
+    namespaceMap: Record<string, string>,
+    parseTypeOverride: ParseTypeOverrideFn,
+  ): void {
+    const { type, typeQName, variant } = parseTypeOverride(typeString, namespaceMap, field);
+
+    field.type = type;
+    field.typeQName = typeQName;
+    field.typeOverride = variant;
+    field.fields = [];
+
+    if (type === Types.Container) {
+      field.namedTypeFragmentRefs = [typeQName.toString()];
+    } else {
+      field.namedTypeFragmentRefs = [];
+    }
   }
 }

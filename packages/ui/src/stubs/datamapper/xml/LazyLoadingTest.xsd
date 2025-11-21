@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/LAZYTEST"
+           xmlns:tns="http://www.example.com/LAZYTEST"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="AddressType">
+    <xs:sequence>
+      <xs:element name="Street" type="xs:string"/>
+      <xs:element name="City" type="xs:string"/>
+      <xs:element name="ZipCode" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactType">
+    <xs:sequence>
+      <xs:element name="Phone" type="xs:string"/>
+      <xs:element name="Email" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PersonType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+      <xs:element name="Address" type="tns:AddressType"/>
+      <xs:element name="Contact" type="tns:ContactType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Person" type="tns:PersonType"/>
+        <xs:element name="Company" type="tns:CompanyType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="CompanyType">
+    <xs:sequence>
+      <xs:element name="CompanyName" type="xs:string"/>
+      <xs:element name="HeadOffice" type="tns:AddressType"/>
+      <xs:element name="CompanyContact" type="tns:ContactType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

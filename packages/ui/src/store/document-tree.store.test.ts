@@ -2,7 +2,7 @@ import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../models/dat
 import { DocumentTree } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { TreeParsingService } from '../services/tree-parsing.service';
-import { XmlSchemaDocument } from '../services/xml-schema-document.service';
+import { XmlSchemaDocument } from '../services/xml-schema-document-model.service';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { useDocumentTreeStore } from './document-tree.store';
 
