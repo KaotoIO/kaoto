@@ -46,12 +46,20 @@ Have a quick look at our online demo instance:
   - [Camel Catalog and Supporting Schemas](#camel-catalog-and-supporting-schemas)
   - [Storybook](#storybook)
 
-## Requirements
+## Development Requirements
 - NodeJS (v22.x or higher) [+info](https://nodejs.org/en)
 - Yarn (v3.x or higher) [+info](https://yarnpkg.com/getting-started/install)
-- OpenJDK (v17 or higher) [+info](https://developers.redhat.com/products/openjdk/download)
 
-_For more information on Vite, check [Vite's documentation](https://vitejs.dev/config/)._
+> [!NOTE]
+> For more information on Vite, check [Vite's documentation](https://vitejs.dev/config/).
+
+## Browser Requirements
+- Mozilla Firefox
+- Google Chrome
+- Microsoft Edge
+
+> [!WARNING]
+> Microsoft Internet Explorer and Safari are not supported
 
 ## Getting Started
 ### Clone the Repository
