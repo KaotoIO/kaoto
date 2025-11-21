@@ -9,8 +9,8 @@ import {
 import { IMetadataApi } from '../providers';
 import { cartJsonSchema, multipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
-import { JsonSchemaDocument } from './json-schema-document.service';
-import { XmlSchemaDocument } from './xml-schema-document.service';
+import { JsonSchemaDocument } from './json-schema-document-model.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -273,11 +273,28 @@ describe('DocumentService', () => {
   describe('createDocument() with multiple files', () => {
     it('should handle multiple schema files', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValueOnce(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        getResourceContent: jest
+          .fn()
+          .mockResolvedValueOnce(
+            `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns1" xmlns:tns="http://example.com/ns1">
                      <xs:element name="test1" type="xs:string" />
-                   </xs:schema>`).mockResolvedValueOnce(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                     <xs:complexType name="CustomType1">
+                       <xs:sequence>
+                         <xs:element name="field1" type="xs:string" />
+                       </xs:sequence>
+                     </xs:complexType>
+                   </xs:schema>`,
+          )
+          .mockResolvedValueOnce(
+            `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns2" xmlns:tns="http://example.com/ns2">
                      <xs:element name="test2" type="xs:string" />
-                   </xs:schema>`),
+                     <xs:complexType name="CustomType2">
+                       <xs:sequence>
+                         <xs:element name="field2" type="xs:string" />
+                       </xs:sequence>
+                     </xs:complexType>
+                   </xs:schema>`,
+          ),
       };
 
       const result = await DocumentService.createDocument(

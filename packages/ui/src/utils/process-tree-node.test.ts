@@ -1,7 +1,7 @@
 import { DocumentTree } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { TreeParsingService } from '../services/tree-parsing.service';
-import { XmlSchemaDocument } from '../services/xml-schema-document.service';
+import { XmlSchemaDocument } from '../services/xml-schema-document-model.service';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { processTreeNode } from './process-tree-node';
 

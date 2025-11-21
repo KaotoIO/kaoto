@@ -17,7 +17,8 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocument, JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocument } from './json-schema-document-model.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 

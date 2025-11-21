@@ -1,8 +1,11 @@
 import { DocumentDefinitionType } from './document';
+import { TypeOverrideVariant } from './types';
 
 export interface IFieldTypeOverride {
   path: string;
   type: string;
+  originalType: string;
+  variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE;
 }
 
 export interface IDocumentMetadata {

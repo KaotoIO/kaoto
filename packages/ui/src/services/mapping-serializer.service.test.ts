@@ -21,7 +21,8 @@ import {
   x12850ForEachXslt,
 } from '../stubs/datamapper/data-mapper';
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
-import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaField } from './xml-schema-document-model.service';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();

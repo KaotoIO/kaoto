@@ -10,14 +10,15 @@ import {
 import { DocumentType } from '../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import { cartToShipOrderJsonXslt, shipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document-model.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import {
   FROM_JSON_SOURCE_SUFFIX,
   MappingSerializerJsonAddon,
   TO_JSON_TARGET_VARIABLE,
 } from './mapping-serializer-json-addon';
-import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaField } from './xml-schema-document-model.service';
 
 describe('mappingSerializerJsonAddon', () => {
   describe('populateXmlToJsonVariable()', () => {

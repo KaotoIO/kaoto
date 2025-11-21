@@ -44,8 +44,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       let meta = await ctx.getMetadata<IDataMapperMetadata>(metadataId);
       if (!meta) {
         meta = await DataMapperMetadataService.initializeDataMapperMetadata(entitiesContext, vizNode, ctx, metadataId);
+        setMetadata(meta);
       }
-      setMetadata(meta);
       const initModel = await DataMapperMetadataService.loadDocuments(ctx, meta);
       setDocumentInitializationModel(initModel);
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
@@ -102,11 +102,15 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     [ctx, metadata],
   );
 
-  return !metadataId ? (
-    <>No associated DataMapper step was provided.</>
-  ) : isLoading ? (
-    <Loading />
-  ) : (
+  if (!metadataId) {
+    return <>No associated DataMapper step was provided.</>;
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  return (
     <DataMapperProvider
       documentInitializationModel={documentInitializationModel}
       onUpdateDocument={onUpdateDocument}
