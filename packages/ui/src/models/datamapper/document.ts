@@ -1,33 +1,66 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { MaxOccursType } from '../../xml-schema-ts/constants';
-import { XmlSchemaParticle } from '../../xml-schema-ts/particle/XmlSchemaParticle';
+import { QName } from '../../xml-schema-ts/QName';
+import { IFieldTypeOverride } from './metadata';
 import { NodePath } from './nodepath';
-import { Types } from './types';
+import { TypeOverrideVariant, Types } from './types';
 import { Predicate } from './xpath';
 
-export const DEFAULT_MIN_OCCURS = XmlSchemaParticle.DEFAULT_MIN_OCCURS;
-export const DEFAULT_MAX_OCCURS = XmlSchemaParticle.DEFAULT_MAX_OCCURS;
-
+/**
+ * Union type representing valid parent types for fields.
+ * A field can be a child of either a document or another field.
+ */
 export type IParentType = IDocument | IField;
 
+/**
+ * Document ID constant for the main body document.
+ */
 export const BODY_DOCUMENT_ID = 'Body';
 
+/**
+ * Interface representing a field in a document schema.
+ * Fields can be elements, attributes, or properties depending on the schema type.
+ */
 export interface IField {
+  /** Parent field or document containing this field */
   parent: IParentType;
+  /** Document that owns this field */
   ownerDocument: IDocument;
+  /** Unique identifier for this field instance */
   id: string;
+  /** Field name as it appears in the schema */
   name: string;
+  /** Human-readable display name for UI presentation */
   displayName: string;
+  /** Path from document root to this field */
   path: NodePath;
+  /** Current data type of this field in DataMapper common style */
   type: Types;
+  /** The data format specific, qualified name of the current type of this field, if applicable */
+  typeQName: QName | null;
+  /** Original data type of this field before any overrides, in DataMapper common style */
+  originalType: Types;
+  /** The data format specific, qualified name of the original type of this field before any overrides, if applicable */
+  originalTypeQName: QName | null;
+  /** Indicates whether and how the type has been overridden */
+  typeOverride: TypeOverrideVariant;
+  /** Child fields for complex types */
   fields: IField[];
+  /** Whether this field represents an attribute (vs element) */
   isAttribute: boolean;
+  /** Default value for this field, if specified in schema */
   defaultValue: string | null;
+  /** Minimum number of occurrences (0 = optional) */
   minOccurs: number;
+  /** Maximum number of occurrences (1 = single, >1 or 'unbounded' = collection) */
   maxOccurs: MaxOccursType;
+  /** Namespace prefix for this field */
   namespacePrefix: string | null;
+  /** Namespace URI for this field */
   namespaceURI: string | null;
+  /** References to named type fragments used by this field */
   namedTypeFragmentRefs: string[];
+  /** XPath predicates for filtering this field */
   predicates: Predicate[];
 
   /**
@@ -53,6 +86,10 @@ export interface IField {
   isIdentical(other: IField): boolean;
 }
 
+/**
+ * Interface representing a reusable type fragment.
+ * Type fragments define named types that can be referenced by multiple fields.
+ */
 export interface ITypeFragment {
   type?: Types;
   minOccurs?: number;
@@ -61,26 +98,59 @@ export interface ITypeFragment {
   namedTypeFragmentRefs: string[];
 }
 
+/**
+ * Enum representing document roles in a data mapping.
+ */
 export enum DocumentType {
   SOURCE_BODY = 'sourceBody',
   TARGET_BODY = 'targetBody',
   PARAM = 'param',
 }
 
+/**
+ * Interface representing a document in the DataMapper.
+ * Documents contain the schema structure and field definitions.
+ */
 export interface IDocument {
+  /** Type of document (source body, target body, or parameter) */
   documentType: DocumentType;
+  /** Unique identifier for this document */
   documentId: string;
+  /** Document name for display */
   name: string;
+  /** Type of schema definition (XML Schema, JSON Schema, or Primitive) */
   definitionType: DocumentDefinitionType;
+  /** Top-level fields in this document */
   fields: IField[];
+  /** Path representing this document in the node hierarchy */
   path: NodePath;
+  /** Named type fragments (reusable type definitions) available in this document */
   namedTypeFragments: Record<string, ITypeFragment>;
+  /** Total count of all fields (including nested) in this document */
   totalFieldCount: number;
+  /** Whether this document type uses namespaces */
   isNamespaceAware: boolean;
+
+  /**
+   * Gets the reference ID for this document in XSLT mappings.
+   * Used to create variable references in generated XSLT.
+   * @param namespaceMap - Map of namespace prefixes to URIs
+   * @returns Reference ID string, or empty string if not applicable
+   */
   getReferenceId(namespaceMap: { [prefix: string]: string }): string;
+
+  /**
+   * Gets an XPath expression to reference this document.
+   * @param namespaceMap - Map of namespace prefixes to URIs
+   * @returns XPath expression string, or empty string if not applicable
+   */
   getExpression(namespaceMap: { [prefix: string]: string }): string;
 }
 
+/**
+ * Base abstract class for all document types.
+ * Provides common functionality for document operations.
+ */
 export abstract class BaseDocument implements IDocument {
   constructor(
     public documentType: DocumentType,
@@ -96,6 +166,7 @@ export abstract class BaseDocument implements IDocument {
   namedTypeFragments: Record<string, ITypeFragment> = {};
   abstract totalFieldCount: number;
   abstract isNamespaceAware: boolean;
+
   getReferenceId(_namespaceMap: { [p: string]: string }): string {
     return this.documentType === DocumentType.PARAM ? this.documentId : '';
   }
@@ -105,6 +176,10 @@ export abstract class BaseDocument implements IDocument {
   }
 }
 
+/**
+ * Represents a primitive document without a defined schema.
+ * Used as a placeholder when no schema is provided.
+ */
 export class PrimitiveDocument extends BaseDocument implements IField {
   constructor(documentType: DocumentType, documentId: string) {
     super(documentType, documentId);
@@ -124,6 +199,10 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   namespaceURI: string | null = null;
   parent: IParentType = this;
   type = Types.AnyType;
+  typeQName: QName | null = null;
+  originalType = Types.AnyType;
+  originalTypeQName: QName | null = null;
+  typeOverride = TypeOverrideVariant.NONE;
   path: NodePath;
   id: string;
   displayName: string;
@@ -137,11 +216,14 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   }
 
   isIdentical(_other: IField): boolean {
-    // Just a placeholder to be also IField, there should be no identical PrimitiveDocument
     return false;
   }
 }
 
+/**
+ * Base implementation of the IField interface.
+ * Provides default field behavior that can be extended by specific schema types.
+ */
 export class BaseField implements IField {
   constructor(
     public parent: IParentType,
@@ -159,8 +241,12 @@ export class BaseField implements IField {
   fields: IField[] = [];
   isAttribute: boolean = false;
   type = Types.AnyType;
-  minOccurs: number = DEFAULT_MIN_OCCURS;
-  maxOccurs: MaxOccursType = DEFAULT_MAX_OCCURS;
+  typeQName: QName | null = null;
+  originalType = Types.AnyType;
+  originalTypeQName: QName | null = null;
+  typeOverride = TypeOverrideVariant.NONE;
+  minOccurs: number = 0;
+  maxOccurs: MaxOccursType = 1;
   defaultValue: string | null = null;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
@@ -182,6 +268,10 @@ export class BaseField implements IField {
     const adopted = new BaseField(parent, parent.ownerDocument, this.name);
     adopted.isAttribute = this.isAttribute;
     adopted.type = this.type;
+    adopted.typeQName = this.typeQName;
+    adopted.originalType = this.originalType;
+    adopted.originalTypeQName = this.originalTypeQName;
+    adopted.typeOverride = this.typeOverride;
     adopted.minOccurs = this.minOccurs;
     adopted.maxOccurs = this.maxOccurs;
     adopted.defaultValue = this.defaultValue;
@@ -203,12 +293,19 @@ export class BaseField implements IField {
   }
 }
 
+/**
+ * Enum representing the type of document definition (schema format).
+ */
 export enum DocumentDefinitionType {
   Primitive = 'Primitive',
   XML_SCHEMA = 'XML Schema',
   JSON_SCHEMA = 'JSON Schema',
 }
 
+/**
+ * Defines the metadata for a document schema.
+ * Contains schema files, type overrides, and configuration options.
+ */
 export class DocumentDefinition {
   constructor(
     public documentType: DocumentType,
@@ -216,11 +313,17 @@ export class DocumentDefinition {
     public name?: string,
     public definitionFiles?: Record<string, string>,
     public rootElementChoice?: RootElementOption,
+    public fieldTypeOverrides?: IFieldTypeOverride[],
+    public namespaceMap?: Record<string, string>,
   ) {
     if (!definitionFiles) this.definitionFiles = {};
   }
 }
 
+/**
+ * Model for initializing a complete DataMapper configuration.
+ * Includes source parameters, source body, and target body definitions.
+ */
 export class DocumentInitializationModel {
   constructor(
     public sourceParameters: Record<string, DocumentDefinition> = {},
@@ -235,11 +338,19 @@ export class DocumentInitializationModel {
   ) {}
 }
 
+/**
+ * Represents a root element choice in an XML schema.
+ * Used when a schema has multiple possible root elements.
+ */
 export type RootElementOption = {
   namespaceUri: string;
   name: string;
 };
 
+/**
+ * Result object returned when creating a document from a schema.
+ * Contains validation status and the created document or error information.
+ */
 export interface CreateDocumentResult {
   validationStatus: 'success' | 'warning' | 'error';
   validationMessage?: string;
@@ -248,8 +359,23 @@ export interface CreateDocumentResult {
   rootElementOptions?: RootElementOption[];
 }
 
+/**
+ * Glob pattern for matching schema files (XML and JSON).
+ */
 export const SCHEMA_FILE_NAME_PATTERN = '**/*.{xsd,XSD,xml,XML,json,JSON}';
+
+/**
+ * File accept pattern for schema file input elements.
+ */
 export const SCHEMA_FILE_ACCEPT_PATTERN = '.xsd, .xml, .json';
-// camel XSLT (including saxon) doesn't support JSON body
+
+/**
+ * Glob pattern for matching source body schema files (XML only).
+ * Camel XSLT (including Saxon) doesn't support JSON body.
+ */
 export const SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY = '**/*.{xsd,XSD,xml,XML}';
+
+/**
+ * File accept pattern for source body schema file input elements (XML only).
+ */
 export const SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY = '.xsd, .xml';

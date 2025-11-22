@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/SIMPLETYPE"
+           xmlns:tns="http://www.example.com/SIMPLETYPE"
+           elementFormDefault="qualified">
+
+  <xs:simpleType name="BaseInteger">
+    <xs:restriction base="xs:integer"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="AgeType">
+    <xs:restriction base="tns:BaseInteger">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="120"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PriceValue">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="PriceWithCurrency">
+    <xs:simpleContent>
+      <xs:extension base="tns:PriceValue">
+        <xs:attribute name="currency" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="Age" type="tns:AgeType"/>
+  <xs:element name="Price" type="tns:PriceWithCurrency"/>
+
+</xs:schema>

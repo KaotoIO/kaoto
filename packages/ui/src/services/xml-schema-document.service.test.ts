@@ -16,7 +16,9 @@ import {
   simpleTypeInheritanceXsd,
   testDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
-import { XmlSchemaDocumentService, XmlSchemaField } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaField } from './xml-schema-document-model.service';
+import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 describe('XmlSchemaDocumentService', () => {
   it('should parse ShipOrder XML schema', () => {
@@ -26,7 +28,7 @@ describe('XmlSchemaDocumentService', () => {
       shipOrderXsd,
     );
     expect(document).toBeDefined();
-    const shipOrder = XmlSchemaDocumentService.getFirstElement(document.xmlSchema);
+    const shipOrder = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchema);
     const fields: XmlSchemaField[] = [];
     XmlSchemaDocumentService.populateElement(document, fields, shipOrder);
     expect(fields.length > 0).toBeTruthy();
@@ -44,7 +46,7 @@ describe('XmlSchemaDocumentService', () => {
       testDocumentXsd,
     );
     expect(document).toBeDefined();
-    const testDoc = XmlSchemaDocumentService.getFirstElement(document.xmlSchema);
+    const testDoc = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchema);
     const fields: XmlSchemaField[] = [];
     XmlSchemaDocumentService.populateElement(document, fields, testDoc);
     expect(fields.length > 0).toBeTruthy();
@@ -191,14 +193,10 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should create XML Schema Document', () => {
-    const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
-      DocumentType.SOURCE_BODY,
-      'ShipOrder.xsd',
-      shipOrderXsd,
-    );
+    const doc = XmlSchemaDocumentService.createXmlSchemaDocument(DocumentType.SOURCE_BODY, 'Body', shipOrderXsd);
     expect(doc.documentType).toEqual(DocumentType.SOURCE_BODY);
-    expect(doc.documentId).toEqual('ShipOrder.xsd');
-    expect(doc.name).toEqual('ShipOrder.xsd');
+    expect(doc.documentId).toEqual('Body');
+    expect(doc.name).toEqual('Body');
     expect(doc.fields.length).toEqual(1);
   });
 
@@ -603,18 +601,22 @@ describe('XmlSchemaDocumentService', () => {
     );
 
     const product = document.fields[0];
-    const nameField = XmlSchemaDocumentService.getChildField(product, 'name', 'http://www.example.com/SIMPLE');
+    const nameField = XmlSchemaDocumentUtilService.getChildField(product, 'name', 'http://www.example.com/SIMPLE');
     expect(nameField).toBeDefined();
     expect(nameField!.name).toEqual('name');
 
-    const priceField = XmlSchemaDocumentService.getChildField(product, 'price', 'http://www.example.com/SIMPLE');
+    const priceField = XmlSchemaDocumentUtilService.getChildField(product, 'price', 'http://www.example.com/SIMPLE');
     expect(priceField).toBeDefined();
     expect(priceField!.name).toEqual('price');
 
-    const nonExistent = XmlSchemaDocumentService.getChildField(product, 'nonexistent', 'http://www.example.com/SIMPLE');
+    const nonExistent = XmlSchemaDocumentUtilService.getChildField(
+      product,
+      'nonexistent',
+      'http://www.example.com/SIMPLE',
+    );
     expect(nonExistent).toBeUndefined();
 
-    const wrongNamespace = XmlSchemaDocumentService.getChildField(product, 'name', 'http://wrong.namespace');
+    const wrongNamespace = XmlSchemaDocumentUtilService.getChildField(product, 'name', 'http://wrong.namespace');
     expect(wrongNamespace).toBeUndefined();
   });
 

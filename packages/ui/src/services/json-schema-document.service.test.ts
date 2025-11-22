@@ -1,10 +1,20 @@
 import { JSONSchema7 } from 'json-schema';
 
-import { PathExpression, Types } from '../models/datamapper';
+import { DocumentDefinition, DocumentDefinitionType, PathExpression, Types } from '../models/datamapper';
 import { DocumentType } from '../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
 import { camelYamlDslJsonSchema } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
+
+function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string) {
+  const definition = new DocumentDefinition(
+    documentType,
+    DocumentDefinitionType.JSON_SCHEMA,
+    documentType === DocumentType.PARAM ? documentId : undefined,
+    { [`${documentId}.json`]: content },
+  );
+  return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+}
 
 describe('JsonSchemaDocumentService', () => {
   const namespaces = {
@@ -12,11 +22,7 @@ describe('JsonSchemaDocumentService', () => {
   };
 
   it('should parse string', () => {
-    const doc = JsonSchemaDocumentService.createJsonSchemaDocument(
-      DocumentType.SOURCE_BODY,
-      'test',
-      JSON.stringify({ type: 'string' }),
-    );
+    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify({ type: 'string' }));
 
     expect(doc).toBeDefined();
     expect(doc.fields.length).toBe(1);
@@ -366,7 +372,7 @@ describe('JsonSchemaDocumentService', () => {
     };
 
     expect(() => {
-      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+      createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).toThrow(
       'Unsupported schema reference [https://example.com/schema.json]: External URI/file reference is not yet supported',
     );
@@ -381,7 +387,7 @@ describe('JsonSchemaDocumentService', () => {
     };
 
     expect(() => {
-      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+      createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).toThrow(
       'Unsupported schema reference [./external-schema.json]: External URI/file reference is not yet supported',
     );
@@ -399,7 +405,7 @@ describe('JsonSchemaDocumentService', () => {
     };
 
     expect(() => {
-      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+      createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).toThrow(
       'Unsupported schema reference [http://json-schema.org/draft-07/schema#]: External URI/file reference is not yet supported',
     );
@@ -417,7 +423,7 @@ describe('JsonSchemaDocumentService', () => {
     };
 
     expect(() => {
-      JsonSchemaDocumentService.createJsonSchemaDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
+      createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).not.toThrow();
   });
 

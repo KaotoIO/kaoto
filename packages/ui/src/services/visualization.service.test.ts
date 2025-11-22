@@ -42,7 +42,8 @@ import {
 } from '../stubs/datamapper/data-mapper';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { VisualizationService } from './visualization.service';
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;

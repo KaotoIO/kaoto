@@ -123,21 +123,24 @@ export class DataMapperMetadataService {
   static loadDocuments(api: IMetadataApi, metadata: IDataMapperMetadata): Promise<DocumentInitializationModel> {
     return new Promise((resolve) => {
       const answer = new DocumentInitializationModel();
+      const namespaceMap = metadata.namespaceMap || {};
       const sourceBodyPromise = DataMapperMetadataService.doLoadDocument(
         api,
         DocumentType.SOURCE_BODY,
         BODY_DOCUMENT_ID,
         metadata.sourceBody,
+        namespaceMap,
       ).then((definition) => (answer.sourceBody = definition));
       const targetBodyPromise = DataMapperMetadataService.doLoadDocument(
         api,
         DocumentType.TARGET_BODY,
         BODY_DOCUMENT_ID,
         metadata.targetBody,
+        namespaceMap,
       ).then((definition) => (answer.targetBody = definition));
       const paramPromises = Object.entries(metadata.sourceParameters).reduce(
         (acc, [key, meta]) => {
-          acc[key] = DataMapperMetadataService.doLoadDocument(api, DocumentType.PARAM, key, meta).then(
+          acc[key] = DataMapperMetadataService.doLoadDocument(api, DocumentType.PARAM, key, meta, namespaceMap).then(
             (definition) => (answer.sourceParameters[key] = definition),
           );
           return acc;
@@ -169,6 +172,7 @@ export class DataMapperMetadataService {
     documentType: DocumentType,
     name: string,
     documentMetadata: IDocumentMetadata,
+    namespaceMap: Record<string, string>,
   ): Promise<DocumentDefinition> {
     return new Promise((resolve) => {
       const definitionType = documentMetadata.type ? documentMetadata.type : DocumentDefinitionType.Primitive;
@@ -184,7 +188,15 @@ export class DataMapperMetadataService {
               .catch((reason) => console.log(`Could not read a file "${path}": ${reason}`)),
           );
       Promise.allSettled(fileReadingPromises).then(() => {
-        const answer = new DocumentDefinition(documentType, definitionType, name, definitionFiles);
+        const answer = new DocumentDefinition(
+          documentType,
+          definitionType,
+          name,
+          definitionFiles,
+          undefined,
+          documentMetadata.fieldTypeOverrides,
+          namespaceMap,
+        );
         resolve(answer);
       });
     });

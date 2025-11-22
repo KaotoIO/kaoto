@@ -1,4 +1,14 @@
 import { IDocument, IField, IParentType, ITypeFragment, PrimitiveDocument } from '../models/datamapper';
+import { IFieldTypeOverride } from '../models/datamapper/metadata';
+import { TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { QName } from '../xml-schema-ts/QName';
+import { XPathService } from './xpath/xpath.service';
+
+type ParseTypeOverrideFn = (
+  typeString: string,
+  namespaceMap: Record<string, string>,
+  field: IField,
+) => { type: Types; typeQName: QName; variant: TypeOverrideVariant };
 
 /**
  * The collection of utility functions shared among {@link DocumentService}, {@link XmlSchemaDocumentService}
@@ -51,5 +61,59 @@ export class DocumentUtilService {
       fieldStack.push(next);
     }
     return fieldStack;
+  }
+
+  static applyFieldTypeOverrides(
+    document: IDocument,
+    overrides: IFieldTypeOverride[],
+    namespaceMap: Record<string, string>,
+    parseTypeOverride: ParseTypeOverrideFn,
+  ): void {
+    DocumentUtilService.traverseAndApplyOverrides(document, overrides, namespaceMap, parseTypeOverride);
+  }
+
+  private static traverseAndApplyOverrides(
+    parent: IDocument | IField,
+    overrides: IFieldTypeOverride[],
+    namespaceMap: Record<string, string>,
+    parseTypeOverride: ParseTypeOverrideFn,
+  ): void {
+    for (const field of parent.fields) {
+      if (field.namedTypeFragmentRefs.length > 0) {
+        DocumentUtilService.resolveTypeFragment(field);
+      }
+
+      const pathExpr = XPathService.toPathExpression(namespaceMap, field);
+      const xpath = XPathService.toXPathString(pathExpr);
+
+      const override = overrides.find((o) => o.path === xpath);
+      if (override) {
+        DocumentUtilService.applyTypeOverrideToField(field, override.type, namespaceMap, parseTypeOverride);
+      }
+
+      if (field.fields.length > 0) {
+        DocumentUtilService.traverseAndApplyOverrides(field, overrides, namespaceMap, parseTypeOverride);
+      }
+    }
+  }
+
+  private static applyTypeOverrideToField(
+    field: IField,
+    typeString: string,
+    namespaceMap: Record<string, string>,
+    parseTypeOverride: ParseTypeOverrideFn,
+  ): void {
+    const { type, typeQName, variant } = parseTypeOverride(typeString, namespaceMap, field);
+
+    field.type = type;
+    field.typeQName = typeQName;
+    field.typeOverride = variant;
+    field.fields = [];
+
+    if (type === Types.Container) {
+      field.namedTypeFragmentRefs = [typeQName.toString()];
+    } else {
+      field.namedTypeFragmentRefs = [];
+    }
   }
 }

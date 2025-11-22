@@ -3,6 +3,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { createVisualizationNode } from '../models';
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { TypeOverrideVariant } from '../models/datamapper/types';
 import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
 import { EntitiesContextResult, IMetadataApi } from '../providers';
 import { XSLT_COMPONENT_NAME } from '../utils';
@@ -738,6 +739,8 @@ describe('DataMapperMetadataService', () => {
       const override: IFieldTypeOverride = {
         path: '/ns0:Root/Field',
         type: 'ns0:CustomType',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
       };
 
       await DataMapperMetadataService.setFieldTypeOverride(
@@ -759,7 +762,14 @@ describe('DataMapperMetadataService', () => {
         sourceBody: {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['source.xsd'],
-          fieldTypeOverrides: [{ path: '/ns0:Root/Field', type: 'ns0:OldType' }],
+          fieldTypeOverrides: [
+            {
+              path: '/ns0:Root/Field',
+              type: 'ns0:OldType',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
+          ],
         },
         sourceParameters: {},
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -769,6 +779,8 @@ describe('DataMapperMetadataService', () => {
       const newOverride: IFieldTypeOverride = {
         path: '/ns0:Root/Field',
         type: 'ns0:NewType',
+        originalType: 'ns0:OldType',
+        variant: TypeOverrideVariant.FORCE,
       };
 
       await DataMapperMetadataService.setFieldTypeOverride(
@@ -796,6 +808,8 @@ describe('DataMapperMetadataService', () => {
       const override: IFieldTypeOverride = {
         path: '/ns1:Order/ShipTo',
         type: 'ns1:ExtendedShipTo',
+        originalType: 'ns1:ShipTo',
+        variant: TypeOverrideVariant.SAFE,
       };
 
       await DataMapperMetadataService.setFieldTypeOverride(
@@ -823,6 +837,8 @@ describe('DataMapperMetadataService', () => {
       const override: IFieldTypeOverride = {
         path: '/ns0:Config/Setting',
         type: 'xs:string',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
       };
 
       await DataMapperMetadataService.setFieldTypeOverride(
@@ -848,6 +864,8 @@ describe('DataMapperMetadataService', () => {
       const override: IFieldTypeOverride = {
         path: '/ns0:Root/Field',
         type: 'ns0:CustomType',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
       };
 
       await DataMapperMetadataService.setFieldTypeOverride(
@@ -873,6 +891,8 @@ describe('DataMapperMetadataService', () => {
       const override: IFieldTypeOverride = {
         path: '/ns0:Field',
         type: 'xs:string',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
       };
 
       await DataMapperMetadataService.setFieldTypeOverride(
@@ -895,8 +915,18 @@ describe('DataMapperMetadataService', () => {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['source.xsd'],
           fieldTypeOverrides: [
-            { path: '/ns0:Root/Field1', type: 'ns0:Type1' },
-            { path: '/ns0:Root/Field2', type: 'ns0:Type2' },
+            {
+              path: '/ns0:Root/Field1',
+              type: 'ns0:Type1',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
+            {
+              path: '/ns0:Root/Field2',
+              type: 'ns0:Type2',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
           ],
         },
         sourceParameters: {},
@@ -925,7 +955,14 @@ describe('DataMapperMetadataService', () => {
         targetBody: {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['target.xsd'],
-          fieldTypeOverrides: [{ path: '/ns1:Order/ShipTo', type: 'ns1:ExtendedShipTo' }],
+          fieldTypeOverrides: [
+            {
+              path: '/ns1:Order/ShipTo',
+              type: 'ns1:ExtendedShipTo',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
+          ],
         },
         xsltPath: 'transform.xsl',
       };
@@ -950,7 +987,14 @@ describe('DataMapperMetadataService', () => {
           param1: {
             type: DocumentDefinitionType.XML_SCHEMA,
             filePath: ['param1.xsd'],
-            fieldTypeOverrides: [{ path: '/ns0:Config/Setting', type: 'xs:string' }],
+            fieldTypeOverrides: [
+              {
+                path: '/ns0:Config/Setting',
+                type: 'xs:string',
+                originalType: 'xs:anyType',
+                variant: TypeOverrideVariant.SAFE,
+              },
+            ],
           },
         },
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -974,7 +1018,14 @@ describe('DataMapperMetadataService', () => {
         sourceBody: {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['source.xsd'],
-          fieldTypeOverrides: [{ path: '/ns0:Root/Field', type: 'ns0:Type' }],
+          fieldTypeOverrides: [
+            {
+              path: '/ns0:Root/Field',
+              type: 'ns0:Type',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
+          ],
         },
         sourceParameters: {},
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -1022,8 +1073,18 @@ describe('DataMapperMetadataService', () => {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['source.xsd'],
           fieldTypeOverrides: [
-            { path: '/ns0:Root/Field1', type: 'ns0:Type1' },
-            { path: '/ns0:Root/Field2', type: 'ns0:Type2' },
+            {
+              path: '/ns0:Root/Field1',
+              type: 'ns0:Type1',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
+            {
+              path: '/ns0:Root/Field2',
+              type: 'ns0:Type2',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
           ],
         },
         sourceParameters: {},
@@ -1034,8 +1095,18 @@ describe('DataMapperMetadataService', () => {
       const overrides = DataMapperMetadataService.getFieldTypeOverrides(metadata, DocumentType.SOURCE_BODY);
 
       expect(overrides).toHaveLength(2);
-      expect(overrides[0]).toEqual({ path: '/ns0:Root/Field1', type: 'ns0:Type1' });
-      expect(overrides[1]).toEqual({ path: '/ns0:Root/Field2', type: 'ns0:Type2' });
+      expect(overrides[0]).toEqual({
+        path: '/ns0:Root/Field1',
+        type: 'ns0:Type1',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
+      });
+      expect(overrides[1]).toEqual({
+        path: '/ns0:Root/Field2',
+        type: 'ns0:Type2',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
+      });
     });
 
     it('should return field type overrides for target body', () => {
@@ -1045,7 +1116,14 @@ describe('DataMapperMetadataService', () => {
         targetBody: {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['target.xsd'],
-          fieldTypeOverrides: [{ path: '/ns1:Order/ShipTo', type: 'ns1:ExtendedShipTo' }],
+          fieldTypeOverrides: [
+            {
+              path: '/ns1:Order/ShipTo',
+              type: 'ns1:ExtendedShipTo',
+              originalType: 'xs:anyType',
+              variant: TypeOverrideVariant.SAFE,
+            },
+          ],
         },
         xsltPath: 'transform.xsl',
       };
@@ -1053,7 +1131,12 @@ describe('DataMapperMetadataService', () => {
       const overrides = DataMapperMetadataService.getFieldTypeOverrides(metadata, DocumentType.TARGET_BODY);
 
       expect(overrides).toHaveLength(1);
-      expect(overrides[0]).toEqual({ path: '/ns1:Order/ShipTo', type: 'ns1:ExtendedShipTo' });
+      expect(overrides[0]).toEqual({
+        path: '/ns1:Order/ShipTo',
+        type: 'ns1:ExtendedShipTo',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
+      });
     });
 
     it('should return field type overrides for source parameter', () => {
@@ -1063,7 +1146,14 @@ describe('DataMapperMetadataService', () => {
           param1: {
             type: DocumentDefinitionType.XML_SCHEMA,
             filePath: ['param1.xsd'],
-            fieldTypeOverrides: [{ path: '/ns0:Config/Setting', type: 'xs:string' }],
+            fieldTypeOverrides: [
+              {
+                path: '/ns0:Config/Setting',
+                type: 'xs:string',
+                originalType: 'xs:anyType',
+                variant: TypeOverrideVariant.SAFE,
+              },
+            ],
           },
         },
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -1073,7 +1163,12 @@ describe('DataMapperMetadataService', () => {
       const overrides = DataMapperMetadataService.getFieldTypeOverrides(metadata, DocumentType.PARAM, 'param1');
 
       expect(overrides).toHaveLength(1);
-      expect(overrides[0]).toEqual({ path: '/ns0:Config/Setting', type: 'xs:string' });
+      expect(overrides[0]).toEqual({
+        path: '/ns0:Config/Setting',
+        type: 'xs:string',
+        originalType: 'xs:anyType',
+        variant: TypeOverrideVariant.SAFE,
+      });
     });
 
     it('should return empty array when fieldTypeOverrides is undefined', () => {

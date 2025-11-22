@@ -25,7 +25,8 @@ import {
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { XmlSchemaDocument, XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;

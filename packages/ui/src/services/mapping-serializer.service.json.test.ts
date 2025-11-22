@@ -18,7 +18,8 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
-import { JsonSchemaDocumentService, JsonSchemaField } from './json-schema-document.service';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaField } from './json-schema-document-model.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
