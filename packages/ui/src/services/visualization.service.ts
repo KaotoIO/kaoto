@@ -235,7 +235,7 @@ export class VisualizationService {
         'parent' in nodeData &&
         nodeData.parent instanceof MappingNodeData &&
         nodeData.parent.mapping instanceof ForEachItem;
-      return !isForEachField && !VisualizationService.getExpressionItemForNode(nodeData);
+      return !isForEachField;
     }
     const mappingNodeData = nodeData as MappingNodeData;
     return (
