@@ -1,7 +1,14 @@
 import './CustomGroupExpanded.scss';
 
 import { Icon } from '@patternfly/react-core';
-import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon, PlayIcon, PauseIcon } from '@patternfly/react-icons';
+import {
+  ArrowDownIcon,
+  ArrowRightIcon,
+  BanIcon,
+  ExclamationCircleIcon,
+  PauseIcon,
+  PlayIcon,
+} from '@patternfly/react-icons';
 import {
   AnchorEnd,
   GROUPS_LAYER,
@@ -69,7 +76,16 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       boxRef.current = element.getBounds();
     }
 
-    const routeEntity: any = vizNode?.data?.entity;
+    const routeEntity = vizNode?.data?.entity as
+      | {
+          entityDef?: {
+            route?: {
+              autoStartup?: boolean;
+            };
+          };
+        }
+      | undefined;
+
     const routeModel = routeEntity?.entityDef?.route;
     const isAutoStartup = routeModel?.autoStartup !== false;
 
@@ -115,15 +131,15 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 <span title={label}>{label}</span>
               </div>
 
-              {isAutoStartup ? 
+              {isAutoStartup ? (
                 <Icon className="custom-group__autostart-icon" title="Auto Startup Enabled">
                   <PlayIcon />
-                </Icon> 
-                :
+                </Icon>
+              ) : (
                 <Icon className="custom-group__autostart-icon" title="Auto Startup Enabled">
                   <PauseIcon />
                 </Icon>
-              }
+              )}
 
               {isDisabled && !doesHaveWarnings && (
                 <Icon className="custom-group__disabled-icon" title="Step disabled">

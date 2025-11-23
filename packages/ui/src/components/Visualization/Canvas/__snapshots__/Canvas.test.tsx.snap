@@ -90,6 +90,28 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                       route-8888
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -132,6 +154,28 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                       choice
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -979,6 +1023,28 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                       route-8888
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -1022,6 +1088,28 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                       choice
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -2672,6 +2760,28 @@ exports[`Canvas should render correctly 1`] = `
                                       route-8888
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -2715,6 +2825,28 @@ exports[`Canvas should render correctly 1`] = `
                                       choice
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -3477,6 +3609,28 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       route-8888
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
@@ -3519,6 +3673,28 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                       choice
                                     </span>
                                   </div>
+                                  <span
+                                    class="pf-v6-c-icon custom-group__autostart-icon"
+                                    title="Auto Startup Enabled"
+                                  >
+                                    <span
+                                      class="pf-v6-c-icon__content"
+                                    >
+                                      <svg
+                                        aria-hidden="true"
+                                        class="pf-v6-svg"
+                                        fill="currentColor"
+                                        height="1em"
+                                        role="img"
+                                        viewBox="0 0 448 512"
+                                        width="1em"
+                                      >
+                                        <path
+                                          d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"
+                                        />
+                                      </svg>
+                                    </span>
+                                  </span>
                                 </div>
                               </foreignobject>
                             </g>
