@@ -13,6 +13,7 @@ import { ExpansionContext } from './ExpansionContext';
 import './ExpansionPanel.scss';
 
 interface ExpansionPanelProps {
+  id?: string;
   summary: ReactNode;
   defaultExpanded?: boolean;
   defaultHeight?: number;
@@ -21,6 +22,7 @@ interface ExpansionPanelProps {
 }
 
 export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelProps>> = ({
+  id: providedId,
   summary,
   children,
   defaultExpanded = true,
@@ -28,14 +30,28 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   minHeight = 100,
   onScroll,
 }) => {
-  const id = useId();
+  const generatedId = useId();
+  const id = providedId ?? generatedId;
   const context = useContext(ExpansionContext);
   const panelRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isResizing, setIsResizing] = useState(false);
   const resizeDataRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const prevDefaultExpanded = useRef(defaultExpanded);
+
+  // Update expansion state when defaultExpanded prop changes (not on initial mount)
+  useEffect(() => {
+    if (prevDefaultExpanded.current !== defaultExpanded) {
+      setIsExpanded(defaultExpanded);
+      context.setExpanded(id, defaultExpanded);
+      prevDefaultExpanded.current = defaultExpanded;
+    }
+  }, [defaultExpanded, context, id]);
 
   const toggleExpanded = () => {
+    // Don't allow expansion if there are no children
+    if (!children) return;
+
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
     context.setExpanded(id, newExpanded);
