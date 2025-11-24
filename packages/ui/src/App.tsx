@@ -8,11 +8,11 @@ import { RegisterComponents } from './components/registers/RegisterComponents';
 import { RegisterNodeInteractionAddons } from './components/registers/RegisterNodeInteractionAddons';
 import { RenderingProvider } from './components/RenderingAnchor/rendering.provider';
 import { ControllerService } from './components/Visualization/Canvas/controller.service';
+import { CatalogLoaderProvider } from './dynamic-catalog/catalog.provider';
+import { CatalogTilesProvider } from './dynamic-catalog/catalog-tiles.provider';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
-  CatalogLoaderProvider,
-  CatalogTilesProvider,
   EntitiesProvider,
   KeyboardShortcutsProvider,
   RuntimeProvider,

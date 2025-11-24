@@ -18,7 +18,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
         class="pf-v6-l-bullseye"
       >
         <div
-          class="pf-v6-c-empty-state pf-m-lg"
+          class="pf-v6-c-empty-state pf-m-lg pf-m-danger"
           data-testid="load-default-catalog"
         >
           <div
@@ -50,7 +50,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
                 <h4
                   class="pf-v6-c-empty-state__title-text"
                 >
-                  The Catalog couldn't be loaded
+                  The catalog couldn't be loaded
                 </h4>
               </div>
             </div>
@@ -145,7 +145,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
       class="pf-v6-l-bullseye"
     >
       <div
-        class="pf-v6-c-empty-state pf-m-lg"
+        class="pf-v6-c-empty-state pf-m-lg pf-m-danger"
         data-testid="load-default-catalog"
       >
         <div
@@ -177,7 +177,7 @@ exports[`LoadDefaultCatalog should render correctly 1`] = `
               <h4
                 class="pf-v6-c-empty-state__title-text"
               >
-                The Catalog couldn't be loaded
+                The catalog couldn't be loaded
               </h4>
             </div>
           </div>

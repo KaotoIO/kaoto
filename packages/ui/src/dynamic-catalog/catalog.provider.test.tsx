@@ -3,11 +3,11 @@ import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 
 import { CamelCatalogService, CatalogKind } from '../models';
+import { ReloadContext } from '../providers/reload.provider';
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
-import { ReloadContext } from './reload.provider';
 
 describe('CatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
@@ -25,7 +25,7 @@ describe('CatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
-    fetchMock = jest.spyOn(window, 'fetch');
+    fetchMock = jest.spyOn(globalThis, 'fetch');
     fetchMock.mockImplementationOnce((file) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
@@ -42,9 +42,7 @@ describe('CatalogLoaderProvider', () => {
 
     fetchFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
     fetchFileMock.mockImplementation((uri: string) => {
-      return new Promise((resolve) => {
-        resolve({ body: { [uri]: 'dummy-data' } });
-      });
+      return Promise.resolve({ body: { [uri]: 'dummy-data' } });
     });
     setCatalogKeySpy = jest.spyOn(CamelCatalogService, 'setCatalogKey');
   });

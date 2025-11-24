@@ -2,11 +2,11 @@ import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { StepUpdateAction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { IMetadataApi, MetadataContext } from '../../../../providers/metadata.provider';
 import { useAddStep } from './add-step.hook';

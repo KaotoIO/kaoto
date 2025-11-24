@@ -27,11 +27,11 @@ import {
   useState,
 } from 'react';
 
+import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { useLocalStorage } from '../../../hooks';
 import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
-import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
@@ -174,7 +174,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
         icon: <CatalogIcon />,
         tooltip: 'Open Catalog',
         callback: action(() => {
-          catalogModalContext.setIsModalOpen(true);
+          catalogModalContext.getNewComponent();
         }),
       });
     }

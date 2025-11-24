@@ -3,13 +3,13 @@ import { useVisualizationController } from '@patternfly/react-topology';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { ActionConfirmationModalContext } from '../../../../providers/action-confirmation-modal.provider';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { updateIds } from '../../../../utils/update-ids';

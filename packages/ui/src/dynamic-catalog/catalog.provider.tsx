@@ -4,16 +4,37 @@ import { createContext, FunctionComponent, PropsWithChildren, useEffect, useStat
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, CatalogKind, ComponentsCatalog, LoadingStatus } from '../models';
-import { CamelCatalogService } from '../models/visualization/flows';
+import {
+  CamelCatalogIndex,
+  CamelCatalogService,
+  CatalogKind,
+  ComponentsCatalog,
+  FileTypes,
+  FileTypesResponse,
+  LoadingStatus,
+} from '../models';
 import { CatalogSchemaLoader } from '../utils';
+import { DynamicCatalog } from './dynamic-catalog';
+import { DynamicCatalogRegistry } from './dynamic-catalog-registry';
+import { IDynamicCatalogRegistry } from './models';
+import {
+  CamelComponentsProvider,
+  CamelDataformatProvider,
+  CamelFunctionProvider,
+  CamelLanguageProvider,
+  CamelLoadbalancerProvider,
+  CamelProcessorsProvider,
+} from './providers/camel-components.provider';
+import { CamelKameletsProvider } from './providers/camel-kamelets.provider';
 
-export const CatalogContext = createContext<typeof CamelCatalogService>(CamelCatalogService);
+export const CatalogContext = createContext<IDynamicCatalogRegistry>(DynamicCatalogRegistry.get());
 
 /**
  * Loader for the components catalog.
  */
-export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (props) => {
+export const CatalogLoaderProvider: FunctionComponent<
+  PropsWithChildren<{ getResourcesContentByType?: (filetype: FileTypes) => Promise<FileTypesResponse[]> }>
+> = ({ getResourcesContentByType, children }) => {
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const runtimeContext = useRuntimeContext();
@@ -95,6 +116,10 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
           functionsFiles,
         ]);
 
+        /**
+         * Temporary while we switch all sync API to ASYNC from the DynamicCatalogRegistry.
+         * This will be removed once all consumers are refactored to use DynamicCatalogRegistry
+         */
         CamelCatalogService.setCatalogKey(CatalogKind.Component, camelComponents.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Processor, camelModels.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatterns.body);
@@ -104,6 +129,45 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, camelLoadbalancers.body);
         CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, { ...kameletBoundaries.body, ...kamelets.body });
         CamelCatalogService.setCatalogKey(CatalogKind.Function, functions.body);
+
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Component,
+          new DynamicCatalog(new CamelComponentsProvider(camelComponents.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Processor,
+          new DynamicCatalog(new CamelProcessorsProvider(camelModels.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Pattern,
+          new DynamicCatalog(new CamelProcessorsProvider(camelPatterns.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Entity,
+          new DynamicCatalog(new CamelProcessorsProvider(camelEntities.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Language,
+          new DynamicCatalog(new CamelLanguageProvider(camelLanguages.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Dataformat,
+          new DynamicCatalog(new CamelDataformatProvider(camelDataformats.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Loadbalancer,
+          new DynamicCatalog(new CamelLoadbalancerProvider(camelLoadbalancers.body)),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Kamelet,
+          new DynamicCatalog(
+            new CamelKameletsProvider({ ...kameletBoundaries.body, ...kamelets.body }, getResourcesContentByType),
+          ),
+        );
+        DynamicCatalogRegistry.get().setCatalog(
+          CatalogKind.Function,
+          new DynamicCatalog(new CamelFunctionProvider(functions.body)),
+        );
       })
       .then(() => {
         setLoadingStatus(LoadingStatus.Loaded);
@@ -116,7 +180,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
   }, [selectedCatalogIndexFile]);
 
   return (
-    <CatalogContext.Provider value={CamelCatalogService}>
+    <>
       {loadingStatus === LoadingStatus.Loading && (
         <Loading>
           <Content data-testid="loading-catalogs" component={ContentVariants.h3}>
@@ -133,7 +197,7 @@ export const CatalogLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         </LoadDefaultCatalog>
       )}
 
-      {loadingStatus === LoadingStatus.Loaded && props.children}
-    </CatalogContext.Provider>
+      {loadingStatus === LoadingStatus.Loaded && children}
+    </>
   );
 };

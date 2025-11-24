@@ -18,13 +18,13 @@ export type DynamicCatalogTypeMap = {
   [CatalogKind.Dataformat]: ICamelDataformatDefinition;
   [CatalogKind.Loadbalancer]: ICamelProcessorDefinition;
   [CatalogKind.Kamelet]: IKameletDefinition;
-  [CatalogKind.Function]: KaotoFunction;
+  [CatalogKind.Function]: Record<string, KaotoFunction>;
 };
 
 export interface ICatalogProvider<T> {
   readonly id: string;
   fetch(key: string): Promise<T | undefined>;
-  fetchAll(): Promise<Array<{ key: string; entity: T }>>;
+  fetchAll(): Promise<Record<string, T>>;
 }
 
 export interface IDynamicCatalog<T> {

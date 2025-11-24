@@ -1,10 +1,10 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 
+import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
-import { ActionConfirmationModalContextProvider } from '../../../providers';
-import { CatalogModalContext } from '../../../providers/catalog-modal.provider';
+import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { VisibleFlowsContextResult } from '../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
@@ -246,9 +246,7 @@ describe('Canvas', () => {
 
       await act(async () => {
         result = render(
-          <CatalogModalContext.Provider
-            value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn(), checkCompatibility: jest.fn() }}
-          >
+          <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), checkCompatibility: jest.fn() }}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
                 <Canvas entities={[entity]} />

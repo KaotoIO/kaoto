@@ -1,12 +1,13 @@
 import './PropertiesModal.scss';
 
 import { capitalize, Modal, ModalBody, ModalHeader, Tab, Tabs } from '@patternfly/react-core';
-import { FunctionComponent, ReactElement, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, ReactElement, useContext, useEffect, useState } from 'react';
 
+import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { CatalogKind } from '../../models';
-import { CatalogContext } from '../../providers';
 import { NodeIconResolver, NodeIconType } from '../../utils';
 import { ITile } from '../Catalog';
+import { Loading } from '../Loading';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
@@ -23,36 +24,58 @@ interface IPropertiesModalProps {
 }
 
 export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props) => {
-  const catalogService = useContext(CatalogContext);
-  const tabs = useMemo(() => {
-    switch (props.tile.type) {
-      case CatalogKind.Component:
-        return transformCamelComponentIntoTab(catalogService.getComponent(CatalogKind.Component, props.tile.name));
-
-      case CatalogKind.Processor:
-        return transformCamelProcessorComponentIntoTab(
-          catalogService.getComponent(CatalogKind.Processor, props.tile.name),
-        );
-
-      case CatalogKind.Entity:
-        return transformCamelProcessorComponentIntoTab(
-          catalogService.getComponent(CatalogKind.Entity, props.tile.name),
-        );
-
-      case CatalogKind.Kamelet:
-        return transformKameletComponentIntoTab(catalogService.getComponent(CatalogKind.Kamelet, props.tile.name));
-
-      default:
-        throw Error('Unknown CatalogKind during rendering modal: ' + props.tile.type);
-    }
-  }, [catalogService, props.tile.name, props.tile.type]);
+  const catalogRegistry = useContext(CatalogContext);
+  const [tabs, setTabs] = useState<IPropertiesTab[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTabKey, setActiveTabKey] = useState<number>(0);
-  const [activeTab, setActiveTab] = useState<IPropertiesTab>(tabs[0]);
+  const [activeTab, setActiveTab] = useState<IPropertiesTab | undefined>(undefined);
 
   useEffect(() => {
-    setActiveTabKey(0);
-    setActiveTab(tabs[0]);
-  }, [tabs]);
+    const fetchTabs = async () => {
+      setIsLoading(true);
+      let transformedTabs: IPropertiesTab[] = [];
+
+      try {
+        switch (props.tile.type) {
+          case CatalogKind.Component: {
+            const component = await catalogRegistry.getEntity(CatalogKind.Component, props.tile.name);
+            transformedTabs = transformCamelComponentIntoTab(component);
+            break;
+          }
+
+          case CatalogKind.Processor: {
+            const processor = await catalogRegistry.getEntity(CatalogKind.Processor, props.tile.name);
+            transformedTabs = transformCamelProcessorComponentIntoTab(processor);
+            break;
+          }
+
+          case CatalogKind.Entity: {
+            const entity = await catalogRegistry.getEntity(CatalogKind.Entity, props.tile.name);
+            transformedTabs = transformCamelProcessorComponentIntoTab(entity);
+            break;
+          }
+
+          case CatalogKind.Kamelet: {
+            const kamelet = await catalogRegistry.getEntity(CatalogKind.Kamelet, props.tile.name, {
+              forceFresh: true,
+            });
+            transformedTabs = transformKameletComponentIntoTab(kamelet);
+            break;
+          }
+
+          default:
+            throw new Error('Unknown CatalogKind during rendering modal: ' + props.tile.type);
+        }
+      } finally {
+        setTabs(transformedTabs);
+        setActiveTabKey(0);
+        setActiveTab(transformedTabs[0]);
+        setIsLoading(false);
+      }
+    };
+
+    fetchTabs();
+  }, [catalogRegistry, props.tile.name, props.tile.type]);
 
   const handleTabClick = (_event: unknown, tabIndex: string | number) => {
     setActiveTab(tabs[tabIndex as number]);
@@ -94,11 +117,9 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     >
       <ModalHeader title={title} description={description} />
       <ModalBody className="properties-modal__body">
-        {tabs.length === 0 ? (
-          <EmptyTableState name={props.tile.name} />
-        ) : (
-          <PropertiesTabs tab={activeTab!} tab_index={activeTabKey} />
-        )}
+        {isLoading && <Loading>Loading properties...</Loading>}
+        {!isLoading && tabs.length === 0 && <EmptyTableState name={props.tile.name} />}
+        {!isLoading && tabs.length > 0 && <PropertiesTabs tab={activeTab!} tab_index={activeTabKey} />}
       </ModalBody>
     </Modal>
   );
