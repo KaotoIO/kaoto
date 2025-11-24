@@ -30,7 +30,6 @@ describe('Tile', () => {
 
     fireEvent.click(getByTestId('tag-tag1'));
     expect(onTagClick).toHaveBeenCalledTimes(1);
-    
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 });
