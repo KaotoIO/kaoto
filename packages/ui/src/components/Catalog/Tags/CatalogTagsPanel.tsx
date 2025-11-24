@@ -14,6 +14,7 @@ export const CatalogTagsPanel: FunctionComponent<ICatalogTagsPanelProps> = (prop
       {props.tags.map((tag) => (
         <Label
           isCompact
+          isClickable
           key={tag}
           color={getTagColor(tag)}
           render={({ className, content }) => (

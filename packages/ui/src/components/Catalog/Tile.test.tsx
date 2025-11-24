@@ -26,9 +26,11 @@ describe('Tile', () => {
     const { getByTestId } = render(<Tile tile={tile} onClick={onClick} onTagClick={onTagClick} />);
 
     fireEvent.click(getByTestId('tile-header-tile-name'));
-    fireEvent.click(getByTestId('tag-tag1'));
-
     expect(onClick).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(getByTestId('tag-tag1'));
     expect(onTagClick).toHaveBeenCalledTimes(1);
+    
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });
