@@ -1,8 +1,8 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { CatalogModalContext } from '../../../../providers';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,

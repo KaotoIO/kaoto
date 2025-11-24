@@ -33,7 +33,8 @@ export const LoadDefaultCatalog: FunctionComponent<PropsWithChildren<ILoadDefaul
       <EmptyState
         headingLevel="h4"
         icon={ExclamationCircleIcon}
-        titleText="The Catalog couldn't be loaded"
+        status="danger"
+        titleText="The catalog couldn't be loaded"
         variant={EmptyStateVariant.lg}
         data-testid="load-default-catalog"
       >

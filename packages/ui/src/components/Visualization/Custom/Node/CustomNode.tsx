@@ -31,12 +31,12 @@ import {
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';

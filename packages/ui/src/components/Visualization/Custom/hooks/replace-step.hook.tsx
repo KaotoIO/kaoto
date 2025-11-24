@@ -1,12 +1,12 @@
 import { useCallback, useContext, useMemo } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { StepUpdateAction } from '../../../../models';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import {
   ACTION_ID_CANCEL,
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
-  CatalogModalContext,
   MetadataContext,
 } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';

@@ -26,8 +26,8 @@ describe('DynamicCatalogRegistry', () => {
     it('should set a catalog provider for a given kind', () => {
       const mockProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const catalog = new DynamicCatalog(mockProvider);
 
@@ -40,13 +40,13 @@ describe('DynamicCatalogRegistry', () => {
     it('should set multiple catalog providers for different kinds', () => {
       const componentProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'component-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const processorProvider: ICatalogProvider<ICamelProcessorDefinition> = {
         id: 'processor-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
 
       const componentCatalog = new DynamicCatalog(componentProvider);
@@ -62,13 +62,13 @@ describe('DynamicCatalogRegistry', () => {
     it('should override existing catalog provider when setting the same kind', () => {
       const firstProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'first-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const secondProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'second-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
 
       const firstCatalog = new DynamicCatalog(firstProvider);
@@ -85,28 +85,28 @@ describe('DynamicCatalogRegistry', () => {
     it('should handle all catalog kinds', () => {
       const componentProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'component-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const processorProvider: ICatalogProvider<ICamelProcessorDefinition> = {
         id: 'processor-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const languageProvider: ICatalogProvider<ICamelLanguageDefinition> = {
         id: 'language-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const dataformatProvider: ICatalogProvider<ICamelDataformatDefinition> = {
         id: 'dataformat-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const kameletProvider: ICatalogProvider<IKameletDefinition> = {
         id: 'kamelet-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
 
       registry.setCatalog(CatalogKind.Component, new DynamicCatalog(componentProvider));
@@ -138,8 +138,8 @@ describe('DynamicCatalogRegistry', () => {
     it('should return the correct catalog for a given kind', () => {
       const mockProvider: ICatalogProvider<ICamelLanguageDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const expectedCatalog = new DynamicCatalog(mockProvider);
 
@@ -152,13 +152,13 @@ describe('DynamicCatalogRegistry', () => {
     it('should return different catalogs for different kinds', () => {
       const provider1: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'provider-1',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
       const provider2: ICatalogProvider<ICamelProcessorDefinition> = {
         id: 'provider-2',
-        fetch: jest.fn(),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
 
       const catalog1 = new DynamicCatalog(provider1);
@@ -189,9 +189,10 @@ describe('DynamicCatalogRegistry', () => {
 
       const mockProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'component-provider',
-        fetch: jest.fn().mockResolvedValue(mockEntity),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
+      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Component, catalog);
@@ -199,7 +200,7 @@ describe('DynamicCatalogRegistry', () => {
       const entity = await registry.getEntity(CatalogKind.Component, 'test-component');
 
       expect(entity).toBe(mockEntity);
-      expect(mockProvider.fetch).toHaveBeenCalledWith('test-component');
+      expect(fetchSpy).toHaveBeenCalledWith('test-component');
     });
 
     it('should pass options to catalog.get', async () => {
@@ -212,9 +213,10 @@ describe('DynamicCatalogRegistry', () => {
 
       const mockProvider: ICatalogProvider<ICamelComponentDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn().mockResolvedValue(mockEntity),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
+      jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
       const getSpy = jest.spyOn(catalog, 'get');
@@ -234,9 +236,10 @@ describe('DynamicCatalogRegistry', () => {
 
       const mockProvider: ICatalogProvider<IKameletDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn().mockResolvedValue(mockEntity),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
+      jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
       const getSpy = jest.spyOn(catalog, 'get');
@@ -256,9 +259,10 @@ describe('DynamicCatalogRegistry', () => {
 
       const mockProvider: ICatalogProvider<ICamelLanguageDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn().mockResolvedValue(mockEntity),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
+      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Language, catalog);
@@ -266,12 +270,12 @@ describe('DynamicCatalogRegistry', () => {
       // First call - should fetch from provider
       const firstResult = await registry.getEntity(CatalogKind.Language, 'test-key');
       expect(firstResult).toBe(mockEntity);
-      expect(mockProvider.fetch).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
 
       // Second call - should return from cache
       const secondResult = await registry.getEntity(CatalogKind.Language, 'test-key');
       expect(secondResult).toBe(mockEntity);
-      expect(mockProvider.fetch).toHaveBeenCalledTimes(1); // Still called only once
+      expect(fetchSpy).toHaveBeenCalledTimes(1); // Still called only once
     });
 
     it('should bypass cache when forceFresh is true', async () => {
@@ -288,9 +292,11 @@ describe('DynamicCatalogRegistry', () => {
 
       const mockProvider: ICatalogProvider<ICamelDataformatDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn().mockResolvedValueOnce(mockEntity1).mockResolvedValueOnce(mockEntity2),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
+      const fetchSpy = jest.spyOn(mockProvider, 'fetch');
+      fetchSpy.mockResolvedValueOnce(mockEntity1).mockResolvedValueOnce(mockEntity2);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Dataformat, catalog);
@@ -302,15 +308,16 @@ describe('DynamicCatalogRegistry', () => {
       // Second call with forceFresh
       const secondResult = await registry.getEntity(CatalogKind.Dataformat, 'test-key', { forceFresh: true });
       expect(secondResult).toBe(mockEntity2);
-      expect(mockProvider.fetch).toHaveBeenCalledTimes(2);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
     });
 
     it('should return undefined when entity is not found', async () => {
       const mockProvider: ICatalogProvider<ICamelProcessorDefinition> = {
         id: 'test-provider',
-        fetch: jest.fn().mockResolvedValue(undefined),
-        fetchAll: jest.fn(),
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
       };
+      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(undefined);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Processor, catalog);
@@ -318,32 +325,36 @@ describe('DynamicCatalogRegistry', () => {
       const entity = await registry.getEntity(CatalogKind.Processor, 'non-existent-key');
 
       expect(entity).toBeUndefined();
-      expect(mockProvider.fetch).toHaveBeenCalledWith('non-existent-key');
+      expect(fetchSpy).toHaveBeenCalledWith('non-existent-key');
     });
 
     it('should handle different entity types correctly', async () => {
-      const mockEntity = {
-        name: 'customFunction',
-        displayName: 'Custom Function',
-        description: 'A custom function for testing',
-        returnType: 'String',
-        examples: [],
-      } as unknown as KaotoFunction;
-
-      const mockProvider: ICatalogProvider<KaotoFunction> = {
-        id: 'custom-provider',
-        fetch: jest.fn().mockResolvedValue(mockEntity),
-        fetchAll: jest.fn(),
+      const mockEntity: Record<string, KaotoFunction> = {
+        custom: {
+          name: 'customFunction',
+          displayName: 'Custom Function',
+          description: 'A custom function for testing',
+          returnType: 'String',
+          returnCollection: false,
+          arguments: [],
+        },
       };
 
-      const catalog = new DynamicCatalog<KaotoFunction>(mockProvider);
+      const mockProvider: ICatalogProvider<Record<string, KaotoFunction>> = {
+        id: 'custom-provider',
+        fetch: () => Promise.resolve(undefined),
+        fetchAll: () => Promise.resolve({}),
+      };
+      jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
+
+      const catalog = new DynamicCatalog<Record<string, KaotoFunction>>(mockProvider);
       registry.setCatalog(CatalogKind.Function, catalog);
 
       const entity = await registry.getEntity(CatalogKind.Function, 'custom-key');
 
       expect(entity).toBe(mockEntity);
-      expect(entity?.name).toBe('customFunction');
-      expect(entity?.displayName).toBe('Custom Function');
+      expect(entity?.custom.name).toBe('customFunction');
+      expect(entity?.custom.displayName).toBe('Custom Function');
     });
   });
 

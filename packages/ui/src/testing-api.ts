@@ -3,6 +3,7 @@ export * from './components/DataMapper/debug';
 export * from './components/Visualization/Canvas/controller.service';
 export * from './components/Visualization/Canvas/Form/fields/BeanField/NewBeanModal';
 export * from './components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField';
+export * from './dynamic-catalog';
 export * from './layout';
 export * from './models';
 export * from './models/camel';

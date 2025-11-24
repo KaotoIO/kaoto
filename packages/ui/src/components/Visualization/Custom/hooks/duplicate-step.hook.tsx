@@ -2,10 +2,10 @@ import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useMemo } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { updateIds } from '../../../../utils/update-ids';
 import {

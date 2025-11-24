@@ -3,8 +3,8 @@ import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } fr
 
 import { Visualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
+import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
 import {
-  CatalogLoaderProvider,
   EntitiesContext,
   EntitiesProvider,
   ReloadProvider,

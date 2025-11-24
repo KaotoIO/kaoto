@@ -13,9 +13,9 @@ import { WorkspaceEdit } from '@kie-tools-core/workspace/dist/api';
 import { createRef, RefObject } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
+import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
 import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter } from '../models/settings';
-import { CatalogLoaderProvider } from '../providers/catalog.provider';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';

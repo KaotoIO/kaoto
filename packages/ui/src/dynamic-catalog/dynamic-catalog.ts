@@ -25,11 +25,9 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
   ): Promise<Record<string, T>> {
     if (options.forceFresh || Object.keys(this.cache).length === 0) {
       const entities = await this.provider.fetchAll();
-      if (Array.isArray(entities)) {
-        entities.forEach(({ key, entity }) => {
-          this.cache[key] = entity;
-        });
-      }
+      Object.entries(entities).forEach(([key, entity]) => {
+        this.cache[key] = entity;
+      });
     }
 
     const { filterFn } = options;

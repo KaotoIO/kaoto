@@ -24,10 +24,10 @@ import {
 import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
-import { CatalogModalContext } from '../../../../providers/catalog-modal.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';

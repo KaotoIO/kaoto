@@ -9,7 +9,8 @@ import { RegisterComponents } from '../../components/registers/RegisterComponent
 import { RegisterNodeInteractionAddons } from '../../components/registers/RegisterNodeInteractionAddons';
 import { RenderingProvider } from '../../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
-import { CatalogTilesProvider, IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
+import { CatalogTilesProvider } from '../../dynamic-catalog/catalog-tiles.provider';
+import { IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
 
 interface KaotoBridgeProps extends IMetadataApi {
   /**
