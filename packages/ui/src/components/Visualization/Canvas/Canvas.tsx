@@ -125,24 +125,25 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
     if (!selectedIds[0]) {
       setSelectedNode(undefined);
-    } else {
-      const selectedNode = controller.getNodeById(selectedIds[0]);
-      if (selectedNode) {
-        setSelectedNode(selectedNode as unknown as CanvasNode);
-        resizeTimeout = setTimeout(
-          action(() => {
-            controller.getGraph().panIntoView(selectedNode, { offset: 20, minimumVisible: 100 });
-            resizeTimeout = undefined;
-          }),
-          500,
-        ) as unknown as number;
-      }
-      return () => {
-        if (resizeTimeout) {
-          clearTimeout(resizeTimeout);
-        }
-      };
+      return;
     }
+
+    const selectedNode = controller.getNodeById(selectedIds[0]);
+    if (selectedNode) {
+      setSelectedNode(selectedNode as unknown as CanvasNode);
+      resizeTimeout = setTimeout(
+        action(() => {
+          controller.getGraph().panIntoView(selectedNode, { offset: 20, minimumVisible: 100 });
+          resizeTimeout = undefined;
+        }),
+        500,
+      ) as unknown as number;
+    }
+    return () => {
+      if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+      }
+    };
   }, [selectedIds, controller]);
 
   const controlButtons = useMemo(() => {
@@ -174,7 +175,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
         icon: <CatalogIcon />,
         tooltip: 'Open Catalog',
         callback: action(() => {
-          catalogModalContext.setIsModalOpen(true);
+          catalogModalContext.getNewComponent();
         }),
       });
     }

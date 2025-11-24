@@ -246,9 +246,7 @@ describe('Canvas', () => {
 
       await act(async () => {
         result = render(
-          <CatalogModalContext.Provider
-            value={{ getNewComponent: jest.fn(), setIsModalOpen: jest.fn(), checkCompatibility: jest.fn() }}
-          >
+          <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), checkCompatibility: jest.fn() }}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
                 <Canvas entities={[entity]} />
@@ -289,6 +287,36 @@ describe('Canvas', () => {
 
       await waitFor(async () => expect(screen.queryByText('Open Catalog')).not.toBeInTheDocument());
       expect(result?.asFragment()).toMatchSnapshot();
+    });
+
+    it('should `CatalogModalContext.getNewComponent` method when clicking', async () => {
+      const getNewComponentSpy = jest.fn();
+      const { Provider } = TestProvidersWrapper({
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+      });
+
+      await act(async () => {
+        render(
+          <CatalogModalContext.Provider value={{ getNewComponent: getNewComponentSpy, checkCompatibility: jest.fn() }}>
+            <Provider>
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <Canvas entities={[entity]} />
+              </VisualizationProvider>
+            </Provider>
+          </CatalogModalContext.Provider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      const catalogButton = screen.getByText('Open Catalog');
+      fireEvent.click(catalogButton);
+
+      await waitFor(async () => {
+        expect(getNewComponentSpy).toHaveBeenCalled();
+      });
     });
   });
 

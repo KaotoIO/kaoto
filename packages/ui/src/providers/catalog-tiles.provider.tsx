@@ -1,12 +1,12 @@
 import { isDefined } from '@kaoto/forms';
-import { createContext, FunctionComponent, PropsWithChildren, useContext, useMemo } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useCallback, useContext, useMemo } from 'react';
 
 import { camelComponentToTile, camelEntityToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
 import { ITile } from '../components/Catalog';
 import { CatalogKind } from '../models';
 import { CatalogContext } from './catalog.provider';
 
-export const CatalogTilesContext = createContext<ITile[]>([]);
+export const CatalogTilesContext = createContext<() => Promise<ITile[]>>(() => Promise.resolve([]));
 
 /**
  * The goal for this provider is to receive the Tiles in a single place once, and then supply them to the Catalog instances,
@@ -43,5 +43,9 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
     return combinedTiles;
   }, [catalogService]);
 
-  return <CatalogTilesContext.Provider value={tiles}>{props.children}</CatalogTilesContext.Provider>;
+  const tilesRetrievalFn = useCallback(() => {
+    return Promise.resolve(tiles);
+  }, [tiles]);
+
+  return <CatalogTilesContext.Provider value={tilesRetrievalFn}>{props.children}</CatalogTilesContext.Provider>;
 };

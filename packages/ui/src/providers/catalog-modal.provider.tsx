@@ -15,13 +15,12 @@ import {
 
 import { Catalog, ITile, TileFilter } from '../components/Catalog';
 import { CatalogKind, DefinedComponent } from '../models';
-import { CatalogContext } from './catalog.provider';
 import { CatalogTilesContext } from './catalog-tiles.provider';
+import { CatalogContext } from './catalog.provider';
 
 interface CatalogModalContextValue {
-  setIsModalOpen: (isOpen: boolean) => void;
   getNewComponent: (catalogFilter?: TileFilter) => Promise<DefinedComponent | undefined>;
-  checkCompatibility: (name: string, catalogFilter?: TileFilter) => boolean;
+  checkCompatibility: (name: string, catalogFilter?: TileFilter) => Promise<boolean>;
 }
 
 export const CatalogModalContext = createContext<CatalogModalContextValue | undefined>(undefined);
@@ -34,7 +33,7 @@ export const CatalogModalContext = createContext<CatalogModalContextValue | unde
  * wrap your application with both providers:
  *
  * ```
- * <CatalogTilesProvider tiles={tiles}>  // In most cases, this will at the root of your application
+ * <CatalogTilesProvider>                // In most cases, this will at the root of your application
  *   <CatalogModalProvider>              // This provider can be used anywhere in your application
  *     <App />
  *   </CatalogModalProvider>
@@ -43,8 +42,8 @@ export const CatalogModalContext = createContext<CatalogModalContextValue | unde
  */
 export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const camelCatalogService = useContext(CatalogContext);
-  const tiles = useContext(CatalogTilesContext);
-  const [filteredTiles, setFilteredTiles] = useState(tiles);
+  const tilesRetrievalFn = useContext(CatalogTilesContext);
+  const [filteredTiles, setFilteredTiles] = useState<ITile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const componentSelectionRef = useRef<{
@@ -72,7 +71,15 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
   );
 
   const getNewComponent = useCallback(
-    (catalogFilter?: TileFilter) => {
+    async (catalogFilter?: TileFilter): Promise<DefinedComponent | undefined> => {
+      let tiles: ITile[];
+      try {
+        tiles = await tilesRetrievalFn();
+      } catch (error) {
+        console.error('Error loading catalog tiles', error);
+        tiles = [];
+      }
+
       if (isDefined(catalogFilter)) {
         const localFilteredTiles = tiles.filter(catalogFilter);
         setFilteredTiles(localFilteredTiles);
@@ -89,23 +96,29 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
 
       return componentSelectorPromise;
     },
-    [tiles],
+    [tilesRetrievalFn],
   );
 
   const checkCompatibility = useCallback(
-    (name: string, catalogFilter?: TileFilter) => {
+    async (name: string, catalogFilter?: TileFilter): Promise<boolean> => {
+      let tiles: ITile[];
+      try {
+        tiles = await tilesRetrievalFn();
+      } catch (error) {
+        console.error('Error loading catalog tiles', error);
+        tiles = [];
+      }
       const tile = tiles.find((t) => t.name === name);
 
       if (!isDefined(catalogFilter) || !isDefined(tile)) return false;
 
       return catalogFilter(tile);
     },
-    [tiles],
+    [tilesRetrievalFn],
   );
 
   const value: CatalogModalContextValue = useMemo(
     () => ({
-      setIsModalOpen,
       getNewComponent,
       checkCompatibility,
     }),
