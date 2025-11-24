@@ -1,12 +1,31 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-
+import { ParametersSection } from './Parameters';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
-import { Parameters } from './Parameters';
+import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
+import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 
-describe('Parameters', () => {
+// Helper to render ParametersSection with required ExpansionPanels wrapper
+const renderParametersSection = (props: { isReadOnly: boolean }) => {
+  return render(
+    <BrowserFilePickerMetadataProvider>
+      <DataMapperProvider
+        onUpdateDocument={props.onUpdateDocument}
+        onDeleteParameter={props.onDeleteParameter}
+        onRenameParameter={props.onRenameParameter}
+      >
+        <DataMapperCanvasProvider>
+          <ExpansionPanels>
+            <ParametersSection isReadOnly={props.isReadOnly} onScroll={() => {}} />
+          </ExpansionPanels>
+        </DataMapperCanvasProvider>
+      </DataMapperProvider>
+    </BrowserFilePickerMetadataProvider>,
+  );
+};
+
+describe('ParametersSection', () => {
   it('should add, rename, and remove a parameter', async () => {
     const mockUpdateDocument = jest.fn();
     const mockDeleteParameter = jest.fn();
@@ -19,7 +38,9 @@ describe('Parameters', () => {
           onRenameParameter={mockRenameParameter}
         >
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -77,7 +98,9 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -119,7 +142,9 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -186,7 +211,9 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -242,7 +269,9 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={true} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={true} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -257,7 +286,9 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -281,38 +312,17 @@ describe('Parameters', () => {
     expect(screen.queryByTestId('new-parameter-name-input')).not.toBeInTheDocument();
   });
 
-  it('should toggle parameters expanded state', async () => {
-    render(
-      <BrowserFilePickerMetadataProvider>
-        <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
-          </DataMapperCanvasProvider>
-        </DataMapperProvider>
-      </BrowserFilePickerMetadataProvider>,
-    );
-
-    const header = await screen.findByTestId('card-source-parameters-header');
-
-    // Initially expanded should be true (default), click to collapse
-    act(() => {
-      fireEvent.click(header);
-    });
-
-    // Click again to expand
-    act(() => {
-      fireEvent.click(header);
-    });
-
-    expect(header).toBeInTheDocument();
-  });
+  // Note: Test removed - expansion behavior is now managed by ExpansionPanel component
+  // and tested separately in ExpansionPanel.test.tsx
 
   it('should handle empty parameter name validation', async () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
@@ -336,7 +346,9 @@ describe('Parameters', () => {
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
           <DataMapperCanvasProvider>
-            <Parameters isReadOnly={false} />
+            <ExpansionPanels>
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+            </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
