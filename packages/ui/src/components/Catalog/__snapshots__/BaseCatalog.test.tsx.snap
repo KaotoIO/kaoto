@@ -323,7 +323,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -422,7 +422,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -521,7 +521,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -620,7 +620,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -719,7 +719,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -818,7 +818,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -917,7 +917,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1016,7 +1016,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1115,7 +1115,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1214,7 +1214,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1313,7 +1313,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1412,7 +1412,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1511,7 +1511,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1610,7 +1610,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1709,7 +1709,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1808,7 +1808,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -1907,7 +1907,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2006,7 +2006,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2105,7 +2105,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2204,7 +2204,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2303,7 +2303,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2402,7 +2402,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2501,7 +2501,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2600,7 +2600,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2699,7 +2699,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2798,7 +2798,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2897,7 +2897,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -2996,7 +2996,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3095,7 +3095,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3194,7 +3194,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3293,7 +3293,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3392,7 +3392,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3491,7 +3491,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3590,7 +3590,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3689,7 +3689,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3788,7 +3788,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3887,7 +3887,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -3986,7 +3986,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4085,7 +4085,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4184,7 +4184,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4283,7 +4283,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4382,7 +4382,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4481,7 +4481,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4580,7 +4580,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4679,7 +4679,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4778,7 +4778,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4877,7 +4877,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -4976,7 +4976,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -5075,7 +5075,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -5174,7 +5174,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   class="pf-v6-c-label-group__list-item"
                 >
                   <span
-                    class="pf-v6-c-label pf-m-filled pf-m-compact"
+                    class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
                     <a
                       class="pf-v6-c-label__content"
@@ -5502,7 +5502,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -5601,7 +5601,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -5700,7 +5700,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -5799,7 +5799,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -5898,7 +5898,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -5997,7 +5997,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6096,7 +6096,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6195,7 +6195,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6294,7 +6294,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6393,7 +6393,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6492,7 +6492,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6591,7 +6591,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6690,7 +6690,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6789,7 +6789,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6888,7 +6888,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -6987,7 +6987,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7086,7 +7086,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7185,7 +7185,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7284,7 +7284,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7383,7 +7383,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7482,7 +7482,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7581,7 +7581,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7680,7 +7680,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7779,7 +7779,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7878,7 +7878,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -7977,7 +7977,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8076,7 +8076,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8175,7 +8175,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8274,7 +8274,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8373,7 +8373,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8472,7 +8472,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8571,7 +8571,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8670,7 +8670,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8769,7 +8769,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8868,7 +8868,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -8967,7 +8967,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9066,7 +9066,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9165,7 +9165,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9264,7 +9264,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9363,7 +9363,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9462,7 +9462,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9561,7 +9561,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9660,7 +9660,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9759,7 +9759,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9858,7 +9858,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -9957,7 +9957,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -10056,7 +10056,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -10155,7 +10155,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -10254,7 +10254,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
@@ -10353,7 +10353,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             class="pf-v6-c-label-group__list-item"
                           >
                             <span
-                              class="pf-v6-c-label pf-m-filled pf-m-compact"
+                              class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
                               <a
                                 class="pf-v6-c-label__content"
