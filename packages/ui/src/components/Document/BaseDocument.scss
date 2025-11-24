@@ -43,3 +43,107 @@
     }
   }
 }
+
+// ============================================================================
+// New ExpansionPanel-based architecture styles
+// ============================================================================
+
+// DocumentHeader - header component for ExpansionPanel summaries
+.document-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 2rem;
+
+  &__container {
+    // Container for click handling and node reference
+  }
+
+  &__title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    min-width: 0; // Allow text truncation if needed
+    margin: 0 var(--pf-t--global--spacer--sm);
+
+    // Remove default title margins
+    h5 {
+      margin: 0;
+    }
+  }
+
+  &__actions {
+    flex: 1;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+
+    --pf-v6-c-action-list--child--spacer-base: 0.5rem;
+    --pf-v6-c-action-list--group--spacer-base: 0.5rem;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-button {
+      --pf-v6-c-button--PaddingLeft: 0.5rem;
+      --pf-v6-c-button--PaddingRight: 0.5rem;
+      height: 1.75rem;
+    }
+  }
+
+  // Drag handle styling when inside NodeContainer
+  /* stylelint-disable-next-line selector-class-pattern */
+  .node__spacer {
+    margin: 0 var(--pf-t--global--spacer--sm);
+
+    svg {
+      display: block;
+    }
+  }
+}
+
+// DocumentContent - content component for ExpansionPanel children
+.document-content {
+  display: flex;
+  flex-direction: column;
+}
+
+// ParametersHeader - header for the Parameters section
+.parameters-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 2rem;
+
+  &__title {
+    margin: 0 var(--pf-t--global--spacer--sm);
+  }
+
+  &__actions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+
+    --pf-v6-c-action-list--child--spacer-base: 0.5rem;
+    --pf-v6-c-action-list--group--spacer-base: 0.5rem;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-button {
+      --pf-v6-c-button--PaddingLeft: 0.5rem;
+      --pf-v6-c-button--PaddingRight: 0.5rem;
+      height: 1.75rem;
+    }
+  }
+}
+
+// Input placeholder for adding/renaming parameters
+.parameters-input-placeholder {
+  flex-shrink: 0;
+  padding: var(--pf-t--global--spacer--sm);
+  background: var(--pf-t--global--background--color--secondary);
+  border-bottom: 1px solid var(--pf-t--color--gray--10);
+}

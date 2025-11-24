@@ -56,7 +56,7 @@ describe('DataMapperPage', () => {
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
     );
-    await screen.findByTestId('card-source-parameters-header');
+    await screen.findByTestId('add-parameter-button');
     // TODO assert mappings are restored even without loading schema... But how? Lines are not drawn...
   });
 
@@ -82,7 +82,7 @@ describe('DataMapperPage', () => {
 
     let executed = false;
     await waitFor(() => {
-      expect(screen.getByTestId('card-source-parameters-header')).toBeInTheDocument();
+      expect(screen.getByTestId('add-parameter-button')).toBeInTheDocument();
       expect(screen.getByTestId('document-doc-param-testparam1')).toBeInTheDocument();
       expect(screen.getByTestId('document-doc-sourceBody-Body')).toBeInTheDocument();
       expect(screen.getByTestId('document-doc-targetBody-Body')).toBeInTheDocument();
