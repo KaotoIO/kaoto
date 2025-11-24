@@ -816,7 +816,7 @@ describe('VisualizationService', () => {
         expect(shipOrderChildren.length).toEqual(5);
         const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
         expect(orderIdNode.title).toEqual('OrderId');
-        expect(VisualizationService.allowConditionMenu(orderIdNode)).toBeFalsy();
+        expect(VisualizationService.allowConditionMenu(orderIdNode)).toBeTruthy();
 
         const ifNode = shipOrderChildren[1] as MappingNodeData;
         expect(ifNode.title).toEqual('if');
@@ -824,7 +824,7 @@ describe('VisualizationService', () => {
 
         const shipToNode = shipOrderChildren[2] as TargetFieldNodeData;
         expect(shipToNode.title).toEqual('ShipTo');
-        expect(VisualizationService.allowConditionMenu(shipToNode)).toBeFalsy();
+        expect(VisualizationService.allowConditionMenu(shipToNode)).toBeTruthy();
 
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
         expect(forEachNode.title).toEqual('for-each');
