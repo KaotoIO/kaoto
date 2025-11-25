@@ -23,7 +23,7 @@ exports[`CanvasFormHeader renders correctly 1`] = `
       </h2>
     </div>
     <div
-      class="pf-v6-l-grid__item pf-m-1-col"
+      class="pf-v6-l-grid__item pf-m-1-col canvas-header-close"
     >
       <button
         class="pf-v6-c-button pf-m-plain"

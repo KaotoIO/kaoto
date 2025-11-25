@@ -35,3 +35,11 @@
     --pf-v6-c-toggle-group__button--PaddingLeft: 0.25rem;
   }
 }
+
+.canvas-header-close {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  padding-right: 0;
+}
