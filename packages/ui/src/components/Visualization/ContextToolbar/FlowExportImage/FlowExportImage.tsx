@@ -1,49 +1,68 @@
-import { Exception } from '@kaoto/camel-catalog/types';
+import './overlay-export.scss'
+import { Point, useVisualizationController } from '@patternfly/react-topology';
 import { Button } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
 import { toPng } from 'html-to-image';
-
-export const defaultTooltipText = 'Export as image';
+import { useState } from 'react';
 
 export function FlowExportImage() {
-  const onClick = () => {
-    const node = document.querySelector<HTMLElement>('.pf-topology-container') ?? undefined;
-    exportToPng('image', node);
+  const controller = useVisualizationController();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const onClick = async () => {
+    const surface = document.querySelector('.pf-topology-container') as HTMLElement;
+    if (!surface) return;
+
+    const graph = controller.getGraph();
+
+    setIsExporting(true);
+
+    const origScale = graph.getGraph().getScale();
+    const origPos = graph.getGraph().getPosition();
+
+    graph.reset();
+    graph.fit(80);
+    graph.layout();
+
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    await exportToPng("image", surface);
+
+    graph.getGraph().setScale(origScale);
+    graph.getGraph().setPosition(new Point(origPos.x, origPos.y));
+    graph.layout();
+
+    setIsExporting(false);
   };
 
-  const exportToPng = (name: string, element: HTMLElement | undefined, isDark?: boolean) => {
-    if (element) {
-      toPng(element, {
-        cacheBust: true,
-        backgroundColor: isDark ? '#0f1214' : '#f0f0f0',
-        filter: (node) => {
-          {
-            /**  Filter @patternfly/react-topology controls */
-            return !node?.classList?.contains('pf-v6-c-toolbar__group');
-          }
-        },
-      })
-        .then((dataUrl: string) => {
-          const link = document.createElement('a');
-          link.download = `${name}.png`;
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch((err: Exception) => {
-          console.error(err);
-        });
-    } else {
-      console.error('exportToPng called but element is undefined');
-    }
+  const exportToPng = async (name: string, element: HTMLElement) => {
+    const dataUrl = await toPng(element, {
+      cacheBust: true,
+      backgroundColor: "#f0f0f0",
+      filter: (node) => !node?.classList?.contains("pf-v6-c-toolbar__group"),
+    });
+
+    const link = document.createElement("a");
+    link.download = `${name}.png`;
+    link.href = dataUrl;
+    link.click();
   };
 
   return (
-    <Button
-      icon={<ImageIcon />}
-      title="Export as image"
-      onClick={onClick}
-      variant="control"
-      data-testid="exportImageButton"
-    />
+    <>
+      <Button
+        icon={<ImageIcon />}
+        title="Export as image"
+        onClick={onClick}
+        variant="control"
+        data-testid="exportImageButton"
+      />
+
+      {isExporting && (
+        <div className="export-overlay">
+          <div className="export-spinner"></div>
+        </div>
+      )}
+    </>
   );
 }
