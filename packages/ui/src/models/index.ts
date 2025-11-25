@@ -6,6 +6,7 @@ export * from './camel-loadbalancers-catalog';
 export * from './camel-processors-catalog';
 export * from './camel-properties-common';
 export * from './catalog-kind';
+export * from './file-types';
 export * from './kamelets-catalog';
 export * from './kaoto-schema';
 export * from './loading-status';

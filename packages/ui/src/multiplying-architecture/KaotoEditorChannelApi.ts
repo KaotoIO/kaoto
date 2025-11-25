@@ -1,7 +1,7 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
 
-import { CatalogKind, StepUpdateAction } from '../models';
+import { CatalogKind, FileTypes, StepUpdateAction } from '../models';
 import {
   CamelMainMavenInformation,
   CamelQuarkusMavenInformation,
@@ -33,6 +33,12 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
    * @param metadata The metadata to be saved
    */
   setMetadata<T>(key: string, metadata: T): Promise<void>;
+
+  /**
+   * Retrieve resources content based on the filetype filter
+   * @param filetype The file filter to use, f.i. `kamelets`, `schemas`, etc.
+   */
+  getResourcesContentByType(filetype: FileTypes): Promise<Array<{ filename: string; content: string }>>;
 
   /**
    * Retrieve resource content
