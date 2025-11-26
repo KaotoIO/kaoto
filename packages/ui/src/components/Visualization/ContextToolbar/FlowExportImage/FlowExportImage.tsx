@@ -1,7 +1,8 @@
-import './overlay-export.scss'
-import { Point, useVisualizationController } from '@patternfly/react-topology';
+import './overlay-export.scss';
+
 import { Button } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
+import { Point, useVisualizationController } from '@patternfly/react-topology';
 import { toPng } from 'html-to-image';
 import { useState } from 'react';
 
@@ -26,7 +27,7 @@ export function FlowExportImage() {
 
     await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    await exportToPng("image", surface);
+    await exportToPng('image', surface);
 
     graph.getGraph().setScale(origScale);
     graph.getGraph().setPosition(new Point(origPos.x, origPos.y));
@@ -38,11 +39,11 @@ export function FlowExportImage() {
   const exportToPng = async (name: string, element: HTMLElement) => {
     const dataUrl = await toPng(element, {
       cacheBust: true,
-      backgroundColor: "#f0f0f0",
-      filter: (node) => !node?.classList?.contains("pf-v6-c-toolbar__group"),
+      backgroundColor: '#f0f0f0',
+      filter: (node) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
     });
 
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.download = `${name}.png`;
     link.href = dataUrl;
     link.click();
