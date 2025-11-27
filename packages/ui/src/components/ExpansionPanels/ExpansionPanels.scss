@@ -7,4 +7,9 @@
   display: grid;
   grid-template-rows: var(--grid-template, 1fr);
   transition: grid-template-rows var(--expansion-panel-animation);
+
+  &__spacer {
+    // Flexible spacer to push Body panel to the bottom
+    min-height: 0;
+  }
 }

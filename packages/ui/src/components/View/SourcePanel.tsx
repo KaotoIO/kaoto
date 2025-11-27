@@ -1,5 +1,8 @@
+import './SourcePanel.scss';
+
 import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType } from '../../models/datamapper/document';
@@ -11,7 +14,6 @@ import { ParametersSection } from '../Document/Parameters';
 import { SourceDocumentNode } from '../Document/SourceDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
-import './SourcePanel.scss';
 
 type SourcePanelProps = {
   isReadOnly?: boolean;
