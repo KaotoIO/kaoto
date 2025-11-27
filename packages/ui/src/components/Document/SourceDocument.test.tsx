@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
+
 import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { SourceDocument } from './SourceDocument';
 

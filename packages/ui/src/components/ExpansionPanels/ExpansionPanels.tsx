@@ -1,55 +1,120 @@
-import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ExpansionContext, PanelData } from './ExpansionContext';
 import './ExpansionPanels.scss';
+
+import React, { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useRef } from 'react';
+
+import { ExpansionContext, PanelData } from './ExpansionContext';
+
+// Special panel IDs with fixed ordering
+const PARAMETERS_HEADER_ID = 'parameters-header';
+const SOURCE_BODY_ID = 'source-body';
+
+// Order constants - ensures consistent panel positioning
+const ORDER_FIRST = 0; // Parameters header always first
+const ORDER_LAST = 1000; // Source body always last
+const ORDER_START = 1; // Starting order for dynamic panels (parameters, inputs, etc.)
 
 export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  // NOTE: Direct mutation of panel objects is intentional - panels are stored in ref, not React state.
+  // Grid updates via CSS variables without triggering React re-renders for better performance.
   const panelsRef = useRef<Map<string, PanelData>>(new Map());
-  const [, forceUpdate] = useState({});
+  const childrenRef = useRef(children);
+  childrenRef.current = children;
 
-  const getCollapsedHeight = useCallback((element: HTMLDivElement): number => {
-    // Measure the header height (first child is the summary)
-    const header = element.querySelector('.expansion-panel__summary') as HTMLElement;
-    const height = header?.offsetHeight ?? 50; // fallback to 50px
-    // Ensure we have a valid height
-    return height > 0 ? height : 50;
+  const getCollapsedHeight = useCallback((panel: PanelData): number => {
+    // Use the cached collapsed height (measured from header on registration)
+    return panel.collapsedHeight;
   }, []);
+
+  /**
+   * Update panel orders based on React children order (JSX order)
+   * This ensures panels appear in the same order as they're written in JSX,
+   * regardless of when they register or re-register.
+   */
+  const updateOrdersFromChildren = useCallback(() => {
+    const childrenArray = React.Children.toArray(childrenRef.current);
+    let dynamicOrder = ORDER_START;
+
+    childrenArray.forEach((child) => {
+      if (React.isValidElement(child) && child.props?.id) {
+        const panel = panelsRef.current.get(child.props.id);
+        if (panel) {
+          // Assign order based on panel ID
+          if (child.props.id === PARAMETERS_HEADER_ID) {
+            panel.order = ORDER_FIRST;
+          } else if (child.props.id === SOURCE_BODY_ID) {
+            panel.order = ORDER_LAST;
+          } else {
+            // Dynamic panels get sequential order based on JSX position
+            panel.order = dynamicOrder++;
+          }
+        }
+      }
+    });
+  }, []); // No dependencies - uses childrenRef to avoid cascade
 
   const updateGridTemplate = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const panels = Array.from(panelsRef.current.values());
+    // Sort panels by order field to maintain stable layout
+    const panels = Array.from(panelsRef.current.values()).sort((a, b) => a.order - b.order);
     if (panels.length === 0) return;
 
     // Create grid template from panel heights (use collapsed height for collapsed panels)
-    const template = panels
-      .map((panel) => {
-        const height = panel.isExpanded ? panel.height : getCollapsedHeight(panel.element);
-        return `${height}px`;
-      })
-      .join(' ');
+    // Insert flexible space (1fr) before the Body panel ONLY to push it to the bottom
+    const templateParts: string[] = [];
 
+    panels.forEach((panel) => {
+      // Add flexible spacer (1fr) ONLY before the source-body panel
+      if (panel.id === SOURCE_BODY_ID) {
+        templateParts.push('1fr');
+      }
+
+      const height = panel.isExpanded ? panel.height : getCollapsedHeight(panel);
+      templateParts.push(`${height}px`);
+    });
+
+    const template = templateParts.join(' ');
     container.style.setProperty('--grid-template', template);
   }, [getCollapsedHeight]);
 
   const register = useCallback(
     (id: string, minHeight: number, defaultHeight: number, element: HTMLDivElement, isExpanded: boolean) => {
-      panelsRef.current.set(id, {
-        id,
-        height: defaultHeight,
-        minHeight,
-        element,
-        isExpanded,
-      });
+      const existingPanel = panelsRef.current.get(id);
 
-      // Update grid template after registration
-      setTimeout(() => {
+      // Measure collapsed height (header height) from DOM
+      const header = element.querySelector('.expansion-panel__summary') as HTMLElement;
+      const collapsedHeight = header?.offsetHeight ?? 50;
+
+      // If panel already exists, preserve its current height, expansion state, and order
+      // Only update element reference and constraints
+      if (existingPanel) {
+        existingPanel.element = element;
+        existingPanel.minHeight = minHeight;
+        existingPanel.collapsedHeight = collapsedHeight;
+        // Don't reset height, isExpanded, or order - they may have been modified by user interaction
+      } else {
+        // New panel - assign temporary order (will be updated by updateOrdersFromChildren)
+        panelsRef.current.set(id, {
+          id,
+          height: defaultHeight,
+          minHeight,
+          collapsedHeight,
+          element,
+          isExpanded,
+          order: 999, // Temporary order, will be set correctly by updateOrdersFromChildren
+        });
+      }
+
+      // Update orders from children, then update grid template
+      // Use queueMicrotask for predictable timing (runs before next paint)
+      queueMicrotask(() => {
+        updateOrdersFromChildren();
         updateGridTemplate();
-        forceUpdate({});
-      }, 0);
+      });
     },
-    [updateGridTemplate],
+    [updateGridTemplate, updateOrdersFromChildren],
   );
 
   const unregister = useCallback(
@@ -60,39 +125,153 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children
     [updateGridTemplate],
   );
 
+  /**
+   * Calculate total space used by collapsed panels
+   */
+  const calculateCollapsedSpace = useCallback(
+    (panels: PanelData[]): number => {
+      return panels.reduce((sum, p) => sum + getCollapsedHeight(p), 0);
+    },
+    [getCollapsedHeight],
+  );
+
+  /**
+   * Redistribute space among expanded panels proportionally
+   */
+  const redistributeSpace = useCallback((panels: PanelData[], availableSpace: number) => {
+    const totalMinHeight = panels.reduce((sum, p) => sum + p.minHeight, 0);
+    const extraSpace = availableSpace - totalMinHeight;
+
+    if (extraSpace > 0) {
+      // Distribute space proportionally based on current heights
+      const totalCurrentHeight = panels.reduce((sum, p) => sum + p.height, 0);
+      panels.forEach((p) => {
+        const ratio = p.height / totalCurrentHeight;
+        p.height = p.minHeight + extraSpace * ratio;
+      });
+    } else {
+      // Not enough space - set all to minimum
+      panels.forEach((p) => {
+        p.height = p.minHeight;
+      });
+    }
+  }, []);
+
   const resize = useCallback(
-    (id: string, newHeight: number) => {
+    (id: string, newHeight: number, isTopHandle: boolean = false) => {
       const container = containerRef.current;
       if (!container) return;
 
-      const panels = Array.from(panelsRef.current.entries());
+      // Sort panels by order to find adjacent panels correctly
+      const panels = Array.from(panelsRef.current.entries()).sort(([, a], [, b]) => a.order - b.order);
       const currentIdx = panels.findIndex(([panelId]) => panelId === id);
 
-      if (currentIdx === -1 || currentIdx === panels.length - 1) return;
+      if (currentIdx === -1) return;
 
       const [, current] = panels[currentIdx];
-      const [, next] = panels[currentIdx + 1];
 
-      // Only resize if both panels are expanded
-      if (!current.isExpanded || !next.isExpanded) return;
+      // Only allow resizing if current panel is expanded
+      if (!current.isExpanded) return;
 
-      // Calculate the delta
-      const delta = newHeight - current.height;
+      if (isTopHandle) {
+        // Top handle (Body panel) - resizes against panel ABOVE
+        // The inversion is already handled in ExpansionPanel.tsx mouseMoveHandler
+        if (currentIdx === 0) return; // No panel above
 
-      // Constrain the resize based on min heights
-      const maxGrow = next.height - next.minHeight;
-      const maxShrink = current.height - current.minHeight;
+        const [, prev] = panels[currentIdx - 1];
 
-      const actualDelta = delta > 0 ? Math.min(delta, maxGrow) : Math.max(delta, -maxShrink);
+        // Calculate the delta
+        // Positive delta = current grows, negative delta = current shrinks
+        const delta = newHeight - current.height;
 
-      // Apply the constrained changes
-      current.height += actualDelta;
-      next.height -= actualDelta;
+        // Constrain the resize based on min heights
+        // For collapsed panels, use collapsedHeight; for expanded panels, use minHeight
+        const prevMinHeight = prev.isExpanded ? prev.minHeight : getCollapsedHeight(prev);
+        const maxGrow = prev.height - prevMinHeight; // Prev can give up this much space
+        const maxShrink = current.height - current.minHeight; // Current can shrink this much
+
+        const actualDelta = delta > 0 ? Math.min(delta, maxGrow) : Math.max(delta, -maxShrink);
+
+        // Apply the constrained changes
+        current.height += actualDelta;
+        prev.height -= actualDelta;
+      } else {
+        // Bottom handle (normal panels) - resizes against panel BELOW
+        if (currentIdx === panels.length - 1) return;
+
+        const [, next] = panels[currentIdx + 1];
+
+        // Calculate the delta
+        const delta = newHeight - current.height;
+
+        // Constrain the resize based on min heights
+        // For collapsed panels, use collapsedHeight; for expanded panels, use minHeight
+        const nextMinHeight = next.isExpanded ? next.minHeight : getCollapsedHeight(next);
+        const maxGrow = next.height - nextMinHeight;
+        const maxShrink = current.height - current.minHeight;
+
+        const actualDelta = delta > 0 ? Math.min(delta, maxGrow) : Math.max(delta, -maxShrink);
+
+        // Apply the constrained changes
+        current.height += actualDelta;
+        next.height -= actualDelta;
+      }
 
       // Update the grid template
       updateGridTemplate();
     },
-    [updateGridTemplate],
+    [updateGridTemplate, getCollapsedHeight],
+  );
+
+  /**
+   * Handle expanding a panel - redistributes space among all expanded panels
+   */
+  const handlePanelExpand = useCallback(
+    (panel: PanelData, panels: PanelData[], totalHeight: number) => {
+      const otherExpandedPanels = panels.filter((p) => p.isExpanded && p.id !== panel.id);
+      const collapsedPanels = panels.filter((p) => !p.isExpanded && p.id !== panel.id);
+
+      const collapsedSpace = calculateCollapsedSpace(collapsedPanels);
+      const availableSpace = totalHeight - collapsedSpace;
+
+      if (otherExpandedPanels.length > 0) {
+        // Redistribute space among all expanded panels (including the newly expanded one)
+        const allExpandedPanels = [...otherExpandedPanels, panel];
+        redistributeSpace(allExpandedPanels, availableSpace);
+      } else {
+        // This is the only expanded panel - give it all available space
+        panel.height = Math.max(panel.minHeight, availableSpace);
+      }
+
+      panel.isExpanded = true;
+    },
+    [calculateCollapsedSpace, redistributeSpace],
+  );
+
+  /**
+   * Handle collapsing a panel - redistributes freed space to other expanded panels
+   */
+  const handlePanelCollapse = useCallback(
+    (panel: PanelData, panels: PanelData[]) => {
+      const collapsedHeight = getCollapsedHeight(panel);
+      const freedSpace = panel.height - collapsedHeight;
+
+      // Get currently expanded panels (excluding this one that's being collapsed)
+      const otherExpandedPanels = panels.filter((p) => p.isExpanded && p.id !== panel.id);
+
+      if (otherExpandedPanels.length > 0) {
+        // Distribute freed space proportionally to other expanded panels
+        const totalExpandedHeight = otherExpandedPanels.reduce((sum, p) => sum + p.height, 0);
+
+        otherExpandedPanels.forEach((p) => {
+          const ratio = p.height / totalExpandedHeight;
+          p.height += freedSpace * ratio;
+        });
+      }
+
+      panel.isExpanded = false;
+    },
+    [getCollapsedHeight],
   );
 
   const setExpanded = useCallback(
@@ -103,89 +282,34 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children
       const panel = panelsRef.current.get(id);
       if (!panel) return;
 
-      const wasExpanded = panel.isExpanded;
-
       // Early return if no state change
-      if (wasExpanded === isExpanded) return;
+      if (panel.isExpanded === isExpanded) return;
 
-      const panels = Array.from(panelsRef.current.values());
+      // Sort panels by order to maintain consistent calculations
+      const panels = Array.from(panelsRef.current.values()).sort((a, b) => a.order - b.order);
       const totalHeight = container.offsetHeight;
 
-      if (isExpanded && !wasExpanded) {
-        // Panel is being expanded
-        // Get currently expanded panels (before updating this one)
-        const otherExpandedPanels = panels.filter((p) => p.isExpanded && p.id !== id);
-        const collapsedPanels = panels.filter((p) => !p.isExpanded && p.id !== id);
-
-        if (otherExpandedPanels.length > 0) {
-          // There are other expanded panels - redistribute all space fairly
-          const collapsedSpace = collapsedPanels.reduce((sum, p) => sum + getCollapsedHeight(p.element), 0);
-          const availableSpace = totalHeight - collapsedSpace;
-
-          // Calculate total minimum height needed for all expanded panels (including this one)
-          const totalMinHeight = otherExpandedPanels.reduce((sum, p) => sum + p.minHeight, 0) + panel.minHeight;
-          const extraSpace = availableSpace - totalMinHeight;
-
-          if (extraSpace > 0) {
-            // Distribute space fairly among all expanded panels based on their current proportions
-            const totalCurrentHeight = otherExpandedPanels.reduce((sum, p) => sum + p.height, 0) + panel.height;
-
-            otherExpandedPanels.forEach((p) => {
-              const ratio = p.height / totalCurrentHeight;
-              p.height = p.minHeight + extraSpace * ratio;
-            });
-
-            const panelRatio = panel.height / totalCurrentHeight;
-            panel.height = panel.minHeight + extraSpace * panelRatio;
-          } else {
-            // Not enough space - set all to minimum
-            otherExpandedPanels.forEach((p) => {
-              p.height = p.minHeight;
-            });
-            panel.height = panel.minHeight;
-          }
-        } else {
-          // No other expanded panels - recalculate based on available space
-          const collapsedSpace = collapsedPanels.reduce((sum, p) => sum + getCollapsedHeight(p.element), 0);
-          const availableSpace = totalHeight - collapsedSpace;
-
-          // This panel gets all the available space
-          panel.height = Math.max(panel.minHeight, availableSpace);
-        }
-
-        // Update state after calculating redistribution
-        panel.isExpanded = true;
-      } else if (!isExpanded && wasExpanded) {
-        // Panel is being collapsed - redistribute its space to other expanded panels
-        const collapsedHeight = getCollapsedHeight(panel.element);
-        const freedSpace = panel.height - collapsedHeight;
-
-        // Get currently expanded panels (excluding this one that's being collapsed)
-        const otherExpandedPanels = panels.filter((p) => p.isExpanded && p.id !== id);
-
-        if (otherExpandedPanels.length > 0) {
-          // Distribute freed space proportionally to other expanded panels
-          const totalExpandedHeight = otherExpandedPanels.reduce((sum, p) => sum + p.height, 0);
-
-          otherExpandedPanels.forEach((p) => {
-            const ratio = p.height / totalExpandedHeight;
-            p.height += freedSpace * ratio;
-          });
-        }
-
-        // Update state after calculating redistribution
-        panel.isExpanded = false;
+      if (isExpanded) {
+        handlePanelExpand(panel, panels, totalHeight);
+      } else {
+        handlePanelCollapse(panel, panels);
       }
 
       updateGridTemplate();
     },
-    [updateGridTemplate, getCollapsedHeight],
+    [updateGridTemplate, handlePanelExpand, handlePanelCollapse],
   );
 
   const value = useMemo(
     () => ({ register, unregister, resize, setExpanded }),
     [register, unregister, resize, setExpanded],
   );
+
+  // Update panel orders whenever children change
+  useEffect(() => {
+    updateOrdersFromChildren();
+    updateGridTemplate();
+  }, [children, updateOrdersFromChildren, updateGridTemplate]);
 
   // Handle container resize
   useEffect(() => {
@@ -194,27 +318,45 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children
 
     const resizeObserver = new ResizeObserver(() => {
       const totalHeight = container.offsetHeight;
-      const panels = Array.from(panelsRef.current.values());
+      // Sort panels by order for consistent processing
+      const panels = Array.from(panelsRef.current.values()).sort((a, b) => a.order - b.order);
 
       if (panels.length === 0) return;
 
-      // Calculate total current height
-      const currentTotal = panels.reduce((sum, panel) => sum + panel.height, 0);
+      // Calculate total current height (use collapsed height for collapsed panels)
+      const currentTotal = panels.reduce((sum, panel) => {
+        return sum + (panel.isExpanded ? panel.height : getCollapsedHeight(panel));
+      }, 0);
 
       // If there's a difference, distribute it proportionally
       if (currentTotal !== totalHeight && totalHeight > 0) {
-        const ratio = totalHeight / currentTotal;
-        panels.forEach((panel) => {
-          panel.height = Math.max(panel.minHeight, panel.height * ratio);
-        });
+        const collapsedPanels = panels.filter((p) => !p.isExpanded);
+        const expandedPanels = panels.filter((p) => p.isExpanded);
 
-        // Recalculate to ensure exact fit
-        const newTotal = panels.reduce((sum, panel) => sum + panel.height, 0);
-        const diff = totalHeight - newTotal;
+        if (expandedPanels.length > 0) {
+          // Calculate available space for expanded panels
+          const collapsedSpace = calculateCollapsedSpace(collapsedPanels);
+          const availableSpace = totalHeight - collapsedSpace;
 
-        // Give remaining pixels to the last panel
-        if (panels.length > 0) {
-          panels[panels.length - 1].height += diff;
+          // Resize expanded panels proportionally
+          const currentExpandedTotal = expandedPanels.reduce((sum, p) => sum + p.height, 0);
+          const ratio = availableSpace / currentExpandedTotal;
+
+          expandedPanels.forEach((panel) => {
+            panel.height = Math.max(panel.minHeight, panel.height * ratio);
+          });
+
+          // Recalculate to ensure exact fit
+          const newExpandedTotal = expandedPanels.reduce((sum, p) => sum + p.height, 0);
+          const diff = availableSpace - newExpandedTotal;
+
+          // Give remaining pixels to the last EXPANDED panel
+          if (diff !== 0) {
+            const lastExpandedPanel = [...expandedPanels].reverse()[0];
+            if (lastExpandedPanel) {
+              lastExpandedPanel.height += diff;
+            }
+          }
         }
 
         updateGridTemplate();
@@ -226,11 +368,27 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children
     return () => {
       resizeObserver.disconnect();
     };
-  }, [updateGridTemplate]);
+  }, [updateGridTemplate, getCollapsedHeight, calculateCollapsedSpace]);
+
+  // Insert a spacer div before the Body panel ONLY to push it to the bottom
+  const childrenArray = React.Children.toArray(children);
+  const bodyIndex = childrenArray.findIndex(
+    (child) => React.isValidElement(child) && child.props && child.props.id === SOURCE_BODY_ID,
+  );
+
+  // Only add spacer if Body panel exists and is not the first child
+  const renderedChildren =
+    bodyIndex > 0
+      ? [
+          ...childrenArray.slice(0, bodyIndex),
+          <div key="expansion-spacer" className="expansion-panels__spacer" data-is-spacer="true" />,
+          ...childrenArray.slice(bodyIndex),
+        ]
+      : children;
 
   return (
     <div className="expansion-panels" ref={containerRef}>
-      <ExpansionContext.Provider value={value}>{children}</ExpansionContext.Provider>
+      <ExpansionContext.Provider value={value}>{renderedChildren}</ExpansionContext.Provider>
     </div>
   );
 };

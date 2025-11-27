@@ -11,6 +11,15 @@
     height: auto;
   }
 
+  // Body panel with top handle: resize-handle, summary, content
+  &[data-top-handle='true'] {
+    grid-template-rows: min-content min-content 1fr;
+  }
+
+  &[data-top-handle='true'][data-expanded='false'] {
+    grid-template-rows: min-content 0;
+  }
+
   &__summary {
     cursor: pointer;
     font-size: var(--pf-t--global--font--size--heading--h5);

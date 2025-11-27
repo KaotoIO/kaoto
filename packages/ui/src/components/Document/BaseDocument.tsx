@@ -4,14 +4,15 @@ import { ChevronDown, ChevronRight, Draggable } from '@carbon/icons-react';
 import { ActionListGroup, ActionListItem, Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent, MouseEvent, ReactNode, useCallback, useMemo, useRef } from 'react';
+
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { DocumentNodeData, NodeReference } from '../../models/datamapper/visualization';
-import { VisualizationService } from '../../services/visualization.service';
 import { TreeUIService } from '../../services/tree-ui.service';
+import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { AttachSchemaButton } from './actions/AttachSchemaButton';
 import { DetachSchemaButton } from './actions/DetachSchemaButton';

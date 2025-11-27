@@ -1,19 +1,21 @@
-import { ActionList, ActionListItem, Button, Title } from '@patternfly/react-core';
-import { PlusIcon } from '@patternfly/react-icons';
+import './Parameters.scss';
+import './BaseDocument.scss';
+
+import { ActionList, ActionListItem, Button, Icon, Title } from '@patternfly/react-core';
+import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
+import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
+import { DeleteParameterButton } from './actions/DeleteParameterButton';
+import { RenameParameterButton } from './actions/RenameParameterButton';
 import { DocumentContent, DocumentHeader } from './BaseDocument';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNode } from './SourceDocumentNode';
-import { DeleteParameterButton } from './actions/DeleteParameterButton';
-import { RenameParameterButton } from './actions/RenameParameterButton';
-import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
-import './Parameters.scss';
-import './BaseDocument.scss';
 
 type ParametersSectionProps = {
   isReadOnly: boolean;
@@ -23,19 +25,34 @@ type ParametersSectionProps = {
 type ParametersHeaderProps = {
   isReadOnly: boolean;
   onAddParameter: () => void;
+  showParameters: boolean;
+  onToggleParameters: () => void;
 };
 
 /**
  * ParametersHeader - Simple header for the Parameters section
- * Shows "Parameters" title + Add button
+ * Shows "Parameters" title + Add button + Show/Hide toggle
  */
-export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({ isReadOnly, onAddParameter }) => {
+export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
+  isReadOnly,
+  onAddParameter,
+  showParameters,
+  onToggleParameters,
+}) => {
   const handleAddClick = useCallback(
     (event: MouseEvent) => {
       event.stopPropagation(); // Prevent panel expansion when clicking add
       onAddParameter();
     },
     [onAddParameter],
+  );
+
+  const handleToggleClick = useCallback(
+    (event: MouseEvent) => {
+      event.stopPropagation(); // Prevent panel expansion when clicking toggle
+      onToggleParameters();
+    },
+    [onToggleParameters],
   );
 
   return (
@@ -53,6 +70,20 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({ isR
               aria-label="Add parameter"
               data-testid="add-parameter-button"
               onClick={handleAddClick}
+            />
+          </ActionListItem>
+          <ActionListItem>
+            <Button
+              variant="plain"
+              title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
+              aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
+              data-testid="toggle-parameters-button"
+              onClick={handleToggleClick}
+              icon={
+                <Icon isInline>
+                  {showParameters ? <EyeIcon /> : <EyeSlashIcon />}
+                </Icon>
+              }
             />
           </ActionListItem>
         </ActionList>
@@ -179,9 +210,14 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
   // State for renaming parameter (track which parameter is being renamed)
   const [renamingParameter, setRenamingParameter] = useState<string | null>(null);
 
+  // State for showing/hiding all parameters
+  const [showParameters, setShowParameters] = useState(true);
+
   // Handlers for parameter operations
   const handleAddParameter = useCallback(() => {
     setIsAddingParameter(true);
+    // Auto-show parameters when adding a new one
+    setShowParameters(true);
   }, []);
 
   const handleCompleteAddParameter = useCallback(() => {
@@ -196,12 +232,23 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
     setRenamingParameter(null);
   }, []);
 
+  const handleToggleParameters = useCallback(() => {
+    setShowParameters((prev) => !prev);
+  }, []);
+
   return (
     <>
       {/* Parameters section header - NOT expandable, no children */}
       <ExpansionPanel
         id="parameters-header"
-        summary={<ParametersHeader isReadOnly={isReadOnly} onAddParameter={handleAddParameter} />}
+        summary={
+          <ParametersHeader
+            isReadOnly={isReadOnly}
+            onAddParameter={handleAddParameter}
+            showParameters={showParameters}
+            onToggleParameters={handleToggleParameters}
+          />
+        }
         defaultExpanded={false}
         defaultHeight={40}
         minHeight={40}
@@ -210,33 +257,38 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
         {/* NO CHILDREN - header only panel */}
       </ExpansionPanel>
 
-      {/* New parameter input - temporary panel when adding */}
-      {isAddingParameter && (
-        <ExpansionPanel
-          id="new-parameter-input"
-          summary={<ParameterInputPlaceholder onComplete={handleCompleteAddParameter} />}
-          defaultExpanded={false}
-          defaultHeight={40}
-          minHeight={40}
-          onScroll={onScroll}
-        >
-          {/* NO CHILDREN - input only */}
-        </ExpansionPanel>
-      )}
+      {/* Only render parameters if showParameters is true */}
+      {showParameters && (
+        <>
+          {/* New parameter input - temporary panel when adding */}
+          {isAddingParameter && (
+            <ExpansionPanel
+              id="new-parameter-input"
+              summary={<ParameterInputPlaceholder onComplete={handleCompleteAddParameter} />}
+              defaultExpanded={false}
+              defaultHeight={40}
+              minHeight={40}
+              onScroll={onScroll}
+            >
+              {/* NO CHILDREN - input only */}
+            </ExpansionPanel>
+          )}
 
-      {/* Each existing parameter - composed directly */}
-      {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
-        <ParameterPanel
-          key={documentId}
-          documentId={documentId}
-          document={doc}
-          isReadOnly={isReadOnly}
-          renamingParameter={renamingParameter}
-          onStartRename={handleStartRename}
-          onStopRename={handleStopRename}
-          onScroll={onScroll}
-        />
-      ))}
+          {/* Each existing parameter - composed directly */}
+          {Array.from(sourceParameterMap.entries()).map(([documentId, doc]) => (
+            <ParameterPanel
+              key={documentId}
+              documentId={documentId}
+              document={doc}
+              isReadOnly={isReadOnly}
+              renamingParameter={renamingParameter}
+              onStartRename={handleStartRename}
+              onStopRename={handleStopRename}
+              onScroll={onScroll}
+            />
+          ))}
+        </>
+      )}
     </>
   );
 };

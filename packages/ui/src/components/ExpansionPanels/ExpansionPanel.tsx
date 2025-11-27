@@ -1,3 +1,5 @@
+import './ExpansionPanel.scss';
+
 import {
   FunctionComponent,
   PropsWithChildren,
@@ -9,8 +11,8 @@ import {
   useRef,
   useState,
 } from 'react';
+
 import { ExpansionContext } from './ExpansionContext';
-import './ExpansionPanel.scss';
 
 interface ExpansionPanelProps {
   id?: string;
@@ -62,11 +64,16 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
       if (!resizeDataRef.current) return;
 
       const deltaY = moveEvent.clientY - resizeDataRef.current.startY;
-      const newHeight = resizeDataRef.current.startHeight + deltaY;
-      const constrainedHeight = Math.max(minHeight, newHeight);
 
-      // Notify parent to resize
-      context.resize(id, constrainedHeight);
+      // Body panel uses top handle - invert delta
+      // Top handle: drag DOWN = shrink panel, drag UP = grow panel
+      const isBodyPanel = id === 'source-body';
+      const newHeight = isBodyPanel
+        ? resizeDataRef.current.startHeight - deltaY // Inverted for top handle
+        : resizeDataRef.current.startHeight + deltaY; // Normal for bottom handle
+
+      const constrainedHeight = Math.max(minHeight, newHeight);
+      context.resize(id, constrainedHeight, isBodyPanel);
     },
     [minHeight, context, id],
   );
@@ -95,7 +102,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     document.addEventListener('mouseup', mouseUpHandler);
   };
 
-  // Register with parent on mount
+  // Register with parent on mount, unregister on unmount
   useEffect(() => {
     if (panelRef.current) {
       context.register(id, minHeight, defaultHeight, panelRef.current, defaultExpanded);
@@ -105,7 +112,9 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
       context.unregister(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, minHeight, defaultHeight, context]);
+  }, [id, context]);
+  // CRITICAL: Only id and context in deps - minHeight, defaultHeight, defaultExpanded excluded
+  // to prevent infinite unregister/register loops that reset panel state
 
   useEffect(() => {
     return () => {
@@ -114,8 +123,25 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     };
   }, [mouseMoveHandler, mouseUpHandler]);
 
+  // Body panel (source-body) shows resize handle at top, others at bottom
+  const isBodyPanel = id === 'source-body';
+  const showResizeHandle = isExpanded;
+
   return (
-    <div className="expansion-panel" data-expanded={isExpanded} data-resizing={isResizing} ref={panelRef}>
+    <div
+      className="expansion-panel"
+      data-expanded={isExpanded}
+      data-resizing={isResizing}
+      data-top-handle={isBodyPanel}
+      ref={panelRef}
+    >
+      {isBodyPanel && showResizeHandle && (
+        <div
+          className="expansion-panel__resize-handle expansion-panel__resize-handle--top"
+          onMouseDown={handleMouseDown}
+        />
+      )}
+
       <div className="pf-v6-u-box-shadow-sm expansion-panel__summary" onClick={toggleExpanded}>
         {summary}
       </div>
@@ -124,7 +150,9 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
         {children}
       </div>
 
-      {isExpanded && <div className="expansion-panel__resize-handle" onMouseDown={handleMouseDown} />}
+      {!isBodyPanel && showResizeHandle && (
+        <div className="expansion-panel__resize-handle" onMouseDown={handleMouseDown} />
+      )}
     </div>
   );
 };
