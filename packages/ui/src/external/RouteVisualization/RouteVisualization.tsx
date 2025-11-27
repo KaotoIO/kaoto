@@ -3,7 +3,6 @@ import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } fr
 
 import { Visualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
-import { DynamicCatalogRegistryProvider } from '../../dynamic-catalog';
 import {
   CatalogLoaderProvider,
   EntitiesContext,
@@ -33,19 +32,17 @@ const Viz: FunctionComponent<{ catalogUrl: string; className?: string }> = ({ ca
 
   return (
     <ReloadProvider>
-      <DynamicCatalogRegistryProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <VisualizationProvider controller={controller}>
-                <VisibleFlowsProvider>
-                  <VisibleFlowsVisualization className={`canvas-page ${className}`} />
-                </VisibleFlowsProvider>
-              </VisualizationProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
-      </DynamicCatalogRegistryProvider>
+      <RuntimeProvider catalogUrl={catalogUrl}>
+        <SchemasLoaderProvider>
+          <CatalogLoaderProvider>
+            <VisualizationProvider controller={controller}>
+              <VisibleFlowsProvider>
+                <VisibleFlowsVisualization className={`canvas-page ${className}`} />
+              </VisibleFlowsProvider>
+            </VisualizationProvider>
+          </CatalogLoaderProvider>
+        </SchemasLoaderProvider>
+      </RuntimeProvider>
     </ReloadProvider>
   );
 };
