@@ -1,10 +1,11 @@
-import { ParametersSection } from './Parameters';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
+import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
+import { ParametersSection } from './Parameters';
 
 // Helper to render ParametersSection with required ExpansionPanels wrapper
 const renderParametersSection = (props: { isReadOnly: boolean }) => {
