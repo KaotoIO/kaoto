@@ -156,6 +156,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** Retrieve the node's validation status, relying into the underlying entity */
   getNodeValidationText(): string | undefined;
+
+  /** Return extra icons for the CustomGroup (entity-specific) */
+  getGroupIcons?(): { icon: string; title: string }[];
 }
 
 export interface IVisualizationNodeData {
