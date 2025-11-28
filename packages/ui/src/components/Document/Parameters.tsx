@@ -79,11 +79,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
               aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
               data-testid="toggle-parameters-button"
               onClick={handleToggleClick}
-              icon={
-                <Icon isInline>
-                  {showParameters ? <EyeIcon /> : <EyeSlashIcon />}
-                </Icon>
-              }
+              icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
             />
           </ActionListItem>
         </ActionList>
