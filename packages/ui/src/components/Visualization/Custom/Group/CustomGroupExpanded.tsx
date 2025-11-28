@@ -118,8 +118,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 <span title={label}>{label}</span>
               </div>
 
-              {vizNode.getGroupIcons?.()?.map(({ icon, title }, idx) => (
-                <Icon key={idx} className="custom-group__autostart-icon" title={title}>
+              {vizNode.getGroupIcons?.()?.map(({ icon, title }) => (
+                <Icon key={title} className="custom-group__autostart-icon" title={title}>
                   {icon === 'play' ? <PlayIcon /> : <PauseIcon />}
                 </Icon>
               ))}
