@@ -131,4 +131,15 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: R
   protected getRootUri(): string | undefined {
     return this.entityDef.route.from?.uri;
   }
+
+  getGroupIcons(): { icon: 'play' | 'pause'; title: string }[] {
+    const isAutoStartup = this.entityDef.route.autoStartup !== false;
+    
+    return [
+      {
+        icon: isAutoStartup ? 'play' : 'pause',
+        title: isAutoStartup ? 'Auto Startup Enabled' : 'Auto Startup Disabled',
+      },
+    ];
+  }
 }

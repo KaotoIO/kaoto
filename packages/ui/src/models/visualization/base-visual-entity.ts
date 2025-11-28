@@ -79,11 +79,14 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => IVisualizationNode;
+
+  getGroupIcons: () => { icon: string; title: string }[];
+
 }
 
 export interface BaseVisualCamelEntityConstructor {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new (...args: any[]): BaseVisualCamelEntity;
+  new(...args: any[]): BaseVisualCamelEntity;
   isApplicable: (entity: unknown) => boolean;
 }
 
@@ -158,7 +161,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getNodeValidationText(): string | undefined;
 
   /** Return extra icons for the CustomGroup (entity-specific) */
-  getGroupIcons?(): { icon: string; title: string }[];
+  getGroupIcons(): { icon: string; title: string }[];
 }
 
 export interface IVisualizationNodeData {
