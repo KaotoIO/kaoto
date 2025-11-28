@@ -23,6 +23,12 @@ import { CamelComponentSchemaService } from './support/camel-component-schema.se
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
+type RouteEntityDef = {
+  route?: {
+    autoStartup?: boolean;
+  };
+};
+
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
   constructor(public entityDef: T) {}
 
@@ -250,6 +256,24 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
+  /** Provide icons for CustomGroup (e.g., AutoStartup for routes) */
+  getGroupIcons(): { icon: 'play' | 'pause'; title: string }[] {
+    const routeDef = this.entityDef as unknown as RouteEntityDef;
+
+    if (!routeDef.route) {
+      return [];
+    }
+
+    const isAutoStartup = routeDef.route.autoStartup !== false;
+
+    return [
+      {
+        icon: isAutoStartup ? 'play' : 'pause',
+        title: isAutoStartup ? 'Auto Startup Enabled' : 'Auto Startup Disabled',
+      },
+    ];
+  }
+
   toVizNode(): IVisualizationNode {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
       catalogKind: CatalogKind.Entity,
@@ -259,6 +283,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       isGroup: true,
       processorName: 'route',
     });
+
+    routeGroupNode.getGroupIcons = this.getGroupIcons.bind(this);
 
     const fromNode = NodeMapperService.getVizNode(
       `${this.getRootPath()}.from`,

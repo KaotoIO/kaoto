@@ -76,19 +76,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       boxRef.current = element.getBounds();
     }
 
-    const routeEntity = vizNode?.data?.entity as
-      | {
-          entityDef?: {
-            route?: {
-              autoStartup?: boolean;
-            };
-          };
-        }
-      | undefined;
-
-    const routeModel = routeEntity?.entityDef?.route;
-    const isAutoStartup = routeModel?.autoStartup !== false;
-
     const toolbarWidth = Math.max(CanvasDefaults.STEP_TOOLBAR_WIDTH, boxRef.current.width);
     const toolbarX = boxRef.current.x + (boxRef.current.width - toolbarWidth) / 2;
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
@@ -131,15 +118,11 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 <span title={label}>{label}</span>
               </div>
 
-              {isAutoStartup ? (
-                <Icon className="custom-group__autostart-icon" title="Auto Startup Enabled">
-                  <PlayIcon />
+              {vizNode.getGroupIcons?.()?.map(({ icon, title }, idx) => (
+                <Icon key={idx} className="custom-group__autostart-icon" title={title}>
+                  {icon === 'play' ? <PlayIcon /> : <PauseIcon />}
                 </Icon>
-              ) : (
-                <Icon className="custom-group__autostart-icon" title="Auto Startup Enabled">
-                  <PauseIcon />
-                </Icon>
-              )}
+              ))}
 
               {isDisabled && !doesHaveWarnings && (
                 <Icon className="custom-group__disabled-icon" title="Step disabled">
