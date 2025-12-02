@@ -2,6 +2,7 @@ import { setValue } from '@kaoto/forms';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
@@ -26,7 +27,7 @@ describe('useDisableStep', () => {
   };
 
   beforeEach(() => {
-    mockVizNode = createVisualizationNode('test-step', {});
+    mockVizNode = createVisualizationNode('test-step', { catalogKind: CatalogKind.Processor, name: 'from' });
     mockVizNode.getNodeDefinition = jest.fn();
     mockVizNode.updateModel = jest.fn();
   });

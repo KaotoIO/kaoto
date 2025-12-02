@@ -2,8 +2,8 @@ import { Intercept, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { NodeIconResolver, NodeIconType } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
+import { CatalogKind } from '../../catalog-kind';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
@@ -86,7 +86,8 @@ export class CamelInterceptVisualEntity
     );
     interceptGroupNode.data.entity = this;
     interceptGroupNode.data.isGroup = true;
-    interceptGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    interceptGroupNode.data.catalogKind = CatalogKind.Entity;
+    interceptGroupNode.data.name = this.type;
 
     return interceptGroupNode;
   }

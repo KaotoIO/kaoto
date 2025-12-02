@@ -3,6 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
@@ -48,7 +49,11 @@ describe('useInsertStep', () => {
   const getProcessorStepsPropertiesMock = jest.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
 
   beforeEach(() => {
-    mockVizNode = createVisualizationNode('test', { processorName: 'test' });
+    mockVizNode = createVisualizationNode('test', {
+      catalogKind: CatalogKind.Processor,
+      name: 'test',
+      processorName: 'test',
+    });
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
     mockVizNode.getChildren = jest.fn().mockReturnValue([mockVizNode]);
@@ -251,7 +256,10 @@ describe('useInsertStep', () => {
 
     const firstResult = result.current;
 
-    const newMockVizNode = createVisualizationNode('new-test', {});
+    const newMockVizNode = createVisualizationNode('new-test', {
+      catalogKind: CatalogKind.Processor,
+      name: 'new-test',
+    });
     newMockVizNode.addBaseEntityStep = jest.fn();
     newMockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
 

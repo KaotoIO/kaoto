@@ -1,6 +1,7 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { EntityType } from '../../../../models/camel/entities';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
@@ -20,7 +21,7 @@ describe('ItemDeleteStep', () => {
   };
 
   beforeEach(() => {
-    vizNode = createVisualizationNode('test', {});
+    vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
   });
 
   afterEach(() => {
@@ -34,7 +35,7 @@ describe('ItemDeleteStep', () => {
   });
 
   it('should open delete confirmation modal on click', async () => {
-    const childNode = createVisualizationNode('test', {});
+    const childNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
     vizNode.addChild(childNode);
 
     const wrapper = render(

@@ -1,5 +1,6 @@
 import { BaseCamelEntity, EntityType } from '../camel/entities';
 import { DefinedComponent } from '../camel-catalog-index';
+import { CatalogKind } from '../catalog-kind';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
 import { IClipboardCopyObject } from '../visualization/clipboard';
@@ -158,7 +159,8 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 }
 
 export interface IVisualizationNodeData {
-  icon?: string;
+  catalogKind: CatalogKind;
+  name: string;
   path?: string;
   entity?: BaseVisualCamelEntity;
   isPlaceholder?: boolean;

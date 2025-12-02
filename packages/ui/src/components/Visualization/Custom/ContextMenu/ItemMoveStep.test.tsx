@@ -1,7 +1,8 @@
 import { AngleDoubleDownIcon, AngleDoubleUpIcon } from '@patternfly/react-icons';
 import { fireEvent, render } from '@testing-library/react';
 
-import { AddStepMode, createVisualizationNode } from '../../../../models';
+import { AddStepMode, CatalogKind, createVisualizationNode } from '../../../../models';
+import { EntityType } from '../../../../models/camel/entities';
 import { useMoveStep } from '../hooks/move-step.hook';
 import { ItemMoveStep } from './ItemMoveStep';
 
@@ -11,7 +12,7 @@ jest.mock('../hooks/move-step.hook', () => ({
 }));
 
 describe('ItemMoveStep', () => {
-  const vizNode = createVisualizationNode('test', {});
+  const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
   const mockOnMoveStep = jest.fn();
 
   afterEach(() => {

@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 
-import { createVisualizationNode } from '../../../../models';
+import { CatalogKind, createVisualizationNode } from '../../../../models';
+import { EntityType } from '../../../../models/camel/entities';
 import { useDuplicateStep } from '../hooks/duplicate-step.hook';
 import { ItemDuplicateStep } from './ItemDuplicateStep';
 
@@ -10,7 +11,7 @@ jest.mock('../hooks/duplicate-step.hook', () => ({
 }));
 
 describe('ItemDuplicateStep', () => {
-  const vizNode = createVisualizationNode('test', {});
+  const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
   const mockOnDuplicate = jest.fn();
 
   afterEach(() => {

@@ -1,12 +1,12 @@
 import './PropertiesModal.scss';
 
-import { capitalize, Modal, ModalBody, ModalHeader, Tab, Tabs } from '@patternfly/react-core';
+import { Modal, ModalBody, ModalHeader, Tab, Tabs } from '@patternfly/react-core';
 import { FunctionComponent, ReactElement, useContext, useEffect, useState } from 'react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
-import { CatalogKind } from '../../models';
-import { NodeIconResolver, NodeIconType } from '../../utils';
+import { CatalogKind } from '../../models/catalog-kind';
 import { ITile } from '../Catalog';
+import { IconResolver } from '../IconResolver';
 import { Loading } from '../Loading';
 import {
   transformCamelComponentIntoTab,
@@ -81,15 +81,14 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     setActiveTab(tabs[tabIndex as number]);
     setActiveTabKey(tabIndex as number);
   };
-  const nodeIconType = capitalize(props.tile.type === 'processor' ? NodeIconType.EIP : props.tile.type);
-  const iconName = nodeIconType === NodeIconType.Kamelet ? `kamelet:${props.tile.name}` : props.tile.name;
 
   const title: ReactElement = (
     <div className="properties-modal__title-div">
-      <img
-        className={'properties-modal__title-image'}
-        src={NodeIconResolver.getIcon(iconName, nodeIconType as NodeIconType)}
+      <IconResolver
         alt={`${props.tile.type} icon`}
+        className={'properties-modal__title-image'}
+        catalogKind={props.tile.type as CatalogKind}
+        name={props.tile.name}
       />
       <h1 className="properties-modal__title">{props.tile.title}</h1>
     </div>

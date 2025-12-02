@@ -12,6 +12,7 @@ import {
   NodeInteraction,
 } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
+import { EntityType } from '../../../../models/camel/entities';
 import { camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CanvasNode } from '../../Canvas';
@@ -61,7 +62,7 @@ describe('NodeContextMenu', () => {
       canRemoveFlow: false,
       canBeDisabled: false,
     };
-    vizNode = createVisualizationNode('test', {});
+    vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
     jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue(nodeInteractions);
     element = {
       getData: () => {

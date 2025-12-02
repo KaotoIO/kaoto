@@ -1,7 +1,7 @@
 import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types';
 
 import { getValue } from '../../../../../utils';
-import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
+import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
@@ -20,10 +20,11 @@ export class BaseNodeMapper implements INodeMapper {
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): IVisualizationNode {
-    const nodeIconType = componentLookup.componentName ? NodeIconType.Component : NodeIconType.EIP;
+    const catalogKind = componentLookup.componentName ? CatalogKind.Component : CatalogKind.Processor;
     const data: CamelRouteVisualEntityData = {
+      catalogKind,
+      name: componentLookup.componentName ?? componentLookup.processorName,
       path,
-      icon: NodeIconResolver.getIcon(CamelComponentSchemaService.getIconName(componentLookup), nodeIconType),
       processorName: componentLookup.processorName,
       componentName: componentLookup.componentName,
     };
@@ -99,6 +100,8 @@ export class BaseNodeMapper implements INodeMapper {
       const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
       const previousNode = branchVizNodes[branchVizNodes.length - 1];
       const placeholderNode = createVisualizationNode(placeholderPath, {
+        catalogKind: CatalogKind.Entity,
+        name: 'placeholder',
         isPlaceholder: true,
         path: placeholderPath,
       });

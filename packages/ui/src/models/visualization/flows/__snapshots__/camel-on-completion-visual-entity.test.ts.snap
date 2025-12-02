@@ -1,8 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{
-  processorName: 'interceptSendToEndpoint',
-  path: 'interceptSendToEndpoint'
+  processorName: 'intercept',
+  path: 'intercept',
+  catalogKind: 'entity'
 }' processor 1`] = `
 {
   "canBeDisabled": false,
@@ -16,7 +17,11 @@ exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the corr
 }
 `;
 
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'from', path: 'from' }' processor 1`] = `
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{
+  processorName: 'interceptSendToEndpoint',
+  path: 'interceptSendToEndpoint',
+  catalogKind: 'entity'
+}' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -29,7 +34,45 @@ exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the corr
 }
 `;
 
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'intercept', path: 'intercept' }' processor 1`] = `
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{
+  processorName: 'onCompletion',
+  path: 'onCompletion',
+  catalogKind: 'entity'
+}' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": true,
+  "canRemoveStep": false,
+  "canReplaceStep": false,
+}
+`;
+
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{
+  processorName: 'onCompletion',
+  path: 'onCompletion',
+  catalogKind: 'entity'
+}' processor 2`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": true,
+  "canRemoveStep": false,
+  "canReplaceStep": false,
+}
+`;
+
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{
+  processorName: 'onException',
+  path: 'onException',
+  catalogKind: 'entity'
+}' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -42,7 +85,20 @@ exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the corr
 }
 `;
 
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'log', path: 'log' }' processor 1`] = `
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'from', path: 'from', catalogKind: 'entity' }' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'log', path: 'log', catalogKind: 'processor' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -55,46 +111,7 @@ exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the corr
 }
 `;
 
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onCompletion', path: 'onCompletion' }' processor 1`] = `
-{
-  "canBeDisabled": false,
-  "canHaveChildren": true,
-  "canHaveNextStep": false,
-  "canHavePreviousStep": false,
-  "canHaveSpecialChildren": false,
-  "canRemoveFlow": true,
-  "canRemoveStep": false,
-  "canReplaceStep": false,
-}
-`;
-
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onCompletion', path: 'onCompletion' }' processor 2`] = `
-{
-  "canBeDisabled": false,
-  "canHaveChildren": true,
-  "canHaveNextStep": false,
-  "canHavePreviousStep": false,
-  "canHaveSpecialChildren": false,
-  "canRemoveFlow": true,
-  "canRemoveStep": false,
-  "canReplaceStep": false,
-}
-`;
-
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onException', path: 'onException' }' processor 1`] = `
-{
-  "canBeDisabled": false,
-  "canHaveChildren": true,
-  "canHaveNextStep": false,
-  "canHavePreviousStep": false,
-  "canHaveSpecialChildren": false,
-  "canRemoveFlow": false,
-  "canRemoveStep": true,
-  "canReplaceStep": true,
-}
-`;
-
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'route', path: 'route' }' processor 1`] = `
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'route', path: 'route', catalogKind: 'entity' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -107,7 +124,7 @@ exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the corr
 }
 `;
 
-exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'to', path: 'to' }' processor 1`] = `
+exports[`CamelOnCompletionVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'to', path: 'to', catalogKind: 'processor' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,

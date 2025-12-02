@@ -1,35 +1,53 @@
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
-import { CatalogKind } from '../../models';
-import { NodeIconResolver, NodeIconType } from '../../utils/node-icon-resolver';
-import { ITile } from '../Catalog/Catalog.models';
+import { CatalogKind } from '../../models/catalog-kind';
+import { NodeIconResolver } from './node-icon-resolver';
 
 interface IconResolverProps {
+  catalogKind: CatalogKind;
+  name: string;
   className?: string;
-  tile: ITile;
+  alt?: string;
 }
 
-export const IconResolver: FunctionComponent<PropsWithChildren<IconResolverProps>> = (props) => {
-  switch (props.tile.type) {
-    case CatalogKind.Kamelet:
-      return (
-        <img
-          className={props.className}
-          src={NodeIconResolver.getIcon(`kamelet:${props.tile.name}`, NodeIconType.Kamelet)}
-          alt="kamelet icon"
-        />
-      );
-    case CatalogKind.Processor:
-    case CatalogKind.Component:
-      // eslint-disable-next-line no-case-declarations
-      const iconType = props.tile.type === CatalogKind.Processor ? NodeIconType.EIP : NodeIconType.Component;
-      return (
-        <img
-          className={props.className}
-          src={NodeIconResolver.getIcon(props.tile.name, iconType)}
-          alt={`${props.tile.type} icon`}
-        />
-      );
-  }
-  return <img className={props.className} src={NodeIconResolver.getDefaultCamelIcon()} alt="camel icon" />;
+export const IconResolver: FunctionComponent<PropsWithChildren<IconResolverProps>> = ({
+  catalogKind,
+  name,
+  className,
+  alt: altProps,
+}) => {
+  const [icon, setIcon] = useState<string | undefined>(undefined);
+  const [altText, setAltText] = useState<string | undefined>(altProps);
+
+  useEffect(() => {
+    let iconName: string;
+    let alt: string;
+
+    switch (catalogKind) {
+      case CatalogKind.Entity:
+        iconName = name;
+        alt = altProps ?? 'Entity icon';
+        break;
+      case CatalogKind.Kamelet:
+        iconName = `kamelet:${name}`;
+        alt = altProps ?? 'Kamelet icon';
+        break;
+      case CatalogKind.Processor:
+      case CatalogKind.Pattern:
+      case CatalogKind.Component:
+        iconName = name;
+        alt = altProps ?? `${catalogKind} icon`;
+        break;
+      default:
+        setIcon(NodeIconResolver.getDefaultCamelIcon());
+        return;
+    }
+
+    NodeIconResolver.getIcon(iconName, catalogKind).then((icon) => {
+      setIcon(icon);
+      setAltText(alt);
+    });
+  }, [altProps, catalogKind, name]);
+
+  return <img className={className} src={icon} alt={altText} />;
 };

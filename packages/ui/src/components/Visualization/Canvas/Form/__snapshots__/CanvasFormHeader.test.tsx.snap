@@ -9,9 +9,9 @@ exports[`CanvasFormHeader renders correctly 1`] = `
       class="pf-v6-l-grid__item pf-m-11-col form-header"
     >
       <img
-        alt="icon"
+        alt="component icon"
         class="form-header__icon-nodeId"
-        src="nodeIcon"
+        src=""
       />
       <h2
         class="pf-v6-c-title pf-m-h2 form-header__title"

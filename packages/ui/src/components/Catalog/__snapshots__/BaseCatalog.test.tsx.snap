@@ -1959,7 +1959,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2058,7 +2058,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2157,7 +2157,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2256,7 +2256,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2355,7 +2355,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2454,7 +2454,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2553,7 +2553,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2652,7 +2652,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2751,7 +2751,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2850,7 +2850,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -2949,7 +2949,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -3048,7 +3048,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -3147,7 +3147,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -4929,7 +4929,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -5028,7 +5028,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -5127,7 +5127,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="kamelet icon"
+                alt="Kamelet icon"
                 class="tile__icon"
                 src=""
               />
@@ -7151,7 +7151,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7250,7 +7250,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7349,7 +7349,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7448,7 +7448,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7547,7 +7547,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7646,7 +7646,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7745,7 +7745,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7844,7 +7844,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -7943,7 +7943,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -8042,7 +8042,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -8141,7 +8141,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -8240,7 +8240,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -8339,7 +8339,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -10121,7 +10121,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -10220,7 +10220,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />
@@ -10319,7 +10319,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="kamelet icon"
+                      alt="Kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
                       src=""
                     />

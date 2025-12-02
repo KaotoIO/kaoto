@@ -1,13 +1,16 @@
 import { render } from '@testing-library/react';
 
-import { createVisualizationNode, IVisualizationNode } from '../../models';
+import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../models';
 import { RenderingAnchorContext } from './rendering.provider';
 import { IRegisteredValidatedComponent, IRenderingAnchorContext } from './rendering.provider.model';
 import { RenderingAnchor } from './RenderingAnchor';
 
 describe('RenderingAnchor', () => {
   const anchorTag = 'example-anchor';
-  const vizNode: IVisualizationNode = createVisualizationNode('example-node', {});
+  const vizNode: IVisualizationNode = createVisualizationNode('example-node', {
+    catalogKind: CatalogKind.Processor,
+    name: 'to',
+  });
   let renderingAnchorContext: IRenderingAnchorContext;
 
   beforeEach(() => {

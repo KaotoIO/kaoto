@@ -1,293 +1,282 @@
-// generic icons
-// component icons
-import icon_component_activemq from '../assets/components/activemq.svg';
-import icon_component_amqp from '../assets/components/amqp.svg';
-import icon_component_arangodb from '../assets/components/arangodb.svg';
-import icon_component_avro from '../assets/components/avro.svg';
-import icon_component_aws from '../assets/components/aws.png';
-import icon_component_aws_bedrock from '../assets/components/aws-bedrock.svg';
-import icon_component_aws_cloudtrail from '../assets/components/aws-cloudtrail.svg';
-import icon_component_aws_config from '../assets/components/aws-config.svg';
-import icon_component_aws_secrets_manager from '../assets/components/aws-secrets-manager.svg';
-import icon_component_aws2_athena from '../assets/components/aws2-athena.svg';
-import icon_component_aws2_cw from '../assets/components/aws2-cw.svg';
-import icon_component_aws2_ddb from '../assets/components/aws2-ddb.svg';
-import icon_component_aws2_ddbstream from '../assets/components/aws2-ddbstream.svg';
-import icon_component_aws2_ec2 from '../assets/components/aws2-ec2.svg';
-import icon_component_aws2_ecs from '../assets/components/aws2-ecs.svg';
-import icon_component_aws2_eks from '../assets/components/aws2-eks.svg';
-import icon_component_aws2_eventbridge from '../assets/components/aws2-eventbridge.svg';
-import icon_component_aws2_iam from '../assets/components/aws2-iam.svg';
-import icon_component_aws2_kinesis from '../assets/components/aws2-kinesis.svg';
-import icon_component_aws2_kinesis_firehose from '../assets/components/aws2-kinesis-firehose.svg';
-import icon_component_aws2_kms from '../assets/components/aws2-kms.svg';
-import icon_component_aws2_lambda from '../assets/components/aws2-lambda.svg';
-import icon_component_aws2_mq from '../assets/components/aws2-mq.svg';
-import icon_component_aws2_msk from '../assets/components/aws2-msk.svg';
-import icon_component_aws2_redshift_data from '../assets/components/aws2-redshift-data.svg';
-import icon_component_aws2_s3 from '../assets/components/aws2-s3.svg';
-import icon_component_aws2_ses from '../assets/components/aws2-ses.svg';
-import icon_component_aws2_sns from '../assets/components/aws2-sns.svg';
-import icon_component_aws2_sqs from '../assets/components/aws2-sqs.svg';
-import icon_component_aws2_step_functions from '../assets/components/aws2-step-functions.svg';
-import icon_component_aws2_timestream from '../assets/components/aws2-timestream.svg';
-import icon_component_aws2_translate from '../assets/components/aws2-translate.svg';
-import icon_component_azure_cosmosdb from '../assets/components/azure-cosmosdb.svg';
-import icon_component_azure_eventhubs from '../assets/components/azure-eventhubs.svg';
-import icon_component_azure_files from '../assets/components/azure-files.svg';
-import icon_component_azure_key_vault from '../assets/components/azure-key-vault.svg';
-import icon_component_azure_servicebus from '../assets/components/azure-servicebus.svg';
-import icon_component_azure_storage_blob from '../assets/components/azure-storage-blob.svg';
-import icon_component_azure_datalake from '../assets/components/azure-storage-datalake.svg';
-import icon_component_azure_storage_queue from '../assets/components/azure-storage-queue.svg';
-import icon_component_bean_component from '../assets/components/bean.svg';
-import icon_component_box from '../assets/components/box.svg';
-import icon_component_brain from '../assets/components/brain.svg';
-import icon_component_braintree from '../assets/components/braintree.svg';
-import icon_component_cics from '../assets/components/cics.svg';
-import icon_component_consul from '../assets/components/consul.svg';
-import icon_component_couchbase from '../assets/components/couchbase.svg';
-import icon_component_couchdb from '../assets/components/couchdb.svg';
-import icon_component_cql from '../assets/components/cql.svg';
-import icon_component_crypto from '../assets/components/crypto.svg';
-import icon_component_cxf from '../assets/components/cxf.png';
-import icon_component_daffodil from '../assets/components/daffodil.svg';
-import icon_component_datamapper from '../assets/components/datamapper.png';
-import icon_component_debezium from '../assets/components/debezium.svg';
-import icon_component_dhis2 from '../assets/components/dhis2.svg';
-import icon_component_direct from '../assets/components/direct.svg';
-import icon_component_djl from '../assets/components/djl.png';
-import icon_component_docker from '../assets/components/docker.svg';
-import icon_component_drill from '../assets/components/drill.svg';
-import icon_component_dropbox from '../assets/components/dropbox.svg';
-import icon_component_elasticsearch from '../assets/components/elasticsearch.svg';
-import icon_component_email from '../assets/components/email.svg';
-import icon_component_email_receive from '../assets/components/email_receive.svg';
-import icon_component_email_send from '../assets/components/email_send.svg';
-import icon_component_etcd3 from '../assets/components/etcd3.svg';
-import icon_component_exec from '../assets/components/exec.svg';
-import icon_component_facebook from '../assets/components/facebook.svg';
-import icon_component_fhir from '../assets/components/fhir.svg';
-import icon_component_file from '../assets/components/file.svg';
-import icon_component_file_watch from '../assets/components/file-watch.svg';
-import icon_component_flink from '../assets/components/flink.svg';
-import icon_component_flowable from '../assets/components/flowable.svg';
-import icon_component_freemarker from '../assets/components/freemarker.svg';
-import icon_component_ftp from '../assets/components/ftp.png';
-import icon_component_generic from '../assets/components/generic-component.png';
-import icon_component_git from '../assets/components/git.svg';
-import icon_component_github from '../assets/components/github.svg';
-import icon_component_google_bigquery from '../assets/components/google-bigquery.svg';
-import icon_component_google_calendar from '../assets/components/google-calendar.svg';
-import icon_component_google_drive from '../assets/components/google-drive.svg';
-import icon_component_google_functions from '../assets/components/google-functions.svg';
-import icon_component_google_mail from '../assets/components/google-mail.svg';
-import icon_component_google_pubsub from '../assets/components/google-pubsub.svg';
-import icon_component_google_secret_manager from '../assets/components/google-secret-manager.svg';
-import icon_component_google_sheets from '../assets/components/google-sheets.svg';
-import icon_component_google_storage from '../assets/components/google-storage.svg';
-import icon_component_graphql from '../assets/components/graphql.svg';
-import icon_component_grpc from '../assets/components/grpc.svg';
-import icon_component_hashicorp_vault from '../assets/components/hashicorp-vault.svg';
-import icon_component_hazelcast from '../assets/components/hazelcast.png';
-import icon_component_http from '../assets/components/http.svg';
-import icon_component_https from '../assets/components/https.svg';
-import icon_component_huawei from '../assets/components/huawei.svg';
-import icon_component_ibm from '../assets/components/ibm.svg';
-import icon_component_ignite from '../assets/components/ignite.png';
-import icon_component_infinispan from '../assets/components/infinispan.svg';
-import icon_component_influxdb from '../assets/components/influxdb2.svg';
-import icon_component_irc from '../assets/components/irc.svg';
-import icon_component_jdbc from '../assets/components/jdbc.png';
-import icon_component_jetty from '../assets/components/jetty.svg';
-import icon_component_jira from '../assets/components/jira.svg';
-import icon_component_jms from '../assets/components/jms.png';
-import icon_component_jte from '../assets/components/jte.svg';
-import icon_component_kafka from '../assets/components/kafka.svg';
-import icon_component_keycloak from '../assets/components/keycloak.svg';
-import icon_component_kserve from '../assets/components/kserve.svg';
-import icon_component_kubernetes_generic from '../assets/components/kubernetes.svg';
-import icon_component_kubernetes_config_maps from '../assets/components/kubernetes-config-maps.svg';
-import icon_component_kubernetes_cronjob from '../assets/components/kubernetes-cronjob.svg';
-import icon_component_kubernetes_custom_resources from '../assets/components/kubernetes-custom-resources.svg';
-import icon_component_kubernetes_deployments from '../assets/components/kubernetes-deployments.svg';
-import icon_component_kubernetes_hpa from '../assets/components/kubernetes-hpa.svg';
-import icon_component_kubernetes_job from '../assets/components/kubernetes-job.svg';
-import icon_component_kubernetes_namespaces from '../assets/components/kubernetes-namespaces.svg';
-import icon_component_kubernetes_nodes from '../assets/components/kubernetes-nodes.svg';
-import icon_component_kubernetes_persistent_volumes from '../assets/components/kubernetes-persistent-volumes.svg';
-import icon_component_kubernetes_persistent_volumes_claims from '../assets/components/kubernetes-persistent-volumes-claims.svg';
-import icon_component_kubernetes_pods from '../assets/components/kubernetes-pods.svg';
-import icon_component_kubernetes_replication_controller from '../assets/components/kubernetes-replication-controller.svg';
-import icon_component_kubernetes_resources_quota from '../assets/components/kubernetes-resources-quota.svg';
-import icon_component_kubernetes_secrets from '../assets/components/kubernetes-secrets.svg';
-import icon_component_kubernetes_service_account from '../assets/components/kubernetes-service-account.svg';
-import icon_component_kubernetes_services from '../assets/components/kubernetes-services.svg';
-import icon_component_kudu from '../assets/components/kudu.svg';
-import icon_component_langchain4j from '../assets/components/langchain4j.svg';
-import icon_component_log from '../assets/components/log.svg';
-import icon_component_lucene from '../assets/components/lucene.svg';
-import icon_component_mapstruct from '../assets/components/mapstruct.svg';
-import icon_component_micrometer from '../assets/components/micrometer.svg';
-import icon_component_milvus from '../assets/components/milvus.svg';
-import icon_component_minio from '../assets/components/minio.svg';
-import icon_component_mongodb from '../assets/components/mongodb.svg';
-import icon_component_mqtt from '../assets/components/mqtt.svg';
-import icon_component_mustache from '../assets/components/mustache.svg';
-import icon_component_mybatis from '../assets/components/mybatis.svg';
-import icon_component_neo4j from '../assets/components/neo4j.svg';
-import icon_component_netty from '../assets/components/netty.png';
-import icon_component_nitrite from '../assets/components/nitrite.svg';
-import icon_component_odata from '../assets/components/odata.svg';
-import icon_component_openapi from '../assets/components/openapi.svg';
-import icon_component_opensearch from '../assets/components/opensearch.svg';
-import icon_component_openshift from '../assets/components/openshift.svg';
-import icon_component_openstack from '../assets/components/openstack.svg';
-import icon_component_pdf from '../assets/components/pdf.svg';
-import icon_component_pinecone from '../assets/components/pinecone.svg';
-import icon_component_platformhttp from '../assets/components/platformhttp.png';
-import icon_component_policy from '../assets/components/policy.png';
-import icon_component_postgresql from '../assets/components/postgresql.svg';
-import icon_component_printer from '../assets/components/printer.svg';
-import icon_component_pulsar from '../assets/components/pulsar.svg';
-import icon_component_qdrant from '../assets/components/qdrant.svg';
-import icon_component_quartz from '../assets/components/quartz.png';
-import icon_component_rocketmq from '../assets/components/rocketmq.svg';
-import icon_component_rss from '../assets/components/rss.svg';
-import icon_component_salesforce from '../assets/components/salesforce.svg';
-import icon_component_sap from '../assets/components/sap.svg';
-import icon_component_servicenow from '../assets/components/servicenow.svg';
-import icon_component_servlet from '../assets/components/servlet.png';
-import icon_component_sftp from '../assets/components/sftp.svg';
-import icon_component_slack from '../assets/components/slack.svg';
-import icon_component_smooks from '../assets/components/smooks.svg';
-import icon_component_snmp from '../assets/components/snmp.png';
-import icon_component_splunk from '../assets/components/splunk.svg';
-import icon_component_spring from '../assets/components/spring.svg';
-import icon_component_sql from '../assets/components/sql_db.png';
-import icon_component_stitch from '../assets/components/stitch.svg';
-import icon_component_telegram from '../assets/components/telegram.svg';
-import icon_component_template from '../assets/components/template.svg';
-import icon_component_tensorflow from '../assets/components/tensorflow.svg';
-import icon_component_thymeleaf from '../assets/components/thymeleaf.svg';
-import icon_component_timer from '../assets/components/timer.svg';
-import icon_component_twilio from '../assets/components/twilio.svg';
-import icon_component_twitter from '../assets/components/twitter.svg';
-import icon_component_velocity from '../assets/components/velocity.png';
-import icon_component_vertx from '../assets/components/vertx.svg';
-import icon_component_wasm from '../assets/components/wasm.svg';
-import icon_component_weather from '../assets/components/weather.svg';
-import icon_component_webhooks from '../assets/components/webhooks.svg';
-import icon_component_whatsapp from '../assets/components/whatsapp.svg';
-import icon_component_wordpress from '../assets/components/wordpress.svg';
-import icon_component_workday from '../assets/components/workday.svg';
-import icon_component_xmpp from '../assets/components/xmpp.svg';
-import icon_component_xslt from '../assets/components/xslt2.png';
-import icon_component_zendesk from '../assets/components/zendesk.svg';
-//EIP icons
-import icon_eip_aggregate from '../assets/eip/aggregate.png';
-import icon_eip_bean from '../assets/eip/bean.png';
-import icon_eip_choice from '../assets/eip/choice.png';
-import icon_eip_circuit_breaker from '../assets/eip/circuitBreaker.png';
-import icon_eip_claim_check from '../assets/eip/claimCheck.png';
-import icon_eip_convert_body from '../assets/eip/convertBody.png';
-import icon_eip_convert_header from '../assets/eip/convertHeaderTo.png';
-import icon_eip_convert_variable from '../assets/eip/convertVariableTo.png';
-import icon_eip_delay from '../assets/eip/delay.png';
-import icon_eip_dynamic_router from '../assets/eip/dynamic-router.png';
-import icon_eip_enrich from '../assets/eip/enrich.png';
-import icon_eip_filter from '../assets/eip/filter.png';
-import icon_eip_generic from '../assets/eip/generic.png';
-import icon_eip_idempotent_consumer from '../assets/eip/idempotentConsumer.png';
-import icon_eip_load_balance from '../assets/eip/load-balance.png';
-import icon_eip_log from '../assets/eip/log.svg';
-import icon_eip_loop from '../assets/eip/loop.png';
-import icon_eip_multicast from '../assets/eip/multicast.png';
-import icon_eip_otherwise from '../assets/eip/otherwise.png';
-import icon_eip_pausable from '../assets/eip/pausable.png';
-import icon_eip_pipeline from '../assets/eip/pipeline.png';
-import icon_eip_poll_enrich from '../assets/eip/poll-enrich.png';
-import icon_eip_process from '../assets/eip/process.png';
-import icon_eip_recipient_list from '../assets/eip/recipient-list.png';
-import icon_eip_remove_header from '../assets/eip/removeheader.png';
-import icon_eip_remove_headers from '../assets/eip/removeheaders.png';
-import icon_eip_remove_properties from '../assets/eip/removeproperties.png';
-import icon_eip_remove_property from '../assets/eip/removeproperty.png';
-import icon_eip_remove_variable from '../assets/eip/removeVariable.png';
-import icon_eip_resequence from '../assets/eip/resequence.png';
-import icon_eip_resumable from '../assets/eip/resumable.png';
-import icon_eip_rollback from '../assets/eip/rollback.png';
-import icon_eip_route from '../assets/eip/route.png';
-import icon_eip_sample from '../assets/eip/sample.png';
-import icon_eip_script from '../assets/eip/script.png';
-import icon_eip_set_body from '../assets/eip/setbody.png';
-import icon_eip_set_header from '../assets/eip/setheader.png';
-import icon_eip_set_headers from '../assets/eip/setheaders.png';
-import icon_eip_set_property from '../assets/eip/setproperty.png';
-import icon_eip_set_variable from '../assets/eip/setvariable.png';
-import icon_eip_set_variables from '../assets/eip/setvariables.png';
-import icon_eip_sort from '../assets/eip/sort.png';
-import icon_eip_split from '../assets/eip/split.png';
-import icon_eip_step from '../assets/eip/step.png';
-import icon_eip_stop from '../assets/eip/stop.png';
-import icon_eip_threads from '../assets/eip/threads.png';
-import icon_eip_throttle from '../assets/eip/throttle.png';
-import icon_eip_throwException from '../assets/eip/throw-exception.png';
-import icon_eip_to from '../assets/eip/to.png';
-import icon_eip_to_d from '../assets/eip/toD.png';
-import icon_eip_transform from '../assets/eip/transform.png';
-import icon_eip_validate from '../assets/eip/validate.png';
-import icon_eip_when from '../assets/eip/when.png';
-import icon_eip_wiretap from '../assets/eip/wiretap.png';
-import expandIcon from '../assets/expand.svg';
-import questionIcon from '../assets/question-mark.svg';
-import { EntityType } from '../models/camel/entities';
-import { CatalogKind } from '../models/catalog-kind';
-import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
-
-export const enum NodeIconType {
-  Component = 'Component',
-  EIP = 'EIP',
-  Kamelet = 'Kamelet',
-  Entity = 'Entity',
-}
+import icon_component_activemq from '../../assets/components/activemq.svg';
+import icon_component_amqp from '../../assets/components/amqp.svg';
+import icon_component_arangodb from '../../assets/components/arangodb.svg';
+import icon_component_avro from '../../assets/components/avro.svg';
+import icon_component_aws from '../../assets/components/aws.png';
+import icon_component_aws_bedrock from '../../assets/components/aws-bedrock.svg';
+import icon_component_aws_cloudtrail from '../../assets/components/aws-cloudtrail.svg';
+import icon_component_aws_config from '../../assets/components/aws-config.svg';
+import icon_component_aws_secrets_manager from '../../assets/components/aws-secrets-manager.svg';
+import icon_component_aws2_athena from '../../assets/components/aws2-athena.svg';
+import icon_component_aws2_cw from '../../assets/components/aws2-cw.svg';
+import icon_component_aws2_ddb from '../../assets/components/aws2-ddb.svg';
+import icon_component_aws2_ddbstream from '../../assets/components/aws2-ddbstream.svg';
+import icon_component_aws2_ec2 from '../../assets/components/aws2-ec2.svg';
+import icon_component_aws2_ecs from '../../assets/components/aws2-ecs.svg';
+import icon_component_aws2_eks from '../../assets/components/aws2-eks.svg';
+import icon_component_aws2_eventbridge from '../../assets/components/aws2-eventbridge.svg';
+import icon_component_aws2_iam from '../../assets/components/aws2-iam.svg';
+import icon_component_aws2_kinesis from '../../assets/components/aws2-kinesis.svg';
+import icon_component_aws2_kinesis_firehose from '../../assets/components/aws2-kinesis-firehose.svg';
+import icon_component_aws2_kms from '../../assets/components/aws2-kms.svg';
+import icon_component_aws2_lambda from '../../assets/components/aws2-lambda.svg';
+import icon_component_aws2_mq from '../../assets/components/aws2-mq.svg';
+import icon_component_aws2_msk from '../../assets/components/aws2-msk.svg';
+import icon_component_aws2_redshift_data from '../../assets/components/aws2-redshift-data.svg';
+import icon_component_aws2_s3 from '../../assets/components/aws2-s3.svg';
+import icon_component_aws2_ses from '../../assets/components/aws2-ses.svg';
+import icon_component_aws2_sns from '../../assets/components/aws2-sns.svg';
+import icon_component_aws2_sqs from '../../assets/components/aws2-sqs.svg';
+import icon_component_aws2_step_functions from '../../assets/components/aws2-step-functions.svg';
+import icon_component_aws2_timestream from '../../assets/components/aws2-timestream.svg';
+import icon_component_aws2_translate from '../../assets/components/aws2-translate.svg';
+import icon_component_azure_cosmosdb from '../../assets/components/azure-cosmosdb.svg';
+import icon_component_azure_eventhubs from '../../assets/components/azure-eventhubs.svg';
+import icon_component_azure_files from '../../assets/components/azure-files.svg';
+import icon_component_azure_key_vault from '../../assets/components/azure-key-vault.svg';
+import icon_component_azure_servicebus from '../../assets/components/azure-servicebus.svg';
+import icon_component_azure_storage_blob from '../../assets/components/azure-storage-blob.svg';
+import icon_component_azure_datalake from '../../assets/components/azure-storage-datalake.svg';
+import icon_component_azure_storage_queue from '../../assets/components/azure-storage-queue.svg';
+import icon_component_bean_component from '../../assets/components/bean.svg';
+import icon_component_box from '../../assets/components/box.svg';
+import icon_component_brain from '../../assets/components/brain.svg';
+import icon_component_braintree from '../../assets/components/braintree.svg';
+import icon_component_cics from '../../assets/components/cics.svg';
+import icon_component_consul from '../../assets/components/consul.svg';
+import icon_component_couchbase from '../../assets/components/couchbase.svg';
+import icon_component_couchdb from '../../assets/components/couchdb.svg';
+import icon_component_cql from '../../assets/components/cql.svg';
+import icon_component_crypto from '../../assets/components/crypto.svg';
+import icon_component_cxf from '../../assets/components/cxf.png';
+import icon_component_daffodil from '../../assets/components/daffodil.svg';
+import icon_component_datamapper from '../../assets/components/datamapper.png';
+import icon_component_debezium from '../../assets/components/debezium.svg';
+import icon_component_dhis2 from '../../assets/components/dhis2.svg';
+import icon_component_direct from '../../assets/components/direct.svg';
+import icon_component_djl from '../../assets/components/djl.png';
+import icon_component_docker from '../../assets/components/docker.svg';
+import icon_component_drill from '../../assets/components/drill.svg';
+import icon_component_dropbox from '../../assets/components/dropbox.svg';
+import icon_component_elasticsearch from '../../assets/components/elasticsearch.svg';
+import icon_component_email from '../../assets/components/email.svg';
+import icon_component_email_receive from '../../assets/components/email_receive.svg';
+import icon_component_email_send from '../../assets/components/email_send.svg';
+import icon_component_etcd3 from '../../assets/components/etcd3.svg';
+import icon_component_exec from '../../assets/components/exec.svg';
+import icon_component_facebook from '../../assets/components/facebook.svg';
+import icon_component_fhir from '../../assets/components/fhir.svg';
+import icon_component_file from '../../assets/components/file.svg';
+import icon_component_file_watch from '../../assets/components/file-watch.svg';
+import icon_component_flink from '../../assets/components/flink.svg';
+import icon_component_flowable from '../../assets/components/flowable.svg';
+import icon_component_freemarker from '../../assets/components/freemarker.svg';
+import icon_component_ftp from '../../assets/components/ftp.png';
+import icon_component_generic from '../../assets/components/generic-component.png';
+import icon_component_git from '../../assets/components/git.svg';
+import icon_component_github from '../../assets/components/github.svg';
+import icon_component_google_bigquery from '../../assets/components/google-bigquery.svg';
+import icon_component_google_calendar from '../../assets/components/google-calendar.svg';
+import icon_component_google_drive from '../../assets/components/google-drive.svg';
+import icon_component_google_functions from '../../assets/components/google-functions.svg';
+import icon_component_google_mail from '../../assets/components/google-mail.svg';
+import icon_component_google_pubsub from '../../assets/components/google-pubsub.svg';
+import icon_component_google_secret_manager from '../../assets/components/google-secret-manager.svg';
+import icon_component_google_sheets from '../../assets/components/google-sheets.svg';
+import icon_component_google_storage from '../../assets/components/google-storage.svg';
+import icon_component_graphql from '../../assets/components/graphql.svg';
+import icon_component_grpc from '../../assets/components/grpc.svg';
+import icon_component_hashicorp_vault from '../../assets/components/hashicorp-vault.svg';
+import icon_component_hazelcast from '../../assets/components/hazelcast.png';
+import icon_component_http from '../../assets/components/http.svg';
+import icon_component_https from '../../assets/components/https.svg';
+import icon_component_huawei from '../../assets/components/huawei.svg';
+import icon_component_ibm from '../../assets/components/ibm.svg';
+import icon_component_ignite from '../../assets/components/ignite.png';
+import icon_component_infinispan from '../../assets/components/infinispan.svg';
+import icon_component_influxdb from '../../assets/components/influxdb2.svg';
+import icon_component_irc from '../../assets/components/irc.svg';
+import icon_component_jdbc from '../../assets/components/jdbc.png';
+import icon_component_jetty from '../../assets/components/jetty.svg';
+import icon_component_jira from '../../assets/components/jira.svg';
+import icon_component_jms from '../../assets/components/jms.png';
+import icon_component_jte from '../../assets/components/jte.svg';
+import icon_component_kafka from '../../assets/components/kafka.svg';
+import icon_component_keycloak from '../../assets/components/keycloak.svg';
+import icon_component_kserve from '../../assets/components/kserve.svg';
+import icon_component_kubernetes_generic from '../../assets/components/kubernetes.svg';
+import icon_component_kubernetes_config_maps from '../../assets/components/kubernetes-config-maps.svg';
+import icon_component_kubernetes_cronjob from '../../assets/components/kubernetes-cronjob.svg';
+import icon_component_kubernetes_custom_resources from '../../assets/components/kubernetes-custom-resources.svg';
+import icon_component_kubernetes_deployments from '../../assets/components/kubernetes-deployments.svg';
+import icon_component_kubernetes_hpa from '../../assets/components/kubernetes-hpa.svg';
+import icon_component_kubernetes_job from '../../assets/components/kubernetes-job.svg';
+import icon_component_kubernetes_namespaces from '../../assets/components/kubernetes-namespaces.svg';
+import icon_component_kubernetes_nodes from '../../assets/components/kubernetes-nodes.svg';
+import icon_component_kubernetes_persistent_volumes from '../../assets/components/kubernetes-persistent-volumes.svg';
+import icon_component_kubernetes_persistent_volumes_claims from '../../assets/components/kubernetes-persistent-volumes-claims.svg';
+import icon_component_kubernetes_pods from '../../assets/components/kubernetes-pods.svg';
+import icon_component_kubernetes_replication_controller from '../../assets/components/kubernetes-replication-controller.svg';
+import icon_component_kubernetes_resources_quota from '../../assets/components/kubernetes-resources-quota.svg';
+import icon_component_kubernetes_secrets from '../../assets/components/kubernetes-secrets.svg';
+import icon_component_kubernetes_service_account from '../../assets/components/kubernetes-service-account.svg';
+import icon_component_kubernetes_services from '../../assets/components/kubernetes-services.svg';
+import icon_component_kudu from '../../assets/components/kudu.svg';
+import icon_component_langchain4j from '../../assets/components/langchain4j.svg';
+import icon_component_log from '../../assets/components/log.svg';
+import icon_component_lucene from '../../assets/components/lucene.svg';
+import icon_component_mapstruct from '../../assets/components/mapstruct.svg';
+import icon_component_micrometer from '../../assets/components/micrometer.svg';
+import icon_component_milvus from '../../assets/components/milvus.svg';
+import icon_component_minio from '../../assets/components/minio.svg';
+import icon_component_mongodb from '../../assets/components/mongodb.svg';
+import icon_component_mqtt from '../../assets/components/mqtt.svg';
+import icon_component_mustache from '../../assets/components/mustache.svg';
+import icon_component_mybatis from '../../assets/components/mybatis.svg';
+import icon_component_neo4j from '../../assets/components/neo4j.svg';
+import icon_component_netty from '../../assets/components/netty.png';
+import icon_component_nitrite from '../../assets/components/nitrite.svg';
+import icon_component_odata from '../../assets/components/odata.svg';
+import icon_component_openapi from '../../assets/components/openapi.svg';
+import icon_component_opensearch from '../../assets/components/opensearch.svg';
+import icon_component_openshift from '../../assets/components/openshift.svg';
+import icon_component_openstack from '../../assets/components/openstack.svg';
+import icon_component_pdf from '../../assets/components/pdf.svg';
+import icon_component_pinecone from '../../assets/components/pinecone.svg';
+import icon_component_platformhttp from '../../assets/components/platformhttp.png';
+import icon_component_policy from '../../assets/components/policy.png';
+import icon_component_postgresql from '../../assets/components/postgresql.svg';
+import icon_component_printer from '../../assets/components/printer.svg';
+import icon_component_pulsar from '../../assets/components/pulsar.svg';
+import icon_component_qdrant from '../../assets/components/qdrant.svg';
+import icon_component_quartz from '../../assets/components/quartz.png';
+import icon_component_rocketmq from '../../assets/components/rocketmq.svg';
+import icon_component_rss from '../../assets/components/rss.svg';
+import icon_component_salesforce from '../../assets/components/salesforce.svg';
+import icon_component_sap from '../../assets/components/sap.svg';
+import icon_component_servicenow from '../../assets/components/servicenow.svg';
+import icon_component_servlet from '../../assets/components/servlet.png';
+import icon_component_sftp from '../../assets/components/sftp.svg';
+import icon_component_slack from '../../assets/components/slack.svg';
+import icon_component_smooks from '../../assets/components/smooks.svg';
+import icon_component_snmp from '../../assets/components/snmp.png';
+import icon_component_splunk from '../../assets/components/splunk.svg';
+import icon_component_spring from '../../assets/components/spring.svg';
+import icon_component_sql from '../../assets/components/sql_db.png';
+import icon_component_stitch from '../../assets/components/stitch.svg';
+import icon_component_telegram from '../../assets/components/telegram.svg';
+import icon_component_template from '../../assets/components/template.svg';
+import icon_component_tensorflow from '../../assets/components/tensorflow.svg';
+import icon_component_thymeleaf from '../../assets/components/thymeleaf.svg';
+import icon_component_timer from '../../assets/components/timer.svg';
+import icon_component_twilio from '../../assets/components/twilio.svg';
+import icon_component_twitter from '../../assets/components/twitter.svg';
+import icon_component_velocity from '../../assets/components/velocity.png';
+import icon_component_vertx from '../../assets/components/vertx.svg';
+import icon_component_wasm from '../../assets/components/wasm.svg';
+import icon_component_weather from '../../assets/components/weather.svg';
+import icon_component_webhooks from '../../assets/components/webhooks.svg';
+import icon_component_whatsapp from '../../assets/components/whatsapp.svg';
+import icon_component_wordpress from '../../assets/components/wordpress.svg';
+import icon_component_workday from '../../assets/components/workday.svg';
+import icon_component_xmpp from '../../assets/components/xmpp.svg';
+import icon_component_xslt from '../../assets/components/xslt2.png';
+import icon_component_zendesk from '../../assets/components/zendesk.svg';
+import icon_eip_aggregate from '../../assets/eip/aggregate.png';
+import icon_eip_bean from '../../assets/eip/bean.png';
+import icon_eip_choice from '../../assets/eip/choice.png';
+import icon_eip_circuit_breaker from '../../assets/eip/circuitBreaker.png';
+import icon_eip_claim_check from '../../assets/eip/claimCheck.png';
+import icon_eip_convert_body from '../../assets/eip/convertBody.png';
+import icon_eip_convert_header from '../../assets/eip/convertHeaderTo.png';
+import icon_eip_convert_variable from '../../assets/eip/convertVariableTo.png';
+import icon_eip_delay from '../../assets/eip/delay.png';
+import icon_eip_dynamic_router from '../../assets/eip/dynamic-router.png';
+import icon_eip_enrich from '../../assets/eip/enrich.png';
+import icon_eip_filter from '../../assets/eip/filter.png';
+import icon_eip_generic from '../../assets/eip/generic.png';
+import icon_eip_idempotent_consumer from '../../assets/eip/idempotentConsumer.png';
+import icon_eip_load_balance from '../../assets/eip/load-balance.png';
+import icon_eip_log from '../../assets/eip/log.svg';
+import icon_eip_loop from '../../assets/eip/loop.png';
+import icon_eip_multicast from '../../assets/eip/multicast.png';
+import icon_eip_otherwise from '../../assets/eip/otherwise.png';
+import icon_eip_pausable from '../../assets/eip/pausable.png';
+import icon_eip_pipeline from '../../assets/eip/pipeline.png';
+import icon_eip_poll_enrich from '../../assets/eip/poll-enrich.png';
+import icon_eip_process from '../../assets/eip/process.png';
+import icon_eip_recipient_list from '../../assets/eip/recipient-list.png';
+import icon_eip_remove_header from '../../assets/eip/removeheader.png';
+import icon_eip_remove_headers from '../../assets/eip/removeheaders.png';
+import icon_eip_remove_properties from '../../assets/eip/removeproperties.png';
+import icon_eip_remove_property from '../../assets/eip/removeproperty.png';
+import icon_eip_remove_variable from '../../assets/eip/removeVariable.png';
+import icon_eip_resequence from '../../assets/eip/resequence.png';
+import icon_eip_resumable from '../../assets/eip/resumable.png';
+import icon_eip_rollback from '../../assets/eip/rollback.png';
+import icon_eip_route from '../../assets/eip/route.png';
+import icon_eip_sample from '../../assets/eip/sample.png';
+import icon_eip_script from '../../assets/eip/script.png';
+import icon_eip_set_body from '../../assets/eip/setbody.png';
+import icon_eip_set_header from '../../assets/eip/setheader.png';
+import icon_eip_set_headers from '../../assets/eip/setheaders.png';
+import icon_eip_set_property from '../../assets/eip/setproperty.png';
+import icon_eip_set_variable from '../../assets/eip/setvariable.png';
+import icon_eip_set_variables from '../../assets/eip/setvariables.png';
+import icon_eip_sort from '../../assets/eip/sort.png';
+import icon_eip_split from '../../assets/eip/split.png';
+import icon_eip_step from '../../assets/eip/step.png';
+import icon_eip_stop from '../../assets/eip/stop.png';
+import icon_eip_threads from '../../assets/eip/threads.png';
+import icon_eip_throttle from '../../assets/eip/throttle.png';
+import icon_eip_throwException from '../../assets/eip/throw-exception.png';
+import icon_eip_to from '../../assets/eip/to.png';
+import icon_eip_to_d from '../../assets/eip/toD.png';
+import icon_eip_transform from '../../assets/eip/transform.png';
+import icon_eip_validate from '../../assets/eip/validate.png';
+import icon_eip_when from '../../assets/eip/when.png';
+import icon_eip_wiretap from '../../assets/eip/wiretap.png';
+import expandIcon from '../../assets/expand.svg';
+import questionIcon from '../../assets/question-mark.svg';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog';
+import { EntityType } from '../../models/camel/entities';
+import { CatalogKind } from '../../models/catalog-kind';
 
 export class NodeIconResolver {
-  static getIcon(elementName: string | undefined, type: NodeIconType): string {
+  static async getIcon(elementName: string | undefined, type: CatalogKind): Promise<string> {
     if (!elementName) {
       return this.getUnknownIcon();
     }
 
     if (elementName.startsWith('kamelet:')) {
-      return this.getKameletIcon(elementName) ?? this.getUnknownIcon();
+      return (await this.getKameletIcon(elementName)) ?? this.getUnknownIcon();
     }
 
     switch (type) {
-      case NodeIconType.Kamelet:
+      case CatalogKind.Kamelet:
         return this.getDefaultCamelIcon();
-      case NodeIconType.Component:
+      case CatalogKind.Component:
         return this.getComponentIcon(elementName) ?? this.getDefaultCamelIcon();
-      case NodeIconType.EIP:
+      case CatalogKind.Pattern:
+      case CatalogKind.Processor:
         return this.getEIPIcon(elementName) ?? this.getDefaultCamelIcon();
-      case NodeIconType.Entity:
+      case CatalogKind.Entity:
         return this.getVisualEntityIcon(elementName) ?? this.getDefaultCamelIcon();
+      default:
+        return this.getDefaultCamelIcon();
     }
-  }
-
-  static getUnknownIcon(): string {
-    return questionIcon;
-  }
-
-  static getPlaceholderIcon(): string {
-    return expandIcon;
   }
 
   static getDefaultCamelIcon(): string {
     return icon_component_generic;
   }
 
-  private static getKameletIcon(elementName: string): string | undefined {
-    const kameletDefinition = CamelCatalogService.getComponent(
+  private static getUnknownIcon(): string {
+    return questionIcon;
+  }
+
+  private static async getKameletIcon(elementName: string): Promise<string | undefined> {
+    const kameletDefinition = await DynamicCatalogRegistry.get().getEntity(
       CatalogKind.Kamelet,
       elementName.replace('kamelet:', ''),
     );
@@ -1058,6 +1047,8 @@ export class NodeIconResolver {
         return icon_eip_route;
       case EntityType.OnException:
         return icon_eip_throwException;
+      case 'placeholder':
+        return expandIcon;
       default:
         return undefined;
     }

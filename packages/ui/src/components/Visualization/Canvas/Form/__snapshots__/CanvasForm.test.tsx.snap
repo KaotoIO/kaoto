@@ -22,7 +22,7 @@ exports[`CanvasForm should render 1`] = `
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="icon"
+              alt="processor icon"
               class="form-header__icon-test|route.from.steps.1.choice.when.0.steps.0.log"
               src=""
             />
@@ -388,8 +388,9 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="icon"
+              alt="Entity icon"
               class="form-header__icon-1"
+              src=""
             />
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"
@@ -647,8 +648,9 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="icon"
+              alt="Entity icon"
               class="form-header__icon-1"
+              src=""
             />
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"

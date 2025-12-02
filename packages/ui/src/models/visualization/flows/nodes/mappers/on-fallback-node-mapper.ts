@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
-import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
+import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
@@ -15,8 +15,9 @@ export class OnFallbackNodeMapper extends BaseNodeMapper {
     const processorName = 'onFallback' as keyof ProcessorDefinition;
 
     const data: CamelRouteVisualEntityData = {
+      catalogKind: CatalogKind.Processor,
+      name: processorName,
       path,
-      icon: NodeIconResolver.getIcon(processorName, NodeIconType.EIP),
       processorName,
       isGroup: true,
     };

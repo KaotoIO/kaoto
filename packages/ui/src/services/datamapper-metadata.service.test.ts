@@ -1,6 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
-import { createVisualizationNode } from '../models';
+import { CatalogKind, createVisualizationNode } from '../models';
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant } from '../models/datamapper/types';
@@ -47,7 +47,7 @@ describe('DataMapperMetadataService', () => {
     });
 
     it('should return the id from a custom visualization node', () => {
-      const vizNode = createVisualizationNode('custom-id', {});
+      const vizNode = createVisualizationNode('custom-id', { catalogKind: CatalogKind.Component, name: 'log' });
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'custom-metadata-id' });
 
       const metadataId = DataMapperMetadataService.getDataMapperMetadataId(vizNode);
@@ -143,7 +143,7 @@ describe('DataMapperMetadataService', () => {
 
   describe('initializeDataMapperMetadata', () => {
     it('should initialize metadata when XSLT step exists with document name', async () => {
-      const vizNode = createVisualizationNode('test-node', {});
+      const vizNode = createVisualizationNode('test-node', { catalogKind: CatalogKind.Component, name: 'log' });
       const mockModel = {
         id: 'test-metadata-id',
         steps: [

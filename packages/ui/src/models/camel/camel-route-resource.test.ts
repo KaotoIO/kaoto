@@ -4,6 +4,7 @@ import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
+import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
@@ -671,9 +672,18 @@ describe('CamelRouteResource', () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
 
       const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
-      resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
+      resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
+        catalogKind: CatalogKind.Processor,
+        name: 'from',
+        path: 'from',
+        label: 'timer',
+      });
 
-      expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
+      expect(filterSpy).toHaveBeenCalledWith(
+        AddStepMode.ReplaceStep,
+        { catalogKind: CatalogKind.Processor, name: 'from', path: 'from', label: 'timer' },
+        undefined,
+      );
     });
   });
 

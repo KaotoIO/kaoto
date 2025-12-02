@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../../../../catalog-kind';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
@@ -30,7 +31,8 @@ describe('BaseNodeMapper', () => {
       expect(vizNode).toBeDefined();
       expect(vizNode.data).toMatchObject({
         path,
-        icon: expect.any(String),
+        catalogKind: CatalogKind.Component,
+        name: 'timer',
         processorName: 'from',
         componentName: 'timer',
       });

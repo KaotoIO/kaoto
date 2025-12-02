@@ -2,10 +2,10 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { camelCaseToSpaces, isDefined } from '@kaoto/forms';
 
 import { getArrayProperty, getValue, setValue } from '../../../utils';
-import { NodeIconResolver, NodeIconType } from '../../../utils/node-icon-resolver';
 import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { DefinedComponent } from '../../camel-catalog-index';
+import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import {
@@ -252,10 +252,11 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
   toVizNode(): IVisualizationNode {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
+      catalogKind: CatalogKind.Entity,
+      name: this.type,
       path: this.getRootPath(),
       entity: this,
       isGroup: true,
-      icon: NodeIconResolver.getIcon(this.type, NodeIconType.Entity),
       processorName: 'route',
     });
 
@@ -269,7 +270,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     );
 
     if (!this.getRootUri()) {
-      fromNode.data.icon = NodeIconResolver.getPlaceholderIcon();
+      fromNode.data.catalogKind = CatalogKind.Entity;
+      fromNode.data.name = 'placeholder';
     }
     routeGroupNode.addChild(fromNode);
 

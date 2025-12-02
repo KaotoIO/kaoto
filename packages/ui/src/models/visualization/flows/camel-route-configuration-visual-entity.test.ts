@@ -3,6 +3,7 @@ import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catal
 
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -138,7 +139,13 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   it('return no interactions for ROOT_PATH', () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-    expect(entity.getNodeInteraction({ path: CamelRouteConfigurationVisualEntity.ROOT_PATH })).toEqual({
+    expect(
+      entity.getNodeInteraction({
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.RouteConfiguration,
+        path: CamelRouteConfigurationVisualEntity.ROOT_PATH,
+      }),
+    ).toEqual({
       canHavePreviousStep: false,
       canHaveNextStep: false,
       canHaveChildren: false,
@@ -166,7 +173,11 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       .mockReturnValueOnce(mockInteractions);
 
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-    const result = entity.getNodeInteraction({ path: 'another path' });
+    const result = entity.getNodeInteraction({
+      catalogKind: CatalogKind.Entity,
+      name: EntityType.RouteConfiguration,
+      path: 'another path',
+    });
 
     expect(superGetNodeInteractionSpy).toHaveBeenCalled();
     expect(result).toEqual(mockInteractions);
@@ -203,7 +214,8 @@ describe('CamelRouteConfigurationVisualEntity', () => {
 
       expect(vizNode.data).toEqual({
         entity,
-        icon: '',
+        catalogKind: CatalogKind.Entity,
+        name: 'routeConfiguration',
         isGroup: true,
         path: 'routeConfiguration',
         processorName: 'routeConfiguration',
