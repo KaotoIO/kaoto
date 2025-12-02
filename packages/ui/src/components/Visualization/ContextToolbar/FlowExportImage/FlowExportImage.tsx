@@ -1,8 +1,9 @@
+// packages/ui/src/components/Visualization/ContextToolbar/FlowExportImage/FlowExportImage.tsx
 import './overlay-export.scss';
 
 import { Button } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
-import { Point, useVisualizationController } from '@patternfly/react-topology';
+import { useVisualizationController } from '@patternfly/react-topology';
 import { toPng } from 'html-to-image';
 import { useState } from 'react';
 
@@ -11,42 +12,37 @@ export function FlowExportImage() {
   const [isExporting, setIsExporting] = useState(false);
 
   const onClick = async () => {
-    const surface = document.querySelector('.pf-topology-container') as HTMLElement;
-    if (!surface) return;
-
-    const graph = controller.getGraph();
+    const visibleContainer = document.querySelector('.pf-topology-container') as HTMLElement;
+    if (!visibleContainer) return;
 
     setIsExporting(true);
 
-    const origScale = graph.getGraph().getScale();
-    const origPos = graph.getGraph().getPosition();
+    try {
+      const hiddenContainer = visibleContainer.cloneNode(true) as HTMLElement;
+      hiddenContainer.style.position = 'fixed';
+      hiddenContainer.style.top = '-99999px';
+      hiddenContainer.style.left = '-99999px';
+      hiddenContainer.style.opacity = '0';
+      hiddenContainer.style.pointerEvents = 'none';
+      document.body.appendChild(hiddenContainer);
 
-    graph.reset();
-    graph.fit(80);
-    graph.layout();
+      const dataUrl = await toPng(hiddenContainer, {
+        cacheBust: true,
+        backgroundColor: '#f0f0f0',
+        filter: (node: HTMLElement) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
+      });
 
-    await new Promise((resolve) => requestAnimationFrame(resolve));
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = 'kaoto-flow.png';
+      link.click();
 
-    await exportToPng('image', surface);
-
-    graph.getGraph().setScale(origScale);
-    graph.getGraph().setPosition(new Point(origPos.x, origPos.y));
-    graph.layout();
-
-    setIsExporting(false);
-  };
-
-  const exportToPng = async (name: string, element: HTMLElement) => {
-    const dataUrl = await toPng(element, {
-      cacheBust: true,
-      backgroundColor: '#f0f0f0',
-      filter: (node) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
-    });
-
-    const link = document.createElement('a');
-    link.download = `${name}.png`;
-    link.href = dataUrl;
-    link.click();
+      hiddenContainer.remove();
+    } catch (err) {
+      console.error('Export failed', err);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -58,7 +54,6 @@ export function FlowExportImage() {
         variant="control"
         data-testid="exportImageButton"
       />
-
       {isExporting && (
         <div className="export-overlay">
           <div className="export-spinner"></div>
