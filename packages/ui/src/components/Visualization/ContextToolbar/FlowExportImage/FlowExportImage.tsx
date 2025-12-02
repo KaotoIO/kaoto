@@ -1,14 +1,11 @@
-// packages/ui/src/components/Visualization/ContextToolbar/FlowExportImage/FlowExportImage.tsx
 import './overlay-export.scss';
 
 import { Button } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
-import { useVisualizationController } from '@patternfly/react-topology';
 import { toPng } from 'html-to-image';
 import { useState } from 'react';
 
 export function FlowExportImage() {
-  const controller = useVisualizationController();
   const [isExporting, setIsExporting] = useState(false);
 
   const onClick = async () => {
