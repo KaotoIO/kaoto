@@ -1,5 +1,4 @@
 import './overlay-export.scss';
-
 import { Button } from '@patternfly/react-core';
 import { ImageIcon } from '@patternfly/react-icons';
 import { toPng } from 'html-to-image';
@@ -15,18 +14,30 @@ export function FlowExportImage() {
     setIsExporting(true);
 
     try {
-      const hiddenContainer = visibleContainer.cloneNode(true) as HTMLElement;
-      hiddenContainer.style.position = 'fixed';
-      hiddenContainer.style.top = '-99999px';
-      hiddenContainer.style.left = '-99999px';
-      hiddenContainer.style.opacity = '0';
-      hiddenContainer.style.pointerEvents = 'none';
-      document.body.appendChild(hiddenContainer);
+      const rect = visibleContainer.getBoundingClientRect();
 
-      const dataUrl = await toPng(hiddenContainer, {
+      const hiddenWrapper = document.createElement('div');
+      hiddenWrapper.style.position = 'fixed';
+      hiddenWrapper.style.top = '-99999px';
+      hiddenWrapper.style.left = '-99999px';
+      hiddenWrapper.style.width = `${rect.width}px`;
+      hiddenWrapper.style.height = `${rect.height}px`;
+      hiddenWrapper.style.pointerEvents = 'none';
+      document.body.appendChild(hiddenWrapper);
+
+      const hiddenClone = visibleContainer.cloneNode(true) as HTMLElement;
+      hiddenClone.style.width = `${rect.width}px`;
+      hiddenClone.style.height = `${rect.height}px`;
+      hiddenClone.style.position = 'relative';
+      hiddenClone.style.opacity = '1';
+      hiddenWrapper.appendChild(hiddenClone);
+
+      const dataUrl = await toPng(hiddenClone, {
         cacheBust: true,
         backgroundColor: '#f0f0f0',
         filter: (node: HTMLElement) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
+        canvasWidth: rect.width,
+        canvasHeight: rect.height,
       });
 
       const link = document.createElement('a');
@@ -34,7 +45,7 @@ export function FlowExportImage() {
       link.download = 'kaoto-flow.png';
       link.click();
 
-      hiddenContainer.remove();
+      hiddenWrapper.remove();
     } catch (err) {
       console.error('Export failed', err);
     } finally {
