@@ -5,14 +5,24 @@ import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupIte
 import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext } from 'react';
 
+import { CatalogKind } from '../../../../models';
+import { IconResolver } from '../../../IconResolver';
+
 interface CanvasFormHeaderProps {
   nodeId: string;
+  catalogKind: CatalogKind;
+  name: string;
   title?: string;
-  nodeIcon?: string;
   onClose?: () => void;
 }
 
-export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = (props) => {
+export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({
+  nodeId,
+  catalogKind,
+  name,
+  title,
+  onClose,
+}) => {
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
 
@@ -20,13 +30,14 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = (props
     <>
       <Grid hasGutter>
         <GridItem className="form-header" span={11}>
-          <img className={`form-header__icon-${props.nodeId}`} src={props.nodeIcon} alt="icon" />
+          <IconResolver className={`form-header__icon-${nodeId}`} catalogKind={catalogKind} name={name} />
+
           <Title className="form-header__title" headingLevel="h2">
-            {props.title}
+            {title}
           </Title>
         </GridItem>
         <GridItem span={1} className="canvas-header-close">
-          <Button data-testid="close-side-bar" variant="plain" icon={<TimesIcon />} onClick={props.onClose} />
+          <Button data-testid="close-side-bar" variant="plain" icon={<TimesIcon />} onClick={onClose} />
         </GridItem>
       </Grid>
 

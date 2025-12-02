@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash';
 
 import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';
+import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
@@ -85,9 +86,18 @@ describe('KameletResource', () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getKameletCompatibleComponents');
 
       const resource = CamelKResourceFactory.getCamelKResource(kameletJson)!;
-      resource.getCompatibleComponents(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' });
+      resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
+        catalogKind: CatalogKind.Processor,
+        name: 'from',
+        path: 'from',
+        label: 'timer',
+      });
 
-      expect(filterSpy).toHaveBeenCalledWith(AddStepMode.ReplaceStep, { path: 'from', label: 'timer' }, undefined);
+      expect(filterSpy).toHaveBeenCalledWith(
+        AddStepMode.ReplaceStep,
+        { catalogKind: CatalogKind.Processor, name: 'from', path: 'from', label: 'timer' },
+        undefined,
+      );
     });
   });
 

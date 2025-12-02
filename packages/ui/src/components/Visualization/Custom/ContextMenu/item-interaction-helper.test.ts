@@ -1,6 +1,7 @@
 import { ButtonVariant } from '@patternfly/react-core';
 
-import { createVisualizationNode } from '../../../../models';
+import { CatalogKind, createVisualizationNode } from '../../../../models';
+import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { ACTION_ID_CONFIRM } from '../../../../providers';
 import {
@@ -24,8 +25,8 @@ describe('item-interaction-helper', () => {
   describe('processOnDeleteAddonRecursively', () => {
     it('should process children', () => {
       const addons: Record<string, IRegisteredInteractionAddon[]> = {};
-      const vizNode = createVisualizationNode('test', {});
-      const childVn = createVisualizationNode('child', {});
+      const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const childVn = createVisualizationNode('child', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       const mockAddon: IRegisteredInteractionAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
@@ -50,7 +51,7 @@ describe('item-interaction-helper', () => {
         additionalText: 'Are you sure?',
       };
 
-      const vizNode = createVisualizationNode('test', {});
+      const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       const mockAddon: IOnDeleteAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
@@ -84,8 +85,8 @@ describe('item-interaction-helper', () => {
         additionalText: 'Delete child?',
       };
 
-      const parentNode = createVisualizationNode('parent', {});
-      const childNode = createVisualizationNode('child', {});
+      const parentNode = createVisualizationNode('parent', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const childNode = createVisualizationNode('child', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       parentNode.addChild(childNode);
 
       const parentAddon: IOnDeleteAddon = {
@@ -124,8 +125,8 @@ describe('item-interaction-helper', () => {
         additionalText: 'Are you sure?',
       };
 
-      const parentNode = createVisualizationNode('parent', {});
-      const childNode = createVisualizationNode('child', {});
+      const parentNode = createVisualizationNode('parent', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const childNode = createVisualizationNode('child', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       parentNode.addChild(childNode);
 
       const addon: IOnDeleteAddon = {
@@ -150,7 +151,7 @@ describe('item-interaction-helper', () => {
         definition: { log: { message: 'test' } },
       };
       const mockCallback = jest.fn().mockReturnValue(mockContent);
-      const vizNode = createVisualizationNode('test', {});
+      const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
 
       const mockAddon: IOnCopyAddon = {
         type: IInteractionType.ON_COPY,
@@ -182,7 +183,11 @@ describe('item-interaction-helper', () => {
       };
 
       const mockCallback = jest.fn().mockResolvedValue(transformedContent);
-      const vizNode = createVisualizationNode('test', { path: 'route.from.steps.0.log' });
+      const vizNode = createVisualizationNode('test', {
+        catalogKind: CatalogKind.Processor,
+        name: 'log',
+        path: 'route.from.steps.0.log',
+      });
 
       const mockAddon: IOnDuplicateAddon = {
         type: IInteractionType.ON_DUPLICATE,
@@ -207,7 +212,11 @@ describe('item-interaction-helper', () => {
       };
 
       const mockCallback = jest.fn().mockResolvedValue(undefined);
-      const vizNode = createVisualizationNode('test', { path: 'route.from.steps.0.log' });
+      const vizNode = createVisualizationNode('test', {
+        catalogKind: CatalogKind.Processor,
+        name: 'log',
+        path: 'route.from.steps.0.log',
+      });
 
       const mockAddon: IOnDuplicateAddon = {
         type: IInteractionType.ON_DUPLICATE,
@@ -221,7 +230,11 @@ describe('item-interaction-helper', () => {
     });
 
     it('should return undefined when content is undefined', async () => {
-      const vizNode = createVisualizationNode('test', { path: 'route.from.steps.0.log' });
+      const vizNode = createVisualizationNode('test', {
+        catalogKind: CatalogKind.Processor,
+        name: 'log',
+        path: 'route.from.steps.0.log',
+      });
 
       const result = await processOnDuplicateAddonRecursively(vizNode, undefined, () => []);
 
@@ -246,8 +259,16 @@ describe('item-interaction-helper', () => {
         },
       };
 
-      const parentNode = createVisualizationNode('parent', { path: 'route.from.steps.0.step' });
-      const childNode = createVisualizationNode('child', { path: 'route.from.steps.0.step.steps.0.log' });
+      const parentNode = createVisualizationNode('parent', {
+        catalogKind: CatalogKind.Processor,
+        name: 'step',
+        path: 'route.from.steps.0.step',
+      });
+      const childNode = createVisualizationNode('child', {
+        catalogKind: CatalogKind.Processor,
+        name: 'log',
+        path: 'route.from.steps.0.step.steps.0.log',
+      });
       parentNode.addChild(childNode);
 
       jest.spyOn(childNode, 'getCopiedContent').mockReturnValue(childContent);
@@ -278,7 +299,7 @@ describe('item-interaction-helper', () => {
       };
 
       const mockCallback = jest.fn().mockResolvedValue(undefined);
-      const vizNode = createVisualizationNode('test', {});
+      const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
 
       const mockAddon: IOnPasteAddon = {
         type: IInteractionType.ON_PASTE,
@@ -326,7 +347,10 @@ describe('item-interaction-helper', () => {
         },
       };
 
-      const targetVizNode = createVisualizationNode('route', {});
+      const targetVizNode = createVisualizationNode('route', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
 
       const mockCallback = jest.fn().mockResolvedValue(undefined);
 
@@ -384,7 +408,10 @@ describe('item-interaction-helper', () => {
         },
       };
 
-      const targetVizNode = createVisualizationNode('route', {});
+      const targetVizNode = createVisualizationNode('route', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
 
       const mockCallback1 = jest.fn().mockResolvedValue(undefined);
       const mockCallback2 = jest.fn().mockResolvedValue(undefined);

@@ -19,6 +19,7 @@ import { FunctionComponent, useContext, useRef } from 'react';
 
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { SettingsContext } from '../../../../providers';
+import { IconResolver } from '../../../IconResolver';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
@@ -104,7 +105,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 {doesHaveWarnings ? (
                   <div className="custom-group__container__icon-placeholder" />
                 ) : (
-                  <img alt={tooltipContent} src={vizNode.data.icon} />
+                  <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
                 )}
                 <span title={label}>{label}</span>
               </div>

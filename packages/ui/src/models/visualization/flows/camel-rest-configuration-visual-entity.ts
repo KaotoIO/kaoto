@@ -2,7 +2,7 @@ import { ProcessorDefinition, RestConfiguration } from '@kaoto/camel-catalog/typ
 import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { NodeIconResolver, NodeIconType, setValue } from '../../../utils';
+import { setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
@@ -155,7 +155,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     );
     restConfigurationGroupNode.data.entity = this;
     restConfigurationGroupNode.data.isGroup = true;
-    restConfigurationGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    restConfigurationGroupNode.data.catalogKind = CatalogKind.Entity;
+    restConfigurationGroupNode.data.name = this.type;
 
     return restConfigurationGroupNode;
   }

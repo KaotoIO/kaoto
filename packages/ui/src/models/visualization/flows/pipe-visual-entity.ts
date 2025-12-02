@@ -6,8 +6,6 @@ import {
   getArrayProperty,
   getCustomSchemaFromPipe,
   getValue,
-  NodeIconResolver,
-  NodeIconType,
   setValue,
   updatePipeFromCustomSchema,
 } from '../../../utils';
@@ -235,10 +233,11 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
   toVizNode(): IVisualizationNode {
     const pipeGroupNode = createVisualizationNode(this.id, {
+      catalogKind: CatalogKind.Entity,
+      name: this.type,
       path: this.getRootPath(),
       entity: this,
       isGroup: true,
-      icon: NodeIconResolver.getIcon(this.type, NodeIconType.Entity),
     });
 
     const sourceNode = this.getVizNodeFromStep(this.pipe.spec!.source, 'source', true);
@@ -296,17 +295,14 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
   }
 
   private getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): IVisualizationNode {
-    const kameletDefinition = KameletSchemaService.getKameletCatalogEntry(step);
     const isPlaceholder = step?.ref?.name === undefined;
-    const icon = isPlaceholder
-      ? NodeIconResolver.getPlaceholderIcon()
-      : (kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'] ?? NodeIconResolver.getUnknownIcon());
 
     const data: IVisualizationNodeData = {
+      catalogKind: CatalogKind.Kamelet,
+      name: step?.ref?.name ?? 'placeholder',
       path,
       entity: isRoot ? this : undefined,
       isPlaceholder,
-      icon,
     };
 
     return createVisualizationNode(path, data);

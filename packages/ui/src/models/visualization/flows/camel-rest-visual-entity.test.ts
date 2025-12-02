@@ -294,7 +294,8 @@ describe('CamelRestVisualEntity', () => {
       expect(vizNode.data).toEqual({
         componentName: undefined,
         entity,
-        icon: '',
+        catalogKind: CatalogKind.Entity,
+        name: 'rest',
         isGroup: true,
         path: 'rest',
         processorName: 'rest',

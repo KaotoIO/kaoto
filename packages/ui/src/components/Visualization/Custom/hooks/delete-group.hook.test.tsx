@@ -1,7 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { EntityType } from '../../../../models/camel/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';
@@ -45,7 +47,7 @@ describe('useDeleteGroup', () => {
   };
 
   beforeEach(() => {
-    mockVizNode = createVisualizationNode('test-group', {});
+    mockVizNode = createVisualizationNode('test-group', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
     (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
     (processOnDeleteAddonRecursively as jest.Mock).mockImplementation(() => {});
   });
@@ -166,7 +168,7 @@ describe('useDeleteGroup', () => {
 
   it('should handle vizNode without ID', async () => {
     const removeEntitySpy = jest.spyOn(camelResource, 'removeEntity');
-    const vizNodeWithoutId = createVisualizationNode('id', {});
+    const vizNodeWithoutId = createVisualizationNode('id', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
     jest.spyOn(vizNodeWithoutId, 'getId').mockReturnValueOnce(undefined);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 

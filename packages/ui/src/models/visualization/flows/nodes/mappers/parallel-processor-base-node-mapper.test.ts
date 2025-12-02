@@ -1,3 +1,4 @@
+import { CatalogKind } from '../../../../catalog-kind';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
@@ -43,7 +44,8 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         expect(vizNode).toBeDefined();
         expect(vizNode.data).toMatchObject({
           path,
-          icon: expect.any(String),
+          catalogKind: CatalogKind.Processor,
+          name: processorName,
           processorName,
           isGroup: true,
         });

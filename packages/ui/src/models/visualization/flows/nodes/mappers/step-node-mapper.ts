@@ -1,7 +1,7 @@
 import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
 
 import { DATAMAPPER_ID_PREFIX, getValue } from '../../../../../utils';
-import { NodeIconResolver, NodeIconType } from '../../../../../utils/node-icon-resolver';
+import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
@@ -17,8 +17,9 @@ export class StepNodeMapper extends BaseNodeMapper {
     const processorName: keyof ProcessorDefinition = 'step';
 
     const data: CamelRouteVisualEntityData = {
+      catalogKind: CatalogKind.Processor,
+      name: processorName,
       path,
-      icon: NodeIconResolver.getIcon(processorName, NodeIconType.EIP),
       processorName,
       isGroup: true,
     };

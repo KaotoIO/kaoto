@@ -3,6 +3,7 @@ import './Tile.scss';
 import { Card, CardBody, CardFooter, CardHeader, CardTitle, LabelGroup } from '@patternfly/react-core';
 import { FunctionComponent, PropsWithChildren, useCallback } from 'react';
 
+import { CatalogKind } from '../../models/catalog-kind';
 import { IconResolver } from '../IconResolver';
 import { ITile } from './Catalog.models';
 import { CatalogTag, CatalogTagsPanel } from './Tags';
@@ -34,7 +35,7 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
         onClick={onTileClick}
       >
         <div className="tile__header">
-          <IconResolver className="tile__icon" tile={props.tile} />
+          <IconResolver className="tile__icon" catalogKind={props.tile.type as CatalogKind} name={props.tile.name} />
           <LabelGroup isCompact aria-label="tile-headers-tags">
             {props.tile.headerTags?.map((tag, index) => (
               <CatalogTag key={`${props.tile.name}-${tag}-${index}`} tag={tag} />

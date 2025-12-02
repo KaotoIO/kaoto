@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { useContext } from 'react';
 
+import { CatalogKind } from '../../models';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../models/visualization/visualization-node';
 import { RenderingAnchorContext, RenderingProvider } from './rendering.provider';
@@ -8,7 +9,10 @@ import { IRegisteredComponent } from './rendering.provider.model';
 
 describe('RenderingProvider', () => {
   const anchorExample = 'form-header';
-  const vizNode: IVisualizationNode = createVisualizationNode('example-node', {});
+  const vizNode: IVisualizationNode = createVisualizationNode('example-node', {
+    catalogKind: CatalogKind.Processor,
+    name: 'to',
+  });
 
   describe('RenderingAnchorContext', () => {
     it('should provide a default implementation', () => {

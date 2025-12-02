@@ -17,6 +17,8 @@ import {
   processorWhenTile,
   tiles,
 } from '../../../../stubs';
+import { EntityType } from '../../../camel/entities';
+import { CatalogKind } from '../../../catalog-kind';
 import { AddStepMode } from '../../base-visual-entity';
 import { CamelComponentFilterService } from './camel-component-filter.service';
 
@@ -24,6 +26,8 @@ describe('CamelComponentFilterService', () => {
   describe('getCamelCompatibleComponents', () => {
     it('should not provide ProducerOnly components', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
+        catalogKind: CatalogKind.Entity,
+        name: 'from',
         path: 'route.from',
         processorName: 'from' as keyof ProcessorDefinition,
         label: 'timer',
@@ -34,6 +38,8 @@ describe('CamelComponentFilterService', () => {
 
     it('should not provide consumerOnly components', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
+        catalogKind: CatalogKind.Processor,
+        name: 'log',
         path: 'route.from.steps.2.to',
         processorName: 'to',
         label: 'log',
@@ -54,6 +60,8 @@ describe('CamelComponentFilterService', () => {
         const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
           AddStepMode.InsertSpecialChildStep,
           {
+            catalogKind: CatalogKind.Processor,
+            name: 'circuitBreaker',
             path: 'route.from.steps.0.circuitBreaker',
             processorName: 'circuitBreaker',
             label: 'Circuit Breaker',
@@ -68,6 +76,8 @@ describe('CamelComponentFilterService', () => {
         const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
           AddStepMode.InsertSpecialChildStep,
           {
+            catalogKind: CatalogKind.Processor,
+            name: 'circuitBreaker',
             path: 'route.from.steps.0.circuitBreaker',
             processorName: 'circuitBreaker',
             label: 'Circuit Breaker',
@@ -84,6 +94,8 @@ describe('CamelComponentFilterService', () => {
         const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
           AddStepMode.InsertSpecialChildStep,
           {
+            catalogKind: CatalogKind.Processor,
+            name: 'choice',
             path: 'route.from.steps.0.choice',
             processorName: 'choice',
             label: 'Choice',
@@ -98,6 +110,8 @@ describe('CamelComponentFilterService', () => {
         const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
           AddStepMode.InsertSpecialChildStep,
           {
+            catalogKind: CatalogKind.Processor,
+            name: 'choice',
             path: 'route.from.steps.0.choice',
             processorName: 'choice',
             label: 'Choice',
@@ -113,6 +127,8 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
+          catalogKind: CatalogKind.Entity,
+          name: EntityType.RouteConfiguration,
           path: 'routeConfiguration',
           processorName: 'routeConfiguration' as keyof ProcessorDefinition,
           label: 'RouteConfiguration',
@@ -125,6 +141,8 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step before an existing step', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.PrependStep, {
+        catalogKind: CatalogKind.Processor,
+        name: 'to',
         path: 'route.from.steps.0.to',
         processorName: 'to',
         label: 'timer',
@@ -142,6 +160,8 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step after an existing step', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.AppendStep, {
+        catalogKind: CatalogKind.Processor,
+        name: 'to',
         path: 'route.from.steps.1.to',
         processorName: 'to',
         label: 'timer',
@@ -161,6 +181,8 @@ describe('CamelComponentFilterService', () => {
   describe('getKameletCompatibleComponents', () => {
     it('should not provide ProducerOnly components', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.ReplaceStep, {
+        catalogKind: CatalogKind.Entity,
+        name: 'from',
         path: 'template.from',
         processorName: 'from' as keyof ProcessorDefinition,
         label: 'timer',
@@ -176,6 +198,8 @@ describe('CamelComponentFilterService', () => {
 
     it('should not provide consumerOnly components', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.ReplaceStep, {
+        catalogKind: CatalogKind.Component,
+        name: 'log',
         path: 'template.from.steps.2.to',
         processorName: 'to',
         label: 'log',
@@ -196,6 +220,8 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
+          catalogKind: CatalogKind.Processor,
+          name: 'choice',
           path: 'template.from.steps.0.choice',
           processorName: 'choice',
           label: 'Choice',
@@ -210,6 +236,8 @@ describe('CamelComponentFilterService', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         {
+          catalogKind: CatalogKind.Processor,
+          name: 'choice',
           path: 'template.from.steps.0.choice',
           processorName: 'choice',
           label: 'Choice',
@@ -222,6 +250,8 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step before an existing step', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.PrependStep, {
+        catalogKind: CatalogKind.Component,
+        name: 'timer',
         path: 'template.from.steps.0.to',
         processorName: 'to',
         label: 'timer',
@@ -240,6 +270,8 @@ describe('CamelComponentFilterService', () => {
 
     it('scenario for a new step after an existing step', () => {
       const filterFn = CamelComponentFilterService.getKameletCompatibleComponents(AddStepMode.AppendStep, {
+        catalogKind: CatalogKind.Component,
+        name: 'timer',
         path: 'template.from.steps.1.to',
         processorName: 'to',
         label: 'timer',

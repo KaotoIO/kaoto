@@ -3,7 +3,7 @@
 exports[`DataListItem renders correctly 1`] = `
 <li
   class="pf-v6-c-data-list__item catalog-data-list-item"
-  id="tile-name-tile-type"
+  id="tile-name-component"
 >
   <div
     class="pf-v6-c-data-list__item-row"
@@ -25,7 +25,7 @@ exports[`DataListItem renders correctly 1`] = `
               class="catalog-data-list-item__title-div-left"
             >
               <img
-                alt="camel icon"
+                alt="component icon"
                 class="catalog-data-list-item__title-div-left__icon"
                 src=""
               />

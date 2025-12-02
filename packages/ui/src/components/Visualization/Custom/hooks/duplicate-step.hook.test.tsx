@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
@@ -20,16 +21,22 @@ jest.mock('../../../../utils/update-ids', () => ({
 describe('useDuplicateStep', () => {
   const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
   const vizNode = createVisualizationNode('test', {
+    catalogKind: CatalogKind.Processor,
+    name: 'to',
     path: 'route.from.steps.2.to',
     entity: visualEntity,
     processorName: 'to',
   });
   const whenVizNode = createVisualizationNode('when', {
+    catalogKind: CatalogKind.Processor,
+    name: 'when',
     path: 'route.from.steps.1.choice.when.0',
     entity: visualEntity,
     processorName: 'when',
   });
   const choiceVizNode = createVisualizationNode('choice', {
+    catalogKind: CatalogKind.Processor,
+    name: 'choice',
     path: 'route.from.steps.1.choice',
     entity: visualEntity,
     processorName: 'choice',
@@ -37,6 +44,8 @@ describe('useDuplicateStep', () => {
   // Set parent of when node to choice node
   whenVizNode.setParentNode(choiceVizNode);
   const routeVizNode = createVisualizationNode('route', {
+    catalogKind: CatalogKind.Processor,
+    name: 'route',
     path: 'route',
     entity: visualEntity,
     processorName: 'route',

@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 
-import { AddStepMode, createVisualizationNode } from '../../../../models';
+import { AddStepMode, CatalogKind, createVisualizationNode } from '../../../../models';
+import { EntityType } from '../../../../models/camel/entities';
 import { usePasteStep } from '../hooks/paste-step.hook';
 import { ItemPasteStep } from './ItemPasteStep';
 
@@ -10,7 +11,7 @@ jest.mock('../hooks/paste-step.hook', () => ({
 }));
 
 describe('ItemPasteStep', () => {
-  const vizNode = createVisualizationNode('test', {});
+  const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
   const mockOnPasteStep = jest.fn();
 
   afterEach(() => {

@@ -11,6 +11,7 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
+import { CatalogKind } from '../../models/catalog-kind';
 import { IconResolver } from '../IconResolver';
 import { ITile } from './Catalog.models';
 import { CatalogTag, CatalogTagsPanel } from './Tags';
@@ -54,7 +55,11 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
               <Grid>
                 <GridItem sm={12} md={6} order={titleElementOrder}>
                   <div className="catalog-data-list-item__title-div-left">
-                    <IconResolver className="catalog-data-list-item__title-div-left__icon" tile={props.tile} />
+                    <IconResolver
+                      className="catalog-data-list-item__title-div-left__icon"
+                      catalogKind={props.tile.type as CatalogKind}
+                      name={props.tile.name}
+                    />
                     <span id="clickable-action-item1" className="catalog-data-list-item__title-div-left__title">
                       {props.tile.title}
                     </span>

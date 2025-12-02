@@ -37,6 +37,7 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
+import { IconResolver } from '../../../IconResolver';
 import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
@@ -242,7 +243,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               })}
             >
               <div title={tooltipContent} className="custom-node__container__image">
-                <img alt={tooltipContent} src={vizNode.data.icon} />
+                <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
 
                 {childCount > 0 && (
                   <FloatingCircle className="step-icon step-icon__processor">

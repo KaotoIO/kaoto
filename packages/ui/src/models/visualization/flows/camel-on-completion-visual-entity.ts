@@ -2,8 +2,8 @@ import { OnCompletion, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { NodeIconResolver, NodeIconType } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
+import { CatalogKind } from '../../catalog-kind';
 import {
   BaseVisualCamelEntity,
   IVisualizationNode,
@@ -88,7 +88,8 @@ export class CamelOnCompletionVisualEntity
     );
     onCompletionGroupNode.data.entity = this;
     onCompletionGroupNode.data.isGroup = true;
-    onCompletionGroupNode.data.icon = NodeIconResolver.getIcon(this.type, NodeIconType.Entity);
+    onCompletionGroupNode.data.catalogKind = CatalogKind.Entity;
+    onCompletionGroupNode.data.name = this.type;
 
     return onCompletionGroupNode;
   }

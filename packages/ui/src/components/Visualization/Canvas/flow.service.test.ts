@@ -1,3 +1,5 @@
+import { CatalogKind } from '../../../models';
+import { EntityType } from '../../../models/camel/entities';
 import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
 import { FlowService } from './flow.service';
 
@@ -17,7 +19,7 @@ describe('FlowService', () => {
 
   describe('getFlowDiagram', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', {});
+      const vizNode = createVisualizationNode('node', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
 
@@ -26,9 +28,19 @@ describe('FlowService', () => {
     });
 
     it('should return nodes and edges for a group with children', () => {
-      const groupVizNode = createVisualizationNode('group', { isGroup: true });
-      const child1VizNode = createVisualizationNode('child1', {});
-      const child2VizNode = createVisualizationNode('child2', {});
+      const groupVizNode = createVisualizationNode('group', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+        isGroup: true,
+      });
+      const child1VizNode = createVisualizationNode('child1', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
+      const child2VizNode = createVisualizationNode('child2', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
       groupVizNode.addChild(child1VizNode);
       groupVizNode.addChild(child2VizNode);
 
@@ -39,8 +51,8 @@ describe('FlowService', () => {
     });
 
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', {});
-      const childNode = createVisualizationNode('child', {});
+      const vizNode = createVisualizationNode('node', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const childNode = createVisualizationNode('child', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       vizNode.addChild(childNode);
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
@@ -50,32 +62,44 @@ describe('FlowService', () => {
     });
 
     it('should return nodes and edges for a multiple nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', {});
+      const vizNode = createVisualizationNode('node', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
 
-      const setHeaderNode = createVisualizationNode('set-header', {});
+      const setHeaderNode = createVisualizationNode('set-header', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
       vizNode.setNextNode(setHeaderNode);
       setHeaderNode.setPreviousNode(vizNode);
 
-      const choiceNode = createVisualizationNode('choice', {});
+      const choiceNode = createVisualizationNode('choice', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       setHeaderNode.setNextNode(choiceNode);
       choiceNode.setPreviousNode(setHeaderNode);
 
-      const directNode = createVisualizationNode('direct', {});
+      const directNode = createVisualizationNode('direct', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       choiceNode.setNextNode(directNode);
       directNode.setPreviousNode(choiceNode);
 
-      const whenNode = createVisualizationNode('when', {});
+      const whenNode = createVisualizationNode('when', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       choiceNode.addChild(whenNode);
 
-      const otherwiseNode = createVisualizationNode('otherwise', {});
+      const otherwiseNode = createVisualizationNode('otherwise', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
       choiceNode.addChild(otherwiseNode);
 
-      const whenLeafNode = createVisualizationNode('when-leaf', {});
+      const whenLeafNode = createVisualizationNode('when-leaf', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
       whenNode.addChild(whenLeafNode);
 
-      const processNode = createVisualizationNode('process', {});
+      const processNode = createVisualizationNode('process', {
+        catalogKind: CatalogKind.Entity,
+        name: EntityType.Route,
+      });
       otherwiseNode.addChild(processNode);
-      const logNode = createVisualizationNode('log', {});
+      const logNode = createVisualizationNode('log', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
       processNode.addChild(logNode);
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);

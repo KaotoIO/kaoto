@@ -1,4 +1,4 @@
-import { createVisualizationNode } from '../../models';
+import { CatalogKind, createVisualizationNode } from '../../models';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { ACTION_ID_DELETE_STEP_AND_FILE, ACTION_ID_DELETE_STEP_ONLY, onDeleteDataMapper } from './on-delete-datamapper';
@@ -29,7 +29,7 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step and file when modal answer is ACTION_ID_DELETE_STEP_AND_FILE', async () => {
-    const vizNode = createVisualizationNode('test', {});
+    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_AND_FILE);
 
@@ -39,7 +39,7 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step only when modal answer is ACTION_ID_DELETE_STEP_ONLY', async () => {
-    const vizNode = createVisualizationNode('test', {});
+    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_ONLY);
 
@@ -49,7 +49,7 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step only when modal answer is undefined', async () => {
-    const vizNode = createVisualizationNode('test', {});
+    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
 
     await onDeleteDataMapper(mockApi, vizNode, undefined);
 
@@ -59,7 +59,7 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step only when modal answer is a different value', async () => {
-    const vizNode = createVisualizationNode('test', {});
+    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
 
     await onDeleteDataMapper(mockApi, vizNode, 'some-other-action');
 

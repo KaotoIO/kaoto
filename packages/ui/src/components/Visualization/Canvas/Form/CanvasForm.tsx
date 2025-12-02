@@ -36,11 +36,21 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ selectedNode, o
     }
   }, [onClose, visualFlowsApi, vizNode]);
 
+  if (!vizNode) {
+    return null;
+  }
+
   return (
     <ErrorBoundary key={selectedNode.id} fallback={<p>This node cannot be configured yet</p>}>
       <Card className="canvas-form">
         <CardHeader>
-          <CanvasFormHeader nodeId={selectedNode.id} title={title} onClose={onCloseFn} nodeIcon={vizNode?.data?.icon} />
+          <CanvasFormHeader
+            nodeId={selectedNode.id}
+            title={title}
+            onClose={onCloseFn}
+            catalogKind={vizNode.data.catalogKind}
+            name={vizNode.data.name}
+          />
           <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
         </CardHeader>
 

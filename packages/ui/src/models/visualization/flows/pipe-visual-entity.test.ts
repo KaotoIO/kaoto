@@ -259,7 +259,8 @@ describe('Pipe', () => {
         mode: AddStepMode.ReplaceStep,
         data: {
           path: 'source',
-          icon: '/src/assets/components/log.svg',
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
         },
       });
 
@@ -279,7 +280,8 @@ describe('Pipe', () => {
         mode: AddStepMode.AppendStep,
         data: {
           path: 'steps.0',
-          icon: '/src/assets/components/log.svg',
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
         },
       });
 
@@ -300,7 +302,8 @@ describe('Pipe', () => {
         mode: AddStepMode.PrependStep,
         data: {
           path: 'steps.0',
-          icon: '/src/assets/components/log.svg',
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
         },
       });
 
@@ -321,7 +324,8 @@ describe('Pipe', () => {
         mode: AddStepMode.PrependStep,
         data: {
           path: 'sink',
-          icon: '/src/assets/components/log.svg',
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
         },
       });
 
@@ -348,7 +352,8 @@ describe('Pipe', () => {
         mode: AddStepMode.AppendStep,
         data: {
           path: 'steps.0',
-          icon: '/src/assets/components/log.svg',
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
         },
       });
 
@@ -431,7 +436,11 @@ describe('Pipe', () => {
     it.each(['source', 'sink', 'steps.1', '#'])(
       `should return the correct interaction for the '%s' processor`,
       (path) => {
-        const result = pipeVisualEntity.getNodeInteraction({ path });
+        const result = pipeVisualEntity.getNodeInteraction({
+          path,
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
+        });
         expect(result).toMatchSnapshot();
       },
     );
@@ -642,7 +651,8 @@ describe('Pipe', () => {
         mode: AddStepMode.AppendStep,
         data: {
           path: 'steps.0',
-          icon: '/src/assets/components/log.svg',
+          catalogKind: CatalogKind.Kamelet,
+          name: 'log-action',
         },
       });
 
