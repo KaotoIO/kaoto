@@ -150,6 +150,8 @@ declare global {
       editorClickRedoXTimes(repeatCount: number): Chainable<JQuery<Element>>;
       compareFileWithMonacoEditor(filePath: string): Chainable<JQuery<Element>>;
       // DataMapper
+      expandSourceBodyPanel(): Chainable<JQuery<Element>>;
+      expandParameterPanel(name: string): Chainable<JQuery<Element>>;
       attachSourceBodySchema(filePath: string): Chainable<JQuery<Element>>;
       attachTargetBodySchema(filePath: string): Chainable<JQuery<Element>>;
       addParameter(name: string): Chainable<JQuery<Element>>;
@@ -168,7 +170,9 @@ declare global {
       ): Chainable<JQuery<Element>>;
       checkMappingLineSelected(selected: boolean): Chainable<JQuery<Element>>;
       countMappingLines(num: number): Chainable<JQuery<Element>>;
-      getDataMapperNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
+      getDataMapperNode(nodePath: string[], panelClass?: string): Chainable<JQuery<HTMLElement>>;
+      getDataMapperSourceNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
+      getDataMapperTargetNode(nodePath: string[]): Chainable<JQuery<HTMLElement>>;
       engageMapping(sourceNodePath: string[], targetNodePath: string[], testXPath: string): Chainable<JQuery<Element>>;
       engageForEachMapping(
         sourceNodePath: string[],
