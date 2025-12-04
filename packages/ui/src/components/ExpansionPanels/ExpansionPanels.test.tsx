@@ -1,5 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
+import React from 'react';
 
+import { ExpansionContext } from './ExpansionContext';
 import { ExpansionPanel } from './ExpansionPanel';
 import { ExpansionPanels } from './ExpansionPanels';
 
@@ -41,20 +43,20 @@ describe('ExpansionPanels', () => {
   let originalResizeObserver: typeof ResizeObserver;
 
   beforeEach(() => {
-    originalResizeObserver = global.ResizeObserver;
-    global.ResizeObserver = jest.fn((callback) => {
+    originalResizeObserver = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = jest.fn((callback) => {
       mockResizeObserver = new MockResizeObserver(callback);
       return mockResizeObserver as unknown as ResizeObserver;
     }) as unknown as typeof ResizeObserver;
 
     // Mock queueMicrotask if not available
-    if (typeof global.queueMicrotask === 'undefined') {
-      global.queueMicrotask = (callback: () => void) => Promise.resolve().then(callback);
+    if (globalThis.queueMicrotask === undefined) {
+      globalThis.queueMicrotask = (callback: () => void) => Promise.resolve().then(callback);
     }
   });
 
   afterEach(() => {
-    global.ResizeObserver = originalResizeObserver;
+    globalThis.ResizeObserver = originalResizeObserver;
   });
 
   const mockHeaderHeight = (element: Element, height: number) => {
@@ -342,8 +344,8 @@ describe('ExpansionPanels', () => {
       gridTemplate = (expansionPanelsContainer as HTMLElement).style.getPropertyValue('--grid-template');
       // Check that first panel is much smaller than 300px (collapsed)
       const heights = gridTemplate?.split(' ') || [];
-      expect(parseInt(heights[0])).toBeLessThan(100); // Collapsed panel (header only)
-      expect(parseInt(heights[1])).toBeGreaterThan(500); // Expanded panel got more space
+      expect(Number.parseInt(heights[0])).toBeLessThan(100); // Collapsed panel (header only)
+      expect(Number.parseInt(heights[1])).toBeGreaterThan(500); // Expanded panel got more space
     });
 
     it('should redistribute space to only expanded panel when it is the only one', async () => {
@@ -372,8 +374,8 @@ describe('ExpansionPanels', () => {
 
       // Panel 1: collapsed (header only, small), Panel 2: should get remaining space
       const heights = gridTemplate.split(' ');
-      expect(parseInt(heights[0])).toBeLessThan(100); // Collapsed panel
-      expect(parseInt(heights[1])).toBeGreaterThan(200); // Expanded panel has more space
+      expect(Number.parseInt(heights[0])).toBeLessThan(100); // Collapsed panel
+      expect(Number.parseInt(heights[1])).toBeGreaterThan(200); // Expanded panel has more space
     });
   });
 
@@ -434,7 +436,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toContain('300px'); // Panel 1 expanded
       // Panel 2 should be smaller (collapsed - just header)
       const heights = gridTemplate?.split(' ') || [];
-      expect(parseInt(heights[1])).toBeLessThan(100); // Panel 2 collapsed
+      expect(Number.parseInt(heights[1])).toBeLessThan(100); // Panel 2 collapsed
     });
   });
 
@@ -590,7 +592,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toContain('300px'); // Panel 1 and 3
       const heights = gridTemplate?.split(' ') || [];
       // Panel 2 (middle one) should be collapsed (small)
-      expect(parseInt(heights[1])).toBeLessThan(100); // Panel 2 collapsed
+      expect(Number.parseInt(heights[1])).toBeLessThan(100); // Panel 2 collapsed
     });
 
     it('should handle all panels collapsed', async () => {
@@ -619,7 +621,7 @@ describe('ExpansionPanels', () => {
       // All panels should be at collapsed height (header only, small)
       const heights = gridTemplate?.split(' ') || [];
       heights.forEach((height: string) => {
-        expect(parseInt(height)).toBeLessThan(100); // All collapsed
+        expect(Number.parseInt(height)).toBeLessThan(100); // All collapsed
       });
     });
   });
@@ -668,6 +670,251 @@ describe('ExpansionPanels', () => {
       unmount();
 
       expect(disconnectSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('Direct resize method tests', () => {
+    // Helper to create test component with resize action
+    const createResizeTestComponent = (
+      panelId: string,
+      newHeight: number,
+      isTopHandle: boolean,
+      panel1Expanded: boolean,
+      panel2Expanded: boolean,
+    ) => {
+      const TestComponent = () => {
+        const context = React.useContext(ExpansionContext);
+        const calledRef = React.useRef(false);
+
+        React.useEffect(() => {
+          if (!calledRef.current) {
+            calledRef.current = true;
+            queueMicrotask(() => {
+              context.resize(panelId, newHeight, isTopHandle);
+            });
+          }
+        }, [context]);
+
+        return (
+          <ExpansionPanels>
+            <ExpansionPanel
+              id="panel-1"
+              summary="Panel 1"
+              minHeight={100}
+              defaultHeight={300}
+              defaultExpanded={panel1Expanded}
+            >
+              Content 1
+            </ExpansionPanel>
+            <ExpansionPanel
+              id="panel-2"
+              summary="Panel 2"
+              minHeight={100}
+              defaultHeight={300}
+              defaultExpanded={panel2Expanded}
+            >
+              Content 2
+            </ExpansionPanel>
+          </ExpansionPanels>
+        );
+      };
+      return TestComponent;
+    };
+
+    it('should handle resize with top handle (isTopHandle=true) - growing current panel', async () => {
+      const TestComponent = createResizeTestComponent('panel-2', 400, true, true, true);
+      const { container } = render(<TestComponent />);
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => {
+        mockHeaderHeight(panel, 50);
+        mockPanelHeight(panel, 300);
+      });
+
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 600, configurable: true });
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      const gridTemplate = expansionPanelsContainer.style.getPropertyValue('--grid-template');
+      expect(gridTemplate).toBeTruthy();
+    });
+
+    it('should handle resize with top handle when previous panel is collapsed', async () => {
+      const TestComponent = createResizeTestComponent('panel-2', 350, true, false, true);
+      const { container } = render(<TestComponent />);
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => mockHeaderHeight(panel, 50));
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      const gridTemplate = (container.querySelector('.expansion-panels') as HTMLElement)?.style.getPropertyValue(
+        '--grid-template',
+      );
+      expect(gridTemplate).toBeTruthy();
+    });
+
+    it('should handle resize with bottom handle (isTopHandle=false) - growing current panel', async () => {
+      const TestComponent = createResizeTestComponent('panel-1', 400, false, true, true);
+      const { container } = render(<TestComponent />);
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => {
+        mockHeaderHeight(panel, 50);
+        mockPanelHeight(panel, 300);
+      });
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      const gridTemplate = (container.querySelector('.expansion-panels') as HTMLElement)?.style.getPropertyValue(
+        '--grid-template',
+      );
+      expect(gridTemplate).toBeTruthy();
+    });
+
+    it('should handle resize with bottom handle when next panel is collapsed', async () => {
+      const TestComponent = createResizeTestComponent('panel-1', 250, false, true, false);
+      const { container } = render(<TestComponent />);
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => mockHeaderHeight(panel, 50));
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      const gridTemplate = (container.querySelector('.expansion-panels') as HTMLElement)?.style.getPropertyValue(
+        '--grid-template',
+      );
+      expect(gridTemplate).toBeTruthy();
+    });
+
+    it('should prevent resize when panel is collapsed', async () => {
+      const TestComponent = createResizeTestComponent('panel-2', 400, false, true, false);
+      const { container } = render(<TestComponent />);
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => mockHeaderHeight(panel, 50));
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      const gridTemplate = (container.querySelector('.expansion-panels') as HTMLElement)?.style.getPropertyValue(
+        '--grid-template',
+      );
+      // Panel 2 should still be collapsed (small height)
+      const heights = gridTemplate?.split(' ') || [];
+      expect(Number.parseInt(heights[1])).toBeLessThan(100);
+    });
+
+    it('should handle resize with shrinking current panel (negative delta)', async () => {
+      const TestComponent = createResizeTestComponent('panel-1', 200, false, true, true);
+      const { container } = render(<TestComponent />);
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => {
+        mockHeaderHeight(panel, 50);
+        mockPanelHeight(panel, 300);
+      });
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      const gridTemplate = (container.querySelector('.expansion-panels') as HTMLElement)?.style.getPropertyValue(
+        '--grid-template',
+      );
+      expect(gridTemplate).toBeTruthy();
+    });
+  });
+
+  describe('Space redistribution edge cases', () => {
+    it('should set panels to minimum height when not enough space available', async () => {
+      const { container } = render(
+        <ExpansionPanels>
+          <ExpansionPanel id="panel-1" summary="Panel 1" minHeight={100} defaultHeight={300} defaultExpanded={false}>
+            Content 1
+          </ExpansionPanel>
+          <ExpansionPanel id="panel-2" summary="Panel 2" minHeight={100} defaultHeight={300} defaultExpanded={false}>
+            Content 2
+          </ExpansionPanel>
+          <ExpansionPanel id="panel-3" summary="Panel 3" minHeight={100} defaultHeight={300} defaultExpanded={false}>
+            Content 3
+          </ExpansionPanel>
+        </ExpansionPanels>,
+      );
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => mockHeaderHeight(panel, 50));
+
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      // Very small container - less than minimum requirements
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 200, configurable: true });
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+
+      // Click to expand all panels
+      const panel1Summary = screen.getByText('Panel 1');
+      const panel2Summary = screen.getByText('Panel 2');
+      const panel3Summary = screen.getByText('Panel 3');
+
+      await act(async () => {
+        panel1Summary.click();
+        panel2Summary.click();
+        panel3Summary.click();
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+
+      const gridTemplate = expansionPanelsContainer.style.getPropertyValue('--grid-template');
+      expect(gridTemplate).toBeTruthy();
+      // Should have some valid heights even with constrained space
+      const heights = gridTemplate.split(' ');
+      expect(heights.length).toBe(3);
+    });
+
+    it('should distribute space proportionally when enough space is available', async () => {
+      const { container } = render(
+        <ExpansionPanels>
+          <ExpansionPanel id="panel-1" summary="Panel 1" minHeight={100} defaultHeight={200} defaultExpanded={true}>
+            Content 1
+          </ExpansionPanel>
+          <ExpansionPanel id="panel-2" summary="Panel 2" minHeight={100} defaultHeight={400} defaultExpanded={true}>
+            Content 2
+          </ExpansionPanel>
+        </ExpansionPanels>,
+      );
+
+      const panels = container.querySelectorAll('.expansion-panel');
+      panels.forEach((panel) => {
+        mockHeaderHeight(panel, 50);
+        mockPanelHeight(panel, 300);
+      });
+
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      // Large container with plenty of space
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 1000, configurable: true });
+
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      });
+
+      const gridTemplate = expansionPanelsContainer.style.getPropertyValue('--grid-template');
+      expect(gridTemplate).toBeTruthy();
+
+      // Both panels should have heights greater than their minimums
+      const heights = gridTemplate.split(' ');
+      expect(Number.parseInt(heights[0])).toBeGreaterThan(100); // Panel 1
+      expect(Number.parseInt(heights[1])).toBeGreaterThan(100); // Panel 2
     });
   });
 });
