@@ -59,7 +59,6 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           >
             <DocumentContent
               treeNode={sourceBodyTree.root}
-              documentId={sourceBodyNodeData.id}
               isReadOnly={isReadOnly}
               renderNodes={(childNode, readOnly) => (
                 <SourceDocumentNode

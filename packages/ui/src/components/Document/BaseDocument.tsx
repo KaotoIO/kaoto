@@ -21,7 +21,6 @@ import { NodeContainer } from './NodeContainer';
 
 type DocumentContentProps = {
   treeNode: DocumentTreeNode;
-  documentId: string;
   isReadOnly: boolean;
   renderNodes: (childNode: DocumentTreeNode, isReadOnly: boolean) => ReactNode;
 };

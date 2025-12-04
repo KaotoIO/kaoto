@@ -174,7 +174,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
       {hasSchema && parameterTree && (
         <DocumentContent
           treeNode={parameterTree.root}
-          documentId={parameterTree.documentId}
           isReadOnly={isReadOnly}
           renderNodes={(childNode, readOnly) => (
             <SourceDocumentNode
