@@ -81,12 +81,11 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   toVizNode: () => IVisualizationNode;
 
   getGroupIcons: () => { icon: string; title: string }[];
-
 }
 
 export interface BaseVisualCamelEntityConstructor {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  new(...args: any[]): BaseVisualCamelEntity;
+  new (...args: any[]): BaseVisualCamelEntity;
   isApplicable: (entity: unknown) => boolean;
 }
 

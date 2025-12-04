@@ -134,7 +134,7 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: R
 
   getGroupIcons(): { icon: 'play' | 'pause'; title: string }[] {
     const isAutoStartup = this.entityDef.route.autoStartup !== false;
-    
+
     return [
       {
         icon: isAutoStartup ? 'play' : 'pause',

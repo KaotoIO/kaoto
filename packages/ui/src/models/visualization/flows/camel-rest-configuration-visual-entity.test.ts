@@ -229,4 +229,12 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
     expect(entity.toJSON()).toEqual(restConfigurationDef);
   });
+
+  describe('getGroupIcons', () => {
+    it('should return empty array for rest configuration entity', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      expect(entity.getGroupIcons()).toEqual([]);
+    });
+  });
 });
