@@ -1,14 +1,5 @@
 .document {
-  &__container {
-    padding: var(--pf-t--global--spacer--xs) 0;
-  }
-
-  &__header {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-  }
-
+  // Actions used by DocumentHeader component
   &__actions {
     flex: 1;
     display: flex;
@@ -45,7 +36,7 @@
 }
 
 // ============================================================================
-// New ExpansionPanel-based architecture styles
+// ExpansionPanel-based architecture styles
 // ============================================================================
 
 // DocumentHeader - header component for ExpansionPanel summaries
@@ -60,7 +51,6 @@
   }
 
   &__title {
-    flex: 1;
     display: flex;
     align-items: center;
     min-width: 0; // Allow text truncation if needed
@@ -69,27 +59,6 @@
     // Remove default title margins
     h5 {
       margin: 0;
-    }
-  }
-
-  &__actions {
-    flex: 1;
-    flex-shrink: 0;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-
-    --pf-v6-c-action-list--child--spacer-base: 0.5rem;
-    --pf-v6-c-action-list--group--spacer-base: 0.5rem;
-
-    /* stylelint-disable-next-line selector-class-pattern */
-    .pf-v6-c-button {
-      --pf-v6-c-button--PaddingLeft: 0.5rem;
-      --pf-v6-c-button--PaddingRight: 0.5rem;
-
-      height: 1.75rem;
     }
   }
 
