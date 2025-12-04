@@ -164,4 +164,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   toJSON(): { restConfiguration: RestConfiguration } {
     return { restConfiguration: this.restConfigurationDef.restConfiguration };
   }
+
+  getGroupIcons(): { icon: string; title: string }[] {
+    return [];
+  }
 }
