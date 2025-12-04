@@ -2,6 +2,7 @@ import './ExpansionPanels.scss';
 
 import React, { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useRef } from 'react';
 
+import { applyConstrainedResize } from './expansion-utils';
 import { ExpansionContext, PanelData } from './ExpansionContext';
 
 // Special panel IDs with fixed ordering
@@ -179,42 +180,15 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children
         if (currentIdx === 0) return; // No panel above
 
         const [, prev] = panels[currentIdx - 1];
-
-        // Calculate the delta
-        // Positive delta = current grows, negative delta = current shrinks
-        const delta = newHeight - current.height;
-
-        // Constrain the resize based on min heights
-        // For collapsed panels, use collapsedHeight; for expanded panels, use minHeight
-        const prevMinHeight = prev.isExpanded ? prev.minHeight : getCollapsedHeight(prev);
-        const maxGrow = prev.height - prevMinHeight; // Prev can give up this much space
-        const maxShrink = current.height - current.minHeight; // Current can shrink this much
-
-        const actualDelta = delta > 0 ? Math.min(delta, maxGrow) : Math.max(delta, -maxShrink);
-
-        // Apply the constrained changes
-        current.height += actualDelta;
-        prev.height -= actualDelta;
+        const prevCollapsedHeight = getCollapsedHeight(prev);
+        applyConstrainedResize(current, prev, newHeight, prevCollapsedHeight);
       } else {
         // Bottom handle (normal panels) - resizes against panel BELOW
         if (currentIdx === panels.length - 1) return;
 
         const [, next] = panels[currentIdx + 1];
-
-        // Calculate the delta
-        const delta = newHeight - current.height;
-
-        // Constrain the resize based on min heights
-        // For collapsed panels, use collapsedHeight; for expanded panels, use minHeight
-        const nextMinHeight = next.isExpanded ? next.minHeight : getCollapsedHeight(next);
-        const maxGrow = next.height - nextMinHeight;
-        const maxShrink = current.height - current.minHeight;
-
-        const actualDelta = delta > 0 ? Math.min(delta, maxGrow) : Math.max(delta, -maxShrink);
-
-        // Apply the constrained changes
-        current.height += actualDelta;
-        next.height -= actualDelta;
+        const nextCollapsedHeight = getCollapsedHeight(next);
+        applyConstrainedResize(current, next, newHeight, nextCollapsedHeight);
       }
 
       // Update the grid template
@@ -373,7 +347,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren> = ({ children
   // Insert a spacer div before the Body panel ONLY to push it to the bottom
   const childrenArray = React.Children.toArray(children);
   const bodyIndex = childrenArray.findIndex(
-    (child) => React.isValidElement(child) && child.props && child.props.id === SOURCE_BODY_ID,
+    (child) => React.isValidElement(child) && child.props?.id === SOURCE_BODY_ID,
   );
 
   // Only add spacer if Body panel exists and is not the first child

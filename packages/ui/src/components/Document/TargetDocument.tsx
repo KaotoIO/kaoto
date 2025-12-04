@@ -98,7 +98,6 @@ export const TargetDocument: FunctionComponent<DocumentProps> = ({ document }) =
       {hasSchema && (
         <DocumentContent
           treeNode={tree.root}
-          documentId={documentId}
           isReadOnly={false}
           renderNodes={(childNode) => <TargetDocumentNode treeNode={childNode} documentId={documentId} rank={1} />}
         />
