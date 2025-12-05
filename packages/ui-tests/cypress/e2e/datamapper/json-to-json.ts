@@ -37,6 +37,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.attachParameterSchema('Cart', 'datamapper/jsonSchema/Cart.schema.json');
     cy.addParameter('OrderSequence');
 
+    // Expand parameter panels to make nodes visible for mapping
+    cy.expandParameterPanel('Account');
+
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
       ['document-doc-targetBody-Body', 'node-target-fj-string-OrderId'],
@@ -79,6 +82,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
       ['document-doc-targetBody-Body', 'node-target-fj-map-ShipTo', 'node-target-fj-string-Country'],
       "$Account-x/fn:map/fn:map[@key='Address']/fn:string[@key='Country']",
     );
+
+    // Expand Cart parameter panel to make nodes visible for mapping
+    cy.expandParameterPanel('Cart');
 
     cy.engageForEachMapping(
       ['document-doc-param-Cart', 'node-source-fj-map'],
@@ -129,6 +135,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.addParameter('Account');
     cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
 
+    // Expand parameter panel to make nodes visible for mapping
+    cy.expandParameterPanel('Account');
+
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
       ['document-doc-targetBody-Body', 'node-target-fj-string-OrderId'],
@@ -177,6 +186,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
     cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
     cy.addParameter('Account');
     cy.attachParameterSchema('Account', 'datamapper/jsonSchema/Account.schema.json');
+
+    // Expand parameter panel to make nodes visible for mapping
+    cy.expandParameterPanel('Account');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fj-string-AccountId'],
