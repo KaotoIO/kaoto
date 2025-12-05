@@ -291,6 +291,18 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     fromNode.getChildren()?.splice(0);
     fromNode.data.isGroup = false;
 
+    const normalizeGroups = (node: IVisualizationNode) => {
+      const children = node.getChildren() ?? [];
+
+      if (node.data.isGroup && children.length === 0) {
+        node.data.isGroup = false;
+      }
+
+      children.forEach((child) => normalizeGroups(child));
+    };
+
+    normalizeGroups(routeGroupNode);
+
     return routeGroupNode;
   }
 

@@ -38,21 +38,25 @@ export class FlowService {
 
     let node: CanvasNode;
 
-    const children = vizNodeParam.getChildren();
-    if (vizNodeParam.data.isGroup && children) {
+    const children = vizNodeParam.getChildren() ?? [];
+    const hasRealChildren = children.length > 0;
+
+    if (vizNodeParam.data.isGroup && hasRealChildren) {
       children.forEach((child) => {
         this.appendNodesAndEdges(child);
       });
 
-      const containerId = vizNodeParam.id;
-      node = this.getGroup(containerId, {
-        label: containerId,
-        children: children.map((child) => child.id),
+      node = this.getGroup(vizNodeParam.id, {
+        label: vizNodeParam.id,
+        children: children.map((c) => c.id),
         parentNode: vizNodeParam.getParentNode()?.id,
         data: { vizNode: vizNodeParam },
       });
     } else {
+      vizNodeParam.data.isGroup = false;
       node = this.getCanvasNode(vizNodeParam);
+      node.group = false;
+      node.children = [];
     }
 
     /** Add node */
@@ -82,9 +86,23 @@ export class FlowService {
 
   private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
+    const prev = vizNodeParam.getPreviousNode?.();
+    const next = vizNodeParam.getNextNode?.();
 
-    if (vizNodeParam.getNextNode() !== undefined) {
-      edges.push(this.getEdge(vizNodeParam.id, vizNodeParam.getNextNode()!.id));
+    const isGroup = vizNodeParam.data?.isGroup === true;
+    const hasChildren = (vizNodeParam.getChildren() ?? []).length > 0;
+
+    /**
+     *  Priority Rule 1: Normal flow
+     */
+    if (next) {
+      edges.push(this.getEdge(vizNodeParam.id, next.id));
+    } else if (isGroup && !hasChildren && prev) {
+      /**
+       *  Priority Rule 2 (Fallback):
+       * If node was a group like "choice" → now empty → keep it after its previous sibling
+       */
+      edges.push(this.getEdge(prev.id, vizNodeParam.id));
     }
 
     return edges;
