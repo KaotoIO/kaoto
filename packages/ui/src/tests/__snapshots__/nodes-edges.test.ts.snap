@@ -3,7 +3,7 @@
 exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
 [
   {
-    "children": undefined,
+    "children": [],
     "data": {
       "vizNode": VisualizationNode {
         "DISABLED_NODE_INTERACTION": {
@@ -66,6 +66,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "processor",
                     "componentName": undefined,
+                    "isGroup": false,
                     "name": "setHeader",
                     "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                     "processorName": "setHeader",
@@ -117,6 +118,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "processor",
                     "componentName": undefined,
+                    "isGroup": false,
                     "name": "log",
                     "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                     "processorName": "log",
@@ -166,6 +168,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "data": {
               "catalogKind": "component",
               "componentName": "sql",
+              "isGroup": false,
               "name": "sql",
               "path": "route.from.steps.1.to",
               "processorName": "to",
@@ -291,6 +294,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "component",
                   "componentName": "sql",
+                  "isGroup": false,
                   "name": "sql",
                   "path": "route.from.steps.1.to",
                   "processorName": "to",
@@ -427,6 +431,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "setHeader",
                         "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                         "processorName": "setHeader",
@@ -478,6 +483,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "log",
                         "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                         "processorName": "log",
@@ -527,6 +533,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "component",
                   "componentName": "sql",
+                  "isGroup": false,
                   "name": "sql",
                   "path": "route.from.steps.1.to",
                   "processorName": "to",
@@ -555,6 +562,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "data": {
                 "catalogKind": "component",
                 "componentName": "sql",
+                "isGroup": false,
                 "name": "sql",
                 "path": "route.from.steps.1.to",
                 "processorName": "to",
@@ -602,6 +610,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "data": {
                           "catalogKind": "processor",
                           "componentName": undefined,
+                          "isGroup": false,
                           "name": "setHeader",
                           "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                           "processorName": "setHeader",
@@ -653,6 +662,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "data": {
                           "catalogKind": "processor",
                           "componentName": undefined,
+                          "isGroup": false,
                           "name": "log",
                           "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                           "processorName": "log",
@@ -767,6 +777,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "previousNode": undefined,
       },
     },
+    "group": false,
     "height": 75,
     "id": "test|route.from",
     "parentNode": "test|route",
@@ -775,7 +786,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "width": 90,
   },
   {
-    "children": undefined,
+    "children": [],
     "data": {
       "vizNode": VisualizationNode {
         "DISABLED_NODE_INTERACTION": {
@@ -792,6 +803,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "data": {
           "catalogKind": "processor",
           "componentName": undefined,
+          "isGroup": false,
           "name": "setHeader",
           "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
           "processorName": "setHeader",
@@ -863,6 +875,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "data": {
                       "catalogKind": "processor",
                       "componentName": undefined,
+                      "isGroup": false,
                       "name": "log",
                       "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                       "processorName": "log",
@@ -912,6 +925,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "data": {
                 "catalogKind": "component",
                 "componentName": "sql",
+                "isGroup": false,
                 "name": "sql",
                 "path": "route.from.steps.1.to",
                 "processorName": "to",
@@ -1087,6 +1101,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "component",
                     "componentName": "sql",
+                    "isGroup": false,
                     "name": "sql",
                     "path": "route.from.steps.1.to",
                     "processorName": "to",
@@ -1221,6 +1236,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "data": {
                       "catalogKind": "component",
                       "componentName": "sql",
+                      "isGroup": false,
                       "name": "sql",
                       "path": "route.from.steps.1.to",
                       "processorName": "to",
@@ -1311,6 +1327,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "previousNode": undefined,
       },
     },
+    "group": false,
     "height": 75,
     "id": "test|route.from.steps.0.choice.when.0.steps.0.setHeader",
     "parentNode": "test|route.from.steps.0.choice.when.0",
@@ -1350,6 +1367,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "data": {
               "catalogKind": "processor",
               "componentName": undefined,
+              "isGroup": false,
               "name": "setHeader",
               "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
               "processorName": "setHeader",
@@ -1411,6 +1429,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "processor",
                     "componentName": undefined,
+                    "isGroup": false,
                     "name": "log",
                     "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                     "processorName": "log",
@@ -1460,6 +1479,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "data": {
               "catalogKind": "component",
               "componentName": "sql",
+              "isGroup": false,
               "name": "sql",
               "path": "route.from.steps.1.to",
               "processorName": "to",
@@ -1635,6 +1655,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "component",
                   "componentName": "sql",
+                  "isGroup": false,
                   "name": "sql",
                   "path": "route.from.steps.1.to",
                   "processorName": "to",
@@ -1769,6 +1790,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "component",
                     "componentName": "sql",
+                    "isGroup": false,
                     "name": "sql",
                     "path": "route.from.steps.1.to",
                     "processorName": "to",
@@ -1867,7 +1889,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "type": "group",
   },
   {
-    "children": undefined,
+    "children": [],
     "data": {
       "vizNode": VisualizationNode {
         "DISABLED_NODE_INTERACTION": {
@@ -1884,6 +1906,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "data": {
           "catalogKind": "processor",
           "componentName": undefined,
+          "isGroup": false,
           "name": "log",
           "path": "route.from.steps.0.choice.otherwise.steps.0.log",
           "processorName": "log",
@@ -1954,6 +1977,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "data": {
                       "catalogKind": "processor",
                       "componentName": undefined,
+                      "isGroup": false,
                       "name": "setHeader",
                       "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                       "processorName": "setHeader",
@@ -2004,6 +2028,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "data": {
                 "catalogKind": "component",
                 "componentName": "sql",
+                "isGroup": false,
                 "name": "sql",
                 "path": "route.from.steps.1.to",
                 "processorName": "to",
@@ -2179,6 +2204,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "component",
                     "componentName": "sql",
+                    "isGroup": false,
                     "name": "sql",
                     "path": "route.from.steps.1.to",
                     "processorName": "to",
@@ -2313,6 +2339,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "data": {
                       "catalogKind": "component",
                       "componentName": "sql",
+                      "isGroup": false,
                       "name": "sql",
                       "path": "route.from.steps.1.to",
                       "processorName": "to",
@@ -2403,6 +2430,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "previousNode": undefined,
       },
     },
+    "group": false,
     "height": 75,
     "id": "test|route.from.steps.0.choice.otherwise.steps.0.log",
     "parentNode": "test|route.from.steps.0.choice.otherwise",
@@ -2442,6 +2470,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "data": {
               "catalogKind": "processor",
               "componentName": undefined,
+              "isGroup": false,
               "name": "log",
               "path": "route.from.steps.0.choice.otherwise.steps.0.log",
               "processorName": "log",
@@ -2502,6 +2531,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "processor",
                     "componentName": undefined,
+                    "isGroup": false,
                     "name": "setHeader",
                     "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                     "processorName": "setHeader",
@@ -2552,6 +2582,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "data": {
               "catalogKind": "component",
               "componentName": "sql",
+              "isGroup": false,
               "name": "sql",
               "path": "route.from.steps.1.to",
               "processorName": "to",
@@ -2727,6 +2758,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "component",
                   "componentName": "sql",
+                  "isGroup": false,
                   "name": "sql",
                   "path": "route.from.steps.1.to",
                   "processorName": "to",
@@ -2861,6 +2893,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "component",
                     "componentName": "sql",
+                    "isGroup": false,
                     "name": "sql",
                     "path": "route.from.steps.1.to",
                     "processorName": "to",
@@ -3003,6 +3036,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "processor",
                   "componentName": undefined,
+                  "isGroup": false,
                   "name": "setHeader",
                   "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                   "processorName": "setHeader",
@@ -3054,6 +3088,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "processor",
                   "componentName": undefined,
+                  "isGroup": false,
                   "name": "log",
                   "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                   "processorName": "log",
@@ -3103,6 +3138,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "data": {
             "catalogKind": "component",
             "componentName": "sql",
+            "isGroup": false,
             "name": "sql",
             "path": "route.from.steps.1.to",
             "processorName": "to",
@@ -3278,6 +3314,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "data": {
                 "catalogKind": "component",
                 "componentName": "sql",
+                "isGroup": false,
                 "name": "sql",
                 "path": "route.from.steps.1.to",
                 "processorName": "to",
@@ -3412,6 +3449,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "component",
                   "componentName": "sql",
+                  "isGroup": false,
                   "name": "sql",
                   "path": "route.from.steps.1.to",
                   "processorName": "to",
@@ -3508,7 +3546,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
     "type": "group",
   },
   {
-    "children": undefined,
+    "children": [],
     "data": {
       "vizNode": VisualizationNode {
         "DISABLED_NODE_INTERACTION": {
@@ -3525,6 +3563,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "data": {
           "catalogKind": "component",
           "componentName": "sql",
+          "isGroup": false,
           "name": "sql",
           "path": "route.from.steps.1.to",
           "processorName": "to",
@@ -3605,6 +3644,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "data": {
                           "catalogKind": "processor",
                           "componentName": undefined,
+                          "isGroup": false,
                           "name": "setHeader",
                           "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                           "processorName": "setHeader",
@@ -3656,6 +3696,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "data": {
                           "catalogKind": "processor",
                           "componentName": undefined,
+                          "isGroup": false,
                           "name": "log",
                           "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                           "processorName": "log",
@@ -3736,6 +3777,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "setHeader",
                         "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                         "processorName": "setHeader",
@@ -3787,6 +3829,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "log",
                         "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                         "processorName": "log",
@@ -3962,6 +4005,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "processor",
                     "componentName": undefined,
+                    "isGroup": false,
                     "name": "setHeader",
                     "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                     "processorName": "setHeader",
@@ -4013,6 +4057,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "data": {
                     "catalogKind": "processor",
                     "componentName": undefined,
+                    "isGroup": false,
                     "name": "log",
                     "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                     "processorName": "log",
@@ -4275,6 +4320,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         },
       },
     },
+    "group": false,
     "height": 75,
     "id": "test|route.from.steps.1.to",
     "parentNode": "test|route",
@@ -4362,6 +4408,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "setHeader",
                         "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                         "processorName": "setHeader",
@@ -4413,6 +4460,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "log",
                         "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                         "processorName": "log",
@@ -4462,6 +4510,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "data": {
                   "catalogKind": "component",
                   "componentName": "sql",
+                  "isGroup": false,
                   "name": "sql",
                   "path": "route.from.steps.1.to",
                   "processorName": "to",
@@ -4517,6 +4566,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "data": {
                       "catalogKind": "processor",
                       "componentName": undefined,
+                      "isGroup": false,
                       "name": "setHeader",
                       "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                       "processorName": "setHeader",
@@ -4568,6 +4618,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "data": {
                       "catalogKind": "processor",
                       "componentName": undefined,
+                      "isGroup": false,
                       "name": "log",
                       "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                       "processorName": "log",
@@ -4617,6 +4668,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "data": {
                 "catalogKind": "component",
                 "componentName": "sql",
+                "isGroup": false,
                 "name": "sql",
                 "path": "route.from.steps.1.to",
                 "processorName": "to",
@@ -4670,6 +4722,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "data": {
               "catalogKind": "component",
               "componentName": "sql",
+              "isGroup": false,
               "name": "sql",
               "path": "route.from.steps.1.to",
               "processorName": "to",
@@ -4717,6 +4770,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "setHeader",
                         "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
                         "processorName": "setHeader",
@@ -4768,6 +4822,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "data": {
                         "catalogKind": "processor",
                         "componentName": undefined,
+                        "isGroup": false,
                         "name": "log",
                         "path": "route.from.steps.0.choice.otherwise.steps.0.log",
                         "processorName": "log",
