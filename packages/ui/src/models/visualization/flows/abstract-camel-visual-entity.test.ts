@@ -576,4 +576,30 @@ describe('AbstractCamelVisualEntity', () => {
       });
     });
   });
+
+  describe('toVizNode', () => {
+    it('should remove isGroup flag when a group has no children', () => {
+      const routeEntity = new CamelRouteVisualEntity({
+        route: {
+          id: 'route-1234',
+          from: { uri: 'timer:clock', steps: [{ choice: {} }] },
+        },
+      });
+
+      const routeNode = routeEntity.toVizNode();
+      const choiceNode = routeNode.getChildren()?.[1];
+
+      expect(choiceNode?.data.isGroup).toBe(false);
+
+      choiceNode
+        ?.getChildren()
+        ?.slice()
+        .forEach((child) => child.removeChild());
+
+      const updatedViz = routeEntity.toVizNode();
+      const updatedChoiceNode = updatedViz.getChildren()?.[1];
+
+      expect(updatedChoiceNode?.data.isGroup).toBe(false);
+    });
+  });
 });
