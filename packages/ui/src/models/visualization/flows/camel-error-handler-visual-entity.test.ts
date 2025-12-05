@@ -194,4 +194,11 @@ describe('CamelErrorHandlerVisualEntity', () => {
 
     expect(entity.toJSON()).toEqual(errorHandlerDef);
   });
+
+  describe('getGroupIcons', () => {
+    it('should return empty array for error handler entity', () => {
+      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+      expect(entity.getGroupIcons()).toEqual([]);
+    });
+  });
 });

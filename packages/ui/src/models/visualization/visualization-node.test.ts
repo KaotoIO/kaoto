@@ -470,4 +470,32 @@ describe('VisualizationNode', () => {
       expect(fromNode!.getChildren()).toHaveLength(0);
     });
   });
+
+  describe('getGroupIcons', () => {
+    it('should delegate to base entity', () => {
+      const mockEntity = {
+        getGroupIcons: jest.fn().mockReturnValue([{ icon: 'play', title: 'Enabled' }]),
+      } as unknown as BaseVisualCamelEntity;
+
+      const node = createVisualizationNode('test-node', {
+        entity: mockEntity,
+        catalogKind: CatalogKind.Entity,
+        name: 'test',
+        path: 'route',
+      });
+
+      expect(node.getGroupIcons()).toEqual([{ icon: 'play', title: 'Enabled' }]);
+      expect(mockEntity.getGroupIcons).toHaveBeenCalled();
+    });
+
+    it('should return empty array when entity is undefined', () => {
+      const node = createVisualizationNode('test-node', {
+        catalogKind: CatalogKind.Entity,
+        name: 'test',
+        path: 'route',
+      });
+
+      expect(node.getGroupIcons()).toEqual([]);
+    });
+  });
 });
