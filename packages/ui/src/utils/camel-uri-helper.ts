@@ -63,6 +63,10 @@ export class CamelUriHelper {
     }, {} as ParsedParameters);
   }
 
+  private static isExpression(value: string): boolean {
+    return /^\s*(\{\{.*\}\}|\$\{.*\})\s*$/.test(value);
+  }
+
   private static createQueryString(parameters: ParsedParameters): string {
     if (!parameters || Object.keys(parameters).length === 0) {
       return '';
@@ -70,7 +74,11 @@ export class CamelUriHelper {
 
     return Object.keys(parameters)
       .filter((key) => parameters[key] !== undefined)
-      .map((key) => `${key}=${encodeURIComponent(parameters[key].toString())}`)
+      .map((key) => {
+        const rawValue = parameters[key].toString();
+        const value = this.isExpression(rawValue) ? rawValue : encodeURIComponent(rawValue);
+        return `${key}=${value}`;
+      })
       .join('&');
   }
 

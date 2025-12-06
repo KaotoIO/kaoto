@@ -351,6 +351,39 @@ describe('CamelUriHelper', () => {
     );
   });
 
+  describe('expression handling in query parameters', () => {
+    it('should not encode {{ }} expression placeholders', () => {
+      const result = CamelUriHelper['getUriStringFromParameters'](
+        'timer',
+        'timer:timerName',
+        { period: '{{demo.period}}' }
+      );
+
+      expect(result).toBe('timer?period={{demo.period}}');
+    });
+
+    it('should not encode ${ } expression placeholders', () => {
+      const result = CamelUriHelper['getUriStringFromParameters'](
+        'direct',
+        'direct:channel',
+        { headerValue: '${header.foo}' }
+      );
+
+      expect(result).toBe('direct?headerValue=${header.foo}');
+    });
+
+    it('should still encode literal values when needed', () => {
+      const result = CamelUriHelper['getUriStringFromParameters'](
+        'timer',
+        'timer:timerName',
+        { custom: 'value with space' }
+      );
+
+      expect(result).toBe('timer?custom=value%20with%20space');
+    });
+  });
+
+
   describe('getParametersFromQueryString', () => {
     it.each([
       { queryString: undefined, result: {} },
