@@ -1,7 +1,7 @@
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { BaseDocument } from '../models/datamapper/document';
+import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
-import { NS_XML_SCHEMA } from '../models/datamapper/xslt';
 import {
   extensionComplexXsd,
   restrictionComplexXsd,
@@ -10,8 +10,8 @@ import {
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { QName } from '../xml-schema-ts/QName';
+import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaField } from './xml-schema-document-model.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 describe('XmlSchemaDocumentUtilService', () => {
@@ -19,10 +19,10 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should return the first element from an XML Schema', () => {
       const doc = TestUtil.createSourceOrderDoc();
 
-      const firstElement = XmlSchemaDocumentUtilService.getFirstElement(doc.xmlSchema);
+      const firstElement = XmlSchemaDocumentUtilService.getFirstElement(doc.xmlSchemaCollection);
 
       expect(firstElement).toBeDefined();
-      expect(firstElement.getName()).toBeTruthy();
+      expect(firstElement!.getName()).toBeTruthy();
     });
   });
 
@@ -170,16 +170,18 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'extension.xsd': extensionComplexXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(extensionResult.validationStatus).toBe('success');
+      const doc = extensionResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
       const requestField = doc.fields.find((f) => f.name === 'Request');
       if (!requestField) throw new Error('Request field not found');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
+      const baseResult = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
 
-      expect(result.type).toBe(Types.Container);
-      expect(result.typeQName).toEqual(new QName('http://www.example.com/TEST', 'BaseRequest'));
+      expect(baseResult.type).toBe(Types.Container);
+      expect(baseResult.typeQName).toEqual(new QName('http://www.example.com/TEST', 'BaseRequest'));
     });
 
     it('should handle schema with restriction types', () => {
@@ -189,16 +191,22 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'restriction.xsd': restrictionComplexXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const restrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(restrictionResult.validationStatus).toBe('success');
+      const doc = restrictionResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/RESTRICT', xs: NS_XML_SCHEMA };
 
       const addressField = doc.fields.find((f) => f.name === 'Address');
       if (!addressField) throw new Error('Address field not found');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:BaseAddress', namespaceMap, addressField);
+      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
+        'ns0:BaseAddress',
+        namespaceMap,
+        addressField,
+      );
 
-      expect(result.type).toBe(Types.Container);
-      expect(result.typeQName).toEqual(new QName('http://www.example.com/RESTRICT', 'BaseAddress'));
+      expect(overrideResult.type).toBe(Types.Container);
+      expect(overrideResult.typeQName).toEqual(new QName('http://www.example.com/RESTRICT', 'BaseAddress'));
     });
 
     it('should return FORCE variant when overriding with incompatible type', () => {
@@ -219,7 +227,9 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'extension.xsd': extensionComplexXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(extensionResult.validationStatus).toBe('success');
+      const doc = extensionResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
       const requestField = doc.fields.find((f) => f.name === 'Request');
@@ -228,10 +238,14 @@ describe('XmlSchemaDocumentUtilService', () => {
       requestField.originalType = Types.Container;
       requestField.originalTypeQName = new QName('http://www.example.com/TEST', 'Message');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
+      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
+        'ns0:BaseRequest',
+        namespaceMap,
+        requestField,
+      );
 
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
-      expect(result.type).toBe(Types.Container);
+      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
     });
 
     it('should return SAFE variant when re-overriding with compatible restriction type', () => {
@@ -241,7 +255,9 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'restriction.xsd': restrictionComplexXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const restrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(restrictionResult.validationStatus).toBe('success');
+      const doc = restrictionResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/RESTRICT', xs: NS_XML_SCHEMA };
 
       const addressField = doc.fields.find((f) => f.name === 'Address');
@@ -250,10 +266,14 @@ describe('XmlSchemaDocumentUtilService', () => {
       addressField.originalType = Types.Container;
       addressField.originalTypeQName = new QName('http://www.example.com/RESTRICT', 'BaseAddress');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:SimpleAddress', namespaceMap, addressField);
+      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
+        'ns0:SimpleAddress',
+        namespaceMap,
+        addressField,
+      );
 
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
-      expect(result.type).toBe(Types.Container);
+      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
     });
 
     it('should return FORCE variant when re-overriding with incompatible container type', () => {
@@ -263,7 +283,9 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'extension.xsd': extensionComplexXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(extensionResult.validationStatus).toBe('success');
+      const doc = extensionResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
       const requestField = doc.fields.find((f) => f.name === 'Request');
@@ -272,10 +294,14 @@ describe('XmlSchemaDocumentUtilService', () => {
       requestField.originalType = Types.Container;
       requestField.originalTypeQName = new QName('http://www.example.com/TEST', 'UnrelatedType');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
+      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
+        'ns0:BaseRequest',
+        namespaceMap,
+        requestField,
+      );
 
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
-      expect(result.type).toBe(Types.Container);
+      expect(overrideResult.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(overrideResult.type).toBe(Types.Container);
     });
 
     it('should return SAFE variant when re-overriding with compatible derived simple type', () => {
@@ -285,7 +311,9 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'simple.xsd': simpleTypeInheritanceXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const simpleInheritResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(simpleInheritResult.validationStatus).toBe('success');
+      const doc = simpleInheritResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/SIMPLEINHERIT', xs: NS_XML_SCHEMA };
 
       const extendedValueField = doc.fields.find((f) => f.name === 'ExtendedValue');
@@ -294,14 +322,14 @@ describe('XmlSchemaDocumentUtilService', () => {
       extendedValueField.originalType = Types.Container;
       extendedValueField.originalTypeQName = new QName('http://www.example.com/SIMPLEINHERIT', 'ExtendedValueType');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride(
+      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
         'ns0:ComplexExtendingSimple',
         namespaceMap,
         extendedValueField,
       );
 
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
-      expect(result.type).toBe(Types.Container);
+      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
     });
 
     it('should return SAFE variant when overriding with simple type that restricts base simple type', () => {
@@ -311,7 +339,9 @@ describe('XmlSchemaDocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'simple.xsd': simpleTypeRestrictionXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const simpleRestrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(simpleRestrictionResult.validationStatus).toBe('success');
+      const doc = simpleRestrictionResult.document!;
       const namespaceMap = { ns0: 'http://www.example.com/SIMPLETYPE', xs: NS_XML_SCHEMA };
 
       const ageField = doc.fields.find((f) => f.name === 'Age');
@@ -320,10 +350,10 @@ describe('XmlSchemaDocumentUtilService', () => {
       ageField.originalType = Types.Container;
       ageField.originalTypeQName = new QName('http://www.example.com/SIMPLETYPE', 'BaseInteger');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:AgeType', namespaceMap, ageField);
+      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:AgeType', namespaceMap, ageField);
 
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
-      expect(result.type).toBe(Types.Container);
+      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
     });
   });
 

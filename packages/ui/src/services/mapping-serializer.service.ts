@@ -22,7 +22,7 @@ import {
   ValueType,
   WhenItem,
 } from '../models/datamapper/mapping';
-import { NS_XSL } from '../models/datamapper/xslt';
+import { NS_XSL } from '../models/datamapper/standard-namespaces';
 import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon } from './mapping-serializer-json-addon';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';

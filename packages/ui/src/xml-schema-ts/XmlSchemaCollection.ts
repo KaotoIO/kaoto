@@ -132,6 +132,15 @@ export class XmlSchemaCollection {
     return Array.from(this.schemas.values());
   }
 
+  getUserSchemas(): XmlSchema[] {
+    const standardNamespaces = new Set(['http://www.w3.org/2001/XMLSchema', 'http://www.w3.org/XML/1998/namespace']);
+
+    return Array.from(this.schemas.values()).filter((schema) => {
+      const targetNs = schema.getTargetNamespace();
+      return !targetNs || !standardNamespaces.has(targetNs);
+    });
+  }
+
   init(): void {
     /*
      * Defined in section 4.

@@ -26,7 +26,7 @@ import { DocumentService } from './document.service';
 import { MappingService } from './mapping.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import { XmlSchemaDocument } from './xml-schema-document-model.service';
+import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XPathService } from './xpath/xpath.service';
 
 describe('MappingService', () => {

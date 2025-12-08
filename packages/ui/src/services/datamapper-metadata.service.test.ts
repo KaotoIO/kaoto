@@ -6,8 +6,10 @@ import { IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/me
 import { TypeOverrideVariant } from '../models/datamapper/types';
 import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
 import { EntitiesContextResult, IMetadataApi } from '../providers';
+import { commonTypesJsonSchema, customerJsonSchema, orderJsonSchema } from '../stubs/datamapper/data-mapper';
 import { XSLT_COMPONENT_NAME } from '../utils';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { EMPTY_XSL } from './mapping-serializer.service';
 
 describe('DataMapperMetadataService', () => {
@@ -311,6 +313,65 @@ describe('DataMapperMetadataService', () => {
       expect(result.sourceBody.rootElementChoice).toBeUndefined();
     });
 
+    it('should restore JSON primary schema from metadata', async () => {
+      const metadata: IDataMapperMetadata = {
+        xsltPath: 'test.xsl',
+        sourceBody: {
+          type: DocumentDefinitionType.JSON_SCHEMA,
+          filePath: ['Order.schema.json', 'Customer.schema.json', 'CommonTypes.schema.json'],
+          rootElementChoice: { namespaceUri: '', name: 'Customer.schema.json' },
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      };
+
+      mockApi.getResourceContent.mockImplementation((path) => {
+        if (path === 'Order.schema.json') return Promise.resolve(orderJsonSchema);
+        if (path === 'Customer.schema.json') return Promise.resolve(customerJsonSchema);
+        if (path === 'CommonTypes.schema.json') return Promise.resolve(commonTypesJsonSchema);
+        return Promise.resolve(undefined);
+      });
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody.rootElementChoice).toBeDefined();
+      expect(result.sourceBody.rootElementChoice?.name).toBe('Customer.schema.json');
+
+      const docResult = JsonSchemaDocumentService.createJsonSchemaDocument(result.sourceBody);
+      if (docResult.validationStatus !== 'success') {
+        throw new Error(`Validation failed: ${docResult.validationMessage}`);
+      }
+      const root = docResult.document!.fields[0];
+      const customerId = root.fields.find((f) => f.key === 'customerId');
+      expect(customerId).toBeDefined();
+    });
+
+    it('should handle metadata without rootElementChoice (backward compatibility)', async () => {
+      const metadata: IDataMapperMetadata = {
+        xsltPath: 'test.xsl',
+        sourceBody: {
+          type: DocumentDefinitionType.JSON_SCHEMA,
+          filePath: ['Order.schema.json', 'Customer.schema.json', 'CommonTypes.schema.json'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      };
+
+      mockApi.getResourceContent.mockImplementation((path) => {
+        if (path === 'Order.schema.json') return Promise.resolve(orderJsonSchema);
+        if (path === 'Customer.schema.json') return Promise.resolve(customerJsonSchema);
+        if (path === 'CommonTypes.schema.json') return Promise.resolve(commonTypesJsonSchema);
+        return Promise.resolve(undefined);
+      });
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody.rootElementChoice).toBeUndefined();
+
+      const docResult = JsonSchemaDocumentService.createJsonSchemaDocument(result.sourceBody);
+      expect(docResult.validationStatus).toBe('success');
+    });
+
     it('should handle empty source parameters', async () => {
       const metadata: IDataMapperMetadata = {
         sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -491,6 +552,27 @@ describe('DataMapperMetadataService', () => {
 
       expect(metadata.sourceBody.type).toBe(DocumentDefinitionType.XML_SCHEMA);
       expect(metadata.sourceBody.rootElementChoice).toBeUndefined();
+    });
+
+    it('should persist JSON primary schema to metadata via rootElementChoice', async () => {
+      const metadata = DataMapperMetadataService.createMetadata('test.xsl');
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        undefined,
+        {
+          'Order.schema.json': orderJsonSchema,
+          'Customer.schema.json': customerJsonSchema,
+          'CommonTypes.schema.json': commonTypesJsonSchema,
+        },
+        { namespaceUri: '', name: 'Customer.schema.json' },
+      );
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
+
+      expect(metadata.sourceBody.rootElementChoice).toBeDefined();
+      expect(metadata.sourceBody.rootElementChoice?.name).toBe('Customer.schema.json');
     });
   });
 

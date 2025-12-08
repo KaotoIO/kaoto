@@ -1,9 +1,9 @@
-import { IField, IParentType } from '../models/datamapper/document';
+import { IField, IParentType, RootElementOption } from '../models/datamapper/document';
+import { NS_XML, NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
-import { NS_XML_SCHEMA } from '../models/datamapper/xslt';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
-  XmlSchema,
+  XmlSchemaCollection,
   XmlSchemaComplexContentExtension,
   XmlSchemaComplexContentRestriction,
   XmlSchemaComplexType,
@@ -14,7 +14,7 @@ import {
 import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { DocumentUtilService } from './document-util.service';
-import { XmlSchemaDocument } from './xml-schema-document-model.service';
+import { XmlSchemaDocument } from './xml-schema-document.model';
 
 /**
  * Utility service for XML Schema document operations.
@@ -26,12 +26,18 @@ import { XmlSchemaDocument } from './xml-schema-document-model.service';
  */
 export class XmlSchemaDocumentUtilService {
   /**
-   * Retrieves the first top-level element from an XML Schema.
-   * @param xmlSchema - The XML Schema to search
-   * @returns The first element found in the schema
+   * Retrieves the first top-level element from an XML Schema collection.
+   * @param source - The XmlSchemaCollection to search
+   * @returns The first element found in the schema(s)
    */
-  static getFirstElement(xmlSchema: XmlSchema): XmlSchemaElement {
-    return xmlSchema.getElements().values().next().value;
+  static getFirstElement(source: XmlSchemaCollection): XmlSchemaElement | undefined {
+    for (const schema of source.getXmlSchemas()) {
+      const firstElement = schema.getElements().values().next().value;
+      if (firstElement) {
+        return firstElement;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -104,35 +110,39 @@ export class XmlSchemaDocumentUtilService {
     }
 
     const ownerDoc = field.ownerDocument;
-    if (!('xmlSchema' in ownerDoc)) {
+    if (!('xmlSchemaCollection' in ownerDoc)) {
       return false;
     }
 
     const xmlDoc = ownerDoc as XmlSchemaDocument;
-    const newSchemaType = xmlDoc.xmlSchema.getSchemaTypes().get(newTypeQName);
+    const newSchemaType = xmlDoc.xmlSchemaCollection.getTypeByQName(newTypeQName);
     const originalSchemaType =
-      field.originalTypeQName && xmlDoc.xmlSchema.getSchemaTypes().get(field.originalTypeQName);
+      field.originalTypeQName && xmlDoc.xmlSchemaCollection.getTypeByQName(field.originalTypeQName);
 
     if (!newSchemaType || !originalSchemaType) {
       return false;
     }
 
-    return XmlSchemaDocumentUtilService.isExtensionOrRestriction(newSchemaType, originalSchemaType, xmlDoc.xmlSchema);
+    return XmlSchemaDocumentUtilService.isExtensionOrRestriction(
+      newSchemaType,
+      originalSchemaType,
+      xmlDoc.xmlSchemaCollection,
+    );
   }
 
   private static isExtensionOrRestriction(
     derivedType: XmlSchemaType,
     baseType: XmlSchemaType,
-    schema: XmlSchema,
+    collection: XmlSchemaCollection,
   ): boolean {
     if (derivedType === baseType) return true;
 
     if (derivedType instanceof XmlSchemaComplexType) {
-      return XmlSchemaDocumentUtilService.checkComplexTypeInheritance(derivedType, baseType, schema);
+      return XmlSchemaDocumentUtilService.checkComplexTypeInheritance(derivedType, baseType, collection);
     }
 
     if (derivedType instanceof XmlSchemaSimpleType) {
-      return XmlSchemaDocumentUtilService.checkSimpleTypeInheritance(derivedType, baseType, schema);
+      return XmlSchemaDocumentUtilService.checkSimpleTypeInheritance(derivedType, baseType, collection);
     }
 
     return false;
@@ -141,7 +151,7 @@ export class XmlSchemaDocumentUtilService {
   private static checkComplexTypeInheritance(
     derivedType: XmlSchemaComplexType,
     baseType: XmlSchemaType,
-    schema: XmlSchema,
+    collection: XmlSchemaCollection,
   ): boolean {
     const contentModel = derivedType.getContentModel();
     if (!contentModel) return false;
@@ -154,32 +164,32 @@ export class XmlSchemaDocumentUtilService {
       return false;
     }
 
-    return XmlSchemaDocumentUtilService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, schema);
+    return XmlSchemaDocumentUtilService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, collection);
   }
 
   private static checkSimpleTypeInheritance(
     derivedType: XmlSchemaSimpleType,
     baseType: XmlSchemaType,
-    schema: XmlSchema,
+    collection: XmlSchemaCollection,
   ): boolean {
     const content = derivedType.getContent();
     if (!(content instanceof XmlSchemaSimpleTypeRestriction)) return false;
 
-    return XmlSchemaDocumentUtilService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, schema);
+    return XmlSchemaDocumentUtilService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, collection);
   }
 
   private static checkBaseTypeMatch(
     baseTypeName: QName | null,
     targetBaseType: XmlSchemaType,
-    schema: XmlSchema,
+    collection: XmlSchemaCollection,
   ): boolean {
     if (!baseTypeName) return false;
 
-    const baseSchemaType = schema.getSchemaTypes().get(baseTypeName);
+    const baseSchemaType = collection.getTypeByQName(baseTypeName);
     if (baseSchemaType === targetBaseType) return true;
     if (!baseSchemaType) return false;
 
-    return XmlSchemaDocumentUtilService.isExtensionOrRestriction(baseSchemaType, targetBaseType, schema);
+    return XmlSchemaDocumentUtilService.isExtensionOrRestriction(baseSchemaType, targetBaseType, collection);
   }
 
   /**
@@ -261,5 +271,110 @@ export class XmlSchemaDocumentUtilService {
    */
   static getFieldTypeFromName(name: string | null): Types {
     return (name && Types[capitalize(name) as keyof typeof Types]) || Types.AnyType;
+  }
+
+  /**
+   * Count the number of top-level element in the XML schema collection.
+   * @param collection - The XML schema collection to validate
+   * @returns The total number of top-level elements across all schemas
+   */
+  static getElementCount(collection: XmlSchemaCollection): number {
+    const schemas = collection.getXmlSchemas();
+    let totalElements = 0;
+    for (const schema of schemas) {
+      totalElements += schema.getElements().size;
+    }
+    return totalElements;
+  }
+
+  /**
+   * Loads XML schema files into an XmlSchemaCollection.
+   * Wraps collection.read() with proper iteration over multiple schema files.
+   *
+   * @param collection - The collection to load schemas into
+   * @param definitionFiles - Map of file paths to file contents
+   * @throws Error if schema parsing fails
+   */
+  static loadXmlSchemaFiles(collection: XmlSchemaCollection, definitionFiles: Record<string, string>): void {
+    const filePaths = Object.keys(definitionFiles);
+    for (const path of filePaths) {
+      const fileContent = definitionFiles[path];
+      collection.read(fileContent, () => {});
+    }
+  }
+
+  /**
+   * Determines the root element from the XML schema collection.
+   * Uses the provided rootElementChoice if available, otherwise selects the first element.
+   *
+   * @param collection - The XML schema collection
+   * @param rootElemChoice - Optional user-specified root element choice
+   * @returns The root element
+   * @throws Error if root element cannot be determined or specified element not found
+   */
+  static determineRootElement(collection: XmlSchemaCollection, rootElemChoice?: RootElementOption): XmlSchemaElement {
+    if (rootElemChoice) {
+      const qName = new QName(rootElemChoice.namespaceUri, rootElemChoice.name);
+      const foundRootElement = collection.getElementByQName(qName);
+      if (!foundRootElement) {
+        throw new Error(`The specified root element '${qName.toString()}' is not found in the schema file(s)`);
+      }
+      return foundRootElement;
+    }
+
+    const rootElement = XmlSchemaDocumentUtilService.getFirstElement(collection);
+    if (!rootElement) {
+      throw new Error('Could not determine root element');
+    }
+    return rootElement;
+  }
+
+  /**
+   * Collects all available root element options from the schema collection.
+   * @param collection - The XML schema collection
+   * @returns Array of root element options with namespace URI and name
+   */
+  static collectRootElementOptions(collection: XmlSchemaCollection): RootElementOption[] {
+    const allElements = new Map();
+    for (const schema of collection.getXmlSchemas()) {
+      for (const [key, value] of schema.getElements().entries()) {
+        allElements.set(key, value);
+      }
+    }
+    return Array.from(allElements.keys())
+      .filter((key) => !!key.getLocalPart())
+      .map<RootElementOption>((key) => ({
+        namespaceUri: key.getNamespaceURI() || '',
+        name: key.getLocalPart(),
+      }));
+  }
+
+  /**
+   * Checks if a namespace is a standard XML/XSD namespace that doesn't require
+   * type fragment resolution.
+   * @param namespace - The namespace URI to check
+   * @returns true if it's a standard namespace (XSD or XML), false otherwise
+   */
+  static isStandardXmlNamespace(namespace: string | null | undefined): boolean {
+    if (!namespace) return false;
+    return namespace === NS_XML_SCHEMA || namespace === NS_XML;
+  }
+
+  /**
+   * Looks up a schema type by QName in the collection.
+   * Returns null for built-in XSD types or if type is not found.
+   * @param collection - The schema collection to search
+   * @param typeQName - The qualified name of the type to find
+   * @returns The schema type if found and user-defined, null otherwise
+   */
+  static lookupSchemaType(collection: XmlSchemaCollection, typeQName: QName | null): XmlSchemaType | null {
+    if (!typeQName) return null;
+
+    const namespace = typeQName.getNamespaceURI();
+    if (namespace === NS_XML_SCHEMA) {
+      return null;
+    }
+
+    return collection.getTypeByQName(typeQName) || null;
   }
 }
