@@ -1,5 +1,7 @@
 import {
   camelSpringXsd,
+  crossSchemaBaseTypesXsd,
+  crossSchemaDerivedTypesXsd,
   namedTypesXsd,
   restrictionInheritanceXsd,
   shipOrderEmptyFirstLineXsd,
@@ -15,6 +17,7 @@ import { XmlSchemaElement } from './particle/XmlSchemaElement';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { QName } from './QName';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
+import { XmlSchemaSimpleTypeRestriction } from './simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchemaCollection } from './XmlSchemaCollection';
 import { XmlSchemaUse } from './XmlSchemaUse';
 
@@ -215,5 +218,161 @@ describe('XmlSchemaCollection', () => {
     expect(shipOrderSequence.getMaxOccurs()).toEqual(1);
     expect(shipOrderSequence.isMinOccursExplicit()).toBe(false);
     expect(shipOrderSequence.isMaxOccursExplicit()).toBe(false);
+  });
+
+  describe('Cross-schema type resolution', () => {
+    it('should load multiple schema files into the same collection', () => {
+      const collection = new XmlSchemaCollection();
+      const baseSchema = collection.read(crossSchemaBaseTypesXsd, () => {});
+      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+
+      expect(baseSchema).toBeTruthy();
+      expect(derivedSchema).toBeTruthy();
+      expect(baseSchema.getTargetNamespace()).toBe('http://www.example.com/BASE');
+      expect(derivedSchema.getTargetNamespace()).toBe('http://www.example.com/DERIVED');
+    });
+
+    it('should resolve complex type extension across schema files', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(crossSchemaBaseTypesXsd, () => {});
+      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+
+      const employeeType = derivedSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/DERIVED', 'EmployeeType')) as XmlSchemaComplexType;
+
+      expect(employeeType).toBeTruthy();
+
+      const contentModel = employeeType.getContentModel();
+      expect(contentModel).toBeTruthy();
+
+      const extension = contentModel!.getContent() as XmlSchemaComplexContentExtension;
+      expect(extension).toBeInstanceOf(XmlSchemaComplexContentExtension);
+
+      const baseTypeName = extension.getBaseTypeName();
+      expect(baseTypeName?.getLocalPart()).toBe('BasePersonType');
+      expect(baseTypeName?.getNamespaceURI()).toBe('http://www.example.com/BASE');
+
+      const baseType = collection.getTypeByQName(baseTypeName!);
+      expect(baseType).toBeTruthy();
+      expect(baseType).toBeInstanceOf(XmlSchemaComplexType);
+    });
+
+    it('should resolve complex type restriction across schema files', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(crossSchemaBaseTypesXsd, () => {});
+      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+
+      const usAddressType = derivedSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/DERIVED', 'USAddressType')) as XmlSchemaComplexType;
+
+      expect(usAddressType).toBeTruthy();
+
+      const contentModel = usAddressType.getContentModel();
+      expect(contentModel).toBeTruthy();
+
+      const restriction = contentModel!.getContent() as XmlSchemaComplexContentRestriction;
+      expect(restriction).toBeInstanceOf(XmlSchemaComplexContentRestriction);
+
+      const baseTypeName = restriction.getBaseTypeName();
+      expect(baseTypeName?.getLocalPart()).toBe('BaseAddressType');
+      expect(baseTypeName?.getNamespaceURI()).toBe('http://www.example.com/BASE');
+
+      const baseType = collection.getTypeByQName(baseTypeName!);
+      expect(baseType).toBeTruthy();
+      expect(baseType).toBeInstanceOf(XmlSchemaComplexType);
+    });
+
+    it('should resolve simple type restriction across schema files', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(crossSchemaBaseTypesXsd, () => {});
+      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+
+      const specialCodeType = derivedSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/DERIVED', 'SpecialProductCode')) as XmlSchemaSimpleType;
+
+      expect(specialCodeType).toBeTruthy();
+
+      const content = specialCodeType.getContent() as XmlSchemaSimpleTypeRestriction;
+      expect(content).toBeInstanceOf(XmlSchemaSimpleTypeRestriction);
+
+      const baseTypeName = content.getBaseTypeName();
+      expect(baseTypeName?.getLocalPart()).toBe('BaseProductCode');
+      expect(baseTypeName?.getNamespaceURI()).toBe('http://www.example.com/BASE');
+
+      const baseType = collection.getTypeByQName(baseTypeName!);
+      expect(baseType).toBeTruthy();
+      expect(baseType).toBeInstanceOf(XmlSchemaSimpleType);
+    });
+
+    it('should correctly populate fields when extension base is in another schema', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(crossSchemaBaseTypesXsd, () => {});
+      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+
+      const employeeElement = derivedSchema.getElements().get(new QName('http://www.example.com/DERIVED', 'Employee'));
+
+      expect(employeeElement).toBeTruthy();
+
+      const employeeType = employeeElement!.getSchemaType() as XmlSchemaComplexType;
+      const extension = employeeType.getContentModel()!.getContent() as XmlSchemaComplexContentExtension;
+
+      const particle = extension.getParticle() as XmlSchemaSequence;
+      expect(particle).toBeTruthy();
+      expect(particle.getItems().length).toBe(2);
+
+      const employeeIdElem = particle.getItems()[0] as XmlSchemaElement;
+      expect(employeeIdElem.getWireName()?.getLocalPart()).toBe('employeeId');
+
+      const deptElem = particle.getItems()[1] as XmlSchemaElement;
+      expect(deptElem.getWireName()?.getLocalPart()).toBe('department');
+
+      expect(extension.getAttributes().length).toBe(1);
+      const hireDateAttr = extension.getAttributes()[0] as XmlSchemaAttribute;
+      expect(hireDateAttr.getName()).toBe('hireDate');
+    });
+  });
+
+  describe('getUserSchemas', () => {
+    it('should return only user-defined schemas, excluding standard namespaces', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(camelSpringXsd, () => {});
+
+      const userSchemas = collection.getUserSchemas();
+      const allSchemas = collection.getXmlSchemas();
+
+      expect(userSchemas.length).toBeLessThan(allSchemas.length);
+
+      const standardNamespaces = ['http://www.w3.org/2001/XMLSchema', 'http://www.w3.org/XML/1998/namespace'];
+
+      for (const schema of userSchemas) {
+        const targetNs = schema.getTargetNamespace();
+        expect(standardNamespaces).not.toContain(targetNs);
+      }
+    });
+
+    it('should include camel-spring schema in user schemas', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(camelSpringXsd, () => {});
+
+      const userSchemas = collection.getUserSchemas();
+
+      const camelSchema = userSchemas.find((s) => s.getTargetNamespace() === 'http://camel.apache.org/schema/spring');
+
+      expect(camelSchema).toBeDefined();
+    });
+
+    it('should exclude built-in XSD schema from user schemas', () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(camelSpringXsd, () => {});
+
+      const userSchemas = collection.getUserSchemas();
+
+      const xsdSchema = userSchemas.find((s) => s.getTargetNamespace() === 'http://www.w3.org/2001/XMLSchema');
+
+      expect(xsdSchema).toBeUndefined();
+    });
   });
 });

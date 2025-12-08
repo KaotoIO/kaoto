@@ -32,7 +32,7 @@ export default {
     // Ignore model files
     '!src/**/*.models.ts',
     // Ignore stub files
-    '!src/**/stubs/*.ts',
+    '!src/**/stubs/**/*.ts',
     // Ignore icon resolver
     '!src/**/node-icon-resolver.ts',
   ],

@@ -25,8 +25,8 @@ import {
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
+import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -81,14 +81,14 @@ describe('MappingLinksService', () => {
         undefined,
         { 'x12837PDfdl.xsd': x12837PDfdlXsd },
       );
-      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition);
+      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition).document!;
       const targetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         undefined,
         { 'message837.xsd': message837Xsd },
       );
-      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition);
+      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(x12837PXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
@@ -130,14 +130,14 @@ describe('MappingLinksService', () => {
         undefined,
         { 'x12850Dfdl.xsd': x12850DfdlXsd },
       );
-      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition);
+      sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition).document!;
       const targetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         undefined,
         { 'invoice850.xsd': invoice850Xsd },
       );
-      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition);
+      targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(x12850ForEachXslt, targetDoc, tree, paramsMap);
       const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
@@ -163,7 +163,7 @@ describe('MappingLinksService', () => {
         undefined,
         { 'shipOrder.json': shipOrderJsonSchema },
       );
-      const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(jsonTargetDefinition);
+      const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(jsonTargetDefinition).document!;
       tree = new MappingTree(jsonTargetDoc.documentType, jsonTargetDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(shipOrderToShipOrderXslt, jsonTargetDoc, tree, paramsMap);
     });
@@ -175,14 +175,18 @@ describe('MappingLinksService', () => {
         undefined,
         { 'org.xsd': orgXsd },
       );
-      const orgSourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(orgSourceDefinition);
+      const orgSourceResult = XmlSchemaDocumentService.createXmlSchemaDocument(orgSourceDefinition);
+      expect(orgSourceResult.validationStatus).toBe('success');
+      const orgSourceDoc = orgSourceResult.document!;
       const contactsTargetDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         undefined,
         { 'contacts.xsd': contactsXsd },
       );
-      const contactsTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(contactsTargetDefinition);
+      const contactsResult = XmlSchemaDocumentService.createXmlSchemaDocument(contactsTargetDefinition);
+      expect(contactsResult.validationStatus).toBe('success');
+      const contactsTargetDoc = contactsResult.document!;
 
       tree = new MappingTree(
         contactsTargetDoc.documentType,

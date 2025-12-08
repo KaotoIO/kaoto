@@ -18,8 +18,8 @@ import {
   shipOrderJsonSchema,
   shipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
+import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { JsonSchemaDocument } from './json-schema-document-model.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 
@@ -42,11 +42,15 @@ describe('MappingLinksService : JSON', () => {
       'Account',
       { 'Account.json': accountJsonSchema },
     );
-    accountParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+    const accountResult = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+    expect(accountResult.validationStatus).toBe('success');
+    accountParamDoc = accountResult.document as JsonSchemaDocument;
     const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
       'Cart.json': cartJsonSchema,
     });
-    cartParamDoc = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
+    const cartResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
+    expect(cartResult.validationStatus).toBe('success');
+    cartParamDoc = cartResult.document as JsonSchemaDocument;
     const orderSequenceParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
     paramsMap = new Map<string, IDocument>([
       ['OrderSequence', orderSequenceParamDoc],
@@ -59,7 +63,9 @@ describe('MappingLinksService : JSON', () => {
       undefined,
       { 'ShipOrder.json': shipOrderJsonSchema },
     );
-    targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
+    const targetResult = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
+    expect(targetResult.validationStatus).toBe('success');
+    targetDoc = targetResult.document as JsonSchemaDocument;
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
     MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, paramsMap);
   });

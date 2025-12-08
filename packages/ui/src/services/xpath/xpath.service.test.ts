@@ -753,11 +753,11 @@ describe('XPathService', () => {
         undefined,
         { 'shipOrder.xsd': shipOrderXsd },
       );
-      bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(bodyDefinition);
+      bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(bodyDefinition).document!;
       const cart2Definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.XML_SCHEMA, 'Cart2', {
         'cart.xsd': cartXsd,
       });
-      cart2Doc = XmlSchemaDocumentService.createXmlSchemaDocument(cart2Definition);
+      cart2Doc = XmlSchemaDocumentService.createXmlSchemaDocument(cart2Definition).document!;
     });
 
     it('should generate relative path when source and context are from same document', () => {
