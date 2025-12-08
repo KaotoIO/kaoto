@@ -8,8 +8,8 @@ import {
   NS_XSL,
   Types,
 } from '../models/datamapper';
-import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
-import { JsonSchemaDocument, JsonSchemaField, JsonSchemaParentType } from './json-schema-document-model.service';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
+import { JsonSchemaDocument, JsonSchemaField, JsonSchemaParentType } from './json-schema-document.model';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 
 export const FROM_JSON_SOURCE_SUFFIX = '-x';

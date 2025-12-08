@@ -45,6 +45,12 @@ export const twoDataMapperRouteDefinitionStub = parse(`
 
 export const shipOrderXsd = fs.readFileSync(path.resolve(__dirname, './xml/ShipOrder.xsd')).toString();
 export const cartXsd = fs.readFileSync(path.resolve(__dirname, './xml/Cart.xsd')).toString();
+export const crossSchemaBaseTypesXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/CrossSchemaBaseTypes.xsd'))
+  .toString();
+export const crossSchemaDerivedTypesXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/CrossSchemaDerivedTypes.xsd'))
+  .toString();
 
 export const testDocumentXsd = fs.readFileSync(path.resolve(__dirname, './xml/TestDocument.xsd')).toString();
 export const noTopElementXsd = fs.readFileSync(path.resolve(__dirname, './xml/NoTopElement.xsd')).toString();
@@ -103,6 +109,12 @@ export const multipleForEachJsonXslt = fs
   .readFileSync(path.resolve(__dirname, './json/MultipleForEach.xsl'))
   .toString();
 
+export const commonTypesJsonSchema = fs
+  .readFileSync(path.resolve(__dirname, './json/CommonTypes.schema.json'))
+  .toString();
+export const customerJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Customer.schema.json')).toString();
+export const orderJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Order.schema.json')).toString();
+
 export const orgXsd = fs.readFileSync(path.resolve(__dirname, './xml/Org.xsd')).toString();
 export const contactsXsd = fs.readFileSync(path.resolve(__dirname, './xml/Contacts.xsd')).toString();
 export const orgToContactsXslt = fs.readFileSync(path.resolve(__dirname, './xml/OrgToContacts.xsl')).toString();
@@ -138,35 +150,44 @@ export class TestUtil {
     const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
       'shipOrder.xsd': shipOrderXsd,
     });
-    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-  }
-
-  static createJSONSourceOrderDoc() {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, undefined, {
-      'shipOrder.json': shipOrderJsonSchema,
-    });
-    return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.validationMessage || 'Failed to create document');
+    }
+    return result.document;
   }
 
   static createCamelSpringXsdSourceDoc() {
     const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
       'camelSpring.xsd': camelSpringXsd,
     });
-    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.validationMessage || 'Failed to create document');
+    }
+    return result.document;
   }
 
   static createTargetOrderDoc() {
     const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
       'shipOrder.xsd': shipOrderXsd,
     });
-    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.validationMessage || 'Failed to create document');
+    }
+    return result.document;
   }
 
   static createJSONTargetOrderDoc() {
     const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, undefined, {
       'shipOrder.json': shipOrderJsonSchema,
     });
-    return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+    const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.validationMessage || 'Failed to create document');
+    }
+    return result.document;
   }
 
   static createParamOrderDoc(name: string, schemaType?: DocumentDefinitionType, content?: string) {
@@ -175,12 +196,12 @@ export class TestUtil {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, name, {
         [`${name}.json`]: content || cartJsonSchema,
       });
-      answer = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      answer = JsonSchemaDocumentService.createJsonSchemaDocument(definition).document!;
     } else {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.XML_SCHEMA, name, {
         [`${name}.xsd`]: content || shipOrderXsd,
       });
-      answer = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      answer = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
     }
     answer.name = name;
     return answer;
