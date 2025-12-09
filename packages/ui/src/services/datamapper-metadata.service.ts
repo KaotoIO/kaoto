@@ -147,7 +147,7 @@ export class DataMapperMetadataService {
         },
         {} as Record<string, Promise<DocumentDefinition>>,
       );
-      Promise.allSettled([sourceBodyPromise, targetBodyPromise, Object.values(paramPromises)]).then(() => {
+      Promise.allSettled([sourceBodyPromise, targetBodyPromise, ...Object.values(paramPromises)]).then(() => {
         resolve(answer);
       });
     });
@@ -177,23 +177,23 @@ export class DataMapperMetadataService {
     return new Promise((resolve) => {
       const definitionType = documentMetadata.type ? documentMetadata.type : DocumentDefinitionType.Primitive;
       const definitionFiles: Record<string, string> = {};
-      const fileReadingPromises = !documentMetadata.filePath
-        ? []
-        : documentMetadata.filePath.map((path) =>
+      const fileReadingPromises = documentMetadata.filePath
+        ? documentMetadata.filePath.map((path) =>
             api
               .getResourceContent(path)
               .then((value) => {
                 if (value) definitionFiles[path] = value;
               })
-              .catch((reason) => console.log(`Could not read a file "${path}": ${reason}`)),
-          );
+              .catch((error) => console.log(`Could not read a file "${path}": ${error}`)),
+          )
+        : [];
       Promise.allSettled(fileReadingPromises).then(() => {
         const answer = new DocumentDefinition(
           documentType,
           definitionType,
           name,
           definitionFiles,
-          undefined,
+          documentMetadata.rootElementChoice,
           documentMetadata.fieldTypeOverrides,
           namespaceMap,
         );
@@ -245,13 +245,14 @@ export class DataMapperMetadataService {
     const answer: IDocumentMetadata = {
       type: definition.definitionType,
       filePath: filePaths,
+      rootElementChoice: definition.rootElementChoice,
       fieldTypeOverrides: existingMetadata?.fieldTypeOverrides || [],
     };
     const metadataPromise = api.setMetadata(metadataId, metadata);
     const filePromises =
       api.shouldSaveSchema && definition.definitionFiles
         ? Object.entries(definition.definitionFiles).map(([path, content]) => {
-            api
+            return api
               .saveResourceContent(path, content)
               .catch((error) => console.log(`Could not save a file "${path}": ${error}`));
           })
@@ -417,9 +418,7 @@ export class DataMapperMetadataService {
       return;
     }
 
-    if (!docMetadata.fieldTypeOverrides) {
-      docMetadata.fieldTypeOverrides = [];
-    }
+    docMetadata.fieldTypeOverrides ??= [];
 
     const existingIndex = docMetadata.fieldTypeOverrides.findIndex(
       (override) => override.path === fieldTypeOverride.path,

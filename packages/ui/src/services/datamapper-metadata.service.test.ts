@@ -268,6 +268,49 @@ describe('DataMapperMetadataService', () => {
       spy.mockRestore();
     });
 
+    it('should load rootElementChoice when present in metadata', async () => {
+      const rootElementChoice = { namespaceUri: 'http://example.com/schema', name: 'CustomRoot' };
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['source.xsd'],
+          rootElementChoice,
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      mockApi.getResourceContent.mockImplementation(async (path: string) => {
+        if (path === 'source.xsd') return '<schema>source</schema>';
+        return undefined;
+      });
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody).toBeDefined();
+      expect(result.sourceBody.rootElementChoice).toEqual(rootElementChoice);
+    });
+
+    it('should handle missing rootElementChoice in metadata', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['source.xsd'] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      mockApi.getResourceContent.mockImplementation(async (path: string) => {
+        if (path === 'source.xsd') return '<schema>source</schema>';
+        return undefined;
+      });
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody).toBeDefined();
+      expect(result.sourceBody.rootElementChoice).toBeUndefined();
+    });
+
     it('should handle empty source parameters', async () => {
       const metadata: IDataMapperMetadata = {
         sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -404,6 +447,50 @@ describe('DataMapperMetadataService', () => {
 
       expect(metadata.sourceBody.type).toBe(DocumentDefinitionType.Primitive);
       expect(metadata.sourceBody.filePath).toEqual([]);
+    });
+
+    it('should persist rootElementChoice when provided', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      const rootElementChoice = { namespaceUri: 'http://example.com/schema', name: 'CustomRoot' };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'source.xsd': '<schema/>' },
+        rootElementChoice,
+      );
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
+
+      expect(metadata.sourceBody.type).toBe(DocumentDefinitionType.XML_SCHEMA);
+      expect(metadata.sourceBody.filePath).toEqual(['source.xsd']);
+      expect(metadata.sourceBody.rootElementChoice).toEqual(rootElementChoice);
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', metadata);
+    });
+
+    it('should not persist rootElementChoice when not provided', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'source.xsd': '<schema/>' },
+      );
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
+
+      expect(metadata.sourceBody.type).toBe(DocumentDefinitionType.XML_SCHEMA);
+      expect(metadata.sourceBody.rootElementChoice).toBeUndefined();
     });
   });
 
