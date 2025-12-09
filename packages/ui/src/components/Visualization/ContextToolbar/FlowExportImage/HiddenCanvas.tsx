@@ -1,5 +1,13 @@
-import { action, Model, VisualizationProvider, VisualizationSurface } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  action,
+  GRAPH_LAYOUT_END_EVENT,
+  Model,
+  useEventListener,
+  VisualizationProvider,
+  VisualizationSurface,
+} from '@patternfly/react-topology';
+import { toPng } from 'html-to-image';
+import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
@@ -9,134 +17,127 @@ import { FlowService } from '../../Canvas/flow.service';
 
 interface HiddenCanvasProps {
   entities: BaseVisualCamelEntity[];
-  layout: LayoutType;
-  onReady: (element: HTMLElement) => void;
+  layout?: LayoutType;
+  onComplete: () => void;
 }
 
-export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = (props) => {
+export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
+  entities,
+  layout = LayoutType.DagreHorizontal,
+  onComplete,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [modelLoaded, setModelLoaded] = useState(false);
+  const [layoutComplete, setLayoutComplete] = useState(false);
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
+  const hasExportedRef = useRef(false);
+  const controllerRef = useRef<ReturnType<typeof ControllerService.createController>>();
 
-  const hiddenController = useMemo(() => {
-    const controller = ControllerService.createController();
+  if (!controllerRef.current) {
+    controllerRef.current = ControllerService.createController();
+  }
+  const controller = controllerRef.current;
 
-    try {
-      const nodes: CanvasNode[] = [];
-      const edges: CanvasEdge[] = [];
-
-      props.entities.forEach((entity) => {
-        if (visibleFlows[entity.id]) {
-          const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.id, entity.toVizNode());
-          nodes.push(...childNodes);
-          edges.push(...childEdges);
-        }
-      });
-
-      const model: Model = {
-        nodes,
-        edges,
-        graph: {
-          id: 'g1',
-          type: 'graph',
-          layout: props.layout,
-        },
-      };
-
-      controller.fromModel(model, false);
-      setTimeout(() => setModelLoaded(true), 0);
-    } catch (error) {
-      console.error('Failed to prepare hidden controller:', error);
-    }
-
-    return controller;
-  }, [props.entities, props.layout, visibleFlows]);
+  useEventListener(GRAPH_LAYOUT_END_EVENT, () => {
+    setTimeout(() => {
+      if (!hasExportedRef.current) {
+        setLayoutComplete(true);
+      }
+    }, 300);
+  });
 
   useEffect(() => {
-    if (!modelLoaded || !containerRef.current) return;
+    const nodes: CanvasNode[] = [];
+    const edges: CanvasEdge[] = [];
+
+    entities.forEach((entity) => {
+      if (visibleFlows[entity.id]) {
+        const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.id, entity.toVizNode());
+        nodes.push(...childNodes);
+        edges.push(...childEdges);
+      }
+    });
+
+    const model: Model = {
+      nodes,
+      edges,
+      graph: {
+        id: 'g1',
+        type: 'graph',
+        layout,
+      },
+    };
+
+    controller.fromModel(model, false);
+
+    requestAnimationFrame(() => {
+      action(() => {
+        const graph = controller.getGraph();
+        graph.reset();
+        graph.fit(80);
+        graph.layout();
+      })();
+    });
+
+    const fallbackTimer = setTimeout(() => {
+      if (!hasExportedRef.current) {
+        setLayoutComplete(true);
+      }
+    }, 2000);
+
+    return () => clearTimeout(fallbackTimer);
+  }, [controller, entities, layout, visibleFlows]);
+
+  useEffect(() => {
+    if (!layoutComplete || !containerRef.current || hasExportedRef.current) return;
+
+    hasExportedRef.current = true;
 
     const exportCanvas = async () => {
       try {
-        const hiddenGraph = hiddenController.getGraph();
+        await new Promise((resolve) => requestAnimationFrame(resolve));
 
-        if (!hiddenGraph) {
-          console.error('Hidden graph not available');
+        const surface = containerRef.current?.querySelector('.pf-topology-visualization-surface') as HTMLElement;
+
+        if (!surface) {
+          console.error('Surface not found');
+          onComplete();
           return;
         }
 
-        action(() => {
-          hiddenGraph.reset();
-          hiddenGraph.fit(10);
-          hiddenGraph.layout();
-        })();
+        const svg = surface.querySelector('svg') as SVGSVGElement;
+        if (svg) {
+          const bbox = svg.getBBox();
+          const padding = 100;
+          const width = Math.ceil(bbox.width + padding * 2);
+          const height = Math.ceil(bbox.height + padding * 2);
 
-        let attempts = 0;
-        const maxAttempts = 40;
-
-        const waitForLayout = () =>
-          new Promise<void>((resolve) => {
-            const checkLayout = () => {
-              if (!containerRef.current) {
-                resolve();
-                return;
-              }
-
-              const svg = containerRef.current.querySelector('svg') as SVGSVGElement;
-              const nodes = svg?.querySelectorAll('[data-kind="node"]');
-
-              if (nodes && nodes.length > 0) {
-                const firstNode = nodes[0] as SVGGElement;
-                const transform = firstNode.getAttribute('transform');
-
-                if (transform && transform !== 'translate(0, 0)') {
-                  resolve();
-                  return;
-                }
-              }
-
-              attempts++;
-              if (attempts >= maxAttempts) {
-                resolve();
-                return;
-              }
-
-              setTimeout(checkLayout, 50);
-            };
-
-            checkLayout();
-          });
-
-        await waitForLayout();
-
-        if (!containerRef.current) return;
-
-        const surface = containerRef.current.querySelector('.pf-topology-visualization-surface') as HTMLElement;
-
-        if (surface) {
-          const svg = surface.querySelector('svg') as SVGSVGElement;
-
-          if (svg) {
-            const bbox = svg.getBBox();
-            const padding = 10;
-            const width = Math.ceil(bbox.width + padding * 2);
-            const height = Math.ceil(bbox.height + padding * 2);
-
-            svg.setAttribute('width', String(width));
-            svg.setAttribute('height', String(height));
-            svg.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${width} ${height}`);
-          }
-
-          props.onReady(surface);
-        } else {
-          console.error('Surface not found');
+          svg.setAttribute('width', String(width));
+          svg.setAttribute('height', String(height));
+          svg.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${width} ${height}`);
         }
-      } catch (error) {
-        console.error('Export failed:', error);
+
+        const dataUrl = await toPng(surface, {
+          cacheBust: false,
+          backgroundColor: '#f0f0f0',
+          filter: (node: HTMLElement) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
+          pixelRatio: 2,
+        });
+
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'kaoto-flow.png';
+        link.click();
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      } catch (err) {
+        console.error('Export failed', err);
+      } finally {
+        onComplete();
       }
     };
 
     exportCanvas();
-  }, [modelLoaded, hiddenController, props]);
+  }, [layoutComplete, onComplete]);
 
   return (
     <div
@@ -152,8 +153,8 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = (props) => {
         zIndex: -1,
       }}
     >
-      <VisualizationProvider controller={hiddenController}>
-        {modelLoaded && <VisualizationSurface state={{}} />}
+      <VisualizationProvider controller={controllerRef.current}>
+        <VisualizationSurface state={{}} />
       </VisualizationProvider>
     </div>
   );
