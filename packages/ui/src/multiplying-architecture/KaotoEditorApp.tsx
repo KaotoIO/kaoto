@@ -31,7 +31,7 @@ import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export class KaotoEditorApp implements Editor {
-  protected editorRef: RefObject<SourceCodeBridgeProviderRef>;
+  protected editorRef: RefObject<SourceCodeBridgeProviderRef | null>;
   af_isReact = true;
   af_componentId = 'kaoto-editor';
   af_componentTitle = 'Kaoto Editor';
