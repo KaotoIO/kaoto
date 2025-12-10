@@ -44,7 +44,7 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
   const actionConfirmationRef = useRef<{
     resolve: (actionId: string) => void;
     reject: (error: unknown) => unknown;
-  }>();
+  }>(undefined);
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
