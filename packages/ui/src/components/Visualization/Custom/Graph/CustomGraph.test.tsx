@@ -1,46 +1,54 @@
+import { render, screen } from '@testing-library/react';
+
 import { GraphContextMenuFn } from './CustomGraph';
 
 describe('GraphContextMenuFn', () => {
-  it('GraphContextMenuFn always renders ShowOrHideAllFlows items', () => {
+  it('always renders Show all and Hide all menu items', () => {
     const entityContextMenuFn = jest.fn().mockReturnValue([]);
     const items = GraphContextMenuFn(entityContextMenuFn);
 
-    expect(
-      items.some(
-        (item) =>
-          item.props['data-testid'] === 'context-menu-item-show-all' &&
-          item.props.children[1].props.children === 'Show all',
-      ),
-    ).toBe(true);
+    render(<>{items}</>);
 
-    expect(
-      items.some(
-        (item) =>
-          item.props['data-testid'] === 'context-menu-item-hide-all' &&
-          item.props.children[1].props.children === 'Hide all',
-      ),
-    ).toBe(true);
+    expect(screen.getByTestId('context-menu-item-show-all')).toBeInTheDocument();
+    expect(screen.getByText('Show all')).toBeInTheDocument();
+
+    expect(screen.getByTestId('context-menu-item-hide-all')).toBeInTheDocument();
+    expect(screen.getByText('Hide all')).toBeInTheDocument();
   });
 
-  it('renders ContextSubMenuItem if entities exist', () => {
-    const entity = (
-      <div key="entity-1" data-testid="entity-item">
-        Entity 1
-      </div>
-    );
-    const entityContextMenuFn = jest.fn().mockReturnValue([entity]);
-    const items = GraphContextMenuFn(entityContextMenuFn);
-
-    // Should contain a ContextSubMenuItem with the entity inside
-    const subMenuItem = items.find((item) => item.props['data-testid'] === 'context-menu-item-new-entity');
-    expect(subMenuItem).toBeDefined();
-    expect(subMenuItem!.props.children).toContainEqual(entity);
-  });
-
-  it('does not render ContextSubMenuItem if no entities', () => {
+  it('returns correct structure when no entities exist', () => {
     const entityContextMenuFn = jest.fn().mockReturnValue([]);
     const items = GraphContextMenuFn(entityContextMenuFn);
 
-    expect(items.some((item) => item.props['data-testid'] === 'context-menu-item-new-entity')).toBe(false);
+    // Should only have Show all and Hide all items
+    expect(items).toHaveLength(2);
+    expect(items[0].key).toBe('showAll');
+    expect(items[1].key).toBe('hideAll');
+  });
+
+  it('includes New submenu when entities exist', () => {
+    const entities = [<div key="entity-1">Entity 1</div>];
+    const entityContextMenuFn = jest.fn().mockReturnValue(entities);
+    const items = GraphContextMenuFn(entityContextMenuFn);
+
+    // Should have: Show all, Hide all, Divider, New submenu
+    expect(items).toHaveLength(4);
+    expect(items[0].key).toBe('showAll');
+    expect(items[1].key).toBe('hideAll');
+    expect(items[2].key).toBe('new-entity-divider');
+    expect(items[3].key).toBe('new-entity');
+
+    render(<>{items}</>);
+
+    // Verify the New submenu is rendered
+    expect(screen.getByTestId('context-menu-item-new-entity')).toBeInTheDocument();
+    expect(screen.getByText('New')).toBeInTheDocument();
+  });
+
+  it('calls entityContextMenuFn to get entities', () => {
+    const entityContextMenuFn = jest.fn().mockReturnValue([]);
+    GraphContextMenuFn(entityContextMenuFn);
+
+    expect(entityContextMenuFn).toHaveBeenCalledTimes(1);
   });
 });

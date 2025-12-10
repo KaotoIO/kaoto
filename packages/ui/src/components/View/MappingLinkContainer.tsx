@@ -12,7 +12,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
   const { getNodeReference } = useCanvas();
   const { getMappingLinks } = useMappingLinks();
-  const svgRef = useRef<SVGSVGElement>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
 
   const refreshLinks = useCallback(() => {
     const links = getMappingLinks();
