@@ -1,7 +1,7 @@
 import './SourceTargetView.scss';
 
 import { Split, SplitItem } from '@patternfly/react-core';
-import { FunctionComponent, useEffect, useRef } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
@@ -12,13 +12,7 @@ import { TargetPanel } from './TargetPanel';
 
 export const SourceTargetView: FunctionComponent = () => {
   const { reloadNodeReferences, setDefaultHandler } = useCanvas();
-  const { setMappingLinkCanvasRef } = useMappingLinks();
-  const mappingLinkCanvasRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMappingLinkCanvasRef(mappingLinkCanvasRef);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { mappingLinkCanvasRef } = useMappingLinks();
 
   useEffect(() => {
     setDefaultHandler(new SourceTargetDnDHandler());
