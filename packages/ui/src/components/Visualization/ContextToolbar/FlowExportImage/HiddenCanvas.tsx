@@ -1,3 +1,5 @@
+import './HiddenCanvas.scss';
+
 import {
   action,
   GRAPH_LAYOUT_END_EVENT,
@@ -6,7 +8,7 @@ import {
   VisualizationProvider,
   VisualizationSurface,
 } from '@patternfly/react-topology';
-import { toPng } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 
 import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
@@ -32,9 +34,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   const hasExportedRef = useRef(false);
   const controllerRef = useRef<ReturnType<typeof ControllerService.createController>>();
 
-  if (!controllerRef.current) {
-    controllerRef.current = ControllerService.createController();
-  }
+  controllerRef.current ??= ControllerService.createController();
   const controller = controllerRef.current;
 
   useEventListener(GRAPH_LAYOUT_END_EVENT, () => {
@@ -42,7 +42,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
       if (!hasExportedRef.current) {
         setLayoutComplete(true);
       }
-    }, 300);
+    }, 0);
   });
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
       action(() => {
         const graph = controller.getGraph();
         graph.reset();
-        graph.fit(80);
+        graph.fit(0);
         graph.layout();
       })();
     });
@@ -82,7 +82,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
       if (!hasExportedRef.current) {
         setLayoutComplete(true);
       }
-    }, 2000);
+    }, 1_000);
 
     return () => clearTimeout(fallbackTimer);
   }, [controller, entities, layout, visibleFlows]);
@@ -94,8 +94,6 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
 
     const exportCanvas = async () => {
       try {
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-
         const surface = containerRef.current?.querySelector('.pf-topology-visualization-surface') as HTMLElement;
 
         if (!surface) {
@@ -107,7 +105,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
         const svg = surface.querySelector('svg') as SVGSVGElement;
         if (svg) {
           const bbox = svg.getBBox();
-          const padding = 100;
+          const padding = 20;
           const width = Math.ceil(bbox.width + padding * 2);
           const height = Math.ceil(bbox.height + padding * 2);
 
@@ -116,19 +114,28 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
           svg.setAttribute('viewBox', `${bbox.x - padding} ${bbox.y - padding} ${width} ${height}`);
         }
 
-        const dataUrl = await toPng(surface, {
-          cacheBust: false,
-          backgroundColor: '#f0f0f0',
+        const blob = await toBlob(surface, {
+          cacheBust: true,
           filter: (node: HTMLElement) => !node?.classList?.contains('pf-v6-c-toolbar__group'),
           pixelRatio: 2,
+          skipFonts: true,
+          skipAutoScale: true,
         });
 
+        if (!blob) {
+          console.error('Failed to generate blob');
+          onComplete();
+          return;
+        }
+
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = dataUrl;
+        link.href = url;
         link.download = 'kaoto-flow.png';
         link.click();
 
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Clean up the blob URL after a short delay to ensure download starts
+        setTimeout(() => URL.revokeObjectURL(url), 100);
       } catch (err) {
         console.error('Export failed', err);
       } finally {
@@ -140,19 +147,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   }, [layoutComplete, onComplete]);
 
   return (
-    <div
-      ref={containerRef}
-      style={{
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
-        pointerEvents: 'none',
-        opacity: 0,
-        zIndex: -1,
-      }}
-    >
+    <div ref={containerRef} className="hidden-canvas">
       <VisualizationProvider controller={controllerRef.current}>
         <VisualizationSurface state={{}} />
       </VisualizationProvider>
