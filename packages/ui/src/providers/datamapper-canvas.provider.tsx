@@ -1,8 +1,8 @@
 import {
   createContext,
   FunctionComponent,
-  MutableRefObject,
   PropsWithChildren,
+  RefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -18,8 +18,8 @@ import { DatamapperDndProvider } from './datamapper-dnd.provider';
 import { DnDHandler } from './dnd/DnDHandler';
 
 export interface ICanvasContext {
-  setNodeReference: (path: string, ref: MutableRefObject<NodeReference>) => void;
-  getNodeReference: (path: string) => MutableRefObject<NodeReference> | null;
+  setNodeReference: (path: string, ref: RefObject<NodeReference>) => void;
+  getNodeReference: (path: string) => RefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
   clearNodeReferencesForPath: (path: string) => void;
   clearNodeReferencesForDocument: (documentType: DocumentType, documentId: string) => void;
@@ -36,12 +36,12 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
   const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>();
   const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>();
 
-  const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, MutableRefObject<NodeReference>>>(
-    new Map<string, MutableRefObject<NodeReference>>(),
+  const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, RefObject<NodeReference>>>(
+    new Map<string, RefObject<NodeReference>>(),
   );
 
   const setNodeReference = useCallback(
-    (path: string, ref: MutableRefObject<NodeReference>) => {
+    (path: string, ref: RefObject<NodeReference>) => {
       nodeReferenceMap.set(path, ref);
     },
     [nodeReferenceMap],
