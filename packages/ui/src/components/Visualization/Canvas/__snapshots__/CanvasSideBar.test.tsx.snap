@@ -25,11 +25,6 @@ exports[`CanvasSideBar displays selected node information 1`] = `
             <div
               class="pf-v6-l-grid__item pf-m-11-col form-header"
             >
-              <img
-                alt="component icon"
-                class="form-header__icon-test|route.from"
-                src=""
-              />
               <h2
                 class="pf-v6-c-title pf-m-h2 form-header__title"
                 data-ouia-component-id="OUIA-Generated-Title-1"
