@@ -49,5 +49,6 @@ export const IconResolver: FunctionComponent<PropsWithChildren<IconResolverProps
     });
   }, [altProps, catalogKind, name]);
 
+  if (!icon) return null;
   return <img className={className} src={icon} alt={altText} />;
 };

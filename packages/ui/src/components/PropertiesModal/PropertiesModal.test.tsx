@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { screen, waitFor } from '@testing-library/dom';
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { IDynamicCatalogRegistry } from '../../dynamic-catalog/models';
@@ -62,10 +62,12 @@ describe('PropertiesModal', () => {
 
     it('renders component properties table correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
-        </CatalogContext.Provider>,
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
       );
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
@@ -90,8 +92,10 @@ describe('PropertiesModal', () => {
       //tab 1
       expect(screen.getByTestId('tab-1')).toHaveTextContent('Endpoint Options (24)');
       //table1
-      screen.getByTestId('tab-1').click();
-      await new Promise(process.nextTick);
+      await act(async () => {
+        screen.getByTestId('tab-1').click();
+        await new Promise(process.nextTick);
+      });
       expect(screen.getByTestId('tab-1-table-0-properties-modal-table-caption')).toHaveTextContent(
         'path parameters (1)',
       );
@@ -130,8 +134,10 @@ describe('PropertiesModal', () => {
       //tab 2
       expect(screen.getByTestId('tab-2')).toHaveTextContent('Message Headers (1)');
       //headers
-      screen.getByTestId('tab-2').click();
-      await new Promise(process.nextTick);
+      await act(async () => {
+        screen.getByTestId('tab-2').click();
+        await new Promise(process.nextTick);
+      });
       expect(screen.getByTestId('tab-2-table-0-header-name')).toHaveTextContent('name');
       expect(screen.getByTestId('tab-2-table-0-header-description')).toHaveTextContent('description');
       expect(screen.getByTestId('tab-2-table-0-header-default')).toHaveTextContent('default');
@@ -158,10 +164,12 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
-        </CatalogContext.Provider>,
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
       );
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
@@ -185,10 +193,12 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
-        </CatalogContext.Provider>,
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
       );
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
@@ -224,10 +234,12 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
-        </CatalogContext.Provider>,
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
       );
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
@@ -253,10 +265,12 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
-        </CatalogContext.Provider>,
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
       );
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info
@@ -305,10 +319,12 @@ describe('PropertiesModal', () => {
 
     it('renders property modal correctly', async () => {
       // modal uses React portals so baseElement needs to be used here
-      const { baseElement } = render(
-        <CatalogContext.Provider value={mockCatalogRegistry}>
-          <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
-        </CatalogContext.Provider>,
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
       );
       await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
       // info

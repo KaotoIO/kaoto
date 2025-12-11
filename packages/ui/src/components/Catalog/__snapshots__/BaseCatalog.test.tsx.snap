@@ -274,13 +274,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -373,13 +367,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -472,13 +460,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -571,13 +553,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -670,13 +646,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -769,13 +739,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -868,13 +832,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -967,13 +925,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1066,13 +1018,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1165,13 +1111,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1264,13 +1204,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1363,13 +1297,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1462,13 +1390,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1561,13 +1483,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1660,13 +1576,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1759,13 +1669,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1858,13 +1762,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -1957,13 +1855,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2056,13 +1948,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2155,13 +2041,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2254,13 +2134,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2353,13 +2227,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2452,13 +2320,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2551,13 +2413,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2650,13 +2506,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2749,13 +2599,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2848,13 +2692,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -2947,13 +2785,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3046,13 +2878,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3145,13 +2971,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3244,13 +3064,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3343,13 +3157,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3442,13 +3250,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3541,13 +3343,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3640,13 +3436,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3739,13 +3529,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3838,13 +3622,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="component icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -3937,13 +3715,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4036,13 +3808,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4135,13 +3901,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4234,13 +3994,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4333,13 +4087,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4432,13 +4180,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4531,13 +4273,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4630,13 +4366,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4729,13 +4459,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4828,13 +4552,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="processor icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -4927,13 +4645,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -5026,13 +4738,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -5125,13 +4831,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           >
             <div
               class="tile__header"
-            >
-              <img
-                alt="Kamelet icon"
-                class="tile__icon"
-                src=""
-              />
-            </div>
+            />
             <div
               class="pf-v6-c-card__title"
             >
@@ -5467,11 +5167,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -5566,11 +5261,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -5665,11 +5355,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -5764,11 +5449,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -5863,11 +5543,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -5962,11 +5637,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6061,11 +5731,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6160,11 +5825,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6259,11 +5919,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6358,11 +6013,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6457,11 +6107,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6556,11 +6201,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6655,11 +6295,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6754,11 +6389,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6853,11 +6483,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -6952,11 +6577,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7051,11 +6671,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7150,11 +6765,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7249,11 +6859,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7348,11 +6953,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7447,11 +7047,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7546,11 +7141,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7645,11 +7235,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7744,11 +7329,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7843,11 +7423,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -7942,11 +7517,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8041,11 +7611,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8140,11 +7705,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8239,11 +7799,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8338,11 +7893,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8437,11 +7987,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8536,11 +8081,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8635,11 +8175,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8734,11 +8269,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8833,11 +8363,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -8932,11 +8457,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9031,11 +8551,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="component icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9130,11 +8645,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9229,11 +8739,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9328,11 +8833,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9427,11 +8927,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9526,11 +9021,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9625,11 +9115,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9724,11 +9209,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9823,11 +9303,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -9922,11 +9397,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -10021,11 +9491,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="processor icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -10120,11 +9585,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -10219,11 +9679,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"
@@ -10318,11 +9773,6 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                   <div
                     class="catalog-data-list-item__title-div-left"
                   >
-                    <img
-                      alt="Kamelet icon"
-                      class="catalog-data-list-item__title-div-left__icon"
-                      src=""
-                    />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
                       id="clickable-action-item1"

@@ -16,25 +16,25 @@ const getIcon = (name: string) => {
   if (name.includes('redhat')) {
     return (
       <Icon>
-        <img src={redhatLogo} />
+        <img src={redhatLogo} alt="Red Hat logo" />
       </Icon>
     );
   } else if (name.includes('Quarkus')) {
     return (
       <Icon>
-        <img src={quarkusLogo} />
+        <img src={quarkusLogo} alt="Quarkus logo" />
       </Icon>
     );
   } else if (name.replace(SPACE_REGEX, '').includes('SpringBoot')) {
     return (
       <Icon>
-        <img src={springBootLogo} />
+        <img src={springBootLogo} alt="Spring Boot logo" />
       </Icon>
     );
   } else {
     return (
       <Icon>
-        <img src={camelLogo} />
+        <img src={camelLogo} alt="Apache Camel logo" />
       </Icon>
     );
   }
