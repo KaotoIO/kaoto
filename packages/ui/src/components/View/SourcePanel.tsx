@@ -1,7 +1,7 @@
 import './SourcePanel.scss';
 
 import { Title } from '@patternfly/react-core';
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -31,11 +31,20 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     setSourceBodyTree(TreeUIService.createTree(sourceBodyNodeData));
   }, [sourceBodyNodeData]);
 
+  // Callback for layout changes (expand/collapse/resize) - triggers mapping line refresh
+  const handleLayoutChange = useCallback(() => {
+    reloadNodeReferences();
+  }, [reloadNodeReferences]);
+
   return (
     <div id="panel-source" className="source-panel">
       <ExpansionPanels>
         {/* Parameters section - self-contained component that manages all parameter state */}
-        <ParametersSection isReadOnly={isReadOnly} onScroll={reloadNodeReferences} />
+        <ParametersSection
+          isReadOnly={isReadOnly}
+          onScroll={reloadNodeReferences}
+          onLayoutChange={handleLayoutChange}
+        />
 
         {/* Source Body - composed directly, no wrapper */}
         {sourceBodyTree && (
@@ -56,6 +65,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               />
             }
             onScroll={reloadNodeReferences}
+            onLayoutChange={handleLayoutChange}
           >
             <DocumentContent
               treeNode={sourceBodyTree.root}

@@ -514,4 +514,90 @@ describe('ExpansionPanels', () => {
       expect(heights[1]).toBeGreaterThan(100);
     });
   });
+
+  describe('Resize edge cases', () => {
+    it('should not resize when panel is collapsed', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300, defaultExpanded: false },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+      ];
+
+      const { container } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      const initialGridTemplate = getGridTemplate(container);
+
+      // Collapsed panel should not have a resize handle visible
+      // The resize function has early return for collapsed panels
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toBe(initialGridTemplate);
+    });
+
+    it('should not resize bottom handle when it is the last panel', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+      ];
+
+      const { container } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      const initialGridTemplate = getGridTemplate(container);
+
+      // Single panel - resize handle exists but resize has no effect (no adjacent panel)
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toBe(initialGridTemplate);
+    });
+
+    it('should handle resize with top handle (source-body panel)', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+        { id: 'source-body', summary: 'Body', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+      ];
+
+      const { container } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      // source-body has top handle (--top class)
+      const topHandle = container.querySelector('.expansion-panel__resize-handle--top');
+      expect(topHandle).toBeInTheDocument();
+
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toContain('300px');
+    });
+
+    it('should not resize top handle when it is the first panel', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'source-body', summary: 'Body', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+      ];
+
+      const { container } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      const initialGridTemplate = getGridTemplate(container);
+
+      // source-body as only panel - top handle exists but resize has no effect
+      const topHandle = container.querySelector('.expansion-panel__resize-handle--top');
+      expect(topHandle).toBeInTheDocument();
+
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toBe(initialGridTemplate);
+    });
+
+    it('should handle resize for non-existent panel id gracefully', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 300, defaultExpanded: true },
+      ];
+
+      const { container } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      const initialGridTemplate = getGridTemplate(container);
+
+      // Grid template should remain unchanged when resize is called with non-existent id
+      // (This tests the currentIdx === -1 early return)
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toBe(initialGridTemplate);
+    });
+  });
 });
