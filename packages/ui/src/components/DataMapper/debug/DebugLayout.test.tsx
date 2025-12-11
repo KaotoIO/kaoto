@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren, RefObject, useEffect } from 'react';
+import { FunctionComponent, MutableRefObject, PropsWithChildren, useEffect } from 'react';
 
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -69,7 +69,7 @@ describe('DebugLayout', () => {
   });
 
   it('should register selected node reference', async () => {
-    let selectedNodeReference: RefObject<NodeReference> | null = null;
+    let selectedNodeReference: MutableRefObject<NodeReference> | null = null;
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const { mappingTree, setMappingTree, sourceParameterMap, setSourceBodyDocument, setTargetBodyDocument } =
         useDataMapper();
