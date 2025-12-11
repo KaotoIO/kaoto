@@ -28,9 +28,8 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   const dotRadius = isOver ? 6 : 3;
   const svgRect = svgRef?.current?.getBoundingClientRect();
   const canvasRect = mappingLinkCanvasRef?.current?.getBoundingClientRect();
-  const svgRectLeft = svgRect?.left ?? 0;
-  const canvasLeft = canvasRect ? canvasRect.left - svgRectLeft : undefined;
-  const canvasRight = canvasRect ? canvasRect.right - svgRectLeft : undefined;
+  const canvasLeft = canvasRect ? canvasRect.left - (svgRect ? svgRect.left : 0) : undefined;
+  const canvasRight = canvasRect ? canvasRect.right - (svgRect ? svgRect.left : 0) : undefined;
 
   const onMouseEnter = useCallback(() => {
     setIsOver(true);

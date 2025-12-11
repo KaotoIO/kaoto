@@ -192,7 +192,7 @@ export type LineProps = LineCoord & {
   sourceNodePath: string;
   targetNodePath: string;
   isSelected?: boolean;
-  svgRef?: RefObject<SVGSVGElement | null>;
+  svgRef?: RefObject<SVGSVGElement>;
 };
 
 export type SendAlertProps = Partial<AlertProps & { description: string }>;
