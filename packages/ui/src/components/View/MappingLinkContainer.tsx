@@ -10,7 +10,7 @@ import { MappingLink } from './MappingLink';
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
-  const { getNodeReference } = useCanvas();
+  const { getNodeReference, nodeReferenceVersion } = useCanvas();
   const { getMappingLinks } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -20,8 +20,13 @@ export const MappingLinksContainer: FunctionComponent = () => {
     setLineCoordList(answer);
   }, [getMappingLinks, getNodeReference]);
 
+  // Refresh when node references change (via version counter)
   useEffect(() => {
     refreshLinks();
+  }, [refreshLinks, nodeReferenceVersion]);
+
+  // Refresh on window events
+  useEffect(() => {
     window.addEventListener('resize', refreshLinks);
     window.addEventListener('scroll', refreshLinks);
 
@@ -33,7 +38,12 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   return (
     <svg className="mapping-links-container" ref={svgRef} data-testid="mapping-links">
-      <g z={0}>
+      <defs>
+        <clipPath id="mapping-clip" clipPathUnits="objectBoundingBox">
+          <rect x="0" y="0" width="1" height="1" />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#mapping-clip)">
         {lineCoordList.map((lineProps) => (
           <MappingLink
             key={`${lineProps.sourceNodePath}-${lineProps.targetNodePath}`}

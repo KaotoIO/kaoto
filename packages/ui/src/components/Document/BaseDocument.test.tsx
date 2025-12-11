@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
+import { useCanvas } from '../../hooks/useCanvas';
 import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
@@ -71,6 +72,45 @@ describe('DocumentHeader', () => {
 
     expect(screen.getByTestId(`attach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
     expect(screen.getByTestId(`detach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
+  });
+
+  it('should register node reference with accessible containerRef', () => {
+    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    let capturedContainerRef: HTMLDivElement | null = null;
+
+    // Helper component to access canvas context
+    const NodeRefChecker: FunctionComponent = () => {
+      const { getNodeReference } = useCanvas();
+      const [checked, setChecked] = useState(false);
+
+      useEffect(() => {
+        if (!checked) {
+          const nodeRef = getNodeReference(`targetBody:${BODY_DOCUMENT_ID}://`);
+          if (nodeRef?.current) {
+            capturedContainerRef = nodeRef.current.containerRef;
+            setChecked(true);
+          }
+        }
+      }, [getNodeReference, checked]);
+
+      return null;
+    };
+
+    render(
+      <DataMapperProvider>
+        <DataMapperCanvasProvider>
+          <DocumentHeader
+            header={<div>Test Header</div>}
+            document={document}
+            documentType={DocumentType.TARGET_BODY}
+            isReadOnly={false}
+          />
+          <NodeRefChecker />
+        </DataMapperCanvasProvider>
+      </DataMapperProvider>,
+    );
+
+    expect(capturedContainerRef).toBeInstanceOf(HTMLDivElement);
   });
 });
 

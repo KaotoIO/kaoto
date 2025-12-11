@@ -20,6 +20,7 @@ import { SourceDocumentNode } from './SourceDocumentNode';
 type ParametersSectionProps = {
   isReadOnly: boolean;
   onScroll: () => void;
+  onLayoutChange?: () => void;
 };
 
 type ParametersHeaderProps = {
@@ -110,6 +111,7 @@ type ParameterPanelProps = {
   onStartRename: (name: string) => void;
   onStopRename: () => void;
   onScroll: () => void;
+  onLayoutChange?: () => void;
 };
 
 /**
@@ -124,6 +126,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   onStartRename,
   onStopRename,
   onScroll,
+  onLayoutChange,
 }) => {
   const { mappingTree } = useDataMapper();
   const parameterNodeData = useMemo(() => new DocumentNodeData(document), [document]);
@@ -169,6 +172,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         />
       }
       onScroll={onScroll}
+      onLayoutChange={onLayoutChange}
     >
       {/* Only render children if parameter has schema */}
       {hasSchema && parameterTree && (
@@ -196,7 +200,11 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
  * This component encapsulates all parameter logic similar to the old Card-based Parameters component,
  * but now works with the new ExpansionPanel architecture.
  */
-export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ isReadOnly, onScroll }) => {
+export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
+  isReadOnly,
+  onScroll,
+  onLayoutChange,
+}) => {
   const { sourceParameterMap } = useDataMapper();
 
   // State for adding new parameter
@@ -248,6 +256,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
         defaultHeight={40}
         minHeight={40}
         onScroll={onScroll}
+        onLayoutChange={onLayoutChange}
       >
         {/* NO CHILDREN - header only panel */}
       </ExpansionPanel>
@@ -264,6 +273,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
               defaultHeight={40}
               minHeight={40}
               onScroll={onScroll}
+              onLayoutChange={onLayoutChange}
             >
               {/* NO CHILDREN - input only */}
             </ExpansionPanel>
@@ -280,6 +290,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({ i
               onStartRename={handleStartRename}
               onStopRename={handleStopRename}
               onScroll={onScroll}
+              onLayoutChange={onLayoutChange}
             />
           ))}
         </>

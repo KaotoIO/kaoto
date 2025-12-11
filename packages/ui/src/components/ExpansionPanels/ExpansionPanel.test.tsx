@@ -195,7 +195,7 @@ describe('ExpansionPanel', () => {
 
       expect(panel).toHaveAttribute('data-resizing', 'true');
 
-      // Simulate mousemove - drag down 50px
+      // Simulate mousemove - drag down 50px (resize is immediate)
       act(() => {
         fireEvent(
           document,
@@ -208,6 +208,11 @@ describe('ExpansionPanel', () => {
 
       // Normal bottom handle: deltaY = 150 - 100 = 50, newHeight = 300 + 50 = 350
       expect(mockResize).toHaveBeenCalledWith('normal-panel', 350, false);
+
+      // Cleanup
+      act(() => {
+        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
+      });
     });
 
     it('should constrain resize to minHeight (bottom handle)', () => {
@@ -235,6 +240,11 @@ describe('ExpansionPanel', () => {
 
       // Should be constrained to minHeight: 100
       expect(mockResize).toHaveBeenCalledWith('normal-panel', 100, false);
+
+      // Cleanup
+      act(() => {
+        fireEvent(document, new MouseEvent('mouseup', { bubbles: true }));
+      });
     });
 
     it('should stop resizing on mouseup (bottom handle)', () => {

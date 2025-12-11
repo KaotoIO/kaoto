@@ -137,6 +137,7 @@ describe('MappingLinksService : JSON', () => {
     >();
 
     const mockRect = () => ({ a: 0, b: 0 });
+    const mockNull = () => null;
     const createNodeReference = (path: string) => {
       const { result } = renderHook(() =>
         useRef<NodeReference>({
@@ -146,6 +147,8 @@ describe('MappingLinksService : JSON', () => {
           headerRef: {
             getBoundingClientRect: mockRect,
             getClientRects: mockRect,
+            closest: mockNull,
+            querySelector: mockNull,
           } as unknown as HTMLDivElement,
         }),
       );
