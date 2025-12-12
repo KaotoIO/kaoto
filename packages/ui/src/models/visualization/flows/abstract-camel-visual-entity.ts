@@ -250,6 +250,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
+  getGroupIcons(): { icon: string; title: string }[] {
+    return [];
+  }
+
   toVizNode(): IVisualizationNode {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
       catalogKind: CatalogKind.Entity,

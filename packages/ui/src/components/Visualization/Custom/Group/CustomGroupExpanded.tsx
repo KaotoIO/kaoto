@@ -1,7 +1,14 @@
 import './CustomGroupExpanded.scss';
 
 import { Icon } from '@patternfly/react-core';
-import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import {
+  ArrowDownIcon,
+  ArrowRightIcon,
+  BanIcon,
+  ExclamationCircleIcon,
+  PauseIcon,
+  PlayIcon,
+} from '@patternfly/react-icons';
 import {
   AnchorEnd,
   GROUPS_LAYER,
@@ -68,6 +75,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     if (!droppable || !boxRef.current) {
       boxRef.current = element.getBounds();
     }
+
     const toolbarWidth = Math.max(CanvasDefaults.STEP_TOOLBAR_WIDTH, boxRef.current.width);
     const toolbarX = boxRef.current.x + (boxRef.current.width - toolbarWidth) / 2;
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
@@ -109,6 +117,12 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 )}
                 <span title={label}>{label}</span>
               </div>
+
+              {vizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
+                <Icon key={title} className="custom-group__autostart-icon" title={title}>
+                  {icon === 'play' ? <PlayIcon /> : <PauseIcon />}
+                </Icon>
+              ))}
 
               {isDisabled && !doesHaveWarnings && (
                 <Icon className="custom-group__disabled-icon" title="Step disabled">
