@@ -7,13 +7,16 @@ import {
   withContextMenu,
   withPanZoom,
 } from '@patternfly/react-topology';
-import { FunctionComponent, ReactElement, useContext } from 'react';
+import { FunctionComponent, PropsWithChildren, ReactElement, useContext } from 'react';
 
+import { IDataTestID } from '../../../../models';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
 import { withEntityContextMenu, WithEntityContextMenuProps } from './withEntityContextMenu';
 
-export const GraphContextMenuFn = (entityContextMenuFn: () => ReactElement[]): ReactElement[] => {
-  const items: ReactElement[] = [
+export const GraphContextMenuFn = (
+  entityContextMenuFn: () => ReactElement[],
+): ReactElement<PropsWithChildren<IDataTestID>>[] => {
+  const items: ReactElement<PropsWithChildren<IDataTestID>>[] = [
     <ShowOrHideAllFlows key="showAll" data-testid="context-menu-item-show-all" mode="showAll">
       <EyeIcon />
       <span className="pf-v6-u-m-sm">Show all</span>

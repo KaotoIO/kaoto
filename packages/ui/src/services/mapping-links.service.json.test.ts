@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react';
-import { MutableRefObject, RefObject, useRef } from 'react';
+import { RefObject, useRef } from 'react';
 
 import {
   BODY_DOCUMENT_ID,
@@ -131,10 +131,7 @@ describe('MappingLinksService : JSON', () => {
   });
 
   describe('calculateMappingLinkCoordinates()', () => {
-    const nodeReferences: Map<string, MutableRefObject<NodeReference>> = new Map<
-      string,
-      MutableRefObject<NodeReference>
-    >();
+    const nodeReferences: Map<string, RefObject<NodeReference>> = new Map<string, RefObject<NodeReference>>();
 
     const mockRect = () => ({ a: 0, b: 0 });
     const createNodeReference = (path: string) => {
@@ -152,7 +149,7 @@ describe('MappingLinksService : JSON', () => {
       nodeReferences.set(path, result.current);
     };
 
-    const getNodeReference = (path: string): MutableRefObject<NodeReference> => {
+    const getNodeReference = (path: string): RefObject<NodeReference> => {
       if (!nodeReferences.has(path)) createNodeReference(path);
       return nodeReferences.get(path)!;
     };

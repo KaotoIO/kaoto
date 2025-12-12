@@ -49,7 +49,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
   const componentSelectionRef = useRef<{
     resolve: (component: DefinedComponent | undefined) => void;
     reject: (error: unknown) => unknown;
-  }>();
+  }>(undefined);
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);

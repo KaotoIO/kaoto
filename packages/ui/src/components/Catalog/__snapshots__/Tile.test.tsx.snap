@@ -33,11 +33,6 @@ exports[`Tile renders correctly 1`] = `
       <div
         class="tile__header"
       >
-        <img
-          alt="component icon"
-          class="tile__icon"
-          src=""
-        />
         <div
           class="pf-v6-c-label-group"
         >

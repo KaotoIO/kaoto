@@ -3,7 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, ReactElement } from 'react';
 
 import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
@@ -32,7 +32,7 @@ describe('BeanField', () => {
   });
 
   const createBeanInComponent = async (
-    component: JSX.Element,
+    component: ReactElement,
     beanName: string,
     schemaTitle: string,
     schema: KaotoSchemaDefinition['schema'],

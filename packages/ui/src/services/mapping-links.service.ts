@@ -1,4 +1,4 @@
-import { MutableRefObject, RefObject } from 'react';
+import { RefObject } from 'react';
 
 import {
   ExpressionItem,
@@ -24,7 +24,7 @@ export class MappingLinksService {
     item: MappingTree | MappingItem,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
-    selectedNodeRef: MutableRefObject<NodeReference> | null = null,
+    selectedNodeRef: RefObject<NodeReference> | null = null,
   ): IMappingLink[] {
     const answer = [] as IMappingLink[];
     const targetNodePath = item.nodePath.toString();
@@ -67,7 +67,7 @@ export class MappingLinksService {
     targetNodePath: string,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
-    selectedNodeRef: MutableRefObject<NodeReference> | null,
+    selectedNodeRef: RefObject<NodeReference> | null,
   ) {
     const namespaces = sourceExpressionItem.mappingTree.namespaceMap;
     const sourceXPath = sourceExpressionItem.expression;
@@ -95,8 +95,8 @@ export class MappingLinksService {
 
   static calculateMappingLinkCoordinates(
     mappingLinks: IMappingLink[],
-    svgRef: RefObject<SVGSVGElement>,
-    getNodeReference: (path: string) => MutableRefObject<NodeReference> | null,
+    svgRef: RefObject<SVGSVGElement | null>,
+    getNodeReference: (path: string) => RefObject<NodeReference> | null,
   ): LineProps[] {
     return mappingLinks
       .reduce((acc, { sourceNodePath, targetNodePath, isSelected }) => {
@@ -123,7 +123,7 @@ export class MappingLinksService {
 
   private static getClosestExpandedPath(
     path: string,
-    getNodeReference: (path: string) => MutableRefObject<NodeReference> | null,
+    getNodeReference: (path: string) => RefObject<NodeReference> | null,
   ) {
     let tracedPath: string | null = path;
     while (tracedPath && MappingLinksService.shouldTraceParent(tracedPath, getNodeReference)) {
@@ -136,7 +136,7 @@ export class MappingLinksService {
 
   private static shouldTraceParent(
     tracedPath: string,
-    getNodeReference: (path: string) => MutableRefObject<NodeReference> | null,
+    getNodeReference: (path: string) => RefObject<NodeReference> | null,
   ): boolean {
     if (getNodeReference(tracedPath)?.current == null) return true;
     if (getNodeReference(tracedPath)?.current.headerRef == null) return true;
@@ -155,9 +155,9 @@ export class MappingLinksService {
   }
 
   private static getCoordFromFieldRef(
-    svgRef: RefObject<SVGSVGElement>,
-    sourceRef: MutableRefObject<NodeReference>,
-    targetRef: MutableRefObject<NodeReference>,
+    svgRef: RefObject<SVGSVGElement | null>,
+    sourceRef: RefObject<NodeReference>,
+    targetRef: RefObject<NodeReference>,
   ): LineCoord | undefined {
     const svgRect = svgRef.current?.getBoundingClientRect();
     const sourceHeaderRef = sourceRef.current?.headerRef;
@@ -200,7 +200,7 @@ export class MappingLinksService {
   private static isLinkSelected(
     sourceNodePath: string,
     targetNodePath: string,
-    selectedNodeRef: MutableRefObject<NodeReference> | null,
+    selectedNodeRef: RefObject<NodeReference> | null,
   ): boolean {
     if (!selectedNodeRef) return false;
 
@@ -211,7 +211,7 @@ export class MappingLinksService {
     }
   }
 
-  static isInSelectedMapping(mappingLinks: IMappingLink[], ref: MutableRefObject<NodeReference>): boolean {
+  static isInSelectedMapping(mappingLinks: IMappingLink[], ref: RefObject<NodeReference>): boolean {
     return !!mappingLinks
       .filter((link) => link.isSelected)
       .find((link) => MappingLinksService.isLinkSelected(link.sourceNodePath, link.targetNodePath, ref));

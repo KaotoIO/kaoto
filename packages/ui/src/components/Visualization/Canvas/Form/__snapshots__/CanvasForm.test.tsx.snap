@@ -21,11 +21,6 @@ exports[`CanvasForm should render 1`] = `
           <div
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
-            <img
-              alt="processor icon"
-              class="form-header__icon-test|route.from.steps.1.choice.when.0.steps.0.log"
-              src=""
-            />
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"
               data-ouia-component-id="OUIA-Generated-Title-1"
@@ -387,11 +382,6 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
           <div
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
-            <img
-              alt="Entity icon"
-              class="form-header__icon-1"
-              src=""
-            />
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"
               data-ouia-component-id="OUIA-Generated-Title-3"
@@ -647,11 +637,6 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
           <div
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
-            <img
-              alt="Entity icon"
-              class="form-header__icon-1"
-              src=""
-            />
             <h2
               class="pf-v6-c-title pf-m-h2 form-header__title"
               data-ouia-component-id="OUIA-Generated-Title-2"
