@@ -19,6 +19,7 @@ import { setColorScheme } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { KaotoEditorEnvelopeApi } from './KaotoEditorEnvelopeApi';
 
 jest.mock('../utils/color-scheme');
 
@@ -26,7 +27,7 @@ describe('KaotoEditorApp', () => {
   let kaotoEditorApp: KaotoEditorAppTest;
   let editService: EditService;
   let editorRef: RefObject<EditorApi>;
-  let envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+  let envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>;
   let initArgs: EditorInitArgs;
   let settingsAdapter: AbstractSettingsAdapter;
 
@@ -68,6 +69,7 @@ describe('KaotoEditorApp', () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
       },
+      shared: {},
       operatingSystem: OperatingSystem.LINUX,
       services: {
         keyboardShortcuts: {} as KeyboardShortcutsService,

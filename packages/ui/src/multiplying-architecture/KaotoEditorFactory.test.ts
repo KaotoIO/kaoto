@@ -5,6 +5,7 @@ import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core
 import { ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { KaotoEditorEnvelopeApi } from './KaotoEditorEnvelopeApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';
 
 describe('KaotoEditorFactory', () => {
@@ -32,7 +33,7 @@ describe('KaotoEditorFactory', () => {
           },
         },
       },
-    } as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -62,7 +63,7 @@ describe('KaotoEditorFactory', () => {
           getCatalogURL: getCatalogURLSpy,
         },
       },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -84,7 +85,7 @@ describe('KaotoEditorFactory', () => {
           getCatalogURL: getCatalogURLSpy,
         },
       },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {} as EditorInitArgs;
     const factory = new KaotoEditorFactory();
 
@@ -125,7 +126,7 @@ describe('KaotoEditorFactory', () => {
           getCatalogURL: getCatalogURLSpy,
         },
       },
-    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>;
+    } as unknown as KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>;
     const initArgs = {
       resourcesPathPrefix: 'path-prefix',
     } as EditorInitArgs;

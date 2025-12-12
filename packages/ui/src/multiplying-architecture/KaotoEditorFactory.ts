@@ -10,10 +10,11 @@ import { DefaultSettingsAdapter, ISettingsModel, SettingsModel } from '../models
 import { CatalogSchemaLoader, promiseTimeout } from '../utils';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { KaotoEditorEnvelopeApi } from './KaotoEditorEnvelopeApi';
 
-export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChannelApi> {
+export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorEnvelopeApi, KaotoEditorChannelApi> {
   public async createEditor(
-    envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
+    envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>,
     initArgs: EditorInitArgs,
   ): Promise<Editor> {
     const settings = await this.getSettings(envelopeContext);
@@ -28,7 +29,7 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChan
    * Get the settings from the envelope context
    */
   private async getSettings(
-    envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
+    envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>,
   ): Promise<ISettingsModel> {
     let settings: ISettingsModel;
 
