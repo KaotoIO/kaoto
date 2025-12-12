@@ -55,13 +55,14 @@ describe('TargetDocument', () => {
     expect(Object.keys(store.expansionState[documentId]).length).toBeGreaterThan(0);
   });
 
-  it('should render target document with expand/collapse functionality', async () => {
+  it('should render child nodes with expand/collapse functionality', async () => {
     const document = TestUtil.createTargetOrderDoc();
     render(<TargetDocument document={document} />, { wrapper });
 
     await screen.findByText('OrderPerson');
 
-    const expandIcon = screen.getByTestId('expand-icon-Body');
+    // Test expand/collapse on a child node (ShipOrder has children)
+    const expandIcon = screen.getByTestId('expand-icon-ShipOrder');
     expect(expandIcon).toBeInTheDocument();
 
     act(() => {
@@ -69,17 +70,17 @@ describe('TargetDocument', () => {
     });
 
     await waitFor(() => {
-      const collapseIcon = screen.getByTestId('collapse-icon-Body');
+      const collapseIcon = screen.getByTestId('collapse-icon-ShipOrder');
       expect(collapseIcon).toBeInTheDocument();
     });
 
     act(() => {
-      const collapseIcon = screen.getByTestId('collapse-icon-Body');
+      const collapseIcon = screen.getByTestId('collapse-icon-ShipOrder');
       fireEvent.click(collapseIcon);
     });
 
     await waitFor(() => {
-      const expandIconAgain = screen.getByTestId('expand-icon-Body');
+      const expandIconAgain = screen.getByTestId('expand-icon-ShipOrder');
       expect(expandIconAgain).toBeInTheDocument();
     });
   });
@@ -90,13 +91,14 @@ describe('TargetDocument', () => {
 
     await screen.findByText('OrderPerson');
 
-    const expandIcon = screen.getByTestId('expand-icon-Body');
+    // Test with child node instead of Body
+    const expandIcon = screen.getByTestId('expand-icon-ShipOrder');
     act(() => {
       fireEvent.click(expandIcon);
     });
 
     await waitFor(() => {
-      expect(screen.getByTestId('collapse-icon-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('collapse-icon-ShipOrder')).toBeInTheDocument();
     });
 
     const store = useDocumentTreeStore.getState();
@@ -109,7 +111,7 @@ describe('TargetDocument', () => {
       const expansionStateAfter = storeAfter.expansionState[documentId];
 
       expect(expansionStateAfter).toBeDefined();
-      expect(screen.getByTestId('collapse-icon-Body')).toBeInTheDocument();
+      expect(screen.getByTestId('collapse-icon-ShipOrder')).toBeInTheDocument();
     });
   });
 

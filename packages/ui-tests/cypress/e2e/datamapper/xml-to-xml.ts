@@ -33,6 +33,9 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.addParameter('Account');
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
 
+    // Expand parameter panel to make nodes visible for mapping
+    cy.expandParameterPanel('Account');
+
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-AccountId'],
       ['document-doc-targetBody-Body', 'node-target-fx-OrderId'],
@@ -63,6 +66,9 @@ describe('Test for DataMapper : XML to XML', () => {
       ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
+
+    // Expand source body panel to make nodes visible for mapping
+    cy.expandSourceBodyPanel();
 
     cy.engageForEachMapping(
       ['document-doc-sourceBody-Body', 'node-source-fx-Item'],
@@ -99,6 +105,9 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
     cy.addParameter('Account');
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
+
+    // Expand parameter panel to make nodes visible for mapping
+    cy.expandParameterPanel('Account');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-AccountId'],
@@ -138,6 +147,9 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
     cy.addParameter('Account');
     cy.attachParameterSchema('Account', 'datamapper/xsd/Account.xsd');
+
+    // Expand parameter panel to make nodes visible for mapping
+    cy.expandParameterPanel('Account');
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-AccountId'],
