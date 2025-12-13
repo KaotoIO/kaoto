@@ -1,7 +1,11 @@
 import {
   AngleDoubleDownIcon,
+  AngleDoubleLeftIcon,
+  AngleDoubleRightIcon,
   AngleDoubleUpIcon,
   ArrowDownIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
   ArrowUpIcon,
   BlueprintIcon,
   CodeBranchIcon,
@@ -24,11 +28,24 @@ import { ItemMoveStep } from './ItemMoveStep';
 import { ItemPasteStep } from './ItemPasteStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 
+const getLayoutIcons = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
+  const layout = element?.getGraph?.().getLayout?.() ?? '';
+  const isVertical = layout.includes('Vertical');
+
+  return {
+    prepend: isVertical ? <ArrowUpIcon /> : <ArrowLeftIcon />,
+    append: isVertical ? <ArrowDownIcon /> : <ArrowRightIcon />,
+    moveBefore: isVertical ? <AngleDoubleUpIcon /> : <AngleDoubleLeftIcon />,
+    moveNext: isVertical ? <AngleDoubleDownIcon /> : <AngleDoubleRightIcon />,
+  };
+};
+
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
   const vizNode = element.getData()?.vizNode;
   if (!vizNode) return items;
 
+  const icons = getLayoutIcons(element);
   const nodeInteractions = vizNode.getNodeInteraction();
   const childrenNodes = vizNode.getChildren();
   const isStepWithChildren = childrenNodes !== undefined && childrenNodes.length > 0;
@@ -41,7 +58,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
         mode={AddStepMode.PrependStep}
         vizNode={vizNode}
       >
-        <ArrowUpIcon /> Prepend
+        {icons.prepend} Prepend
       </ItemAddStep>,
     );
   }
@@ -53,7 +70,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
         mode={AddStepMode.AppendStep}
         vizNode={vizNode}
       >
-        <ArrowDownIcon /> Append
+        {icons.append} Append
       </ItemAddStep>,
     );
   }
@@ -77,7 +94,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
       mode={AddStepMode.PrependStep}
       vizNode={vizNode}
     >
-      <AngleDoubleUpIcon /> Move Before
+      {icons.moveBefore} Move Before
     </ItemMoveStep>,
   );
 
@@ -88,7 +105,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
       mode={AddStepMode.AppendStep}
       vizNode={vizNode}
     >
-      <AngleDoubleDownIcon /> Move Next
+      {icons.moveNext} Move Next
     </ItemMoveStep>,
   );
 
