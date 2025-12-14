@@ -1,18 +1,21 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { toPng } from 'html-to-image';
+import { toBlob } from 'html-to-image';
 import { PropsWithChildren } from 'react';
 
+import { EntitiesProvider } from '../../../../providers/entities.provider';
 import { SourceCodeProvider } from '../../../../providers/source-code.provider';
+import { VisibleFlowsProvider } from '../../../../providers/visible-flows.provider';
 import { FlowExportImage } from './FlowExportImage';
 
 jest.mock('html-to-image', () => ({
-  toPng: jest.fn().mockResolvedValue('data:image/png;base64'),
+  toBlob: jest.fn().mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' })),
 }));
 
 jest.mock('@patternfly/react-topology', () => ({
   ...jest.requireActual('@patternfly/react-topology'),
   useVisualizationController: jest.fn(),
+  useEventListener: jest.fn(),
 }));
 
 globalThis.requestAnimationFrame = ((cb: FrameRequestCallback) => {
@@ -21,6 +24,9 @@ globalThis.requestAnimationFrame = ((cb: FrameRequestCallback) => {
 }) as unknown as typeof globalThis.requestAnimationFrame;
 
 HTMLAnchorElement.prototype.click = jest.fn();
+
+URL.createObjectURL = jest.fn(() => 'blob:mock-url');
+URL.revokeObjectURL = jest.fn();
 
 const realQuerySelector: Document['querySelector'] = document.querySelector.bind(document);
 
@@ -34,10 +40,17 @@ interface MockGraph {
   getPosition: jest.Mock<Position, []>;
   setScale: jest.Mock<void, [number]>;
   setPosition: jest.Mock<void, [Position]>;
+  getLayout: jest.Mock<string, []>;
   getGraph: () => MockGraph;
 }
 
-const wrapper = ({ children }: PropsWithChildren) => <SourceCodeProvider>{children}</SourceCodeProvider>;
+const wrapper = ({ children }: PropsWithChildren) => (
+  <SourceCodeProvider>
+    <EntitiesProvider>
+      <VisibleFlowsProvider>{children}</VisibleFlowsProvider>
+    </EntitiesProvider>
+  </SourceCodeProvider>
+);
 
 describe('FlowExportImage', () => {
   let mockSurface: HTMLElement;
@@ -45,10 +58,16 @@ describe('FlowExportImage', () => {
 
   beforeEach(() => {
     mockSurface = document.createElement('div');
-    mockSurface.className = 'pf-topology-container';
+    mockSurface.className = 'pf-topology-visualization-surface';
+
+    // Create mock SVG element with getBBox method
+    const mockSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    mockSvg.getBBox = jest.fn(() => ({ x: 0, y: 0, width: 100, height: 100 } as DOMRect));
+    mockSvg.setAttribute = jest.fn();
+    mockSurface.appendChild(mockSvg);
 
     document.querySelector = jest.fn((selector?: string | null) => {
-      if (selector === '.pf-topology-container') return mockSurface;
+      if (selector === '.pf-topology-visualization-surface') return mockSurface;
       return realQuerySelector(selector ?? '');
     }) as unknown as typeof document.querySelector;
 
@@ -60,6 +79,7 @@ describe('FlowExportImage', () => {
       getPosition: jest.fn(() => ({ x: 10, y: 20 })),
       setScale: jest.fn(),
       setPosition: jest.fn(),
+      getLayout: jest.fn(() => 'DagreHorizontal'),
       getGraph() {
         return this;
       },
@@ -79,32 +99,28 @@ describe('FlowExportImage', () => {
     expect(screen.getByTestId('exportImageButton')).toBeInTheDocument();
   });
 
-  it('runs full export flow and resets graph', async () => {
+  it('runs full export flow', async () => {
     render(<FlowExportImage />, { wrapper });
 
-    fireEvent.click(screen.getByTestId('exportImageButton'));
+    const button = screen.getByTestId('exportImageButton');
+    fireEvent.click(button);
 
-    expect(document.querySelector('.export-overlay')).not.toBeNull();
+    // Button should be disabled while exporting
+    expect(button).toBeDisabled();
 
     await waitFor(() => {
-      expect(toPng).toHaveBeenCalled();
+      expect(toBlob).toHaveBeenCalled();
     });
 
-    expect(mockGraph.reset).toHaveBeenCalled();
-    expect(mockGraph.fit).toHaveBeenCalledWith(80);
-    expect(mockGraph.layout).toHaveBeenCalledTimes(2);
-
-    expect(mockGraph.setScale).toHaveBeenCalledWith(1);
-    expect(mockGraph.setPosition).toHaveBeenCalledWith(
-      expect.objectContaining({ x: expect.any(Number), y: expect.any(Number) }),
-    );
-
-    await waitFor(() => expect(document.querySelector('.export-overlay')).toBeNull());
+    // After export completes, button should be enabled again
+    await waitFor(() => {
+      expect(button).not.toBeDisabled();
+    });
   });
 
-  it('handles missing container safely', async () => {
+  it('handles missing surface safely', async () => {
     document.querySelector = jest.fn((selector?: string | null) => {
-      if (selector === '.pf-topology-container') return null;
+      if (selector === '.pf-topology-visualization-surface') return null;
       return realQuerySelector(selector ?? '');
     }) as unknown as typeof document.querySelector;
 
@@ -112,7 +128,9 @@ describe('FlowExportImage', () => {
 
     fireEvent.click(screen.getByTestId('exportImageButton'));
 
-    expect(toPng).not.toHaveBeenCalled();
-    expect(mockGraph.reset).not.toHaveBeenCalled();
+    // Wait a bit to ensure the export attempt completes
+    await waitFor(() => {
+      expect(toBlob).not.toHaveBeenCalled();
+    });
   });
 });
