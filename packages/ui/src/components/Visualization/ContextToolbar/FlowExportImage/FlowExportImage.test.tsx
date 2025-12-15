@@ -62,7 +62,7 @@ describe('FlowExportImage', () => {
 
     // Create mock SVG element with getBBox method
     const mockSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    mockSvg.getBBox = jest.fn(() => ({ x: 0, y: 0, width: 100, height: 100 } as DOMRect));
+    mockSvg.getBBox = jest.fn(() => ({ x: 0, y: 0, width: 100, height: 100 }) as DOMRect);
     mockSvg.setAttribute = jest.fn();
     mockSurface.appendChild(mockSvg);
 
