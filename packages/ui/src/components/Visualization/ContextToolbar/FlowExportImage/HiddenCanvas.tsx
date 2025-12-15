@@ -33,16 +33,18 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const hasExportedRef = useRef(false);
   const controllerRef = useRef<ReturnType<typeof ControllerService.createController>>();
+  const onCompleteRef = useRef(onComplete);
+
+  // Keep onCompleteRef up to date
+  onCompleteRef.current = onComplete;
 
   controllerRef.current ??= ControllerService.createController();
   const controller = controllerRef.current;
 
   useEventListener(GRAPH_LAYOUT_END_EVENT, () => {
-    setTimeout(() => {
-      if (!hasExportedRef.current) {
-        setLayoutComplete(true);
-      }
-    }, 0);
+    if (!hasExportedRef.current) {
+      setLayoutComplete(true);
+    }
   });
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
 
     controller.fromModel(model, false);
 
-    requestAnimationFrame(() => {
+    const rafId = requestAnimationFrame(() => {
       action(() => {
         const graph = controller.getGraph();
         graph.reset();
@@ -84,13 +86,17 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
       }
     }, 1_000);
 
-    return () => clearTimeout(fallbackTimer);
+    return () => {
+      clearTimeout(fallbackTimer);
+      cancelAnimationFrame(rafId);
+    };
   }, [controller, entities, layout, visibleFlows]);
 
   useEffect(() => {
     if (!layoutComplete || !containerRef.current || hasExportedRef.current) return;
 
     hasExportedRef.current = true;
+    let isMounted = true;
 
     const exportCanvas = async () => {
       try {
@@ -98,7 +104,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
 
         if (!surface) {
           console.error('Surface not found');
-          onComplete();
+          if (isMounted) onCompleteRef.current();
           return;
         }
 
@@ -124,7 +130,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
 
         if (!blob) {
           console.error('Failed to generate blob');
-          onComplete();
+          if (isMounted) onCompleteRef.current();
           return;
         }
 
@@ -139,12 +145,16 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
       } catch (err) {
         console.error('Export failed', err);
       } finally {
-        onComplete();
+        if (isMounted) onCompleteRef.current();
       }
     };
 
     exportCanvas();
-  }, [layoutComplete, onComplete]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [layoutComplete]);
 
   return (
     <div ref={containerRef} className="hidden-canvas">
