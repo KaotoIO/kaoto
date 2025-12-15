@@ -4,6 +4,7 @@ import {
   CatalogSchemaLoader,
   CatalogTilesProvider,
   ContextToolbar,
+  ControllerService,
   EntitiesProvider,
   IntegrationTypeSelector,
   kameletYaml,
@@ -16,10 +17,12 @@ import {
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
-import { useContext } from 'react';
+import { useContext, useMemo } from 'react';
 
 const EntitiesContextDecorator = (Story: StoryFn) => {
+  const controller = useMemo(() => ControllerService.createController(), []);
   return (
     <SourceCodeProvider>
       <EntitiesProvider>
@@ -28,7 +31,9 @@ const EntitiesContextDecorator = (Story: StoryFn) => {
             <CatalogLoaderProvider>
               <CatalogTilesProvider>
                 <VisibleFlowsProvider>
-                  <Story />
+                  <VisualizationProvider controller={controller}>
+                    <Story />
+                  </VisualizationProvider>
                 </VisibleFlowsProvider>
               </CatalogTilesProvider>
             </CatalogLoaderProvider>
