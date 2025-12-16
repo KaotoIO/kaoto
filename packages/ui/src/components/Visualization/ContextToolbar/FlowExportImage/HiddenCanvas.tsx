@@ -32,7 +32,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   const [layoutComplete, setLayoutComplete] = useState(false);
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const hasExportedRef = useRef(false);
-  const controllerRef = useRef<ReturnType<typeof ControllerService.createController>>();
+  const controllerRef = useRef<ReturnType<typeof ControllerService.createController>>(null);
   const onCompleteRef = useRef(onComplete);
 
   // Keep onCompleteRef up to date
