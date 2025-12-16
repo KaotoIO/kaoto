@@ -1,0 +1,15 @@
+- route:
+    id: camel-route
+    from:
+      uri: timer:test
+      steps:
+        - marshal:
+            id: marshal-3801
+        - setHeader:
+            constant:
+              id: testConstantId
+              expression: testConstantExpression
+              resultType: testConstantResultType
+            name: testName
+        - to:
+            uri: log:test

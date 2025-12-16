@@ -2,6 +2,8 @@ import './StepToolbar.scss';
 
 import { Button } from '@patternfly/react-core';
 import {
+  AngleDoubleDownIcon,
+  AngleDoubleUpIcon,
   BanIcon,
   BlueprintIcon,
   CheckIcon,
@@ -22,6 +24,7 @@ import { useDisableStep } from '../../Custom/hooks/disable-step.hook';
 import { useDuplicateStep } from '../../Custom/hooks/duplicate-step.hook';
 import { useEnableAllSteps } from '../../Custom/hooks/enable-all-steps.hook';
 import { useInsertStep } from '../../Custom/hooks/insert-step.hook';
+import { useMoveStep } from '../../Custom/hooks/move-step.hook';
 import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
 
 interface IStepToolbar extends IDataTestID {
@@ -48,6 +51,8 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   const { onDeleteStep } = useDeleteStep(vizNode);
   const { onDeleteGroup } = useDeleteGroup(vizNode);
   const { canDuplicate, onDuplicate } = useDuplicateStep(vizNode);
+  const { canBeMoved: canMoveBefore, onMoveStep: onMoveBefore } = useMoveStep(vizNode, AddStepMode.PrependStep);
+  const { canBeMoved: canMoveAfter, onMoveStep: onMoveAfter } = useMoveStep(vizNode, AddStepMode.AppendStep);
 
   return (
     <div className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
@@ -60,6 +65,34 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           title="Duplicate"
           onClick={(event) => {
             onDuplicate();
+            event.stopPropagation();
+          }}
+        />
+      )}
+
+      {canMoveBefore && (
+        <Button
+          icon={<AngleDoubleUpIcon />}
+          className="step-toolbar__button"
+          data-testid="step-toolbar-button-move-before"
+          variant="control"
+          title="Move before"
+          onClick={(event) => {
+            onMoveBefore();
+            event.stopPropagation();
+          }}
+        />
+      )}
+
+      {canMoveAfter && (
+        <Button
+          icon={<AngleDoubleDownIcon />}
+          className="step-toolbar__button"
+          data-testid="step-toolbar-button-move-after"
+          variant="control"
+          title="Move after"
+          onClick={(event) => {
+            onMoveAfter();
             event.stopPropagation();
           }}
         />

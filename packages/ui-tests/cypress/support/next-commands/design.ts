@@ -39,9 +39,8 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
   cy.wait(1000);
 });
 
-Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
-  nodeIndex = nodeIndex ?? 0;
-  cy.get('[data-testid="quick-append-step"]').eq(nodeIndex).click({ force: true });
+Cypress.Commands.add('quickAppendStep', (path: string) => {
+  cy.get(`[data-testid="placeholder-node__${path}"]`).click({ force: true });
 });
 
 Cypress.Commands.add('selectDuplicateNode', (nodeName: string, nodeIndex?: number) => {
@@ -213,10 +212,18 @@ Cypress.Commands.add('checkLightMode', () => {
   cy.get('html').should('not.have.class', 'pf-v6-theme-dark');
 });
 
-Cypress.Commands.add('DnD', (sourceNodeName: string, targetNodeName: string) => {
+Cypress.Commands.add('DnDOnNode', (sourceNodeName: string, targetNodeName: string) => {
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
   const targetNode = cy.get(`[data-testid="${targetNodeName}"]`);
 
   sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(0, 0, { position: 'center' });
   targetNode.realMouseMove(0, 0, { position: 'center' }).realMouseUp();
+});
+
+Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: string) => {
+  const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
+  const targetEdge = cy.get(`[data-id="${targetEdgeName}"]`);
+
+  sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(0, 0, { position: 'center' });
+  targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp();
 });

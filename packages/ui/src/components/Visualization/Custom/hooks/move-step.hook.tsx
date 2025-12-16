@@ -35,7 +35,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
       );
     }
 
-    return nodes.length === 1 ? nodes[0] : undefined;
+    return nodes.length === 1 && !nodes[0].data.isPlaceholder ? nodes[0] : undefined;
   }, [vizNode, controller, mode]);
 
   const canBeMoved = isDefined(targetNode);

@@ -9,7 +9,10 @@ describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' 
   it('Datamapper - drag and drop datamapper step ', () => {
     cy.uploadFixture('flows/camelRoute/datamapper.yaml');
     cy.openDesignPage();
-    cy.DnD('route.from.steps.2.step:kaoto-datamapper', 'route.from.steps.1.marshal');
+    cy.DnDOnEdge(
+      'route.from.steps.2.step:kaoto-datamapper',
+      'camel-route|route.from.steps.0.setHeader >>> route.from.steps.1.marshal',
+    );
 
     const yamlRoute = [
       'id: camel-route',

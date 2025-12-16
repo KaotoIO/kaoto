@@ -96,21 +96,19 @@ export class BaseNodeMapper implements INodeMapper {
     }, [] as IVisualizationNode[]);
 
     /** Empty steps branch placeholder */
-    if (branchVizNodes.length === 0) {
-      const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
-      const previousNode = branchVizNodes[branchVizNodes.length - 1];
-      const placeholderNode = createVisualizationNode(placeholderPath, {
-        catalogKind: CatalogKind.Entity,
-        name: 'placeholder',
-        isPlaceholder: true,
-        path: placeholderPath,
-      });
-      branchVizNodes.push(placeholderNode);
+    const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
+    const previousNode = branchVizNodes[branchVizNodes.length - 1];
+    const placeholderNode = createVisualizationNode(placeholderPath, {
+      catalogKind: CatalogKind.Entity,
+      name: 'placeholder',
+      isPlaceholder: true,
+      path: placeholderPath,
+    });
+    branchVizNodes.push(placeholderNode);
 
-      if (previousNode) {
-        previousNode.setNextNode(placeholderNode);
-        placeholderNode.setPreviousNode(previousNode);
-      }
+    if (previousNode) {
+      previousNode.setNextNode(placeholderNode);
+      placeholderNode.setPreviousNode(previousNode);
     }
 
     return branchVizNodes;

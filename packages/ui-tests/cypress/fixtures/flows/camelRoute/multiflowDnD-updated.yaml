@@ -1,0 +1,28 @@
+- route:
+    id: route-1234
+    from:
+      id: from-3362
+      uri: timer:template
+      parameters:
+        period: "1000"
+      steps:
+        - log:
+            id: log-6809
+            message: ${body}
+- route:
+    id: route-4321
+    from:
+      id: from-3576
+      uri: timer:template
+      parameters:
+        period: "1000"
+      steps:
+        - marshal:
+            id: marshal-4048
+        - setHeader:
+            id: setHeader-3105
+            expression:
+              simple: {}
+        - log:
+            id: log-2966
+            message: ${body}
