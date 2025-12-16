@@ -30,32 +30,36 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div data-testid="custom-header">Custom Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div data-testid="custom-header">Custom Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(screen.getByTestId('custom-header')).toBeInTheDocument();
     });
 
-    it('should render with document__container class', () => {
+    it('should render with document__container class', async () => {
       const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const { container } = render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
+      const { container } = await act(async () =>
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        ),
       );
 
       expect(container.querySelector('.document__container')).toBeInTheDocument();
@@ -64,7 +68,10 @@ describe('BaseDocument', () => {
     it('should throw error if treeNode is not a document node', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
       const fieldNode = tree.root.children[0]; // Get a field, not a document
 
       // Temporarily suppress console.error for this test
@@ -93,15 +100,17 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       // Use semantic queries - find buttons by their aria-label
       expect(screen.getByLabelText('Attach schema')).toBeInTheDocument();
@@ -113,15 +122,17 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={true}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={true}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(screen.queryByLabelText('Attach schema')).not.toBeInTheDocument();
       expect(screen.queryByLabelText('Detach schema')).not.toBeInTheDocument();
@@ -141,37 +152,41 @@ describe('BaseDocument', () => {
         </div>,
       ];
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-          additionalActions={additionalActions}
-        />,
-        { wrapper },
-      );
-
-      expect(screen.getByTestId('additional-action-1')).toBeInTheDocument();
-      expect(screen.getByTestId('additional-action-2')).toBeInTheDocument();
-    });
-
-    it('should stop event propagation when clicking on actions', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-      const parentClickHandler = jest.fn();
-
-      const { container } = render(
-        <div onClick={parentClickHandler}>
+      act(() => {
+        render(
           <BaseDocument
             header={<div>Header</div>}
             treeNode={tree.root}
             documentId={documentNodeData.id}
             isReadOnly={false}
-          />
-        </div>,
-        { wrapper },
+            additionalActions={additionalActions}
+          />,
+          { wrapper },
+        );
+      });
+
+      expect(screen.getByTestId('additional-action-1')).toBeInTheDocument();
+      expect(screen.getByTestId('additional-action-2')).toBeInTheDocument();
+    });
+
+    it('should stop event propagation when clicking on actions', async () => {
+      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      const parentClickHandler = jest.fn();
+
+      const { container } = await act(async () =>
+        render(
+          <div onClick={parentClickHandler}>
+            <BaseDocument
+              header={<div>Header</div>}
+              treeNode={tree.root}
+              documentId={documentNodeData.id}
+              isReadOnly={false}
+            />
+          </div>,
+          { wrapper },
+        ),
       );
 
       const actionsGroup = container.querySelector('.document__actions');
@@ -189,7 +204,10 @@ describe('BaseDocument', () => {
     it('should show expand icon when document has children', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -201,15 +219,17 @@ describe('BaseDocument', () => {
         });
       });
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`)).toBeInTheDocument();
     });
@@ -219,15 +239,17 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(screen.queryByTestId(`expand-icon-${tree.root.nodeData.title}`)).not.toBeInTheDocument();
       expect(screen.queryByTestId(`collapse-icon-${tree.root.nodeData.title}`)).not.toBeInTheDocument();
@@ -236,7 +258,10 @@ describe('BaseDocument', () => {
     it('should call TreeUIService.toggleNode when expand icon is clicked', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
       const toggleNodeSpy = jest.spyOn(TreeUIService, 'toggleNode');
 
       act(() => {
@@ -249,15 +274,17 @@ describe('BaseDocument', () => {
         });
       });
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       const expandIcon = screen.getByTestId(`expand-icon-${tree.root.nodeData.title}`);
 
@@ -273,7 +300,10 @@ describe('BaseDocument', () => {
     it('should show ChevronRight when collapsed', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -285,15 +315,17 @@ describe('BaseDocument', () => {
         });
       });
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(screen.getByTestId(`collapse-icon-${tree.root.nodeData.title}`)).toBeInTheDocument();
       expect(screen.queryByTestId(`expand-icon-${tree.root.nodeData.title}`)).not.toBeInTheDocument();
@@ -304,7 +336,10 @@ describe('BaseDocument', () => {
     it('should render children using renderNodes function when expanded', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -322,16 +357,18 @@ describe('BaseDocument', () => {
         </div>
       ));
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-          renderNodes={renderNodes}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+            renderNodes={renderNodes}
+          />,
+          { wrapper },
+        );
+      });
 
       // Verify renderNodes was called for children
       expect(renderNodes).toHaveBeenCalled();
@@ -346,7 +383,10 @@ describe('BaseDocument', () => {
     it('should not render children when collapsed', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -360,16 +400,18 @@ describe('BaseDocument', () => {
 
       const renderNodes = jest.fn((childNode) => <div data-testid={`child-${childNode.path}`}>Child Node</div>);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-          renderNodes={renderNodes}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+            renderNodes={renderNodes}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(renderNodes).not.toHaveBeenCalled();
     });
@@ -377,7 +419,10 @@ describe('BaseDocument', () => {
     it('should pass isReadOnly to renderNodes function', () => {
       const document = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(document);
-      const tree = TreeUIService.createTree(documentNodeData);
+      let tree!: DocumentTree;
+      act(() => {
+        tree = TreeUIService.createTree(documentNodeData);
+      });
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -393,16 +438,18 @@ describe('BaseDocument', () => {
         <div data-testid={`child-${childNode.path}-readonly-${isReadOnly}`}>Child Node</div>
       ));
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={true}
-          renderNodes={renderNodes}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={true}
+            renderNodes={renderNodes}
+          />,
+          { wrapper },
+        );
+      });
 
       for (let index = 0; index < tree.root.children.length; index++) {
         const child = tree.root.children[index];
@@ -417,15 +464,17 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       expect(screen.getByTestId(`document-${documentNodeData.id}`)).toBeInTheDocument();
     });
@@ -435,15 +484,17 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       const documentContainer = screen.getByTestId(`document-${documentNodeData.id}`);
 
@@ -467,15 +518,17 @@ describe('BaseDocument', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      render(
-        <BaseDocument
-          header={<div>Header</div>}
-          treeNode={tree.root}
-          documentId={documentNodeData.id}
-          isReadOnly={false}
-        />,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <BaseDocument
+            header={<div>Header</div>}
+            treeNode={tree.root}
+            documentId={documentNodeData.id}
+            isReadOnly={false}
+          />,
+          { wrapper },
+        );
+      });
 
       const documentContainer = screen.getByTestId(`document-${documentNodeData.id}`);
 
@@ -492,17 +545,19 @@ describe('BaseDocument', () => {
       const tree = new DocumentTree(documentNodeData);
       const parentClickHandler = jest.fn();
 
-      render(
-        <div onClick={parentClickHandler}>
-          <BaseDocument
-            header={<div>Header</div>}
-            treeNode={tree.root}
-            documentId={documentNodeData.id}
-            isReadOnly={false}
-          />
-        </div>,
-        { wrapper },
-      );
+      act(() => {
+        render(
+          <div onClick={parentClickHandler}>
+            <BaseDocument
+              header={<div>Header</div>}
+              treeNode={tree.root}
+              documentId={documentNodeData.id}
+              isReadOnly={false}
+            />
+          </div>,
+          { wrapper },
+        );
+      });
 
       const documentContainer = screen.getByTestId(`document-${documentNodeData.id}`);
 

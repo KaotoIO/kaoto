@@ -44,7 +44,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                       />
                       <g
                         data-surface="true"
-                        transform="translate(0, 0) scale(1)"
+                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -69,10 +69,10 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="315"
-                                width="330"
-                                x="-120"
-                                y="-120"
+                                height="1080"
+                                width="580"
+                                x="35"
+                                y="35"
                               >
                                 <div
                                   class="custom-group__container"
@@ -81,9 +81,6 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                     class="custom-group__container__text"
                                     title="route"
                                   >
-                                    <img
-                                      alt="route"
-                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -133,10 +130,10 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="235"
-                                width="250"
-                                x="-80"
-                                y="-80"
+                                height="545"
+                                width="500"
+                                x="75"
+                                y="380"
                               >
                                 <div
                                   class="custom-group__container"
@@ -145,97 +142,10 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
-                                    <img
-                                      alt="choice"
-                                    />
                                     <span
                                       title="choice"
                                     >
                                       choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.when.0"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="when"
-                              data-selected="false"
-                              data-testid="custom-group__route.from.steps.1.choice.when.0"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="when"
-                                height="155"
-                                width="170"
-                                x="-40"
-                                y="-40"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__text"
-                                    title="when"
-                                  >
-                                    <img
-                                      alt="when"
-                                    />
-                                    <span
-                                      title="when"
-                                    >
-                                      when
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.otherwise"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="otherwise"
-                              data-selected="false"
-                              data-testid="custom-group__route.from.steps.1.choice.otherwise"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="otherwise"
-                                height="155"
-                                width="170"
-                                x="-40"
-                                y="-40"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__text"
-                                    title="otherwise"
-                                  >
-                                    <img
-                                      alt="otherwise"
-                                    />
-                                    <span
-                                      title="otherwise"
-                                    >
-                                      otherwise
                                     </span>
                                   </div>
                                 </div>
@@ -257,15 +167,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 37.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 37.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -278,8 +188,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="21.5"
+                                x="305"
+                                y="174"
                               >
                                 <div
                                   aria-hidden="true"
@@ -326,15 +236,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 -80"
+                                d="M325 267.5 L325 380"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 -80"
+                                d="M325 267.5 L325 380"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(45, -66) rotate(270)"
+                                transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -347,8 +257,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="-37.25"
+                                x="305"
+                                y="307.75"
                               >
                                 <div
                                   aria-hidden="true"
@@ -395,15 +305,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -416,8 +326,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="21.5"
+                                x="430"
+                                y="559"
                               >
                                 <div
                                   aria-hidden="true"
@@ -464,15 +374,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -485,8 +395,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="21.5"
+                                x="430"
+                                y="714"
                               >
                                 <div
                                   aria-hidden="true"
@@ -533,15 +443,15 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 -80 L45 37.5"
+                                d="M325 925 L325 1037.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 -80 L45 37.5"
+                                d="M325 925 L325 1037.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(45, 23.5) rotate(90)"
+                                transform="translate(325, 1023.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -554,8 +464,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="-47.25"
+                                x="305"
+                                y="955.25"
                               >
                                 <div
                                   aria-hidden="true"
@@ -600,13 +510,13 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-id="route-8888|route.from"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(0, 0)"
+                              transform="translate(280, 75)"
                             />
                             <g
                               data-id="route-8888|route.from.steps.0.set-header"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(0, 0)"
+                              transform="translate(280, 230)"
                             />
                             <g
                               data-id="route-8888|route.from.steps.1.choice"
@@ -622,7 +532,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(155, 615)"
                                 />
                               </g>
                               <g
@@ -634,19 +544,19 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(405, 460)"
                                 />
                                 <g
                                   data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(405, 615)"
                                 />
                                 <g
                                   data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(405, 770)"
                                 />
                               </g>
                             </g>
@@ -654,7 +564,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(0, 0)"
+                              transform="translate(280, 1000)"
                             />
                           </g>
                         </g>
@@ -991,10 +901,6 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                     class="custom-group__container__text"
                                     title="route"
                                   >
-                                    <img
-                                      alt="route"
-                                      src=""
-                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -1056,10 +962,6 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
-                                    <img
-                                      alt="choice"
-                                      src=""
-                                    />
                                     <span
                                       title="choice"
                                     >
@@ -2706,10 +2608,6 @@ exports[`Canvas should render correctly 1`] = `
                                     class="custom-group__container__text"
                                     title="route"
                                   >
-                                    <img
-                                      alt="route"
-                                      src=""
-                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -2771,10 +2669,6 @@ exports[`Canvas should render correctly 1`] = `
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
-                                    <img
-                                      alt="choice"
-                                      src=""
-                                    />
                                     <span
                                       title="choice"
                                     >
@@ -3497,7 +3391,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(0, 0) scale(1)"
+                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -3522,10 +3416,10 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="315"
-                                width="330"
-                                x="-120"
-                                y="-120"
+                                height="1080"
+                                width="580"
+                                x="35"
+                                y="35"
                               >
                                 <div
                                   class="custom-group__container"
@@ -3534,9 +3428,6 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                     class="custom-group__container__text"
                                     title="route"
                                   >
-                                    <img
-                                      alt="route"
-                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -3586,10 +3477,10 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="235"
-                                width="250"
-                                x="-80"
-                                y="-80"
+                                height="545"
+                                width="500"
+                                x="75"
+                                y="380"
                               >
                                 <div
                                   class="custom-group__container"
@@ -3598,97 +3489,10 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
-                                    <img
-                                      alt="choice"
-                                    />
                                     <span
                                       title="choice"
                                     >
                                       choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.when.0"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="when"
-                              data-selected="false"
-                              data-testid="custom-group__route.from.steps.1.choice.when.0"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="when"
-                                height="155"
-                                width="170"
-                                x="-40"
-                                y="-40"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__text"
-                                    title="when"
-                                  >
-                                    <img
-                                      alt="when"
-                                    />
-                                    <span
-                                      title="when"
-                                    >
-                                      when
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.otherwise"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="otherwise"
-                              data-selected="false"
-                              data-testid="custom-group__route.from.steps.1.choice.otherwise"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="otherwise"
-                                height="155"
-                                width="170"
-                                x="-40"
-                                y="-40"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                >
-                                  <div
-                                    class="custom-group__container__text"
-                                    title="otherwise"
-                                  >
-                                    <img
-                                      alt="otherwise"
-                                    />
-                                    <span
-                                      title="otherwise"
-                                    >
-                                      otherwise
                                     </span>
                                   </div>
                                 </div>
@@ -3710,15 +3514,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 37.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 37.5"
+                                d="M325 112.5 L325 267.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3731,8 +3535,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="21.5"
+                                x="305"
+                                y="174"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3779,15 +3583,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 -80"
+                                d="M325 267.5 L325 380"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 -80"
+                                d="M325 267.5 L325 380"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(45, -66) rotate(270)"
+                                transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3800,8 +3604,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="-37.25"
+                                x="305"
+                                y="307.75"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3848,15 +3652,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 497.5 L450 652.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3869,8 +3673,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="21.5"
+                                x="430"
+                                y="559"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3917,15 +3721,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 37.5 L45 37.5"
+                                d="M450 652.5 L450 807.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(0, 0) rotate(180)"
+                                transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3938,8 +3742,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="21.5"
+                                x="430"
+                                y="714"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3986,15 +3790,15 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M45 -80 L45 37.5"
+                                d="M325 925 L325 1037.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M45 -80 L45 37.5"
+                                d="M325 925 L325 1037.5"
                               />
                               <g
                                 class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(45, 23.5) rotate(90)"
+                                transform="translate(325, 1023.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -4007,8 +3811,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               <foreignobject
                                 height="40"
                                 width="40"
-                                x="25"
-                                y="-47.25"
+                                x="305"
+                                y="955.25"
                               >
                                 <div
                                   aria-hidden="true"
@@ -4053,13 +3857,13 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-id="route-8888|route.from"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(0, 0)"
+                              transform="translate(280, 75)"
                             />
                             <g
                               data-id="route-8888|route.from.steps.0.set-header"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(0, 0)"
+                              transform="translate(280, 230)"
                             />
                             <g
                               data-id="route-8888|route.from.steps.1.choice"
@@ -4075,7 +3879,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(155, 615)"
                                 />
                               </g>
                               <g
@@ -4087,19 +3891,19 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(405, 460)"
                                 />
                                 <g
                                   data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(405, 615)"
                                 />
                                 <g
                                   data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
                                   data-kind="node"
                                   data-type="node"
-                                  transform="translate(0, 0)"
+                                  transform="translate(405, 770)"
                                 />
                               </g>
                             </g>
@@ -4107,7 +3911,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(0, 0)"
+                              transform="translate(280, 1000)"
                             />
                           </g>
                         </g>

@@ -1,4 +1,4 @@
-import { ChangeEvent, createRef, FunctionComponent, PropsWithChildren, useCallback, useRef } from 'react';
+import { ChangeEvent, createRef, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef } from 'react';
 
 import {
   SCHEMA_FILE_ACCEPT_PATTERN,
@@ -14,8 +14,8 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
   const fileSelectionRef = useRef<{
     resolve: (files: Record<string, string>) => void;
     reject: (error: unknown) => unknown;
-  }>();
-  const fileContentsRef = useRef<Record<string, string>>();
+  }>(undefined);
+  const fileContentsRef = useRef<Record<string, string>>(undefined);
 
   const askUserForFileSelection = useCallback(
     (
@@ -59,20 +59,23 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
   }, []);
 
   const getResourceContent = useCallback((path: string) => {
-    return Promise.resolve(fileContentsRef.current && fileContentsRef.current[path]);
+    return Promise.resolve(fileContentsRef.current?.[path]);
   }, []);
 
-  const metadataApi: IMetadataApi = {
-    askUserForFileSelection: askUserForFileSelection,
-    getResourceContent: getResourceContent,
-    shouldSaveSchema: true,
-    getMetadata: () => Promise.resolve(undefined),
-    setMetadata: () => Promise.resolve(),
-    deleteResource: () => Promise.resolve(true),
-    saveResourceContent: () => Promise.resolve(),
-    getSuggestions: () => Promise.resolve([]),
-    onStepUpdated: () => Promise.resolve(),
-  };
+  const metadataApi: IMetadataApi = useMemo(
+    () => ({
+      askUserForFileSelection: askUserForFileSelection,
+      getResourceContent: getResourceContent,
+      shouldSaveSchema: true,
+      getMetadata: () => Promise.resolve(undefined),
+      setMetadata: () => Promise.resolve(),
+      deleteResource: () => Promise.resolve(true),
+      saveResourceContent: () => Promise.resolve(),
+      getSuggestions: () => Promise.resolve([]),
+      onStepUpdated: () => Promise.resolve(),
+    }),
+    [askUserForFileSelection, getResourceContent],
+  );
 
   return (
     <MetadataContext.Provider value={metadataApi}>
