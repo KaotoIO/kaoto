@@ -1,6 +1,5 @@
 import './PlaceholderNode.scss';
 
-import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import type {
@@ -33,6 +32,7 @@ import { CanvasNode } from '../../Canvas/canvas.models';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useReplaceStep } from '../hooks/replace-step.hook';
 import { TargetAnchor } from '../target-anchor';
+import { checkNodeDropCompatibility } from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 interface PlaceholderNodeInnerProps extends DefaultNodeProps {
@@ -71,14 +71,18 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     () => ({
       accept: [NODE_DRAG_TYPE],
       canDrop: (item, _monitor, _props) => {
-        const draggedVizNode = (item as Node).getData()?.vizNode;
-        if (!isDefined(draggedVizNode) || !isDefined(vizNode)) return false;
-
-        const droppedVizNodeContent = draggedVizNode.getCopiedContent();
-        if (!isDefined(droppedVizNodeContent)) return false;
-
-        const filter = entitiesContext.camelResource.getCompatibleComponents(AddStepMode.ReplaceStep, vizNode.data);
-        return catalogModalContext?.checkCompatibility(droppedVizNodeContent.name, filter) ?? false;
+        return checkNodeDropCompatibility(
+          (item as Node).getData()?.vizNode,
+          vizNode,
+          (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => {
+            const filter = entitiesContext.camelResource.getCompatibleComponents(
+              mode,
+              filterNode.data,
+              filterNode.getNodeDefinition(),
+            );
+            return catalogModalContext?.checkCompatibility(compatibilityCheckNodeName, filter) ?? false;
+          },
+        );
       },
       collect: (monitor) => ({
         droppable: monitor.isDragging(),
@@ -106,6 +110,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
           ref={dndDropRef}
         >
           <div
+            data-testid={`${vizNode.getId()}|${vizNode.id}`}
             className={clsx('placeholder-node__container', {
               'placeholder-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
               'placeholder-node__container__possibleDropTargets':

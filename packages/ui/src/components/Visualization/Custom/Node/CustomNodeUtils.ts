@@ -7,6 +7,7 @@ import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
 export const getNodeDragAndDropDirection = (
   draggedVizNode: IVisualizationNode,
   droppedVizNode: IVisualizationNode,
+  droppedIntoEdge: boolean,
 ): 'forward' | 'backward' => {
   const isSameBaseEntity = draggedVizNode?.getId() === droppedVizNode?.getId();
   if (!isSameBaseEntity) return 'forward';
@@ -22,12 +23,18 @@ export const getNodeDragAndDropDirection = (
     }
   }
 
+  // Special case: when a container sub-node is dragged backward and dropped on the container connected edge
+  if (droppedIntoEdge) {
+    return 'backward';
+  }
+
   return 'forward';
 };
 
 export const handleValidNodeDrop = (
   draggedVizNode: IVisualizationNode,
   droppedVizNode: IVisualizationNode,
+  droppedIntoEdge: boolean,
   removeFlow: (flowId?: string) => void,
   getOnCopyAddons: (vizNode: IVisualizationNode) => IOnCopyAddon[],
 ) => {
@@ -42,9 +49,12 @@ export const handleValidNodeDrop = (
         for forward direction we append the step to the dropped node, then remove the dragged node
         for backward direction we remove the dragged node first, then prepend the step to the dropped node
     */
-  switch (getNodeDragAndDropDirection(draggedVizNode, droppedVizNode)) {
+  switch (getNodeDragAndDropDirection(draggedVizNode, droppedVizNode, droppedIntoEdge)) {
     case 'forward': {
-      droppedVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.AppendStep);
+      droppedVizNode.pasteBaseEntityStep(
+        draggedNodeContent,
+        droppedIntoEdge ? AddStepMode.PrependStep : AddStepMode.AppendStep,
+      );
       const draggedVizNodeinteraction = draggedVizNode.getNodeInteraction();
       if (draggedVizNodeinteraction.canRemoveStep) {
         draggedVizNode.removeChild();
@@ -66,22 +76,12 @@ export const checkNodeDropCompatibility = (
   droppedVizNode: IVisualizationNode,
   validate: (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => boolean,
 ): boolean => {
-  const actionDirection = getNodeDragAndDropDirection(draggedVizNode, droppedVizNode);
   const droppedVizNodeContent = draggedVizNode.getCopiedContent();
   const targetVizNodeContent = droppedVizNode.getCopiedContent();
   if (!isDefined(droppedVizNodeContent) || !isDefined(targetVizNodeContent)) return false;
 
-  // Validation for step array nodes
-  if (
-    actionDirection === 'forward'
-      ? droppedVizNode.getNodeInteraction().canHaveNextStep
-      : droppedVizNode.getNodeInteraction().canHavePreviousStep
-  ) {
-    return validate(
-      actionDirection === 'forward' ? AddStepMode.AppendStep : AddStepMode.PrependStep,
-      droppedVizNode,
-      droppedVizNodeContent.name,
-    );
+  if (droppedVizNode.data.isPlaceholder && droppedVizNode.getPreviousNode() !== draggedVizNode) {
+    return validate(AddStepMode.ReplaceStep, droppedVizNode, droppedVizNodeContent.name);
   }
 
   // validation for special children nodes in case of Route Entity

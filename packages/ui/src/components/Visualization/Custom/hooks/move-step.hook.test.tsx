@@ -101,6 +101,18 @@ describe('useMoveStep', () => {
       expect(mockGetPotentialPath).toHaveBeenCalledWith('route.from.steps.1.to', 'forward');
     });
 
+    it('should return false when target node is found for append mode but is a placeholder node', () => {
+      mockGetPotentialPath.mockReturnValue('route.from.steps.2');
+      mockGetVisualizationNodesFromGraph.mockReturnValue([
+        createVisualizationNode('target', { catalogKind: CatalogKind.Processor, name: 'target', isPlaceholder: true }),
+      ]);
+
+      const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.AppendStep), { wrapper });
+
+      expect(result.current.canBeMoved).toBe(false);
+      expect(mockGetPotentialPath).toHaveBeenCalledWith('route.from.steps.1.to', 'forward');
+    });
+
     it('should return true when target node is found for prepend mode', () => {
       mockGetPotentialPath.mockReturnValue('route.from.steps.0');
       mockGetVisualizationNodesFromGraph.mockReturnValue([
@@ -164,6 +176,7 @@ describe('useMoveStep', () => {
       const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
+        data: {},
         getCopiedContent: jest.fn().mockReturnValue(undefined),
         pasteBaseEntityStep: jest.fn(),
         getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
@@ -191,6 +204,7 @@ describe('useMoveStep', () => {
         name: 'step',
         path: 'route.from.steps.0.step',
         entity: visualEntity,
+        isPlaceholder: false,
       });
 
       const dataMapperVizNodeCopiedContent = {
@@ -235,6 +249,7 @@ describe('useMoveStep', () => {
       const dataMapperVizNodePasteBaseEntityStepSpy = jest.spyOn(dataMapperVizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
+        data: {},
         getCopiedContent: jest.fn().mockReturnValue(targetVizNodeCopiedContent),
         pasteBaseEntityStep: jest.fn(),
         getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
@@ -266,6 +281,7 @@ describe('useMoveStep', () => {
       const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
+        data: {},
         getCopiedContent: jest.fn().mockReturnValue(targetVizNodeCopiedContent),
         pasteBaseEntityStep: jest.fn(),
         getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),

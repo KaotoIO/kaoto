@@ -6,26 +6,22 @@ describe('Canvas nodes Drag and Drop', () => {
   });
 
   // FF not supported - https://github.com/dmtrKovalenko/cypress-real-events?tab=readme-ov-file#requirements
-  it('D&D - basic drag and drop', { browser: '!firefox' }, () => {
+  it('D&D - basic drag and drop on edge', { browser: '!firefox' }, () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
-    cy.DnD('route.from.steps.0.setHeader', 'route.from.steps.1.marshal');
+    cy.DnDOnEdge('route.from.steps.0.setHeader', 'camel-route|route.from.steps.1.marshal >>> route.from.steps.2.to');
 
-    const yamlRoute = [
-      'id: camel-route',
-      'from:',
-      'uri: timer:test',
-      'steps:',
-      '- marshal:',
-      'id: marshal-3801',
-      '- setHeader:',
-      'constant: test',
-      'name: test',
-      '- to:',
-      'uri: log:test',
-    ];
     cy.openSourceCode();
-    cy.checkMultiLineContent(yamlRoute);
+    cy.compareFileWithMonacoEditor('flows/camelRoute/basic-updated.yaml');
+  });
+
+  it('D&D - basic drag and drop on Node', { browser: '!firefox' }, () => {
+    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.openDesignPage();
+    cy.DnDOnNode('route.from.steps.0.setHeader', 'camel-route|route.from.steps.3.placeholder');
+
+    cy.openSourceCode();
+    cy.compareFileWithMonacoEditor('flows/camelRoute/basic-updated2.yaml');
   });
 
   it('D&D - drag and drop with node fields configured', { browser: '!firefox' }, () => {
@@ -39,73 +35,42 @@ describe('Canvas nodes Drag and Drop', () => {
     cy.interactWithExpressionInputObject('constant.expression', 'testConstantExpression');
     cy.interactWithExpressionInputObject('constant.resultType', 'testConstantResultType');
 
-    cy.DnD('route.from.steps.0.setHeader', 'route.from.steps.1.marshal');
+    cy.DnDOnEdge('route.from.steps.0.setHeader', 'camel-route|route.from.steps.1.marshal >>> route.from.steps.2.to');
 
-    const yamlRoute = [
-      'id: camel-route',
-      'from:',
-      'uri: timer:test',
-      'steps:',
-      '- marshal:',
-      'id: marshal-3801',
-      '- setHeader:',
-      'constant:',
-      'id: testConstantId',
-      'expression: testConstantExpression',
-      'resultType: testConstantResultType',
-      'name: testName',
-      '- to:',
-      'uri: log:test',
-    ];
     cy.openSourceCode();
-    cy.checkMultiLineContent(yamlRoute);
+    cy.compareFileWithMonacoEditor('flows/camelRoute/basic-configured-updated.yaml');
   });
 
-  it('D&D - drag and drop between two routes', { browser: '!firefox' }, () => {
+  it('D&D - drag and drop on Edge between two routes', { browser: '!firefox' }, () => {
     cy.uploadFixture('flows/camelRoute/multiflowDnD.yaml');
     cy.openDesignPage();
 
-    cy.DnD('route.from.steps.0.setHeader', 'route.from.steps.0.marshal');
+    cy.DnDOnEdge('route.from.steps.0.setHeader', 'route-4321|route.from.steps.0.marshal >>> route.from.steps.1.log');
 
-    const yamlRoute = [
-      'id: route-4321',
-      'from:',
-      'id: from-3576',
-      'uri: timer:template',
-      'parameters:',
-      'period: "1000"',
-      'steps:',
-      '- marshal:',
-      'id: marshal-4048',
-      '- setHeader:',
-      'id: setHeader-3105',
-      'expression:',
-      'simple: {}',
-      '- log:',
-      'id: log-2966',
-      'message: ${body}',
-    ];
     cy.openSourceCode();
-    cy.checkMultiLineContent(yamlRoute);
+    cy.compareFileWithMonacoEditor('flows/camelRoute/multiflowDnD-updated.yaml');
   });
 
   it('D&D - drag and drop with choice', { browser: '!firefox' }, () => {
-    cy.uploadFixture('flows/camelRoute/complexMultiFlow.yaml');
+    cy.uploadFixture('flows/camelRoute/complex.yaml');
     cy.openDesignPage();
 
-    cy.DnD('route.from.steps.0.choice.when.0.steps.0.setHeader', 'route.from.steps.0.choice.when.1.steps.0.log');
-    const yamlRoute = [
-      '- description: when-log',
-      'steps:',
-      '- log:',
-      'message: ${body}',
-      '- setHeader:',
-      'name: setHeader',
-      'simple:',
-      'expression: foo',
-    ];
+    cy.toggleExpandGroup('when-setHeader');
+    cy.toggleExpandGroup('when-log');
+
+    cy.DnDOnNode('route.from.steps.0.choice.when.0', 'route.from.steps.0.choice.when.1');
+
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultiLineContent(yamlRoute);
+    cy.compareFileWithMonacoEditor('flows/camelRoute/complex-moved.yaml');
+  });
+
+  it('D&D - drag and drop on placeholder nodes between two routes', { browser: '!firefox' }, () => {
+    cy.uploadFixture('flows/camelRoute/multiflowDnD.yaml');
+    cy.openDesignPage();
+
+    cy.DnDOnNode('route.from.steps.0.setHeader', 'route-4321|route.from.steps.2.placeholder');
+
+    cy.openSourceCode();
+    cy.compareFileWithMonacoEditor('flows/camelRoute/multiflowDnD-updated2.yaml');
   });
 });

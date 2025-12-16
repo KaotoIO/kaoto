@@ -66,7 +66,7 @@ declare global {
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       closeCatalogModal(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
-      quickAppend(nodeIndex?: number): Chainable<JQuery<Element>>;
+      quickAppendStep(path: string): Chainable<JQuery<Element>>;
       selectDuplicateNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectMoveBeforeNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectMoveAfterNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
@@ -95,7 +95,8 @@ declare global {
       checkDarkMode(): Chainable<JQuery<Element>>;
       switchCodeToXml(): Chainable<JQuery<Element>>;
       switchCodeToYaml(): Chainable<JQuery<Element>>;
-      DnD(sourceNode: string, targetNode: string): Chainable<JQuery<Element>>;
+      DnDOnNode(sourceNode: string, targetNode: string): Chainable<JQuery<Element>>;
+      DnDOnEdge(sourceNode: string, targetEdge: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
       interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;

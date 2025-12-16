@@ -18,7 +18,7 @@ import { CatalogKind, DefinedComponent } from '../models';
 import { CatalogContext } from './catalog.provider';
 import { useCatalogTiles } from './use-catalog-tiles.hook';
 
-interface CatalogModalContextValue {
+export interface CatalogModalContextValue {
   getNewComponent: (catalogFilter?: TileFilter) => Promise<DefinedComponent | undefined>;
   checkCompatibility: (name: string, catalogFilter?: TileFilter) => boolean;
 }

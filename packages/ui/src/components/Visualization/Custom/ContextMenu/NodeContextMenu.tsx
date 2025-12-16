@@ -105,7 +105,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
       mode={AddStepMode.AppendStep}
       vizNode={vizNode}
     >
-      {icons.moveNext} Move Next
+      {icons.moveNext} Move After
     </ItemMoveStep>,
   );
 

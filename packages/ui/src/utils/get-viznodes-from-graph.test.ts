@@ -50,11 +50,12 @@ describe('getVisualizationNodesFromGraph', () => {
 
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph());
 
-    expect(vizNodes).toHaveLength(4);
+    expect(vizNodes).toHaveLength(5);
     expect(vizNodes[0].getNodeLabel()).toEqual('route-8888');
     expect(vizNodes[1].getNodeLabel()).toEqual('timer');
     expect(vizNodes[2].getNodeLabel()).toEqual('log');
     expect(vizNodes[3].getNodeLabel()).toEqual('direct');
+    expect(vizNodes[4].data.isPlaceholder).toBe(true);
   });
 
   it('should return all visualization nodes matching the predicate', () => {
@@ -75,10 +76,11 @@ describe('getVisualizationNodesFromGraph', () => {
     const predicate = (vizNode: IVisualizationNode) => vizNode.getNodeLabel() !== 'timer';
     const vizNodes = getVisualizationNodesFromGraph(visualizationController.getGraph(), predicate);
 
-    expect(vizNodes).toHaveLength(3);
+    expect(vizNodes).toHaveLength(4);
     expect(vizNodes[0].getNodeLabel()).toEqual('route-8888');
     expect(vizNodes[1].getNodeLabel()).toEqual('log');
     expect(vizNodes[2].getNodeLabel()).toEqual('direct');
+    expect(vizNodes[3].data.isPlaceholder).toBe(true);
   });
 
   it('should return all visualization nodes matching a complex predicate', () => {
