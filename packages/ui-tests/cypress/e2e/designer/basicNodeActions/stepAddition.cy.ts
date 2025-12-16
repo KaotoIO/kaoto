@@ -42,15 +42,15 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('log');
-    cy.quickAppend();
+    cy.quickAppendStep('route.from.steps.3.placeholder');
     cy.chooseFromCatalog('processor', 'choice');
 
     cy.openGroupConfigurationTab('choice');
-    cy.quickAppend();
+    cy.quickAppendStep('route.from.steps.4.placeholder');
     cy.chooseFromCatalog('component', 'as2');
 
     cy.openStepConfigurationTab('as2');
-    cy.quickAppend();
+    cy.quickAppendStep('route.from.steps.5.placeholder');
     cy.chooseFromCatalog('component', 'amqp');
 
     cy.openSourceCode();

@@ -66,7 +66,7 @@ declare global {
       closeStepConfigurationTab(): Chainable<JQuery<Element>>;
       closeCatalogModal(): Chainable<JQuery<Element>>;
       removeNodeByName(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
-      quickAppend(nodeIndex?: number): Chainable<JQuery<Element>>;
+      quickAppendStep(path: string): Chainable<JQuery<Element>>;
       selectDuplicateNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectMoveBeforeNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
       selectMoveAfterNode(inputName: string, nodeIndex?: number): Chainable<JQuery<Element>>;

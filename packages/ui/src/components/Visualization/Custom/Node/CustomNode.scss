@@ -26,6 +26,10 @@
         @include custom.non-draggable;
       }
 
+      &__draggedNode {
+        @include custom.drag-node;
+      }
+
       &__image {
         position: relative;
         display: flex;

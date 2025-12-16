@@ -328,10 +328,11 @@ describe('Camel Route', () => {
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
 
-      /** from nod eand choice group */
-      expect(vizNode.getChildren()).toHaveLength(2);
+      /** from node and choice group */
+      expect(vizNode.getChildren()).toHaveLength(3);
       expect(vizNode.getChildren()?.[0].data.path).toEqual('route.from');
       expect(vizNode.getChildren()?.[1].data.path).toEqual('route.from.steps.0.choice');
+      expect(vizNode.getChildren()?.[2].data.isPlaceholder).toBe(true);
 
       /** from */
       expect(fromNode.data.path).toEqual('route.from');
@@ -346,7 +347,7 @@ describe('Camel Route', () => {
       expect(choiceNode.data.path).toEqual('route.from.steps.0.choice');
       expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBe(fromNode);
-      expect(choiceNode.getNextNode()).toBeUndefined();
+      expect(choiceNode.getNextNode()?.data.isPlaceholder).toBe(true);
       expect(choiceNode.getChildren()).toHaveLength(1);
 
       /** choice.when */
@@ -380,7 +381,8 @@ describe('Camel Route', () => {
       /** Since this is the root node, there's no previous step */
       expect(vizNode.getPreviousNode()).toBeUndefined();
       expect(vizNode.getNextNode()).toBeUndefined();
-      expect(vizNode.getChildren()).toHaveLength(4);
+      expect(vizNode.getChildren()).toHaveLength(5);
+      expect(vizNode.getChildren()?.[4].data.isPlaceholder).toBe(true);
 
       /** from */
       expect(fromNode.data.path).toEqual('route.from');
@@ -411,7 +413,7 @@ describe('Camel Route', () => {
       expect(toDirectNode.data.path).toEqual('route.from.steps.2.to');
       expect(toDirectNode.getNodeLabel()).toEqual('direct');
       expect(toDirectNode.getPreviousNode()).toBe(choiceNode);
-      expect(toDirectNode.getNextNode()).toBeUndefined();
+      expect(toDirectNode.getNextNode()?.data.isPlaceholder).toBe(true);
 
       /** choice.when */
       const whenNode = choiceNode.getChildren()?.[0];
@@ -422,7 +424,8 @@ describe('Camel Route', () => {
       expect(whenNode!.getPreviousNode()).toBeUndefined();
       expect(whenNode!.getNextNode()).toBeUndefined();
       expect(whenNode!.getParentNode()).toBe(choiceNode);
-      expect(whenNode!.getChildren()).toHaveLength(1);
+      expect(whenNode!.getChildren()).toHaveLength(2);
+      expect(whenNode!.getChildren()?.[1].data.isPlaceholder).toBe(true);
 
       /** choice.when.log */
       const logWhenNode = whenNode?.getChildren()?.[0];
@@ -430,7 +433,7 @@ describe('Camel Route', () => {
       expect(logWhenNode!.data.path).toEqual('route.from.steps.1.choice.when.0.steps.0.log');
       expect(logWhenNode!.getNodeLabel()).toEqual('log');
       expect(logWhenNode!.getPreviousNode()).toBeUndefined();
-      expect(logWhenNode!.getNextNode()).toBeUndefined();
+      expect(logWhenNode!.getNextNode()?.data.isPlaceholder).toBe(true);
       expect(logWhenNode!.getParentNode()).toBe(whenNode);
       expect(logWhenNode!.getChildren()).toBeUndefined();
 
@@ -442,7 +445,8 @@ describe('Camel Route', () => {
       expect(otherwiseNode!.getPreviousNode()).toBeUndefined();
       expect(otherwiseNode!.getNextNode()).toBeUndefined();
       expect(otherwiseNode!.getParentNode()).toBe(choiceNode);
-      expect(otherwiseNode!.getChildren()).toHaveLength(3);
+      expect(otherwiseNode!.getChildren()).toHaveLength(4);
+      expect(otherwiseNode!.getChildren()?.[3].data.isPlaceholder).toBe(true);
 
       /** choice.otherwise.to 1st */
       const firstToOtherwiseNode = otherwiseNode?.getChildren()?.[0];
@@ -470,7 +474,7 @@ describe('Camel Route', () => {
       expect(logOtherwiseNode!.data.path).toEqual('route.from.steps.1.choice.otherwise.steps.2.log');
       expect(logOtherwiseNode!.getNodeLabel()).toEqual('log');
       expect(logOtherwiseNode!.getPreviousNode()).toBe(secondToOtherwiseNode);
-      expect(logOtherwiseNode!.getNextNode()).toBeUndefined();
+      expect(logOtherwiseNode!.getNextNode()?.data.isPlaceholder).toBe(true);
       expect(logOtherwiseNode!.getParentNode()).toBe(otherwiseNode);
       expect(logOtherwiseNode!.getChildren()).toBeUndefined();
     });

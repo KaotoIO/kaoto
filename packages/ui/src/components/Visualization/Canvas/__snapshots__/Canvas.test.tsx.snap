@@ -264,7 +264,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 d="M45 37.5 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(0, 0) rotate(180)"
                               >
                                 <polygon
@@ -333,7 +333,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 d="M45 37.5 L45 -80"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(45, -66) rotate(270)"
                               >
                                 <polygon
@@ -385,6 +385,37 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log >>> route.from.steps.1.choice.when.0.steps.1.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(0, 0) rotate(180)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -402,7 +433,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 d="M45 37.5 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(0, 0) rotate(180)"
                               >
                                 <polygon
@@ -471,7 +502,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 d="M45 37.5 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(0, 0) rotate(180)"
                               >
                                 <polygon
@@ -523,6 +554,37 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log >>> route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(0, 0) rotate(180)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -540,7 +602,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 d="M45 -80 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(45, 23.5) rotate(90)"
                               >
                                 <polygon
@@ -592,6 +654,37 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.2.to >>> route.from.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(0, 0) rotate(180)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
@@ -624,6 +717,12 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-type="node"
                                   transform="translate(0, 0)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.1.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(0, 0)"
+                                />
                               </g>
                               <g
                                 data-id="route-8888|route.from.steps.1.choice.otherwise"
@@ -648,12 +747,24 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-type="node"
                                   transform="translate(0, 0)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(0, 0)"
+                                />
                               </g>
                             </g>
                             <g
                               data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
+                              transform="translate(0, 0)"
+                            />
+                            <g
+                              data-id="route-8888|route.from.steps.3.placeholder"
+                              data-kind="node"
+                              data-type="node-placeholder"
                               transform="translate(0, 0)"
                             />
                           </g>
@@ -954,7 +1065,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
+                        transform="translate(-0.2338129496402878, -0.525179856115108) scale(0.0007194244604316547)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -979,7 +1090,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="1080"
+                                height="1390"
                                 width="580"
                                 x="35"
                                 y="35"
@@ -1044,7 +1155,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="545"
+                                height="700"
                                 width="500"
                                 x="75"
                                 y="380"
@@ -1092,7 +1203,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 d="M325 112.5 L325 267.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
@@ -1161,7 +1272,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 d="M325 267.5 L325 380"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
@@ -1213,6 +1324,37 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log >>> route.from.steps.1.choice.when.0.steps.1.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M200 652.5 L200 807.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M200 652.5 L200 807.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(200, 793.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -1230,7 +1372,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 d="M450 497.5 L450 652.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
@@ -1299,7 +1441,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 d="M450 652.5 L450 807.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
@@ -1351,6 +1493,37 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log >>> route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M450 807.5 L450 962.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M450 807.5 L450 962.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(450, 948.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -1361,15 +1534,15 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M325 925 L325 1037.5"
+                                d="M325 1080 L325 1192.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M325 925 L325 1037.5"
+                                d="M325 1080 L325 1192.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 1023.5) rotate(90)"
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(325, 1178.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -1383,7 +1556,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 height="40"
                                 width="40"
                                 x="305"
-                                y="955.25"
+                                y="1110.25"
                               >
                                 <div
                                   aria-hidden="true"
@@ -1420,6 +1593,37 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.2.to >>> route.from.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 1192.5 L325 1347.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 1192.5 L325 1347.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(325, 1333.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
@@ -1452,6 +1656,12 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   data-type="node"
                                   transform="translate(155, 615)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.1.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(155, 770)"
+                                />
                               </g>
                               <g
                                 data-id="route-8888|route.from.steps.1.choice.otherwise"
@@ -1476,13 +1686,25 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   data-type="node"
                                   transform="translate(405, 770)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(405, 925)"
+                                />
                               </g>
                             </g>
                             <g
                               data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(280, 1000)"
+                              transform="translate(280, 1155)"
+                            />
+                            <g
+                              data-id="route-8888|route.from.steps.3.placeholder"
+                              data-kind="node"
+                              data-type="node-placeholder"
+                              transform="translate(280, 1310)"
                             />
                           </g>
                         </g>
@@ -2669,7 +2891,7 @@ exports[`Canvas should render correctly 1`] = `
                       />
                       <g
                         data-surface="true"
-                        transform="translate(-0.30092592592592593, -0.5324074074074074) scale(0.000925925925925926)"
+                        transform="translate(-0.2338129496402878, -0.525179856115108) scale(0.0007194244604316547)"
                       >
                         <g
                           data-layer-id="bottom"
@@ -2694,7 +2916,7 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="route-8888"
-                                height="1080"
+                                height="1390"
                                 width="580"
                                 x="35"
                                 y="35"
@@ -2759,7 +2981,7 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <foreignobject
                                 data-nodelabel="choice"
-                                height="545"
+                                height="700"
                                 width="500"
                                 x="75"
                                 y="380"
@@ -2807,7 +3029,7 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M325 112.5 L325 267.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(325, 253.5) rotate(90)"
                               >
                                 <polygon
@@ -2876,7 +3098,7 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M325 267.5 L325 380"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(325, 366) rotate(90)"
                               >
                                 <polygon
@@ -2928,6 +3150,37 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log >>> route.from.steps.1.choice.when.0.steps.1.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M200 652.5 L200 807.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M200 652.5 L200 807.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(200, 793.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -2945,7 +3198,7 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M450 497.5 L450 652.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(450, 638.5) rotate(90)"
                               >
                                 <polygon
@@ -3014,7 +3267,7 @@ exports[`Canvas should render correctly 1`] = `
                                 d="M450 652.5 L450 807.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(450, 793.5) rotate(90)"
                               >
                                 <polygon
@@ -3066,6 +3319,37 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log >>> route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M450 807.5 L450 962.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M450 807.5 L450 962.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(450, 948.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -3076,15 +3360,15 @@ exports[`Canvas should render correctly 1`] = `
                             >
                               <path
                                 class="custom-edge__background"
-                                d="M325 925 L325 1037.5"
+                                d="M325 1080 L325 1192.5"
                               />
                               <path
                                 class="custom-edge__body"
-                                d="M325 925 L325 1037.5"
+                                d="M325 1080 L325 1192.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
-                                transform="translate(325, 1023.5) rotate(90)"
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(325, 1178.5) rotate(90)"
                               >
                                 <polygon
                                   points=" 0,7 0,-7 14,0"
@@ -3098,7 +3382,7 @@ exports[`Canvas should render correctly 1`] = `
                                 height="40"
                                 width="40"
                                 x="305"
-                                y="955.25"
+                                y="1110.25"
                               >
                                 <div
                                   aria-hidden="true"
@@ -3135,6 +3419,37 @@ exports[`Canvas should render correctly 1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.2.to >>> route.from.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M325 1192.5 L325 1347.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M325 1192.5 L325 1347.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(325, 1333.5) rotate(90)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
@@ -3167,6 +3482,12 @@ exports[`Canvas should render correctly 1`] = `
                                   data-type="node"
                                   transform="translate(155, 615)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.1.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(155, 770)"
+                                />
                               </g>
                               <g
                                 data-id="route-8888|route.from.steps.1.choice.otherwise"
@@ -3191,13 +3512,25 @@ exports[`Canvas should render correctly 1`] = `
                                   data-type="node"
                                   transform="translate(405, 770)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(405, 925)"
+                                />
                               </g>
                             </g>
                             <g
                               data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
-                              transform="translate(280, 1000)"
+                              transform="translate(280, 1155)"
+                            />
+                            <g
+                              data-id="route-8888|route.from.steps.3.placeholder"
+                              data-kind="node"
+                              data-type="node-placeholder"
+                              transform="translate(280, 1310)"
                             />
                           </g>
                         </g>
@@ -3717,7 +4050,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M45 37.5 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(0, 0) rotate(180)"
                               >
                                 <polygon
@@ -3786,7 +4119,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M45 37.5 L45 -80"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(45, -66) rotate(270)"
                               >
                                 <polygon
@@ -3838,6 +4171,37 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log >>> route.from.steps.1.choice.when.0.steps.1.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(0, 0) rotate(180)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
                             data-kind="edge"
                             data-type="edge"
@@ -3855,7 +4219,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M45 37.5 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(0, 0) rotate(180)"
                               >
                                 <polygon
@@ -3924,7 +4288,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M45 37.5 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(0, 0) rotate(180)"
                               >
                                 <polygon
@@ -3976,6 +4340,37 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log >>> route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(0, 0) rotate(180)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
                             data-kind="edge"
                             data-type="edge"
@@ -3993,7 +4388,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 d="M45 -80 L45 37.5"
                               />
                               <g
-                                class="pf-topology-connector-arrow pf-topology__edge"
+                                class="pf-topology-connector-arrow custom-edge__connector"
                                 transform="translate(45, 23.5) rotate(90)"
                               >
                                 <polygon
@@ -4045,6 +4440,37 @@ exports[`Canvas should render correctly with more routes  1`] = `
                             </g>
                           </g>
                           <g
+                            data-id="route-8888|route.from.steps.2.to >>> route.from.steps.3.placeholder"
+                            data-kind="edge"
+                            data-type="edge"
+                            style="z-index: 0;"
+                          >
+                            <g
+                              class="custom-edge"
+                            >
+                              <path
+                                class="custom-edge__background"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <path
+                                class="custom-edge__body"
+                                d="M45 37.5 L45 37.5"
+                              />
+                              <g
+                                class="pf-topology-connector-arrow custom-edge__connector"
+                                transform="translate(0, 0) rotate(180)"
+                              >
+                                <polygon
+                                  points=" 0,7 0,-7 14,0"
+                                />
+                                <polygon
+                                  fill-opacity="0"
+                                  stroke-width="0"
+                                />
+                              </g>
+                            </g>
+                          </g>
+                          <g
                             data-id="route-8888|route"
                             data-kind="node"
                             data-type="group"
@@ -4077,6 +4503,12 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-type="node"
                                   transform="translate(0, 0)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.1.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(0, 0)"
+                                />
                               </g>
                               <g
                                 data-id="route-8888|route.from.steps.1.choice.otherwise"
@@ -4101,12 +4533,24 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-type="node"
                                   transform="translate(0, 0)"
                                 />
+                                <g
+                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.3.placeholder"
+                                  data-kind="node"
+                                  data-type="node-placeholder"
+                                  transform="translate(0, 0)"
+                                />
                               </g>
                             </g>
                             <g
                               data-id="route-8888|route.from.steps.2.to"
                               data-kind="node"
                               data-type="node"
+                              transform="translate(0, 0)"
+                            />
+                            <g
+                              data-id="route-8888|route.from.steps.3.placeholder"
+                              data-kind="node"
+                              data-type="node-placeholder"
                               transform="translate(0, 0)"
                             />
                           </g>

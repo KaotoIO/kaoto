@@ -39,9 +39,8 @@ Cypress.Commands.add('removeNodeByName', (nodeName: string, nodeIndex?: number) 
   cy.wait(1000);
 });
 
-Cypress.Commands.add('quickAppend', (nodeIndex?: number) => {
-  nodeIndex = nodeIndex ?? 0;
-  cy.get('[data-testid="quick-append-step"]').eq(nodeIndex).click({ force: true });
+Cypress.Commands.add('quickAppendStep', (path: string) => {
+  cy.get(`[data-testid="placeholder-node__${path}"]`).click({ force: true });
 });
 
 Cypress.Commands.add('selectDuplicateNode', (nodeName: string, nodeIndex?: number) => {

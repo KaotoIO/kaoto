@@ -11,7 +11,24 @@
     &__body {
       stroke: var(--pf-topology__edge--Stroke);
       stroke-width: 1;
-      fill: none;
+
+      &__validDropTarget {
+        stroke: var(--custom-edge-dropTarget);
+        stroke-dasharray: 5, 5;
+        stroke-width: 3;
+      }
+    }
+
+    &__connector {
+      stroke: var(--pf-topology__edge--Stroke);
+      stroke-width: 1;
+      fill: var(--pf-topology__edge--Stroke);
+
+      &__validDropTarget {
+        stroke: var(--custom-edge-dropTarget);
+        stroke-width: 3;
+        fill: var(--custom-edge-dropTarget);
+      }
     }
 
     & &__add-step {
