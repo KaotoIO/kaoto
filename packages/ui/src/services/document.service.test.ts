@@ -9,8 +9,8 @@ import {
 import { IMetadataApi } from '../providers';
 import { cartJsonSchema, multipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
-import { JsonSchemaDocument } from './json-schema-document-model.service';
-import { XmlSchemaDocument } from './xml-schema-document-model.service';
+import { JsonSchemaDocument } from './json-schema-document.model';
+import { XmlSchemaDocument } from './xml-schema-document.model';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -141,7 +141,7 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toBe('Could not create a document from schema file(s)');
+      expect(result.validationMessage).toBe("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeUndefined();
     });
@@ -224,7 +224,7 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('Could not create a document from schema file(s)');
+      expect(result.validationMessage).toContain("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeUndefined();
     });

@@ -6,12 +6,12 @@ import {
   Types,
 } from '../models/datamapper';
 import { IFieldTypeOverride } from '../models/datamapper/metadata';
+import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant } from '../models/datamapper/types';
-import { NS_XML_SCHEMA } from '../models/datamapper/xslt';
 import { camelSpringXsd, lazyLoadingTestXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
+import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaField } from './xml-schema-document-model.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 describe('DocumentUtilService', () => {
@@ -73,7 +73,9 @@ describe('DocumentUtilService', () => {
         { 'camel-spring.xsd': camelSpringXsd },
         { namespaceUri: 'http://camel.apache.org/schema/spring', name: 'routes' },
       );
-      const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document!;
 
       const resolvedRoutes = DocumentUtilService.resolveTypeFragment(document.fields[0]);
       const route = resolvedRoutes.fields.find((f) => f.name === 'route');
@@ -280,7 +282,9 @@ describe('DocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'lazy.xsd': lazyLoadingTestXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { tns: 'http://www.example.com/LAZYTEST', xs: NS_XML_SCHEMA };
 
       const personBeforeOverride = doc.fields[0].fields.find((f) => f.name === 'Person');
@@ -318,7 +322,9 @@ describe('DocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'lazy.xsd': lazyLoadingTestXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { tns: 'http://www.example.com/LAZYTEST', xs: NS_XML_SCHEMA };
 
       const personBeforeOverride = doc.fields[0].fields.find((f) => f.name === 'Person');
@@ -356,7 +362,9 @@ describe('DocumentUtilService', () => {
         BODY_DOCUMENT_ID,
         { 'lazy.xsd': lazyLoadingTestXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { tns: 'http://www.example.com/LAZYTEST', xs: NS_XML_SCHEMA };
 
       const personBeforeOverride = doc.fields[0].fields.find((f) => f.name === 'Person');

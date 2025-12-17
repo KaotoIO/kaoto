@@ -14,8 +14,8 @@ import {
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
+import { NS_XSL } from '../models/datamapper/standard-namespaces';
 import { Types } from '../models/datamapper/types';
-import { NS_XSL } from '../models/datamapper/xslt';
 import {
   invoice850Xsd,
   shipOrderToShipOrderCollectionIndexXslt,
@@ -26,8 +26,8 @@ import {
   x12850ForEachXslt,
 } from '../stubs/datamapper/data-mapper';
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
+import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaField } from './xml-schema-document-model.service';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -199,7 +199,9 @@ describe('MappingSerializerService', () => {
         'Invoice',
         { 'Invoice.xsd': invoice850Xsd },
       );
-      const targetDoc850 = XmlSchemaDocumentService.createXmlSchemaDocument(definition850);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition850);
+      expect(result.validationStatus).toBe('success');
+      const targetDoc850 = result.document!;
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
         x12850ForEachXslt,

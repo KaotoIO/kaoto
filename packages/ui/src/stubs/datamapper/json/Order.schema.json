@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/schemas/order.json",
+  "type": "object",
+  "properties": {
+    "orderId": { "type": "string" },
+    "customer": {
+      "$ref": "./Customer.schema.json"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "productId": { "type": "string" },
+          "quantity": { "type": "integer" },
+          "price": {
+            "$ref": "./CommonTypes.schema.json#/definitions/Money"
+          }
+        },
+        "required": ["productId", "quantity", "price"]
+      }
+    },
+    "totalAmount": {
+      "$ref": "http://example.com/schemas/common-types.json#/definitions/Money"
+    }
+  },
+  "required": ["orderId", "customer", "items"]
+}

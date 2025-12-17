@@ -32,11 +32,15 @@ describe('VisualizationService / JSON', () => {
   const accountDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
     'Account.json': accountJsonSchema,
   });
-  const accountDoc = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+  const accountResult = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
+  expect(accountResult.validationStatus).toBe('success');
+  const accountDoc = accountResult.document!;
   const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
     'Cart.json': cartJsonSchema,
   });
-  const cartDoc = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
+  const cartResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
+  expect(cartResult.validationStatus).toBe('success');
+  const cartDoc = cartResult.document!;
   const orderSequenceDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
   const targetDefinition = new DocumentDefinition(
     DocumentType.TARGET_BODY,
@@ -44,7 +48,9 @@ describe('VisualizationService / JSON', () => {
     undefined,
     { 'ShipOrder.json': shipOrderJsonSchema },
   );
-  const targetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
+  const result = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
+  expect(result.validationStatus).toBe('success');
+  const targetDoc = result.document!;
 
   const sourceParameterMap = new Map<string, IDocument>([
     ['OrderSequence', orderSequenceDoc],
@@ -195,7 +201,9 @@ describe('VisualizationService / JSON', () => {
       undefined,
       { 'CamelYamlDsl.json': camelYamlDslJsonSchema },
     );
-    const camelYamlDoc = JsonSchemaDocumentService.createJsonSchemaDocument(camelYamlDefinition);
+    const result = JsonSchemaDocumentService.createJsonSchemaDocument(camelYamlDefinition);
+    expect(result.validationStatus).toBe('success');
+    const camelYamlDoc = result.document!;
     targetDocNode = new TargetDocumentNodeData(camelYamlDoc, mappingTree);
     const targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     expect(targetChildren.length).toEqual(1);

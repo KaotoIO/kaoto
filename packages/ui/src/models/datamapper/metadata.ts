@@ -45,9 +45,11 @@ export interface IDocumentMetadata {
   filePath: string[];
 
   /**
-   * The selected root element for XML schemas with multiple root elements.
-   * When an XML schema has multiple top-level elements, this specifies which one to use.
-   * This ensures the correct document structure is restored when reopening the DataMapper.
+   * If the document is XML, this represents the selected root element of XML schema
+   * document with multiple root elements. When an XML schema has multiple top-level
+   * elements, this specifies which one to use as a root element.
+   * If the document is JSON, {@link rootElementChoice.name} represents the name of
+   * the primary JSON schema file.
    */
   rootElementChoice?: RootElementOption;
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/DERIVED"
+           xmlns:tns="http://www.example.com/DERIVED"
+           xmlns:base="http://www.example.com/BASE"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="EmployeeType">
+    <xs:complexContent>
+      <xs:extension base="base:BasePersonType">
+        <xs:sequence>
+          <xs:element name="employeeId" type="xs:string"/>
+          <xs:element name="department" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="hireDate" type="xs:date"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="USAddressType">
+    <xs:complexContent>
+      <xs:restriction base="base:BaseAddressType">
+        <xs:sequence>
+          <xs:element name="street" type="xs:string"/>
+          <xs:element name="city" type="xs:string"/>
+          <xs:element name="state" type="xs:string"/>
+          <xs:element name="zip" type="xs:string"/>
+          <xs:element name="country" type="xs:string" fixed="USA"/>
+        </xs:sequence>
+        <xs:attribute name="type" type="xs:string" use="required"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="SpecialProductCode">
+    <xs:restriction base="base:BaseProductCode">
+      <xs:pattern value="[A-Z]{3}-[0-9]{3}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:element name="Employee" type="tns:EmployeeType"/>
+  <xs:element name="Address" type="tns:USAddressType"/>
+  <xs:element name="ProductCode" type="tns:SpecialProductCode"/>
+</xs:schema>

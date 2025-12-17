@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/schemas/customer.json",
+  "type": "object",
+  "properties": {
+    "customerId": { "type": "string" },
+    "name": { "type": "string" },
+    "billingAddress": {
+      "$ref": "./CommonTypes.schema.json#/definitions/Address"
+    },
+    "shippingAddress": {
+      "$ref": "./CommonTypes.schema.json#/definitions/Address"
+    },
+    "contact": {
+      "$ref": "http://example.com/schemas/common-types.json#/definitions/ContactInfo"
+    }
+  },
+  "required": ["customerId", "name", "billingAddress"]
+}

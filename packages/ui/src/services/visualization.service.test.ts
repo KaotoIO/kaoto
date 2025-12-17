@@ -43,8 +43,8 @@ import {
 } from '../stubs/datamapper/data-mapper';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { VisualizationService } from './visualization.service';
+import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaDocument } from './xml-schema-document-model.service';
 
 describe('VisualizationService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -575,14 +575,18 @@ describe('VisualizationService', () => {
       const orgDefinition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'Org', {
         'Org.xsd': orgXsd,
       });
-      const orgDoc = XmlSchemaDocumentService.createXmlSchemaDocument(orgDefinition);
+      const orgResult = XmlSchemaDocumentService.createXmlSchemaDocument(orgDefinition);
+      expect(orgResult.validationStatus).toBe('success');
+      const orgDoc = orgResult.document!;
       const contactsDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         undefined,
         { 'Contacts.xsd': contactsXsd },
       );
-      const contactsDoc = XmlSchemaDocumentService.createXmlSchemaDocument(contactsDefinition);
+      const contactsResult = XmlSchemaDocumentService.createXmlSchemaDocument(contactsDefinition);
+      expect(contactsResult.validationStatus).toBe('success');
+      const contactsDoc = contactsResult.document!;
 
       const orgToContactsTree = new MappingTree(
         contactsDoc.documentType,
@@ -666,7 +670,9 @@ describe('VisualizationService', () => {
         undefined,
         { 'extensionSimple.xsd': extensionSimpleXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
       expect(docChildren.length).toEqual(1);
@@ -707,7 +713,9 @@ describe('VisualizationService', () => {
         { 'extensionComplex.xsd': extensionComplexXsd },
         { namespaceUri: 'http://www.example.com/TEST', name: 'Request' },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
       expect(docChildren.length).toEqual(1);
@@ -735,7 +743,9 @@ describe('VisualizationService', () => {
         undefined,
         { 'schemaTest.xsd': schemaTestXsd },
       );
-      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const docNode = new DocumentNodeData(doc);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
       expect(docChildren.length).toEqual(1);

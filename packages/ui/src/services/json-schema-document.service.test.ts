@@ -2,18 +2,30 @@ import { JSONSchema7 } from 'json-schema';
 
 import { DocumentDefinition, DocumentDefinitionType, PathExpression, Types } from '../models/datamapper';
 import { DocumentType } from '../models/datamapper/document';
-import { NS_XPATH_FUNCTIONS } from '../models/datamapper/xslt';
-import { camelYamlDslJsonSchema } from '../stubs/datamapper/data-mapper';
+import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
+import {
+  accountJsonSchema,
+  camelYamlDslJsonSchema,
+  commonTypesJsonSchema,
+  customerJsonSchema,
+  orderJsonSchema,
+} from '../stubs/datamapper/data-mapper';
+import { DocumentUtilService } from './document-util.service';
+import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 
-function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string) {
+function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string): JsonSchemaDocument {
   const definition = new DocumentDefinition(
     documentType,
     DocumentDefinitionType.JSON_SCHEMA,
     documentType === DocumentType.PARAM ? documentId : undefined,
     { [`${documentId}.json`]: content },
   );
-  return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+  const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(result.validationMessage || 'Failed to create document');
+  }
+  return result.document;
 }
 
 describe('JsonSchemaDocumentService', () => {
@@ -22,7 +34,7 @@ describe('JsonSchemaDocumentService', () => {
   };
 
   it('should parse string', () => {
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify({ type: 'string' }));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify({ type: 'string' }));
 
     expect(doc).toBeDefined();
     expect(doc.fields.length).toBe(1);
@@ -38,7 +50,7 @@ describe('JsonSchemaDocumentService', () => {
   });
 
   it('should parse number', () => {
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify({ type: 'number' }));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify({ type: 'number' }));
 
     expect(doc).toBeDefined();
     expect(doc.fields.length).toBe(1);
@@ -53,7 +65,7 @@ describe('JsonSchemaDocumentService', () => {
 
   it('should parse topmost string array', () => {
     const doc = createTestJsonDocument(
-      DocumentType.SOURCE_BODY,
+      DocumentType.PARAM,
       'test',
       JSON.stringify({
         type: 'array',
@@ -107,7 +119,7 @@ describe('JsonSchemaDocumentService', () => {
         },
       },
     };
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify(schema));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
     expect(doc).toBeDefined();
     expect(doc.fields.length).toBe(1);
@@ -240,7 +252,7 @@ describe('JsonSchemaDocumentService', () => {
   });
 
   it('should parse camelYamlDsl', () => {
-    const camelDoc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', camelYamlDslJsonSchema);
+    const camelDoc = createTestJsonDocument(DocumentType.PARAM, 'test', camelYamlDslJsonSchema);
 
     expect(camelDoc).toBeDefined();
     expect(camelDoc.fields.length).toBe(1);
@@ -334,7 +346,7 @@ describe('JsonSchemaDocumentService', () => {
         Price: { type: 'number' },
       },
     };
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'intTest', JSON.stringify(schema));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'intTest', JSON.stringify(schema));
 
     const root = doc.fields[0];
     const qty = root.fields.find((f) => f.key === 'Quantity');
@@ -358,7 +370,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(() => {
       createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).toThrow(
-      'Unsupported schema reference [https://example.com/schema.json]: External URI/file reference is not yet supported',
+      `Cannot resolve external schema reference [https://example.com/schema.json]: Schema 'https://example.com/schema.json' not found in loaded schemas`,
     );
   });
 
@@ -373,7 +385,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(() => {
       createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).toThrow(
-      'Unsupported schema reference [./external-schema.json]: External URI/file reference is not yet supported',
+      `Cannot resolve external schema reference [./external-schema.json]: Schema './external-schema.json' not found in loaded schemas`,
     );
   });
 
@@ -391,7 +403,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(() => {
       createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
     }).toThrow(
-      'Unsupported schema reference [http://json-schema.org/draft-07/schema#]: External URI/file reference is not yet supported',
+      `Cannot resolve external schema reference [http://json-schema.org/draft-07/schema#]: Schema 'http://json-schema.org/draft-07/schema' not found in loaded schemas`,
     );
   });
 
@@ -426,7 +438,7 @@ describe('JsonSchemaDocumentService', () => {
       ],
     };
 
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify(schema));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
     const root = doc.fields[0];
     expect(root.fields.length).toBe(1);
@@ -451,7 +463,7 @@ describe('JsonSchemaDocumentService', () => {
       ],
     };
 
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify(schema));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
     const root = doc.fields[0];
     const barField = root.fields.find((f) => f.key === 'bar');
@@ -483,7 +495,7 @@ describe('JsonSchemaDocumentService', () => {
       ],
     };
 
-    const doc = createTestJsonDocument(DocumentType.SOURCE_BODY, 'test', JSON.stringify(schema));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
     const root = doc.fields[0];
     const objField = root.fields.find((f) => f.key === 'obj');
@@ -496,5 +508,165 @@ describe('JsonSchemaDocumentService', () => {
     expect(bField).toBeDefined();
     expect(aField!.type).toBe(Types.String);
     expect(bField!.type).toBe(Types.Numeric);
+  });
+
+  describe('Cross-schema reference resolution', () => {
+    const createMultiSchemaDocument = (
+      documentType: DocumentType,
+      documentId: string | undefined,
+      schemas: Record<string, string>,
+      rootElementChoice?: { namespaceUri: string; name: string },
+    ): JsonSchemaDocument => {
+      const definition = new DocumentDefinition(
+        documentType,
+        DocumentDefinitionType.JSON_SCHEMA,
+        documentId,
+        schemas,
+        rootElementChoice,
+      );
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      if (result.validationStatus !== 'success' || !result.document) {
+        throw new Error(result.validationMessage || 'Failed to create document');
+      }
+      return result.document;
+    };
+
+    it('should load multiple schema files', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'multiTest1', {
+        'Order.schema.json': orderJsonSchema,
+        'Customer.schema.json': customerJsonSchema,
+        'CommonTypes.schema.json': commonTypesJsonSchema,
+      });
+
+      expect(doc).toBeDefined();
+      expect(doc.fields.length).toBe(1);
+
+      const root = doc.fields[0];
+      expect(root.type).toBe(Types.Container);
+    });
+
+    it('should resolve relative path external $ref', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'multiTest2', {
+        'Order.schema.json': orderJsonSchema,
+        'Customer.schema.json': customerJsonSchema,
+        'CommonTypes.schema.json': commonTypesJsonSchema,
+      });
+
+      const root = doc.fields[0];
+      const customer = root.fields.find((f) => f.key === 'customer');
+      DocumentUtilService.resolveTypeFragment(customer!);
+      const billingAddress = customer!.fields.find((f) => f.key === 'billingAddress');
+
+      expect(billingAddress).toBeDefined();
+      expect(billingAddress!.type).toBe(Types.Container);
+      DocumentUtilService.resolveTypeFragment(billingAddress!);
+
+      const street = billingAddress!.fields.find((f) => f.key === 'street');
+      expect(street).toBeDefined();
+      expect(street!.type).toBe(Types.String);
+    });
+
+    it('should resolve $id-based URI external $ref', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'multiTest3', {
+        'Order.schema.json': orderJsonSchema,
+        'Customer.schema.json': customerJsonSchema,
+        'CommonTypes.schema.json': commonTypesJsonSchema,
+      });
+
+      const root = doc.fields[0];
+      const customer = root.fields.find((f) => f.key === 'customer');
+      DocumentUtilService.resolveTypeFragment(customer!);
+      const contact = customer!.fields.find((f) => f.key === 'contact');
+
+      expect(contact).toBeDefined();
+      DocumentUtilService.resolveTypeFragment(contact!);
+      const email = contact!.fields.find((f) => f.key === 'email');
+      expect(email).toBeDefined();
+    });
+
+    it('should handle nested cross-file references', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'multiTest4', {
+        'Order.schema.json': orderJsonSchema,
+        'Customer.schema.json': customerJsonSchema,
+        'CommonTypes.schema.json': commonTypesJsonSchema,
+      });
+
+      const root = doc.fields[0];
+      const items = root.fields.find((f) => f.key === 'items');
+      DocumentUtilService.resolveTypeFragment(items!);
+      const itemElement = items!.fields[0];
+      DocumentUtilService.resolveTypeFragment(itemElement);
+      const price = itemElement.fields.find((f) => f.key === 'price');
+      DocumentUtilService.resolveTypeFragment(price!);
+      const amount = price!.fields.find((f) => f.key === 'amount');
+
+      expect(amount).toBeDefined();
+      expect(amount!.type).toBe(Types.Numeric);
+    });
+
+    it('should use first schema as document schema', () => {
+      const customerFirstDoc = createMultiSchemaDocument(DocumentType.PARAM, 'customerFirst', {
+        'Customer.schema.json': customerJsonSchema,
+        'CommonTypes.schema.json': commonTypesJsonSchema,
+      });
+
+      const root = customerFirstDoc.fields[0];
+      const customerId = root.fields.find((f) => f.key === 'customerId');
+      expect(customerId).toBeDefined();
+    });
+
+    it('should maintain backward compatibility with single-file schemas', () => {
+      const singleFileDoc = createTestJsonDocument(DocumentType.PARAM, 'test', accountJsonSchema);
+
+      expect(singleFileDoc.fields[0].type).toBe(Types.Container);
+    });
+
+    it('should respect rootElementChoice.name as primary schema', () => {
+      const doc = createMultiSchemaDocument(
+        DocumentType.PARAM,
+        'customer',
+        {
+          'Order.schema.json': orderJsonSchema,
+          'Customer.schema.json': customerJsonSchema,
+          'CommonTypes.schema.json': commonTypesJsonSchema,
+        },
+        { namespaceUri: '', name: 'Customer.schema.json' },
+      );
+
+      const root = doc.fields[0];
+      const customerId = root.fields.find((f) => f.key === 'customerId');
+      expect(customerId).toBeDefined();
+
+      const orderId = root.fields.find((f) => f.key === 'orderId');
+      expect(orderId).toBeUndefined();
+    });
+
+    it('should default to first file when rootElementChoice not specified', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'customer', {
+        'Customer.schema.json': customerJsonSchema,
+        'Order.schema.json': orderJsonSchema,
+        'CommonTypes.schema.json': commonTypesJsonSchema,
+      });
+
+      const root = doc.fields[0];
+      const customerId = root.fields.find((f) => f.key === 'customerId');
+      expect(customerId).toBeDefined();
+    });
+
+    it('should return error when rootElementChoice.name not found', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.PARAM,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'order',
+        {
+          'Order.schema.json': orderJsonSchema,
+        },
+        { namespaceUri: '', name: 'NonExistent.schema.json' },
+      );
+
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('error');
+      expect(result.validationMessage).toContain('NonExistent.schema.json');
+    });
   });
 });

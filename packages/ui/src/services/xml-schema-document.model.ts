@@ -2,15 +2,14 @@ import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import {
   BaseDocument,
   BaseField,
+  CreateDocumentResult,
   DocumentDefinitionType,
   DocumentType,
   IField,
   ITypeFragment,
 } from '../models/datamapper/document';
 import { NodePath } from '../models/datamapper/nodepath';
-import { XmlSchema, XmlSchemaElement } from '../xml-schema-ts';
-import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaCollection, XmlSchemaElement } from '../xml-schema-ts';
 
 /**
  * Type fragment representing a named XML Schema type (complexType or simpleType).
@@ -18,6 +17,13 @@ import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service
  */
 export interface XmlSchemaTypeFragment extends ITypeFragment {
   fields: XmlSchemaField[];
+}
+
+/**
+ * The XML variation of {@link CreateDocumentResult} to hold {@link XmlSchemaDocument}.
+ */
+export interface CreateXmlSchemaDocumentResult extends CreateDocumentResult {
+  document?: XmlSchemaDocument;
 }
 
 /**
@@ -32,22 +38,13 @@ export class XmlSchemaDocument extends BaseDocument {
   definitionType: DocumentDefinitionType;
 
   constructor(
-    public xmlSchema: XmlSchema,
+    public xmlSchemaCollection: XmlSchemaCollection,
     documentType: DocumentType,
     documentId: string,
     public rootElement?: XmlSchemaElement,
   ) {
     super(documentType, documentId);
     this.name = documentId;
-    if (this.xmlSchema.getElements().size == 0) {
-      throw new Error("There's no top level Element in the schema");
-    }
-
-    this.rootElement ??= XmlSchemaDocumentUtilService.getFirstElement(this.xmlSchema);
-
-    XmlSchemaDocumentService.populateNamedTypeFragments(this);
-
-    XmlSchemaDocumentService.populateElement(this, this.fields, this.rootElement);
     this.definitionType = DocumentDefinitionType.XML_SCHEMA;
   }
 }

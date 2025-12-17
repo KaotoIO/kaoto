@@ -1,22 +1,16 @@
-import {
-  BODY_DOCUMENT_ID,
-  DocumentDefinition,
-  DocumentDefinitionType,
-  DocumentType,
-  Types,
-} from '../models/datamapper';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, Types } from '../models/datamapper';
 import { IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant } from '../models/datamapper/types';
 import { accountJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document-model.service';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 
 describe('DocumentUtilService - JSON Schema', () => {
   describe('adoptTypeFragment()', () => {
     it('should adopt type when fragment has type defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.SOURCE_BODY, 'test-doc');
+      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const fragment = {
@@ -31,7 +25,7 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt minOccurs when fragment has it defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.SOURCE_BODY, 'test-doc');
+      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const fragment = {
@@ -46,7 +40,7 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt maxOccurs when fragment has it defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.SOURCE_BODY, 'test-doc');
+      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const fragment = {
@@ -61,7 +55,7 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt all fields from fragment using JSON Schema adopt logic', () => {
-      const doc = new JsonSchemaDocument(DocumentType.SOURCE_BODY, 'test-doc');
+      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
       const field = new JsonSchemaField(doc, 'testField', Types.Container);
 
       const fragmentField1 = new JsonSchemaField(doc, 'child1', Types.String);
@@ -99,13 +93,12 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       });
 
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'ref.json': refSchema },
-      );
-      const doc = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'ref', {
+        'ref.json': refSchema,
+      });
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
 
       const homeField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'home');
       expect(homeField?.namedTypeFragmentRefs).toHaveLength(1);
@@ -124,13 +117,12 @@ describe('DocumentUtilService - JSON Schema', () => {
 
   describe('applyFieldTypeOverrides()', () => {
     it('should apply type override to top-level JSON field', () => {
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'account.json': accountJsonSchema },
-      );
-      const doc = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'account', {
+        'account.json': accountJsonSchema,
+      });
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { fn: 'http://www.w3.org/2005/xpath-functions' };
       const overrides: IFieldTypeOverride[] = [
         {
@@ -154,13 +146,12 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should apply type override to nested JSON field', () => {
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'account.json': accountJsonSchema },
-      );
-      const doc = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'account', {
+        'account.json': accountJsonSchema,
+      });
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { fn: 'http://www.w3.org/2005/xpath-functions' };
       const overrides: IFieldTypeOverride[] = [
         {
@@ -199,13 +190,12 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       });
 
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'nested.json': nestedSchema },
-      );
-      const doc = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'nested', {
+        'nested.json': nestedSchema,
+      });
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { fn: 'http://www.w3.org/2005/xpath-functions' };
 
       const overrides: IFieldTypeOverride[] = [
@@ -249,13 +239,12 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       });
 
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.JSON_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'nested.json': nestedSchema },
-      );
-      const doc = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'nested', {
+        'nested.json': nestedSchema,
+      });
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
       const namespaceMap = { fn: 'http://www.w3.org/2005/xpath-functions' };
 
       const overrides: IFieldTypeOverride[] = [
