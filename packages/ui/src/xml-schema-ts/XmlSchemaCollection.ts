@@ -94,7 +94,7 @@ export class XmlSchemaCollection {
    * @return the type object, or null.
    */
   getTypeByQName(schemaTypeName: QName) {
-    const uri = schemaTypeName.getNamespaceURI();
+    const uri = schemaTypeName.getNamespaceURI() ?? '';
     for (const entry of this.schemas.entries()) {
       if (entry[0].getNamespace() === uri) {
         const type = entry[1].getTypeByQName(schemaTypeName);

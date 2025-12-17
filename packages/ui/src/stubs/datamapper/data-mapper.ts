@@ -144,6 +144,8 @@ export const simpleTypeRestrictionXsd = fs
   .readFileSync(path.resolve(__dirname, './xml/SimpleTypeRestriction.xsd'))
   .toString();
 export const lazyLoadingTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/LazyLoadingTest.xsd')).toString();
+export const adtInXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_IN.xsd')).toString();
+export const adtOutXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_OUT.xsd')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
@@ -227,5 +229,19 @@ export class TestUtil {
       ['cart', cartParamDoc],
       ['cart2', cart2ParamDoc],
     ]);
+  }
+
+  static createAdtInDoc() {
+    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
+      'ADT_IN.xsd': adtInXsd,
+    });
+    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  }
+
+  static createAdtOutDoc() {
+    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
+      'ADT_OUT.xsd': adtOutXsd,
+    });
+    return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
 }
