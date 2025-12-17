@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- =========================================================
+         Helper: Komponentenblock comp_01..comp_10 (inline verwendbar)
+         ========================================================= -->
+    <xs:complexType name="ComponentBlock">
+        <xs:sequence>
+            <xs:element name="comp_01" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_02" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_03" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_04" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_05" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_06" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_07" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_08" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_09" type="xs:string" minOccurs="0"/>
+            <xs:element name="comp_10" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- =========================================================
+         Helper: Feldblock field_01..field_20 (mit comp_01..comp_10)
+         ========================================================= -->
+    <xs:complexType name="FieldBlock">
+        <xs:sequence>
+
+            <!-- field_01 -->
+            <xs:element name="field_01" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="comp_01" minOccurs="0"/>
+                        <xs:element ref="comp_02" minOccurs="0"/>
+                        <xs:element ref="comp_03" minOccurs="0"/>
+                        <xs:element ref="comp_04" minOccurs="0"/>
+                        <xs:element ref="comp_05" minOccurs="0"/>
+                        <xs:element ref="comp_06" minOccurs="0"/>
+                        <xs:element ref="comp_07" minOccurs="0"/>
+                        <xs:element ref="comp_08" minOccurs="0"/>
+                        <xs:element ref="comp_09" minOccurs="0"/>
+                        <xs:element ref="comp_10" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- field_02 -->
+            <xs:element name="field_02" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element ref="comp_01" minOccurs="0"/>
+                        <xs:element ref="comp_02" minOccurs="0"/>
+                        <xs:element ref="comp_03" minOccurs="0"/>
+                        <xs:element ref="comp_04" minOccurs="0"/>
+                        <xs:element ref="comp_05" minOccurs="0"/>
+                        <xs:element ref="comp_06" minOccurs="0"/>
+                        <xs:element ref="comp_07" minOccurs="0"/>
+                        <xs:element ref="comp_08" minOccurs="0"/>
+                        <xs:element ref="comp_09" minOccurs="0"/>
+                        <xs:element ref="comp_10" minOccurs="0"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <!-- ======================================================
+                 Die Felder 03–20 funktionieren identisch, daher hier
+                 vollständig generiert, ohne Auslassungen.
+                 ====================================================== -->
+
+            <!-- field_03 -->
+            <xs:element name="field_03" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_04 -->
+            <xs:element name="field_04" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_05 -->
+            <xs:element name="field_05" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_06 -->
+            <xs:element name="field_06" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_07 -->
+            <xs:element name="field_07" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_08 -->
+            <xs:element name="field_08" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_09 -->
+            <xs:element name="field_09" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_10 -->
+            <xs:element name="field_10" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_11 -->
+            <xs:element name="field_11" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_12 -->
+            <xs:element name="field_12" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_13 -->
+            <xs:element name="field_13" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_14 -->
+            <xs:element name="field_14" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_15 -->
+            <xs:element name="field_15" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_16 -->
+            <xs:element name="field_16" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_17 -->
+            <xs:element name="field_17" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_18 -->
+            <xs:element name="field_18" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_19 -->
+            <xs:element name="field_19" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+            <!-- field_20 -->
+            <xs:element name="field_20" minOccurs="0">
+                <xs:complexType><xs:sequence>
+                    <xs:element ref="comp_01" minOccurs="0"/>
+                    <xs:element ref="comp_02" minOccurs="0"/>
+                    <xs:element ref="comp_03" minOccurs="0"/>
+                    <xs:element ref="comp_04" minOccurs="0"/>
+                    <xs:element ref="comp_05" minOccurs="0"/>
+                    <xs:element ref="comp_06" minOccurs="0"/>
+                    <xs:element ref="comp_07" minOccurs="0"/>
+                    <xs:element ref="comp_08" minOccurs="0"/>
+                    <xs:element ref="comp_09" minOccurs="0"/>
+                    <xs:element ref="comp_10" minOccurs="0"/>
+                </xs:sequence></xs:complexType>
+            </xs:element>
+
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- =========================================================
+         Root: HL7
+         ========================================================= -->
+    <xs:element name="HL7">
+        <xs:complexType>
+            <xs:sequence>
+
+                <!-- MSH -->
+                <xs:element name="MSH" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:complexContent>
+                            <xs:extension base="FieldBlock"/>
+                        </xs:complexContent>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- PID -->
+                <xs:element name="PID" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:complexContent>
+                            <xs:extension base="FieldBlock"/>
+                        </xs:complexContent>
+                    </xs:complexType>
+                </xs:element>
+
+                <!-- NK1Loop -->
+                <xs:element name="NK1Loop" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="NK1" minOccurs="1" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="FieldBlock"/>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- =========================================================
+         Komponenten als globale Elemente (für ref="")
+         ========================================================= -->
+    <xs:element name="comp_01" type="xs:string"/>
+    <xs:element name="comp_02" type="xs:string"/>
+    <xs:element name="comp_03" type="xs:string"/>
+    <xs:element name="comp_04" type="xs:string"/>
+    <xs:element name="comp_05" type="xs:string"/>
+    <xs:element name="comp_06" type="xs:string"/>
+    <xs:element name="comp_07" type="xs:string"/>
+    <xs:element name="comp_08" type="xs:string"/>
+    <xs:element name="comp_09" type="xs:string"/>
+    <xs:element name="comp_10" type="xs:string"/>
+
+</xs:schema>

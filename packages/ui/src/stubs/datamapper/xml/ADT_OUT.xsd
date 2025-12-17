@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Root-Element -->
+    <xs:element name="HL7_ADT_A04">
+        <xs:complexType>
+            <xs:sequence>
+
+                <!-- MSH-Segment -->
+                <xs:element name="patientId" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+
+                <xs:element name="lastName" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="firstName" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="dateOfBirth" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="gender" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="address" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="city" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="state" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="zip" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="phone" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+                <xs:element name="maritalStatus" minOccurs="1" maxOccurs="1">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string"></xs:restriction>
+                    </xs:simpleType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

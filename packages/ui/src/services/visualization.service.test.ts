@@ -570,6 +570,72 @@ describe('VisualizationService', () => {
         targetItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetForEachChildren[0]);
         expect((targetItemChildren[0] as TargetFieldNodeData).mapping?.children[0] as ValueSelector).toBeUndefined();
       });
+
+      it('should generate correct XPath for fields with xs:extension', () => {
+        const adtInDoc = TestUtil.createAdtInDoc();
+        const adtOutDoc = TestUtil.createAdtOutDoc();
+        const adtTree = new MappingTree(
+          adtOutDoc.documentType,
+          adtOutDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const adtInDocNode = new DocumentNodeData(adtInDoc);
+        const adtOutDocNode = new TargetDocumentNodeData(adtOutDoc, adtTree);
+
+        const hl7Children = VisualizationService.generateStructuredDocumentChildren(adtInDocNode);
+        const hl7Node = hl7Children[0];
+        const hl7SubChildren = VisualizationService.generateNonDocumentNodeDataChildren(hl7Node) as FieldNodeData[];
+        const pidNode = hl7SubChildren.find((child) => child.field?.name === 'PID');
+        expect(pidNode).toBeDefined();
+
+        const pidChildren = VisualizationService.generateNonDocumentNodeDataChildren(pidNode!) as FieldNodeData[];
+        const field01Node = pidChildren.find((child) => child.field?.name === 'field_01');
+        expect(field01Node).toBeDefined();
+
+        const field01Children = VisualizationService.generateNonDocumentNodeDataChildren(
+          field01Node!,
+        ) as FieldNodeData[];
+        const comp02Node = field01Children.find((child) => child.field?.name === 'comp_02');
+        expect(comp02Node).toBeDefined();
+
+        VisualizationService.engageMapping(adtTree, comp02Node as FieldNodeData, adtOutDocNode);
+
+        const expressionItem = VisualizationService.getExpressionItemForNode(adtOutDocNode);
+        expect(expressionItem?.expression).toEqual('/HL7/PID/field_01/comp_02');
+      });
+
+      it('should generate correct XPath for attributes with xs:extension', () => {
+        const extensionSimpleDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          undefined,
+          { 'ExtensionSimple.xsd': extensionSimpleXsd },
+        );
+        const sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(extensionSimpleDef);
+        const targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(extensionSimpleDef);
+        const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+        const sourceDocNode = new DocumentNodeData(sourceDoc);
+        const targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+
+        const productChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const productNode = productChildren[0];
+        const productSubChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          productNode,
+        ) as FieldNodeData[];
+        const priceNode = productSubChildren.find((child) => child.field?.name === 'price');
+        expect(priceNode).toBeDefined();
+
+        const priceChildren = VisualizationService.generateNonDocumentNodeDataChildren(priceNode!) as FieldNodeData[];
+        const currencyAttr = priceChildren.find(
+          (child) => child.field?.name === 'currency' && child.field?.isAttribute,
+        );
+        expect(currencyAttr).toBeDefined();
+
+        VisualizationService.engageMapping(tree, currencyAttr as FieldNodeData, targetDocNode);
+
+        const expressionItem = VisualizationService.getExpressionItemForNode(targetDocNode);
+        expect(expressionItem?.expression).toEqual('/ns0:Product/ns0:price/@currency');
+      });
     });
     it('should fill ContextItemExpr (.) and AbbrevReverseStep (..) in xpath when it maps under for-each', () => {
       const orgDefinition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'Org', {
