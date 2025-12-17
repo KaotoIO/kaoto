@@ -563,7 +563,8 @@ export class XmlSchemaDocumentService {
     if (content instanceof XmlSchemaComplexContentExtension) {
       XmlSchemaDocumentService.populateComplexContentExtensionElements(document, parent, content);
     } else if (content instanceof XmlSchemaComplexContentRestriction) {
-      XmlSchemaDocumentService.populateParticle(document, parent.fields, content.getParticle());
+      const parentForParticle = 'parent' in parent ? parent : document;
+      XmlSchemaDocumentService.populateParticle(parentForParticle, parent.fields, content.getParticle());
     }
   }
 
@@ -581,6 +582,39 @@ export class XmlSchemaDocumentService {
     return XmlSchemaDocumentUtilService.lookupSchemaType(document.xmlSchemaCollection, baseTypeQName);
   }
 
+  private static populateSimpleExtensionBaseAttributes(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    userDefinedBaseType: XmlSchemaSimpleType,
+  ) {
+    const simpleBase = userDefinedBaseType;
+    const simpleContent = simpleBase.getContent();
+    if (simpleContent) {
+      XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent);
+    }
+    if (!parent.type) {
+      parent.type = XmlSchemaDocumentUtilService.getFieldTypeFromName(simpleBase.getName());
+    }
+  }
+
+  private static populateComplexExtensionBaseAttributes(
+    document: XmlSchemaDocument,
+    parent: XmlSchemaField | XmlSchemaTypeFragment,
+    userDefinedBaseType: XmlSchemaComplexType,
+  ) {
+    const complexBase = userDefinedBaseType;
+    const contentModel = complexBase.getContentModel();
+
+    if (contentModel) {
+      XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel);
+    } else {
+      const parentForAttribute = 'parent' in parent ? parent : document;
+      for (const attr of complexBase.getAttributes()) {
+        XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+      }
+    }
+  }
+
   private static populateExtensionBaseAttributes(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
@@ -589,26 +623,10 @@ export class XmlSchemaDocumentService {
     const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
     if (!userDefinedBaseType) return;
 
-    if (userDefinedBaseType instanceof XmlSchemaComplexType) {
-      const complexBase = userDefinedBaseType;
-      const contentModel = complexBase.getContentModel();
-
-      if (contentModel) {
-        XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel);
-      } else {
-        for (const attr of complexBase.getAttributes()) {
-          XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
-        }
-      }
-    } else if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
-      const simpleBase = userDefinedBaseType;
-      const simpleContent = simpleBase.getContent();
-      if (simpleContent) {
-        XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent);
-      }
-      if (!parent.type) {
-        parent.type = XmlSchemaDocumentUtilService.getFieldTypeFromName(simpleBase.getName());
-      }
+    if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
+      XmlSchemaDocumentService.populateSimpleExtensionBaseAttributes(document, parent, userDefinedBaseType);
+    } else if (userDefinedBaseType instanceof XmlSchemaComplexType) {
+      XmlSchemaDocumentService.populateComplexExtensionBaseAttributes(document, parent, userDefinedBaseType);
     }
   }
 
@@ -627,7 +645,8 @@ export class XmlSchemaDocumentService {
       if (contentModel) {
         XmlSchemaDocumentService.populateContentModelElements(document, parent, contentModel);
       } else {
-        XmlSchemaDocumentService.populateParticle(document, parent.fields, complexBase.getParticle());
+        const parentForParticle = 'parent' in parent ? parent : document;
+        XmlSchemaDocumentService.populateParticle(parentForParticle, parent.fields, complexBase.getParticle());
       }
     }
   }
@@ -678,8 +697,9 @@ export class XmlSchemaDocumentService {
     extension: XmlSchemaSimpleContentExtension,
   ) {
     XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, extension.getBaseTypeName());
+    const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of extension.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
     }
   }
 
@@ -695,8 +715,9 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaSimpleContentRestriction,
   ) {
+    const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of restriction.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
     }
     XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(document, parent, restriction.getBaseTypeName());
   }
@@ -739,8 +760,9 @@ export class XmlSchemaDocumentService {
     } else {
       XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, baseTypeQName);
     }
+    const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of extension.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
     }
   }
 
@@ -758,7 +780,8 @@ export class XmlSchemaDocumentService {
     } else {
       XmlSchemaDocumentService.populateExtensionBaseElements(document, parent, baseTypeQName);
     }
-    XmlSchemaDocumentService.populateParticle(document, parent.fields, extension.getParticle());
+    const parentForParticle = 'parent' in parent ? parent : document;
+    XmlSchemaDocumentService.populateParticle(parentForParticle, parent.fields, extension.getParticle());
   }
 
   /**
@@ -774,7 +797,8 @@ export class XmlSchemaDocumentService {
     restriction: XmlSchemaComplexContentRestriction,
   ) {
     XmlSchemaDocumentService.populateComplexContentRestrictionAttributes(document, parent, restriction);
-    XmlSchemaDocumentService.populateParticle(document, parent.fields, restriction.getParticle());
+    const parentForParticle = 'parent' in parent ? parent : document;
+    XmlSchemaDocumentService.populateParticle(parentForParticle, parent.fields, restriction.getParticle());
   }
 
   private static populateComplexContentRestrictionAttributes(
@@ -782,8 +806,9 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaComplexContentRestriction,
   ) {
+    const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of restriction.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
     }
 
     const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(
@@ -802,8 +827,9 @@ export class XmlSchemaDocumentService {
       if (contentModel) {
         XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel);
       } else {
+        const parentForAttribute = 'parent' in parent ? parent : document;
         for (const attr of complexBase.getAttributes()) {
-          XmlSchemaDocumentService.populateAttributeOrGroupRef(document, parent.fields, attr);
+          XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
         }
       }
     }
