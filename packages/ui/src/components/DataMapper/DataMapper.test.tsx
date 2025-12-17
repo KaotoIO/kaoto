@@ -4,6 +4,7 @@ import { IVisualizationNode } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi, MetadataProvider } from '../../providers';
+import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
@@ -113,5 +114,39 @@ describe('DataMapperPage', () => {
     render(<DataMapper />);
     const error = await screen.findByText('No associated DataMapper step was provided.');
     expect(error).toBeInTheDocument();
+  });
+
+  it('should invoke updateMappingFile when reopening with existing metadata', async () => {
+    const existingMetadata: IDataMapperMetadata = {
+      sourceBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      sourceParameters: {},
+      targetBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      xsltPath: 'kaoto-datamapper-1234.xsl',
+    };
+
+    metadata = existingMetadata;
+    fileContents['kaoto-datamapper-1234.xsl'] = '<xsl/>';
+
+    const updateMappingFileSpy = jest.spyOn(DataMapperMetadataService, 'updateMappingFile').mockResolvedValue();
+
+    render(
+      <MetadataProvider api={api}>
+        <DataMapper vizNode={vizNode} />
+      </MetadataProvider>,
+    );
+
+    await screen.findByTestId('card-source-parameters-header');
+
+    await waitFor(() => {
+      expect(updateMappingFileSpy).toHaveBeenCalled();
+    });
+
+    updateMappingFileSpy.mockRestore();
   });
 });
