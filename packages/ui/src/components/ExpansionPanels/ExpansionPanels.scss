@@ -1,0 +1,20 @@
+.expansion-panels {
+  --expansion-panel-animation: 150ms ease;
+
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: var(--grid-template, 1fr);
+  transition: grid-template-rows var(--expansion-panel-animation);
+
+  // Disable transition during resize for instant updates
+  &:has([data-resizing='true']) {
+    transition: none;
+  }
+
+  &__spacer {
+    // Flexible spacer to push Body panel to the bottom
+    min-height: 0;
+  }
+}

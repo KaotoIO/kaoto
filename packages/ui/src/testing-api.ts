@@ -1,5 +1,6 @@
 /** Internal components exported for testing only */
 export * from './components/DataMapper/debug';
+export * from './components/ExpansionPanels';
 export * from './components/IconResolver/IconResolver';
 export * from './components/Visualization/Canvas/controller.service';
 export * from './components/Visualization/Canvas/Form/CanvasFormBody';
