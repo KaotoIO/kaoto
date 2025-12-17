@@ -42,10 +42,8 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     if (!metadataId) return;
     const initialize = async () => {
       let meta = await ctx.getMetadata<IDataMapperMetadata>(metadataId);
-      if (!meta) {
-        meta = await DataMapperMetadataService.initializeDataMapperMetadata(entitiesContext, vizNode, ctx, metadataId);
-        setMetadata(meta);
-      }
+      meta ??= await DataMapperMetadataService.initializeDataMapperMetadata(entitiesContext, vizNode, ctx, metadataId);
+      setMetadata(meta);
       const initModel = await DataMapperMetadataService.loadDocuments(ctx, meta);
       setDocumentInitializationModel(initModel);
       const mappingFile = await DataMapperMetadataService.loadMappingFile(ctx, meta);
