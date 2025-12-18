@@ -189,12 +189,52 @@ export class MappingLinksService {
       ? targetNodeRowRect.left + CONNECTION_OFFSET - svgOffsetLeft
       : targetRect.left - svgOffsetLeft;
 
+    // Calculate raw y positions
+    let y1 = sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - svgOffsetTop;
+    let y2 = targetRect.top + (targetRect.bottom - targetRect.top) / 2 - svgOffsetTop;
+
+    // Clamp y coordinates to stay within the node's scroll container boundaries
+    // This handles nodes that are scrolled out of view
+    const sourceScrollContainer = MappingLinksService.findScrollContainer(sourceHeaderRef);
+    if (sourceScrollContainer) {
+      const containerRect = sourceScrollContainer.getBoundingClientRect();
+      const containerTop = containerRect.top - svgOffsetTop;
+      const containerBottom = containerRect.bottom - svgOffsetTop;
+      y1 = Math.max(containerTop, Math.min(containerBottom, y1));
+    }
+
+    const targetScrollContainer = MappingLinksService.findScrollContainer(targetHeaderRef);
+    if (targetScrollContainer) {
+      const containerRect = targetScrollContainer.getBoundingClientRect();
+      const containerTop = containerRect.top - svgOffsetTop;
+      const containerBottom = containerRect.bottom - svgOffsetTop;
+      y2 = Math.max(containerTop, Math.min(containerBottom, y2));
+    }
+
     return {
       x1: sourceX,
-      y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - svgOffsetTop,
+      y1,
       x2: targetX,
-      y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2 - svgOffsetTop,
+      y2,
     };
+  }
+
+  private static findScrollContainer(headerRef: Element | null): Element | null {
+    if (!headerRef) return null;
+
+    // First try: element is inside the content area (normal tree node)
+    const directContainer = headerRef.closest('.expansion-panel__content');
+    if (directContainer) return directContainer;
+
+    // Second try: element is in the summary (traced to document header)
+    // Find the parent panel and get its content sibling
+    const panel = headerRef.closest('.expansion-panel');
+    if (panel) {
+      const contentArea = panel.querySelector('.expansion-panel__content');
+      if (contentArea) return contentArea;
+    }
+
+    return null;
   }
 
   private static isLinkSelected(

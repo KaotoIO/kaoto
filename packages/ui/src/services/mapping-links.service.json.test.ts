@@ -149,6 +149,7 @@ describe('MappingLinksService : JSON', () => {
           headerRef: {
             getBoundingClientRect: mockRect,
             getClientRects: mockRect,
+            closest: () => null,
           } as unknown as HTMLDivElement,
         }),
       );
