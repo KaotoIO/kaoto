@@ -276,6 +276,7 @@ describe('MappingLinksService', () => {
           headerRef: {
             getBoundingClientRect: mockRect,
             getClientRects: mockRect,
+            closest: () => null,
           } as unknown as HTMLDivElement,
         }),
       );
@@ -368,12 +369,14 @@ describe('MappingLinksService', () => {
         getBoundingClientRect: () => ({ left: 40, top: 100, right: 190, bottom: 120 }),
         getClientRects: () => ({ length: 1 }),
         querySelector: () => mockNodeRow,
+        closest: () => null,
       } as unknown as HTMLDivElement;
 
       const mockTargetHeaderRef = {
         getBoundingClientRect: () => ({ left: 300, top: 100, right: 450, bottom: 120 }),
         getClientRects: () => ({ length: 1 }),
         querySelector: () => mockNodeRow,
+        closest: () => null,
       } as unknown as HTMLDivElement;
 
       const sourceNodeRefConfig: NodeReference = {
