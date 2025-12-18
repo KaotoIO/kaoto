@@ -1,7 +1,27 @@
 import './CustomNode.scss';
 
-import { Icon } from '@patternfly/react-core';
-import { ArrowDownIcon, ArrowRightIcon, BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
+import {
+  Alert,
+  Button,
+  Icon,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Panel,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
+import {
+  ArrowDownIcon,
+  ArrowRightIcon,
+  BanIcon,
+  CheckCircleIcon,
+  EnvelopeIcon,
+  ExclamationCircleIcon,
+} from '@patternfly/react-icons';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import {
   AnchorEnd,
   DEFAULT_LAYER,
@@ -29,7 +49,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, MouseEventHandler, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
@@ -47,6 +67,7 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { AddStepIcon } from '../Edge/AddStepIcon';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
+import { useShowMessage } from '../hooks/show-message.hook';
 import { TargetAnchor } from '../target-anchor';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
 
@@ -77,6 +98,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
+    const verified = !isDisabled && (vizNode?.isVerified() || false);
+    const hasMessage = !isDisabled && (vizNode?.hasMessage() || false);
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
@@ -208,6 +231,36 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const toolbarX = (boxRef.current.width - toolbarWidth) / 2;
     const toolbarY = CanvasDefaults.STEP_TOOLBAR_HEIGHT * -1;
 
+    const [isMessageModalOpen, setIsMessageModalOpen] = useState<boolean>(false);
+    const [message, setMessage] = useState<Record<string, unknown>>({} as Record<string, unknown>);
+    const { onShowMessage } = useShowMessage(vizNode);
+    const showMessage: MouseEventHandler<HTMLDivElement> = useCallback(
+      async (event) => {
+        event.stopPropagation();
+        const message = await onShowMessage();
+        setMessage(message);
+        setIsMessageModalOpen(true);
+      },
+      [onShowMessage, setMessage, setIsMessageModalOpen],
+    );
+
+    const onCloseMessageModal = useCallback(() => {
+      setIsMessageModalOpen(false);
+    }, []);
+
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
+    const showError: MouseEventHandler<HTMLDivElement> = useCallback(
+      async (event) => {
+        event.stopPropagation();
+        setIsErrorModalOpen(true);
+      },
+      [setIsErrorModalOpen],
+    );
+
+    const onCloseErrorModal = useCallback(() => {
+      setIsErrorModalOpen(false);
+    }, []);
+
     if (!vizNode) {
       return null;
     }
@@ -223,6 +276,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           data-disabled={isDisabled}
           data-toolbar-open={shouldShowToolbar}
           data-warning={doesHaveWarnings}
+          data-verified={verified}
           onClick={onSelect}
           onContextMenu={onContextMenu}
         >
@@ -245,6 +299,20 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               <div title={tooltipContent} className="custom-node__container__image">
                 <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
 
+                {doesHaveWarnings && (
+                  <FloatingCircle className="step-icon step-icon__processor">
+                    <Icon status="danger" size="lg" title={validationText} onClick={showError}>
+                      <ExclamationCircleIcon />
+                    </Icon>
+                  </FloatingCircle>
+                )}
+                {hasMessage && (
+                  <FloatingCircle className="step-icon step-icon__processor">
+                    <Icon status="info" size="lg" onClick={showMessage}>
+                      <EnvelopeIcon />
+                    </Icon>
+                  </FloatingCircle>
+                )}
                 {childCount > 0 && (
                   <FloatingCircle className="step-icon step-icon__processor">
                     <span title={`${childCount}`}>{childCount}</span>
@@ -278,11 +346,17 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             <div
               className={clsx('custom-node__label__text', {
                 'custom-node__label__text__error': doesHaveWarnings,
+                'custom-node__label__text__success': verified,
               })}
             >
               {doesHaveWarnings && (
                 <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
                   <ExclamationCircleIcon />
+                </Icon>
+              )}
+              {verified && (
+                <Icon status="success" title="Step verified" data-verified={verified}>
+                  <CheckCircleIcon />
                 </Icon>
               )}
               <span title={label}>{label}</span>
@@ -327,6 +401,92 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             </foreignObject>
           )}
         </g>
+
+        <Modal isOpen={isMessageModalOpen} variant={ModalVariant.large} data-testid="message-info-modal">
+          <ModalHeader title="Message" titleIconVariant={'info'} />
+          <ModalBody>
+            <Stack hasGutter>
+              <h4>Message Headers</h4>
+              {message.headers !== undefined && (
+                <StackItem>
+                  <Table aria-label="Message Headers" variant="compact" data-testid="message-headers-table">
+                    <Thead title="Message headers">
+                      <Th>Name</Th>
+                      <Th>Value</Th>
+                    </Thead>
+                    <Tbody>
+                      {(message.headers as Record<string, string>[])
+                        .filter((header) => header.name.startsWith('citrus_'))
+                        .map((header) => (
+                          <Tr key={header.name}>
+                            <Td>{header.name.toUpperCase()}</Td>
+                            <Td>{header.value}</Td>
+                          </Tr>
+                        ))}
+                    </Tbody>
+                    <Tbody>
+                      {(message.headers as Record<string, string>[])
+                        .filter((header) => !header.name.startsWith('citrus_'))
+                        .map((header) => (
+                          <Tr key={header.name}>
+                            <Td>{header.name}</Td>
+                            <Td>{header.value}</Td>
+                          </Tr>
+                        ))}
+                    </Tbody>
+                  </Table>
+                </StackItem>
+              )}
+              <h4>Message Body</h4>
+              <StackItem>
+                <Panel>
+                  <pre>{message.payload?.toString() || 'Empty Message Body'}</pre>
+                </Panel>
+              </StackItem>
+
+              {doesHaveWarnings && (
+                <StackItem>
+                  <Alert variant="danger" title="Validation Error">
+                    <p>{validationText}</p>
+                  </Alert>
+                </StackItem>
+              )}
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="Close"
+              data-testid="message-info-modal-btn-close"
+              variant="control"
+              onClick={onCloseMessageModal}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+
+        <Modal isOpen={isErrorModalOpen} variant={ModalVariant.medium} data-testid="validation-error-modal">
+          <ModalHeader title={'FAILURE'} titleIconVariant={'danger'} />
+          <ModalBody>
+            <Stack hasGutter>
+              <StackItem>
+                <Alert variant="danger" title={'Validation error'}>
+                  <p>{validationText}</p>
+                </Alert>
+              </StackItem>
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="Close"
+              data-testid="validation-error-modal-btn-close"
+              variant="control"
+              onClick={onCloseErrorModal}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
       </Layer>
     );
   },

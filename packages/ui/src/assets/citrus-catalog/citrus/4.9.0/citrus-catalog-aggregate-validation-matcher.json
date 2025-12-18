@@ -1,0 +1,439 @@
+{
+  "isUUIDv4": {
+    "kind": "testValidationMatcher",
+    "name": "isUUIDv4",
+    "group": "citrus",
+    "title": "IsUUIDv4",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "dateRange": {
+    "kind": "testValidationMatcher",
+    "name": "dateRange",
+    "group": "citrus",
+    "title": "DateRange",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "dateFormat": {
+          "type": "string",
+          "title": "DateFormat",
+          "description": "The date format string.",
+          "default": "yyyy-MM-dd"
+        },
+        "dateFrom": {
+          "type": "string",
+          "title": "DateFrom",
+          "description": "The expected data range start value."
+        },
+        "dateTo": {
+          "type": "string",
+          "title": "DateTo",
+          "description": "The expected data range end value."
+        }
+      },
+      "required": [
+        "dateFrom",
+        "dateTo"
+      ]
+    }
+  },
+  "notNull": {
+    "kind": "testValidationMatcher",
+    "name": "notNull",
+    "group": "citrus",
+    "title": "NotNull",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "matchesXml": {
+    "kind": "testValidationMatcher",
+    "name": "matchesXml",
+    "group": "citrus",
+    "title": "MatchesXml",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "containsIgnoreCase": {
+    "kind": "testValidationMatcher",
+    "name": "containsIgnoreCase",
+    "group": "citrus",
+    "title": "ContainsIgnoreCase",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "trimAllWhitespaces": {
+    "kind": "testValidationMatcher",
+    "name": "trimAllWhitespaces",
+    "group": "citrus",
+    "title": "TrimAllWhitespaces",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "lowerThan": {
+    "kind": "testValidationMatcher",
+    "name": "lowerThan",
+    "group": "citrus",
+    "title": "LowerThan",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "title": "Value",
+          "description": "The numeric value to evaluate."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "matchesDatePattern": {
+    "kind": "testValidationMatcher",
+    "name": "matchesDatePattern",
+    "group": "citrus",
+    "title": "MatchesDatePattern",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "matches": {
+    "kind": "testValidationMatcher",
+    "name": "matches",
+    "group": "citrus",
+    "title": "Matches",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "isWeekday": {
+    "kind": "testValidationMatcher",
+    "name": "isWeekday",
+    "group": "citrus",
+    "title": "IsWeekday",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "dateFormat": {
+          "type": "string",
+          "title": "DateFormat",
+          "description": "The date format string.",
+          "default": "dd.MM.yyyy"
+        },
+        "weekday": {
+          "type": "string",
+          "enum": [
+            "MONDAY",
+            "TUESDAY",
+            "WEDNESDAY",
+            "THURSDAY",
+            "FRIDAY",
+            "SATURDAY",
+            "SUNDAY"
+          ],
+          "title": "Weekday",
+          "description": "The expected weekday."
+        }
+      },
+      "required": [
+        "weekday"
+      ]
+    }
+  },
+  "empty": {
+    "kind": "testValidationMatcher",
+    "name": "empty",
+    "group": "citrus",
+    "title": "Empty",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "contains": {
+    "kind": "testValidationMatcher",
+    "name": "contains",
+    "group": "citrus",
+    "title": "Contains",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "trim": {
+    "kind": "testValidationMatcher",
+    "name": "trim",
+    "group": "citrus",
+    "title": "Trim",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "null": {
+    "kind": "testValidationMatcher",
+    "name": "null",
+    "group": "citrus",
+    "title": "Null",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "ignoreNewLine": {
+    "kind": "testValidationMatcher",
+    "name": "ignoreNewLine",
+    "group": "citrus",
+    "title": "IgnoreNewLine",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "isNumber": {
+    "kind": "testValidationMatcher",
+    "name": "isNumber",
+    "group": "citrus",
+    "title": "IsNumber",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "endsWith": {
+    "kind": "testValidationMatcher",
+    "name": "endsWith",
+    "group": "citrus",
+    "title": "EndsWith",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "variable": {
+    "kind": "testValidationMatcher",
+    "name": "variable",
+    "group": "citrus",
+    "title": "Variable",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "ignore": {
+    "kind": "testValidationMatcher",
+    "name": "ignore",
+    "group": "citrus",
+    "title": "Ignore",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "equalsIgnoreCase": {
+    "kind": "testValidationMatcher",
+    "name": "equalsIgnoreCase",
+    "group": "citrus",
+    "title": "EqualsIgnoreCase",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "notEmpty": {
+    "kind": "testValidationMatcher",
+    "name": "notEmpty",
+    "group": "citrus",
+    "title": "NotEmpty",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object"
+    }
+  },
+  "hasLength": {
+    "kind": "testValidationMatcher",
+    "name": "hasLength",
+    "group": "citrus",
+    "title": "HasLength",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "greaterThan": {
+    "kind": "testValidationMatcher",
+    "name": "greaterThan",
+    "group": "citrus",
+    "title": "GreaterThan",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number",
+          "title": "Value",
+          "description": "The numeric value to evaluate."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "startsWith": {
+    "kind": "testValidationMatcher",
+    "name": "startsWith",
+    "group": "citrus",
+    "title": "StartsWith",
+    "propertiesSchema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "title": "Value",
+          "description": "The expected control value."
+        }
+      },
+      "required": [
+        "value"
+      ]
+    }
+  }
+}

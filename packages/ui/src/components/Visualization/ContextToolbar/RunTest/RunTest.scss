@@ -1,0 +1,20 @@
+.run-test-control[data-success='true'] {
+  --pf-v6-c-button--m-clicked--BorderColor: var(--pf-t--global--icon--color--status--success--default) !important;
+  --pf-v6-c-button--hover--BorderColor: var(--pf-t--global--icon--color--status--success--default) !important;
+
+  border-color: var(--pf-t--global--icon--color--status--success--default) !important;
+}
+
+.run-test-control[data-failed='true'] {
+  --pf-v6-c-button--m-clicked--BorderColor: var(--pf-t--global--icon--color--status--danger--default) !important;
+  --pf-v6-c-button--hover--BorderColor: var(--pf-t--global--icon--color--status--danger--default) !important;
+
+  border-color: var(--pf-t--global--icon--color--status--danger--default) !important;
+}
+
+.run-test-control[data-running='true'] {
+  --pf-v6-c-button--m-clicked--BorderColor: var(--pf-t--global--icon--color--status--warning--default) !important;
+  --pf-v6-c-button--hover--BorderColor: var(--pf-t--global--icon--color--status--warning--default) !important;
+
+  border-color: var(--pf-t--global--icon--color--status--warning--default) !important;
+}

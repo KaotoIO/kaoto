@@ -147,6 +147,18 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
     return this.schemaValidator?.errors?.map((error) => `'${error.instancePath}' ${error.message}`).join(',\n');
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  hasMessage(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  getMessage(_path?: string): Record<string, unknown> | undefined {
+    return undefined;
+  }
+
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
     const restConfigurationGroupNode = NodeMapperService.getVizNode(
       this.getRootPath(),

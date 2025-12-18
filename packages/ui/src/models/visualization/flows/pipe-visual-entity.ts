@@ -231,6 +231,18 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
     return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  hasMessage(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
+  getMessage(_path?: string): Record<string, unknown> | undefined {
+    return undefined;
+  }
+
   toVizNode(): IVisualizationNode {
     const pipeGroupNode = createVisualizationNode(this.id, {
       catalogKind: CatalogKind.Entity,

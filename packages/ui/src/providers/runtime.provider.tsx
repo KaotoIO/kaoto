@@ -58,6 +58,14 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
           catalogLibraryEntry = redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
         }
 
+        const citrus: CatalogLibraryEntry = {
+          name: 'Citrus 4.9.0',
+          runtime: 'Citrus',
+          version: '4.9.0',
+          fileName: catalogLibraryEntry?.fileName || '',
+        };
+        catalogLibrary.definitions = [...catalogLibrary.definitions, citrus];
+
         setCatalogLibrary(catalogLibrary);
         setSelectedCatalog(catalogLibraryEntry);
       })

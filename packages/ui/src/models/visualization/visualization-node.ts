@@ -146,6 +146,18 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     }
   }
 
+  isVerified(): boolean | undefined {
+    return this.getBaseEntity()?.isVerified(this.data.path);
+  }
+
+  hasMessage(): boolean | undefined {
+    return this.getBaseEntity()?.hasMessage(this.data.path);
+  }
+
+  getMessage(): Record<string, unknown> | undefined {
+    return this.getBaseEntity()?.getMessage(this.data.path);
+  }
+
   getNodeValidationText(): string | undefined {
     return this.getBaseEntity()?.getNodeValidationText(this.data.path);
   }
