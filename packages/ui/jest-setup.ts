@@ -8,6 +8,18 @@ Object.defineProperties(globalThis, {
   TextEncoder: { value: TextEncoder },
 });
 
+// Mock ResizeObserver for components that use it
+class ResizeObserverMock {
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+}
+
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  writable: true,
+  value: ResizeObserverMock,
+});
+
 enableSVGElementMocks();
 
 Object.defineProperty(window, 'fetch', {
