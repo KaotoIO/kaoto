@@ -34,7 +34,7 @@ import { useNavigate } from 'react-router-dom';
 import { IVisualizationNode } from '../../models';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
-import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
 
@@ -43,7 +43,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
   const metadata = useContext(MetadataContext);
   const xsltDocument = useMemo(() => {
     const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
-    return DataMapperMetadataService.getXSLTDocumentName(xsltComponent);
+    return DataMapperStepService.getXsltFileName(xsltComponent);
   }, [vizNode]);
   const isXsltDocumentDefined = useMemo(() => {
     return isDefined(xsltDocument);

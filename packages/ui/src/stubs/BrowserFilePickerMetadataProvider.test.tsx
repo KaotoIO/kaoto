@@ -4,9 +4,9 @@ import { useContext } from 'react';
 import { CatalogKind, StepUpdateAction } from '../models';
 import {
   SCHEMA_FILE_ACCEPT_PATTERN,
-  SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY,
+  SCHEMA_FILE_ACCEPT_PATTERN_XML,
   SCHEMA_FILE_NAME_PATTERN,
-  SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY,
+  SCHEMA_FILE_NAME_PATTERN_XML,
 } from '../models/datamapper';
 import { IMetadataApi, MetadataContext } from '../providers';
 import { BrowserFilePickerMetadataProvider } from './BrowserFilePickerMetadataProvider';
@@ -75,10 +75,10 @@ describe('BrowserFilePickerMetadataProvider', () => {
       const { api, fileInput } = renderWithProvider();
 
       act(() => {
-        api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY);
+        api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN_XML);
       });
 
-      expect(fileInput.accept).toBe(SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY);
+      expect(fileInput.accept).toBe(SCHEMA_FILE_ACCEPT_PATTERN_XML);
     });
 
     it('should set accept pattern for SCHEMA_FILE_NAME_PATTERN', () => {

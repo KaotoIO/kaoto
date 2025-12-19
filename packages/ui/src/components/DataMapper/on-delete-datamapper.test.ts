@@ -1,9 +1,11 @@
 import { CatalogKind, createVisualizationNode } from '../../models';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { ACTION_ID_DELETE_STEP_AND_FILE, ACTION_ID_DELETE_STEP_ONLY, onDeleteDataMapper } from './on-delete-datamapper';
 
 jest.mock('../../services/datamapper-metadata.service');
+jest.mock('../../services/datamapper-step.service');
 
 describe('onDeleteDataMapper', () => {
   let mockApi: jest.Mocked<IMetadataApi>;
@@ -19,7 +21,7 @@ describe('onDeleteDataMapper', () => {
       deleteResourceContent: jest.fn(),
     } as unknown as jest.Mocked<IMetadataApi>;
 
-    jest.spyOn(DataMapperMetadataService, 'getDataMapperMetadataId').mockReturnValue(metadataId);
+    jest.spyOn(DataMapperStepService, 'getDataMapperMetadataId').mockReturnValue(metadataId);
     jest.spyOn(DataMapperMetadataService, 'deleteXsltFile').mockResolvedValue(undefined);
     jest.spyOn(DataMapperMetadataService, 'deleteMetadata').mockResolvedValue(undefined);
   });
@@ -33,7 +35,7 @@ describe('onDeleteDataMapper', () => {
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_AND_FILE);
 
-    expect(DataMapperMetadataService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
+    expect(DataMapperStepService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
     expect(DataMapperMetadataService.deleteXsltFile).toHaveBeenCalledWith(mockApi, metadataId);
     expect(DataMapperMetadataService.deleteMetadata).toHaveBeenCalledWith(mockApi, metadataId);
   });
@@ -43,7 +45,7 @@ describe('onDeleteDataMapper', () => {
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_ONLY);
 
-    expect(DataMapperMetadataService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
+    expect(DataMapperStepService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
     expect(DataMapperMetadataService.deleteXsltFile).not.toHaveBeenCalled();
     expect(DataMapperMetadataService.deleteMetadata).toHaveBeenCalledWith(mockApi, metadataId);
   });
@@ -53,7 +55,7 @@ describe('onDeleteDataMapper', () => {
 
     await onDeleteDataMapper(mockApi, vizNode, undefined);
 
-    expect(DataMapperMetadataService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
+    expect(DataMapperStepService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
     expect(DataMapperMetadataService.deleteXsltFile).not.toHaveBeenCalled();
     expect(DataMapperMetadataService.deleteMetadata).toHaveBeenCalledWith(mockApi, metadataId);
   });
@@ -63,7 +65,7 @@ describe('onDeleteDataMapper', () => {
 
     await onDeleteDataMapper(mockApi, vizNode, 'some-other-action');
 
-    expect(DataMapperMetadataService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
+    expect(DataMapperStepService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
     expect(DataMapperMetadataService.deleteXsltFile).not.toHaveBeenCalled();
     expect(DataMapperMetadataService.deleteMetadata).toHaveBeenCalledWith(mockApi, metadataId);
   });
