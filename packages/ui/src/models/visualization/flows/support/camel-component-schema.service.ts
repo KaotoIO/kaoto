@@ -7,13 +7,40 @@ import { CatalogKind } from '../../../catalog-kind';
 import { IKameletDefinition } from '../../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
+import { REST_DSL_VERBS } from '../../../special-processors.constants';
 import { IClipboardCopyObject } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
-import { CamelComponentFilterService } from './camel-component-filter.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
 
+const CAMEL_EIP_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [{ name: 'steps', type: 'branch' }];
+const CAMEL_CIRCUIT_BREAK_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [
+  { name: 'steps', type: 'branch' },
+  { name: 'onFallback', type: 'single-clause' },
+];
+const CAMEL_CHOICE_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [
+  { name: 'when', type: 'array-clause' },
+  { name: 'otherwise', type: 'single-clause' },
+];
+const CAMEL_DO_TRY_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [
+  { name: 'steps', type: 'branch' },
+  { name: 'doCatch', type: 'array-clause' },
+  { name: 'doFinally', type: 'single-clause' },
+];
+const CAMEL_ROUTE_CONFIGURATION_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [
+  { name: 'intercept', type: 'array-clause' },
+  { name: 'interceptFrom', type: 'array-clause' },
+  { name: 'interceptSendToEndpoint', type: 'array-clause' },
+  { name: 'onException', type: 'array-clause' },
+  { name: 'onCompletion', type: 'array-clause' },
+];
+const CAMEL_REST_DSL_STEP_PROPERTIES: CamelProcessorStepsProperties[] = REST_DSL_VERBS.map((method) => ({
+  name: method,
+  type: 'array-clause',
+}));
+const CAMEL_REST_VERB_STEP_PROPERTIES: CamelProcessorStepsProperties[] = [{ name: 'to', type: 'single-clause' }];
+
 export class CamelComponentSchemaService {
-  static DISABLED_SIBLING_STEPS = [
+  static readonly DISABLED_SIBLING_STEPS = [
     'route',
     'from',
     'onWhen',
@@ -26,10 +53,17 @@ export class CamelComponentSchemaService {
     'interceptSendToEndpoint',
     'onException',
     'onCompletion',
-    ...CamelComponentFilterService.REST_DSL_METHODS,
+    ...REST_DSL_VERBS,
   ];
-  static DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
-  static readonly SPECIAL_CHILD_PROCESSORS = ['onFallback', 'when', 'otherwise', 'doCatch', 'doFinally'];
+  static readonly DISABLED_REMOVE_STEPS = ['from', 'route'] as unknown as (keyof ProcessorDefinition)[];
+  static readonly SPECIAL_CHILD_PROCESSORS = [
+    'onFallback',
+    'when',
+    'otherwise',
+    'doCatch',
+    'doFinally',
+    ...REST_DSL_VERBS,
+  ];
   static readonly PROCESSOR_STRING_DEFINITIONS: Record<string, string> = {
     to: 'uri',
     toD: 'uri',
@@ -195,39 +229,29 @@ export class CamelComponentSchemaService {
       case /** routeConfiguration */ 'interceptSendToEndpoint' as keyof ProcessorDefinition:
       case /** routeConfiguration */ 'onException' as keyof ProcessorDefinition:
       case /** routeConfiguration */ 'onCompletion' as keyof ProcessorDefinition:
-        return [{ name: 'steps', type: 'branch' }];
+        return CAMEL_EIP_STEP_PROPERTIES;
 
       case 'circuitBreaker':
-        return [
-          { name: 'steps', type: 'branch' },
-          { name: 'onFallback', type: 'single-clause' },
-        ];
+        return CAMEL_CIRCUIT_BREAK_STEP_PROPERTIES;
 
       case 'choice':
-        return [
-          { name: 'when', type: 'array-clause' },
-          { name: 'otherwise', type: 'single-clause' },
-        ];
+        return CAMEL_CHOICE_STEP_PROPERTIES;
 
       case 'doTry':
-        return [
-          { name: 'steps', type: 'branch' },
-          { name: 'doCatch', type: 'array-clause' },
-          { name: 'doFinally', type: 'single-clause' },
-        ];
+        return CAMEL_DO_TRY_STEP_PROPERTIES;
 
       case 'routeConfiguration' as keyof ProcessorDefinition:
-        return [
-          { name: 'intercept', type: 'array-clause' },
-          { name: 'interceptFrom', type: 'array-clause' },
-          { name: 'interceptSendToEndpoint', type: 'array-clause' },
-          { name: 'onException', type: 'array-clause' },
-          { name: 'onCompletion', type: 'array-clause' },
-        ];
+        return CAMEL_ROUTE_CONFIGURATION_STEP_PROPERTIES;
 
       case 'rest' as keyof ProcessorDefinition:
-        return CamelComponentFilterService.REST_DSL_METHODS.map((method) => ({ name: method, type: 'array-clause' }));
-
+        return CAMEL_REST_DSL_STEP_PROPERTIES;
+      case /** rest */ 'get' as keyof ProcessorDefinition:
+      case /** rest */ 'post' as keyof ProcessorDefinition:
+      case /** rest */ 'put' as keyof ProcessorDefinition:
+      case /** rest */ 'delete' as keyof ProcessorDefinition:
+      case /** rest */ 'patch' as keyof ProcessorDefinition:
+      case /** rest */ 'head' as keyof ProcessorDefinition:
+        return CAMEL_REST_VERB_STEP_PROPERTIES;
       default:
         return [];
     }
@@ -283,7 +307,7 @@ export class CamelComponentSchemaService {
           }
         });
       }
-      return Object.assign({}, definition, { parameters: { ...filteredParameters, ...defaultMultiValues } });
+      return { ...definition, parameters: { ...filteredParameters, ...defaultMultiValues } };
     }
     return definition;
   }
@@ -473,7 +497,7 @@ export class CamelComponentSchemaService {
     const catalogLookup = CamelCatalogService.getCatalogLookup(componentName);
 
     const multiValueParameters: Map<string, string> = new Map<string, string>();
-    if (catalogLookup !== undefined && catalogLookup.definition?.properties !== undefined) {
+    if (catalogLookup?.definition?.properties !== undefined) {
       Object.entries(catalogLookup.definition.properties).forEach(([key, value]) => {
         if (value.multiValue) multiValueParameters.set(key, value.prefix!);
       });

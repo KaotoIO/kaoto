@@ -89,25 +89,36 @@ describe('useDocumentTreeStore', () => {
       expect(keys).toEqual(['sourceBody:Body://']);
     });
 
-    /** This test needs to be skipped while the datamapper uses random IDs */
-    it.skip('should keep the existing expansion state for matchign keys', () => {
+    it('should keep the existing expansion state for matching keys', () => {
+      // First parse the tree to get actual node paths with real IDs
+      TreeParsingService.parseTree(tree);
+      useDocumentTreeStore.getState().updateTreeExpansion(tree);
+
+      // Get the actual paths from the tree after initial expansion
+      const initialState = useDocumentTreeStore.getState().expansionState[tree.documentId];
+      const paths = Object.keys(initialState);
+
+      // Find a path that has children (not root or leaf)
+      const rootPath = paths[0]; // 'sourceBody:Body://'
+      const childPath = paths[1]; // First child path (with random ID)
+
+      // Set custom expansion state: root expanded (true), child collapsed (false)
       useDocumentTreeStore.setState({
         expansionState: {
-          ['doc-sourceBody-Body']: {
-            ['sourceBody:Body://']: true,
-            ['sourceBody:Body://fxShipOrder-1234']: false,
+          [tree.documentId]: {
+            [rootPath]: true,
+            [childPath]: false,
           },
         },
       });
 
+      // Call updateTreeExpansion again - should preserve existing states
       useDocumentTreeStore.getState().updateTreeExpansion(tree);
       const state = useDocumentTreeStore.getState().expansionState[tree.documentId];
 
-      expect(state).toEqual({
-        'sourceBody:Body://': true,
-        'sourceBody:Body://fx-ShipOrder-1234': false,
-        // Other keys
-      });
+      // Verify that the custom states were preserved for matching keys
+      expect(state[rootPath]).toBe(true);
+      expect(state[childPath]).toBe(false);
     });
   });
 });
