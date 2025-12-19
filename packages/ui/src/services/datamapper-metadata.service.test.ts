@@ -1,13 +1,8 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-
-import { CatalogKind, createVisualizationNode } from '../models';
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant } from '../models/datamapper/types';
-import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
-import { EntitiesContextResult, IMetadataApi } from '../providers';
+import { IMetadataApi } from '../providers';
 import { commonTypesJsonSchema, customerJsonSchema, orderJsonSchema } from '../stubs/datamapper/data-mapper';
-import { XSLT_COMPONENT_NAME } from '../utils';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { EMPTY_XSL } from './mapping-serializer.service';
@@ -31,31 +26,6 @@ describe('DataMapperMetadataService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  describe('getDataMapperMetadataId', () => {
-    it('should return the metadata id from the visualization node', () => {
-      const entity = new CamelRouteVisualEntity({
-        route: {
-          id: 'test-route',
-          from: { uri: 'direct:start', steps: [] },
-        },
-      });
-      const vizNode = entity.toVizNode();
-
-      const metadataId = DataMapperMetadataService.getDataMapperMetadataId(vizNode);
-
-      expect(metadataId).toBe('test-route');
-    });
-
-    it('should return the id from a custom visualization node', () => {
-      const vizNode = createVisualizationNode('custom-id', { catalogKind: CatalogKind.Component, name: 'log' });
-      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'custom-metadata-id' });
-
-      const metadataId = DataMapperMetadataService.getDataMapperMetadataId(vizNode);
-
-      expect(metadataId).toBe('custom-metadata-id');
-    });
   });
 
   describe('createMetadata', () => {
@@ -144,96 +114,37 @@ describe('DataMapperMetadataService', () => {
   });
 
   describe('initializeDataMapperMetadata', () => {
-    it('should initialize metadata when XSLT step exists with document name', async () => {
-      const vizNode = createVisualizationNode('test-node', { catalogKind: CatalogKind.Component, name: 'log' });
-      const mockModel = {
-        id: 'test-metadata-id',
-        steps: [
-          {
-            to: { uri: `${XSLT_COMPONENT_NAME}:existing.xsl` },
-          },
-        ],
-      };
-      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(mockModel);
-
-      const mockEntitiesContext = {
-        updateSourceCodeFromEntities: jest.fn(),
-      } as unknown as EntitiesContextResult;
-
+    it('should initialize metadata with provided xsltPath', async () => {
       const metadata = await DataMapperMetadataService.initializeDataMapperMetadata(
-        mockEntitiesContext,
-        vizNode,
         mockApi,
         'test-metadata-id',
+        'existing.xsl',
       );
 
       expect(metadata.xsltPath).toBe('existing.xsl');
       expect(mockApi.setMetadata).toHaveBeenCalledWith('test-metadata-id', metadata);
       expect(mockApi.saveResourceContent).toHaveBeenCalledWith('existing.xsl', EMPTY_XSL);
-      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
     });
 
-    it('should create document name when XSLT step exists without document name', async () => {
-      const entity = new CamelRouteVisualEntity({
-        route: {
-          id: 'test-route',
-          from: {
-            uri: 'direct:start',
-            steps: [
-              {
-                step: {
-                  id: 'datamapper-1',
-                  steps: [{ to: { uri: XSLT_COMPONENT_NAME } } as ProcessorDefinition],
-                },
-              } as ProcessorDefinition,
-            ],
-          },
-        },
-      });
-      const vizNode = entity.toVizNode();
-      const mockEntitiesContext = {
-        updateSourceCodeFromEntities: jest.fn(),
-      } as unknown as EntitiesContextResult;
-
-      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({
-        id: 'datamapper-1',
-        steps: [{ to: { uri: XSLT_COMPONENT_NAME } }],
-      });
-      jest.spyOn(vizNode, 'updateModel');
-
+    it('should create metadata with default document definitions', async () => {
       const metadata = await DataMapperMetadataService.initializeDataMapperMetadata(
-        mockEntitiesContext,
-        vizNode,
         mockApi,
         'test-metadata-id',
+        'transform.xsl',
       );
 
-      expect(metadata.xsltPath).toBe('test-metadata-id.xsl');
-      expect(vizNode.updateModel).toHaveBeenCalled();
-      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
-    });
-
-    it('should handle case when no XSLT step is found', async () => {
-      const entity = new CamelRouteVisualEntity({
-        route: {
-          id: 'test-route',
-          from: { uri: 'direct:start', steps: [] },
-        },
+      expect(metadata.sourceBody).toEqual({
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+        fieldTypeOverrides: [],
       });
-      const vizNode = entity.toVizNode();
-      const mockEntitiesContext = {
-        updateSourceCodeFromEntities: jest.fn(),
-      } as unknown as EntitiesContextResult;
-
-      const metadata = await DataMapperMetadataService.initializeDataMapperMetadata(
-        mockEntitiesContext,
-        vizNode,
-        mockApi,
-        'test-metadata-id',
-      );
-
-      expect(metadata.xsltPath).toBe('');
-      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-metadata-id', metadata);
+      expect(metadata.sourceParameters).toEqual({});
+      expect(metadata.targetBody).toEqual({
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+        fieldTypeOverrides: [],
+      });
+      expect(metadata.namespaceMap).toEqual({});
     });
   });
 
@@ -405,34 +316,6 @@ describe('DataMapperMetadataService', () => {
       expect(consoleLogSpy).toHaveBeenCalled();
 
       consoleLogSpy.mockRestore();
-    });
-  });
-
-  describe('getXSLTDocumentName', () => {
-    it('should extract document name from XSLT step URI', () => {
-      const xsltStep = {
-        to: { uri: `${XSLT_COMPONENT_NAME}:transform.xsl` },
-      };
-
-      const documentName = DataMapperMetadataService.getXSLTDocumentName(xsltStep);
-
-      expect(documentName).toBe('transform.xsl');
-    });
-
-    it('should return undefined when xsltStep is undefined', () => {
-      const documentName = DataMapperMetadataService.getXSLTDocumentName();
-
-      expect(documentName).toBeUndefined();
-    });
-
-    it('should handle URI with only component name', () => {
-      const xsltStep = {
-        to: { uri: XSLT_COMPONENT_NAME },
-      };
-
-      const documentName = DataMapperMetadataService.getXSLTDocumentName(xsltStep);
-
-      expect(documentName).toBeUndefined();
     });
   });
 

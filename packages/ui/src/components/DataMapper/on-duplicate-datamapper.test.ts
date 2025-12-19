@@ -5,6 +5,7 @@ import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IClipboardCopyObject } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { XSLT_COMPONENT_NAME } from '../../utils';
 import { onDuplicateDataMapper } from './on-duplicate-datamapper';
 
@@ -27,7 +28,7 @@ describe('onDuplicateDataMapper', () => {
 
     mockVizNode = {} as jest.Mocked<IVisualizationNode>;
 
-    jest.spyOn(DataMapperMetadataService, 'getDataMapperMetadataId').mockReturnValue(originalMetadataId);
+    jest.spyOn(DataMapperStepService, 'getDataMapperMetadataId').mockReturnValue(originalMetadataId);
   });
 
   afterEach(() => {

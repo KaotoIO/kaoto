@@ -370,12 +370,13 @@ export const SCHEMA_FILE_NAME_PATTERN = '**/*.{xsd,XSD,xml,XML,json,JSON}';
 export const SCHEMA_FILE_ACCEPT_PATTERN = '.xsd, .xml, .json';
 
 /**
- * Glob pattern for matching source body schema files (XML only).
- * Camel XSLT (including Saxon) doesn't support JSON body.
+ * Glob pattern for matching XML-only schema files.
+ * Used when JSON schemas are not supported (e.g., older Camel versions without useJsonBody parameter).
  */
-export const SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY = '**/*.{xsd,XSD,xml,XML}';
+export const SCHEMA_FILE_NAME_PATTERN_XML = '**/*.{xsd,XSD,xml,XML}';
 
 /**
- * File accept pattern for source body schema file input elements (XML only).
+ * File accept pattern for XML-only schema file input elements.
+ * Used when JSON schemas are not supported (e.g., older Camel versions without useJsonBody parameter).
  */
-export const SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY = '.xsd, .xml';
+export const SCHEMA_FILE_ACCEPT_PATTERN_XML = '.xsd, .xml';

@@ -2,9 +2,9 @@ import { ChangeEvent, createRef, FunctionComponent, PropsWithChildren, useCallba
 
 import {
   SCHEMA_FILE_ACCEPT_PATTERN,
-  SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY,
+  SCHEMA_FILE_ACCEPT_PATTERN_XML,
   SCHEMA_FILE_NAME_PATTERN,
-  SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY,
+  SCHEMA_FILE_NAME_PATTERN_XML,
 } from '../models/datamapper';
 import { IMetadataApi, MetadataContext } from '../providers';
 import { readFileAsString } from './read-file-as-string';
@@ -25,8 +25,8 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     ): Promise<string[] | string | undefined> => {
       if (!fileInputRef.current) return Promise.resolve(undefined);
 
-      if (include === SCHEMA_FILE_NAME_PATTERN_SOURCE_BODY) {
-        fileInputRef.current.accept = SCHEMA_FILE_ACCEPT_PATTERN_SOURCE_BODY;
+      if (include === SCHEMA_FILE_NAME_PATTERN_XML) {
+        fileInputRef.current.accept = SCHEMA_FILE_ACCEPT_PATTERN_XML;
       } else if (include === SCHEMA_FILE_NAME_PATTERN) {
         fileInputRef.current.accept = SCHEMA_FILE_ACCEPT_PATTERN;
       }
