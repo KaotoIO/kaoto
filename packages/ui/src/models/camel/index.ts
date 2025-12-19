@@ -5,5 +5,6 @@ export * from './integration-resource';
 export * from './kamelet-binding-resource';
 export * from './kamelet-resource';
 export * from './pipe-resource';
+export * from './rest-verbs';
 export * from './source-schema-config';
 export * from './source-schema-type';

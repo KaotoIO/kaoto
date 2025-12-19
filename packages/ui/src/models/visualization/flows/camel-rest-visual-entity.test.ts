@@ -3,6 +3,7 @@ import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 
 import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
+import { REST_ELEMENT_NAME } from '../../camel';
 import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -240,7 +241,7 @@ describe('CamelRestVisualEntity', () => {
   it('return no interactions', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getNodeInteraction()).toEqual({
+    expect(entity.getNodeInteraction({ catalogKind: CatalogKind.Entity, name: REST_ELEMENT_NAME })).toEqual({
       canHavePreviousStep: false,
       canHaveNextStep: false,
       canHaveChildren: false,
