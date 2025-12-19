@@ -1,10 +1,10 @@
 import { ITile, TileFilter } from '../../../../components/Catalog/Catalog.models';
+import { REST_DSL_VERBS, REST_ELEMENT_NAME } from '../../../camel/rest-verbs';
 import { CatalogKind } from '../../../catalog-kind';
 import { AddStepMode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from './camel-component-types';
 
 export class CamelComponentFilterService {
-  static readonly REST_DSL_METHODS = ['delete', 'get', 'head', 'patch', 'post', 'put'];
   private static readonly SPECIAL_PROCESSORS = [
     'onFallback',
     'when',
@@ -16,7 +16,7 @@ export class CamelComponentFilterService {
     'interceptSendToEndpoint',
     'onException',
     'onCompletion',
-    ...this.REST_DSL_METHODS,
+    ...REST_DSL_VERBS,
   ];
   /**
    * specialChildren is a map of processor names and their special children.
@@ -26,7 +26,13 @@ export class CamelComponentFilterService {
     choice: ['when', 'otherwise'],
     doTry: ['doCatch', 'doFinally'],
     routeConfiguration: ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'],
-    rest: this.REST_DSL_METHODS,
+    rest: REST_DSL_VERBS,
+    // get: ['to'],
+    // post: ['to'],
+    // put: ['to'],
+    // delete: ['to'],
+    // patch: ['to'],
+    // head: ['to'],
   };
 
   static getCamelCompatibleComponents(
@@ -48,6 +54,19 @@ export class CamelComponentFilterService {
           (item.type === CatalogKind.Component && !item.tags.includes('producerOnly')) ||
           (item.type === CatalogKind.Kamelet && item.tags.includes('source') && item.name !== 'source')
         );
+      };
+    }
+
+    if (
+      mode === AddStepMode.ReplaceStep &&
+      visualEntityData.path?.startsWith(REST_ELEMENT_NAME) &&
+      visualEntityData.path.endsWith('placeholder')
+    ) {
+      /**
+       * For the `rest.get.0.placeholder` path we want to show only `direct` components.
+       */
+      return (item: ITile) => {
+        return item.type === CatalogKind.Component && item.name === 'direct';
       };
     }
 

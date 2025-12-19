@@ -1,12 +1,15 @@
-import { ProcessorDefinition, Rest } from '@kaoto/camel-catalog/types';
+import { Rest } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
+import { REST_DSL_VERBS, REST_ELEMENT_NAME } from '../../camel';
 import { EntityType } from '../../camel/entities/base-entity';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
+  AddStepMode,
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
@@ -15,13 +18,12 @@ import {
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
-import { CamelComponentFilterService } from './support/camel-component-filter.service';
+import { CamelComponentDefaultService } from './support/camel-component-default.service';
 
 export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualCamelEntity {
   id: string;
   readonly type = EntityType.Rest;
-  static readonly ROOT_PATH = 'rest';
-  private readonly OMIT_FORM_FIELDS = ['get', 'post', 'put', 'delete', 'head', 'patch'];
+  static readonly ROOT_PATH = REST_ELEMENT_NAME;
 
   constructor(public restDef: { rest: Rest } = { rest: {} }) {
     super(restDef);
@@ -35,9 +37,12 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       return false;
     }
 
-    const objectKeys = Object.keys(restDef!);
-
-    return objectKeys.length === 1 && this.ROOT_PATH in restDef! && typeof restDef.rest === 'object';
+    return (
+      Object.keys(restDef).length === 1 &&
+      this.ROOT_PATH in restDef &&
+      'rest' in restDef &&
+      typeof restDef.rest === 'object'
+    );
   }
 
   getRootPath() {
@@ -50,12 +55,13 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
 
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (path === CamelRestVisualEntity.ROOT_PATH) {
-      return CamelCatalogService.getComponent(CatalogKind.Entity, 'rest')?.propertiesSchema ?? {};
+      return CamelCatalogService.getComponent(CatalogKind.Entity, REST_ELEMENT_NAME)?.propertiesSchema ?? {};
     }
 
     /** If we're targetting a Rest method, the path would be `rest.get.0` */
-    const method = path?.split('.')[1] ?? '';
-    if (isDefined(path) && CamelComponentFilterService.REST_DSL_METHODS.includes(method)) {
+    const pathSegments = path?.split('.') ?? [];
+    const method = pathSegments[1] ?? '';
+    if (pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
       return CamelCatalogService.getComponent(CatalogKind.Pattern, method)?.propertiesSchema ?? {};
     }
 
@@ -68,8 +74,9 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     }
 
     /** If we're targetting a Rest method, the path would be `rest.get.0` */
-    const method = path?.split('.')[1] ?? '';
-    if (isDefined(path) && CamelComponentFilterService.REST_DSL_METHODS.includes(method)) {
+    const pathSegments = path?.split('.') ?? [];
+    const method = pathSegments[1] ?? '';
+    if (isDefined(path) && pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
       return { ...getValue(this.restDef, path) };
     }
 
@@ -77,7 +84,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   }
 
   getOmitFormFields(): string[] {
-    return this.OMIT_FORM_FIELDS;
+    return REST_DSL_VERBS;
   }
 
   updateModel(path: string | undefined, value: unknown): void {
@@ -90,28 +97,60 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     }
   }
 
-  getNodeInteraction(): NodeInteraction {
-    return {
-      canHavePreviousStep: false,
-      canHaveNextStep: false,
-      canHaveChildren: false,
-      /** Replace it with `true` when enabling the methods (GET, POST, PUT) */
-      canHaveSpecialChildren: false,
-      canRemoveStep: false,
-      canReplaceStep: false,
-      canRemoveFlow: true,
-      canBeDisabled: true,
-    };
+  addStep(options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+  }): void {
+    /** Adding verbs for Rest: get, post, put, delete, patch, head */
+    if (options.data.path === CamelRestVisualEntity.ROOT_PATH) {
+      super.addStep(options);
+      return;
+    }
+
+    /** Adding verbs for Rest: get, post, put, delete, patch, head */
+    const defaultValue = CamelComponentDefaultService.getDefaultNodeDefinitionValue(options.definedComponent).to;
+    const path = options.data.path?.replace('.placeholder', '');
+
+    if (!path) return;
+    setValue(this.entityDef, path, defaultValue);
   }
 
-  getNodeValidationText(): string | undefined {
-    return undefined;
+  getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
+    if (data.path === CamelRestVisualEntity.ROOT_PATH) {
+      return {
+        canHavePreviousStep: false,
+        canHaveNextStep: false,
+        canHaveChildren: false,
+        canHaveSpecialChildren: true,
+        canRemoveStep: false,
+        canReplaceStep: false,
+        canRemoveFlow: true,
+        canBeDisabled: true,
+      };
+    }
+
+    if (data.path?.endsWith('to')) {
+      return {
+        canHavePreviousStep: false,
+        canHaveNextStep: false,
+        canHaveChildren: false,
+        canHaveSpecialChildren: false,
+        canRemoveStep: false,
+        canReplaceStep: false,
+        canRemoveFlow: false,
+        canBeDisabled: false,
+      };
+    }
+
+    return super.getNodeInteraction(data);
   }
 
   toVizNode(): IVisualizationNode<IVisualizationNodeData> {
     const restGroupNode = NodeMapperService.getVizNode(
       this.getRootPath(),
-      { processorName: 'rest' as keyof ProcessorDefinition },
+      { processorName: REST_ELEMENT_NAME },
       this.restDef,
     );
     restGroupNode.data.entity = this;
