@@ -183,6 +183,20 @@ describe('CamelComponentDefaultService', () => {
       expect(datamapperDefault.step.steps[0].to.uri).toEqual('xslt-saxon');
       expect(datamapperDefault.step.steps[0].to.parameters.failOnNullBody).toEqual(false);
     });
+
+    it.each(['get', 'post', 'put', 'delete', 'patch', 'head'])(
+      'should return the default value for a %s REST verb',
+      (verb) => {
+        const verbDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+          type: 'processor',
+          name: verb,
+        } as DefinedComponent) as any;
+        expect(verbDefault.id as string).toMatch(new RegExp(`^${verb}-`));
+        expect(verbDefault.to).toBeDefined();
+        expect(verbDefault.to.uri).toEqual('direct');
+        expect(verbDefault.to.id as string).toMatch(/^to-/);
+      },
+    );
   });
 
   it('should return the default value for a intercept entity', () => {

@@ -4,19 +4,21 @@ import { isDefined } from '@kaoto/forms';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
 import { EntityType } from '../../camel/entities/base-entity';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { NodeLabelType } from '../../settings/settings.model';
+import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../special-processors.constants';
 import {
+  AddStepMode,
   BaseVisualCamelEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
 } from '../base-visual-entity';
-import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 export class CamelRouteConfigurationVisualEntity
   extends AbstractCamelVisualEntity<{ routeConfiguration: RouteConfigurationDefinition }>
@@ -53,11 +55,11 @@ export class CamelRouteConfigurationVisualEntity
       return false;
     }
 
-    const objectKeys = Object.keys(routeConfigurationDef!);
+    const objectKeys = Object.keys(routeConfigurationDef);
 
     return (
       objectKeys.length === 1 &&
-      this.ROOT_PATH in routeConfigurationDef! &&
+      this.ROOT_PATH in routeConfigurationDef &&
       typeof routeConfigurationDef.routeConfiguration === 'object'
     );
   }
@@ -72,6 +74,26 @@ export class CamelRouteConfigurationVisualEntity
 
   setId(id: string): void {
     this.id = id;
+  }
+
+  getNodeLabel(path?: string, labelType?: NodeLabelType): string {
+    if (path === 'routeConfiguration.placeholder') {
+      return 'Add configuration';
+    }
+
+    return super.getNodeLabel(path, labelType);
+  }
+
+  removeStep(path?: string): void {
+    super.removeStep(path);
+
+    const configProperties = SPECIAL_PROCESSORS_PARENTS_MAP['routeConfiguration'];
+    for (const property of configProperties) {
+      const propertyArray = getValue(this.routeConfigurationDef.routeConfiguration, property);
+      if (Array.isArray(propertyArray) && propertyArray.length === 0) {
+        setValue(this.routeConfigurationDef.routeConfiguration, property, undefined);
+      }
+    }
   }
 
   getTooltipContent(path?: string): string {
@@ -113,6 +135,18 @@ export class CamelRouteConfigurationVisualEntity
     }
   }
 
+  addStep(options: {
+    definedComponent: DefinedComponent;
+    mode: AddStepMode;
+    data: IVisualizationNodeData;
+    targetProperty?: string;
+  }): void {
+    const path = options.data.path?.replace('.placeholder', '');
+    const updatedOptions = { ...options, data: { ...options.data, path } };
+
+    super.addStep(updatedOptions);
+  }
+
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction {
     if (data.path === this.getRootPath()) {
       return {
@@ -131,33 +165,15 @@ export class CamelRouteConfigurationVisualEntity
   }
 
   toVizNode(): IVisualizationNode {
-    const routeConfigurationGroupNode = createVisualizationNode(this.id, {
-      catalogKind: CatalogKind.Entity,
-      name: this.type,
-      path: this.getRootPath(),
-      entity: this,
-      isGroup: true,
-      processorName: this.getRootPath(),
-    });
-
-    CamelComponentSchemaService.getProcessorStepsProperties(this.getRootPath() as keyof ProcessorDefinition).forEach(
-      (stepsProperty) => {
-        const childEntities = getValue(this.routeConfigurationDef.routeConfiguration, stepsProperty.name, []);
-        if (!Array.isArray(childEntities)) return;
-
-        childEntities.forEach((childEntity, index) => {
-          const childNode = NodeMapperService.getVizNode(
-            `${this.getRootPath()}.${stepsProperty.name}.${index}.${Object.keys(childEntity)[0]}`,
-            {
-              processorName: stepsProperty.name as keyof ProcessorDefinition,
-            },
-            this.routeConfigurationDef,
-          );
-
-          routeConfigurationGroupNode.addChild(childNode);
-        });
-      },
+    const routeConfigurationGroupNode = NodeMapperService.getVizNode(
+      this.getRootPath(),
+      { processorName: this.getRootPath() as keyof ProcessorDefinition },
+      this.routeConfigurationDef,
     );
+    routeConfigurationGroupNode.data.entity = this;
+    routeConfigurationGroupNode.data.isGroup = true;
+    routeConfigurationGroupNode.data.catalogKind = CatalogKind.Entity;
+    routeConfigurationGroupNode.data.name = this.type;
 
     return routeConfigurationGroupNode;
   }

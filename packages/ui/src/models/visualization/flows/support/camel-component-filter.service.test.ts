@@ -2,6 +2,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import {
   componentCronTile,
+  componentDirectTile,
   componentKubernetesSecretsTile,
   componentSlackTile,
   kameletBeerSourceTile,
@@ -10,6 +11,8 @@ import {
   kameletSSHSinkTile,
   kameletStringTemplateActionTile,
   processorCircuitBreakerTile,
+  processorDoCatchTile,
+  processorDoFinallyTile,
   processorInterceptTile,
   processorOnFallbackTile,
   processorOtherwiseTile,
@@ -33,7 +36,12 @@ describe('CamelComponentFilterService', () => {
         label: 'timer',
       });
 
-      expect(tiles.filter(filterFn)).toEqual([kameletBeerSourceTile, componentSlackTile, componentCronTile]);
+      expect(tiles.filter(filterFn)).toEqual([
+        kameletBeerSourceTile,
+        componentSlackTile,
+        componentCronTile,
+        componentDirectTile,
+      ]);
     });
 
     it('should not provide consumerOnly components', () => {
@@ -52,6 +60,7 @@ describe('CamelComponentFilterService', () => {
         processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
+        componentDirectTile,
       ]);
     });
 
@@ -123,6 +132,60 @@ describe('CamelComponentFilterService', () => {
       });
     });
 
+    describe('doTry', () => {
+      it('should offer applicable processors when requesting special children', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+          AddStepMode.InsertSpecialChildStep,
+          {
+            catalogKind: CatalogKind.Processor,
+            name: 'doTry',
+            path: 'route.from.steps.0.doTry',
+            processorName: 'doTry',
+            label: 'Do Try',
+          },
+          {},
+        );
+
+        expect(tiles.filter(filterFn)).toEqual([processorDoCatchTile, processorDoFinallyTile]);
+      });
+
+      it('should NOT offer doFinally when already defined', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+          AddStepMode.InsertSpecialChildStep,
+          {
+            catalogKind: CatalogKind.Processor,
+            name: 'doTry',
+            path: 'route.from.steps.0.doTry',
+            processorName: 'doTry',
+            label: 'Do Try',
+          },
+          { doFinally: {} },
+        );
+
+        // doFinally should be filtered out
+        const result = tiles.filter(filterFn);
+        expect(result.some((t) => t.name === 'doFinally')).toBe(false);
+        expect(result).toEqual([processorDoCatchTile]);
+      });
+    });
+
+    it('should return empty filter for unknown processor in special children mode', () => {
+      const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
+        AddStepMode.InsertSpecialChildStep,
+        {
+          catalogKind: CatalogKind.Processor,
+          name: 'unknownProcessor',
+          path: 'route.from.steps.0.unknownProcessor',
+          processorName: 'log' as keyof ProcessorDefinition,
+          label: 'Unknown',
+        },
+        {},
+      );
+
+      // Should filter out everything
+      expect(tiles.filter(filterFn)).toEqual([]);
+    });
+
     it('should offer applicable processors when requesting routeConfiguration special children', () => {
       const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
@@ -137,6 +200,35 @@ describe('CamelComponentFilterService', () => {
       );
 
       expect(tiles.filter(filterFn)).toEqual([processorInterceptTile]);
+    });
+
+    describe('rest', () => {
+      it('should only offer direct component when replacing REST verb placeholder', () => {
+        const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
+          catalogKind: CatalogKind.Pattern,
+          name: 'placeholder',
+          path: 'rest.get.0.to.placeholder',
+          processorName: 'get' as keyof ProcessorDefinition,
+          isPlaceholder: true,
+        });
+
+        expect(tiles.filter(filterFn)).toEqual([componentDirectTile]);
+      });
+
+      it.each(['get', 'post', 'put', 'delete', 'patch', 'head'])(
+        'should only offer direct component for %s verb placeholder',
+        (verb) => {
+          const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
+            catalogKind: CatalogKind.Pattern,
+            name: 'placeholder',
+            path: `rest.${verb}.0.to.placeholder`,
+            processorName: verb as keyof ProcessorDefinition,
+            isPlaceholder: true,
+          });
+
+          expect(tiles.filter(filterFn)).toEqual([componentDirectTile]);
+        },
+      );
     });
 
     it('scenario for a new step before an existing step', () => {
@@ -155,6 +247,7 @@ describe('CamelComponentFilterService', () => {
         processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
+        componentDirectTile,
       ]);
     });
 
@@ -174,6 +267,7 @@ describe('CamelComponentFilterService', () => {
         processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
+        componentDirectTile,
       ]);
     });
   });
@@ -193,6 +287,7 @@ describe('CamelComponentFilterService', () => {
         kameletBeerSourceTile,
         componentSlackTile,
         componentCronTile,
+        componentDirectTile,
       ]);
     });
 
@@ -213,6 +308,7 @@ describe('CamelComponentFilterService', () => {
         processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
+        componentDirectTile,
       ]);
     });
 
@@ -265,6 +361,7 @@ describe('CamelComponentFilterService', () => {
         processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
+        componentDirectTile,
       ]);
     });
 
@@ -285,6 +382,7 @@ describe('CamelComponentFilterService', () => {
         processorCircuitBreakerTile,
         componentSlackTile,
         componentKubernetesSecretsTile,
+        componentDirectTile,
       ]);
     });
   });
