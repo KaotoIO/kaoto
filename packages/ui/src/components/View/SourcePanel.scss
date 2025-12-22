@@ -1,6 +1,7 @@
 .source-panel {
   position: relative;
   overflow: scroll;
+  height: 100%;
 
   &__header {
     padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--sm) 0;

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
@@ -28,5 +28,37 @@ describe('SourcePanel', () => {
     expect(screen.queryByTestId('add-parameter-button')).toBeFalsy();
     expect(screen.queryByTestId('attach-schema-sourceBody-Body-button')).toBeFalsy();
     expect(screen.queryByTestId('detach-schema-sourceBody-Body-button')).toBeFalsy();
+  });
+
+  it('should trigger handleLayoutChange when panel is toggled', async () => {
+    jest.useFakeTimers();
+    render(
+      <DataMapperProvider>
+        <DataMapperCanvasProvider>
+          <SourcePanel></SourcePanel>
+        </DataMapperCanvasProvider>
+      </DataMapperProvider>,
+    );
+
+    // Find the Body panel summary and click to collapse
+    const bodyPanel = screen.getByText('Body').closest('.expansion-panel__summary') as HTMLElement;
+    expect(bodyPanel).toBeInTheDocument();
+
+    act(() => {
+      bodyPanel.click();
+    });
+
+    // Advance timers to trigger onLayoutChange (160ms delay)
+    await act(async () => {
+      jest.advanceTimersByTime(200);
+    });
+
+    // The panel should now be collapsed (data-expanded=false)
+    await waitFor(() => {
+      const panel = screen.getByText('Body').closest('.expansion-panel');
+      expect(panel).toHaveAttribute('data-expanded', 'false');
+    });
+
+    jest.useRealTimers();
   });
 });

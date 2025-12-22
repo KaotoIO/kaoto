@@ -51,6 +51,13 @@ beforeEach(() => {
 
 Element.prototype.scrollIntoView = jest.fn();
 
+// Mock ResizeObserver for ExpansionPanels component
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}));
+
 function enableSVGElementMocks() {
   /**
    * Mocking the following SVG methods to avoid errors when running tests

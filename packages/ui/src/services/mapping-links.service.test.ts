@@ -266,6 +266,7 @@ describe('MappingLinksService', () => {
     >();
 
     const mockRect = () => ({ a: 0, b: 0 });
+    const mockNull = () => null;
     const createNodeReference = (path: string) => {
       const { result } = renderHook(() =>
         useRef<NodeReference>({
@@ -275,6 +276,8 @@ describe('MappingLinksService', () => {
           headerRef: {
             getBoundingClientRect: mockRect,
             getClientRects: mockRect,
+            closest: mockNull,
+            querySelector: mockNull,
           } as unknown as HTMLDivElement,
         }),
       );
@@ -367,12 +370,14 @@ describe('MappingLinksService', () => {
         getBoundingClientRect: () => ({ left: 40, top: 100, right: 190, bottom: 120 }),
         getClientRects: () => ({ length: 1 }),
         querySelector: () => mockNodeRow,
+        closest: () => null,
       } as unknown as HTMLDivElement;
 
       const mockTargetHeaderRef = {
         getBoundingClientRect: () => ({ left: 300, top: 100, right: 450, bottom: 120 }),
         getClientRects: () => ({ length: 1 }),
         querySelector: () => mockNodeRow,
+        closest: () => null,
       } as unknown as HTMLDivElement;
 
       const sourceNodeRefConfig: NodeReference = {
@@ -412,6 +417,257 @@ describe('MappingLinksService', () => {
       // Verify that coordinates were calculated using node row rect
       expect(lineProps[0].x1).toBeGreaterThan(0);
       expect(lineProps[0].x2).toBeGreaterThan(0);
+    });
+
+    it('should clamp y coordinates to scroll container boundaries when node is above visible area', () => {
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: {
+          getBoundingClientRect: () => ({ left: 0, top: 0, right: 600, bottom: 800 }),
+        } as unknown as SVGSVGElement,
+      };
+
+      // Create scroll container mock that returns container boundaries
+      const mockScrollContainer = {
+        getBoundingClientRect: () => ({ left: 0, top: 100, right: 300, bottom: 500 }),
+      };
+
+      // Node is above the visible container area (top: 50 < containerTop: 100)
+      const mockSourceHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 50, right: 190, bottom: 70 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: (selector: string) => (selector === '.expansion-panel__content' ? mockScrollContainer : null),
+      } as unknown as HTMLDivElement;
+
+      const mockTargetHeaderRef = {
+        getBoundingClientRect: () => ({ left: 350, top: 200, right: 500, bottom: 220 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: () => null,
+      } as unknown as HTMLDivElement;
+
+      const sourceNodeRefConfig: NodeReference = {
+        path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: true,
+        containerRef: null,
+        headerRef: mockSourceHeaderRef,
+      };
+
+      const targetNodeRefConfig: NodeReference = {
+        path: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: false,
+        containerRef: null,
+        headerRef: mockTargetHeaderRef,
+      };
+
+      const { result: sourceRef } = renderHook(() => useRef<NodeReference>(sourceNodeRefConfig));
+      const { result: targetRef } = renderHook(() => useRef<NodeReference>(targetNodeRefConfig));
+
+      nodeReferences.set('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', sourceRef.current);
+      nodeReferences.set('targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', targetRef.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          targetNodePath: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      expect(lineProps.length).toEqual(1);
+      // y1 should be clamped to containerTop (100) since node's y (60) is above it
+      expect(lineProps[0].y1).toEqual(100);
+    });
+
+    it('should clamp y coordinates to scroll container boundaries when node is below visible area', () => {
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: {
+          getBoundingClientRect: () => ({ left: 0, top: 0, right: 600, bottom: 800 }),
+        } as unknown as SVGSVGElement,
+      };
+
+      // Create scroll container mock that returns container boundaries
+      const mockScrollContainer = {
+        getBoundingClientRect: () => ({ left: 0, top: 100, right: 300, bottom: 400 }),
+      };
+
+      // Node is below the visible container area (top: 550 > containerBottom: 400)
+      const mockSourceHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 550, right: 190, bottom: 570 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: (selector: string) => (selector === '.expansion-panel__content' ? mockScrollContainer : null),
+      } as unknown as HTMLDivElement;
+
+      const mockTargetHeaderRef = {
+        getBoundingClientRect: () => ({ left: 350, top: 200, right: 500, bottom: 220 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: () => null,
+      } as unknown as HTMLDivElement;
+
+      const sourceNodeRefConfig: NodeReference = {
+        path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: true,
+        containerRef: null,
+        headerRef: mockSourceHeaderRef,
+      };
+
+      const targetNodeRefConfig: NodeReference = {
+        path: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: false,
+        containerRef: null,
+        headerRef: mockTargetHeaderRef,
+      };
+
+      const { result: sourceRef } = renderHook(() => useRef<NodeReference>(sourceNodeRefConfig));
+      const { result: targetRef } = renderHook(() => useRef<NodeReference>(targetNodeRefConfig));
+
+      nodeReferences.set('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', sourceRef.current);
+      nodeReferences.set('targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', targetRef.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          targetNodePath: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      expect(lineProps.length).toEqual(1);
+      // y1 should be clamped to containerBottom (400) since node's y (560) is below it
+      expect(lineProps[0].y1).toEqual(400);
+    });
+
+    it('should find scroll container via panel structure when element is in summary', () => {
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: {
+          getBoundingClientRect: () => ({ left: 0, top: 0, right: 600, bottom: 800 }),
+        } as unknown as SVGSVGElement,
+      };
+
+      // Create mocks for panel structure lookup
+      const mockContentArea = {
+        getBoundingClientRect: () => ({ left: 0, top: 100, right: 300, bottom: 500 }),
+      };
+
+      const mockPanel = {
+        querySelector: (selector: string) => (selector === '.expansion-panel__content' ? mockContentArea : null),
+      };
+
+      // Element is in summary (not in .expansion-panel__content), but panel structure returns content
+      const mockSourceHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 50, right: 190, bottom: 70 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: (selector: string) => {
+          if (selector === '.expansion-panel__content') return null;
+          if (selector === '.expansion-panel') return mockPanel;
+          return null;
+        },
+      } as unknown as HTMLDivElement;
+
+      const mockTargetHeaderRef = {
+        getBoundingClientRect: () => ({ left: 350, top: 200, right: 500, bottom: 220 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: () => null,
+      } as unknown as HTMLDivElement;
+
+      const sourceNodeRefConfig: NodeReference = {
+        path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: true,
+        containerRef: null,
+        headerRef: mockSourceHeaderRef,
+      };
+
+      const targetNodeRefConfig: NodeReference = {
+        path: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+        isSource: false,
+        containerRef: null,
+        headerRef: mockTargetHeaderRef,
+      };
+
+      const { result: sourceRef } = renderHook(() => useRef<NodeReference>(sourceNodeRefConfig));
+      const { result: targetRef } = renderHook(() => useRef<NodeReference>(targetNodeRefConfig));
+
+      nodeReferences.set('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', sourceRef.current);
+      nodeReferences.set('targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', targetRef.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          targetNodePath: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      expect(lineProps.length).toEqual(1);
+      // y1 should be clamped to containerTop (100) via panel structure lookup
+      expect(lineProps[0].y1).toEqual(100);
+    });
+
+    it('should clamp y2 to target scroll container boundaries', () => {
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: {
+          getBoundingClientRect: () => ({ left: 0, top: 0, right: 600, bottom: 800 }),
+        } as unknown as SVGSVGElement,
+      };
+
+      const mockTargetScrollContainer = {
+        getBoundingClientRect: () => ({ left: 300, top: 150, right: 600, bottom: 450 }),
+      };
+
+      const mockSourceHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 200, right: 190, bottom: 220 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: () => null,
+      } as unknown as HTMLDivElement;
+
+      // Target node above visible area (top: 50 < containerTop: 150)
+      const mockTargetHeaderRef = {
+        getBoundingClientRect: () => ({ left: 350, top: 50, right: 500, bottom: 70 }),
+        getClientRects: () => ({ length: 1 }),
+        querySelector: () => null,
+        closest: (selector: string) => (selector === '.expansion-panel__content' ? mockTargetScrollContainer : null),
+      } as unknown as HTMLDivElement;
+
+      const { result: sourceRef } = renderHook(() =>
+        useRef<NodeReference>({
+          path: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSource: true,
+          containerRef: null,
+          headerRef: mockSourceHeaderRef,
+        }),
+      );
+      const { result: targetRef } = renderHook(() =>
+        useRef<NodeReference>({
+          path: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSource: false,
+          containerRef: null,
+          headerRef: mockTargetHeaderRef,
+        }),
+      );
+
+      nodeReferences.set('sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', sourceRef.current);
+      nodeReferences.set('targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234', targetRef.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          targetNodePath: 'targetBody:Body://fx-ShipOrder-1234/fx-OrderId-1234',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      expect(lineProps.length).toEqual(1);
+      // y2 clamped to containerTop (150)
+      expect(lineProps[0].y2).toEqual(150);
     });
   });
 });
