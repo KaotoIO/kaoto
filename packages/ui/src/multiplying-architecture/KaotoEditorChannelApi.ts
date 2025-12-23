@@ -9,6 +9,24 @@ import {
 } from '../models/runtime-maven-information';
 import { ISettingsModel } from '../models/settings';
 
+/**
+ * Kaoto Editor Channel API
+ *
+ * This interface defines the channel-side API for the Kaoto editor, extending the base
+ * KogitoEditorChannelApi with Kaoto-specific methods. As required by @kie-tools v10.1.0+,
+ * this is separated from the envelope API (KaotoEditorEnvelopeApi).
+ *
+ * The channel API defines methods that the host application (VS Code, web application, etc.)
+ * exposes to the editor. These methods allow the editor to request services from the host,
+ * such as file operations, user interactions, and environment-specific configurations.
+ *
+ * Custom methods in this API include:
+ * - Settings and configuration management
+ * - File and resource operations
+ * - User interaction requests (file selection, suggestions)
+ * - Maven project context information
+ * - Telemetry for step updates
+ */
 export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   /**
    * @deprecated Use `getVSCodeKaotoSettings().catalogUrl` instead

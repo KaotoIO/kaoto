@@ -28,6 +28,7 @@ import { KaotoBridge } from './Bridge/KaotoBridge';
 import { SourceCodeBridgeProvider } from './Bridge/SourceCodeBridgeProvider';
 import { EditService } from './EditService';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
+import { KaotoEditorEnvelopeApi } from './KaotoEditorEnvelopeApi';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export class KaotoEditorApp implements Editor {
@@ -37,7 +38,7 @@ export class KaotoEditorApp implements Editor {
   af_componentTitle = 'Kaoto Editor';
 
   constructor(
-    protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorChannelApi>,
+    protected readonly envelopeContext: KogitoEditorEnvelopeContextType<KaotoEditorEnvelopeApi, KaotoEditorChannelApi>,
     protected readonly initArgs: EditorInitArgs,
     protected readonly settingsAdapter: AbstractSettingsAdapter,
   ) {
