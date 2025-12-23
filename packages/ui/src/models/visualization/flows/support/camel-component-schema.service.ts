@@ -396,6 +396,10 @@ export class CamelComponentSchemaService {
   }
 
   static canBeDisabled(processorName: keyof ProcessorDefinition): boolean {
+    if (processorName == DATAMAPPER_ID_PREFIX) {
+      return true;
+    }
+
     const processorDefinition = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
 
     return Object.keys(processorDefinition?.properties ?? {}).includes('disabled');
