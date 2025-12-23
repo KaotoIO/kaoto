@@ -758,4 +758,24 @@ describe('CamelComponentSchemaService', () => {
       });
     });
   });
+
+  describe('canBeDisabled', () => {
+    it('should allow disabling DataMapper', () => {
+      const result = CamelComponentSchemaService.canBeDisabled(DATAMAPPER_ID_PREFIX);
+
+      expect(result).toBe(true);
+    });
+
+    it('should allow disabling processors that define disabled in schema', () => {
+      const result = CamelComponentSchemaService.canBeDisabled('log' as keyof ProcessorDefinition);
+
+      expect(result).toBe(true);
+    });
+
+    it('should not allow disabling processors without disabled property', () => {
+      const result = CamelComponentSchemaService.canBeDisabled('from' as keyof ProcessorDefinition);
+
+      expect(result).toBe(false);
+    });
+  });
 });
