@@ -83,9 +83,10 @@ describe('ParallelProcessorBaseNodeMapper', () => {
         };
 
         const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
-        expect(vizNode.getChildren()).toHaveLength(2);
+        expect(vizNode.getChildren()).toHaveLength(3);
         expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
         expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();
+        expect(vizNode.getChildren()?.[2].data.isPlaceholder).toBe(true);
       });
     });
   });

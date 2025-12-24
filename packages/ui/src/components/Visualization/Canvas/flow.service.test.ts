@@ -134,15 +134,20 @@ describe('FlowService', () => {
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode);
 
-      expect(nodes).toHaveLength(3);
+      expect(nodes).toHaveLength(4);
       expect(nodes[0].id).toEqual('test|route.from');
       expect(nodes[1].id).toEqual('test|route.from.steps.0.to');
-      expect(nodes[2].id).toEqual('test|route');
+      expect(nodes[2].id).toEqual('test|route.from.steps.1.placeholder');
+      expect(nodes[3].id).toEqual('test|route');
 
-      expect(edges).toHaveLength(1);
+      expect(edges).toHaveLength(2);
       expect(edges[0].id).toEqual('test|route.from >>> route.from.steps.0.to');
       expect(edges[0].source).toEqual('test|route.from');
       expect(edges[0].target).toEqual('test|route.from.steps.0.to');
+
+      expect(edges[1].id).toEqual('test|route.from.steps.0.to >>> route.from.steps.1.placeholder');
+      expect(edges[1].source).toEqual('test|route.from.steps.0.to');
+      expect(edges[1].target).toEqual('test|route.from.steps.1.placeholder');
     });
   });
 });

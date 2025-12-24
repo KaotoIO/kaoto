@@ -43,6 +43,7 @@ describe('OtherwiseNodeMapper', () => {
       routeDefinition,
     );
 
-    expect(vizNode.getChildren()).toHaveLength(1);
+    expect(vizNode.getChildren()).toHaveLength(2);
+    expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 });

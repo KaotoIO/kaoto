@@ -45,16 +45,19 @@ describe('StepNodeMapper', () => {
   it('should return children', () => {
     const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
-    expect(vizNode.getChildren()).toHaveLength(1);
+    expect(vizNode.getChildren()).toHaveLength(2);
+    expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
   it('should use path for viz node ID for non DataMapper step node', () => {
     const vizNode1 = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
     expect(vizNode1.id).toEqual('from.steps.0.step');
-    expect(vizNode1.getChildren()).toHaveLength(1);
+    expect(vizNode1.getChildren()).toHaveLength(2);
+    expect(vizNode1.getChildren()?.[1].data.isPlaceholder).toBe(true);
     const vizNode2 = mapper.getVizNodeFromProcessor(path2, { processorName: 'step' }, routeDefinition);
     expect(vizNode2.id).toEqual('from.steps.1.step');
-    expect(vizNode2.getChildren()).toHaveLength(1);
+    expect(vizNode2.getChildren()).toHaveLength(2);
+    expect(vizNode2.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
   it('should verify if this step node is a Kaoto DataMapper one', () => {

@@ -3,21 +3,27 @@ import './CustomEdge.scss';
 import { Icon } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import {
-  DefaultConnectorTerminal,
+  ConnectorArrow,
   DefaultEdge,
+  DropTargetSpec,
   EdgeModel,
-  EdgeTerminalType,
   getClosestVisibleParent,
   GraphElement,
+  GraphElementProps,
   isEdge,
   observer,
   Point,
+  useDndDrop,
 } from '@patternfly/react-topology';
-import { FunctionComponent } from 'react';
+import { clsx } from 'clsx';
+import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { AddStepIcon } from './AddStepIcon';
 
 type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
@@ -30,6 +36,51 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   if (!isEdge(element)) {
     throw new Error('EdgeEndWithButton must be used only on Edge elements');
   }
+
+  const entitiesContext = useEntityContext();
+  const catalogModalContext = useContext(CatalogModalContext);
+  const edgeDRef = useRef<string | null>(null);
+  const startPointRef = useRef<Point | null>(null);
+  const endPointRef = useRef<Point | null>(null);
+
+  const customNodeDropTargetSpec: DropTargetSpec<
+    GraphElement,
+    unknown,
+    { droppable: boolean; hover: boolean; canDrop: boolean },
+    GraphElementProps
+  > = useMemo(
+    () => ({
+      accept: [NODE_DRAG_TYPE],
+      canDrop: (item, _monitor, _props) => {
+        const draggedVizNode = item.getData().vizNode;
+        const potentialEdge = element;
+        const followingVizNode = potentialEdge.getTarget().getData().vizNode;
+        const precedingVizNode = potentialEdge.getSource().getData().vizNode;
+
+        if (
+          draggedVizNode.getNextNode() === followingVizNode ||
+          draggedVizNode.getPreviousNode() === precedingVizNode ||
+          followingVizNode?.data.isPlaceholder
+        )
+          return false;
+
+        const filter = entitiesContext.camelResource.getCompatibleComponents(
+          AddStepMode.PrependStep,
+          followingVizNode.data,
+          followingVizNode.getNodeDefinition(),
+        );
+        return catalogModalContext?.checkCompatibility(draggedVizNode.getCopiedContent().name, filter) ?? false;
+      },
+      collect: (monitor) => ({
+        droppable: monitor.isDragging(),
+        hover: monitor.isOver(),
+        canDrop: monitor.canDrop(),
+      }),
+    }),
+    [catalogModalContext, element, entitiesContext.camelResource],
+  );
+
+  const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
 
   /* If the edge connects to nodes in a collapsed group don't draw */
   const sourceParent = getClosestVisibleParent(element.getSource());
@@ -55,22 +106,39 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
     y += 4;
   }
 
-  const vizNode: IVisualizationNode | undefined = element.getTarget().getData().vizNode;
+  const vizNode: IVisualizationNode | undefined = element.getTarget().getData()?.vizNode;
   const shouldShowPrepend = !vizNode?.data.isPlaceholder && vizNode?.getNodeInteraction().canHavePreviousStep;
 
-  const bendpoints = element
+  const bendPoints = element
     .getBendpoints()
     .concat(endPoint)
     .map((b: Point) => `L${b.x} ${b.y}`)
     .join(' ');
-  const d = `M${startPoint.x} ${startPoint.y} ${bendpoints}`;
+  const d = `M${startPoint.x} ${startPoint.y} ${bendPoints}`;
+  if (!dndDropProps.droppable || !edgeDRef.current || !startPointRef.current || !endPointRef.current) {
+    edgeDRef.current = d;
+    startPointRef.current = startPoint;
+    endPointRef.current = endPoint;
+  }
 
   return (
-    <g className="custom-edge">
-      <path className="custom-edge__background" d={d} />
-      <path className="custom-edge__body" d={d} />
-      <DefaultConnectorTerminal isTarget={false} edge={element} size={14} terminalType={EdgeTerminalType.none} />
-      <DefaultConnectorTerminal isTarget edge={element} size={14} terminalType={EdgeTerminalType.directional} />
+    <g className="custom-edge" ref={dndDropRef}>
+      <path className="custom-edge__background" d={edgeDRef.current} />
+      <path
+        className={clsx('custom-edge__body', {
+          'custom-edge__body__validDropTarget': dndDropProps.droppable && dndDropProps.hover && dndDropProps.canDrop,
+        })}
+        d={edgeDRef.current}
+      />
+      <ConnectorArrow
+        isTarget={true}
+        className={clsx('custom-edge__connector', {
+          'custom-edge__connector__validDropTarget':
+            dndDropProps.droppable && dndDropProps.hover && dndDropProps.canDrop,
+        })}
+        startPoint={startPointRef.current}
+        endPoint={endPointRef.current}
+      />
 
       {shouldShowPrepend && (
         <foreignObject x={x} y={y} width={CanvasDefaults.ADD_STEP_ICON_SIZE} height={CanvasDefaults.ADD_STEP_ICON_SIZE}>
