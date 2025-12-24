@@ -1,4 +1,5 @@
 import { isDefined } from '@kaoto/forms';
+import { useVisualizationController } from '@patternfly/react-topology';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useMemo } from 'react';
 
@@ -6,6 +7,8 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { updateIds } from '../../../../utils/update-ids';
 import {
@@ -20,6 +23,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
+  const controller = useVisualizationController();
   let vizNodeContent = vizNode.getCopiedContent();
 
   if (vizNodeContent) {
@@ -91,11 +95,31 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
     } else {
       /** Append the content of the current node on the current node */
       vizNode.pasteBaseEntityStep(updatedVizNodeContent, AddStepMode.AppendStep);
+
+      // Set an empty model to clear the graph, Fixes an issue rendering child nodes incorrectly
+      if (parentVizNode?.getNodeInteraction().canHaveSpecialChildren) {
+        const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
+          (parentVizNode.data as CamelRouteVisualEntityData).processorName,
+        );
+        if (
+          stepsProperties.some(
+            (property) =>
+              property.type === 'array-clause' &&
+              property.name === updatedVizNodeContent.name &&
+              isDefined(parentVizNode.getChildren()),
+          )
+        ) {
+          controller.fromModel({
+            nodes: [],
+            edges: [],
+          });
+        }
+      }
     }
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [entitiesContext, nodeInteractionAddonContext, parentVizNode, vizNode, vizNodeContent]);
+  }, [controller, entitiesContext, nodeInteractionAddonContext, parentVizNode, vizNode, vizNodeContent]);
 
   const value = useMemo(
     () => ({
