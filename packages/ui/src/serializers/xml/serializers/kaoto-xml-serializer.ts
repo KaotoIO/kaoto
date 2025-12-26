@@ -49,8 +49,6 @@ export class KaotoXmlSerializer {
       rootElement.setAttribute('xmlns', 'http://camel.apache.org/schema/spring');
     }
 
-    const beans = doc.createElement('beans');
-
     const sortedEntities = EntityOrderingService.sortEntitiesForSerialization(entityDefinitions);
 
     sortedEntities.forEach((entity) => {
@@ -60,7 +58,7 @@ export class KaotoXmlSerializer {
         case EntityType.Beans:
           entity.parent.beans.forEach((bean) => {
             const beanElement = BeansXmlSerializer.serialize(bean, doc);
-            if (beanElement) beans.appendChild(beanElement);
+            if (beanElement) rootElement.appendChild(beanElement);
           });
           break;
         case EntityType.Route:
@@ -98,7 +96,6 @@ export class KaotoXmlSerializer {
       }
     });
 
-    if (beans.hasChildNodes()) rootElement.appendChild(beans);
     return doc;
   }
 }
