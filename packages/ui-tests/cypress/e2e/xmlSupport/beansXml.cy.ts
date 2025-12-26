@@ -21,12 +21,10 @@ describe('Test for Bean support in XML', () => {
     cy.addMetadataStringProperty('properties', 'test', 'value');
 
     const beansXml = [
-      '<beans>',
       '<bean name="test" type="org.acme" initMethod="initMethodTest" destroyMethod="destroyMethodTest" factoryMethod="factoryMethodTest">',
       '<properties>',
       '<property key="test" value="value"/>',
       '</properties>',
-      '</bean>',
     ];
 
     cy.openSourceCode();
