@@ -21,70 +21,44 @@ export const BODY_DOCUMENT_ID = 'Body';
  * Interface representing a field in a document schema.
  * Fields can be elements, attributes, or properties depending on the schema type.
  */
-export interface IField {
-  /** Parent field or document containing this field */
+
+interface IFieldBase {
   parent: IParentType;
-  /** Document that owns this field */
   ownerDocument: IDocument;
-  /** Unique identifier for this field instance */
   id: string;
-  /** Field name as it appears in the schema */
   name: string;
-  /** Human-readable display name for UI presentation */
   displayName: string;
-  /** Path from document root to this field */
   path: NodePath;
-  /** Current data type of this field in DataMapper common style */
-  type: Types;
-  /** The data format specific, qualified name of the current type of this field, if applicable */
-  typeQName: QName | null;
-  /** Original data type of this field before any overrides, in DataMapper common style */
-  originalType: Types;
-  /** The data format specific, qualified name of the original type of this field before any overrides, if applicable */
-  originalTypeQName: QName | null;
-  /** Indicates whether and how the type has been overridden */
-  typeOverride: TypeOverrideVariant;
-  /** Child fields for complex types */
   fields: IField[];
-  /** Whether this field represents an attribute (vs element) */
   isAttribute: boolean;
-  /** Default value for this field, if specified in schema */
   defaultValue: string | null;
-  /** Minimum number of occurrences (0 = optional) */
   minOccurs: number;
-  /** Maximum number of occurrences (1 = single, >1 or 'unbounded' = collection) */
   maxOccurs: MaxOccursType;
-  /** Namespace prefix for this field */
   namespacePrefix: string | null;
-  /** Namespace URI for this field */
   namespaceURI: string | null;
-  /** References to named type fragments used by this field */
   namedTypeFragmentRefs: string[];
-  /** XPath predicates for filtering this field */
   predicates: Predicate[];
 
-  /**
-   * Adopts itself to a passed-in parent {@link IField} as a child. This method is also responsible for inheritance.
-   * If there's existing field that is identical, i.e. {@link isIdentical()} returns true, it should inherit the
-   * field properties from base if it's not yet defined, or keep the current property value if it's already defined
-   * in descendant (override).
-   * @param parent
-   */
   adopt(parent: IField): IField;
-
-  /**
-   * Gets an expression to represent this field.
-   * @param namespaceMap
-   */
   getExpression(namespaceMap: { [prefix: string]: string }): string;
-
-  /**
-   * Returns `true` if the passed-in field is identical with this, otherwise returns `false`. Whether two fields
-   * are identical or not depends on field types, for example XML field needs to also verify if they're in the same namespace.
-   * @param other
-   */
   isIdentical(other: IField): boolean;
 }
+
+interface IFieldType {
+  type: Types;
+  typeQName: QName | null;
+  originalType: Types;
+  originalTypeQName: QName | null;
+  typeOverride: TypeOverrideVariant;
+}
+
+interface IFieldChoice {
+  isChoice?: boolean;
+  choiceMembers?: IField[];
+  selectedMemberIndex?: number;
+}
+
+export type IField = IFieldBase & IFieldType & IFieldChoice;
 
 /**
  * Interface representing a reusable type fragment.
@@ -252,20 +226,64 @@ export class BaseField implements IField {
   namespaceURI: string | null = null;
   namedTypeFragmentRefs: string[] = [];
   predicates: Predicate[] = [];
+  isChoice?: boolean = undefined;
+  choiceMembers?: IField[] = undefined;
+  selectedMemberIndex?: number = undefined;
 
-  adopt(parent: IField): BaseField {
-    const existing = parent.fields.find((f) => f.isIdentical(this));
-    if (existing) {
-      if (this.type && this.type !== Types.AnyType) existing.type = this.type;
-      if (this.defaultValue !== null) existing.defaultValue = this.defaultValue;
-      for (const ref of this.namedTypeFragmentRefs) {
-        !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
+  private mergeType(existing: IField): void {
+    if (this.type && this.type !== Types.AnyType) {
+      existing.type = this.type;
+    }
+  }
+
+  private mergeDefaultValue(existing: IField): void {
+    if (this.defaultValue !== null) {
+      existing.defaultValue = this.defaultValue;
+    }
+  }
+
+  private mergeNamedTypeFragmentRefs(existing: IField): void {
+    for (const ref of this.namedTypeFragmentRefs) {
+      if (!existing.namedTypeFragmentRefs.includes(ref)) {
+        existing.namedTypeFragmentRefs.push(ref);
       }
-      for (const child of this.fields) child.adopt(existing);
+    }
+  }
+
+  private mergeChoiceMetadata(existing: IField): void {
+    if (this.isChoice !== undefined) {
+      existing.isChoice = this.isChoice;
+    }
+    if (this.choiceMembers !== undefined) {
+      existing.choiceMembers = this.choiceMembers;
+    }
+    if (this.selectedMemberIndex !== undefined) {
+      existing.selectedMemberIndex = this.selectedMemberIndex;
+    }
+  }
+
+  adopt(parent: IField): IField {
+    const existing = parent.fields.find((f) => f.isIdentical(this));
+
+    if (existing) {
+      this.mergeType(existing);
+      this.mergeDefaultValue(existing);
+      this.mergeNamedTypeFragmentRefs(existing);
+      this.mergeChoiceMetadata(existing);
+
+      for (const child of this.fields) {
+        child.adopt(existing);
+      }
+
       return existing;
     }
 
     const adopted = new BaseField(parent, parent.ownerDocument, this.name);
+
+    adopted.isChoice = this.isChoice;
+    adopted.choiceMembers = this.choiceMembers;
+    adopted.selectedMemberIndex = this.selectedMemberIndex;
+
     adopted.isAttribute = this.isAttribute;
     adopted.type = this.type;
     adopted.typeQName = this.typeQName;
@@ -279,6 +297,7 @@ export class BaseField implements IField {
     adopted.namespaceURI = this.namespaceURI;
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
+
     parent.fields.push(adopted);
     parent.ownerDocument.totalFieldCount++;
     return adopted;
