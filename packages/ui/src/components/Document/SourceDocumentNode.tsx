@@ -36,12 +36,13 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
   const nodeData = treeNode.nodeData;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
-  const hasChildren = VisualizationService.hasChildren(nodeData);
+  const isAttributeField = VisualizationService.isAttributeField(nodeData);
+  const hasChildren = !isAttributeField && VisualizationService.hasChildren(nodeData);
 
   const handleClickToggle = useCallback(
     (event: MouseEvent) => {
       event.stopPropagation();
-      if (!hasChildren) return;
+      if (isAttributeField || !hasChildren) return;
 
       TreeUIService.toggleNode(documentId, treeNode.path);
       reloadNodeReferences();
@@ -50,7 +51,6 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
   );
 
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
-  const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
