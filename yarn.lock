@@ -3174,9 +3174,9 @@ __metadata:
   linkType: hard
 
 "@kaoto/camel-catalog@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "@kaoto/camel-catalog@npm:0.3.1"
-  checksum: 10/534d895bf935059c8bbd4434704a6e1849b039685702be5328448e16008d76641cf89ba40b8dec39e614401f36dbbc9cc331bd85729d686338fa2d991368127f
+  version: 0.3.2
+  resolution: "@kaoto/camel-catalog@npm:0.3.2"
+  checksum: 10/4d016d93dbc3c8e0591c9ede8be138099e9f7ef723a65d9c50f8f84cf91264544af38e30eb0bf987279d93b6e0790503f9fc21a21287edcd8ad39bed08ede27a
   languageName: node
   linkType: hard
 
