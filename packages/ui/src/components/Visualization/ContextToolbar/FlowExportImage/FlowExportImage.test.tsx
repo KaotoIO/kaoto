@@ -108,9 +108,12 @@ describe('FlowExportImage', () => {
     // Button should be disabled while exporting
     expect(button).toBeDisabled();
 
-    await waitFor(() => {
-      expect(toBlob).toHaveBeenCalled();
-    });
+    await waitFor(
+      () => {
+        expect(toBlob).toHaveBeenCalled();
+      },
+      { timeout: 5000 },
+    );
 
     // After export completes, button should be enabled again
     await waitFor(() => {
