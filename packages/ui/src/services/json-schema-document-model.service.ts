@@ -105,6 +105,32 @@ export class JsonSchemaField extends BaseField {
     }
   }
 
+  private mergeJsonDefaultValue(existing: IField): void {
+    if (this.defaultValue !== null) {
+      existing.defaultValue = this.defaultValue;
+    }
+  }
+
+  private mergeJsonNamedTypeFragmentRefs(existing: IField): void {
+    for (const ref of this.namedTypeFragmentRefs) {
+      if (!existing.namedTypeFragmentRefs.includes(ref)) {
+        existing.namedTypeFragmentRefs.push(ref);
+      }
+    }
+  }
+
+  private mergeJsonChoiceMetadata(existing: IField): void {
+    if (this.isChoice !== undefined) {
+      existing.isChoice = this.isChoice;
+    }
+    if (this.choiceMembers !== undefined) {
+      existing.choiceMembers = this.choiceMembers;
+    }
+    if (this.selectedMemberIndex !== undefined) {
+      existing.selectedMemberIndex = this.selectedMemberIndex;
+    }
+  }
+
   private createNew(parent: JsonSchemaField) {
     const created = new JsonSchemaField(parent, this.key, this.type);
     this.copyTo(created);
@@ -113,12 +139,17 @@ export class JsonSchemaField extends BaseField {
     return created;
   }
 
-  adopt(parent: IField) {
+  adopt(parent: IField): IField {
     if (!(parent instanceof JsonSchemaField)) return super.adopt(parent);
 
     const existing = parent.fields.find((f) => f.isIdentical(this));
     if (!existing) {
       const adopted = this.createNew(parent);
+
+      adopted.isChoice = this.isChoice;
+      adopted.choiceMembers = this.choiceMembers;
+      adopted.selectedMemberIndex = this.selectedMemberIndex;
+
       parent.fields.push(adopted);
       parent.ownerDocument.totalFieldCount++;
       return adopted;
@@ -127,15 +158,23 @@ export class JsonSchemaField extends BaseField {
     if (this.type !== Types.AnyType && existing.type === Types.AnyType) {
       const index = parent.fields.indexOf(existing);
       const adopted = this.createNew(parent);
+
+      adopted.isChoice = this.isChoice;
+      adopted.choiceMembers = this.choiceMembers;
+      adopted.selectedMemberIndex = this.selectedMemberIndex;
+
       parent.fields[index] = adopted;
       return adopted;
     }
 
-    if (this.defaultValue !== null) existing.defaultValue = this.defaultValue;
-    for (const ref of this.namedTypeFragmentRefs) {
-      !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
+    this.mergeJsonDefaultValue(existing);
+    this.mergeJsonNamedTypeFragmentRefs(existing);
+    this.mergeJsonChoiceMetadata(existing);
+
+    for (const child of this.fields) {
+      child.adopt(existing);
     }
-    for (const child of this.fields) child.adopt(existing);
+
     return existing;
   }
 
@@ -150,6 +189,9 @@ export class JsonSchemaField extends BaseField {
     to.originalTypeQName = this.originalTypeQName;
     to.typeOverride = this.typeOverride;
     to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    to.isChoice = this.isChoice;
+    to.choiceMembers = this.choiceMembers;
+    to.selectedMemberIndex = this.selectedMemberIndex;
     to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
     return to;
   }
