@@ -55,150 +55,152 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   const { canBeMoved: canMoveAfter, onMoveStep: onMoveAfter } = useMoveStep(vizNode, AddStepMode.AppendStep);
 
   return (
-    <div className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
-      {canDuplicate && (
-        <Button
-          icon={<BlueprintIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-duplicate"
-          variant="control"
-          title="Duplicate"
-          onClick={(event) => {
-            onDuplicate();
-            event.stopPropagation();
-          }}
-        />
-      )}
+    <div className="step-toolbar-wrapper">
+      <div className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
+        {canDuplicate && (
+          <Button
+            icon={<BlueprintIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-duplicate"
+            variant="control"
+            title="Duplicate"
+            onClick={(event) => {
+              onDuplicate();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {canMoveBefore && (
-        <Button
-          icon={<AngleDoubleUpIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-move-before"
-          variant="control"
-          title="Move before"
-          onClick={(event) => {
-            onMoveBefore();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {canMoveBefore && (
+          <Button
+            icon={<AngleDoubleUpIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-move-before"
+            variant="control"
+            title="Move before"
+            onClick={(event) => {
+              onMoveBefore();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {canMoveAfter && (
-        <Button
-          icon={<AngleDoubleDownIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-move-after"
-          variant="control"
-          title="Move after"
-          onClick={(event) => {
-            onMoveAfter();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {canMoveAfter && (
+          <Button
+            icon={<AngleDoubleDownIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-move-after"
+            variant="control"
+            title="Move after"
+            onClick={(event) => {
+              onMoveAfter();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {canHaveSpecialChildren && (
-        <Button
-          icon={<CodeBranchIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-add-special"
-          variant="control"
-          title="Add branch"
-          onClick={(event) => {
-            onInsertSpecial();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {canHaveSpecialChildren && (
+          <Button
+            icon={<CodeBranchIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-add-special"
+            variant="control"
+            title="Add branch"
+            onClick={(event) => {
+              onInsertSpecial();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {canBeDisabled && (
-        <Button
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-disable"
-          variant="control"
-          title={isDisabled ? 'Enable step' : 'Disable step'}
-          onClick={(event) => {
-            onToggleDisableNode();
-            event.stopPropagation();
-          }}
-        >
-          {isDisabled ? <CheckIcon /> : <BanIcon />}
-        </Button>
-      )}
+        {canBeDisabled && (
+          <Button
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-disable"
+            variant="control"
+            title={isDisabled ? 'Enable step' : 'Disable step'}
+            onClick={(event) => {
+              onToggleDisableNode();
+              event.stopPropagation();
+            }}
+          >
+            {isDisabled ? <CheckIcon /> : <BanIcon />}
+          </Button>
+        )}
 
-      {areMultipleStepsDisabled && (
-        <Button
-          icon={<PowerOffIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-enable-all"
-          variant="control"
-          title="Enable all"
-          onClick={(event) => {
-            onEnableAllSteps();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {areMultipleStepsDisabled && (
+          <Button
+            icon={<PowerOffIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-enable-all"
+            variant="control"
+            title="Enable all"
+            onClick={(event) => {
+              onEnableAllSteps();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {canReplaceStep && (
-        <Button
-          icon={<SyncAltIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-replace"
-          variant="control"
-          title="Replace step"
-          onClick={(event) => {
-            onReplaceNode();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {canReplaceStep && (
+          <Button
+            icon={<SyncAltIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-replace"
+            variant="control"
+            title="Replace step"
+            onClick={(event) => {
+              onReplaceNode();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {onCollapseToggle && (
-        <Button
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-collapse"
-          variant="control"
-          title={isCollapsed ? 'Expand step' : 'Collapse step'}
-          onClick={(event) => {
-            onCollapseToggle();
-            event.stopPropagation();
-          }}
-        >
-          {isCollapsed ? <ExpandArrowsAltIcon /> : <CompressArrowsAltIcon />}
-        </Button>
-      )}
+        {onCollapseToggle && (
+          <Button
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-collapse"
+            variant="control"
+            title={isCollapsed ? 'Expand step' : 'Collapse step'}
+            onClick={(event) => {
+              onCollapseToggle();
+              event.stopPropagation();
+            }}
+          >
+            {isCollapsed ? <ExpandArrowsAltIcon /> : <CompressArrowsAltIcon />}
+          </Button>
+        )}
 
-      {canRemoveStep && (
-        <Button
-          icon={<TrashIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-delete"
-          variant="stateful"
-          state="attention"
-          title="Delete step"
-          onClick={(event) => {
-            onDeleteStep();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {canRemoveStep && (
+          <Button
+            icon={<TrashIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-delete"
+            variant="stateful"
+            state="attention"
+            title="Delete step"
+            onClick={(event) => {
+              onDeleteStep();
+              event.stopPropagation();
+            }}
+          />
+        )}
 
-      {canRemoveFlow && (
-        <Button
-          icon={<TrashIcon />}
-          className="step-toolbar__button"
-          data-testid="step-toolbar-button-delete-group"
-          variant="stateful"
-          state="attention"
-          title="Delete group"
-          onClick={(event) => {
-            onDeleteGroup();
-            event.stopPropagation();
-          }}
-        />
-      )}
+        {canRemoveFlow && (
+          <Button
+            icon={<TrashIcon />}
+            className="step-toolbar__button"
+            data-testid="step-toolbar-button-delete-group"
+            variant="stateful"
+            state="attention"
+            title="Delete group"
+            onClick={(event) => {
+              onDeleteGroup();
+              event.stopPropagation();
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
