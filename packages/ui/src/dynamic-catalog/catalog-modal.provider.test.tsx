@@ -20,6 +20,7 @@ describe('CatalogModalProvider', () => {
     getEntity: jest.fn(),
     getCatalog: jest.fn(),
     setCatalog: jest.fn(),
+    getEntityFromCache: jest.fn(),
     clearRegistry: jest.fn(),
   };
 

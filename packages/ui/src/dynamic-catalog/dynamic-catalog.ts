@@ -46,6 +46,16 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     return this.cache;
   }
 
+  /**
+   * Synchronously get an entity from the cache only (does not fetch)
+   * Returns undefined if the entity is not in the cache
+   * @param key - The entity key
+   * @returns The cached entity or undefined
+   */
+  getFromCache(key: string): T | undefined {
+    return this.cache[key];
+  }
+
   clearCache(): void {
     Object.keys(this.cache).forEach((key) => {
       delete this.cache[key];

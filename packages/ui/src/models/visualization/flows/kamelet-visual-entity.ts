@@ -3,6 +3,7 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getCustomSchemaFromKamelet, setValue, updateKameletFromCustomSchema } from '../../../utils';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { DefinedComponent } from '../../camel-catalog-index';
@@ -81,7 +82,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
   }
 
   toJSON(): { from: FromDefinition } {
-    return { from: this.entityDef.template.from };
+    return { from: CamelComponentSorter.sortProcessorObject('from', this.entityDef.template.from) };
   }
 
   getNodeSchema(path?: string | undefined): KaotoSchemaDefinition['schema'] | undefined {

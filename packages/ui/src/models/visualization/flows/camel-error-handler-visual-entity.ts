@@ -3,6 +3,7 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities/base-entity';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
@@ -173,7 +174,9 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   }
 
   toJSON(): { errorHandler: ErrorHandlerDeserializer } {
-    return { errorHandler: this.errorHandlerDef.errorHandler };
+    return {
+      errorHandler: CamelComponentSorter.sortProcessorObject('errorHandler', this.errorHandlerDef.errorHandler),
+    };
   }
 
   getGroupIcons(): { icon: string; title: string }[] {

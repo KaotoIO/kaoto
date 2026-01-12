@@ -2,6 +2,7 @@ import { InterceptSendToEndpoint, ProcessorDefinition } from '@kaoto/camel-catal
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
@@ -122,7 +123,12 @@ export class CamelInterceptSendToEndpointVisualEntity
   }
 
   toJSON(): { interceptSendToEndpoint: InterceptSendToEndpoint } {
-    return { interceptSendToEndpoint: this.interceptSendToEndpointDef.interceptSendToEndpoint };
+    return {
+      interceptSendToEndpoint: CamelComponentSorter.sortProcessorObject(
+        'interceptSendToEndpoint',
+        this.interceptSendToEndpointDef.interceptSendToEndpoint,
+      ),
+    };
   }
 
   protected getRootUri(): string | undefined {

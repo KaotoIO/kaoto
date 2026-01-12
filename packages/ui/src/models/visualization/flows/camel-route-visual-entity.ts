@@ -3,6 +3,7 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { setValue } from '../../../utils';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
@@ -86,7 +87,7 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: R
   }
 
   toJSON(): { route: RouteDefinition } {
-    return { route: this.entityDef.route };
+    return { route: CamelComponentSorter.sortProcessorObject('route', this.entityDef.route) };
   }
 
   addStep(options: {

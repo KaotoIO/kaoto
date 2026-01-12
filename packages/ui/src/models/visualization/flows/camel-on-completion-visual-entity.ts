@@ -2,6 +2,7 @@ import { OnCompletion, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import {
@@ -95,7 +96,9 @@ export class CamelOnCompletionVisualEntity
   }
 
   toJSON(): { onCompletion: OnCompletion } {
-    return { onCompletion: this.onCompletionDef.onCompletion };
+    return {
+      onCompletion: CamelComponentSorter.sortProcessorObject('onCompletion', this.onCompletionDef.onCompletion),
+    };
   }
 
   protected getRootUri(): string | undefined {

@@ -1,18 +1,71 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
 import { parse } from 'yaml';
 
+import { DynamicCatalogRegistry } from '../dynamic-catalog';
+import { DynamicCatalog } from '../dynamic-catalog/dynamic-catalog';
+import { ICatalogProvider } from '../dynamic-catalog/models';
 import { CamelResource, SerializerType } from '../models/camel';
-import { CamelRouteVisualEntity } from '../models/visualization/flows';
+import { CatalogKind } from '../models/catalog-kind';
+import { CamelCatalogService, CamelRouteVisualEntity } from '../models/visualization/flows';
 import { mockRandomValues } from '../stubs';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
+import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
 import { SourceCodeContext } from './source-code.provider';
 
 describe('EntitiesProvider', () => {
   let eventNotifier: EventNotifier;
+
+  beforeAll(async () => {
+    // Load all catalogs properly for sorting functionality
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+
+    // Set up CamelCatalogService (for getComponent calls)
+    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
+    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+    CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
+    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
+
+    // Set up DynamicCatalogRegistry (for CamelComponentSorter)
+    const registry = DynamicCatalogRegistry.get();
+
+    // Create providers for each catalog type
+    const createProvider = <T,>(catalogMap: Record<string, T>): ICatalogProvider<T> => ({
+      id: 'test-provider',
+      fetch: async (key: string) => catalogMap[key],
+      fetchAll: async () => catalogMap,
+    });
+
+    registry.setCatalog(CatalogKind.Component, new DynamicCatalog(createProvider(catalogsMap.componentCatalogMap)));
+    registry.setCatalog(CatalogKind.Processor, new DynamicCatalog(createProvider(catalogsMap.modelCatalogMap)));
+    registry.setCatalog(CatalogKind.Pattern, new DynamicCatalog(createProvider(catalogsMap.patternCatalogMap)));
+    registry.setCatalog(CatalogKind.Entity, new DynamicCatalog(createProvider(catalogsMap.entitiesCatalog)));
+    registry.setCatalog(CatalogKind.Language, new DynamicCatalog(createProvider(catalogsMap.languageCatalog)));
+    registry.setCatalog(CatalogKind.Kamelet, new DynamicCatalog(createProvider(catalogsMap.kameletsCatalogMap)));
+
+    // Pre-populate the cache by fetching each catalog entry
+    await Promise.all([
+      ...Object.keys(catalogsMap.componentCatalogMap).map((key) => registry.getEntity(CatalogKind.Component, key)),
+      ...Object.keys(catalogsMap.modelCatalogMap).map((key) => registry.getEntity(CatalogKind.Processor, key)),
+      ...Object.keys(catalogsMap.patternCatalogMap).map((key) => registry.getEntity(CatalogKind.Pattern, key)),
+      ...Object.keys(catalogsMap.entitiesCatalog).map((key) => registry.getEntity(CatalogKind.Entity, key)),
+      ...Object.keys(catalogsMap.languageCatalog).map((key) => registry.getEntity(CatalogKind.Language, key)),
+      ...Object.keys(catalogsMap.kameletsCatalogMap).map((key) => registry.getEntity(CatalogKind.Kamelet, key)),
+    ]);
+  });
+
+  afterAll(() => {
+    CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
   beforeEach(() => {
     eventNotifier = EventNotifier.getInstance();
   });
