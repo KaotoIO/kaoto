@@ -24,23 +24,65 @@ export const BODY_DOCUMENT_ID = 'Body';
 
 interface IFieldBase {
   parent: IParentType;
+  /** Document that owns this field */
   ownerDocument: IDocument;
+  /** Unique identifier for this field instance */
   id: string;
+  /** Field name as it appears in the schema */
   name: string;
+  /** Human-readable display name for UI presentation */
   displayName: string;
+  /** Path from document root to this field */
   path: NodePath;
+  /** Current data type of this field in DataMapper common style */
+  type: Types;
+  /** The data format specific, qualified name of the current type of this field, if applicable */
+  typeQName: QName | null;
+  /** Original data type of this field before any overrides, in DataMapper common style */
+  originalType: Types;
+  /** The data format specific, qualified name of the original type of this field before any overrides, if applicable */
+  originalTypeQName: QName | null;
+  /** Indicates whether and how the type has been overridden */
+  typeOverride: TypeOverrideVariant;
+  /** Child fields for complex types */
   fields: IField[];
+  /** Whether this field represents an attribute (vs element) */
   isAttribute: boolean;
+  /** Default value for this field, if specified in schema */
   defaultValue: string | null;
+  /** Minimum number of occurrences (0 = optional) */
   minOccurs: number;
+  /** Maximum number of occurrences (1 = single, >1 or 'unbounded' = collection) */
   maxOccurs: MaxOccursType;
+  /** Namespace prefix for this field */
   namespacePrefix: string | null;
+  /** Namespace URI for this field */
   namespaceURI: string | null;
+  /** References to named type fragments used by this field */
   namedTypeFragmentRefs: string[];
+  /** XPath predicates for filtering this field */
   predicates: Predicate[];
 
+  /**
+   * Adopts itself to a passed-in parent {@link IField} as a child. This method is also responsible for inheritance.
+   * If there's existing field that is identical, i.e. {@link isIdentical()} returns true, it should inherit the
+   * field properties from base if it's not yet defined, or keep the current property value if it's already defined
+   * in descendant (override).
+   * @param parent
+   */
   adopt(parent: IField): IField;
+
+  /**
+   * Gets an expression to represent this field.
+   * @param namespaceMap
+   */
   getExpression(namespaceMap: { [prefix: string]: string }): string;
+
+  /**
+   * Returns `true` if the passed-in field is identical with this, otherwise returns `false`. Whether two fields
+   * are identical or not depends on field types, for example XML field needs to also verify if they're in the same namespace.
+   * @param other
+   */
   isIdentical(other: IField): boolean;
 }
 
