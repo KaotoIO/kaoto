@@ -17,7 +17,8 @@ export class CanvasDefaults {
 
   static readonly DEFAULT_GROUP_PADDING = 40;
 
-  static readonly STEP_TOOLBAR_WIDTH = 350;
+  /* Making the step toolbar narrower and center it via CSS */
+  static readonly STEP_TOOLBAR_WIDTH = 60;
   static readonly STEP_TOOLBAR_HEIGHT = 60;
 
   static readonly HOVER_DELAY_IN = 200;

@@ -76,8 +76,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       boxRef.current = element.getBounds();
     }
 
-    const toolbarWidth = Math.max(CanvasDefaults.STEP_TOOLBAR_WIDTH, boxRef.current.width);
-    const toolbarX = boxRef.current.x + (boxRef.current.width - toolbarWidth) / 2;
+    const toolbarX = boxRef.current.x + (boxRef.current.width - CanvasDefaults.STEP_TOOLBAR_WIDTH) / 2;
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
     const addStepX = isHorizontal
       ? boxRef.current.x + boxRef.current.width
@@ -153,7 +152,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 className="custom-group__toolbar"
                 x={toolbarX}
                 y={toolbarY}
-                width={toolbarWidth}
+                width={CanvasDefaults.STEP_TOOLBAR_WIDTH}
                 height={CanvasDefaults.STEP_TOOLBAR_HEIGHT}
               >
                 <StepToolbar
