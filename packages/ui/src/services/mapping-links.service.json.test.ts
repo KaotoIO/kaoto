@@ -140,17 +140,21 @@ describe('MappingLinksService : JSON', () => {
     const nodeReferences: Map<string, RefObject<NodeReference>> = new Map<string, RefObject<NodeReference>>();
 
     const mockRect = () => ({ a: 0, b: 0 });
+    const mockClosest = () => null;
+    const createMockHeaderRef = (): HTMLDivElement =>
+      ({
+        getBoundingClientRect: mockRect,
+        getClientRects: mockRect,
+        closest: mockClosest,
+      }) as unknown as HTMLDivElement;
+
     const createNodeReference = (path: string) => {
       const { result } = renderHook(() =>
         useRef<NodeReference>({
           path: path,
           isSource: !path.startsWith('target'),
           containerRef: null,
-          headerRef: {
-            getBoundingClientRect: mockRect,
-            getClientRects: mockRect,
-            closest: () => null,
-          } as unknown as HTMLDivElement,
+          headerRef: createMockHeaderRef(),
         }),
       );
       nodeReferences.set(path, result.current);

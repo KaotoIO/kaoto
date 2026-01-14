@@ -8,10 +8,16 @@ import { SourceTargetView } from './SourceTargetView';
 
 // Mock ResizeObserver for ExpansionPanels
 beforeAll(() => {
-  global.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {
+      // intentional noop for test mock
+    }
+    unobserve() {
+      // intentional noop for test mock
+    }
+    disconnect() {
+      // intentional noop for test mock
+    }
   };
 });
 
