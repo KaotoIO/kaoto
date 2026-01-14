@@ -7,7 +7,8 @@ Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
   cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
-  cy.get('.source-panel').find('[data-testid="expand-icon-Body"]').should('be.visible');
+  // Verify schema was attached by checking for child nodes in source body
+  cy.get('.source-panel').find('[data-testid^="node-source-"]').should('exist');
 });
 
 Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
@@ -26,7 +27,8 @@ Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
 
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
 
-  cy.get('.target-panel').find('[data-testid="expand-icon-Body"]').should('be.visible');
+  // Verify schema was attached by checking for child nodes in target body
+  cy.get('.target-panel').find('[data-testid^="node-target-"]').should('exist');
 });
 
 Cypress.Commands.add('addParameter', (name: string) => {
@@ -101,9 +103,23 @@ Cypress.Commands.add('countMappingLines', (num: number) => {
 });
 
 // Internal helper - scopes queries to a specific panel
+// For document nodes (document-doc-*), navigates up to the expansion panel wrapper
+// to find child nodes since header and content are siblings in ExpansionPanel structure
 Cypress.Commands.add('getDataMapperNode', (nodePath: string[], panelClass?: string) => {
   const panel = panelClass ? cy.get(panelClass) : cy;
+  const firstNode = nodePath[0];
 
+  // If the first node is a document, find it and navigate up to the expansion panel
+  // so we can find child nodes that are in the content area (sibling of header)
+  if (firstNode.startsWith('document-doc-')) {
+    const expansionPanel = panel.find(`[data-testid="${firstNode}"]`).closest('.expansion-panel');
+
+    return nodePath.slice(1).reduce((acc, nodeId) => {
+      return acc.find(`[data-testid^="${nodeId}"]`);
+    }, expansionPanel);
+  }
+
+  // For non-document nodes, use the original behavior
   return nodePath.slice(1).reduce(
     (acc, nodeId) => {
       return acc.find(`[data-testid^="${nodeId}"]`);

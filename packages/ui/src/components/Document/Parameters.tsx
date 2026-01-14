@@ -57,7 +57,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   );
 
   return (
-    <div className="parameters-header">
+    <div className="parameters-header" data-testid="source-parameters-header">
       <Title headingLevel="h5" className="parameters-header__title">
         Parameters
       </Title>

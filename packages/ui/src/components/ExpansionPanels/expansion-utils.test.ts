@@ -331,7 +331,6 @@ describe('expansion-utils', () => {
     });
   });
 
-
   describe('calculateTotalHeight', () => {
     it('should calculate total height using expanded height for expanded panels', () => {
       const panels: PanelResizeInfo[] = [
