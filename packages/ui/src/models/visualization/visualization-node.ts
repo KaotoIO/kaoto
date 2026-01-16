@@ -207,6 +207,10 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     }
   }
 
+  isVerified(): boolean | undefined {
+    return this.getBaseEntity()?.isVerified(this.data.path);
+  }
+
   async getNodeValidationText(): Promise<string | undefined> {
     const ids: IVisualizationNodeIds = {
       primaryNodeId: this.data.primaryNodeId,

@@ -226,6 +226,10 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return await ModelValidationService.validateNodeStatus(schema, definition);
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
   async toVizNode(): Promise<IVisualizationNode> {
     const pipeGroupNode = createVisualizationNode(this.id, {
       name: this.type,

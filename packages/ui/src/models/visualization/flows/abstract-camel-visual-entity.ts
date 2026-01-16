@@ -304,6 +304,10 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return await ModelValidationService.validateNodeStatus(schema, definition);
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
   async toVizNode(): Promise<IVisualizationNode> {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
       name: this.type,
