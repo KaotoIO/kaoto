@@ -12,6 +12,7 @@ export interface ISourceSchema {
 interface IEntitySchemaConfig {
   [SourceSchemaType.Route]: ISourceSchema;
   [SourceSchemaType.Kamelet]: ISourceSchema;
+  [SourceSchemaType.Test]: ISourceSchema;
   [SourceSchemaType.Pipe]: ISourceSchema;
   [SourceSchemaType.KameletBinding]: ISourceSchema;
   [SourceSchemaType.Integration]: ISourceSchema;
@@ -32,6 +33,12 @@ class SourceSchemaConfig {
       multipleRoute: false,
       description:
         'Defines a reusable Camel route as a building block. Kamelets can not be executed on their own, they are used as sources, actions or sinks in Camel Routes or Pipes.',
+    },
+    [SourceSchemaType.Test]: {
+      name: 'Test',
+      schema: undefined,
+      multipleRoute: false,
+      description: 'Defines a Citrus test case to verify Camel Routes or Pipes.',
     },
     [SourceSchemaType.Pipe]: {
       name: 'Pipe',
@@ -58,6 +65,9 @@ class SourceSchemaConfig {
   setSchema(name: string, schema: KaotoSchemaDefinition) {
     if (name === 'camelYamlDsl') {
       this.config[SourceSchemaType.Route].schema = schema;
+    }
+    if (name === 'citrus-yaml') {
+      this.config[SourceSchemaType.Test].schema = schema;
     }
     if (isEnumType(name, SourceSchemaType)) {
       const type: SourceSchemaType = SourceSchemaType[name];

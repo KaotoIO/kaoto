@@ -19,6 +19,8 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
       "type": "string",
     },
     "parameters": {
+      "description": "The key-value pairs of the properties to configure this endpoint",
+      "title": "Endpoint Properties",
       "type": "object",
     },
     "uri": {

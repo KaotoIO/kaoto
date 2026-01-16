@@ -21,7 +21,7 @@ export default defineConfig(async () => {
         targets: catalogFiles.map((file) => {
           const normalizedFile = normalizePath(file);
           const relativePath = relative(basePath, file);
-          const dest = normalizePath('./' + dirname(relativePath));
+          const dest = normalizePath('./camel-catalog/' + dirname(relativePath));
 
           return {
             src: normalizedFile,

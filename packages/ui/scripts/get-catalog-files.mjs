@@ -36,57 +36,17 @@ export const getCatalogFiles = () => {
     throw new Error(message.join('\n\n'));
   }
 
-  console.info(`Found Camel in '@kaoto/camel-catalog' using ${camelCatalogPath}`, '\n');
+  console.info(`Found '@kaoto/camel-catalog' using ${camelCatalogPath}`, '\n');
 
   /** Recursively list all the JSON and XSD files in the Camel Catalog folder and subfolders */
   const catalogFiles = [];
   getFilesRecursively(camelCatalogPath, catalogFiles);
 
-  /** Add Citrus catalog files */
-  catalogFiles.push(... getCitrusCatalogFiles());
-
-  const basePath = normalizePath(dirname(require.resolve('@kaoto/camel-catalog')));
-
   return {
-    basePath: basePath,
+    basePath: camelCatalogPath,
     files: catalogFiles.filter((file) => file.endsWith('.json') || file.endsWith('.xsd')),
   };
 };
-
-function getCitrusCatalogFiles() {
-  let citrusCatalogPath = '';
-
-  try {
-    const citrusCatalogIndexJsonPath = require.resolve('@kaoto/camel-catalog/citrus/index.json');
-    citrusCatalogPath = normalizePath(dirname(citrusCatalogIndexJsonPath));
-  } catch (error) {
-    console.warn(`Could not find Citrus in '@kaoto/camel-catalog' \n\n ${error}`);
-    return [];
-  }
-
-  try {
-    if (readdirSync(citrusCatalogPath).length === 0) {
-      return [];
-    }
-  } catch (error) {
-    const message = [
-      `The '${citrusCatalogPath}' folder is empty.`,
-      'No files found in the Citrus Catalog directory.',
-      'Please check the dependency is installed',
-      'or run `yarn add @kaoto/camel-catalog` to install it',
-    ];
-
-    console.warn(message.join('\n\n'));
-  }
-
-  console.info(`Found Citrus in '@kaoto/camel-catalog' using ${citrusCatalogPath}`, '\n');
-
-  /** Recursively list all the JSON and XSD files in the Citrus Catalog folder and subfolders */
-  const catalogFiles = [];
-  getFilesRecursively(citrusCatalogPath, catalogFiles);
-
-  return catalogFiles.filter((file) => file.endsWith('.json') || file.endsWith('.xsd'));
-}
 
 function getFilesRecursively(source, files) {
   const exists = existsSync(source);
