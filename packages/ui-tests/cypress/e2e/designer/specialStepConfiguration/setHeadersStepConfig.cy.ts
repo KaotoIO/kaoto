@@ -3,7 +3,7 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.openHomePage();
   });
 
-  it('Design - sidebar setHeaders configuration in CR', { browser: '!firefox' }, () => {
+  it('Design - sidebar setHeaders configuration in CR', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
@@ -15,29 +15,33 @@ describe('Tests for sidebar setHeaders step configuration', () => {
     cy.get('[data-testid="#.headers__add"]').click();
 
     cy.selectExpression('Simple');
+    cy.interactWithExpressionInputObject('simple.resultType', 'java.lang.String');
     cy.interactWithExpressionInputObject('simple.expression', `{{}random(1,100)}`);
     cy.interactWithExpressionInputObject('simple.id', 'simpleExpressionId');
-    cy.interactWithExpressionInputObject('simple.resultType', 'java.lang.String');
 
     cy.get('[data-testid="#.headers__add"]').click();
 
     cy.selectExpression('Constant', 0);
+    cy.interactWithExpressionInputObject('constant.resultType', 'java.lang.String');
     cy.interactWithExpressionInputObject('constant.expression', `constant`, 1);
     cy.interactWithExpressionInputObject('constant.id', 'constantExpressionId', 1);
-    cy.interactWithExpressionInputObject('constant.resultType', 'java.lang.String');
 
     cy.openSourceCode();
     const headers = [
       'headers:',
-      '- constant:',
-      'id: constantExpressionId',
+      '- name: ""',
+      'constant:',
+      'resultType: java.lang.String',
       'expression: constant',
-      'resultType: java.lang.String',
+      'id: constantExpressionId',
+
+      '- name: ""',
       'simple:',
-      'id: simpleExpressionId',
-      'expression: "{random(1,100)}"',
       'resultType: java.lang.String',
+      'expression: "{random(1,100)}"',
+      'id: simpleExpressionId',
     ];
+
     // CHECK changes are reflected in the code editor
     cy.checkMultiLineContent(headers);
   });
