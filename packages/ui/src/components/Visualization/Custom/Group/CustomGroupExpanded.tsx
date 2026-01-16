@@ -1,9 +1,20 @@
 import './CustomGroupExpanded.scss';
 
-import { Error as ErrorIcon, WarningFilled } from '@carbon/icons-react';
+import { CheckmarkFilled, Error as ErrorIcon, WarningFilled } from '@carbon/icons-react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
-import { Icon } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  Icon,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 import {
   AnchorEnd,
   DragEvent,
@@ -26,7 +37,7 @@ import {
   useDragNode,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, MouseEventHandler, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -86,12 +97,26 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     const isDisabled = !!(groupVizNode?.data?.definition as { disabled?: unknown } | undefined)?.disabled;
     const validationText = useNodeValidationText(groupVizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
+    const verified = groupVizNode?.isVerified() || false;
     const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
     const boxRef = useRef<Rect | null>(null);
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
     }, AnchorEnd.both);
+
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
+    const showError: MouseEventHandler<HTMLDivElement> = useCallback(
+      async (event) => {
+        event.stopPropagation();
+        setIsErrorModalOpen(true);
+      },
+      [setIsErrorModalOpen],
+    );
+
+    const onCloseErrorModal = useCallback(() => {
+      setIsErrorModalOpen(false);
+    }, []);
 
     // handleKeyDown must be declared before any early return to satisfy Rules of Hooks
     const handleKeyDown = useCallback(
@@ -227,6 +252,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           data-disabled={isDisabled}
           data-toolbar-open={toolbar.isOpen}
           data-warnings={doesHaveWarnings}
+          data-verified={verified}
           tabIndex={selected ? 0 : -1}
           role="button"
           aria-label={label ?? groupVizNode.id}
@@ -326,6 +352,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 }}
                 ProcessorIcon={ProcessorIcon}
                 processorDescription={processorDescription}
+                doesHaveWarnings={doesHaveWarnings}
                 isDisabled={isDisabled}
                 isDragging
               />
@@ -341,13 +368,51 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
               height={25}
             >
               <FloatingCircle>
-                <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
+                <Icon status="danger" className="custom-group__warning-icon" title={validationText} onClick={showError}>
                   <WarningFilled />
                 </Icon>
               </FloatingCircle>
             </foreignObject>
           )}
+          {verified && !isDisabled && (
+            <foreignObject
+              className="custom-group__success-icon--floating"
+              x={boxRef.current.x - 7}
+              y={boxRef.current.y - 7}
+              width={25}
+              height={25}
+            >
+              <FloatingCircle>
+                <Icon status="success" className="custom-group__success-icon" title="Step verified">
+                  <CheckmarkFilled />
+                </Icon>
+              </FloatingCircle>
+            </foreignObject>
+          )}
         </g>
+
+        <Modal isOpen={isErrorModalOpen} variant={ModalVariant.medium} data-testid="validation-error-modal">
+          <ModalHeader title="FAILURE Details" titleIconVariant="danger" />
+          <ModalBody>
+            <Stack hasGutter>
+              <StackItem>
+                <Alert variant="danger" title="Validation error">
+                  <p>{validationText}</p>
+                </Alert>
+              </StackItem>
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="Close"
+              data-testid="validation-error-modal-btn-close"
+              variant="control"
+              onClick={onCloseErrorModal}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
       </Layer>
     );
   },

@@ -1,7 +1,7 @@
-import { Error as ErrorIcon, Layers } from '@carbon/icons-react';
+import { Error as ErrorIcon, Layers, WarningFilled } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
-import { ElementType, FunctionComponent, Ref } from 'react';
+import React, { ElementType, FunctionComponent, Ref } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { getDragPreviewTransform } from '../../Canvas/CanvasUtils';
@@ -21,8 +21,11 @@ export interface CustomNodeContainerProps {
   hasGroupChildren?: boolean;
   ProcessorIcon: ElementType | null;
   processorDescription?: string;
+  validationText?: string;
+  doesHaveWarnings?: boolean;
   isDisabled: boolean;
   isDragging?: boolean;
+  onShowError?: React.MouseEventHandler<HTMLDivElement>;
 }
 
 export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = ({
@@ -39,8 +42,11 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   hasGroupChildren,
   ProcessorIcon,
   processorDescription,
+  validationText,
+  doesHaveWarnings = false,
   isDisabled,
   isDragging = false,
+  onShowError,
 }) => (
   <foreignObject
     data-nodelabel={dataNodelabel}
@@ -78,6 +84,13 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
           <FloatingCircle className="step-icon step-icon__processor">
             <Icon status="info" size="lg">
               <ProcessorIcon title={processorDescription} />
+            </Icon>
+          </FloatingCircle>
+        )}
+        {doesHaveWarnings && (
+          <FloatingCircle className="step-icon step-icon__processor">
+            <Icon status="danger" size="lg" title={validationText} onClick={onShowError}>
+              <WarningFilled />
             </Icon>
           </FloatingCircle>
         )}

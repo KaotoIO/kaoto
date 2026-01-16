@@ -83,4 +83,34 @@ describe('CustomNodeLabel', () => {
     expect(foreignObject).toHaveAttribute('height', '16');
     expect(foreignObject).toHaveClass('my-label');
   });
+
+  it('does not render a verified icon by default', () => {
+    const { container } = renderLabel(<CustomNodeLabel label="log" x={0} y={0} />);
+
+    expect(container.querySelector('[data-verified]')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Verified' })).not.toBeInTheDocument();
+  });
+
+  it('renders a verified icon when verified is true', () => {
+    const { container } = renderLabel(<CustomNodeLabel label="log" x={0} y={0} verified />);
+
+    const verifiedIcon = screen.getByRole('img', { name: 'Verified' });
+    expect(verifiedIcon).toBeInTheDocument();
+    expect(container.querySelector('[data-verified="true"]')).toBeInTheDocument();
+  });
+
+  it('does not render a verified icon when verified is false', () => {
+    renderLabel(<CustomNodeLabel label="log" x={0} y={0} verified={false} />);
+
+    expect(screen.queryByRole('img', { name: 'Verified' })).not.toBeInTheDocument();
+  });
+
+  it('renders both warning and verified icons when both are true', () => {
+    const { container } = renderLabel(
+      <CustomNodeLabel label="log" x={0} y={0} doesHaveWarnings verified validationText="some error" />,
+    );
+
+    expect(container.querySelector('[data-warning="true"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-verified="true"]')).toBeInTheDocument();
+  });
 });

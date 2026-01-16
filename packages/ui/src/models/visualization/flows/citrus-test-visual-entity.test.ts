@@ -13,6 +13,7 @@ import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog'
 import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test, TestActions } from '../../citrus/entities/Test';
+import { TestReportEntry } from '../../citrus/entities/TestResult';
 import { EntityType } from '../../entities/base-entity';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
@@ -1427,6 +1428,164 @@ describe('CitrusTestVisualEntity', () => {
       // 1 call for the top-level 'parallel' action + 2 calls for parallel children = 3 total
       expect(spy).toHaveBeenCalledTimes(3);
       spy.mockRestore();
+    });
+  });
+
+  describe('applyTestReport', () => {
+    const successReport: TestReportEntry = {
+      name: 'sample-test',
+      result: { name: 'sample-test', result: 'SUCCESS', success: true },
+      actions: [{ name: 'print', path: 'actions.0.print' }],
+    };
+
+    it('should set the report on the entity', () => {
+      citrusTestEntity.applyTestReport(successReport);
+
+      expect(citrusTestEntity.report).toBe(successReport);
+    });
+
+    it('should allow clearing the report', () => {
+      citrusTestEntity.applyTestReport(successReport);
+      citrusTestEntity.clearTestReport();
+
+      expect(citrusTestEntity.report).toBeUndefined();
+    });
+  });
+
+  describe('isVerified', () => {
+    it('should return undefined when no report is applied', () => {
+      expect(citrusTestEntity.isVerified('test')).toBeUndefined();
+    });
+
+    it('should return undefined when path is not provided', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [],
+      });
+
+      expect(citrusTestEntity.isVerified()).toBeUndefined();
+    });
+
+    it('should return true for root path with SUCCESS result', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [],
+      });
+
+      expect(citrusTestEntity.isVerified('test')).toBe(true);
+    });
+
+    it('should return false for root path with FAILURE result', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'FAILURE', failed: true },
+        actions: [],
+      });
+
+      expect(citrusTestEntity.isVerified('test')).toBe(false);
+    });
+
+    it('should return false when result has errorMessage', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', errorMessage: 'Something went wrong' },
+        actions: [],
+      });
+
+      expect(citrusTestEntity.isVerified('test')).toBe(false);
+    });
+
+    it('should return true for action path with matching result and no error', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [{ name: 'print', path: 'actions.0.print' }],
+      });
+
+      expect(citrusTestEntity.isVerified('actions.0.print')).toBe(true);
+    });
+
+    it('should return false for action path with matching result that has error', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [{ name: 'print', path: 'actions.0.print', error: 'Assertion failed' }],
+      });
+
+      expect(citrusTestEntity.isVerified('actions.0.print')).toBe(false);
+    });
+
+    it('should return undefined for action path with no matching result', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [{ name: 'delay', path: 'actions.1.delay' }],
+      });
+
+      expect(citrusTestEntity.isVerified('actions.0.print')).toBeUndefined();
+    });
+  });
+
+  describe('getNodeValidationText with report', () => {
+    it('should return errorMessage from report for root path when test failed', async () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'FAILURE', failed: true, errorMessage: 'Test execution failed' },
+        actions: [],
+      });
+
+      const result = await citrusTestEntity.getNodeValidationText('test');
+
+      expect(result).toBe('Test execution failed');
+    });
+
+    it('should return result string when no errorMessage for root path', async () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'FAILURE', failed: true },
+        actions: [],
+      });
+
+      const result = await citrusTestEntity.getNodeValidationText('test');
+
+      expect(result).toBe('FAILURE');
+    });
+
+    it('should return error from matching action for non-root path', async () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'FAILURE', failed: true },
+        actions: [{ name: 'print', path: 'actions.0.print', error: 'Expected message did not match' }],
+      });
+
+      const result = await citrusTestEntity.getNodeValidationText('actions.0.print');
+
+      expect(result).toBe('Expected message did not match');
+    });
+
+    it('should fall through to normal validation when report has no failure', async () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [],
+      });
+
+      const invalidModel = cloneDeep(citrusTestJson);
+      setValue(invalidModel, 'actions[0].print.message', undefined);
+      const entity = new CitrusTestVisualEntity(invalidModel);
+      entity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'SUCCESS', success: true },
+        actions: [],
+      });
+      const result1 = await CitrusTestSchemaService.getTestActionDefinition('print');
+      const schema = result1?.definition.propertiesSchema || {};
+
+      const result = await entity.getNodeValidationText('actions.0.print', schema, printActionIds);
+
+      expect(result).toBe('1 required parameter is not yet configured: [ message ]');
     });
   });
 });
