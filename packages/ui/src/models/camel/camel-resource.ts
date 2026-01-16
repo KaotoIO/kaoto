@@ -27,8 +27,6 @@ export interface CamelResource {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter | undefined;
-
-  sortFn?: (a: unknown, b: unknown) => number;
 }
 
 export enum SerializerType {

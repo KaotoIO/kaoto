@@ -3,7 +3,7 @@
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": ["cypress", "node", "cypress-file-upload"],
+    "types": ["cypress", "node", "cypress-file-upload", "monaco-editor"],
     "module": "ESNext",
     "skipLibCheck": true,
 

@@ -48,8 +48,14 @@ describe('Test for Branching actions from the canvas', () => {
 
     cy.openSourceCode();
     cy.editorScrollToTop();
-    cy.checkCodeSpanLine('choice:', 1);
-    cy.checkCodeSpanLine('otherwise:', 1);
+
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const choiceMatches = sourceCode.match(/- choice:/g) ?? [];
+      expect(choiceMatches).to.have.lengthOf(1);
+
+      const otherwiseMatches = sourceCode.match(/otherwise:/g) ?? [];
+      expect(otherwiseMatches).to.have.lengthOf(1);
+    });
   });
 
   it('User appends a step in a branch from the canvas (last in the branch)', () => {

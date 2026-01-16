@@ -270,7 +270,7 @@ describe('FlowsList.tsx', () => {
     });
 
     expect(renameSpy).toHaveBeenCalledWith('route-1234', 'new-name');
-    expect(camelResource.getVisualEntities()[0].id).toEqual('new-name');
+    expect(camelResource.getVisualEntities()[1].id).toEqual('new-name');
     expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalledTimes(1);
   });
 

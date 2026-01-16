@@ -32,7 +32,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
   }
 
   serialize(resource: CamelResource): string {
-    let code = stringify(resource, { sortMapEntries: resource.sortFn, schema: 'yaml-1.1' }) || '';
+    let code = stringify(resource.toJSON(), { schema: 'yaml-1.1' }) || '';
     if (this.comments.length > 0) {
       code = this.insertComments(code);
     }

@@ -1,7 +1,7 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { parse } from 'yaml';
 
-import { CamelRouteVisualEntity } from '../models';
+import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
 
 /**
  * This is a stub Camel Route in YAML format.

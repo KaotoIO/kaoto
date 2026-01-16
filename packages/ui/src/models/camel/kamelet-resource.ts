@@ -61,8 +61,10 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
      * and this way the kamelet definition is updated when the user interacts with
      * the CamelRouteVisualEntity.
      */
+    // Call toJSON() on the flow entity to apply property sorting
+    const flowJson = this.flow.toJSON();
     setValue(this.resource, 'metadata.name', this.flow.getId());
-    setValue(this.resource, 'spec.template.from', this.flow.entityDef.template.from);
+    setValue(this.resource, 'spec.template.from', flowJson.from);
     setValue(this.resource, 'spec.template.beans', this.beans?.parent.beans);
     return this.resource as IKameletDefinition;
   }
