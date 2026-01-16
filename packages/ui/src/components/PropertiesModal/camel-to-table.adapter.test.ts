@@ -1,4 +1,5 @@
 import {
+  CatalogKind,
   ICamelComponentApi,
   ICamelComponentApiMethod,
   ICamelComponentApiProperty,
@@ -8,6 +9,7 @@ import {
   ICamelComponentProperty,
   ICamelProcessorDefinition,
   ICamelProcessorProperty,
+  ICitrusComponentDefinition,
   IKameletDefinition,
   IKameletSpecProperty,
 } from '../../models';
@@ -15,6 +17,7 @@ import {
   camelComponentApisToTable,
   camelComponentPropertiesToTable,
   camelProcessorPropertiesToTable,
+  citrusComponentToPropertiesTable,
   getClassNameOnlyFunctionExportedForTesting,
   kameletToPropertiesTable,
 } from './camel-to-table.adapter';
@@ -333,6 +336,52 @@ describe('camelProcessorToTable', () => {
     expect(table.rows[0].rowAdditionalInfo.group).toBeUndefined;
     expect(table.rows[0].rowAdditionalInfo.autowired).toEqual(true);
     expect(table.rows[0].rowAdditionalInfo.enum).toHaveLength(2);
+  });
+});
+
+describe('citrusComponentToPropertiesTable', () => {
+  const componentDef = {
+    kind: CatalogKind.TestAction,
+    name: 'my-action',
+    group: 'my-group',
+    title: 'My Action',
+    description: 'This is the description',
+    propertiesSchema: {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
+      required: ['prop1'],
+      properties: {
+        prop1: {
+          type: 'string',
+          title: 'Property 1',
+          description: 'The property 1 description.',
+        },
+        prop2: {
+          type: 'string',
+          title: 'Property 2',
+          description: 'The property 2 description.',
+        },
+      },
+    },
+  } as ICitrusComponentDefinition;
+
+  it('should return a properties IPropertiesTable with the correct values', () => {
+    const table = citrusComponentToPropertiesTable(componentDef);
+    expect(table.type).toEqual(PropertiesTableType.Simple);
+    expect(table.headers).toContain(PropertiesHeaders.Name);
+    expect(table.headers).toContain(PropertiesHeaders.Type);
+    expect(table.headers).toContain(PropertiesHeaders.Description);
+
+    expect(table.rows.length).toEqual(2);
+    expect(table.rows[0].name).toEqual('prop1');
+    expect(table.rows[0].type).toEqual('string');
+    expect(table.rows[0].description).toEqual('The property 1 description.');
+    expect(table.rows[0].rowAdditionalInfo.required).toEqual(true);
+
+    expect(table.rows[1].name).toEqual('prop2');
+    expect(table.rows[1].type).toEqual('string');
+    expect(table.rows[1].description).toEqual('The property 2 description.');
+    expect(table.rows[1].rowAdditionalInfo.required).toEqual(false);
   });
 });
 

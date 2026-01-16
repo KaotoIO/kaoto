@@ -2,7 +2,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../../models';
 import { sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
-import { TestProvidersWrapper } from '../../../../../stubs';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../../stubs';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle';
 
 const config = sourceSchemaConfig;
@@ -21,23 +21,29 @@ config.config[SourceSchemaType.Route].schema = {
 
 describe('IntegrationTypeSelectorToggle.tsx', () => {
   it('component renders', () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle />
+        </Provider>
+      </RuntimeProvider>,
     );
     const toggle = wrapper.queryByTestId('integration-type-list-dropdown');
     expect(toggle).toBeInTheDocument();
   });
 
   it('should call onSelect when clicking on the MenuToggleAction', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const onSelectSpy = jest.fn();
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle onSelect={onSelectSpy} />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle onSelect={onSelectSpy} />
+        </Provider>
+      </RuntimeProvider>,
     );
 
     /** Click on toggle */
@@ -58,11 +64,14 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   });
 
   it('should disable the MenuToggleAction if the integration type is already selected', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle />
+        </Provider>
+      </RuntimeProvider>,
     );
     /** Click on toggle */
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
@@ -86,11 +95,14 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   });
 
   it('should toggle list of integration types', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle />
+        </Provider>
+      </RuntimeProvider>,
     );
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
@@ -114,11 +126,14 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   });
 
   it('should show selected value', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle />
+        </Provider>
+      </RuntimeProvider>,
     );
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
@@ -144,11 +159,14 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   });
 
   it('should have selected integration type if provided', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle />
+        </Provider>
+      </RuntimeProvider>,
     );
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 
@@ -165,11 +183,14 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
   });
 
   it('should close Select when pressing ESC', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelectorToggle />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelectorToggle />
+        </Provider>
+      </RuntimeProvider>,
     );
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
 

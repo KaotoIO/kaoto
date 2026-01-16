@@ -3439,17 +3439,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@kaoto/camel-catalog@npm:0.4.0"
-  checksum: 10/ded19bf56618c8ff3edc16f4193d72ff2dcd17db73c5dd020eee1e252f28b73bd09631bd68a918a73668874a1bbb36747a42bff6517bb60f7816b1af031ab330
-  languageName: node
-  linkType: hard
-
-"@kaoto/camel-catalog@npm:^0.4.3":
-  version: 0.4.3
-  resolution: "@kaoto/camel-catalog@npm:0.4.3"
-  checksum: 10/8518905573c7d677791bbf8d7ef61993a874cd1361ba160e221bfe663081fd1ed9506497c52aafa539e42262963cb9f549fffc98e9dc5b0e81e1f77f3175f901
+"@kaoto/camel-catalog@npm:^0.4.4":
+  version: 0.4.4
+  resolution: "@kaoto/camel-catalog@npm:0.4.4"
+  checksum: 10/3c1eada821ab9460a4ad83f020bb02b2ebd008ccd95270611aab64a522d1d3d6a4b01931b1a77dc347371e4be934b67bdb005165cf70eb68cec5e4ca23e20a46
   languageName: node
   linkType: hard
 
@@ -3478,7 +3471,7 @@ __metadata:
     "@4tw/cypress-drag-drop": "npm:^2.3.1"
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.4.0"
+    "@kaoto/camel-catalog": "npm:^0.4.4"
     "@kaoto/forms": "npm:^1.7.1"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.4.0"
@@ -3532,7 +3525,7 @@ __metadata:
     "@carbon/react": "npm:^1.102.0"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.4.3"
+    "@kaoto/camel-catalog": "npm:^0.4.4"
     "@kaoto/forms": "npm:^1.7.1"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
@@ -3613,7 +3606,7 @@ __metadata:
     zundo: "npm:^2.3.0"
     zustand: "npm:^4.3.9"
   peerDependencies:
-    "@kaoto/camel-catalog": ^0.4.3
+    "@kaoto/camel-catalog": ^0.4.4
     "@patternfly/patternfly": ^6.4.0
     "@patternfly/react-code-editor": ^6.4.0
     "@patternfly/react-core": ^6.4.0
