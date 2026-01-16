@@ -12,7 +12,7 @@ describe('RuntimeProvider', () => {
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock.mockImplementation((file) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({

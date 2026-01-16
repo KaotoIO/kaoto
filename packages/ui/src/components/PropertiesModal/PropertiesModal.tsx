@@ -11,6 +11,7 @@ import { Loading } from '../Loading';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
+  transformCitrusComponentIntoTab,
   transformKameletComponentIntoTab,
 } from './camel-to-tabs.adapter';
 import { IPropertiesTab } from './PropertiesModal.models';
@@ -60,6 +61,18 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
               forceFresh: true,
             });
             transformedTabs = transformKameletComponentIntoTab(kamelet);
+            break;
+          }
+
+          case CatalogKind.TestAction: {
+            const component = await catalogRegistry.getEntity(CatalogKind.TestAction, props.tile.name);
+            transformedTabs = transformCitrusComponentIntoTab(component);
+            break;
+          }
+
+          case CatalogKind.TestContainer: {
+            const component = await catalogRegistry.getEntity(CatalogKind.TestContainer, props.tile.name);
+            transformedTabs = transformCitrusComponentIntoTab(component);
             break;
           }
 
