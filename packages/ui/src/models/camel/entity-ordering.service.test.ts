@@ -18,74 +18,20 @@ import { EntityType } from './entities';
 import { EntityOrderingService } from './entity-ordering.service';
 
 describe('EntityOrderingService', () => {
-  describe('XML_SCHEMA_ORDER', () => {
-    it('should define the correct XML schema order', () => {
-      expect(EntityOrderingService.XML_SCHEMA_ORDER).toEqual([
-        EntityType.RestConfiguration,
-        EntityType.Rest,
-        EntityType.RouteConfiguration,
-        EntityType.Route,
-        EntityType.ErrorHandler,
-        EntityType.OnException,
-        EntityType.OnCompletion,
-        EntityType.Intercept,
-        EntityType.InterceptFrom,
-        EntityType.InterceptSendToEndpoint,
-        EntityType.Beans,
-      ]);
-    });
-
-    it('should include all common entity types', () => {
-      const schemaOrder = EntityOrderingService.XML_SCHEMA_ORDER;
-
-      expect(schemaOrder).toContain(EntityType.RestConfiguration);
-      expect(schemaOrder).toContain(EntityType.Rest);
-      expect(schemaOrder).toContain(EntityType.RouteConfiguration);
-      expect(schemaOrder).toContain(EntityType.Route);
-      expect(schemaOrder).toContain(EntityType.ErrorHandler);
-      expect(schemaOrder).toContain(EntityType.Beans);
-    });
-
-    it('should have RestConfiguration before Rest', () => {
-      const schemaOrder = EntityOrderingService.XML_SCHEMA_ORDER;
-      const restConfigIndex = schemaOrder.indexOf(EntityType.RestConfiguration);
-      const restIndex = schemaOrder.indexOf(EntityType.Rest);
-
-      expect(restConfigIndex).toBeLessThan(restIndex);
-    });
-
-    it('should have RouteConfiguration before Route', () => {
-      const schemaOrder = EntityOrderingService.XML_SCHEMA_ORDER;
-      const routeConfigIndex = schemaOrder.indexOf(EntityType.RouteConfiguration);
-      const routeIndex = schemaOrder.indexOf(EntityType.Route);
-
-      expect(routeConfigIndex).toBeLessThan(routeIndex);
-    });
-  });
-
-  describe('RUNTIME_PRIORITY_ENTITIES', () => {
-    it('should define the correct runtime priority entities', () => {
-      expect(EntityOrderingService.RUNTIME_PRIORITY_ENTITIES).toEqual([
-        EntityType.ErrorHandler,
-        EntityType.OnException,
-        EntityType.OnCompletion,
-        EntityType.Intercept,
-        EntityType.InterceptFrom,
-        EntityType.InterceptSendToEndpoint,
-      ]);
-    });
-
-    it('should only include error handling entities', () => {
-      const priorityEntities = EntityOrderingService.RUNTIME_PRIORITY_ENTITIES;
-
-      expect(priorityEntities).toContain(EntityType.OnException);
-      expect(priorityEntities).toContain(EntityType.ErrorHandler);
-      expect(priorityEntities).toContain(EntityType.OnCompletion);
-
-      expect(priorityEntities).not.toContain(EntityType.Route);
-      expect(priorityEntities).not.toContain(EntityType.RestConfiguration);
-      expect(priorityEntities).not.toContain(EntityType.Rest);
-    });
+  it('should define the correct XML schema order', () => {
+    expect(EntityOrderingService.XML_SCHEMA_ORDER).toEqual([
+      EntityType.RestConfiguration,
+      EntityType.Rest,
+      EntityType.ErrorHandler,
+      EntityType.OnException,
+      EntityType.OnCompletion,
+      EntityType.Intercept,
+      EntityType.InterceptFrom,
+      EntityType.InterceptSendToEndpoint,
+      EntityType.RouteConfiguration,
+      EntityType.Route,
+      EntityType.Beans,
+    ]);
   });
 
   describe('sortEntitiesForSerialization', () => {
@@ -189,43 +135,18 @@ describe('EntityOrderingService', () => {
     });
   });
 
-  describe('isRuntimePriorityEntity', () => {
-    it('should return true for priority entities', () => {
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.OnException)).toBe(true);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.ErrorHandler)).toBe(true);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.OnCompletion)).toBe(true);
-    });
-
-    it('should return false for non-priority entities', () => {
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Route)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.RestConfiguration)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Rest)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.RouteConfiguration)).toBe(false);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Intercept)).toBe(true);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.InterceptFrom)).toBe(true);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.InterceptSendToEndpoint)).toBe(true);
-      expect(EntityOrderingService.isRuntimePriorityEntity(EntityType.Beans)).toBe(false);
-    });
-
-    it('should handle all priority entities from RUNTIME_PRIORITY_ENTITIES array', () => {
-      EntityOrderingService.RUNTIME_PRIORITY_ENTITIES.forEach((entityType) => {
-        expect(EntityOrderingService.isRuntimePriorityEntity(entityType)).toBe(true);
-      });
-    });
-  });
-
   describe('getXmlSchemaOrderIndex', () => {
     it('should return correct index for entities in XML schema order', () => {
       expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.RestConfiguration)).toBe(0);
       expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.Rest)).toBe(1);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.RouteConfiguration)).toBe(2);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.Route)).toBe(3);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.ErrorHandler)).toBe(4);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.OnException)).toBe(5);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.OnCompletion)).toBe(6);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.Intercept)).toBe(7);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.InterceptFrom)).toBe(8);
-      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.InterceptSendToEndpoint)).toBe(9);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.ErrorHandler)).toBe(2);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.OnException)).toBe(3);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.OnCompletion)).toBe(4);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.Intercept)).toBe(5);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.InterceptFrom)).toBe(6);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.InterceptSendToEndpoint)).toBe(7);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.RouteConfiguration)).toBe(8);
+      expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.Route)).toBe(9);
       expect(EntityOrderingService.getXmlSchemaOrderIndex(EntityType.Beans)).toBe(10);
     });
 
@@ -236,6 +157,141 @@ describe('EntityOrderingService', () => {
     it('should handle all entities in XML_SCHEMA_ORDER', () => {
       EntityOrderingService.XML_SCHEMA_ORDER.forEach((entityType, expectedIndex) => {
         expect(EntityOrderingService.getXmlSchemaOrderIndex(entityType)).toBe(expectedIndex);
+      });
+    });
+  });
+
+  describe('findInsertionIndex', () => {
+    it('should insert at the end when array is empty', () => {
+      const entities: { type: EntityType; id: string }[] = [];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.Route);
+
+      expect(index).toBe(0);
+    });
+
+    it('should insert OnException before Route', () => {
+      const entities = [{ type: EntityType.Route, id: 'route1' }];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.OnException);
+
+      expect(index).toBe(0);
+    });
+
+    it('should insert Route after OnException', () => {
+      const entities = [{ type: EntityType.OnException, id: 'onException1' }];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.Route);
+
+      expect(index).toBe(1);
+    });
+
+    it('should insert Beans at the end after Route', () => {
+      const entities = [
+        { type: EntityType.OnException, id: 'onException1' },
+        { type: EntityType.Route, id: 'route1' },
+      ];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.Beans);
+
+      expect(index).toBe(2);
+    });
+
+    it('should insert RouteConfiguration between OnException and Route', () => {
+      const entities = [
+        { type: EntityType.OnException, id: 'onException1' },
+        { type: EntityType.Route, id: 'route1' },
+      ];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.RouteConfiguration);
+
+      expect(index).toBe(1);
+    });
+
+    it('should insert RestConfiguration at the beginning', () => {
+      const entities = [
+        { type: EntityType.OnException, id: 'onException1' },
+        { type: EntityType.Route, id: 'route1' },
+      ];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.RestConfiguration);
+
+      expect(index).toBe(0);
+    });
+
+    it('should insert after entities of the same type', () => {
+      const entities = [
+        { type: EntityType.Route, id: 'route1' },
+        { type: EntityType.Route, id: 'route2' },
+      ];
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.Route);
+
+      expect(index).toBe(2);
+    });
+
+    it('should handle complex mixed entity types', () => {
+      const entities = [
+        { type: EntityType.RestConfiguration, id: 'restConfig1' },
+        { type: EntityType.ErrorHandler, id: 'errorHandler1' },
+        { type: EntityType.Route, id: 'route1' },
+        { type: EntityType.Route, id: 'route2' },
+      ];
+
+      // Insert OnException (should go after ErrorHandler, before Route)
+      const onExceptionIndex = EntityOrderingService.findInsertionIndex(entities, EntityType.OnException);
+      expect(onExceptionIndex).toBe(2);
+
+      // Insert Rest (should go after RestConfiguration, before ErrorHandler)
+      const restIndex = EntityOrderingService.findInsertionIndex(entities, EntityType.Rest);
+      expect(restIndex).toBe(1);
+
+      // Insert Beans (should go at the end)
+      const beansIndex = EntityOrderingService.findInsertionIndex(entities, EntityType.Beans);
+      expect(beansIndex).toBe(4);
+    });
+
+    it('should insert unknown entity types at the end', () => {
+      const entities = [
+        { type: EntityType.Route, id: 'route1' },
+        { type: EntityType.Beans, id: 'beans1' },
+      ];
+      const index = EntityOrderingService.findInsertionIndex(entities, 'unknownType' as EntityType);
+
+      expect(index).toBe(2);
+    });
+
+    it('should handle entities not in schema order gracefully', () => {
+      const entities = [
+        { type: 'unknownType1' as EntityType, id: 'unknown1' },
+        { type: EntityType.Route, id: 'route1' },
+        { type: 'unknownType2' as EntityType, id: 'unknown2' },
+      ];
+
+      // Insert OnException (should go before Route)
+      const index = EntityOrderingService.findInsertionIndex(entities, EntityType.OnException);
+      expect(index).toBe(1);
+    });
+
+    it('should maintain correct order for all entity types', () => {
+      const entities: { type: EntityType; id: string }[] = [];
+
+      // Add entities in reverse order and verify each insertion index
+      const typesToAdd = [
+        EntityType.Beans,
+        EntityType.Route,
+        EntityType.RouteConfiguration,
+        EntityType.InterceptSendToEndpoint,
+        EntityType.InterceptFrom,
+        EntityType.Intercept,
+        EntityType.OnCompletion,
+        EntityType.OnException,
+        EntityType.ErrorHandler,
+        EntityType.Rest,
+        EntityType.RestConfiguration,
+      ];
+
+      typesToAdd.forEach((type, i) => {
+        const index = EntityOrderingService.findInsertionIndex(entities, type);
+        entities.splice(index, 0, { type, id: `entity${i}` });
+      });
+
+      // Verify final order matches XML_SCHEMA_ORDER
+      entities.forEach((entity, index) => {
+        expect(entity.type).toBe(EntityOrderingService.XML_SCHEMA_ORDER[index]);
       });
     });
   });
@@ -263,29 +319,27 @@ describe('EntityOrderingService', () => {
       }
     });
 
-    it('should properly separate priority entities from XML schema ordering', () => {
-      // Priority entities are used for runtime insertion, not XML serialization ordering
-      const priorityEntities = EntityOrderingService.RUNTIME_PRIORITY_ENTITIES;
-      const xmlSchemaOrder = EntityOrderingService.XML_SCHEMA_ORDER;
-
-      // All priority entities should also exist in XML schema order
-      priorityEntities.forEach((priorityEntity) => {
-        expect(xmlSchemaOrder).toContain(priorityEntity);
-      });
-
-      // Priority entities should not affect XML serialization order
-      const entities = [
+    it('should produce same order using findInsertionIndex as sortEntitiesForSerialization', () => {
+      const originalEntities = [
         { type: EntityType.Route, id: 'route1' },
-        { type: EntityType.OnException, id: 'onException1' }, // Priority entity
+        { type: EntityType.OnException, id: 'onException1' },
         { type: EntityType.RestConfiguration, id: 'restConfig1' },
+        { type: EntityType.Beans, id: 'beans1' },
+        { type: EntityType.Rest, id: 'rest1' },
       ];
 
-      const sorted = EntityOrderingService.sortEntitiesForSerialization(entities);
+      // Sort using sortEntitiesForSerialization
+      const sorted = EntityOrderingService.sortEntitiesForSerialization([...originalEntities]);
 
-      // Should follow XML schema order, not priority order
-      expect(sorted[0]).toEqual({ type: EntityType.RestConfiguration, id: 'restConfig1' });
-      expect(sorted[1]).toEqual({ type: EntityType.Route, id: 'route1' });
-      expect(sorted[2]).toEqual({ type: EntityType.OnException, id: 'onException1' });
+      // Build using findInsertionIndex
+      const built: typeof originalEntities = [];
+      originalEntities.forEach((entity) => {
+        const index = EntityOrderingService.findInsertionIndex(built, entity.type);
+        built.splice(index, 0, entity);
+      });
+
+      // Both should produce the same order
+      expect(built).toEqual(sorted);
     });
   });
 });

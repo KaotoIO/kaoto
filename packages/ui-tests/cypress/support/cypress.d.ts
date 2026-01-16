@@ -143,6 +143,7 @@ declare global {
       editorAddText(line: number, text: string): Chainable<JQuery<Element>>;
       uploadFixture(fixture: string): Chainable<JQuery<Element>>;
       editorDeleteLine(line: number, repeatCount: number): Chainable<JQuery<Element>>;
+      getMonacoValue(): Chainable<{ sourceCode: string; eol: string }>;
       checkCodeSpanLine(spanText: string, linesCount?: number): Chainable<JQuery<Element>>;
       checkMultipleCodeSpanEntry(spanText: string, linesCount: number): Chainable<JQuery<Element>>;
       checkMultiLineContent(text: string[]): Chainable<JQuery<Element>>;

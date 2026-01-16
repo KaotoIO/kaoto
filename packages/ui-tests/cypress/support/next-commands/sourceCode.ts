@@ -52,6 +52,21 @@ Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => 
   }
 });
 
+Cypress.Commands.add('getMonacoValue', () => {
+  return cy.window().then((win) => {
+    const [model] = win.monaco.editor.getModels() ?? {};
+
+    if (!model) {
+      throw new Error(`[Kaoto]: monaco-editor not found`);
+    }
+
+    const sourceCode = model.getValue();
+    const eol = model.getEOL();
+
+    return { sourceCode, eol };
+  });
+});
+
 Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount?: number) => {
   linesCount = linesCount ?? 1;
   cy.waitForEditorToLoad();

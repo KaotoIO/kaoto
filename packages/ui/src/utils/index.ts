@@ -1,6 +1,5 @@
 export * from './camel-uri-helper';
 export * from './catalog-schema-loader';
-export * from './create-camel-properties-sorter';
 export * from './event-notifier';
 export * from './get-array-property';
 export * from './get-custom-schema-from-kamelet';

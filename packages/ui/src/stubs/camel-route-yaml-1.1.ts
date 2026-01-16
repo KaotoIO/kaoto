@@ -18,9 +18,9 @@ export const camelRouteYaml_1_1_updated = `
       id: from-3505
       uri: rest
       parameters:
-        bindingMode: "off"
         host: localhost
         method: post
         path: /newCustomer
+        bindingMode: "off"
       steps: []
 `;

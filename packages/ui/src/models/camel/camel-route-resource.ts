@@ -19,7 +19,6 @@ import { isDefined } from '@kaoto/forms';
 
 import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
-import { createCamelPropertiesSorter } from '../../utils';
 import { CatalogKind } from '../catalog-kind';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
@@ -76,11 +75,6 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
     { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
   ];
-  static readonly PARAMETERS_ORDER = ['id', 'description', 'uri', 'parameters', 'steps'];
-  readonly sortFn = createCamelPropertiesSorter(CamelRouteResource.PARAMETERS_ORDER) as (
-    a: unknown,
-    b: unknown,
-  ) => number;
   private entities: BaseCamelEntity[] = [];
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
 
@@ -151,12 +145,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       if (supportedEntity) {
         const entity = new supportedEntity.Entity(entityTemplate);
 
-        /** Error related entities should be added at the beginning of the list */
-        if (EntityOrderingService.isRuntimePriorityEntity(entityType)) {
-          this.entities.unshift(entity);
-        } else {
-          this.entities.push(entity);
-        }
+        // Find the correct insertion index based on XML schema order
+        const insertIndex = EntityOrderingService.findInsertionIndex(this.entities, entityType);
+        this.entities.splice(insertIndex, 0, entity);
+
         return entity.id;
       }
     }
@@ -169,7 +161,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
       route = template[0] as RouteDefinition;
     }
     const entity = new CamelRouteVisualEntity(route);
-    this.entities.push(entity);
+
+    // Find the correct insertion index for Route entities
+    const insertIndex = EntityOrderingService.findInsertionIndex(this.entities, EntityType.Route);
+    this.entities.splice(insertIndex, 0, entity);
 
     return entity.id;
   }
@@ -195,6 +190,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   toJSON(): unknown {
+    // Entities are already in correct order from addNewEntity() and constructor
     return this.entities.map((entity) => entity.toJSON());
   }
 
