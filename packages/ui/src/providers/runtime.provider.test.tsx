@@ -12,7 +12,7 @@ describe('RuntimeProvider', () => {
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock.mockImplementation((file) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -65,7 +65,7 @@ describe('RuntimeProvider', () => {
   it('should fetch the index.json catalog file', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_URL}>
           <span data-testid="library-loaded">Loaded</span>
         </RuntimeProvider>,
       );
@@ -75,13 +75,13 @@ describe('RuntimeProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(CatalogSchemaLoader.DEFAULT_CATALOG_PATH);
+    expect(fetchMock).toHaveBeenCalledWith(`./${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_INDEX_PATH}`);
   });
 
   it('should render children when the index.json file is loaded', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_URL}>
           <span data-testid="library-loaded">Loaded</span>
         </RuntimeProvider>,
       );

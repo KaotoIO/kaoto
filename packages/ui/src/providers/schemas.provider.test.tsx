@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 
+import { KaotoSchemaDefinition } from '../models';
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { ReloadContext } from './reload.provider';
@@ -10,6 +11,7 @@ import { SchemasLoaderProvider } from './schemas.provider';
 describe('SchemasLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
   let getSchemasFilesMock: jest.SpyInstance;
+  let fetchTestSchemaFileMock: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -21,7 +23,7 @@ describe('SchemasLoaderProvider', () => {
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock.mockImplementation((file) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -37,6 +39,12 @@ describe('SchemasLoaderProvider', () => {
 
     getSchemasFilesMock = jest.spyOn(CatalogSchemaLoader, 'getSchemasFiles');
     getSchemasFilesMock.mockReturnValueOnce([Promise.resolve]);
+
+    fetchTestSchemaFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
+    fetchTestSchemaFileMock.mockReturnValueOnce({
+      uri: 'http://localhost',
+      body: {} as KaotoSchemaDefinition['schema'],
+    });
   });
 
   afterEach(() => {
@@ -96,7 +104,9 @@ describe('SchemasLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${selectedCatalog!.fileName}`);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${CatalogSchemaLoader.DEFAULT_CATALOG_URL}/${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${selectedCatalog!.fileName}`,
+    );
   });
 
   it('should fetch the subsequent schemas files', async () => {
@@ -116,7 +126,7 @@ describe('SchemasLoaderProvider', () => {
     });
 
     expect(getSchemasFilesMock).toHaveBeenCalledWith(
-      `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${selectedCatalog!.fileName}`,
+      `${CatalogSchemaLoader.DEFAULT_CATALOG_URL}/${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${selectedCatalog!.fileName}`,
       catalogDefinition.schemas,
     );
   });

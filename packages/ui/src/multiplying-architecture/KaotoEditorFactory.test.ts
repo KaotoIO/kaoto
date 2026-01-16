@@ -106,7 +106,7 @@ describe('KaotoEditorFactory', () => {
       },
     };
     const expectedSettings: ISettingsModel = {
-      catalogUrl: 'path-prefix/camel-catalog/index.json',
+      catalogUrl: 'path-prefix',
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,

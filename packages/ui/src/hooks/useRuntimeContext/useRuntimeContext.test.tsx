@@ -7,7 +7,7 @@ import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { errorMessage, useRuntimeContext } from './useRuntimeContext';
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>{children}</RuntimeProvider>
+  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_URL}>{children}</RuntimeProvider>
 );
 
 describe('useRuntimeContext', () => {

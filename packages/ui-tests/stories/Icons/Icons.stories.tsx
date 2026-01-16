@@ -17,7 +17,7 @@ export default {
 
 const IconTableTemplate: StoryFn<typeof IconResolver> = () => {
   return (
-    <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+    <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_URL}>
       <SchemasLoaderProvider>
         <CatalogLoaderProvider>
           <table className="icons-table" aria-hidden>

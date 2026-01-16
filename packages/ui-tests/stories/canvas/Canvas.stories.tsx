@@ -58,7 +58,7 @@ const ContextDecorator = (Story: StoryFn) => {
   return (
     <SourceCodeProvider>
       <EntitiesProvider>
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_URL}>
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
               <CatalogTilesProvider>

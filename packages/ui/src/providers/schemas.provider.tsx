@@ -1,10 +1,11 @@
+import { CatalogDefinition } from '@kaoto/camel-catalog/catalog-index.d.ts';
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, KaotoSchemaDefinition, LoadingStatus } from '../models';
+import { KaotoSchemaDefinition, LoadingStatus } from '../models';
 import { sourceSchemaConfig } from '../models/camel';
 import { useSchemasStore } from '../store';
 import { CatalogSchemaLoader } from '../utils';
@@ -20,18 +21,19 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
   const runtimeContext = useRuntimeContext();
   const { basePath, selectedCatalog } = runtimeContext;
   const selectedCatalogIndexFile = selectedCatalog?.fileName ?? '';
+  const selectedCatalogLibrary = CatalogSchemaLoader.getCatalogLibrary(selectedCatalog?.runtime ?? '');
   const setSchema = useSchemasStore((state) => state.setSchema);
   const [schemas, setSchemas] = useState<Record<string, KaotoSchemaDefinition>>({});
 
   useEffect(() => {
-    const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
+    const indexFile = `${basePath}/${selectedCatalogLibrary}/${selectedCatalogIndexFile}`;
     fetch(indexFile)
       .then((response) => {
         setLoadingStatus(LoadingStatus.Loading);
         return response;
       })
       .then((response) => response.json())
-      .then(async (catalogIndex: CamelCatalogIndex) => {
+      .then(async (catalogIndex: CatalogDefinition) => {
         const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(indexFile, catalogIndex.schemas);
 
         const loadedSchemas = await Promise.all(schemaFilesPromise);

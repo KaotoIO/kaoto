@@ -27,12 +27,20 @@ import { setColorScheme } from './utils/color-scheme';
 function App() {
   const controller = useMemo(() => ControllerService.createController(), []);
   const settingsAdapter = new LocalStorageSettingsAdapter();
-  let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
+  let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_URL;
   const settingsCatalogUrl = settingsAdapter.getSettings().catalogUrl;
   const colorSchema = settingsAdapter.getSettings().colorScheme;
 
   if (isDefined(settingsCatalogUrl) && settingsCatalogUrl !== '') {
-    catalogUrl = settingsCatalogUrl;
+    if (settingsCatalogUrl.endsWith(CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_INDEX_PATH)) {
+      // in former configuration settings the catalog URL used to point to the Camel catalog index.json - today we only need the catalog base path URL
+      catalogUrl = settingsCatalogUrl.substring(
+        0,
+        settingsCatalogUrl.length - CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_INDEX_PATH.length,
+      );
+    } else {
+      catalogUrl = settingsCatalogUrl;
+    }
   }
 
   useLayoutEffect(() => {

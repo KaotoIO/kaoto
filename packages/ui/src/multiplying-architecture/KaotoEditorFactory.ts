@@ -61,7 +61,7 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChan
     let catalogUrl = settingsAdapter.getSettings().catalogUrl;
 
     if (!isDefined(catalogUrl) || catalogUrl === '') {
-      catalogUrl = `${initArgs.resourcesPathPrefix}${CatalogSchemaLoader.DEFAULT_CATALOG_PATH.replace('.', '')}`;
+      catalogUrl = `${initArgs.resourcesPathPrefix}${CatalogSchemaLoader.DEFAULT_CATALOG_URL.replace('.', '')}`;
       settingsAdapter.saveSettings({ ...settingsAdapter.getSettings(), catalogUrl });
     }
   }

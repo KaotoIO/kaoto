@@ -26,7 +26,7 @@ describe('CatalogLoaderProvider', () => {
 
   beforeEach(() => {
     fetchMock = jest.spyOn(globalThis, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock.mockImplementation((file) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -104,7 +104,9 @@ describe('CatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${selectedCatalog!.fileName}`);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${CatalogSchemaLoader.DEFAULT_CATALOG_URL}/${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${selectedCatalog!.fileName}`,
+    );
   });
 
   it('should fetch the subsequent catalog files', async () => {
@@ -125,38 +127,38 @@ describe('CatalogLoaderProvider', () => {
 
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-components`,
+        `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-components`,
       ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-models`,
+        `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-models`,
       ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-patterns`,
+        `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-patterns`,
       ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-languages`,
+        `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-languages`,
       ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-dataformats`,
+        `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-dataformats`,
       ),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelets-aggregate`),
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/kamelets-aggregate`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelet-boundaries`),
+      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/kamelet-boundaries`),
     );
     expect(fetchFileMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-functions`,
+        `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-functions`,
       ),
     );
   });
@@ -200,7 +202,7 @@ describe('CatalogLoaderProvider', () => {
     setCatalogKeySpy.mock.calls.forEach((call) => {
       if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-components`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-components`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Component);
@@ -208,7 +210,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-models`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-models`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Processor);
@@ -216,7 +218,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-patterns`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-patterns`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Pattern);
@@ -224,7 +226,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-entities`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-entities`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Entity);
@@ -232,7 +234,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-languages`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-languages`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Language);
@@ -240,7 +242,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-dataformats`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-dataformats`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Dataformat);
@@ -248,7 +250,7 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-loadbalancers`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-loadbalancers`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Loadbalancer);
@@ -256,22 +258,62 @@ describe('CatalogLoaderProvider', () => {
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelet-boundaries`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/kamelet-boundaries`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Kamelet);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         expect(Object.keys(call[1])[1]).toContain(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/kamelets-aggregate`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/kamelets-aggregate`,
         );
         expect(Object.values(call[1])[1]).toEqual('dummy-data');
         count++;
       } else if (
         Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_PATH}/${catalogPath}/camel-catalog-aggregate-functions`,
+          `${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_LIBRARY}/${catalogPath}/camel-catalog-aggregate-functions`,
         )
       ) {
         expect(call[0]).toEqual(CatalogKind.Function);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].endsWith(
+          `${CatalogSchemaLoader.DEFAULT_CITRUS_CATALOG_LIBRARY}/citrus/citrus-catalog-aggregate-test-actions.json`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.TestAction);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].endsWith(
+          `${CatalogSchemaLoader.DEFAULT_CITRUS_CATALOG_LIBRARY}/citrus/citrus-catalog-aggregate-test-containers.json`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.TestContainer);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].endsWith(
+          `${CatalogSchemaLoader.DEFAULT_CITRUS_CATALOG_LIBRARY}/citrus/citrus-catalog-aggregate-endpoints.json`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.TestEndpoint);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].endsWith(
+          `${CatalogSchemaLoader.DEFAULT_CITRUS_CATALOG_LIBRARY}/citrus/citrus-catalog-aggregate-functions.json`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.TestFunction);
+        expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (
+        Object.keys(call[1])[0].endsWith(
+          `${CatalogSchemaLoader.DEFAULT_CITRUS_CATALOG_LIBRARY}/citrus/citrus-catalog-aggregate-validation-matcher.json`,
+        )
+      ) {
+        expect(call[0]).toEqual(CatalogKind.TestValidationMatcher);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
         count++;
       } else {

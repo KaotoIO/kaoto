@@ -1,3 +1,5 @@
+// Citrus test action icons
+import icon_citrus_logo from '../../assets/citrus-logo.png';
 import icon_component_activemq from '../../assets/components/activemq.svg';
 import icon_component_amqp from '../../assets/components/amqp.svg';
 import icon_component_arangodb from '../../assets/components/arangodb.svg';
@@ -262,6 +264,13 @@ export class NodeIconResolver {
         return this.getEIPIcon(elementName) ?? this.getDefaultCamelIcon();
       case CatalogKind.Entity:
         return this.getVisualEntityIcon(elementName) ?? this.getDefaultCamelIcon();
+      case CatalogKind.TestAction:
+      case CatalogKind.TestActionGroup:
+      case CatalogKind.TestContainer:
+      case CatalogKind.TestEndpoint:
+      case CatalogKind.TestFunction:
+      case CatalogKind.TestValidationMatcher:
+        return this.getDefaultCitrusIcon();
       default:
         return this.getDefaultCamelIcon();
     }
@@ -269,6 +278,10 @@ export class NodeIconResolver {
 
   static getDefaultCamelIcon(): string {
     return icon_component_generic;
+  }
+
+  static getDefaultCitrusIcon(): string {
+    return icon_citrus_logo;
   }
 
   private static getUnknownIcon(): string {
