@@ -5,8 +5,14 @@ import { act, render } from '@testing-library/react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { IDynamicCatalogRegistry } from '../../dynamic-catalog/models';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import {
+  CatalogKind,
+  ICamelComponentDefinition,
+  ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
+  IKameletDefinition,
+} from '../../models';
+import { getFirstCatalogMap, getFirstCitrusCatalogMap } from '../../stubs/test-load-catalog';
 import { ITile } from '../Catalog';
 import { PropertiesModal } from './PropertiesModal';
 
@@ -15,6 +21,8 @@ describe('PropertiesModal', () => {
   let kameletCatalogMap: Record<string, IKameletDefinition>;
   let modelCatalogMap: Record<string, ICamelProcessorDefinition>;
   let mockCatalogRegistry: IDynamicCatalogRegistry;
+  let citrusActionCatalogMap: Record<string, ICitrusComponentDefinition>;
+  let citrusContainerCatalogMap: Record<string, ICitrusComponentDefinition>;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -28,6 +36,10 @@ describe('PropertiesModal', () => {
 
     modelCatalogMap = catalogsMap.modelCatalogMap;
     modelCatalogMap.asn1.properties = {};
+
+    const citrusCatalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
+    citrusActionCatalogMap = citrusCatalogsMap.actionsCatalogMap;
+    citrusContainerCatalogMap = citrusCatalogsMap.containersCatalogMap;
 
     // Create mock catalog registry
     mockCatalogRegistry = {
@@ -43,6 +55,10 @@ describe('PropertiesModal', () => {
             return catalogsMap.entitiesCatalog[key];
           case CatalogKind.Kamelet:
             return kameletCatalogMap[key];
+          case CatalogKind.TestAction:
+            return citrusActionCatalogMap[key];
+          case CatalogKind.TestContainer:
+            return citrusContainerCatalogMap[key];
           default:
             return undefined;
         }
@@ -333,6 +349,80 @@ describe('PropertiesModal', () => {
       );
       expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('Send data to NATS topics.');
       expect(screen.getByTestId('empty-state')).toHaveTextContent('No properties found for nats-sink');
+    });
+  });
+
+  describe('Citrus test action tile', () => {
+    const tile: ITile = {
+      type: CatalogKind.TestAction,
+      name: 'print',
+      title: 'Print',
+      description: 'The print test action.',
+      headerTags: [],
+      tags: [],
+    };
+
+    it('renders property modal correctly', async () => {
+      // modal uses React portals so baseElement needs to be used here
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
+      );
+      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      // info
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Print');
+      expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('The print test action.');
+      expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (2)');
+      // headers
+      expect(screen.getByTestId('tab-0-table-0-header-name')).toHaveTextContent('name');
+      expect(screen.getByTestId('tab-0-table-0-header-type')).toHaveTextContent('type');
+      expect(screen.getByTestId('tab-0-table-0-header-description')).toHaveTextContent('description');
+      // row
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('description');
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('string');
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
+        'Test action description printed when the action is executed.',
+      );
+    });
+  });
+
+  describe('Citrus test container tile', () => {
+    const tile: ITile = {
+      type: CatalogKind.TestContainer,
+      name: 'iterate',
+      title: 'Iterate',
+      description: 'The iterate test container.',
+      headerTags: [],
+      tags: [],
+    };
+
+    it('renders property modal correctly', async () => {
+      // modal uses React portals so baseElement needs to be used here
+      const { baseElement } = await act(async () =>
+        render(
+          <CatalogContext.Provider value={mockCatalogRegistry}>
+            <PropertiesModal tile={tile} isModalOpen onClose={jest.fn()} />
+          </CatalogContext.Provider>,
+        ),
+      );
+      await waitFor(() => expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument());
+      // info
+      expect(baseElement.getElementsByClassName('pf-v6-c-modal-box__title-text').item(0)).toHaveTextContent('Iterate');
+      expect(screen.getByTestId('properties-modal-description')).toHaveTextContent('The iterate test container.');
+      expect(screen.getByTestId('tab-0')).toHaveTextContent('Options (6)');
+      // headers
+      expect(screen.getByTestId('tab-0-table-0-header-name')).toHaveTextContent('name');
+      expect(screen.getByTestId('tab-0-table-0-header-type')).toHaveTextContent('type');
+      expect(screen.getByTestId('tab-0-table-0-header-description')).toHaveTextContent('description');
+      // row
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-name')).toHaveTextContent('actions');
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-type')).toHaveTextContent('array');
+      expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
+        'Required Sequence of test actions to execute.',
+      );
     });
   });
 });

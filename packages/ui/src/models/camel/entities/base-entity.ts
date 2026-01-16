@@ -7,6 +7,7 @@ export const enum EntityType {
   Kamelet = 'kamelet',
   KameletBinding = 'kameletBinding',
   Pipe = 'pipe',
+  Test = 'test',
   Rest = 'rest',
   RestConfiguration = 'restConfiguration',
   RouteConfiguration = 'routeConfiguration',
