@@ -1,10 +1,11 @@
+import type { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, KaotoSchemaDefinition, LoadingStatus } from '../models';
+import { KaotoSchemaDefinition, LoadingStatus } from '../models';
 import { sourceSchemaConfig } from '../models/camel';
 import { useSchemasStore } from '../store';
 import { CatalogSchemaLoader } from '../utils';
@@ -31,7 +32,7 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
         return response;
       })
       .then((response) => response.json())
-      .then(async (catalogIndex: CamelCatalogIndex) => {
+      .then(async (catalogIndex: CatalogDefinition) => {
         const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(indexFile, catalogIndex.schemas);
 
         const loadedSchemas = await Promise.all(schemaFilesPromise);

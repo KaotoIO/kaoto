@@ -32,6 +32,15 @@ export const IconResolver: FunctionComponent<PropsWithChildren<IconResolverProps
         iconName = `kamelet:${name}`;
         alt = altProps ?? 'Kamelet icon';
         break;
+      case CatalogKind.TestAction:
+      case CatalogKind.TestActionGroup:
+      case CatalogKind.TestContainer:
+      case CatalogKind.TestEndpoint:
+      case CatalogKind.TestFunction:
+      case CatalogKind.TestValidationMatcher:
+        iconName = name;
+        alt = altProps ?? `Test ${catalogKind.substring('test'.length)} icon`;
+        break;
       case CatalogKind.Processor:
       case CatalogKind.Pattern:
       case CatalogKind.Component:
