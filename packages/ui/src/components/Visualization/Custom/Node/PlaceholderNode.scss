@@ -10,6 +10,10 @@
       --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
     }
 
+    &[data-verified='true'] {
+      --custom-node-BorderColor: var(--pf-t--global--border--color--status--success--default);
+    }
+
     /*
      * Keyboard focus ring — uses :focus (not :focus-visible) because Chromium
      * does not set :focus-visible on SVG <g> elements focused via .focus().
@@ -57,7 +61,7 @@
           max-width: 100%;
           cursor: pointer;
 
-          span:not([data-warning='true']) {
+          span:not([data-warning='true'], [data-verified='true']) {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;

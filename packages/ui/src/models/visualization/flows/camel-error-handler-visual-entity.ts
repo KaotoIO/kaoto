@@ -157,6 +157,10 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return undefined;
   }
 
+  isVerified(_path?: string): boolean | undefined {
+    return undefined;
+  }
+
   async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
     const errorHandlerGroupNode = createVisualizationNode(this.getRootPath(), {
       name: this.type,
