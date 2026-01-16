@@ -18,7 +18,7 @@ export const enum CatalogKind {
   /** Camel dataformats catalog, f.i. json, xml, csv */
   Dataformat = 'dataformat',
 
-  /** Camel loadbalancer catalog, f.i. round robin, failover, random */
+  /** Camel loadbalancer catalog, f.i. round-robin, failover, random */
   Loadbalancer = 'loadbalancer',
 
   /** Camel kamelets catalog, f.i. xj-template-action */
@@ -26,4 +26,22 @@ export const enum CatalogKind {
 
   /** Functions catalog, f.i. simple/bodyAs, x-path/concatenate */
   Function = 'function',
+
+  /** Citrus test action group catalog, f.i. http, soap, camel, kubernetes */
+  TestActionGroup = 'testActionGroup',
+
+  /** Citrus test action catalog, f.i. echo, delay, send, receive */
+  TestAction = 'testAction',
+
+  /** Citrus test action container catalog, f.i. iterate, conditional, sequential, parallel */
+  TestContainer = 'testContainer',
+
+  /** Citrus test endpoint catalog, f.i. direct, kafka, http */
+  TestEndpoint = 'testEndpoint',
+
+  /** Citrus test function catalog, f.i. randomNumber(), randomString(), currentDate() */
+  TestFunction = 'testFunction',
+
+  /** Citrus test validation matcher catalog, f.i. @isNumber()@, @isEmpty()@, @matches()@ */
+  TestValidationMatcher = 'testValidationMatcher',
 }

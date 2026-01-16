@@ -4,8 +4,9 @@ import { KaotoSchemaDefinition } from '../models/kaoto-schema';
 
 export class CatalogSchemaLoader {
   /** The `.` is required to support relative routes in GitHub pages */
-  static readonly DEFAULT_CATALOG_PATH = './camel-catalog/index.json';
-  static readonly VISUAL_FLOWS = ['route', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe'];
+  static readonly DEFAULT_CATALOG_BASE_PATH = './camel-catalog';
+  static readonly DEFAULT_CATALOG_PATH = `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/index.json`;
+  static readonly VISUAL_FLOWS = ['route', 'Integration', 'Kamelet', 'KameletBinding', 'Pipe', 'Test'];
 
   static async fetchFile<T>(file: string): Promise<{ body: T; uri: string }> {
     const response = await fetch(file);

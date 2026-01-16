@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { IRuntimeContext, RuntimeContext } from '../providers/runtime.provider';
@@ -9,10 +9,12 @@ interface TestRuntimeProviderWrapperResult extends IRuntimeContext {
   Provider: FunctionComponent<PropsWithChildren>;
 }
 
-export const TestRuntimeProviderWrapper = (): TestRuntimeProviderWrapperResult => {
+export const TestRuntimeProviderWrapper = (
+  catalogSelect?: (catalogLibrary: CatalogLibrary) => CatalogLibraryEntry | undefined,
+): TestRuntimeProviderWrapperResult => {
   const catalogLibraryCasted = catalogLibrary as CatalogLibrary;
-  const basePath = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
-  const selectedCatalog = catalogLibraryCasted.definitions[0];
+  const basePath = CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH;
+  const selectedCatalog = (catalogSelect && catalogSelect(catalogLibraryCasted)) || catalogLibraryCasted.definitions[0];
   const setSelectedCatalog = jest.fn();
 
   const Provider: FunctionComponent<PropsWithChildren> = (props) => (

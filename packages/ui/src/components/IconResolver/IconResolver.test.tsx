@@ -159,6 +159,33 @@ describe('IconResolver', () => {
     });
   });
 
+  describe('CatalogKind.TestAction', () => {
+    it('should render test action icon with default alt text', async () => {
+      await act(async () => {
+        render(<IconResolver catalogKind={CatalogKind.TestAction} name="print" />);
+      });
+
+      await waitFor(() => {
+        const img = screen.getByAltText('Test Action icon');
+        expect(img).toBeInTheDocument();
+        expect(img).toHaveAttribute('src', 'mock-icon-url');
+      });
+
+      expect(NodeIconResolver.getIcon).toHaveBeenCalledWith('print', CatalogKind.TestAction);
+    });
+
+    it('should render test action icon with custom alt text', async () => {
+      await act(async () => {
+        render(<IconResolver catalogKind={CatalogKind.TestAction} name="delay" alt="Delay Action" />);
+      });
+
+      await waitFor(() => {
+        const img = screen.getByAltText('Delay Action');
+        expect(img).toBeInTheDocument();
+      });
+    });
+  });
+
   describe('Default/Unknown CatalogKind', () => {
     it('should render default camel icon for unknown catalog kind', async () => {
       await act(async () => {

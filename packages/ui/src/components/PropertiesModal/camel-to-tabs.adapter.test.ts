@@ -1,4 +1,5 @@
 import {
+  CatalogKind,
   ICamelComponentApi,
   ICamelComponentApiMethod,
   ICamelComponentDefinition,
@@ -6,12 +7,14 @@ import {
   ICamelComponentProperty,
   ICamelProcessorDefinition,
   ICamelProcessorProperty,
+  ICitrusComponentDefinition,
   IKameletDefinition,
   IKameletSpecProperty,
 } from '../../models';
 import {
   transformCamelComponentIntoTab,
   transformCamelProcessorComponentIntoTab,
+  transformCitrusComponentIntoTab,
   transformKameletComponentIntoTab,
 } from './camel-to-tabs.adapter';
 
@@ -249,6 +252,46 @@ describe('kameletToTab', () => {
 
   it('should return empty tab when kamelet definition is undefined', () => {
     const tab = transformKameletComponentIntoTab(undefined);
+    expect(tab).toHaveLength(0);
+  });
+});
+
+describe('citrusComponentToTab', () => {
+  const componentDef = {
+    kind: CatalogKind.TestAction,
+    name: 'my-action',
+    group: 'my-group',
+    title: 'My Action',
+    description: 'This is the description',
+    propertiesSchema: {
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      type: 'object',
+      required: ['prop1'],
+      properties: {
+        prop1: {
+          type: 'string',
+          title: 'Property 1',
+          description: 'The property 1 description.',
+        },
+        prop2: {
+          type: 'string',
+          title: 'Property 2',
+          description: 'The property 2 description.',
+        },
+      },
+    },
+  } as ICitrusComponentDefinition;
+
+  it('should return properties tab only', () => {
+    const tab = transformCitrusComponentIntoTab(componentDef);
+
+    expect(tab).toHaveLength(1);
+    expect(tab[0].tables).toHaveLength(1);
+    expect(tab[0].tables[0].rows).toHaveLength(2);
+  });
+
+  it('should return empty tab when component definition is undefined', () => {
+    const tab = transformCitrusComponentIntoTab(undefined);
     expect(tab).toHaveLength(0);
   });
 });

@@ -1,15 +1,19 @@
 import { MenuToggle, Select, SelectList, SelectOption } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, RefObject, useCallback, useContext, useState } from 'react';
 
+import { useRuntimeContext } from '../../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
 import { EntitiesContext } from '../../../../../providers/entities.provider';
 import { getSupportedDsls } from '../../../../../serializers/serializer-dsl-lists';
+import { requiresCatalogChange } from '../../../../../utils/catalog-helper';
 
 interface ISourceTypeSelector {
-  onSelect?: (value: SourceSchemaType) => void;
+  onSelect?: (value: SourceSchemaType, changeCatalog: boolean) => void;
 }
 
 export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
+  const runtimeContext = useRuntimeContext();
+  const { selectedCatalog } = runtimeContext;
   const { currentSchemaType, camelResource } = useContext(EntitiesContext)!;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
@@ -24,10 +28,13 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
 
       setIsOpen(false);
       if (integrationType !== undefined) {
-        props.onSelect?.(flowType as SourceSchemaType);
+        props.onSelect?.(
+          flowType as SourceSchemaType,
+          requiresCatalogChange(flowType as SourceSchemaType, selectedCatalog),
+        );
       }
     },
-    [props],
+    [props, selectedCatalog],
   );
 
   const toggle = (toggleRef: RefObject<HTMLButtonElement>) => (
@@ -56,22 +63,24 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
       <SelectList>
         {dslEntries.map((sourceType, index) => {
           const sourceSchema = sourceSchemaConfig.config[sourceType];
-          const isOptionDisabled = sourceSchema.name === currentFlowType.name;
+          const isCurrentType = sourceSchema.name === currentFlowType.name;
+          const changeCatalog = requiresCatalogChange(sourceType, selectedCatalog);
 
           return (
             <SelectOption
               key={`integration-type-${sourceSchema.schema?.name ?? index}`}
-              data-testid={`integration-type-${sourceSchema.schema?.name}`}
+              data-testid={`integration-type-${sourceSchema.schema?.name ?? sourceSchema.name}`}
               itemId={sourceType}
               description={
                 <span className="pf-v6-u-text-break-word" style={{ wordBreak: 'keep-all' }}>
                   {sourceSchemaConfig.config[sourceType as SourceSchemaType].description}
                 </span>
               }
-              isDisabled={isOptionDisabled}
+              isDisabled={isCurrentType}
             >
               {sourceSchema.name}
-              {isOptionDisabled && ' (current integration type)'}
+              {changeCatalog && !isCurrentType && ' (in different catalog)'}
+              {isCurrentType && ' (current integration type)'}
             </SelectOption>
           );
         })}

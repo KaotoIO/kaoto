@@ -10,7 +10,13 @@ import {
   useRef,
 } from 'react';
 
-import { camelComponentToTile, camelEntityToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
+import {
+  camelComponentToTile,
+  camelEntityToTile,
+  camelProcessorToTile,
+  citrusComponentToTile,
+  kameletToTile,
+} from '../camel-utils';
 import { ITile } from '../components/Catalog';
 import { CatalogKind } from '../models';
 import { CatalogContext } from './catalog.provider';
@@ -34,11 +40,22 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
   const tilesRef = useRef<ITile[]>([]);
 
   const fetchTiles = useCallback(async () => {
-    const [componentsCatalog, patternsCatalog, entitiesCatalog, kameletsCatalog] = await Promise.all([
+    const [
+      componentsCatalog,
+      patternsCatalog,
+      entitiesCatalog,
+      kameletsCatalog,
+      testActions,
+      testContainers,
+      testEndpoints,
+    ] = await Promise.all([
       catalogRegistry.getCatalog(CatalogKind.Component)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.Pattern)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.Entity)?.getAll(),
       catalogRegistry.getCatalog(CatalogKind.Kamelet)?.getAll({ forceFresh: true }),
+      catalogRegistry.getCatalog(CatalogKind.TestAction)?.getAll(),
+      catalogRegistry.getCatalog(CatalogKind.TestContainer)?.getAll(),
+      catalogRegistry.getCatalog(CatalogKind.TestEndpoint)?.getAll(),
     ]);
 
     const combinedTiles: ITile[] = [];
@@ -62,6 +79,18 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
     });
     Object.values(kameletsCatalog ?? {}).forEach((kamelet) => {
       combinedTiles.push(kameletToTile(kamelet));
+    });
+
+    Object.values(testActions ?? {}).forEach((action) => {
+      if (action.kind !== CatalogKind.TestActionGroup) {
+        combinedTiles.push(citrusComponentToTile(action));
+      }
+    });
+    Object.values(testContainers ?? {}).forEach((container) => {
+      combinedTiles.push(citrusComponentToTile(container));
+    });
+    Object.values(testEndpoints ?? {}).forEach((endpoint) => {
+      combinedTiles.push(citrusComponentToTile(endpoint));
     });
 
     tilesRef.current = combinedTiles;

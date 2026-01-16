@@ -3,10 +3,16 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useContext } from 'react';
 
-import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
+import { camelComponentToTile, camelProcessorToTile, citrusComponentToTile, kameletToTile } from '../camel-utils';
+import {
+  CatalogKind,
+  ICamelComponentDefinition,
+  ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
+  IKameletDefinition,
+} from '../models';
 import { ITile } from '../public-api';
-import { getFirstCatalogMap } from '../stubs/test-load-catalog';
+import { getFirstCatalogMap, getFirstCitrusCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogContext } from './catalog.provider';
 import { CatalogTilesContext, CatalogTilesProvider } from './catalog-tiles.provider';
 import { DynamicCatalog } from './dynamic-catalog';
@@ -14,6 +20,11 @@ import { DynamicCatalogRegistry } from './dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from './models';
 import { CamelComponentsProvider, CamelProcessorsProvider } from './providers/camel-components.provider';
 import { CamelKameletsProvider } from './providers/camel-kamelets.provider';
+import {
+  CitrusTestActionsProvider,
+  CitrusTestContainersProvider,
+  CitrusTestEndpointsProvider,
+} from './providers/citrus-components.provider';
 
 jest.mock('../camel-utils', () => {
   const actual = jest.requireActual('../camel-utils');
@@ -24,6 +35,7 @@ jest.mock('../camel-utils', () => {
     camelProcessorToTile: jest.fn(),
     camelEntityToTile: jest.fn(),
     kameletToTile: jest.fn(),
+    citrusComponentToTile: jest.fn(),
   };
 });
 
@@ -53,12 +65,28 @@ describe('CatalogTilesProvider', () => {
       ),
     );
 
+    const citrusCatalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
+
+    // Create Citrus catalogs
+    const testActionCatalog = new DynamicCatalog<ICitrusComponentDefinition>(
+      new CitrusTestActionsProvider(citrusCatalogsMap.actionsCatalogMap),
+    );
+    const testContainerCatalog = new DynamicCatalog<ICitrusComponentDefinition>(
+      new CitrusTestContainersProvider(citrusCatalogsMap.containersCatalogMap),
+    );
+    const testEndpointCatalog = new DynamicCatalog<ICitrusComponentDefinition>(
+      new CitrusTestEndpointsProvider(citrusCatalogsMap.endpointsCatalogMap),
+    );
+
     // Setup mock registry
     mockRegistry = DynamicCatalogRegistry.get();
     mockRegistry.setCatalog(CatalogKind.Component, componentCatalog);
     mockRegistry.setCatalog(CatalogKind.Pattern, patternCatalog);
     mockRegistry.setCatalog(CatalogKind.Entity, entityCatalog);
     mockRegistry.setCatalog(CatalogKind.Kamelet, kameletCatalog);
+    mockRegistry.setCatalog(CatalogKind.TestAction, testActionCatalog);
+    mockRegistry.setCatalog(CatalogKind.TestContainer, testContainerCatalog);
+    mockRegistry.setCatalog(CatalogKind.TestEndpoint, testEndpointCatalog);
   });
 
   afterEach(() => {
@@ -113,6 +141,7 @@ describe('CatalogTilesProvider', () => {
     expect(camelComponentToTile).toHaveBeenCalled();
     expect(camelProcessorToTile).toHaveBeenCalled();
     expect(kameletToTile).toHaveBeenCalled();
+    expect(citrusComponentToTile).toHaveBeenCalled();
   });
 
   it('should call getAll on all catalog kinds', async () => {
@@ -130,11 +159,17 @@ describe('CatalogTilesProvider', () => {
     const patternCatalog = mockRegistry.getCatalog(CatalogKind.Pattern);
     const entityCatalog = mockRegistry.getCatalog(CatalogKind.Entity);
     const kameletCatalog = mockRegistry.getCatalog(CatalogKind.Kamelet);
+    const testActionCatalog = mockRegistry.getCatalog(CatalogKind.TestAction);
+    const testContainerCatalog = mockRegistry.getCatalog(CatalogKind.TestContainer);
+    const testEndpointCatalog = mockRegistry.getCatalog(CatalogKind.TestEndpoint);
 
     const getAllSpyComponent = jest.spyOn(componentCatalog!, 'getAll');
     const getAllSpyPattern = jest.spyOn(patternCatalog!, 'getAll');
     const getAllSpyEntity = jest.spyOn(entityCatalog!, 'getAll');
     const getAllSpyKamelet = jest.spyOn(kameletCatalog!, 'getAll');
+    const getAllSpyTestAction = jest.spyOn(testActionCatalog!, 'getAll');
+    const getAllSpyTestContainer = jest.spyOn(testContainerCatalog!, 'getAll');
+    const getAllSpyTestEndpoint = jest.spyOn(testEndpointCatalog!, 'getAll');
 
     await act(async () => {
       await context?.fetchTiles();
@@ -144,6 +179,9 @@ describe('CatalogTilesProvider', () => {
     expect(getAllSpyPattern).toHaveBeenCalled();
     expect(getAllSpyEntity).toHaveBeenCalled();
     expect(getAllSpyKamelet).toHaveBeenCalledWith({ forceFresh: true });
+    expect(getAllSpyTestAction).toHaveBeenCalled();
+    expect(getAllSpyTestContainer).toHaveBeenCalled();
+    expect(getAllSpyTestEndpoint).toHaveBeenCalled();
   });
 
   it('should avoid building the tiles if the catalog is empty', async () => {
@@ -171,16 +209,19 @@ describe('CatalogTilesProvider', () => {
     expect(camelComponentToTile).not.toHaveBeenCalled();
     expect(camelProcessorToTile).not.toHaveBeenCalled();
     expect(kameletToTile).not.toHaveBeenCalled();
+    expect(citrusComponentToTile).not.toHaveBeenCalled();
   });
 
   it('should return combined tiles from all catalog kinds', async () => {
     const mockComponentTile = { id: 'component-1', name: 'Component', type: 'component' };
     const mockProcessorTile = { id: 'processor-1', name: 'Processor', type: 'processor' };
     const mockKameletTile = { id: 'kamelet-1', name: 'Kamelet', type: 'kamelet' };
+    const mockTestAction = { id: 'action-1', name: 'Action', type: 'test-action' };
 
     (camelComponentToTile as jest.Mock).mockReturnValue(mockComponentTile);
     (camelProcessorToTile as jest.Mock).mockReturnValue(mockProcessorTile);
     (kameletToTile as jest.Mock).mockReturnValue(mockKameletTile);
+    (citrusComponentToTile as jest.Mock).mockReturnValue(mockTestAction);
 
     const {
       result: { current: context },
@@ -223,10 +264,12 @@ describe('CatalogTilesProvider', () => {
     const mockComponentTile = { id: 'component-1', name: 'Component', type: 'component' };
     const mockProcessorTile = { id: 'processor-1', name: 'Processor', type: 'processor' };
     const mockKameletTile = { id: 'kamelet-1', name: 'Kamelet', type: 'kamelet' };
+    const mockTestAction = { id: 'action-1', name: 'Action', type: 'test-action' };
 
     (camelComponentToTile as jest.Mock).mockReturnValue(mockComponentTile);
     (camelProcessorToTile as jest.Mock).mockReturnValue(mockProcessorTile);
     (kameletToTile as jest.Mock).mockReturnValue(mockKameletTile);
+    (citrusComponentToTile as jest.Mock).mockReturnValue(mockTestAction);
 
     const {
       result: { current: context },
@@ -258,11 +301,17 @@ describe('CatalogTilesProvider', () => {
     const patternCatalog = mockRegistry.getCatalog(CatalogKind.Pattern);
     const entityCatalog = mockRegistry.getCatalog(CatalogKind.Entity);
     const kameletCatalog = mockRegistry.getCatalog(CatalogKind.Kamelet);
+    const testActionCatalog = mockRegistry.getCatalog(CatalogKind.TestAction);
+    const testContainerCatalog = mockRegistry.getCatalog(CatalogKind.TestContainer);
+    const testEndpointCatalog = mockRegistry.getCatalog(CatalogKind.TestEndpoint);
 
     const getAllSpyComponent = jest.spyOn(componentCatalog!, 'getAll');
     const getAllSpyPattern = jest.spyOn(patternCatalog!, 'getAll');
     const getAllSpyEntity = jest.spyOn(entityCatalog!, 'getAll');
     const getAllSpyKamelet = jest.spyOn(kameletCatalog!, 'getAll');
+    const getAllSpyTestAction = jest.spyOn(testActionCatalog!, 'getAll');
+    const getAllSpyTestContainer = jest.spyOn(testContainerCatalog!, 'getAll');
+    const getAllSpyTestEndpoint = jest.spyOn(testEndpointCatalog!, 'getAll');
 
     render(
       <CatalogContext.Provider value={mockRegistry}>
@@ -275,6 +324,9 @@ describe('CatalogTilesProvider', () => {
       expect(getAllSpyPattern).toHaveBeenCalled();
       expect(getAllSpyEntity).toHaveBeenCalled();
       expect(getAllSpyKamelet).toHaveBeenCalledWith({ forceFresh: true });
+      expect(getAllSpyTestAction).toHaveBeenCalled();
+      expect(getAllSpyTestContainer).toHaveBeenCalled();
+      expect(getAllSpyTestEndpoint).toHaveBeenCalled();
     });
   });
 });
