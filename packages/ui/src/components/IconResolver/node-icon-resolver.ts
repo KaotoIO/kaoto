@@ -1,4 +1,29 @@
-// Citrus test action icons
+import icon_action_camel from '../../assets/camel-logo.svg';
+import icon_action_async from '../../assets/citrus/async-action.svg';
+import icon_action_conditional from '../../assets/citrus/conditional-action.svg';
+import icon_action_create_endpoint from '../../assets/citrus/create-endpoint-action.svg';
+import icon_action_create_variables from '../../assets/citrus/create-variables-action.svg';
+import icon_action_delay from '../../assets/citrus/delay-action.svg';
+import icon_action_direct from '../../assets/citrus/direct.svg';
+import icon_action_generic from '../../assets/citrus/generic-action.svg';
+import icon_action_groovy from '../../assets/citrus/groovy-action.png';
+import icon_action_http from '../../assets/citrus/http-action.svg';
+import icon_action_iterate from '../../assets/citrus/iterate-action.svg';
+import icon_action_jbang from '../../assets/citrus/jbang-action.png';
+import icon_action_knative from '../../assets/citrus/knative-action.png';
+import icon_action_mail from '../../assets/citrus/mail.svg';
+import icon_action_parallel from '../../assets/citrus/parallel-action.svg';
+import icon_action_print from '../../assets/citrus/print-action.svg';
+import icon_action_receive from '../../assets/citrus/receive-action.svg';
+import icon_action_repeat from '../../assets/citrus/repeat-action.svg';
+import icon_action_repeat_on_error from '../../assets/citrus/repeat-on-error-action.svg';
+import icon_action_selenium from '../../assets/citrus/selenium-action.png';
+import icon_action_send from '../../assets/citrus/send-action.svg';
+import icon_action_sequential from '../../assets/citrus/sequential-action.svg';
+import icon_action_soap from '../../assets/citrus/soap-action.svg';
+import icon_action_testcontainers from '../../assets/citrus/testcontainers-action.png';
+import icon_action_wait from '../../assets/citrus/wait-action.svg';
+import icon_action_websocket from '../../assets/citrus/websocket-action.svg';
 import icon_citrus_logo from '../../assets/citrus-logo.png';
 import icon_component_activemq from '../../assets/components/activemq.svg';
 import icon_component_amqp from '../../assets/components/amqp.svg';
@@ -57,6 +82,7 @@ import icon_component_debezium from '../../assets/components/debezium.svg';
 import icon_component_dhis2 from '../../assets/components/dhis2.svg';
 import icon_component_direct from '../../assets/components/direct.svg';
 import icon_component_djl from '../../assets/components/djl.png';
+import icon_action_docker from '../../assets/components/docker.svg';
 import icon_component_docker from '../../assets/components/docker.svg';
 import icon_component_drill from '../../assets/components/drill.svg';
 import icon_component_dropbox from '../../assets/components/dropbox.svg';
@@ -103,9 +129,11 @@ import icon_component_jetty from '../../assets/components/jetty.svg';
 import icon_component_jira from '../../assets/components/jira.svg';
 import icon_component_jms from '../../assets/components/jms.png';
 import icon_component_jte from '../../assets/components/jte.svg';
+import icon_action_kafka from '../../assets/components/kafka.svg';
 import icon_component_kafka from '../../assets/components/kafka.svg';
 import icon_component_keycloak from '../../assets/components/keycloak.svg';
 import icon_component_kserve from '../../assets/components/kserve.svg';
+import icon_action_kubernetes from '../../assets/components/kubernetes.svg';
 import icon_component_kubernetes_generic from '../../assets/components/kubernetes.svg';
 import icon_component_kubernetes_config_maps from '../../assets/components/kubernetes-config-maps.svg';
 import icon_component_kubernetes_cronjob from '../../assets/components/kubernetes-cronjob.svg';
@@ -139,6 +167,7 @@ import icon_component_neo4j from '../../assets/components/neo4j.svg';
 import icon_component_netty from '../../assets/components/netty.png';
 import icon_component_nitrite from '../../assets/components/nitrite.svg';
 import icon_component_odata from '../../assets/components/odata.svg';
+import icon_action_openapi from '../../assets/components/openapi.svg';
 import icon_component_openapi from '../../assets/components/openapi.svg';
 import icon_component_opensearch from '../../assets/components/opensearch.svg';
 import icon_component_openshift from '../../assets/components/openshift.svg';
@@ -163,6 +192,7 @@ import icon_component_slack from '../../assets/components/slack.svg';
 import icon_component_smooks from '../../assets/components/smooks.svg';
 import icon_component_snmp from '../../assets/components/snmp.png';
 import icon_component_splunk from '../../assets/components/splunk.svg';
+import icon_action_spring from '../../assets/components/spring.svg';
 import icon_component_spring from '../../assets/components/spring.svg';
 import icon_component_sql from '../../assets/components/sql_db.png';
 import icon_component_stitch from '../../assets/components/stitch.svg';
@@ -174,6 +204,7 @@ import icon_component_timer from '../../assets/components/timer.svg';
 import icon_component_twilio from '../../assets/components/twilio.svg';
 import icon_component_twitter from '../../assets/components/twitter.svg';
 import icon_component_velocity from '../../assets/components/velocity.png';
+import icon_action_vertx from '../../assets/components/vertx.svg';
 import icon_component_vertx from '../../assets/components/vertx.svg';
 import icon_component_wasm from '../../assets/components/wasm.svg';
 import icon_component_weather from '../../assets/components/weather.svg';
@@ -271,7 +302,7 @@ export class NodeIconResolver {
       case CatalogKind.TestEndpoint:
       case CatalogKind.TestFunction:
       case CatalogKind.TestValidationMatcher:
-        return this.getDefaultCitrusIcon();
+        return this.getCitrusComponentIcon(elementName) ?? this.getDefaultCitrusIcon();
       default:
         return this.getDefaultCamelIcon();
     }
@@ -296,6 +327,60 @@ export class NodeIconResolver {
     );
 
     return kameletDefinition?.metadata.annotations['camel.apache.org/kamelet.icon'];
+  }
+
+  private static readonly CITRUS_COMPONENT_PREFIX_ICONS: Array<readonly [string, string]> = [
+    ['agent', icon_citrus_logo],
+    ['camel', icon_action_camel],
+    ['direct', icon_action_direct],
+    ['http', icon_action_http],
+    ['kafka', icon_action_kafka],
+    ['mail', icon_action_mail],
+    ['soap', icon_action_soap],
+    ['docker', icon_action_docker],
+    ['kubernetes', icon_action_kubernetes],
+    ['k8s', icon_action_kubernetes],
+    ['knative', icon_action_knative],
+    ['openapi', icon_action_openapi],
+    ['testcontainers', icon_action_testcontainers],
+    ['selenium', icon_action_selenium],
+    ['spring', icon_action_spring],
+    ['channel', icon_action_spring],
+    ['vertx', icon_action_vertx],
+    ['websocket', icon_action_websocket],
+  ];
+
+  private static readonly CITRUS_COMPONENT_ICONS: Record<string, string> = {
+    test: icon_citrus_logo,
+    action: icon_action_generic,
+    createVariables: icon_action_create_variables,
+    createEndpoint: icon_action_create_endpoint,
+    iterate: icon_action_iterate,
+    repeat: icon_action_repeat,
+    repeatOnError: icon_action_repeat_on_error,
+    sequential: icon_action_sequential,
+    parallel: icon_action_parallel,
+    conditional: icon_action_conditional,
+    async: icon_action_async,
+    print: icon_action_print,
+    echo: icon_action_print,
+    groovy: icon_action_groovy,
+    jbang: icon_action_jbang,
+    delay: icon_action_delay,
+    sleep: icon_action_delay,
+    receive: icon_action_receive,
+    send: icon_action_send,
+    waitFor: icon_action_wait,
+  };
+
+  private static getCitrusComponentIcon(elementName: string): string | undefined {
+    for (const [prefix, icon] of this.CITRUS_COMPONENT_PREFIX_ICONS) {
+      if (elementName.startsWith(prefix)) {
+        return icon;
+      }
+    }
+
+    return this.CITRUS_COMPONENT_ICONS[elementName];
   }
 
   private static getComponentIcon(elementName: string): string | undefined {
