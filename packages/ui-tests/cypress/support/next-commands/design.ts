@@ -125,8 +125,32 @@ Cypress.Commands.add('closeCatalogModal', () => {
 
 Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
   nodeIndex = nodeIndex ?? 0;
-  cy.get(`foreignObject[data-nodelabel="${nodeName}"]`).eq(nodeIndex).rightclick({ force: true });
-  cy.get(`[data-testid="context-menu-item-${action}"]`).click();
+  const nodeSelector = `foreignObject[data-nodelabel="${nodeName}"]`;
+  const menuItemSelector = `[data-testid="context-menu-item-${action}"]`;
+
+  // Get the node and ensure it's visible
+  cy.get(nodeSelector).eq(nodeIndex).should('be.visible');
+
+  // Wrap the retry logic
+  cy.wrap(null).then(() => {
+    // Right-click the node (query fresh from DOM)
+    cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
+
+    // Check if menu appeared, if not, right-click again
+    cy.wait(200).then(() => {
+      cy.get('body').then(($body) => {
+        if ($body.find(menuItemSelector).length === 0) {
+          cy.log('Context menu not visible, retrying right-click...');
+          // Query fresh from DOM again
+          cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
+          cy.wait(200);
+        }
+      });
+    });
+  });
+
+  // Now the menu should be visible, click it
+  cy.get(menuItemSelector).should('be.visible').click();
 });
 
 Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
