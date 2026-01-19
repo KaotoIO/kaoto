@@ -30,13 +30,25 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('when', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkCodeSpanLine('uri: timer', 1);
-    cy.checkCodeSpanLine('setHeader', 0);
-    cy.checkCodeSpanLine('constant: test', 0);
-    cy.checkCodeSpanLine('name: test', 0);
-    cy.checkMultipleCodeSpanEntry('- marshal:', 2);
-    cy.checkMultipleCodeSpanEntry('id: when', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const uriMatches = sourceCode.match(/uri: timer/g) ?? [];
+      expect(uriMatches).to.have.lengthOf(1);
+
+      const setHeaderMatches = sourceCode.match(/setHeader/g) ?? [];
+      expect(setHeaderMatches).to.have.lengthOf(0);
+
+      const constantMatches = sourceCode.match(/constant: test/g) ?? [];
+      expect(constantMatches).to.have.lengthOf(0);
+
+      const nameMatches = sourceCode.match(/name: test/g) ?? [];
+      expect(nameMatches).to.have.lengthOf(0);
+
+      const marshalMatches = sourceCode.match(/- marshal:/g) ?? [];
+      expect(marshalMatches).to.have.lengthOf(2);
+
+      const whenMatches = sourceCode.match(/id: when/g) ?? [];
+      expect(whenMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - duplicate nodes in RouteConfiguration', () => {
@@ -53,10 +65,16 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('interceptSendToEndpoint', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('- intercept:', 2);
-    cy.checkMultipleCodeSpanEntry('- interceptFrom:', 2);
-    cy.checkMultipleCodeSpanEntry('- interceptSendToEndpoint:', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const interceptMatches = sourceCode.match(/- intercept:/g) ?? [];
+      expect(interceptMatches).to.have.lengthOf(2);
+
+      const interceptFromMatches = sourceCode.match(/- interceptFrom:/g) ?? [];
+      expect(interceptFromMatches).to.have.lengthOf(2);
+
+      const interceptSendToEndpointMatches = sourceCode.match(/- interceptSendToEndpoint:/g) ?? [];
+      expect(interceptSendToEndpointMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - duplicate RouteConfiguration', () => {
@@ -67,8 +85,10 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('routeConfiguration', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('- routeConfiguration:', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const routeConfigurationMatches = sourceCode.match(/- routeConfiguration:/g) ?? [];
+      expect(routeConfigurationMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - duplicate steps in Kamelet', () => {
@@ -79,8 +99,10 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('marshal', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('- marshal:', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const marshalMatches = sourceCode.match(/- marshal:/g) ?? [];
+      expect(marshalMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - duplicate steps in Pipe', () => {
@@ -91,8 +113,15 @@ describe('Tests for Design page', () => {
     cy.checkNodeExist('json-deserialize-action', 2);
 
     cy.openSourceCode();
-    cy.checkMultipleCodeSpanEntry('json-deserialize-action', 2);
-    cy.checkCodeSpanLine('kafka-source', 1);
-    cy.checkCodeSpanLine('kafka-sink', 1);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const jsonDeserializeMatches = sourceCode.match(/json-deserialize-action/g) ?? [];
+      expect(jsonDeserializeMatches).to.have.lengthOf(2);
+
+      const kafkaSourceMatches = sourceCode.match(/kafka-source/g) ?? [];
+      expect(kafkaSourceMatches).to.have.lengthOf(1);
+
+      const kafkaSinkMatches = sourceCode.match(/kafka-sink/g) ?? [];
+      expect(kafkaSinkMatches).to.have.lengthOf(1);
+    });
   });
 });
