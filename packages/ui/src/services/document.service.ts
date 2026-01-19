@@ -247,6 +247,8 @@ export class DocumentService {
   }
 
   static hasChildren(field: IField) {
+    // Attributes cannot have children in XML Schema
+    if (field.isAttribute) return false;
     return field.fields.length > 0 || field.namedTypeFragmentRefs.length > 0;
   }
 

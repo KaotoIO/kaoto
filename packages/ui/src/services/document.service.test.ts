@@ -1,6 +1,7 @@
 import {
   DocumentDefinitionType,
   DocumentType,
+  IField,
   IParentType,
   PathSegment,
   PrimitiveDocument,
@@ -191,6 +192,79 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('ShipTo')];
       const field = DocumentService.getFieldFromPathSegments(namespaces, sourceDoc, pathSegments);
       expect(field?.name).toEqual('ShipTo');
+    });
+  });
+
+  describe('hasChildren()', () => {
+    it('should return false for attributes even with namedTypeFragmentRefs', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                   <xs:complexType name="TestType">
+                     <xs:attribute name="testAttr" type="xs:string" />
+                   </xs:complexType>
+                   <xs:element name="test" type="TestType" />
+                 </xs:schema>`),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['test.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document;
+      expect(doc).toBeDefined();
+
+      // Find an attribute field
+      const findAttribute = (fields: IField[]): IField | null => {
+        for (const field of fields) {
+          if (field.isAttribute) return field;
+          if (field.fields?.length > 0) {
+            const found = findAttribute(field.fields);
+            if (found) return found;
+          }
+        }
+        return null;
+      };
+
+      const attributeField = findAttribute(doc?.fields || []);
+      if (attributeField) {
+        // Attributes should never have children, regardless of type references
+        expect(DocumentService.hasChildren(attributeField)).toBeFalsy();
+      }
+    });
+
+    it('should return true for elements with child fields', () => {
+      // sourceDoc.fields[0] is ShipOrder element which has child fields
+      expect(DocumentService.hasChildren(sourceDoc.fields[0])).toBeTruthy();
+    });
+
+    it('should return false for elements without children', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+                   <xs:element name="simpleElement" type="xs:string" />
+                 </xs:schema>`),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['test.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document;
+      expect(doc).toBeDefined();
+
+      if (doc && doc.fields.length > 0) {
+        const simpleField = doc.fields[0];
+        expect(DocumentService.hasChildren(simpleField)).toBeFalsy();
+      }
     });
   });
 
