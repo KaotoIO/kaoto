@@ -47,8 +47,10 @@ describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' 
     cy.checkNodeExist('kaoto-datamapper', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('kaoto-datamapper-69ab8b35', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const datamapperMatches = sourceCode.match(/kaoto-datamapper-69ab8b35/g) ?? [];
+      expect(datamapperMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Datamapper - move datamapper steps', () => {
@@ -92,7 +94,9 @@ describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' 
     cy.checkNodeExist('kaoto-datamapper', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('kaoto-datamapper-69ab8b35', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const datamapperMatches = sourceCode.match(/kaoto-datamapper-69ab8b35/g) ?? [];
+      expect(datamapperMatches).to.have.lengthOf(2);
+    });
   });
 });

@@ -13,9 +13,11 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.checkNodeExist('when-setHeader', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToMiddle();
 
-    cy.checkMultipleCodeSpanEntry('- description: when-setHeader', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const descriptionMatches = sourceCode.match(/- description: when-setHeader/g) ?? [];
+      expect(descriptionMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - Paste steps in CamelRoute', () => {
@@ -30,8 +32,10 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.selectPasteNode('marshal', 'paste-as-next-step');
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('uri: log:test', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const uriMatches = sourceCode.match(/uri: log:test/g) ?? [];
+      expect(uriMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - Paste steps in Pipe/KB', () => {
@@ -43,8 +47,10 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.checkNodeExist('delay-action', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('name: delay-action', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const nameMatches = sourceCode.match(/name: delay-action/g) ?? [];
+      expect(nameMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - Copy/paste steps across Kamelets-routes', () => {
@@ -60,8 +66,10 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.checkNodeExist('setBody', 1);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkCodeSpanLine('- setBody:', 1);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const setBodyMatches = sourceCode.match(/- setBody:/g) ?? [];
+      expect(setBodyMatches).to.have.lengthOf(1);
+    });
   });
 
   it('Design - Paste intercept in RouteConfiguration', () => {
@@ -73,8 +81,10 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.checkNodeExist('intercept-test', 2);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
-    cy.checkMultipleCodeSpanEntry('- intercept:', 2);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const interceptMatches = sourceCode.match(/- intercept:/g) ?? [];
+      expect(interceptMatches).to.have.lengthOf(2);
+    });
   });
 
   it('Design - Paste steps in CamelRoute by adding something to the clipboad', () => {
@@ -92,7 +102,10 @@ describe('Tests for Design page', { browser: '!firefox' }, () => {
     cy.checkNodeExist('amqp', 1);
 
     cy.openSourceCode();
-    cy.editorScrollToTop();
     cy.checkCodeSpanLine('uri: amqp', 1);
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      const uriMatches = sourceCode.match(/uri: amqp/g) ?? [];
+      expect(uriMatches).to.have.lengthOf(1);
+    });
   });
 });
