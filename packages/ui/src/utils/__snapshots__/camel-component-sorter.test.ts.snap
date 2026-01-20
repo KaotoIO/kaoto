@@ -124,7 +124,7 @@ exports[`CamelComponentSorter integration tests with real YAML routes should sor
 "
 `;
 
-exports[`CamelComponentSorter round-trip consistency should maintain data integrity through sort 1`] = `
+exports[`CamelComponentSorter should maintain data integrity through sort 1`] = `
 "route:
   id: original-route
   description: Test route
