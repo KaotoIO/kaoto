@@ -1,0 +1,24 @@
+- route:
+    id: doTry-route
+    from:
+      uri: timer:test
+      steps:
+        - setHeader:
+            name: test
+        - marshal: {}
+        - doTry:
+            steps:
+              - log:
+                  message: try
+            doCatch:
+              - exception:
+                  - java.lang.Exception
+                steps:
+                  - log:
+                      message: catch
+            doFinally:
+              steps:
+                - log:
+                    message: finally
+        - to:
+            uri: log:end

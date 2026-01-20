@@ -17,6 +17,10 @@
         @include custom.possible-drop-targets;
       }
 
+      &__draggedNode {
+        @include custom.drag-node;
+      }
+
       &__image {
         border: 2px dashed var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);

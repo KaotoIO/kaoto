@@ -76,6 +76,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -137,6 +138,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -1007,6 +1009,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -1068,6 +1071,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -2825,6 +2829,7 @@ exports[`Canvas should render correctly 1`] = `
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -2886,6 +2891,7 @@ exports[`Canvas should render correctly 1`] = `
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -3756,6 +3762,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route"
                                 >
                                   <div
                                     class="custom-group__container__text"
@@ -3817,6 +3824,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                               >
                                 <div
                                   class="custom-group__container"
+                                  data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
                                     class="custom-group__container__text"

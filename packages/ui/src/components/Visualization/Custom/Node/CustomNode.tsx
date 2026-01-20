@@ -36,16 +36,14 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
-import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
-import { NODE_DRAG_TYPE } from '../customComponentUtils';
-import { NoBendpointsEdge } from '../NoBendingEdge';
+import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
-import { CustomNodeContent } from './CustomNodeContent';
+import { CustomNodeContainer } from './CustomNodeContainer';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
@@ -55,6 +53,50 @@ interface CustomNodeProps extends DefaultNodeProps {
   /** Toggle node collapse / expand */
   onCollapseToggle?: () => void;
 }
+
+interface CustomNodeLabelProps {
+  label: string;
+  doesHaveWarnings?: boolean;
+  validationText?: string;
+  x?: number;
+  y?: number;
+  transform?: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}
+
+const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
+  label,
+  doesHaveWarnings = false,
+  validationText,
+  x,
+  y,
+  transform,
+  width = CanvasDefaults.DEFAULT_LABEL_WIDTH,
+  height = CanvasDefaults.DEFAULT_LABEL_HEIGHT,
+  className = 'custom-node__label',
+}) => (
+  <foreignObject
+    width={width}
+    height={height}
+    className={className}
+    {...(transform ? { transform } : { x: x!, y: y! })}
+  >
+    <div
+      className={clsx('custom-node__label__text', {
+        'custom-node__label__text__error': doesHaveWarnings,
+      })}
+    >
+      {doesHaveWarnings && (
+        <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
+          <ExclamationCircleIcon />
+        </Icon>
+      )}
+      <span title={label}>{label}</span>
+    </div>
+  </foreignObject>
+);
 
 const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
   ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
@@ -109,6 +151,10 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       return new TargetAnchor(element);
     }, AnchorEnd.both);
 
+    if (!vizNode) {
+      return null;
+    }
+
     const nodeDragSourceSpec: DragSourceSpec<
       DragObjectWithType,
       DragSpecOperationType<EditableDragOperationType>,
@@ -123,38 +169,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
         },
         end(dropResult, monitor) {
           if (monitor.didDrop() && dropResult) {
-            let droppedVizNode: IVisualizationNode;
-            let droppedIntoEdge = false;
-            const draggedVizNode = element.getData().vizNode as IVisualizationNode;
-
-            if (dropResult instanceof NoBendpointsEdge) {
-              droppedVizNode = dropResult.getTarget().getData().vizNode;
-              droppedIntoEdge = true;
-            } else {
-              droppedVizNode = dropResult.getData().vizNode as IVisualizationNode;
-            }
-
             // handle successful drop
-            handleValidNodeDrop(
-              draggedVizNode,
-              droppedVizNode,
-              droppedIntoEdge,
-              (flowId?: string) => entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined),
-              (vn) =>
-                nodeInteractionAddonContext.getRegisteredInteractionAddons(
-                  IInteractionType.ON_COPY,
-                  vn,
-                ) as IOnCopyAddon[],
-            );
-
-            // Set an empty model to clear the graph
-            element.getController().fromModel({
-              nodes: [],
-              edges: [],
-            });
-            requestAnimationFrame(() => {
-              entitiesContext.updateEntitiesFromCamelResource();
-            });
+            handleValidNodeDrop(element, dropResult, entitiesContext, nodeInteractionAddonContext);
           } else {
             element.getGraph().layout();
           }
@@ -169,7 +185,13 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const customNodeDropTargetSpec: DropTargetSpec<
       GraphElement,
       unknown,
-      { droppable: boolean; hover: boolean; canDrop: boolean },
+      {
+        droppable: boolean;
+        hover: boolean;
+        canDrop: boolean;
+        dragItemType: string | undefined;
+        dragItem: GraphElement | undefined;
+      },
       GraphElementProps
     > = useMemo(
       () => ({
@@ -198,6 +220,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           droppable: monitor.isDragging(),
           hover: monitor.isOver(),
           canDrop: monitor.canDrop(),
+          dragItemType: monitor.getItemType(),
+          dragItem: monitor.getItem(),
         }),
       }),
       [element, vizNode, entitiesContext, catalogModalContext],
@@ -207,9 +231,17 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
     const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef);
     const isDraggingNode = dragNodeProps.node?.getId() === element.getId();
-
+    const isDraggingNodeType = dndDropProps.dragItemType === NODE_DRAG_TYPE;
+    const isDraggingGroupType = dndDropProps.dragItemType === GROUP_DRAG_TYPE;
+    const draggedVizNode = dndDropProps.dragItem?.getData().vizNode;
+    const isDraggingWithinGroup =
+      isDraggingGroupType &&
+      draggedVizNode?.getId() === element.getData().vizNode.getId() &&
+      element.getData().vizNode.data.path.slice(0, draggedVizNode?.data.path.length) === draggedVizNode?.data.path;
+    const isDraggedNode = isDraggingNode || isDraggingWithinGroup;
+    const loadGhostNode = dndDropProps.droppable && ((isDraggingGroupType && isDraggingWithinGroup) || isDraggingNode);
     const box = element.getBounds();
-    if (!isDraggingNode || !boxXRef.current || !boxYRef.current) {
+    if (!dndDropProps.droppable || !boxXRef.current || !boxYRef.current) {
       boxXRef.current = box.x;
       boxYRef.current = box.y;
     }
@@ -218,12 +250,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const toolbarX = (box.width - toolbarWidth) / 2;
     const toolbarY = CanvasDefaults.STEP_TOOLBAR_HEIGHT * -1;
 
-    if (!vizNode) {
-      return null;
-    }
-
     return (
-      <Layer id={DEFAULT_LAYER} data-lastupdate={lastUpdate}>
+      <Layer id={isDraggingWithinGroup ? TOP_LAYER : DEFAULT_LAYER} data-lastupdate={lastUpdate}>
         <g
           ref={gCombinedRef}
           className="custom-node"
@@ -236,76 +264,85 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           onClick={onSelect}
           onContextMenu={onContextMenu}
         >
-          <foreignObject data-nodelabel={label} width={box.width} height={box.height} ref={dndDropRef}>
-            <div
-              data-testid={`${vizNode.id}`}
-              className={clsx('custom-node__container', {
-                'custom-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
+          {/** The original node (appears when nothing is dragging, it also acts as the dragged node when node drag action is performed.
+           * When a group/container is being dragged, the within-group nodes are hidden but the rest of the nodes show this original node.
+           */}
+          {(!dndDropProps.droppable || isDraggingNodeType || !isDraggingWithinGroup) && (
+            <CustomNodeContainer
+              width={box.width}
+              height={box.height}
+              dataNodelabel={label}
+              foreignObjectRef={dndDropRef}
+              dataTestId={vizNode.id}
+              containerClassNames={{
+                'custom-node__container__dropTarget':
+                  dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover,
                 'custom-node__container__possibleDropTargets':
                   dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
                 'custom-node__container__draggable': dndSettingsEnabled && canDragNode,
-                'custom-node__container__nonDraggable': dndSettingsEnabled && !canDragNode,
-                'custom-node__container__draggedNode': isDraggingNode,
-              })}
-            >
-              <CustomNodeContent
-                vizNode={vizNode}
-                tooltipContent={tooltipContent}
-                childCount={childCount}
-                ProcessorIcon={ProcessorIcon}
-                processorDescription={processorDescription}
-                isDisabled={isDisabled}
-              />
-            </div>
-          </foreignObject>
-
-          {/* The dummy node appears only when dragging */}
-          {isDraggingNode && (
-            <foreignObject
-              data-nodelabel={label}
-              width={box.width}
-              height={box.height}
-              transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
-            >
-              <div
-                data-testid={`${vizNode.id}-dummy`}
-                className={clsx('custom-node__container', {
-                  'custom-node__container__draggedNode': isDraggingNode,
-                })}
-              >
-                <CustomNodeContent
-                  vizNode={vizNode}
-                  tooltipContent={tooltipContent}
-                  childCount={childCount}
-                  ProcessorIcon={ProcessorIcon}
-                  processorDescription={processorDescription}
-                  isDisabled={isDisabled}
-                />
-              </div>
-            </foreignObject>
+                'custom-node__container__draggedNode': isDraggedNode,
+              }}
+              vizNode={vizNode}
+              tooltipContent={tooltipContent}
+              childCount={childCount}
+              ProcessorIcon={ProcessorIcon}
+              processorDescription={processorDescription}
+              isDisabled={isDisabled}
+            />
           )}
 
-          <foreignObject
-            transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
-            width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-            height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-            className="custom-node__label"
-          >
-            <div
-              className={clsx('custom-node__label__text', {
-                'custom-node__label__text__error': doesHaveWarnings,
-              })}
-            >
-              {doesHaveWarnings && (
-                <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-                  <ExclamationCircleIcon />
-                </Icon>
-              )}
-              <span title={label}>{label}</span>
-            </div>
-          </foreignObject>
+          {/* The dummy node that appears at the original node's position when dragging */}
+          {loadGhostNode && (
+            <CustomNodeContainer
+              width={box.width}
+              height={box.height}
+              dataNodelabel={label}
+              transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
+              dataTestId={`${vizNode.id}-dummy`}
+              containerClassNames={{
+                'custom-node__container__draggedNode': isDraggedNode,
+              }}
+              vizNode={vizNode}
+              tooltipContent={tooltipContent}
+              childCount={childCount}
+              ProcessorIcon={ProcessorIcon}
+              processorDescription={processorDescription}
+              isDisabled={isDisabled}
+            />
+          )}
+          {/** This label, appears for the node which are not dragging */}
+          {label && ((isDraggingNodeType && !isDraggingNode) || (isDraggingGroupType && !isDraggingWithinGroup)) && (
+            <CustomNodeLabel
+              label={label}
+              doesHaveWarnings={doesHaveWarnings}
+              validationText={validationText}
+              x={labelX}
+              y={box.height - 1}
+            />
+          )}
 
-          {!isDraggingNode && shouldShowToolbar && hasSomeInteractions && (
+          {/** The regular label, appears when nothing is dragging */}
+          {label && !dndDropProps.droppable && (
+            <CustomNodeLabel
+              label={label}
+              doesHaveWarnings={doesHaveWarnings}
+              validationText={validationText}
+              x={labelX}
+              y={box.height - 1}
+            />
+          )}
+
+          {/** Label which appears when dragging the group/node, but for the dummy node */}
+          {label && loadGhostNode && (
+            <CustomNodeLabel
+              label={label}
+              doesHaveWarnings={doesHaveWarnings}
+              validationText={validationText}
+              transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
+            />
+          )}
+
+          {!dndDropProps.droppable && shouldShowToolbar && hasSomeInteractions && (
             <Layer id={TOP_LAYER}>
               <foreignObject
                 ref={toolbarHoverRef}

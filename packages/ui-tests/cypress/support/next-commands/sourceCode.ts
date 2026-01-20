@@ -126,12 +126,8 @@ Cypress.Commands.add('editorClickRedoXTimes', (repeatCount: number) => {
 Cypress.Commands.add('compareFileWithMonacoEditor', (filePath: string) => {
   cy.waitForEditorToLoad();
   cy.fixture(filePath).then((fileContent) => {
-    const fileLines = fileContent.split('\n').filter((line: string) => line.trim() !== '');
-
-    fileLines.forEach((line: string) => {
-      cy.get('.pf-v6-c-code-editor').within(() => {
-        cy.get('span:only-child').contains(line.trim()).should('have.length', 1);
-      });
+    cy.getMonacoValue().then(({ sourceCode }) => {
+      expect(sourceCode === fileContent).to.be.true;
     });
   });
 });

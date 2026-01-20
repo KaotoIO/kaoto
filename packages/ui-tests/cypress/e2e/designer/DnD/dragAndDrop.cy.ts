@@ -61,7 +61,7 @@ describe('Canvas nodes Drag and Drop', () => {
     cy.DnDOnNode('route.from.steps.0.choice.when.0', 'route.from.steps.0.choice.when.1');
 
     cy.openSourceCode();
-    cy.compareFileWithMonacoEditor('flows/camelRoute/complex-moved.yaml');
+    cy.compareFileWithMonacoEditor('flows/camelRoute/complex-dnd.yaml');
   });
 
   it('D&D - drag and drop on placeholder nodes between two routes', { browser: '!firefox' }, () => {
@@ -72,5 +72,28 @@ describe('Canvas nodes Drag and Drop', () => {
 
     cy.openSourceCode();
     cy.compareFileWithMonacoEditor('flows/camelRoute/multiflowDnD-updated2.yaml');
+  });
+
+  it('D&D - drag when container onto another when (cross-route)', { browser: '!firefox' }, () => {
+    cy.uploadFixture('flows/camelRoute/complexMultiFlow.yaml');
+    cy.openDesignPage();
+
+    cy.DnDOnNode('route-1|route.from.steps.0.choice.when.0', 'route-2|route.from.steps.0.choice.when.0');
+
+    cy.openSourceCode();
+    cy.compareFileWithMonacoEditor('flows/camelRoute/complexMultiFlow-when-moved.yaml');
+  });
+
+  it('D&D - drag doTry container onto edge', { browser: '!firefox' }, () => {
+    cy.uploadFixture('flows/camelRoute/doTry.yaml');
+    cy.openDesignPage();
+
+    cy.DnDOnEdge(
+      'doTry-route|route.from.steps.2.doTry',
+      'doTry-route|route.from.steps.0.setHeader >>> route.from.steps.1.marshal',
+    );
+
+    cy.openSourceCode();
+    cy.compareFileWithMonacoEditor('flows/camelRoute/doTry-on-edge-moved.yaml');
   });
 });

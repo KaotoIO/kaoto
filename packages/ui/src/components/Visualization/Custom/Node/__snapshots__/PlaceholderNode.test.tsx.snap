@@ -137,5 +137,3 @@ exports[`PlaceholderNode isSpecialChildPlaceholder should render PlusCircleIcon 
   </g>
 </DocumentFragment>
 `;
-
-exports[`PlaceholderNode should render without error 1`] = `<DocumentFragment />`;

@@ -16,6 +16,7 @@
   --custom-node-BorderColor: var(--pf-t--global--border--color--default);
   --custom-node-BorderColor-hover: var(--pf-t--global--border--color--hover);
   --custom-component-dropTarget: var(--pf-t--global--color--status--success--default);
+  --custom-group-border-dropTarget: 8px solid var(--custom-component-dropTarget);
   --custom-node-BorderColor-possibleDropTargets: var(--pf-t--global--border--color--default);
   --custom-node-BackgroundColor: var(--pf-t--global--background--color--primary--default);
   --custom-node-BorderRadius: 10px;
@@ -82,12 +83,12 @@
   border-radius: var(--custom-node-BorderRadius);
 }
 
-@mixin non-draggable {
-  cursor: no-drop;
-}
-
 @mixin drag-node {
   opacity: 0.5;
   transform: scale(0.7);
   transform-origin: center;
+}
+
+@mixin drag-group {
+  opacity: 0.5;
 }
