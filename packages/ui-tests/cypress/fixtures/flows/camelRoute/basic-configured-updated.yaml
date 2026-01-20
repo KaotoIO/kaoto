@@ -7,8 +7,8 @@
             id: marshal-3801
         - setHeader:
             constant:
-              id: testConstantId
               expression: testConstantExpression
+              id: testConstantId
               resultType: testConstantResultType
             name: testName
         - to:

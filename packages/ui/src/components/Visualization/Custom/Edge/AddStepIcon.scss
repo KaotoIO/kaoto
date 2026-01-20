@@ -22,4 +22,8 @@
       color: var(--pf-topology__edge--Stroke);
     }
   }
+
+  &__icon__validDropTarget &__icon {
+    border: 3px dashed var(--custom-component-dropTarget);
+  }
 }

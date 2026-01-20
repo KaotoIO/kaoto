@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 
 import { CatalogKind, IVisualizationNode } from '../../../../models';
-import { CustomNodeContent } from './CustomNodeContent';
+import { CustomNodeContainer } from './CustomNodeContainer';
 
 jest.mock('../../../IconResolver', () => ({
   IconResolver: ({ alt, catalogKind, name }: { alt?: string; catalogKind: CatalogKind; name: string }) => (
@@ -9,26 +9,32 @@ jest.mock('../../../IconResolver', () => ({
   ),
 }));
 
-describe('NodeContent', () => {
-  const createMockVizNode = (): IVisualizationNode => {
-    return {
+describe('CustomNodeContainer', () => {
+  const createMockVizNode = (): IVisualizationNode =>
+    ({
       id: 'test-node',
       data: {
         catalogKind: CatalogKind.Component,
         name: 'log',
         path: 'route.from.steps.0.log',
       },
-    } as unknown as IVisualizationNode;
-  };
+    }) as unknown as IVisualizationNode;
 
   const MockProcessorIcon = () => <div data-testid="processor-icon">Processor</div>;
+
+  const defaultContainerProps = {
+    width: 90,
+    height: 75,
+    dataTestId: 'test-node',
+  };
 
   it('should render IconResolver with correct props', () => {
     const vizNode = createMockVizNode();
     const tooltipContent = 'Test tooltip';
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={tooltipContent}
         childCount={0}
@@ -49,7 +55,8 @@ describe('NodeContent', () => {
     const vizNode = createMockVizNode();
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
         childCount={5}
@@ -68,7 +75,8 @@ describe('NodeContent', () => {
     const vizNode = createMockVizNode();
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
         childCount={0}
@@ -86,7 +94,8 @@ describe('NodeContent', () => {
     const processorDescription = 'Test processor description';
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
         childCount={0}
@@ -98,7 +107,6 @@ describe('NodeContent', () => {
 
     const processorIcon = screen.getByTestId('processor-icon');
     expect(processorIcon).toBeInTheDocument();
-    // The title is passed as a prop to ProcessorIcon component
     expect(processorIcon.closest('.step-icon__processor')).toBeInTheDocument();
   });
 
@@ -106,7 +114,8 @@ describe('NodeContent', () => {
     const vizNode = createMockVizNode();
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
         childCount={0}
@@ -123,7 +132,8 @@ describe('NodeContent', () => {
     const vizNode = createMockVizNode();
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
         childCount={0}
@@ -142,7 +152,8 @@ describe('NodeContent', () => {
     const vizNode = createMockVizNode();
 
     const { container } = render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
         childCount={0}
@@ -155,12 +166,13 @@ describe('NodeContent', () => {
     expect(container.querySelector('.step-icon__disabled')).not.toBeInTheDocument();
   });
 
-  it('should apply tooltipContent as title attribute', () => {
+  it('should apply tooltipContent as title attribute on content', () => {
     const vizNode = createMockVizNode();
     const tooltipContent = 'Custom tooltip text';
 
     const { container } = render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={tooltipContent}
         childCount={0}
@@ -170,15 +182,16 @@ describe('NodeContent', () => {
       />,
     );
 
-    const containerElement = container.querySelector('.custom-node__container__image');
-    expect(containerElement).toHaveAttribute('title', tooltipContent);
+    const contentElement = container.querySelector('.custom-node__container__image');
+    expect(contentElement).toHaveAttribute('title', tooltipContent);
   });
 
-  it('should render all elements together when all props are provided', () => {
+  it('should render container with dataTestId and content together', () => {
     const vizNode = createMockVizNode();
 
     render(
-      <CustomNodeContent
+      <CustomNodeContainer
+        {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent="Full tooltip"
         childCount={3}
@@ -188,6 +201,7 @@ describe('NodeContent', () => {
       />,
     );
 
+    expect(screen.getByTestId('test-node')).toBeInTheDocument();
     expect(screen.getByTestId('icon-resolver')).toBeInTheDocument();
     expect(screen.getByTitle('3')).toBeInTheDocument();
     expect(screen.getByTestId('processor-icon')).toBeInTheDocument();
