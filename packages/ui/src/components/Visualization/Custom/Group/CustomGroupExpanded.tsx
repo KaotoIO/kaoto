@@ -1,16 +1,18 @@
 import './CustomGroupExpanded.scss';
 
 import { Icon } from '@patternfly/react-core';
-import {
-  ArrowDownIcon,
-  ArrowRightIcon,
-  BanIcon,
-  ExclamationCircleIcon,
-  PauseIcon,
-  PlayIcon,
-} from '@patternfly/react-icons';
+import { BanIcon, ExclamationCircleIcon, PauseIcon, PlayIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
+  DEFAULT_LAYER,
+  DragEvent,
+  DragObjectWithType,
+  DragSourceSpec,
+  DragSpecOperationType,
+  DropTargetSpec,
+  EditableDragOperationType,
+  GraphElement,
+  GraphElementProps,
   GROUPS_LAYER,
   isNode,
   Layer,
@@ -19,78 +21,192 @@ import {
   Rect,
   TOP_LAYER,
   useAnchor,
+  useCombineRefs,
+  useDndDrop,
+  useDragNode,
   useHover,
-  withDndDrop,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useRef } from 'react';
+import clsx from 'clsx';
+import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
+import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
+import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { IconResolver } from '../../../IconResolver';
-import { LayoutType } from '../../Canvas';
+import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
-import { customGroupExpandedDropTargetSpec } from '../customComponentUtils';
-import { AddStepIcon } from '../Edge/AddStepIcon';
+import { canDragGroup, GROUP_DRAG_TYPE } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
+import { NoBendpointsEdge } from '../NoBendingEdge';
+import { CustomNodeContent } from '../Node/CustomNodeContent';
+import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from '../Node/CustomNodeUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
 
 export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = observer(
-  ({ element, onContextMenu, onCollapseToggle, dndDropRef, droppable, selected, onSelect }) => {
+  ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomGroupExpanded must be used only on Node elements');
     }
 
-    const vizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
-    const lastUpdate = vizNode?.lastUpdate;
+    const groupVizNode: IVisualizationNode | undefined = element.getData()?.vizNode;
+    const lastUpdate = groupVizNode?.lastUpdate;
     const settingsAdapter = useContext(SettingsContext);
-    const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-    const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
-    const validationText = vizNode?.getNodeValidationText();
+    const entitiesContext = useEntityContext();
+    const catalogModalContext = useContext(CatalogModalContext);
+    const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
+    const label = groupVizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
+    const processorName = (groupVizNode?.data as CamelRouteVisualEntityData)?.processorName;
+    const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
+    const isDisabled = !!groupVizNode?.getNodeDefinition()?.disabled;
+    const validationText = groupVizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
-    const tooltipContent = vizNode?.getTooltipContent();
+    const tooltipContent = groupVizNode?.getTooltipContent();
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
       CanvasDefaults.HOVER_DELAY_OUT,
     );
+    const dndSettingsEnabled = settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop;
     const boxRef = useRef<Rect | null>(null);
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
         ? isGHover || isToolbarHover || selected
         : selected;
-    const shouldShowAddStep =
-      shouldShowToolbar && vizNode?.getNodeInteraction().canHaveNextStep && vizNode.getNextNode() === undefined;
-    const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
     }, AnchorEnd.both);
 
-    if (!vizNode) {
+    if (!groupVizNode) {
       return null;
     }
 
-    if (!droppable || !boxRef.current) {
-      boxRef.current = element.getBounds();
+    const groupDragSourceSpec: DragSourceSpec<
+      DragObjectWithType,
+      DragSpecOperationType<EditableDragOperationType>,
+      GraphElement,
+      { node: GraphElement | undefined; dragEvent: DragEvent | undefined },
+      GraphElementProps
+    > = useMemo(
+      () => ({
+        item: { type: GROUP_DRAG_TYPE },
+        canDrag: () => {
+          return dndSettingsEnabled && canDragGroup(groupVizNode);
+        },
+        end(dropResult, monitor) {
+          if (monitor.didDrop() && dropResult) {
+            let droppedVizNode: IVisualizationNode;
+            let droppedIntoEdge = false;
+            const draggedGroupVizNode = element.getData().vizNode as IVisualizationNode;
+
+            if (dropResult instanceof NoBendpointsEdge) {
+              droppedVizNode = dropResult.getTarget().getData().vizNode;
+              droppedIntoEdge = true;
+            } else {
+              droppedVizNode = dropResult.getData().vizNode;
+            }
+
+            // handle successful drop
+            handleValidNodeDrop(
+              draggedGroupVizNode,
+              droppedVizNode,
+              droppedIntoEdge,
+              (flowId?: string) => entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined),
+              (vn) =>
+                nodeInteractionAddonContext.getRegisteredInteractionAddons(
+                  IInteractionType.ON_COPY,
+                  vn,
+                ) as IOnCopyAddon[],
+            );
+
+            // Set an empty model to clear the graph
+            element.getController().fromModel({
+              nodes: [],
+              edges: [],
+            });
+            requestAnimationFrame(() => {
+              entitiesContext.updateEntitiesFromCamelResource();
+            });
+          } else {
+            element.getGraph().layout();
+          }
+        },
+        collect: (monitor) => ({
+          node: monitor.getItem(),
+          dragEvent: monitor.getDragEvent(),
+        }),
+      }),
+      [dndSettingsEnabled, element, entitiesContext, groupVizNode, nodeInteractionAddonContext],
+    );
+
+    const customGroupExpandedDropTargetSpec: DropTargetSpec<
+      GraphElement,
+      unknown,
+      { droppable: boolean; hover: boolean; canDrop: boolean },
+      GraphElementProps
+    > = useMemo(
+      () => ({
+        accept: [GROUP_DRAG_TYPE],
+        canDrop: (item, _monitor, _props) => {
+          // Ensure that the node is not dropped onto itself
+          if (item === element) return false;
+
+          return checkNodeDropCompatibility(
+            item.getData()?.vizNode,
+            groupVizNode,
+            (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => {
+              const filter = entitiesContext.camelResource.getCompatibleComponents(
+                mode,
+                filterNode.data,
+                filterNode.getNodeDefinition(),
+              );
+              return catalogModalContext?.checkCompatibility(compatibilityCheckNodeName, filter) ?? false;
+            },
+          );
+        },
+        collect: (monitor) => ({
+          droppable: monitor.isDragging(),
+          hover: monitor.isOver({ shallow: true }),
+          canDrop: monitor.canDrop(),
+        }),
+      }),
+      [catalogModalContext, element, entitiesContext.camelResource, groupVizNode],
+    );
+
+    const [dragGroupProps, dragGroupRef] = useDragNode(groupDragSourceSpec);
+    const [dndDropProps, dndDropRef] = useDndDrop(customGroupExpandedDropTargetSpec);
+    const draggedVizNode = dragGroupProps.node?.getData().vizNode;
+    const isDraggingGroup = dragGroupProps.node?.getId() === element.getId();
+    const refreshGroup =
+      draggedVizNode?.getId() === element.getData().vizNode.getId() &&
+      element.getData().vizNode.data.path.slice(0, draggedVizNode?.data.path.length) === draggedVizNode?.data.path;
+    const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragGroupRef);
+
+    let dropDirection: 'forward' | 'backward' | null = null;
+    if (dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover) {
+      dropDirection = getNodeDragAndDropDirection(draggedVizNode, groupVizNode, false);
+    }
+
+    const box = element.getBounds();
+    if (!dndDropProps.droppable || !boxRef.current) {
+      boxRef.current = box;
     }
 
     const toolbarX = boxRef.current.x + (boxRef.current.width - CanvasDefaults.STEP_TOOLBAR_WIDTH) / 2;
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
-    const addStepX = isHorizontal
-      ? boxRef.current.x + boxRef.current.width
-      : boxRef.current.x + (boxRef.current.width - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2;
-    const addStepY = isHorizontal
-      ? boxRef.current.y + (boxRef.current.height - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
-      : boxRef.current.y + boxRef.current.height;
 
     return (
-      <Layer id={GROUPS_LAYER} data-lastupdate={lastUpdate}>
+      <Layer id={refreshGroup ? DEFAULT_LAYER : GROUPS_LAYER} data-lastupdate={lastUpdate}>
         <g
-          ref={gHoverRef}
+          ref={gCombinedRef}
           className="custom-group"
-          data-testid={`custom-group__${vizNode.id}`}
+          data-testid={`custom-group__${groupVizNode.id}`}
           data-grouplabel={label}
           data-selected={selected}
           data-disabled={isDisabled}
@@ -99,6 +215,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           onClick={onSelect}
           onContextMenu={onContextMenu}
         >
+          {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
           <foreignObject
             ref={dndDropRef}
             data-nodelabel={label}
@@ -107,17 +224,27 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
             width={boxRef.current.width}
             height={boxRef.current.height}
           >
-            <div className="custom-group__container">
+            <div
+              className={clsx('custom-group__container', {
+                'custom-group__container__draggedGroup': isDraggingGroup || refreshGroup,
+                'custom-group__container__dropTarget-right': dropDirection === 'forward',
+                'custom-group__container__dropTarget-left': dropDirection === 'backward',
+              })}
+            >
               <div className="custom-group__container__text" title={tooltipContent}>
                 {doesHaveWarnings ? (
                   <div className="custom-group__container__icon-placeholder" />
                 ) : (
-                  <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
+                  <IconResolver
+                    alt={tooltipContent}
+                    catalogKind={groupVizNode.data.catalogKind}
+                    name={groupVizNode.data.name}
+                  />
                 )}
                 <span title={label}>{label}</span>
               </div>
 
-              {vizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
+              {groupVizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
                 <Icon key={title} className="custom-group__autostart-icon" title={title}>
                   {icon === 'play' ? <PlayIcon /> : <PauseIcon />}
                 </Icon>
@@ -130,6 +257,28 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               )}
             </div>
           </foreignObject>
+
+          {/** This is the dragged node which is being moved */}
+          {dndDropProps.droppable && isDraggingGroup && (
+            <foreignObject
+              data-nodelabel={label}
+              width={CanvasDefaults.DEFAULT_NODE_WIDTH}
+              height={CanvasDefaults.DEFAULT_NODE_HEIGHT}
+              transform={`translate(${dragGroupProps.dragEvent!.x - 10}, ${dragGroupProps.dragEvent!.y - 10})`}
+            >
+              <div data-testid={`${groupVizNode.id}`} className="custom-node__container">
+                <CustomNodeContent
+                  vizNode={groupVizNode}
+                  tooltipContent={tooltipContent}
+                  childCount={0}
+                  ProcessorIcon={ProcessorIcon}
+                  processorDescription={processorDescription}
+                  isDisabled={isDisabled}
+                />
+              </div>
+            </foreignObject>
+          )}
+
           {doesHaveWarnings && !isDisabled && (
             <foreignObject
               className="custom-group__warning-icon--floating"
@@ -145,7 +294,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               </FloatingCircle>
             </foreignObject>
           )}
-          {shouldShowToolbar && (
+          {!dndDropProps.droppable && shouldShowToolbar && (
             <Layer id={TOP_LAYER}>
               <foreignObject
                 ref={toolbarHoverRef}
@@ -157,30 +306,12 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               >
                 <StepToolbar
                   data-testid="step-toolbar"
-                  vizNode={vizNode}
+                  vizNode={groupVizNode}
                   isCollapsed={element.isCollapsed()}
                   onCollapseToggle={onCollapseToggle}
                 />
               </foreignObject>
             </Layer>
-          )}
-
-          {shouldShowAddStep && (
-            <foreignObject
-              x={addStepX}
-              y={addStepY}
-              width={CanvasDefaults.ADD_STEP_ICON_SIZE}
-              height={CanvasDefaults.ADD_STEP_ICON_SIZE}
-            >
-              <AddStepIcon
-                vizNode={vizNode}
-                mode={AddStepMode.AppendStep}
-                title="Add step"
-                data-testid="quick-append-step"
-              >
-                <Icon size="lg">{isHorizontal ? <ArrowRightIcon /> : <ArrowDownIcon />}</Icon>
-              </AddStepIcon>
-            </foreignObject>
           )}
         </g>
       </Layer>
@@ -188,4 +319,4 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
   },
 );
 
-export const CustomGroupExpanded = withDndDrop(customGroupExpandedDropTargetSpec)(CustomGroupExpandedInner);
+export const CustomGroupExpanded = CustomGroupExpandedInner;
