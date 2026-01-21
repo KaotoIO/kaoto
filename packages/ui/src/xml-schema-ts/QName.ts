@@ -1,11 +1,17 @@
 export class QName {
-  constructor(
-    private namespaceURI: string | null,
-    private localPart: string | null,
-    private prefix: string | null = null,
-  ) {}
+  private readonly namespaceURI: string = '';
 
-  getNamespaceURI(): string | null {
+  constructor(
+    namespaceURI: string | null,
+    private readonly localPart: string | null,
+    private readonly prefix: string | null = null,
+  ) {
+    if (namespaceURI) {
+      this.namespaceURI = namespaceURI;
+    }
+  }
+
+  getNamespaceURI(): string {
     return this.namespaceURI;
   }
 
@@ -17,15 +23,15 @@ export class QName {
     return this.prefix;
   }
 
-  valueOf(qNameAsString: string): QName {
+  static fromString(qNameAsString: string): QName {
     if (qNameAsString == null) {
       throw new Error('cannot create QName from null');
     } else if (qNameAsString === '') {
-      return new QName(null, qNameAsString, '');
-    } else if (qNameAsString.charAt(0) !== '{') {
-      return new QName(null, qNameAsString, '');
+      return new QName('', qNameAsString, null);
+    } else if (!qNameAsString.startsWith('{')) {
+      return new QName('', qNameAsString, null);
     } else if (qNameAsString.startsWith('{}')) {
-      return new QName(null, qNameAsString.substring(2), '');
+      return new QName('', qNameAsString.substring(2), null);
     } else {
       const endOfNamespaceURI = qNameAsString.indexOf('}');
       if (endOfNamespaceURI === -1) {
@@ -34,10 +40,14 @@ export class QName {
         return new QName(
           qNameAsString.substring(1, endOfNamespaceURI),
           qNameAsString.substring(endOfNamespaceURI + 1),
-          '' /* prefix */,
+          null,
         );
       }
     }
+  }
+
+  valueOf(qNameAsString: string): QName {
+    return QName.fromString(qNameAsString);
   }
 
   toString() {

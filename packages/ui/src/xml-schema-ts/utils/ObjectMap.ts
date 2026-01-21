@@ -91,14 +91,17 @@ class EntriesBridge<K, V> implements IterableIterator<[K, V]> {
   }
 }
 
+/**
+ * QNameMap only compares the namespace URI and localPart. If both match,
+ * then it's identical regardless of prefix. Note that `namespaceURI=null` and
+ * `namespaceURI=''` are semantically same.
+ */
 export class QNameMap<V> extends ObjectMap<QName, V> {
   stringToKey(stringified: string): QName {
-    const obj = Object.assign(new QName(null, null), JSON.parse(stringified));
-    obj.prefix = undefined;
-    return obj;
+    return QName.fromString(stringified);
   }
   keyToString(key: QName): string {
-    return JSON.stringify(new QName(key.getNamespaceURI(), key.getLocalPart()));
+    return key.toString();
   }
 }
 

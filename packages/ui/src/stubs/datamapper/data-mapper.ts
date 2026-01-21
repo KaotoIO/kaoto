@@ -146,6 +146,7 @@ export const simpleTypeRestrictionXsd = fs
 export const lazyLoadingTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/LazyLoadingTest.xsd')).toString();
 export const adtInXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_IN.xsd')).toString();
 export const adtOutXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_OUT.xsd')).toString();
+export const elementRefXsd = fs.readFileSync(path.resolve(__dirname, './xml/element-ref.xsd')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
