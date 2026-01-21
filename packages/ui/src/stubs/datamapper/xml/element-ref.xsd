@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="ID" type="xs:string"/>
+  <xs:element name="SRC" type="xs:string"/>
+  <xs:element name="STATUS" type="xs:string"/>
+  <xs:element name="RPTID" type="xs:string"/>
+  <xs:element name="ENTTY" type="xs:string"/>
+  <xs:element name="ACTN" type="xs:string"/>
+  <xs:element name="CSV_r">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="ID"/>
+        <xs:element minOccurs="0" ref="SRC"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="CSV">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="CSV_r"/>
+        <xs:element minOccurs="0" ref="STATUS"/>
+        <xs:element minOccurs="0" ref="RPTID"/>
+        <xs:element minOccurs="0" ref="ENTTY"/>
+        <xs:element minOccurs="0" ref="ACTN"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

@@ -2,6 +2,7 @@ import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../mod
 import { Types } from '../models/datamapper/types';
 import {
   camelSpringXsd,
+  elementRefXsd,
   extensionComplexXsd,
   extensionSimpleXsd,
   invalidComplexExtensionXsd,
@@ -722,5 +723,26 @@ describe('XmlSchemaDocumentService', () => {
     expect(restrictedValueType.fields[0].name).toEqual('lang');
     expect(restrictedValueType.fields[0].isAttribute).toBeTruthy();
     expect(restrictedValueType.fields[0].defaultValue).toEqual('en');
+  });
+
+  it('should respect root element choice for schemas with element references (issue #2876)', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      undefined,
+      { 'element-ref.xsd': elementRefXsd },
+      { namespaceUri: '', name: 'CSV' },
+    );
+
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+
+    expect(result.validationStatus).toBe('success');
+    expect(result.document).toBeDefined();
+
+    const document = result.document as XmlSchemaDocument;
+    expect(document.rootElement?.getName()).toBe('CSV');
+
+    expect(result.rootElementOptions).toContainEqual({ namespaceUri: '', name: 'CSV' });
+    expect(result.rootElementOptions).toContainEqual({ namespaceUri: '', name: 'ID' });
   });
 });
