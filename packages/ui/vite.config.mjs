@@ -4,7 +4,7 @@ import { dirname, relative } from 'node:path';
 import { defineConfig, normalizePath } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import packageJson from './package.json';
-import { getCamelCatalogFiles } from './scripts/get-camel-catalog-files.mjs';
+import { getCatalogFiles } from './scripts/get-catalog-files.mjs';
 import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 
 // https://vitejs.dev/config/
@@ -12,16 +12,16 @@ import { getLastCommitInfo } from './scripts/get-last-commit-info.mjs';
 export default defineConfig(async () => {
   const outDir = './dist';
   const lastCommitInfo = await getLastCommitInfo();
-  const { basePath, files: camelCatalogFiles } = getCamelCatalogFiles();
+  const { basePath, files: catalogFiles } = getCatalogFiles();
 
   return {
     plugins: [
       react(),
       viteStaticCopy({
-        targets: camelCatalogFiles.map((file) => {
+        targets: catalogFiles.map((file) => {
           const normalizedFile = normalizePath(file);
           const relativePath = relative(basePath, file);
-          const dest = normalizePath('./camel-catalog/' + dirname(relativePath));
+          const dest = normalizePath('./' + dirname(relativePath));
 
           return {
             src: normalizedFile,

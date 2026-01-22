@@ -42,7 +42,7 @@
     "build:esm": "tsc --project tsconfig.esm.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/esm",
     "build:cjs": "tsc --project tsconfig.cjs.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/cjs",
     "write-version": "node ./scripts/write-version-file.mjs",
-    "copy-catalog": "node ./scripts/copy-camel-catalog-files.mjs ./lib/camel-catalog",
+    "copy-catalog": "node ./scripts/copy-catalog-files.mjs ./lib",
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
