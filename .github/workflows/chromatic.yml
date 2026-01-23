@@ -45,6 +45,10 @@ jobs:
       - name: Build ui library
         run: yarn workspace @kaoto/kaoto run build:lib
 
+      # 👇 Remove ui-mockups directory from stories
+      - name: Remove ui-mockups directory
+        run: rm -rf packages/ui-tests/stories/ui-mockups
+
       # 👇 Adds Chromatic as a step in the workflow
       - name: Publish to Chromatic
         uses: chromaui/action@v13.3.4

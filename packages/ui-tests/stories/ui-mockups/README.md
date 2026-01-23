@@ -1,0 +1,1 @@
+Stories in this directory are placed for local run only. They will be removed before we deploy to Chromatic.
