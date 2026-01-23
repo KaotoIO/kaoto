@@ -3,6 +3,7 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -163,7 +164,12 @@ export class CamelRouteConfigurationVisualEntity
   }
 
   toJSON(): { routeConfiguration: RouteConfigurationDefinition } {
-    return { routeConfiguration: this.routeConfigurationDef.routeConfiguration };
+    return {
+      routeConfiguration: CamelComponentSorter.sortProcessorObject(
+        'routeConfiguration',
+        this.routeConfigurationDef.routeConfiguration,
+      ),
+    };
   }
 
   protected getRootUri(): string | undefined {

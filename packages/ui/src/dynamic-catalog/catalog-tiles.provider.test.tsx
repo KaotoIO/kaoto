@@ -4,8 +4,8 @@ import { act, render, renderHook, screen, waitFor } from '@testing-library/react
 import { useContext } from 'react';
 
 import { camelComponentToTile, camelProcessorToTile, kameletToTile } from '../camel-utils';
+import { ITile } from '../components/Catalog';
 import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
-import { ITile } from '../public-api';
 import { getFirstCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogContext } from './catalog.provider';
 import { CatalogTilesContext, CatalogTilesProvider } from './catalog-tiles.provider';
@@ -96,6 +96,14 @@ describe('CatalogTilesProvider', () => {
   });
 
   it('should build the tiles when fetchTiles is called', async () => {
+    const componentCatalog = mockRegistry.getCatalog(CatalogKind.Component);
+    const patternCatalog = mockRegistry.getCatalog(CatalogKind.Pattern);
+    const kameletCatalog = mockRegistry.getCatalog(CatalogKind.Kamelet);
+
+    const getAllSpyComponent = jest.spyOn(componentCatalog!, 'getAll');
+    const getAllSpyPattern = jest.spyOn(patternCatalog!, 'getAll');
+    const getAllSpyKamelet = jest.spyOn(kameletCatalog!, 'getAll');
+
     const {
       result: { current: context },
     } = renderHook(() => useContext(CatalogTilesContext), {
@@ -110,9 +118,15 @@ describe('CatalogTilesProvider', () => {
       await context?.fetchTiles();
     });
 
-    expect(camelComponentToTile).toHaveBeenCalled();
-    expect(camelProcessorToTile).toHaveBeenCalled();
-    expect(kameletToTile).toHaveBeenCalled();
+    // Verify catalogs were queried
+    expect(getAllSpyComponent).toHaveBeenCalled();
+    expect(getAllSpyPattern).toHaveBeenCalled();
+    expect(getAllSpyKamelet).toHaveBeenCalled();
+
+    // Verify tiles were built by checking getTiles returns non-empty array
+    const tiles = context?.getTiles();
+    expect(tiles).toBeDefined();
+    expect(tiles!.length).toBeGreaterThan(0);
   });
 
   it('should call getAll on all catalog kinds', async () => {
@@ -151,6 +165,7 @@ describe('CatalogTilesProvider', () => {
       setCatalog: jest.fn(),
       getCatalog: jest.fn().mockReturnValue(undefined),
       getEntity: jest.fn(),
+      getEntityFromCache: jest.fn(),
       clearRegistry: jest.fn(),
     };
 

@@ -31,15 +31,15 @@ describe('Tests for sidebar setHeaders step configuration', () => {
       'headers:',
       '- name: ""',
       'constant:',
-      'resultType: java.lang.String',
-      'expression: constant',
       'id: constantExpressionId',
+      'expression: constant',
+      'resultType: java.lang.String',
 
       '- name: ""',
       'simple:',
-      'resultType: java.lang.String',
-      'expression: "{random(1,100)}"',
       'id: simpleExpressionId',
+      'expression: "{random(1,100)}"',
+      'resultType: java.lang.String',
     ];
 
     // CHECK changes are reflected in the code editor

@@ -3,6 +3,7 @@ import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { setValue } from '../../../utils';
+import { CamelComponentSorter } from '../../../utils/camel-component-sorter';
 import { EntityType } from '../../camel/entities/base-entity';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
@@ -162,7 +163,12 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity
   }
 
   toJSON(): { restConfiguration: RestConfiguration } {
-    return { restConfiguration: this.restConfigurationDef.restConfiguration };
+    return {
+      restConfiguration: CamelComponentSorter.sortProcessorObject(
+        'restConfiguration',
+        this.restConfigurationDef.restConfiguration,
+      ),
+    };
   }
 
   getGroupIcons(): { icon: string; title: string }[] {

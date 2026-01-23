@@ -1,0 +1,449 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Visual Entity Sorting - toJSON() CamelErrorHandlerVisualEntity should sort errorHandler with deadLetterChannel: errorHandler-deadLetterChannel-sorted 1`] = `
+"errorHandler:
+  deadLetterChannel:
+    deadLetterUri: direct:dlq
+    id: dlc-1
+    redeliveryPolicy:
+      backOffMultiplier: 2
+      maximumRedeliveries: 5
+      redeliveryDelay: 2000
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelErrorHandlerVisualEntity should sort errorHandler with defaultErrorHandler: errorHandler-defaultErrorHandler-sorted 1`] = `
+"errorHandler:
+  defaultErrorHandler:
+    id: default-eh
+    redeliveryPolicy:
+      logStackTrace: true
+      maximumRedeliveries: 3
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelInterceptFromVisualEntity should sort interceptFrom properties: interceptFrom-sorted 1`] = `
+"interceptFrom:
+  id: interceptFrom-1234
+  description: Intercept from direct endpoints
+  uri: direct:*
+  steps:
+    - log:
+        id: log-from
+        message: Intercepted from source
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelInterceptSendToEndpointVisualEntity should sort interceptSendToEndpoint properties: interceptSendToEndpoint-sorted 1`] = `
+"interceptSendToEndpoint:
+  id: interceptSend-1234
+  description: Intercept sends to mock endpoints
+  uri: mock:*
+  skipSendToOriginalEndpoint: true
+  steps:
+    - log:
+        id: log-send
+        message: Intercepted send to endpoint
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelInterceptVisualEntity should sort intercept properties: intercept-sorted 1`] = `
+"intercept:
+  id: intercept-1234
+  description: Global intercept
+  steps:
+    - log:
+        id: log-intercept
+        message: Intercepting...
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelOnCompletionVisualEntity should sort onCompletion properties: onCompletion-sorted 1`] = `
+"onCompletion:
+  id: onCompletion-1234
+  description: On completion handler
+  onCompleteOnly: true
+  onFailureOnly: false
+  steps:
+    - log:
+        id: log-complete
+        message: Route completed
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelOnCompletionVisualEntity should sort onCompletion with parallel processing: onCompletion-with-parallel-sorted 1`] = `
+"onCompletion:
+  id: onCompletion-parallel
+  mode: AfterConsumer
+  parallelProcessing: true
+  executorService: myExecutor
+  steps:
+    - to:
+        uri: direct:cleanup
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelOnExceptionVisualEntity should sort onException properties: onException-sorted 1`] = `
+"onException:
+  id: onException-1234
+  description: Handle IO exceptions
+  exception:
+    - java.io.IOException
+    - java.lang.RuntimeException
+  redeliveryPolicy:
+    maximumRedeliveries: 3
+    redeliveryDelay: 1000
+  handled:
+    constant: "true"
+  steps:
+    - log:
+        id: log-exc
+        message: Exception handled
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelOnExceptionVisualEntity should sort onException with onWhen clause: onException-with-onWhen-sorted 1`] = `
+"onException:
+  id: onException-when
+  exception:
+    - java.lang.Exception
+  onWhen:
+    simple: \${exception.message} contains 'critical'
+  steps:
+    - log:
+        message: Conditional exception
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRestConfigurationVisualEntity should sort restConfiguration properties: restConfiguration-sorted 1`] = `
+"restConfiguration:
+  component: platform-http
+  apiComponent: openapi
+  producerComponent: vertx-http
+  port: "8080"
+  hostNameResolver: allLocalIp
+  bindingMode: auto
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRestConfigurationVisualEntity should sort restConfiguration with CORS and properties: restConfiguration-with-cors-sorted 1`] = `
+"restConfiguration:
+  component: jetty
+  port: "9090"
+  enableCORS: true
+  componentProperty:
+    - key: maxThreads
+      value: "10"
+  corsHeaders:
+    - key: Access-Control-Allow-Origin
+      value: "*"
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRestVisualEntity should sort rest properties: rest-sorted 1`] = `
+"rest:
+  id: rest-1234
+  description: REST API
+  path: /api
+  bindingMode: auto
+  get:
+    - id: get-hello
+      path: /hello
+      to:
+        uri: direct:hello
+  post:
+    - consumes: application/json
+      id: post-create
+      path: /create
+      to:
+        uri: direct:create
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRestVisualEntity should sort rest with security definitions: rest-with-security-sorted 1`] = `
+"rest:
+  id: rest-secure
+  path: /api/v2
+  securityDefinitions:
+    oauth2:
+      flow: application
+      key: oauth2
+      tokenUrl: https://auth.example.com/token
+  get:
+    - id: get-secure
+      path: /secure
+      security:
+        - key: oauth2
+          scopes: read
+      to:
+        uri: direct:secure
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteConfigurationVisualEntity should sort routeConfiguration properties: routeConfiguration-sorted 1`] = `
+"routeConfiguration:
+  id: routeConfig-1234
+  description: Global route configuration
+  intercept:
+    - id: intercept-1
+      steps:
+        - log:
+            message: Intercepted
+  onException:
+    - exception:
+        - java.lang.Exception
+      id: global-exc
+      steps:
+        - log:
+            message: Global exception
+  onCompletion:
+    - id: completion-1
+      steps:
+        - log:
+            message: Completed
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteConfigurationVisualEntity should sort routeConfiguration with interceptFrom: routeConfiguration-with-interceptFrom-sorted 1`] = `
+"routeConfiguration:
+  id: routeConfig-interceptFrom
+  interceptFrom:
+    - id: interceptFrom-1
+      steps:
+        - log:
+            message: Intercepted from
+      uri: direct:*
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should preserve array order while sorting object properties: route-array-order-preserved 1`] = `
+"route:
+  id: array-order-route
+  from:
+    uri: direct:start
+    steps:
+      - log:
+          id: log-1
+          message: Step 1
+      - log:
+          id: log-2
+          message: Step 2
+      - log:
+          id: log-3
+          message: Step 3
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a route with choice/when/otherwise: route-with-choice-sorted 1`] = `
+"route:
+  id: choice-route
+  from:
+    uri: direct:start
+    steps:
+      - choice:
+          id: choice-1
+          when:
+            - id: when-1
+              simple: \${header.type} == 'A'
+              steps:
+                - log:
+                    message: option A
+            - id: when-2
+              simple: \${header.type} == 'B'
+              steps:
+                - log:
+                    message: option B
+          otherwise:
+            steps:
+              - log:
+                  message: default
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a route with circuitBreaker/onFallback: route-with-circuitBreaker-sorted 1`] = `
+"route:
+  id: circuit-breaker-route
+  from:
+    uri: direct:start
+    steps:
+      - circuitBreaker:
+          id: cb-1
+          resilience4jConfiguration:
+            failureRateThreshold: 50
+            minimumNumberOfCalls: 5
+          onFallback:
+            id: fallback-1
+            steps:
+              - log:
+                  message: fallback executed
+          steps:
+            - to:
+                uri: http:unstable-service
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a route with component parameters: route-with-component-params-sorted 1`] = `
+"route:
+  id: params-route
+  description: Route with component parameters
+  from:
+    uri: timer:test
+    parameters:
+      timerName: myTimer
+      delay: 1000
+      period: 5000
+      repeatCount: 10
+    steps:
+      - to:
+          id: to-log
+          uri: log:info
+          parameters:
+            loggerName: MyLogger
+            level: INFO
+            showHeaders: true
+            message: Processing \${body}
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a route with doTry/doCatch/doFinally: route-with-doTry-sorted 1`] = `
+"route:
+  id: error-handling-route
+  from:
+    uri: direct:start
+    steps:
+      - doTry:
+          id: try-1
+          doCatch:
+            - exception:
+                - java.io.IOException
+              id: catch-1
+              steps:
+                - log:
+                    message: caught error
+          doFinally:
+            steps:
+              - log:
+                  message: finally block
+          steps:
+            - to:
+                uri: mock:risky
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a route with setHeader and setBody: route-with-setHeader-setBody-sorted 1`] = `
+"route:
+  id: transform-route
+  from:
+    uri: direct:start
+    steps:
+      - setHeader:
+          id: header-1
+          name: myHeader
+          simple: \${body}
+      - setBody:
+          id: body-1
+          simple: "Transformed: \${body}"
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a route with setHeaders containing expression objects: route-with-setHeaders-expression-objects-sorted 1`] = `
+"route:
+  id: expression-route
+  from:
+    uri: direct:start
+    steps:
+      - setHeaders:
+          id: headers-1
+          headers:
+            - name: header1
+              simple:
+                id: simple-1
+                expression: \${body.id}
+                resultType: java.lang.String
+            - name: header2
+              constant:
+                id: constant-1
+                expression: constant value
+                resultType: java.lang.String
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a simple route with unsorted properties: simple-route-sorted 1`] = `
+"route:
+  id: route-1234
+  description: A test route
+  from:
+    id: from-1
+    uri: timer:tick
+    parameters:
+      timerName: test
+      period: 1000
+    steps:
+      - log:
+          id: log-1
+          message: Hello
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort from properties with nested expression objects: route-with-from-expression-sorted 1`] = `
+"route:
+  id: from-route
+  description: Test from sorting
+  from:
+    id: from-1
+    uri: timer:test
+    parameters:
+      timerName: test
+      period: 1000
+    steps:
+      - setBody:
+          id: body-1
+          constant:
+            id: const-1
+            expression: test
+            resultType: java.lang.String
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() KameletVisualEntity should sort kamelet template from properties: kamelet-template-sorted 1`] = `
+"from:
+  uri: timer:tick
+  parameters:
+    timerName: test
+    period: "{{period}}"
+  steps:
+    - to:
+        uri: kamelet:sink
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() KameletVisualEntity should sort kamelet with multiple steps: kamelet-with-steps-sorted 1`] = `
+"from:
+  uri: kamelet:source
+  steps:
+    - setHeader:
+        name: itemId
+        simple: \${body.id}
+    - marshal:
+        json: {}
+    - to:
+        uri: kamelet:sink
+"
+`;
+
+exports[`Visual Entity Sorting - toJSON() YAML output verification should produce valid YAML after sorting: yaml-output-sorted 1`] = `
+"route:
+  id: yaml-test-route
+  description: Test route
+  from:
+    uri: timer:tick
+    parameters:
+      timerName: test
+      period: 1000
+    steps:
+      - to:
+          uri: log:info
+          parameters:
+            message: Hello World
+"
+`;

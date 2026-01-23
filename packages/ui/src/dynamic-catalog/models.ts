@@ -33,6 +33,7 @@ export interface IDynamicCatalog<T> {
     forceFresh?: boolean;
     filterFn?: (key: string, entity: T) => boolean;
   }): Promise<Record<string, T> | undefined>;
+  getFromCache(key: string): T | undefined;
   clearCache(): void;
 }
 
@@ -45,5 +46,6 @@ export interface IDynamicCatalogRegistry {
     key: string,
     options?: { forceFresh?: boolean },
   ): Promise<DynamicCatalogTypeMap[K] | undefined>;
+  getEntityFromCache<K extends CatalogKind>(kind: K, key: string): DynamicCatalogTypeMap[K] | undefined;
   clearRegistry(): void;
 }
