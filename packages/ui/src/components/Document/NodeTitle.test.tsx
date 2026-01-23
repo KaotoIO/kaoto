@@ -129,6 +129,32 @@ describe('NodeTitle', () => {
     });
   });
 
+  it('should display an asterisk when the field information is required', async () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const mockField = createMockField();
+    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
+    fieldNodeData.field.minOccurs = 1;
+
+    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
+
+    const element = screen.getByText('*');
+    expect(element).toBeVisible();
+  });
+
+  it('should not display an asterisk when the field information is optional', async () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const mockField = createMockField();
+    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
+    fieldNodeData.field.minOccurs = 0;
+
+    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
+
+    const element = screen.queryByText('*');
+    expect(element).not.toBeInTheDocument();
+  });
+
   it('should not display popover for MappingNodeData', async () => {
     const user = userEvent.setup();
     const targetDoc = TestUtil.createTargetOrderDoc();
