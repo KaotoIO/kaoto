@@ -85,7 +85,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
       }
 
       if (isDefined(catalogFilter)) {
-        const localFilteredTiles = tiles.filter(catalogFilter);
+        const localFilteredTiles = tiles.filter((element) => catalogFilter(element));
         setFilteredTiles(localFilteredTiles);
       } else {
         setFilteredTiles(tiles);

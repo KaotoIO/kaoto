@@ -41,7 +41,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
     nodeData instanceof FieldItemNodeData ||
     nodeData instanceof AddMappingNodeData
   ) {
-    const requiredField = nodeData.field.minOccurs === 0 ? false : true;
+    const requiredField = nodeData.field.minOccurs !== 0;
     const updatedContent = (
       <span className={clsx('node-title__text', className)} data-rank={rank}>
         {title} {requiredField && <span className="required-information">*</span>}
