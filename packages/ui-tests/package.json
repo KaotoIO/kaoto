@@ -20,7 +20,7 @@
     "lint:fix": "yarn lint --fix",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
-    "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=chpt_7a4940aa65b14ab"
+    "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=$CHROMATIC_PROJECT_TOKEN"
   },
   "devDependencies": {
     "@cypress/grep": "^4.1.0",
