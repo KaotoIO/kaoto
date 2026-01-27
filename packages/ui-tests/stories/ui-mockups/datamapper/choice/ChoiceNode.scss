@@ -1,0 +1,26 @@
+.choice-node {
+  margin-left: calc(var(--node-rank, 0) * 0.85rem);
+  padding: 0.25rem 0.5rem;
+  border: 2px dashed var(--pf-v6-global--palette--black-300);
+  background: var(--pf-v6-global--palette--black-150);
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__expand {
+    cursor: pointer;
+    left: var(--pf-t--global--spacer--sm);
+  }
+
+  &__title {
+    color: var(--pf-v6-global--palette--black-700);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}

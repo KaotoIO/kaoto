@@ -1,0 +1,55 @@
+.conditional-mapping-view {
+  position: relative;
+  min-height: 600px;
+
+  &__panels {
+    display: flex;
+    gap: 2rem;
+    position: relative;
+    max-width: 900px;
+  }
+
+  &__source,
+  &__target {
+    flex: 0 1 auto;
+    min-width: 300px;
+    max-width: 450px;
+
+    h3 {
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+  }
+
+  &__lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+
+    line {
+      transition: opacity 0.2s;
+
+      &:hover {
+        opacity: 1 !important;
+        stroke-width: 3;
+      }
+    }
+  }
+}
+
+.node__target__actions {
+  display: flex;
+  gap: 0;
+  align-items: center;
+
+  .pf-v6-c-button {
+    height: 1.75rem;
+    min-width: auto;
+    padding: 0 0.25rem;
+  }
+}

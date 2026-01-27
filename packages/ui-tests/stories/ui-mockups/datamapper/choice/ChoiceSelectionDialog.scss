@@ -1,0 +1,42 @@
+.choice-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.choice-option {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--pf-v6-global--palette--black-300);
+
+  &:hover {
+    background-color: var(--pf-v6-global--palette--black-150);
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__name {
+    font-weight: 500;
+    color: var(--pf-v6-global--palette--black-900);
+  }
+
+  &__type {
+    font-size: 0.75rem;
+    color: var(--pf-v6-global--palette--black-600);
+    font-family: monospace;
+    padding: 0.125rem 0.5rem;
+    background-color: var(--pf-v6-global--palette--black-200);
+    border-radius: 3px;
+  }
+
+  &__description {
+    margin-top: 0.5rem;
+    margin-left: 1.5rem;
+    font-size: 0.875rem;
+    color: var(--pf-v6-global--palette--black-700);
+  }
+}

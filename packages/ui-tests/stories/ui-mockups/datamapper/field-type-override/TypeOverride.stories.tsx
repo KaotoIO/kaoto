@@ -99,6 +99,7 @@ export const InteractiveWorkflow: StoryFn = () => {
     return { xmlSchemaTypes: filteredStandardTypes, customTypes: filteredCustomTypes };
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const availableTypes = useMemo(() => getAvailableTypes(), [selectedField, isForceOverride, customTypes]);
 
   return (
