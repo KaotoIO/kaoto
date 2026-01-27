@@ -153,6 +153,36 @@ Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType,
   cy.get(menuItemSelector).should('be.visible').click();
 });
 
+Cypress.Commands.add('forcePerformNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
+  nodeIndex = nodeIndex ?? 0;
+  const nodeSelector = `foreignObject[data-nodelabel="${nodeName}"]`;
+  const menuItemSelector = `[data-testid="context-menu-item-${action}"]`;
+
+  // Get the node and ensure it's visible
+  cy.get(nodeSelector).eq(nodeIndex).should('be.visible');
+
+  // Wrap the retry logic
+  cy.wait(200).then(() => {
+    // Right-click the node (query fresh from DOM)
+    cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
+
+    // Check if menu appeared, if not, right-click again with retries
+    for (let i = 0; i < 10; i++) {
+      cy.get('body').then(($body) => {
+        if ($body.find(menuItemSelector).length === 0) {
+          cy.log('Context menu not visible, retrying right-click...');
+          cy.wait(500);
+          cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
+        } else {
+          return;
+        }
+      });
+    }
+  });
+  // Now the menu should be visible, click it
+  cy.get(menuItemSelector).should('be.visible').click();
+});
+
 Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
   nodesCount = nodesCount ?? 1;
   cy.get(`foreignObject[data-nodelabel="${inputName}"]`).should('have.length', nodesCount);
@@ -249,5 +279,5 @@ Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: strin
   const targetEdge = cy.get(`[data-id="${targetEdgeName}"]`);
 
   sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(0, 0, { position: 'center' });
-  targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp();
+  targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
 });
