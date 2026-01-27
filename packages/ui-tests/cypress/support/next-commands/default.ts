@@ -296,6 +296,10 @@ Cypress.Commands.add('addValueToClipboard', (value) => {
   cy.window().then(async (win) => {
     if (win.navigator?.clipboard?.writeText) {
       await win.navigator?.clipboard?.writeText(JSON.stringify(value));
+      win.navigator?.clipboard?.readText().then((text) => {
+        const parsedContent = JSON.parse(text);
+        expect(parsedContent).to.deep.equal(value);
+      });
     } else {
       // For browsers without clipboard API support, skip this
       cy.log('Clipboard API not available - skipping clipboard addition');
