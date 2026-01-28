@@ -9,6 +9,8 @@ Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
   // Verify schema was attached by checking for child nodes in source body
   cy.get('.source-panel').find('[data-testid^="node-source-"]').should('exist');
+  // Wait for panel heights to stabilize after schema attachment
+  cy.wait(100);
 });
 
 Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
@@ -29,6 +31,8 @@ Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
 
   // Verify schema was attached by checking for child nodes in target body
   cy.get('.target-panel').find('[data-testid^="node-target-"]').should('exist');
+  // Wait for panel heights to stabilize after schema attachment
+  cy.wait(100);
 });
 
 Cypress.Commands.add('addParameter', (name: string) => {
@@ -60,6 +64,8 @@ Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) =
   }
 
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
+  // Wait for panel heights to stabilize after schema attachment
+  cy.wait(100);
 });
 
 Cypress.Commands.add('detachParameterSchema', (name: string) => {

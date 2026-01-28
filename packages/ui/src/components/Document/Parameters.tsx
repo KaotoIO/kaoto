@@ -150,7 +150,11 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
         ) : (
           <DocumentHeader
-            header={<Title headingLevel="h5">{parameterName}</Title>}
+            header={
+              <Title headingLevel="h5" className="parameter-title-italic">
+                {parameterName}
+              </Title>
+            }
             document={document}
             documentType={DocumentType.PARAM}
             isReadOnly={isReadOnly}
