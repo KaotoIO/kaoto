@@ -105,7 +105,7 @@ describe('usePasteStep', () => {
     // Mock the ClipboardManager.paste() to return a valid content
     const pasteSpy = jest
       .spyOn(ClipboardManager, 'paste')
-      .mockImplementation(async () => Promise.resolve(copiedContent as IClipboardCopyObject));
+      .mockImplementation(async () => copiedContent as IClipboardCopyObject);
     // Mock the compatibility check to return true
     jest.spyOn(mockCatalogModalContext, 'checkCompatibility').mockReturnValue(true);
 
@@ -136,12 +136,13 @@ describe('usePasteStep', () => {
     } as unknown as IVisualizationNode;
 
     // Mock the ClipboardManager.paste() to return a content which isn't compatible
-    const pasteSpy = jest.spyOn(ClipboardManager, 'paste').mockImplementation(async () =>
-      Promise.resolve({
-        type: SourceSchemaType.Pipe,
-        name: 'log',
-        definition: { id: 'test', message: 'hello' },
-      } as IClipboardCopyObject),
+    const pasteSpy = jest.spyOn(ClipboardManager, 'paste').mockImplementation(
+      async () =>
+        ({
+          type: SourceSchemaType.Pipe,
+          name: 'log',
+          definition: { id: 'test', message: 'hello' },
+        }) as IClipboardCopyObject,
     );
 
     const { result } = renderHook(() => usePasteStep(mockVizNode, AddStepMode.AppendStep), { wrapper });
