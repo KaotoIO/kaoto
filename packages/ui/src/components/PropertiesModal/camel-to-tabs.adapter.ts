@@ -1,10 +1,16 @@
 import { isDefined } from '@kaoto/forms';
 
-import { ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../../models';
+import {
+  ICamelComponentDefinition,
+  ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
+  IKameletDefinition,
+} from '../../models';
 import {
   camelComponentApisToTable,
   camelComponentPropertiesToTable,
   camelProcessorPropertiesToTable,
+  citrusComponentToPropertiesTable,
   IPropertiesTableFilter,
   kameletToPropertiesTable,
 } from './camel-to-table.adapter';
@@ -149,6 +155,25 @@ export const transformKameletComponentIntoTab = (kameletDef: IKameletDefinition 
       {
         transformFunction: kameletToPropertiesTable,
         objectToTransform: kameletDef,
+      },
+    ],
+    'Options',
+  );
+  if (tab) finalTabs.push(tab);
+  return finalTabs;
+};
+
+export const transformCitrusComponentIntoTab = (
+  componentDef: ICitrusComponentDefinition | undefined,
+): IPropertiesTab[] => {
+  if (!isDefined(componentDef)) return [];
+
+  const finalTabs: IPropertiesTab[] = [];
+  const tab = transformPropertiesIntoTab(
+    [
+      {
+        transformFunction: citrusComponentToPropertiesTable,
+        objectToTransform: componentDef,
       },
     ],
     'Options',

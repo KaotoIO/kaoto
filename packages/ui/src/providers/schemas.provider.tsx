@@ -4,7 +4,7 @@ import { createContext, FunctionComponent, PropsWithChildren, useEffect, useStat
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
-import { CamelCatalogIndex, KaotoSchemaDefinition, LoadingStatus } from '../models';
+import { CamelCatalogIndex, CitrusCatalogIndex, KaotoSchemaDefinition, LoadingStatus } from '../models';
 import { sourceSchemaConfig } from '../models/camel';
 import { useSchemasStore } from '../store';
 import { CatalogSchemaLoader } from '../utils';
@@ -46,6 +46,8 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
           {} as Record<string, KaotoSchemaDefinition>,
         );
 
+        fetchCitrusSchemas(combinedSchemas);
+
         setSchemas(combinedSchemas);
       })
       .then(() => {
@@ -57,6 +59,33 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCatalogIndexFile]);
+
+  function fetchCitrusSchemas(combinedSchemas: Record<string, KaotoSchemaDefinition>) {
+    // ToDo: make Citrus catalog selectable
+    const indexFile = './citrus-catalog/citrus/index.json'; // latest catalog version
+    fetch(indexFile)
+      .then((response) => {
+        setLoadingStatus(LoadingStatus.Loading);
+        return response.json();
+      })
+      .then(async (catalogIndex: CitrusCatalogIndex) => {
+        const schemaFilesPromise = CatalogSchemaLoader.getSchemasFiles(indexFile, catalogIndex.schemas);
+
+        const loadedSchemas = await Promise.all(schemaFilesPromise);
+        loadedSchemas.forEach((schema) => {
+          setSchema(schema.name, schema);
+          sourceSchemaConfig.setSchema(schema.name, schema);
+          combinedSchemas[schema.name] = schema;
+        });
+      })
+      .then(() => {
+        setLoadingStatus(LoadingStatus.Loaded);
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+        setLoadingStatus(LoadingStatus.Error);
+      });
+  }
 
   return (
     <SchemasContext.Provider value={schemas}>

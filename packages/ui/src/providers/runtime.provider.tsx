@@ -58,6 +58,8 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
           catalogLibraryEntry = redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
         }
 
+        addCitrusCatalogLibrary(catalogLibrary);
+
         setCatalogLibrary(catalogLibrary);
         setSelectedCatalog(catalogLibraryEntry);
       })
@@ -70,6 +72,25 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function addCitrusCatalogLibrary(catalogLibrary: CatalogLibrary) {
+    const citrusCatalogUrl = './citrus-catalog/index.json';
+    fetch(citrusCatalogUrl)
+      .then((response) => {
+        setLoadingStatus(LoadingStatus.Loading);
+        return response.json();
+      })
+      .then((citrusCatalogLibrary: CatalogLibrary) => {
+        catalogLibrary.definitions.push(...citrusCatalogLibrary.definitions);
+      })
+      .then(() => {
+        setLoadingStatus(LoadingStatus.Loaded);
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+        setLoadingStatus(LoadingStatus.Error);
+      });
+  }
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({
