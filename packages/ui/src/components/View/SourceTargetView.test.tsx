@@ -6,6 +6,21 @@ import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePicker
 import { camelYamlDslJsonSchema, shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { SourceTargetView } from './SourceTargetView';
 
+// Mock ResizeObserver for ExpansionPanels
+beforeAll(() => {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {
+      // intentional noop for test mock
+    }
+    unobserve() {
+      // intentional noop for test mock
+    }
+    disconnect() {
+      // intentional noop for test mock
+    }
+  };
+});
+
 describe('SourceTargetView', () => {
   describe('Source Body Document', () => {
     it('should attach and detach schema', async () => {

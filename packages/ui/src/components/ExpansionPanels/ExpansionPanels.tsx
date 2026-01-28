@@ -81,6 +81,41 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     container.style.setProperty('--grid-template', template);
   }, [getCollapsedHeight]);
 
+  /**
+   * Fit panels to container height using proportional resize
+   * Shared logic used by both ResizeObserver and initial registration
+   */
+  const fitPanelsToContainer = useCallback(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const newContainerHeight = container.offsetHeight;
+    if (newContainerHeight <= 0) return;
+
+    const panels = Array.from(panelsRef.current.values()).sort((a, b) => a.order - b.order);
+    if (panels.length === 0) return;
+
+    const panelInfos = panels.map((p) => ({
+      id: p.id,
+      height: p.height,
+      minHeight: p.minHeight,
+      collapsedHeight: getCollapsedHeight(p),
+      isExpanded: p.isExpanded,
+    }));
+
+    const result = calculateContainerResize(panelInfos, newContainerHeight);
+
+    if (result.changed) {
+      result.newHeights.forEach((height, id) => {
+        const panel = panelsRef.current.get(id);
+        if (panel?.isExpanded) {
+          panel.height = height;
+        }
+      });
+      updateGridTemplate();
+    }
+  }, [updateGridTemplate, getCollapsedHeight]);
+
   const register = useCallback(
     (id: string, minHeight: number, defaultHeight: number, element: HTMLDivElement, isExpanded: boolean) => {
       const existingPanel = panelsRef.current.get(id);
@@ -114,9 +149,15 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       queueMicrotask(() => {
         updateOrdersFromChildren();
         updateGridTemplate();
+
+        // When last panel registers, fit all panels to container height
+        // This ensures panels fill the container on initial load
+        if (id === lastPanelId) {
+          fitPanelsToContainer();
+        }
       });
     },
-    [updateGridTemplate, updateOrdersFromChildren],
+    [updateGridTemplate, updateOrdersFromChildren, lastPanelId, fitPanelsToContainer],
   );
 
   const unregister = useCallback(
@@ -289,32 +330,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     if (!container) return;
 
     const resizeObserver = new ResizeObserver(() => {
-      const newContainerHeight = container.offsetHeight;
-
-      // Sort panels by order for consistent processing
-      const panels = Array.from(panelsRef.current.values()).sort((a, b) => a.order - b.order);
-
-      // Convert to PanelResizeInfo for pure calculation
-      const panelInfos = panels.map((p) => ({
-        id: p.id,
-        height: p.height,
-        minHeight: p.minHeight,
-        collapsedHeight: getCollapsedHeight(p),
-        isExpanded: p.isExpanded,
-      }));
-
-      const result = calculateContainerResize(panelInfos, newContainerHeight);
-
-      if (result.changed) {
-        // Apply the calculated heights
-        result.newHeights.forEach((height, id) => {
-          const panel = panelsRef.current.get(id);
-          if (panel?.isExpanded) {
-            panel.height = height;
-          }
-        });
-        updateGridTemplate();
-      }
+      fitPanelsToContainer();
     });
 
     resizeObserver.observe(container);
@@ -322,7 +338,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     return () => {
       resizeObserver.disconnect();
     };
-  }, [updateGridTemplate, getCollapsedHeight]);
+  }, [fitPanelsToContainer]);
 
   // No spacer needed - panels stack naturally in order
 

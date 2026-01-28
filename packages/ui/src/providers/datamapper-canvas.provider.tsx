@@ -21,6 +21,7 @@ export interface ICanvasContext {
   setNodeReference: (path: string, ref: RefObject<NodeReference>) => void;
   getNodeReference: (path: string) => RefObject<NodeReference> | null;
   reloadNodeReferences: () => void;
+  nodeReferenceVersion: number;
   clearNodeReferencesForPath: (path: string) => void;
   clearNodeReferencesForDocument: (documentType: DocumentType, documentId: string) => void;
   getAllNodePaths: () => string[];
@@ -35,6 +36,7 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
   const { mappingTree } = useDataMapper();
   const [defaultHandler, setDefaultHandler] = useState<DnDHandler | undefined>();
   const [activeHandler, setActiveHandler] = useState<DnDHandler | undefined>();
+  const [nodeReferenceVersion, setNodeReferenceVersion] = useState(0);
 
   const [nodeReferenceMap, setNodeReferenceMap] = useState<Map<string, RefObject<NodeReference>>>(
     new Map<string, RefObject<NodeReference>>(),
@@ -56,6 +58,7 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
 
   const reloadNodeReferences = useCallback(() => {
     setNodeReferenceMap(new Map(nodeReferenceMap));
+    setNodeReferenceVersion((v) => v + 1);
   }, [nodeReferenceMap]);
 
   useEffect(() => {
@@ -106,6 +109,7 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
       setNodeReference,
       getNodeReference,
       reloadNodeReferences,
+      nodeReferenceVersion,
       clearNodeReferencesForPath,
       clearNodeReferencesForDocument,
       getAllNodePaths,
@@ -117,6 +121,7 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
     setNodeReference,
     getNodeReference,
     reloadNodeReferences,
+    nodeReferenceVersion,
     clearNodeReferencesForPath,
     clearNodeReferencesForDocument,
     getAllNodePaths,

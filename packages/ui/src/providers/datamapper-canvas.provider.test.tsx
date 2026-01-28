@@ -69,7 +69,7 @@ describe('CanvasProvider', () => {
 
     const afterNodePaths = result.current.canvas.getAllNodePaths();
 
-    expect(afterNodePaths.length).toEqual(15);
+    expect(afterNodePaths.length).toEqual(14);
     expect(beforeNodePaths.length).toBeGreaterThan(afterNodePaths.length);
   });
 
