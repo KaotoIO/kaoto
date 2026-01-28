@@ -17,3 +17,16 @@
     --pf-v6-c-button--PaddingRight: 0.5rem;
   }
 }
+
+.parameter-title-italic {
+  font-style: italic;
+  font-weight: var(--pf-t--global--font--weight--body--default);
+}
+
+// Add spacing for parameters with schema (no drag icon) to match parameters without schema (with drag icon)
+// This creates empty space equivalent to the drag icon's space
+.document-header:not(:has([data-drag-handler])) .parameter-title-italic {
+  // Match the drag icon spacing: icon width + left margin + right margin
+  // Icon is ~16px, margins are --pf-t--global--spacer--sm each side
+  margin-left: calc(1rem + 2 * var(--pf-t--global--spacer--sm));
+}

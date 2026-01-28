@@ -222,6 +222,10 @@ export class MappingLinksService {
   private static findScrollContainer(headerRef: Element | null): Element | null {
     if (!headerRef) return null;
 
+    // Skip clamping for elements in panel summary (e.g., parameters without schema)
+    // These elements are not inside the scrollable content area
+    if (headerRef.closest('.expansion-panel__summary')) return null;
+
     // First try: element is inside the content area (normal tree node)
     const directContainer = headerRef.closest('.expansion-panel__content');
     if (directContainer) return directContainer;
