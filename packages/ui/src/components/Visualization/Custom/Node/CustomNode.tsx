@@ -90,6 +90,21 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const dndSettingsEnabled = settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop;
     const canDragNode = vizNode?.canDragNode() ?? false;
 
+    const hasSomeInteractions = useMemo(
+      () =>
+        [
+          vizNode?.getNodeInteraction().canBeDisabled,
+          vizNode?.getNodeInteraction().canHaveChildren,
+          vizNode?.getNodeInteraction().canHaveNextStep,
+          vizNode?.getNodeInteraction().canHavePreviousStep,
+          vizNode?.getNodeInteraction().canHaveSpecialChildren,
+          vizNode?.getNodeInteraction().canRemoveFlow,
+          vizNode?.getNodeInteraction().canRemoveStep,
+          vizNode?.getNodeInteraction().canReplaceStep,
+        ].some(Boolean),
+      [vizNode],
+    );
+
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
     }, AnchorEnd.both);
@@ -290,7 +305,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             </div>
           </foreignObject>
 
-          {!isDraggingNode && shouldShowToolbar && (
+          {!isDraggingNode && shouldShowToolbar && hasSomeInteractions && (
             <Layer id={TOP_LAYER}>
               <foreignObject
                 ref={toolbarHoverRef}
