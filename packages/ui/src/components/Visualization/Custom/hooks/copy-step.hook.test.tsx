@@ -6,7 +6,7 @@ import { ClipboardManager } from '../../../../utils/ClipboardManager';
 import { useCopyStep } from './copy-step.hook';
 
 describe('useCopyStep', () => {
-  const copySpy = jest.spyOn(ClipboardManager, 'copy').mockImplementation(async (__object) => Promise.resolve());
+  const copySpy = jest.spyOn(ClipboardManager, 'copy').mockImplementation(async (__object) => undefined);
   const copiedContent = {
     type: SourceSchemaType.Route,
     name: 'exampleNode',
