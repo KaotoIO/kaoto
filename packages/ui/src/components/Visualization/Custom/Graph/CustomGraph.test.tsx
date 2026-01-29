@@ -79,34 +79,13 @@ describe('GraphContextMenuFn', () => {
     expect(defaultOptions.entityContextMenuFn).toHaveBeenCalledTimes(1);
   });
 
-  it('Paste menu item is disabled when canPasteEntity is false', () => {
-    const items = GraphContextMenuFn({ ...defaultOptions, canPasteEntity: false });
+  it('Paste menu item is present', () => {
+    const items = GraphContextMenuFn({ ...defaultOptions });
 
     renderWithContext(<>{items}</>);
 
     const pasteItem = screen.getByTestId('context-menu-item-paste');
-    expect(pasteItem).toHaveClass('pf-m-disabled');
-  });
-
-  it('Paste menu item is enabled when canPasteEntity is true', () => {
-    const items = GraphContextMenuFn({ ...defaultOptions, canPasteEntity: true });
-
-    renderWithContext(<>{items}</>);
-
-    const pasteItem = screen.getByTestId('context-menu-item-paste');
-    expect(pasteItem).not.toHaveClass('pf-m-disabled');
-  });
-
-  it('Paste menu item calls pasteEntity on click', () => {
-    const pasteEntity = jest.fn();
-    const items = GraphContextMenuFn({ ...defaultOptions, canPasteEntity: true, pasteEntity });
-
-    renderWithContext(<>{items}</>);
-
-    const pasteButton = screen.getByText('Paste').closest('button')!;
-    fireEvent.click(pasteButton);
-
-    expect(pasteEntity).toHaveBeenCalledTimes(1);
+    expect(pasteItem).toBeInTheDocument();
   });
 
   it('Show all menu item calls showFlows on click', () => {

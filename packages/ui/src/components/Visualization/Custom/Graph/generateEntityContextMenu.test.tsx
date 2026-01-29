@@ -15,8 +15,6 @@ jest.mock('@patternfly/react-topology', () => ({
 
 describe('generateEntityContextMenu', () => {
   const createEntity = jest.fn();
-  const canPasteEntity = false;
-  const pasteEntity = jest.fn();
 
   const commonEntities = [
     {
@@ -62,8 +60,6 @@ describe('generateEntityContextMenu', () => {
       commonEntities,
       groupedEntities: {},
       createEntity,
-      canPasteEntity,
-      pasteEntity,
     });
 
     const { getByTestId } = render(<>{items}</>);
@@ -80,8 +76,6 @@ describe('generateEntityContextMenu', () => {
       commonEntities,
       groupedEntities: {},
       createEntity,
-      canPasteEntity,
-      pasteEntity,
     });
 
     const { getByTestId } = render(<>{items}</>);
@@ -98,8 +92,6 @@ describe('generateEntityContextMenu', () => {
       commonEntities: [],
       groupedEntities,
       createEntity,
-      canPasteEntity,
-      pasteEntity,
     });
 
     const { getByText, getByTestId } = render(<>{items}</>);
@@ -119,8 +111,6 @@ describe('generateEntityContextMenu', () => {
       commonEntities: [],
       groupedEntities,
       createEntity,
-      canPasteEntity,
-      pasteEntity,
     });
 
     const { getByTestId } = render(<>{items}</>);
@@ -139,8 +129,6 @@ describe('generateEntityContextMenu', () => {
       commonEntities: [],
       groupedEntities: {},
       createEntity,
-      canPasteEntity,
-      pasteEntity,
     });
     expect(items).toEqual([]);
   });

@@ -1,7 +1,6 @@
 import { Divider } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, PasteIcon, PlusIcon } from '@patternfly/react-icons';
+import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import {
-  ContextMenuItem,
   ContextSubMenuItem,
   ElementContext,
   GraphComponent,
@@ -11,19 +10,16 @@ import {
 import { FunctionComponent, PropsWithChildren, ReactElement, useContext } from 'react';
 
 import { IDataTestID } from '../../../../models';
+import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
 import { withEntityContextMenu, WithEntityContextMenuProps } from './withEntityContextMenu';
 
 interface GraphContextMenuOptions {
   entityContextMenuFn: () => ReactElement[];
-  canPasteEntity: boolean;
-  pasteEntity: () => Promise<void>;
 }
 
 export const GraphContextMenuFn = ({
   entityContextMenuFn,
-  canPasteEntity,
-  pasteEntity,
 }: GraphContextMenuOptions): ReactElement<PropsWithChildren<IDataTestID>>[] => {
   const items: ReactElement<PropsWithChildren<IDataTestID>>[] = [
     <ShowOrHideAllFlows key="showAll" data-testid="context-menu-item-show-all" mode="showAll">
@@ -34,16 +30,7 @@ export const GraphContextMenuFn = ({
       <EyeSlashIcon />
       <span className="pf-v6-u-m-sm">Hide all</span>
     </ShowOrHideAllFlows>,
-    <Divider key="paste-divider" />,
-    <ContextMenuItem
-      key="paste-entity"
-      data-testid="context-menu-item-paste"
-      isDisabled={!canPasteEntity}
-      onClick={pasteEntity}
-    >
-      <PasteIcon />
-      <span className="pf-v6-u-m-sm">Paste</span>
-    </ContextMenuItem>,
+    <ItemPasteEntity key="paste-entity" data-testid="context-menu-item-paste" />,
   ];
 
   const entities = entityContextMenuFn();
@@ -69,13 +56,8 @@ export const GraphContextMenuFn = ({
   return items;
 };
 
-const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({
-  entityContextMenuFn,
-  canPasteEntity,
-  pasteEntity,
-  ...rest
-}) => {
-  const contextMenuFn = () => GraphContextMenuFn({ entityContextMenuFn, canPasteEntity, pasteEntity });
+const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
+  const contextMenuFn = () => GraphContextMenuFn({ entityContextMenuFn });
   const element = useContext(ElementContext);
   const EnhancedGraphComponent = withPanZoom()(withContextMenu(contextMenuFn)(GraphComponent));
 
