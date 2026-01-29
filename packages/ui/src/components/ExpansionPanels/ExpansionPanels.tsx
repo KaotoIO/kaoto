@@ -30,9 +30,6 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   // Track pending layout change callbacks - executed after CSS transition completes
   const layoutChangeQueueRef = useRef<Array<() => void>>([]);
 
-  // Track pending RAF IDs to cancel stale callbacks when new transitions start
-  const pendingRafRef = useRef<{ outer: number | null; inner: number | null }>({ outer: null, inner: null });
-
   /**
    * Update panel orders based on actual DOM order
    * This ensures grid template matches visual panel positions,
@@ -43,15 +40,11 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     if (!container) return;
 
     // Get actual DOM order from the container's children
-    const domElements = Array.from(container.children);
+    const domElements = Array.from(container.children) as HTMLElement[];
     let dynamicOrder = ORDER_START;
-
-    // Track which panels have been assigned an order from DOM
-    const assignedPanelIds = new Set<string>();
 
     domElements.forEach((element) => {
       // Find the panel by matching the DOM element
-      // Non-panel elements (like context providers) are intentionally skipped
       const panel = Array.from(panelsRef.current.values()).find((p) => p.element === element);
       if (panel) {
         // Assign order based on actual DOM position
@@ -61,19 +54,6 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
           panel.order = ORDER_LAST;
         } else {
           panel.order = dynamicOrder++;
-        }
-        assignedPanelIds.add(panel.id);
-      }
-    });
-
-    // Handle panels that weren't found in DOM (e.g., element ref not yet updated)
-    // These keep their existing order to maintain stability until next update
-    panelsRef.current.forEach((panel) => {
-      if (!assignedPanelIds.has(panel.id)) {
-        // Panel registered but not found in DOM - this can happen during React reconciliation
-        // Keep existing order if valid, otherwise assign a fallback order
-        if (typeof panel.order !== 'number' || !Number.isFinite(panel.order)) {
-          panel.order = ORDER_START + panelsRef.current.size;
         }
       }
     });
@@ -151,16 +131,15 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
         existingPanel.collapsedHeight = collapsedHeight;
         // Don't reset height, isExpanded, or order - they may have been modified by user interaction
       } else {
-        // New panel - assign temporary order based on special IDs or registration sequence.
-        // This order is transient and will be corrected by updateOrdersFromChildren()
-        // in the queueMicrotask below, which assigns final order based on actual DOM position.
+        // New panel - assign order based on special IDs or registration sequence
         let initialOrder;
         if (id === firstPanelId) {
           initialOrder = ORDER_FIRST;
         } else if (id === lastPanelId) {
           initialOrder = ORDER_LAST;
         } else {
-          // Temporary order based on registration sequence - will be updated from DOM
+          // Assign order based on current panel count (registration sequence)
+          // This ensures correct order even when panels are inside fragments/components
           initialOrder = ORDER_START + panelsRef.current.size;
         }
 
@@ -202,7 +181,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
         }
       });
     },
-    [updateGridTemplate, updateOrdersFromChildren, firstPanelId, lastPanelId, fitPanelsToContainer],
+    [updateGridTemplate, updateOrdersFromChildren, lastPanelId, fitPanelsToContainer],
   );
 
   const unregister = useCallback(
@@ -227,12 +206,8 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       }
 
       updateGridTemplate();
-
-      // Ensure panels fit within container bounds after redistribution
-      // This prevents overflow when redistributed space exceeds container height
-      fitPanelsToContainer();
     },
-    [updateGridTemplate, fitPanelsToContainer],
+    [updateGridTemplate],
   );
 
   /**
@@ -243,23 +218,15 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   }, []);
 
   /**
-   * Redistribute space among expanded panels equally.
-   *
-   * Design rationale: Equal distribution is preferred over proportional distribution
-   * because it provides more predictable behavior across expand/collapse cycles and
-   * avoids accumulating floating-point rounding errors that can cause progressive
-   * shrinking of panels over time. Each panel receives its minHeight plus an equal
-   * share of any remaining space.
+   * Redistribute space among expanded panels equally
    */
   const redistributeSpace = useCallback((panels: PanelData[], availableSpace: number) => {
-    // Guard against empty array to prevent division by zero
-    if (panels.length === 0) return;
-
     const totalMinHeight = panels.reduce((sum, p) => sum + p.minHeight, 0);
     const extraSpace = availableSpace - totalMinHeight;
 
     if (extraSpace > 0) {
       // Distribute extra space equally among all panels
+      // This avoids accumulating rounding errors from proportional distribution
       const extraPerPanel = extraSpace / panels.length;
       panels.forEach((p) => {
         p.height = p.minHeight + extraPerPanel;
@@ -393,10 +360,6 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   );
 
   // Update panel orders whenever children change
-  // Note: The children dependency is intentional here. While individual panel registration
-  // handles most cases via queueMicrotask, this effect catches React reconciliation changes
-  // (e.g., conditional rendering, key changes) that don't trigger re-registration.
-  // The functions are memoized, so the effect only runs when children actually change.
   useEffect(() => {
     updateOrdersFromChildren();
     updateGridTemplate();
@@ -418,39 +381,6 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     };
   }, [fitPanelsToContainer]);
 
-  // Flush all queued layout change callbacks
-  const flushLayoutChangeQueue = useCallback(() => {
-    const callbacks = [...layoutChangeQueueRef.current];
-    layoutChangeQueueRef.current = [];
-    // Execute each callback independently so one failure doesn't block others
-    callbacks.forEach((callback) => {
-      try {
-        callback();
-      } catch {
-        // Silently ignore callback errors to ensure all callbacks get a chance to run
-      }
-    });
-  }, []);
-
-  // Schedule layout flush with double RAF to ensure browser layout is complete
-  const scheduleLayoutFlush = useCallback(() => {
-    // Cancel any pending RAF from previous transitions to prevent stale callbacks
-    if (pendingRafRef.current.outer !== null) {
-      cancelAnimationFrame(pendingRafRef.current.outer);
-    }
-    if (pendingRafRef.current.inner !== null) {
-      cancelAnimationFrame(pendingRafRef.current.inner);
-    }
-
-    // Wait for browser to complete layout calculations with double RAF
-    pendingRafRef.current.outer = requestAnimationFrame(() => {
-      pendingRafRef.current.inner = requestAnimationFrame(() => {
-        pendingRafRef.current = { outer: null, inner: null };
-        flushLayoutChangeQueue();
-      });
-    });
-  }, [flushLayoutChangeQueue]);
-
   // Listen to CSS transition end and flush layout change queue
   useEffect(() => {
     const container = containerRef.current;
@@ -459,22 +389,24 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     const handleTransitionEnd = (e: TransitionEvent) => {
       // Only respond to grid-template-rows transitions on this container
       if (e.target !== container || e.propertyName !== 'grid-template-rows') return;
-      scheduleLayoutFlush();
+
+      // Wait for browser to complete layout calculations with double RAF
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          // Execute all queued callbacks
+          const callbacks = [...layoutChangeQueueRef.current];
+          layoutChangeQueueRef.current = [];
+          callbacks.forEach((callback) => callback());
+        });
+      });
     };
 
     container.addEventListener('transitionend', handleTransitionEnd);
 
     return () => {
       container.removeEventListener('transitionend', handleTransitionEnd);
-      // Clean up any pending RAFs on unmount
-      if (pendingRafRef.current.outer !== null) {
-        cancelAnimationFrame(pendingRafRef.current.outer);
-      }
-      if (pendingRafRef.current.inner !== null) {
-        cancelAnimationFrame(pendingRafRef.current.inner);
-      }
     };
-  }, [scheduleLayoutFlush]);
+  }, []);
 
   // No spacer needed - panels stack naturally in order
 
