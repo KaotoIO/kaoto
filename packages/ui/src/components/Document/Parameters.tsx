@@ -2,7 +2,7 @@ import './Parameters.scss';
 import './BaseDocument.scss';
 
 import { ActionList, ActionListItem, Button, Icon, Title } from '@patternfly/react-core';
-import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
+import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -123,6 +123,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   }, [parameterNodeData]);
 
   const hasSchema = !parameterNodeData.isPrimitive;
+  const [isExpanded, setIsExpanded] = useState(hasSchema);
   const parameterName = document.documentId;
   const isRenaming = renamingParameter === parameterName;
   const documentReferenceId = document.getReferenceId(mappingTree.namespaceMap);
@@ -149,22 +150,30 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         isRenaming ? (
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
         ) : (
-          <DocumentHeader
-            header={
-              <Title headingLevel="h5" className="parameter-title-italic">
-                {parameterName}
-              </Title>
-            }
-            document={document}
-            documentType={DocumentType.PARAM}
-            isReadOnly={isReadOnly}
-            additionalActions={parameterActions}
-            enableDnD={!hasSchema}
-          />
+          <div className="parameter-panel__summary">
+            {hasSchema && (
+              <Icon isInline className="parameter-panel__chevron">
+                {isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+              </Icon>
+            )}
+            <DocumentHeader
+              header={
+                <Title headingLevel="h5" className="parameter-title-italic">
+                  {parameterName}
+                </Title>
+              }
+              document={document}
+              documentType={DocumentType.PARAM}
+              isReadOnly={isReadOnly}
+              additionalActions={parameterActions}
+              enableDnD={!hasSchema}
+            />
+          </div>
         )
       }
       onScroll={onScroll}
       onLayoutChange={onLayoutChange}
+      onExpandedChange={setIsExpanded}
     >
       {/* Only render children if parameter has schema */}
       {hasSchema && parameterTree && (

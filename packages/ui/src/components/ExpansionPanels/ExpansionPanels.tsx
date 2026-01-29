@@ -181,7 +181,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
         }
       });
     },
-    [updateGridTemplate, updateOrdersFromChildren, lastPanelId, fitPanelsToContainer],
+    [updateGridTemplate, updateOrdersFromChildren, firstPanelId, lastPanelId, fitPanelsToContainer],
   );
 
   const unregister = useCallback(
