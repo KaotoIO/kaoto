@@ -11,6 +11,33 @@ export type ParsedParameters = Record<string, string | boolean | number>;
  */
 export class CamelUriHelper {
   private static readonly URI_SEPARATORS_REGEX = /:|(\/\/)|#|\//g;
+
+  /**
+   * Extracts the component name from a Camel URI string.
+   *
+   * The component name is the scheme part of the URI (before the first colon).
+   * For Kamelets, returns the full `kamelet:name` to preserve the kamelet identity.
+   *
+   * @param uri - The Camel URI string
+   * @returns The component name, or undefined if the URI is empty/invalid
+   *
+   * @example
+   * getComponentNameFromUri('timer:tick') // => 'timer'
+   * getComponentNameFromUri('log:MyLogger') // => 'log'
+   * getComponentNameFromUri('timer:tick?period=1000') // => 'timer'
+   * getComponentNameFromUri('kamelet:kafka-sink?topic=foo') // => 'kamelet:kafka-sink'
+   */
+  static getComponentNameFromUri(uri: string): string | undefined {
+    if (!uri) {
+      return undefined;
+    }
+    const uriParts = uri.split(':');
+    if (uriParts[0] === 'kamelet' && uriParts.length > 1) {
+      const kameletName = uriParts[1].split('?')[0];
+      return uriParts[0] + ':' + kameletName;
+    }
+    return uriParts[0];
+  }
   private static readonly KNOWN_URI_MAP: Record<string, string> = {
     'http://httpUri': 'http://',
     'https://httpUri': 'https://',

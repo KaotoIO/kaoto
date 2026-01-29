@@ -4,21 +4,21 @@ exports[`Visual Entity Sorting - toJSON() CamelErrorHandlerVisualEntity should s
 "errorHandler:
   deadLetterChannel:
     deadLetterUri: direct:dlq
-    id: dlc-1
     redeliveryPolicy:
-      backOffMultiplier: 2
       maximumRedeliveries: 5
       redeliveryDelay: 2000
+      backOffMultiplier: 2
+    id: dlc-1
 "
 `;
 
 exports[`Visual Entity Sorting - toJSON() CamelErrorHandlerVisualEntity should sort errorHandler with defaultErrorHandler: errorHandler-defaultErrorHandler-sorted 1`] = `
 "errorHandler:
   defaultErrorHandler:
-    id: default-eh
     redeliveryPolicy:
-      logStackTrace: true
       maximumRedeliveries: 3
+      logStackTrace: true
+    id: default-eh
 "
 `;
 
@@ -117,90 +117,90 @@ exports[`Visual Entity Sorting - toJSON() CamelOnExceptionVisualEntity should so
 
 exports[`Visual Entity Sorting - toJSON() CamelRestConfigurationVisualEntity should sort restConfiguration properties: restConfiguration-sorted 1`] = `
 "restConfiguration:
-  component: platform-http
   apiComponent: openapi
-  producerComponent: vertx-http
-  port: "8080"
-  hostNameResolver: allLocalIp
   bindingMode: auto
+  component: platform-http
+  hostNameResolver: allLocalIp
+  port: "8080"
+  producerComponent: vertx-http
 "
 `;
 
 exports[`Visual Entity Sorting - toJSON() CamelRestConfigurationVisualEntity should sort restConfiguration with CORS and properties: restConfiguration-with-cors-sorted 1`] = `
 "restConfiguration:
   component: jetty
-  port: "9090"
-  enableCORS: true
   componentProperty:
     - key: maxThreads
       value: "10"
   corsHeaders:
     - key: Access-Control-Allow-Origin
       value: "*"
+  enableCORS: true
+  port: "9090"
 "
 `;
 
 exports[`Visual Entity Sorting - toJSON() CamelRestVisualEntity should sort rest properties: rest-sorted 1`] = `
 "rest:
-  id: rest-1234
-  description: REST API
-  path: /api
   bindingMode: auto
+  description: REST API
   get:
     - id: get-hello
       path: /hello
       to:
         uri: direct:hello
+  id: rest-1234
+  path: /api
   post:
-    - consumes: application/json
-      id: post-create
+    - id: post-create
       path: /create
       to:
         uri: direct:create
+      consumes: application/json
 "
 `;
 
 exports[`Visual Entity Sorting - toJSON() CamelRestVisualEntity should sort rest with security definitions: rest-with-security-sorted 1`] = `
 "rest:
+  get:
+    - id: get-secure
+      path: /secure
+      to:
+        uri: direct:secure
+      security:
+        - key: oauth2
+          scopes: read
   id: rest-secure
   path: /api/v2
   securityDefinitions:
     oauth2:
-      flow: application
       key: oauth2
+      flow: application
       tokenUrl: https://auth.example.com/token
-  get:
-    - id: get-secure
-      path: /secure
-      security:
-        - key: oauth2
-          scopes: read
-      to:
-        uri: direct:secure
 "
 `;
 
 exports[`Visual Entity Sorting - toJSON() CamelRouteConfigurationVisualEntity should sort routeConfiguration properties: routeConfiguration-sorted 1`] = `
 "routeConfiguration:
-  id: routeConfig-1234
   description: Global route configuration
+  id: routeConfig-1234
   intercept:
     - id: intercept-1
       steps:
         - log:
             message: Intercepted
-  onException:
-    - exception:
-        - java.lang.Exception
-      id: global-exc
-      steps:
-        - log:
-            message: Global exception
   onCompletion:
     - id: completion-1
       steps:
         - log:
             message: Completed
+  onException:
+    - id: global-exc
+      exception:
+        - java.lang.Exception
+      steps:
+        - log:
+            message: Global exception
 "
 `;
 
@@ -209,10 +209,10 @@ exports[`Visual Entity Sorting - toJSON() CamelRouteConfigurationVisualEntity sh
   id: routeConfig-interceptFrom
   interceptFrom:
     - id: interceptFrom-1
+      uri: direct:*
       steps:
         - log:
             message: Intercepted from
-      uri: direct:*
 "
 `;
 
@@ -314,9 +314,9 @@ exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a r
       - doTry:
           id: try-1
           doCatch:
-            - exception:
+            - id: catch-1
+              exception:
                 - java.io.IOException
-              id: catch-1
               steps:
                 - log:
                     message: caught error
@@ -357,14 +357,14 @@ exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort a r
           headers:
             - name: header1
               simple:
-                id: simple-1
+                resultType: java.lang.String
                 expression: \${body.id}
+                id: simple-1
+            - constant:
                 resultType: java.lang.String
-            - name: header2
-              constant:
-                id: constant-1
                 expression: constant value
-                resultType: java.lang.String
+                id: constant-1
+              name: header2
 "
 `;
 
@@ -399,9 +399,9 @@ exports[`Visual Entity Sorting - toJSON() CamelRouteVisualEntity should sort fro
       - setBody:
           id: body-1
           constant:
-            id: const-1
-            expression: test
             resultType: java.lang.String
+            expression: test
+            id: const-1
 "
 `;
 

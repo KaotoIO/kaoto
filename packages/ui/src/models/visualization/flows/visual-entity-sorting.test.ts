@@ -268,15 +268,15 @@ route:
       const entity = new CamelRouteVisualEntity(parsed);
       const result = entity.toJSON();
 
-      // Verify expressions are sorted (id, expression, resultType)
+      // Verify expressions are sorted by catalog index (resultType=0, expression=1, id=2)
       const headers = (result.route.from?.steps?.[0] as { setHeaders: { headers: unknown[] } }).setHeaders.headers;
       expect(headers).toHaveLength(2);
 
       const firstHeader = headers[0] as { simple: { id: string; expression: string; resultType: string } };
-      expect(Object.keys(firstHeader.simple)).toEqual(['id', 'expression', 'resultType']);
+      expect(Object.keys(firstHeader.simple)).toEqual(['resultType', 'expression', 'id']);
 
       const secondHeader = headers[1] as { constant: { id: string; expression: string; resultType: string } };
-      expect(Object.keys(secondHeader.constant)).toEqual(['id', 'expression', 'resultType']);
+      expect(Object.keys(secondHeader.constant)).toEqual(['resultType', 'expression', 'id']);
 
       expect(stringify(result, { schema: 'yaml-1.1' })).toMatchSnapshot(
         'route-with-setHeaders-expression-objects-sorted',
@@ -309,9 +309,9 @@ route:
       // Verify from properties are sorted correctly
       expect(Object.keys(result.route.from || {})).toEqual(['id', 'uri', 'parameters', 'steps']);
 
-      // Verify constant expression is sorted
+      // Verify constant expression is sorted by catalog index (resultType=0, expression=1, id=2)
       const setBodyStep = (result.route.from?.steps?.[0] as { setBody: { constant: unknown } }).setBody;
-      expect(Object.keys(setBodyStep.constant as object)).toEqual(['id', 'expression', 'resultType']);
+      expect(Object.keys(setBodyStep.constant as object)).toEqual(['resultType', 'expression', 'id']);
 
       expect(stringify(result, { schema: 'yaml-1.1' })).toMatchSnapshot('route-with-from-expression-sorted');
     });
