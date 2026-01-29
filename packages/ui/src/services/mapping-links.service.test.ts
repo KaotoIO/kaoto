@@ -432,9 +432,20 @@ describe('MappingLinksService', () => {
       };
 
       const mockScrollContainerGetBoundingRect = () => ({ top: 50, bottom: 150 });
-      const mockScrollContainer = { getBoundingClientRect: mockScrollContainerGetBoundingRect };
+      const mockPanel = {
+        getAttribute: (attr: string) => (attr === 'data-expanded' ? 'true' : null),
+        querySelector: () => null,
+      };
+      const mockScrollContainer = {
+        getBoundingClientRect: mockScrollContainerGetBoundingRect,
+        closest: (s: string) => (s === '.expansion-panel' ? mockPanel : null),
+      };
       const mockGetClientRects = () => ({ length: 1 });
-      const mockClosest = (s: string) => (s === '.expansion-panel__content' ? mockScrollContainer : null);
+      const mockClosest = (s: string) => {
+        if (s === '.expansion-panel__summary') return null;
+        if (s === '.expansion-panel__content') return mockScrollContainer;
+        return null;
+      };
 
       const sourceHeaderRef = {
         getBoundingClientRect: () => ({ left: 40, top: 200, right: 190, bottom: 220 }),
@@ -479,6 +490,75 @@ describe('MappingLinksService', () => {
       const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
       expect(lineProps[0].y1).toEqual(150); // clamped to container bottom
       expect(lineProps[0].y2).toEqual(50); // clamped to container top
+    });
+
+    it('should snap to summary center when panel is collapsed', () => {
+      const mockGetBoundingRect = () => ({ left: 0, top: 0 });
+      const svgRef: RefObject<SVGSVGElement> = {
+        current: { getBoundingClientRect: mockGetBoundingRect } as unknown as SVGSVGElement,
+      };
+
+      const mockSummaryGetBoundingRect = () => ({ top: 100, bottom: 140 });
+      const mockSummary = { getBoundingClientRect: mockSummaryGetBoundingRect };
+      const mockPanel = {
+        getAttribute: (attr: string) => (attr === 'data-expanded' ? 'false' : null),
+        querySelector: (s: string) => (s === '.expansion-panel__summary' ? mockSummary : null),
+      };
+      const mockScrollContainerGetBoundingRect = () => ({ top: 140, bottom: 400 });
+      const mockScrollContainer = {
+        getBoundingClientRect: mockScrollContainerGetBoundingRect,
+        closest: (s: string) => (s === '.expansion-panel' ? mockPanel : null),
+      };
+      const mockGetClientRects = () => ({ length: 1 });
+      const mockClosest = (s: string) => {
+        if (s === '.expansion-panel__summary') return null;
+        if (s === '.expansion-panel__content') return mockScrollContainer;
+        return null;
+      };
+
+      const sourceHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 200, right: 190, bottom: 220 }),
+        getClientRects: mockGetClientRects,
+        closest: mockClosest,
+      } as unknown as HTMLDivElement;
+
+      const targetHeaderRef = {
+        getBoundingClientRect: () => ({ left: 40, top: 250, right: 190, bottom: 270 }),
+        getClientRects: mockGetClientRects,
+        closest: mockClosest,
+      } as unknown as HTMLDivElement;
+
+      const sourceNodeRefConfig: NodeReference = {
+        path: 'sourceBody:Body://fx-Collapsed',
+        isSource: true,
+        containerRef: null,
+        headerRef: sourceHeaderRef,
+      };
+
+      const targetNodeRefConfig: NodeReference = {
+        path: 'targetBody:Body://fx-Collapsed',
+        isSource: false,
+        containerRef: null,
+        headerRef: targetHeaderRef,
+      };
+
+      const { result: sourceRef } = renderHook(() => useRef<NodeReference>(sourceNodeRefConfig));
+      const { result: targetRef } = renderHook(() => useRef<NodeReference>(targetNodeRefConfig));
+
+      nodeReferences.set('sourceBody:Body://fx-Collapsed', sourceRef.current);
+      nodeReferences.set('targetBody:Body://fx-Collapsed', targetRef.current);
+
+      const links = [
+        {
+          sourceNodePath: 'sourceBody:Body://fx-Collapsed',
+          targetNodePath: 'targetBody:Body://fx-Collapsed',
+          isSelected: false,
+        },
+      ];
+
+      const lineProps = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
+      expect(lineProps[0].y1).toEqual(120); // snapped to summary center (100 + (140-100)/2)
+      expect(lineProps[0].y2).toEqual(120); // snapped to summary center (100 + (140-100)/2)
     });
   });
 });
