@@ -96,11 +96,12 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     setIsExpanded(newExpanded);
     context.setExpanded(id, newExpanded);
 
-    // Notify after CSS transition completes (150ms animation + buffer)
-    // This triggers reloadNodeReferences() to update the node reference map
-    setTimeout(() => {
-      onLayoutChange?.(id);
-    }, 160);
+    // Queue layout change callback to execute after CSS transition completes
+    // The parent ExpansionPanels container listens for transitionend and flushes the queue
+    // This ensures mapping lines are recalculated when browser layout is fully settled
+    if (onLayoutChange) {
+      context.queueLayoutChange(() => onLayoutChange(id));
+    }
   };
 
   // Use refs for stable event handlers that don't change during resize

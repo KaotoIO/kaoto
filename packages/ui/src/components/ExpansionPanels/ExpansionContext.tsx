@@ -21,6 +21,7 @@ interface ExpansionContextValue {
   unregister: (id: string) => void;
   resize: (id: string, newHeight: number, isTopHandle?: boolean) => void;
   setExpanded: (id: string, isExpanded: boolean) => void;
+  queueLayoutChange: (callback: () => void) => void;
 }
 
 export const ExpansionContext = createContext<ExpansionContextValue>({
@@ -28,4 +29,5 @@ export const ExpansionContext = createContext<ExpansionContextValue>({
   unregister: () => {},
   resize: () => {},
   setExpanded: () => {},
+  queueLayoutChange: () => {},
 });

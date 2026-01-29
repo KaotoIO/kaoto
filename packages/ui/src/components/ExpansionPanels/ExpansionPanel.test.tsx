@@ -8,12 +8,14 @@ describe('ExpansionPanel', () => {
   let mockUnregister: jest.Mock;
   let mockResize: jest.Mock;
   let mockSetExpanded: jest.Mock;
+  let mockQueueLayoutChange: jest.Mock;
 
   beforeEach(() => {
     mockRegister = jest.fn();
     mockUnregister = jest.fn();
     mockResize = jest.fn();
     mockSetExpanded = jest.fn();
+    mockQueueLayoutChange = jest.fn();
   });
 
   const renderPanel = (props: Partial<React.ComponentProps<typeof ExpansionPanel>> = {}) => {
@@ -30,6 +32,7 @@ describe('ExpansionPanel', () => {
           unregister: mockUnregister,
           resize: mockResize,
           setExpanded: mockSetExpanded,
+          queueLayoutChange: mockQueueLayoutChange,
         }}
       >
         <ExpansionPanel {...defaultProps} {...props} />
@@ -66,6 +69,7 @@ describe('ExpansionPanel', () => {
         unregister: mockUnregister,
         resize: mockResize,
         setExpanded: mockSetExpanded,
+        queueLayoutChange: mockQueueLayoutChange,
       };
 
       const { rerender } = render(
@@ -202,6 +206,7 @@ describe('ExpansionPanel', () => {
             unregister: mockUnregister,
             resize: mockResize,
             setExpanded: mockSetExpanded,
+            queueLayoutChange: mockQueueLayoutChange,
           }}
         >
           <ExpansionPanel id="test-panel" summary={<div>Test Summary</div>} defaultExpanded={true}>
@@ -211,6 +216,33 @@ describe('ExpansionPanel', () => {
       );
 
       expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', true);
+    });
+
+    it('should queue layout change callback when onLayoutChange is provided and panel is toggled', () => {
+      const onLayoutChange = jest.fn();
+      renderPanel({ id: 'test-panel', defaultExpanded: true, onLayoutChange });
+
+      const summary = screen.getByText('Test Summary');
+
+      act(() => {
+        fireEvent.click(summary);
+      });
+
+      // Should queue a layout change callback
+      expect(mockQueueLayoutChange).toHaveBeenCalledWith(expect.any(Function));
+    });
+
+    it('should NOT queue layout change callback when onLayoutChange is not provided', () => {
+      renderPanel({ id: 'test-panel', defaultExpanded: true });
+
+      const summary = screen.getByText('Test Summary');
+
+      act(() => {
+        fireEvent.click(summary);
+      });
+
+      // Should not queue any callback when onLayoutChange is not provided
+      expect(mockQueueLayoutChange).not.toHaveBeenCalled();
     });
   });
 
