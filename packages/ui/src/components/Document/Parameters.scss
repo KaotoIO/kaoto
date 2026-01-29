@@ -23,10 +23,30 @@
   font-weight: var(--pf-t--global--font--weight--body--default);
 }
 
-// Add spacing for parameters with schema (no drag icon) to match parameters without schema (with drag icon)
-// This creates empty space equivalent to the drag icon's space
-.document-header:not(:has([data-drag-handler])) .parameter-title-italic {
-  // Match the drag icon spacing: icon width + left margin + right margin
-  // Icon is ~16px, margins are --pf-t--global--spacer--sm each side
-  margin-left: calc(1rem + 2 * var(--pf-t--global--spacer--sm));
+// Parameter panel with chevron-based expansion
+.parameter-panel {
+  &__summary {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    margin-left: var(--pf-t--global--spacer--sm);
+    margin-right: var(--pf-t--global--spacer--sm);
+    color: var(--pf-t--global--icon--color--regular);
+  }
+
+  // DocumentHeader container takes remaining space when chevron is present
+  /* stylelint-disable-next-line selector-class-pattern */
+  &__summary .document-header__container {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // Ensure document-header fills container width so actions align right
+  &__summary .document-header {
+    width: 100%;
+  }
 }

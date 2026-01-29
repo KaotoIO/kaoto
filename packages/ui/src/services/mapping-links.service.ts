@@ -226,9 +226,10 @@ export class MappingLinksService {
     };
   }
 
-  private static findScrollContainerAndSummary(
-    headerRef: Element | null,
-  ): { container: Element | null; summary: Element | null } {
+  private static findScrollContainerAndSummary(headerRef: Element | null): {
+    container: Element | null;
+    summary: Element | null;
+  } {
     if (!headerRef) return { container: null, summary: null };
 
     // Headers in summaries don't need clamping
