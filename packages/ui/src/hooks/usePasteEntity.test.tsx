@@ -76,42 +76,42 @@ describe('usePasteEntity', () => {
     </EntitiesContext.Provider>
   );
 
-  it('should return canPaste false when clipboard is empty', async () => {
+  it('should return isCompatible false when clipboard is empty', async () => {
     jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     jest.spyOn(ClipboardManager, 'paste').mockResolvedValueOnce(null);
 
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(false);
+      expect(result.current.isCompatible).toBe(false);
     });
   });
 
-  it('should return canPaste true when clipboard-read permission returns rejected (Firefox fallback)', async () => {
+  it('should return isCompatible true when clipboard-read permission returns rejected (Firefox fallback)', async () => {
     jest.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
-    expect(result.current.canPaste).toBe(false);
+    expect(result.current.isCompatible).toBe(false);
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(true);
+      expect(result.current.isCompatible).toBe(true);
     });
   });
 
-  it('should return canPaste true when clipboard has compatible Route content', async () => {
+  it('should return isCompatible true when clipboard has compatible Route content', async () => {
     jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     jest.spyOn(ClipboardManager, 'paste').mockResolvedValueOnce(copiedRouteContent);
 
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(true);
+      expect(result.current.isCompatible).toBe(true);
     });
   });
 
-  it('should return canPaste false when clipboard has incompatible content', async () => {
+  it('should return isCompatible false when clipboard has incompatible content', async () => {
     jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     jest.spyOn(ClipboardManager, 'paste').mockResolvedValueOnce({
       type: SourceSchemaType.Pipe,
@@ -122,7 +122,7 @@ describe('usePasteEntity', () => {
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(false);
+      expect(result.current.isCompatible).toBe(false);
     });
   });
 
@@ -133,11 +133,11 @@ describe('usePasteEntity', () => {
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(true);
+      expect(result.current.isCompatible).toBe(true);
     });
 
     await act(async () => {
-      await result.current.pasteEntity();
+      await result.current.onPasteEntity();
     });
 
     expect(mockActionConfirmationContext.actionConfirmation).toHaveBeenCalledWith({
@@ -158,11 +158,11 @@ describe('usePasteEntity', () => {
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(true);
+      expect(result.current.isCompatible).toBe(true);
     });
 
     await act(async () => {
-      await result.current.pasteEntity();
+      await result.current.onPasteEntity();
     });
 
     expect(mockActionConfirmationContext.actionConfirmation).toHaveBeenCalledWith({
@@ -180,11 +180,11 @@ describe('usePasteEntity', () => {
     const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
     await waitFor(() => {
-      expect(result.current.canPaste).toBe(true);
+      expect(result.current.isCompatible).toBe(true);
     });
 
     await act(async () => {
-      await result.current.pasteEntity();
+      await result.current.onPasteEntity();
     });
 
     expect(addNewEntitySpy).toHaveBeenCalled();
@@ -211,11 +211,11 @@ describe('usePasteEntity', () => {
       const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
       await waitFor(() => {
-        expect(result.current.canPaste).toBe(true);
+        expect(result.current.isCompatible).toBe(true);
       });
 
       await act(async () => {
-        await result.current.pasteEntity();
+        await result.current.onPasteEntity();
       });
 
       expect(mockActionConfirmationContext.actionConfirmation).toHaveBeenCalledWith(
@@ -236,16 +236,150 @@ describe('usePasteEntity', () => {
       const { result } = renderHook(() => usePasteEntity(), { wrapper });
 
       await waitFor(() => {
-        expect(result.current.canPaste).toBe(true);
+        expect(result.current.isCompatible).toBe(true);
       });
 
       await act(async () => {
-        await result.current.pasteEntity();
+        await result.current.onPasteEntity();
       });
 
       expect(mockActionConfirmationContext.actionConfirmation).toHaveBeenCalled();
       expect(removeEntitySpy).not.toHaveBeenCalled();
       expect(addNewEntitySpy).not.toHaveBeenCalled();
     });
+
+    it('should paste to single-entity resource when no existing entities', async () => {
+      jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+      jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
+      jest.spyOn(camelResource, 'getVisualEntities').mockReturnValue([]);
+      addNewEntitySpy.mockReturnValue('new-route-id');
+
+      const { result } = renderHook(() => usePasteEntity(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.onPasteEntity();
+      });
+
+      expect(mockActionConfirmationContext.actionConfirmation).not.toHaveBeenCalled();
+      expect(removeEntitySpy).not.toHaveBeenCalled();
+      expect(addNewEntitySpy).toHaveBeenCalled();
+      expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).toHaveBeenCalledWith('new-route-id');
+    });
+  });
+
+  it('should handle null entitiesContext gracefully', async () => {
+    const wrapperWithoutEntities: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
+        <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
+          {children}
+        </ActionConfirmationModalContext.Provider>
+      </VisibleFlowsContext.Provider>
+    );
+
+    jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+    jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
+
+    const { result } = renderHook(() => usePasteEntity(), { wrapper: wrapperWithoutEntities });
+
+    await waitFor(() => {
+      expect(result.current.isCompatible).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.onPasteEntity();
+    });
+
+    expect(addNewEntitySpy).not.toHaveBeenCalled();
+  });
+
+  describe('should handle null actionConfirmationContext', () => {
+    const wrapperWithoutActionConfirmation: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>{children}</VisibleFlowsContext.Provider>
+      </EntitiesContext.Provider>
+    );
+
+    it('when clipboard is empty', async () => {
+      jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+      jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(null);
+
+      const { result } = renderHook(() => usePasteEntity(), { wrapper: wrapperWithoutActionConfirmation });
+
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.onPasteEntity();
+      });
+
+      expect(addNewEntitySpy).not.toHaveBeenCalled();
+    });
+
+    it('when content is incompatible', async () => {
+      jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+      jest.spyOn(ClipboardManager, 'paste').mockResolvedValue({
+        type: SourceSchemaType.Pipe,
+        name: 'pipe',
+        definition: {},
+      });
+
+      const { result } = renderHook(() => usePasteEntity(), { wrapper: wrapperWithoutActionConfirmation });
+
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.onPasteEntity();
+      });
+
+      expect(addNewEntitySpy).not.toHaveBeenCalled();
+    });
+
+    it('when replacing single-entity', async () => {
+      supportsMultipleVisualEntitiesSpy.mockReturnValue(false);
+      jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+      jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
+      jest.spyOn(camelResource, 'getVisualEntities').mockReturnValue([{ id: 'existing-entity' }] as never);
+
+      const { result } = renderHook(() => usePasteEntity(), { wrapper: wrapperWithoutActionConfirmation });
+
+      await waitFor(() => {
+        expect(result.current.isCompatible).toBe(true);
+      });
+
+      await act(async () => {
+        await result.current.onPasteEntity();
+      });
+
+      expect(removeEntitySpy).not.toHaveBeenCalled();
+      expect(addNewEntitySpy).not.toHaveBeenCalled();
+      supportsMultipleVisualEntitiesSpy.mockReturnValue(true);
+    });
+  });
+
+  it('should not toggle flow visibility when newId is empty', async () => {
+    jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
+    jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
+    addNewEntitySpy.mockReturnValue('');
+
+    const { result } = renderHook(() => usePasteEntity(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isCompatible).toBe(true);
+    });
+
+    await act(async () => {
+      await result.current.onPasteEntity();
+    });
+
+    expect(addNewEntitySpy).toHaveBeenCalled();
+    expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).not.toHaveBeenCalled();
+    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
 });

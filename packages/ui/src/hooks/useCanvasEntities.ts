@@ -4,21 +4,17 @@ import { BaseVisualCamelEntityDefinition, BaseVisualCamelEntityDefinitionItem } 
 import { EntityType } from '../models/camel/entities';
 import { EntitiesContext } from '../providers/entities.provider';
 import { VisibleFlowsContext } from '../providers/visible-flows.provider';
-import { usePasteEntity } from './usePasteEntity';
 
 export interface CanvasEntities {
   commonEntities: BaseVisualCamelEntityDefinitionItem[];
   groupedEntities: Record<string, BaseVisualCamelEntityDefinitionItem[]>;
   createEntity: (entityType: EntityType) => void;
-  canPasteEntity: boolean;
-  pasteEntity: () => Promise<void>;
 }
 
 export const useCanvasEntities = (): CanvasEntities => {
   const { camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const groupedEntities = useRef<BaseVisualCamelEntityDefinition>(camelResource.getCanvasEntityList());
-  const { canPaste, pasteEntity } = usePasteEntity();
 
   const createEntity = useCallback(
     (entityType: EntityType) => {
@@ -34,10 +30,8 @@ export const useCanvasEntities = (): CanvasEntities => {
       commonEntities: groupedEntities.current.common,
       groupedEntities: groupedEntities.current.groups,
       createEntity,
-      canPasteEntity: canPaste,
-      pasteEntity,
     }),
-    [canPaste, createEntity, pasteEntity],
+    [createEntity],
   );
 
   return result;

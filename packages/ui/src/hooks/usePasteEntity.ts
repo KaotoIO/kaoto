@@ -2,7 +2,9 @@ import { ButtonVariant } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { EntityType } from '../models/camel/entities';
+import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
 import { ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../providers/entities.provider';
@@ -11,69 +13,59 @@ import { ClipboardManager } from '../utils/ClipboardManager';
 import { updateIds } from '../utils/update-ids';
 
 /**
- * Map from clipboard entity name to EntityType for pasting
- */
-const ENTITY_NAME_TO_TYPE: Record<string, EntityType> = {
-  route: EntityType.Route,
-  from: EntityType.Route,
-  onException: EntityType.OnException,
-  errorHandler: EntityType.ErrorHandler,
-  rest: EntityType.Rest,
-  restConfiguration: EntityType.RestConfiguration,
-  routeConfiguration: EntityType.RouteConfiguration,
-  intercept: EntityType.Intercept,
-  interceptFrom: EntityType.InterceptFrom,
-  interceptSendToEndpoint: EntityType.InterceptSendToEndpoint,
-  onCompletion: EntityType.OnCompletion,
-  beans: EntityType.Beans,
-};
-
-/**
  * Hook to handle pasting entities from clipboard at the canvas level
  */
 export const usePasteEntity = () => {
-  const entitiesContext = useContext(EntitiesContext)!;
+  const entitiesContext = useContext(EntitiesContext);
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const actionConfirmationContext = useContext(ActionConfirmationModalContext);
-  const [canPaste, setCanPaste] = useState(false);
+  const [isCompatible, setIsCompatible] = useState(false);
 
   /**
    * Check if clipboard content is compatible with current resource type
    */
-  const checkEntityCompatibility = useCallback(
-    (clipboardContent: IClipboardCopyObject | null): boolean => {
-      if (!clipboardContent) return false;
+  const checkClipboardCompatibility = useCallback(
+    (pastedEntityValue: IClipboardCopyObject | null): boolean => {
+      if (!pastedEntityValue || !entitiesContext) return false;
 
+      const pastedEntityType = pastedEntityValue.type;
       const resourceType = entitiesContext.camelResource.getType();
-      return clipboardContent.type === resourceType;
+      const isSameType = pastedEntityType === resourceType;
+
+      if (
+        resourceType === SourceSchemaType.Route &&
+        CamelRouteResource.SUPPORTED_ENTITIES.some((entity) => pastedEntityValue.name === entity.type)
+      ) {
+        return true;
+      }
+
+      return isSameType;
     },
-    [entitiesContext.camelResource],
+    [entitiesContext],
   );
 
-  /**
-   * Check clipboard compatibility on mount and when resource changes
-   * Falls back to allowing paste for Firefox (permission issues)
-   */
+  /** Compatibility check on effect */
   useEffect(() => {
-    const validateClipboard = async () => {
+    const validate = async () => {
       try {
         await navigator.permissions.query({ name: 'clipboard-read' as PermissionName });
-        const clipboardContent = await ClipboardManager.paste();
-        const compatible = checkEntityCompatibility(clipboardContent);
-        setCanPaste(compatible);
-      } catch {
-        // Fallback to allow pasting in case of permission issues (Firefox or other browsers)
-        setCanPaste(true);
+        const pastedNodeValue = await ClipboardManager.paste();
+        const compatible = checkClipboardCompatibility(pastedNodeValue);
+        setIsCompatible(compatible);
+      } catch (error) {
+        // fallback to allow pasting incase of permission issues (for Firefox or other browsers)
+        setIsCompatible(true);
       }
     };
 
-    validateClipboard();
-  }, [checkEntityCompatibility]);
+    validate();
+  }, [checkClipboardCompatibility]);
 
   /**
    * Paste entity from clipboard
    */
-  const pasteEntity = useCallback(async () => {
+  const onPasteEntity = useCallback(async () => {
+    if (!entitiesContext) return;
     const clipboardContent = await ClipboardManager.paste();
 
     if (!clipboardContent) {
@@ -86,7 +78,7 @@ export const usePasteEntity = () => {
     }
 
     // Validate compatibility
-    const compatible = checkEntityCompatibility(clipboardContent);
+    const compatible = checkClipboardCompatibility(clipboardContent);
     if (!compatible) {
       await actionConfirmationContext?.actionConfirmation({
         title: 'Invalid Paste Action',
@@ -127,11 +119,8 @@ export const usePasteEntity = () => {
     // Clone and update IDs to prevent duplication
     const updatedContent = updateIds(cloneDeep(clipboardContent));
 
-    // Determine the entity type from the clipboard content
-    const entityType = ENTITY_NAME_TO_TYPE[updatedContent.name] ?? EntityType.Route;
-
     // Add the new entity
-    const newId = camelResource.addNewEntity(entityType, {
+    const newId = camelResource.addNewEntity(updatedContent.name as EntityType, {
       [updatedContent.name]: updatedContent.definition,
     });
 
@@ -142,13 +131,13 @@ export const usePasteEntity = () => {
 
     // Update entities in context
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [actionConfirmationContext, checkEntityCompatibility, entitiesContext, visibleFlowsContext.visualFlowsApi]);
+  }, [actionConfirmationContext, checkClipboardCompatibility, entitiesContext, visibleFlowsContext.visualFlowsApi]);
 
   return useMemo(
     () => ({
-      canPaste,
-      pasteEntity,
+      isCompatible,
+      onPasteEntity,
     }),
-    [canPaste, pasteEntity],
+    [isCompatible, onPasteEntity],
   );
 };
