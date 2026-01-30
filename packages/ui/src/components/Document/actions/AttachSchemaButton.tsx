@@ -417,7 +417,7 @@ const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({ createDo
     return createDocumentResult.rootElementOptions.map((option) => ({
       name: option.name,
       value: option.name,
-      description: `Namespace URI: ${option.namespaceUri}`,
+      description: option.namespaceUri ? `Namespace URI: ${option.namespaceUri}` : undefined,
     }));
   }, [createDocumentResult?.rootElementOptions]);
 

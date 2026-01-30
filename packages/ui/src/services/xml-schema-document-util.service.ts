@@ -13,6 +13,7 @@ import {
 } from '../xml-schema-ts';
 import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
+import { QNameMap } from '../xml-schema-ts/utils/ObjectMap';
 import { DocumentUtilService } from './document-util.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 
@@ -335,7 +336,7 @@ export class XmlSchemaDocumentUtilService {
    * @returns Array of root element options with namespace URI and name
    */
   static collectRootElementOptions(collection: XmlSchemaCollection): RootElementOption[] {
-    const allElements = new Map();
+    const allElements = new QNameMap<XmlSchemaElement>();
     for (const schema of collection.getXmlSchemas()) {
       for (const [key, value] of schema.getElements().entries()) {
         allElements.set(key, value);
@@ -345,7 +346,7 @@ export class XmlSchemaDocumentUtilService {
       .filter((key) => !!key.getLocalPart())
       .map<RootElementOption>((key) => ({
         namespaceUri: key.getNamespaceURI() || '',
-        name: key.getLocalPart(),
+        name: key.getLocalPart()!,
       }));
   }
 

@@ -3,7 +3,11 @@ import { BaseDocument } from '../models/datamapper/document';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
 import {
+  accountLcXsd,
+  accountNs2Xsd,
+  accountNsXsd,
   extensionComplexXsd,
+  multipleElementsXsd,
   restrictionComplexXsd,
   simpleTypeInheritanceXsd,
   simpleTypeRestrictionXsd,
@@ -494,6 +498,92 @@ describe('XmlSchemaDocumentUtilService', () => {
 
     it('should return AnyType for unknown type name', () => {
       expect(XmlSchemaDocumentUtilService.getFieldTypeFromName('unknownType')).toBe(Types.AnyType);
+    });
+  });
+
+  describe('collectRootElementOptions()', () => {
+    it('should distinguish elements with same local name but different namespaces', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'account-ns.xsd': accountNsXsd,
+          'account-ns2.xsd': accountNs2Xsd,
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
+
+      expect(options.length).toBe(2);
+      expect(options).toContainEqual({
+        namespaceUri: 'kaoto.datamapper.test',
+        name: 'account',
+      });
+      expect(options).toContainEqual({
+        namespaceUri: 'kaoto.datamapper.test.alternate',
+        name: 'account',
+      });
+    });
+
+    it('should handle elements with blank namespace alongside namespaced elements', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'account-lc.xsd': accountLcXsd,
+          'account-ns.xsd': accountNsXsd,
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
+
+      expect(options.length).toBe(2);
+      expect(options).toContainEqual({
+        namespaceUri: '',
+        name: 'account',
+      });
+      expect(options).toContainEqual({
+        namespaceUri: 'kaoto.datamapper.test',
+        name: 'account',
+      });
+    });
+
+    it('should return all unique root elements from a single schema', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'MultipleElements.xsd': multipleElementsXsd,
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
+
+      expect(options.length).toBe(3);
+      expect(options).toContainEqual({
+        namespaceUri: 'io.kaoto.datamapper.test.multiple',
+        name: 'Order',
+      });
+      expect(options).toContainEqual({
+        namespaceUri: 'io.kaoto.datamapper.test.multiple',
+        name: 'Invoice',
+      });
+      expect(options).toContainEqual({
+        namespaceUri: 'io.kaoto.datamapper.test.multiple',
+        name: 'Shipment',
+      });
     });
   });
 });
