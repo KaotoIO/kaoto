@@ -7,8 +7,7 @@
 }
 
 .parameter-actions {
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding: 0.5rem;
 
   --pf-v6-c-action-list--child--spacer-base: 0.5rem;
   --pf-v6-c-action-list--group--spacer-base: 0.5rem;
@@ -16,5 +15,38 @@
   .pf-v6-c-button {
     --pf-v6-c-button--PaddingLeft: 0.5rem;
     --pf-v6-c-button--PaddingRight: 0.5rem;
+  }
+}
+
+.parameter-title-italic {
+  font-style: italic;
+  font-weight: var(--pf-t--global--font--weight--body--default);
+}
+
+// Parameter panel with chevron-based expansion
+.parameter-panel {
+  &__summary {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    margin-left: var(--pf-t--global--spacer--sm);
+    margin-right: var(--pf-t--global--spacer--sm);
+    color: var(--pf-t--global--icon--color--regular);
+  }
+
+  // DocumentHeader container takes remaining space when chevron is present
+  /* stylelint-disable-next-line selector-class-pattern */
+  &__summary .document-header__container {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // Ensure document-header fills container width so actions align right
+  &__summary .document-header {
+    width: 100%;
   }
 }

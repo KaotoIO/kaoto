@@ -25,6 +25,8 @@ interface ExpansionPanelProps {
   onScroll?: () => void;
   /** Called when panel layout changes (expand/collapse or resize) */
   onLayoutChange?: (id: string) => void;
+  /** Called when the expanded state changes */
+  onExpandedChange?: (isExpanded: boolean) => void;
 }
 
 export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelProps>> = ({
@@ -37,6 +39,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   collapsible = true,
   onScroll,
   onLayoutChange,
+  onExpandedChange,
 }) => {
   const generatedId = useId();
   const id = providedId ?? generatedId;
@@ -95,6 +98,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
     context.setExpanded(id, newExpanded);
+    onExpandedChange?.(newExpanded);
 
     // Queue layout change callback to execute after CSS transition completes
     // The parent ExpansionPanels container listens for transitionend and flushes the queue
@@ -168,7 +172,19 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
       context.register(id, minHeight, defaultHeight, panelRef.current, defaultExpanded);
     }
 
+    // Queue initial layout change callback to trigger after grid layout settles
+    // This ensures mapping lines are recalculated with correct container bounds
+    // when panels are dynamically added/removed or on initial render
+    if (onLayoutChange) {
+      context.queueLayoutChange(() => onLayoutChange(id));
+    }
+
     return () => {
+      // Queue layout change callback before unregistering
+      // When panel is removed, grid redistributes and mapping lines need to update
+      if (onLayoutChange) {
+        context.queueLayoutChange(() => onLayoutChange(id));
+      }
       context.unregister(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

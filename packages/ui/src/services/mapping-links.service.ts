@@ -189,12 +189,69 @@ export class MappingLinksService {
       ? targetNodeRowRect.left + CONNECTION_OFFSET - svgOffsetLeft
       : targetRect.left - svgOffsetLeft;
 
+    // Calculate y positions - use header center, then clamp if needed
+    let y1 = sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - svgOffsetTop;
+    let y2 = targetRect.top + (targetRect.bottom - targetRect.top) / 2 - svgOffsetTop;
+
+    // For collapsed panels, snap to summary center; for expanded panels, clamp to scroll boundaries
+    const { container: sourceScrollContainer, summary: sourceSummary } =
+      MappingLinksService.findScrollContainerAndSummary(sourceHeaderRef);
+    if (sourceSummary) {
+      const summaryRect = sourceSummary.getBoundingClientRect();
+      y1 = summaryRect.top + (summaryRect.bottom - summaryRect.top) / 2 - svgOffsetTop;
+    } else if (sourceScrollContainer) {
+      const containerRect = sourceScrollContainer.getBoundingClientRect();
+      const containerTop = containerRect.top - svgOffsetTop;
+      const containerBottom = containerRect.bottom - svgOffsetTop;
+      y1 = Math.max(containerTop, Math.min(containerBottom, y1));
+    }
+
+    const { container: targetScrollContainer, summary: targetSummary } =
+      MappingLinksService.findScrollContainerAndSummary(targetHeaderRef);
+    if (targetSummary) {
+      const summaryRect = targetSummary.getBoundingClientRect();
+      y2 = summaryRect.top + (summaryRect.bottom - summaryRect.top) / 2 - svgOffsetTop;
+    } else if (targetScrollContainer) {
+      const containerRect = targetScrollContainer.getBoundingClientRect();
+      const containerTop = containerRect.top - svgOffsetTop;
+      const containerBottom = containerRect.bottom - svgOffsetTop;
+      y2 = Math.max(containerTop, Math.min(containerBottom, y2));
+    }
+
     return {
       x1: sourceX,
-      y1: sourceRect.top + (sourceRect.bottom - sourceRect.top) / 2 - svgOffsetTop,
+      y1,
       x2: targetX,
-      y2: targetRect.top + (targetRect.bottom - targetRect.top) / 2 - svgOffsetTop,
+      y2,
     };
+  }
+
+  private static findScrollContainerAndSummary(headerRef: Element | null): {
+    container: Element | null;
+    summary: Element | null;
+  } {
+    if (!headerRef) return { container: null, summary: null };
+
+    // Headers in summaries don't need clamping
+    if (headerRef.closest('.expansion-panel__summary')) {
+      return { container: null, summary: null };
+    }
+
+    // Check if element is inside a panel's content area
+    const directContainer = headerRef.closest('.expansion-panel__content');
+    if (directContainer) {
+      const panel = directContainer.closest('.expansion-panel');
+      if (panel) {
+        const isExpanded = (panel as HTMLElement).dataset?.expanded === 'true';
+        const summary = panel.querySelector('.expansion-panel__summary');
+
+        // Expanded: return container for edge clamping
+        // Collapsed: return summary for center snapping
+        return isExpanded ? { container: directContainer, summary: null } : { container: directContainer, summary };
+      }
+    }
+
+    return { container: null, summary: null };
   }
 
   private static isLinkSelected(
