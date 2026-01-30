@@ -40,7 +40,7 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   getNodeDefinition(path?: string): any;
 
   /** Returnt fields that should be omitted when configuring this entity */
-  getOmitFormFields: () => string[];
+  getOmitFormFields: (path?: string) => string[];
 
   /** Given a path, update the model */
   updateModel(path: string | undefined, value: unknown): void;
