@@ -43,7 +43,7 @@ import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import { canDragGroup, GROUP_DRAG_TYPE } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { NoBendpointsEdge } from '../NoBendingEdge';
-import { CustomNodeContent } from '../Node/CustomNodeContent';
+import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from '../Node/CustomNodeUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
@@ -260,23 +260,19 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
 
           {/** This is the dragged node which is being moved */}
           {dndDropProps.droppable && isDraggingGroup && (
-            <foreignObject
-              data-nodelabel={label}
+            <CustomNodeContainer
               width={CanvasDefaults.DEFAULT_NODE_WIDTH}
               height={CanvasDefaults.DEFAULT_NODE_HEIGHT}
+              dataNodelabel={label}
               transform={`translate(${dragGroupProps.dragEvent!.x - 10}, ${dragGroupProps.dragEvent!.y - 10})`}
-            >
-              <div data-testid={`${groupVizNode.id}`} className="custom-node__container">
-                <CustomNodeContent
-                  vizNode={groupVizNode}
-                  tooltipContent={tooltipContent}
-                  childCount={0}
-                  ProcessorIcon={ProcessorIcon}
-                  processorDescription={processorDescription}
-                  isDisabled={isDisabled}
-                />
-              </div>
-            </foreignObject>
+              dataTestId={groupVizNode.id}
+              vizNode={groupVizNode}
+              tooltipContent={tooltipContent}
+              childCount={0}
+              ProcessorIcon={ProcessorIcon}
+              processorDescription={processorDescription}
+              isDisabled={isDisabled}
+            />
           )}
 
           {doesHaveWarnings && !isDisabled && (

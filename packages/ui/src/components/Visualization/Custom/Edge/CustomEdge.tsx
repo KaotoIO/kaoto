@@ -29,6 +29,24 @@ import { canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customCompone
 import { AddStepIcon } from './AddStepIcon';
 
 type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
+
+interface EdgeAddStepIconSlotProps {
+  x: number;
+  y: number;
+  vizNode: IVisualizationNode;
+  className?: string;
+}
+
+const EdgeAddStepIconSlot: FunctionComponent<EdgeAddStepIconSlotProps> = ({ x, y, vizNode, className }) => (
+  <foreignObject x={x} y={y} width={CanvasDefaults.ADD_STEP_ICON_SIZE} height={CanvasDefaults.ADD_STEP_ICON_SIZE}>
+    <AddStepIcon className={className} title="Add step" vizNode={vizNode} mode={AddStepMode.PrependStep}>
+      <Icon size="lg">
+        <PlusCircleIcon />
+      </Icon>
+    </AddStepIcon>
+  </foreignObject>
+);
+
 interface CustomEdgeProps extends DefaultEdgeProps {
   /** We're not providing Data to edges */
   element: GraphElement<EdgeModel, unknown>;
@@ -140,28 +158,14 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
           endPoint={endPointRef.current}
         />
 
+        {/** Add Step Icon, appears when nothing is dragging and user hovers over the edge */}
         {!dndDropProps.droppable && shouldShowPrepend && (
-          <foreignObject
-            x={x}
-            y={y}
-            width={CanvasDefaults.ADD_STEP_ICON_SIZE}
-            height={CanvasDefaults.ADD_STEP_ICON_SIZE}
-          >
-            <AddStepIcon
-              className="custom-edge__add-step"
-              title="Add step"
-              vizNode={vizNode}
-              mode={AddStepMode.PrependStep}
-            >
-              <Icon size="lg">
-                <PlusCircleIcon />
-              </Icon>
-            </AddStepIcon>
-          </foreignObject>
+          <EdgeAddStepIconSlot x={x} y={y} vizNode={vizNode} className="custom-edge__add-step" />
         )}
 
+        {/** Add Step Icon, appears when a compatible node/group is being dragged over the edge */}
         {dndDropProps.droppable && shouldShowPrepend && dndDropProps.hover && dndDropProps.canDrop && (
-          <foreignObject
+          <EdgeAddStepIconSlot
             x={
               startPointRef.current.x +
               (endPointRef.current.x - startPointRef.current.x - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
@@ -170,20 +174,9 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
               startPointRef.current.y +
               (endPointRef.current.y - startPointRef.current.y - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
             }
-            width={CanvasDefaults.ADD_STEP_ICON_SIZE}
-            height={CanvasDefaults.ADD_STEP_ICON_SIZE}
-          >
-            <AddStepIcon
-              className="add-step-icon__icon__validDropTarget"
-              title="Add step"
-              vizNode={vizNode}
-              mode={AddStepMode.PrependStep}
-            >
-              <Icon size="lg">
-                <PlusCircleIcon />
-              </Icon>
-            </AddStepIcon>
-          </foreignObject>
+            vizNode={vizNode}
+            className="add-step-icon__icon__validDropTarget"
+          />
         )}
       </g>
     </Layer>

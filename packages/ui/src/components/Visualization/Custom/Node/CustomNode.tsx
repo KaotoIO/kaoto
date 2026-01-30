@@ -45,7 +45,7 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { NoBendpointsEdge } from '../NoBendingEdge';
 import { TargetAnchor } from '../target-anchor';
-import { CustomNodeContent } from './CustomNodeContent';
+import { CustomNodeContainer } from './CustomNodeContainer';
 import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
@@ -55,6 +55,50 @@ interface CustomNodeProps extends DefaultNodeProps {
   /** Toggle node collapse / expand */
   onCollapseToggle?: () => void;
 }
+
+interface CustomNodeLabelProps {
+  label: string;
+  doesHaveWarnings?: boolean;
+  validationText?: string;
+  x?: number;
+  y?: number;
+  transform?: string;
+  width?: number;
+  height?: number;
+  className?: string;
+}
+
+const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
+  label,
+  doesHaveWarnings = false,
+  validationText,
+  x,
+  y,
+  transform,
+  width = CanvasDefaults.DEFAULT_LABEL_WIDTH,
+  height = CanvasDefaults.DEFAULT_LABEL_HEIGHT,
+  className = 'custom-node__label',
+}) => (
+  <foreignObject
+    width={width}
+    height={height}
+    className={className}
+    {...(transform ? { transform } : { x: x!, y: y! })}
+  >
+    <div
+      className={clsx('custom-node__label__text', {
+        'custom-node__label__text__error': doesHaveWarnings,
+      })}
+    >
+      {doesHaveWarnings && (
+        <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
+          <ExclamationCircleIcon />
+        </Icon>
+      )}
+      <span title={label}>{label}</span>
+    </div>
+  </foreignObject>
+);
 
 const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
   ({ element, onContextMenu, onCollapseToggle, selected, onSelect }) => {
@@ -239,126 +283,80 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
            * When a group/container is being dragged, the within-group nodes are hidden but the rest of the nodes show this original node.
            */}
           {(!dndDropProps.droppable || isDraggingNodeType || !isDraggingWithinGroup) && (
-            <foreignObject data-nodelabel={label} width={box.width} height={box.height} ref={dndDropRef}>
-              <div
-                data-testid={`${vizNode.id}`}
-                className={clsx('custom-node__container', {
-                  'custom-node__container__dropTarget':
-                    dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover,
-                  'custom-node__container__possibleDropTargets':
-                    dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
-                  'custom-node__container__draggable': dndSettingsEnabled && canDragNode,
-                  'custom-node__container__nonDraggable': dndSettingsEnabled && !canDragNode,
-                  'custom-node__container__draggedNode': isDraggingNode || isDraggingWithinGroup,
-                })}
-              >
-                <CustomNodeContent
-                  vizNode={vizNode}
-                  tooltipContent={tooltipContent}
-                  childCount={childCount}
-                  ProcessorIcon={ProcessorIcon}
-                  processorDescription={processorDescription}
-                  isDisabled={isDisabled}
-                />
-              </div>
-            </foreignObject>
+            <CustomNodeContainer
+              width={box.width}
+              height={box.height}
+              dataNodelabel={label}
+              foreignObjectRef={dndDropRef}
+              dataTestId={vizNode.id}
+              containerClassNames={{
+                'custom-node__container__dropTarget':
+                  dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover,
+                'custom-node__container__possibleDropTargets':
+                  dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
+                'custom-node__container__draggable': dndSettingsEnabled && canDragNode,
+                'custom-node__container__nonDraggable': dndSettingsEnabled && !canDragNode,
+                'custom-node__container__draggedNode': isDraggingNode || isDraggingWithinGroup,
+              }}
+              vizNode={vizNode}
+              tooltipContent={tooltipContent}
+              childCount={childCount}
+              ProcessorIcon={ProcessorIcon}
+              processorDescription={processorDescription}
+              isDisabled={isDisabled}
+            />
           )}
 
           {/* The dummy node that appears at the original node's position when dragging */}
           {dndDropProps.droppable && ((isDraggingGroupType && isDraggingWithinGroup) || isDraggingNode) && (
-            <foreignObject
-              data-nodelabel={label}
+            <CustomNodeContainer
               width={box.width}
               height={box.height}
+              dataNodelabel={label}
               transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
-            >
-              <div
-                data-testid={`${vizNode.id}-dummy`}
-                className={clsx('custom-node__container', {
-                  'custom-node__container__draggedNode': isDraggingNode || isDraggingWithinGroup,
-                })}
-              >
-                <CustomNodeContent
-                  vizNode={vizNode}
-                  tooltipContent={tooltipContent}
-                  childCount={childCount}
-                  ProcessorIcon={ProcessorIcon}
-                  processorDescription={processorDescription}
-                  isDisabled={isDisabled}
-                />
-              </div>
-            </foreignObject>
+              dataTestId={`${vizNode.id}-dummy`}
+              containerClassNames={{
+                'custom-node__container__draggedNode': isDraggingNode || isDraggingWithinGroup,
+              }}
+              vizNode={vizNode}
+              tooltipContent={tooltipContent}
+              childCount={childCount}
+              ProcessorIcon={ProcessorIcon}
+              processorDescription={processorDescription}
+              isDisabled={isDisabled}
+            />
           )}
 
           {/** This label, appears for the node which are not dragging */}
           {((isDraggingNodeType && !isDraggingNode) || (isDraggingGroupType && !isDraggingWithinGroup)) && (
-            <foreignObject
-              width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-              height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-              className="custom-node__label"
+            <CustomNodeLabel
+              label={label ?? ''}
+              doesHaveWarnings={doesHaveWarnings}
+              validationText={validationText}
               x={labelX}
               y={box.height - 1}
-            >
-              <div
-                className={clsx('custom-node__label__text', {
-                  'custom-node__label__text__error': doesHaveWarnings,
-                })}
-              >
-                {doesHaveWarnings && (
-                  <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-                    <ExclamationCircleIcon />
-                  </Icon>
-                )}
-                <span title={label}>{label}</span>
-              </div>
-            </foreignObject>
+            />
           )}
 
           {/** The regular label, appears when nothing is dragging */}
           {!dndDropProps.droppable && (
-            <foreignObject
-              width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-              height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-              className="custom-node__label"
+            <CustomNodeLabel
+              label={label ?? ''}
+              doesHaveWarnings={doesHaveWarnings}
+              validationText={validationText}
               x={labelX}
               y={box.height - 1}
-            >
-              <div
-                className={clsx('custom-node__label__text', {
-                  'custom-node__label__text__error': doesHaveWarnings,
-                })}
-              >
-                {doesHaveWarnings && (
-                  <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-                    <ExclamationCircleIcon />
-                  </Icon>
-                )}
-                <span title={label}>{label}</span>
-              </div>
-            </foreignObject>
+            />
           )}
 
           {/** Label which appears when dragging the group/node, but for the dummy node */}
           {dndDropProps.droppable && ((isDraggingGroupType && isDraggingWithinGroup) || isDraggingNode) && (
-            <foreignObject
+            <CustomNodeLabel
+              label={label ?? ''}
+              doesHaveWarnings={doesHaveWarnings}
+              validationText={validationText}
               transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
-              width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-              height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-              className="custom-node__label"
-            >
-              <div
-                className={clsx('custom-node__label__text', {
-                  'custom-node__label__text__error': doesHaveWarnings,
-                })}
-              >
-                {doesHaveWarnings && (
-                  <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-                    <ExclamationCircleIcon />
-                  </Icon>
-                )}
-                <span title={label}>{label}</span>
-              </div>
-            </foreignObject>
+            />
           )}
 
           {!dndDropProps.droppable && shouldShowToolbar && (

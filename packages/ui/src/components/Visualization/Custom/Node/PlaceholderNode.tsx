@@ -39,6 +39,69 @@ interface PlaceholderNodeInnerProps extends DefaultNodeProps {
   element: GraphElement<ElementModel, CanvasNode['data']>;
 }
 
+interface PlaceholderNodeLabelProps {
+  label: string | undefined;
+  x: number;
+  y: number;
+  transform?: string;
+}
+
+const PlaceholderNodeLabel: FunctionComponent<PlaceholderNodeLabelProps> = ({ label, x, y, transform }) => {
+  if (!label) {
+    return null;
+  }
+
+  return (
+    <foreignObject
+      x={x}
+      y={y}
+      transform={transform}
+      width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
+      height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
+      className="placeholder-node__label"
+    >
+      <div className="placeholder-node__label__text">
+        <span title={label}>{label}</span>
+      </div>
+    </foreignObject>
+  );
+};
+
+interface PlaceholderNodeContainerProps {
+  vizNode: IVisualizationNode;
+  tooltipContent: string;
+  canDrop: boolean;
+  hover: boolean;
+  droppable: boolean;
+  isDraggingWithinGroup: boolean;
+}
+
+const PlaceholderNodeContainer: FunctionComponent<PlaceholderNodeContainerProps> = ({
+  vizNode,
+  tooltipContent,
+  canDrop,
+  hover,
+  droppable,
+  isDraggingWithinGroup,
+}) => {
+  return (
+    <div
+      data-testid={`${vizNode.getId()}|${vizNode.id}`}
+      className={clsx('placeholder-node__container', {
+        'placeholder-node__container__dropTarget': canDrop && hover,
+        'placeholder-node__container__possibleDropTargets': canDrop && droppable && !hover,
+        'placeholder-node__container__draggedNode': isDraggingWithinGroup,
+      })}
+    >
+      <div title={tooltipContent} className="placeholder-node__container__image">
+        <Icon size="lg">
+          <PlusCircleIcon />
+        </Icon>
+      </div>
+    </div>
+  );
+};
+
 const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = observer(({ element }) => {
   if (!isNode(element)) {
     throw new Error('PlaceholderNodeInner must be used only on Node elements');
@@ -111,13 +174,29 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     draggedGroupVizNode?.getId() === element.getData().vizNode.getId() &&
     element.getData().vizNode.data.path.slice(0, draggedGroupVizNode?.data.path.length) ===
       draggedGroupVizNode?.data.path;
+
   const box = element.getBounds();
   if (!isDraggingGroupType || !boxRef.current || !boxXRef.current || !boxYRef.current) {
     boxRef.current = box;
     boxXRef.current = box.x;
     boxYRef.current = box.y;
   }
+
   const labelX = (box.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
+  const labelY = boxRef.current.height - 1;
+  const labelTransform =
+    dndDropProps.droppable && isDraggingWithinGroup
+      ? `translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`
+      : undefined;
+
+  const containerProps = {
+    vizNode,
+    tooltipContent,
+    canDrop: dndDropProps.canDrop,
+    hover: dndDropProps.hover,
+    droppable: dndDropProps.droppable,
+    isDraggingWithinGroup,
+  };
 
   return (
     <Layer id={DEFAULT_LAYER}>
@@ -130,26 +209,12 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
         {/** The original placeholder node */}
         {(!dndDropProps.droppable || isDraggingNodeType || (isDraggingGroupType && !isDraggingWithinGroup)) && (
           <foreignObject
+            ref={dndDropRef}
             data-nodelabel={label}
             width={boxRef.current.width}
             height={boxRef.current.height}
-            ref={dndDropRef}
           >
-            <div
-              data-testid={`${vizNode.getId()}|${vizNode.id}`}
-              className={clsx('placeholder-node__container', {
-                'placeholder-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
-                'placeholder-node__container__possibleDropTargets':
-                  dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
-                'placeholder-node__container__draggedNode': isDraggingWithinGroup,
-              })}
-            >
-              <div title={tooltipContent} className="placeholder-node__container__image">
-                <Icon size="lg">
-                  <PlusCircleIcon />
-                </Icon>
-              </div>
-            </div>
+            <PlaceholderNodeContainer {...containerProps} />
           </foreignObject>
         )}
 
@@ -162,68 +227,21 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
             height={boxRef.current.height}
             transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
           >
-            <div
-              data-testid={`${vizNode.getId()}|${vizNode.id}`}
-              className={clsx('placeholder-node__container', {
-                'placeholder-node__container__dropTarget': dndDropProps.canDrop && dndDropProps.hover,
-                'placeholder-node__container__possibleDropTargets':
-                  dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
-                'placeholder-node__container__draggedNode': isDraggingWithinGroup,
-              })}
-            >
-              <div title={tooltipContent} className="placeholder-node__container__image">
-                <Icon size="lg">
-                  <PlusCircleIcon />
-                </Icon>
-              </div>
-            </div>
+            <PlaceholderNodeContainer {...containerProps} />
           </foreignObject>
         )}
 
-        {/** The regular label, appears when nothing is dragging */}
-        {!dndDropProps.droppable && (
-          <foreignObject
-            x={labelX}
-            y={boxRef.current.height - 1}
-            width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-            height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-            className="placeholder-node__label"
-          >
-            <div className="placeholder-node__label__text">
-              <span title={updatedLabel}>{updatedLabel}</span>
-            </div>
-          </foreignObject>
-        )}
+        {/** Label rendering - regular label when nothing is dragging */}
+        {!dndDropProps.droppable && <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} />}
 
         {/** Label which appears when dragging the group/node, but for the dummy node */}
         {dndDropProps.droppable && isDraggingWithinGroup && (
-          <foreignObject
-            x={labelX}
-            y={boxRef.current.height - 1}
-            transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
-            width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-            height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-            className="placeholder-node__label"
-          >
-            <div className="placeholder-node__label__text">
-              <span title={updatedLabel}>{updatedLabel}</span>
-            </div>
-          </foreignObject>
+          <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} transform={labelTransform} />
         )}
 
         {/** This label, appears for the node which are not dragging within the container */}
         {(isDraggingNodeType || (isDraggingGroupType && !isDraggingWithinGroup)) && (
-          <foreignObject
-            x={labelX}
-            y={boxRef.current.height - 1}
-            width={CanvasDefaults.DEFAULT_LABEL_WIDTH}
-            height={CanvasDefaults.DEFAULT_LABEL_HEIGHT}
-            className="placeholder-node__label"
-          >
-            <div className="placeholder-node__label__text">
-              <span title={updatedLabel}>{updatedLabel}</span>
-            </div>
-          </foreignObject>
+          <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} />
         )}
       </g>
     </Layer>
