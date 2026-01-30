@@ -295,6 +295,13 @@ describe('MappingLinksService', () => {
       return nodeReferences.get(path)!;
     };
 
+    // Helper to create mock closest function for expansion panel tests
+    const createMockClosest = (mockScrollContainer: unknown) => (s: string) => {
+      if (s === '.expansion-panel__summary') return null;
+      if (s === '.expansion-panel__content') return mockScrollContainer;
+      return null;
+    };
+
     beforeEach(() => {
       nodeReferences.clear();
     });
@@ -433,19 +440,15 @@ describe('MappingLinksService', () => {
 
       const mockScrollContainerGetBoundingRect = () => ({ top: 50, bottom: 150 });
       const mockPanel = {
-        getAttribute: (attr: string) => (attr === 'data-expanded' ? 'true' : null),
+        dataset: { expanded: 'true' },
         querySelector: () => null,
-      };
+      } as unknown as HTMLElement;
       const mockScrollContainer = {
         getBoundingClientRect: mockScrollContainerGetBoundingRect,
         closest: (s: string) => (s === '.expansion-panel' ? mockPanel : null),
       };
       const mockGetClientRects = () => ({ length: 1 });
-      const mockClosest = (s: string) => {
-        if (s === '.expansion-panel__summary') return null;
-        if (s === '.expansion-panel__content') return mockScrollContainer;
-        return null;
-      };
+      const mockClosest = createMockClosest(mockScrollContainer);
 
       const sourceHeaderRef = {
         getBoundingClientRect: () => ({ left: 40, top: 200, right: 190, bottom: 220 }),
@@ -501,20 +504,16 @@ describe('MappingLinksService', () => {
       const mockSummaryGetBoundingRect = () => ({ top: 100, bottom: 140 });
       const mockSummary = { getBoundingClientRect: mockSummaryGetBoundingRect };
       const mockPanel = {
-        getAttribute: (attr: string) => (attr === 'data-expanded' ? 'false' : null),
+        dataset: { expanded: 'false' },
         querySelector: (s: string) => (s === '.expansion-panel__summary' ? mockSummary : null),
-      };
+      } as unknown as HTMLElement;
       const mockScrollContainerGetBoundingRect = () => ({ top: 140, bottom: 400 });
       const mockScrollContainer = {
         getBoundingClientRect: mockScrollContainerGetBoundingRect,
         closest: (s: string) => (s === '.expansion-panel' ? mockPanel : null),
       };
       const mockGetClientRects = () => ({ length: 1 });
-      const mockClosest = (s: string) => {
-        if (s === '.expansion-panel__summary') return null;
-        if (s === '.expansion-panel__content') return mockScrollContainer;
-        return null;
-      };
+      const mockClosest = createMockClosest(mockScrollContainer);
 
       const sourceHeaderRef = {
         getBoundingClientRect: () => ({ left: 40, top: 200, right: 190, bottom: 220 }),

@@ -242,7 +242,7 @@ export class MappingLinksService {
     if (directContainer) {
       const panel = directContainer.closest('.expansion-panel');
       if (panel) {
-        const isExpanded = panel.getAttribute('data-expanded') === 'true';
+        const isExpanded = (panel as HTMLElement).dataset?.expanded === 'true';
         const summary = panel.querySelector('.expansion-panel__summary');
 
         // Expanded: return container for edge clamping

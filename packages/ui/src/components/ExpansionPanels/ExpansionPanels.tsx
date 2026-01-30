@@ -40,7 +40,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     if (!container) return;
 
     // Get actual DOM order from the container's children
-    const domElements = Array.from(container.children) as HTMLElement[];
+    const domElements = Array.from(container.children);
     let dynamicOrder = ORDER_START;
 
     domElements.forEach((element) => {
@@ -113,6 +113,16 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       updateGridTemplate();
     }
   }, [updateGridTemplate]);
+
+  /**
+   * Flush layout change callbacks after browser completes layout calculations
+   * Shared between transitionend handler and unregister function
+   */
+  const flushLayoutCallbacks = useCallback(() => {
+    const callbacks = [...layoutChangeQueueRef.current];
+    layoutChangeQueueRef.current = [];
+    callbacks.forEach((callback) => callback());
+  }, []);
 
   const register = useCallback(
     (id: string, minHeight: number, defaultHeight: number, element: HTMLDivElement, isExpanded: boolean) => {
@@ -206,8 +216,15 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       }
 
       updateGridTemplate();
+
+      // Flush layout change callbacks after grid updates
+      // This ensures mapping lines update when panels are removed
+      // Wait for layout to settle, then execute callbacks
+      requestAnimationFrame(() => {
+        requestAnimationFrame(flushLayoutCallbacks);
+      });
     },
-    [updateGridTemplate],
+    [updateGridTemplate, flushLayoutCallbacks],
   );
 
   /**
@@ -392,12 +409,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
 
       // Wait for browser to complete layout calculations with double RAF
       requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // Execute all queued callbacks
-          const callbacks = [...layoutChangeQueueRef.current];
-          layoutChangeQueueRef.current = [];
-          callbacks.forEach((callback) => callback());
-        });
+        requestAnimationFrame(flushLayoutCallbacks);
       });
     };
 
@@ -406,7 +418,7 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     return () => {
       container.removeEventListener('transitionend', handleTransitionEnd);
     };
-  }, []);
+  }, [flushLayoutCallbacks]);
 
   // No spacer needed - panels stack naturally in order
 

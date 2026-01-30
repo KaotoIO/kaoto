@@ -23,6 +23,9 @@ import { useDataMapper } from '../hooks/useDataMapper';
 import { NodeData } from '../models/datamapper';
 import { DnDHandler } from './dnd/DnDHandler';
 
+/** Type for tracking which side (source/target) is currently active during drag operations */
+type DragSide = 'source' | 'target' | null;
+
 /**
  * @dnd-kit's auto-scroll is not suitable for multiple overlapping scroll panels.
  *
@@ -91,10 +94,7 @@ export const scrollAwareCollision: CollisionDetection = (args) => {
  * Only allows scrolling destination-side panels (opposite from drag source).
  * @internal Exported for testing purposes
  */
-export const canScrollPanel = (
-  element: Element,
-  activeDragSideRef: { current: 'source' | 'target' | null },
-): boolean => {
+export const canScrollPanel = (element: Element, activeDragSideRef: { current: DragSide }): boolean => {
   if (!activeDragSideRef.current) return true;
 
   // Determine which side this scroll container belongs to
