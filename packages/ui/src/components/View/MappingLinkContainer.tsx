@@ -13,6 +13,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const { getNodeReference, nodeReferenceVersion } = useCanvas();
   const { getMappingLinks } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const isInitialRenderRef = useRef(true);
 
   const refreshLinks = useCallback(() => {
     const links = getMappingLinks();
@@ -22,7 +23,20 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   // Refresh when node references change (via version counter)
   useEffect(() => {
-    refreshLinks();
+    // On initial render, wait for ExpansionPanels grid layout to settle (CSS transition + layout)
+    // This ensures mapping lines are clamped to correct container bounds
+    if (isInitialRenderRef.current) {
+      isInitialRenderRef.current = false;
+      // Wait for grid transition (150ms) + layout calculation with double RAF
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          refreshLinks();
+        });
+      });
+    } else {
+      // Subsequent updates - calculate immediately
+      refreshLinks();
+    }
   }, [refreshLinks, nodeReferenceVersion]);
 
   // Refresh on window events

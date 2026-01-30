@@ -31,6 +31,9 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     setSourceBodyTree(TreeUIService.createTree(sourceBodyNodeData));
   }, [sourceBodyNodeData]);
 
+  // Check if body has schema (similar to parameter logic)
+  const hasSchema = !sourceBodyNodeData.isPrimitive;
+
   // Callback for layout changes (expand/collapse/resize) - triggers mapping line refresh
   const handleLayoutChange = useCallback(() => {
     reloadNodeReferences();
@@ -46,27 +49,28 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           onLayoutChange={handleLayoutChange}
         />
 
-        {/* Source Body - composed directly, no wrapper */}
-        {sourceBodyTree && (
-          <ExpansionPanel
-            id="source-body"
-            key="source-body"
-            defaultExpanded={true}
-            defaultHeight={300}
-            minHeight={100}
-            summary={
-              <DocumentHeader
-                header={<Title headingLevel="h5">Body</Title>}
-                document={sourceBodyDocument}
-                documentType={DocumentType.SOURCE_BODY}
-                isReadOnly={isReadOnly}
-                enableDnD={false}
-                additionalActions={[]}
-              />
-            }
-            onScroll={reloadNodeReferences}
-            onLayoutChange={handleLayoutChange}
-          >
+        {/* Source Body - behaves like parameters: collapsed when no schema */}
+        <ExpansionPanel
+          id="source-body"
+          key="source-body"
+          defaultExpanded={hasSchema}
+          defaultHeight={hasSchema ? 300 : 40}
+          minHeight={40}
+          summary={
+            <DocumentHeader
+              header={<Title headingLevel="h5">Body</Title>}
+              document={sourceBodyDocument}
+              documentType={DocumentType.SOURCE_BODY}
+              isReadOnly={isReadOnly}
+              enableDnD={!hasSchema}
+              additionalActions={[]}
+            />
+          }
+          onScroll={reloadNodeReferences}
+          onLayoutChange={handleLayoutChange}
+        >
+          {/* Only render children if body has schema */}
+          {hasSchema && sourceBodyTree && (
             <DocumentContent
               treeNode={sourceBodyTree.root}
               isReadOnly={isReadOnly}
@@ -79,8 +83,8 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
                 />
               )}
             />
-          </ExpansionPanel>
-        )}
+          )}
+        </ExpansionPanel>
       </ExpansionPanels>
     </div>
   );

@@ -172,7 +172,19 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
       context.register(id, minHeight, defaultHeight, panelRef.current, defaultExpanded);
     }
 
+    // Queue initial layout change callback to trigger after grid layout settles
+    // This ensures mapping lines are recalculated with correct container bounds
+    // when panels are dynamically added/removed or on initial render
+    if (onLayoutChange) {
+      context.queueLayoutChange(() => onLayoutChange(id));
+    }
+
     return () => {
+      // Queue layout change callback before unregistering
+      // When panel is removed, grid redistributes and mapping lines need to update
+      if (onLayoutChange) {
+        context.queueLayoutChange(() => onLayoutChange(id));
+      }
       context.unregister(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
