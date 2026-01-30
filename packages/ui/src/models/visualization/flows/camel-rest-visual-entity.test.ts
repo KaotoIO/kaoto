@@ -1,11 +1,14 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, ProcessorDefinition, Rest, To2 } from '@kaoto/camel-catalog/types';
 
 import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { EntityType } from '../../camel/entities';
+import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { REST_ELEMENT_NAME } from '../../special-processors.constants';
+import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestVisualEntity } from './camel-rest-visual-entity';
@@ -83,6 +86,11 @@ describe('CamelRestVisualEntity', () => {
     expect(superGetNodeLabelSpy).toHaveBeenCalled();
   });
 
+  it('should return "Add verb" for placeholder path', () => {
+    const entity = new CamelRestVisualEntity(restDef);
+    expect(entity.getNodeLabel('rest.placeholder')).toEqual('Add verb');
+  });
+
   it('should delegate to super return node tooltip', () => {
     const superGetNodeLabelSpy = jest
       .spyOn(AbstractCamelVisualEntity.prototype, 'getTooltipContent')
@@ -145,6 +153,22 @@ describe('CamelRestVisualEntity', () => {
     expect(entity.getNodeSchema(CamelRestVisualEntity.ROOT_PATH)).toEqual(restSchema);
   });
 
+  describe('removeStep', () => {
+    it('should clean up empty verb arrays after removing step', () => {
+      const restDefWithVerbs: { rest: Rest } = {
+        rest: {
+          get: [{ id: 'get-1', path: '/hello' }],
+          post: [],
+        },
+      };
+      const entity = new CamelRestVisualEntity(restDefWithVerbs);
+      entity.removeStep('rest.get.0');
+      // After removal, empty arrays should be set to undefined
+      expect(restDefWithVerbs.rest.get).toBeUndefined();
+      expect(restDefWithVerbs.rest.post).toBeUndefined();
+    });
+  });
+
   describe('getNodeSchema', () => {
     it('should return REST method schema for REST DSL methods', () => {
       const entity = new CamelRestVisualEntity(restDef);
@@ -187,7 +211,7 @@ describe('CamelRestVisualEntity', () => {
   it('should return omit form fields', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getOmitFormFields()).toEqual(['get', 'post', 'put', 'delete', 'head', 'patch']);
+    expect(entity.getOmitFormFields()).toEqual(['get', 'post', 'put', 'delete', 'patch', 'head', 'uri']);
   });
 
   it('should return root path', () => {
@@ -237,18 +261,126 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  it('return no interactions', () => {
-    const entity = new CamelRestVisualEntity(restDef);
+  describe('getNodeInteraction', () => {
+    it('should return interactions for root path', () => {
+      const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getNodeInteraction()).toEqual({
-      canHavePreviousStep: false,
-      canHaveNextStep: false,
-      canHaveChildren: false,
-      canHaveSpecialChildren: false,
-      canRemoveStep: false,
-      canReplaceStep: false,
-      canRemoveFlow: true,
-      canBeDisabled: true,
+      expect(
+        entity.getNodeInteraction({ catalogKind: CatalogKind.Entity, name: REST_ELEMENT_NAME, path: 'rest' }),
+      ).toEqual({
+        canHavePreviousStep: false,
+        canHaveNextStep: false,
+        canHaveChildren: false,
+        canHaveSpecialChildren: true,
+        canRemoveStep: false,
+        canReplaceStep: false,
+        canRemoveFlow: true,
+        canBeDisabled: true,
+      });
+    });
+
+    it('should return interactions for to path', () => {
+      const restDefWithGet = {
+        rest: {
+          ...restDef.rest,
+          get: [{ path: '/hello', to: { uri: 'direct:hello' } }],
+        },
+      };
+      const entity = new CamelRestVisualEntity(restDefWithGet);
+
+      expect(
+        entity.getNodeInteraction({
+          catalogKind: CatalogKind.Component,
+          name: 'direct',
+          path: 'rest.get.0.to',
+          processorName: 'to',
+        }),
+      ).toEqual({
+        canHavePreviousStep: false,
+        canHaveNextStep: false,
+        canHaveChildren: false,
+        canHaveSpecialChildren: false,
+        canRemoveStep: true,
+        canReplaceStep: false,
+        canRemoveFlow: false,
+        canBeDisabled: false,
+      });
+    });
+
+    it('should delegate to super for verb path', () => {
+      const restDefWithGet = {
+        rest: {
+          ...restDef.rest,
+          get: [{ path: '/hello', to: { uri: 'direct:hello' } }],
+        },
+      };
+      const entity = new CamelRestVisualEntity(restDefWithGet);
+      const superGetNodeInteractionSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction');
+
+      entity.getNodeInteraction({
+        catalogKind: CatalogKind.Entity,
+        name: 'get',
+        path: 'rest.get.0',
+        processorName: 'get' as keyof ProcessorDefinition,
+      });
+
+      expect(superGetNodeInteractionSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('addStep', () => {
+    it('should delegate to super for root path', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+      const superAddStepSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
+
+      entity.addStep({
+        definedComponent: { type: CatalogKind.Processor, name: 'get' } as DefinedComponent,
+        mode: AddStepMode.InsertSpecialChildStep,
+        data: { catalogKind: CatalogKind.Entity, name: REST_ELEMENT_NAME, path: CamelRestVisualEntity.ROOT_PATH },
+        targetProperty: 'get',
+      });
+
+      expect(superAddStepSpy).toHaveBeenCalled();
+    });
+
+    it('should add to directive for verb placeholder path', () => {
+      const restDefWithGet: { rest: Rest } = {
+        rest: {
+          ...restDef.rest,
+          get: [{ id: 'get-1', path: '/hello' }],
+        },
+      };
+
+      const entity = new CamelRestVisualEntity(restDefWithGet);
+
+      entity.addStep({
+        definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          catalogKind: CatalogKind.Pattern,
+          name: 'placeholder',
+          path: 'rest.get.0.to.placeholder',
+          isPlaceholder: true,
+        },
+      });
+
+      const toLocal = restDefWithGet.rest.get?.[0].to as Exclude<To2, string>;
+
+      expect(toLocal).toBeDefined();
+      expect(toLocal?.uri).toEqual('direct');
+    });
+
+    it('should not add step when path is undefined', () => {
+      const entity = new CamelRestVisualEntity(restDef);
+
+      entity.addStep({
+        definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
+        mode: AddStepMode.ReplaceStep,
+        data: { catalogKind: CatalogKind.Pattern, name: 'placeholder', path: undefined },
+      });
+
+      // Should not throw and rest should remain unchanged
+      expect(restDef.rest).toEqual(restStub.rest);
     });
   });
 

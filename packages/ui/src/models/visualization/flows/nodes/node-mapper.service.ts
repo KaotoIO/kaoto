@@ -1,6 +1,7 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
+import { REST_DSL_VERBS, REST_ELEMENT_NAME } from '../../../special-processors.constants';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { ICamelElementLookupResult } from '../support/camel-component-types';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
@@ -11,6 +12,9 @@ import { LoadBalanceNodeMapper } from './mappers/loadbalance-node-mapper';
 import { MulticastNodeMapper } from './mappers/multicast-node-mapper';
 import { OnFallbackNodeMapper } from './mappers/on-fallback-node-mapper';
 import { OtherwiseNodeMapper } from './mappers/otherwise-node-mapper';
+import { RestDslNodeMapper } from './mappers/rest-dsl-node-mapper';
+import { RestDslVerbsNodeMapper } from './mappers/rest-dsl-verbs-node-mapper';
+import { RouteConfigurationNodeMapper } from './mappers/route-configuration-node-mapper';
 import { StepNodeMapper } from './mappers/step-node-mapper';
 import { WhenNodeMapper } from './mappers/when-node-mapper';
 import { INodeMapper } from './node-mapper';
@@ -53,5 +57,20 @@ export class NodeMapperService {
     this.rootNodeMapper.registerMapper(DATAMAPPER_ID_PREFIX, new DataMapperNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('multicast', new MulticastNodeMapper(this.rootNodeMapper));
     this.rootNodeMapper.registerMapper('loadBalance', new LoadBalanceNodeMapper(this.rootNodeMapper));
+
+    /** Camel Rest DSL Node mappers */
+    this.rootNodeMapper.registerMapper(REST_ELEMENT_NAME, new RestDslNodeMapper(this.rootNodeMapper));
+    REST_DSL_VERBS.forEach((verb) => {
+      this.rootNodeMapper.registerMapper(
+        verb as keyof ProcessorDefinition,
+        new RestDslVerbsNodeMapper(this.rootNodeMapper, verb),
+      );
+    });
+
+    /** Camel Route Configuration Node mapper */
+    this.rootNodeMapper.registerMapper(
+      'routeConfiguration' as keyof ProcessorDefinition,
+      new RouteConfigurationNodeMapper(this.rootNodeMapper),
+    );
   }
 }

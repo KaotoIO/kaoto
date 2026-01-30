@@ -17,6 +17,7 @@
 import { Param, ResponseMessage, Rest, RestSecurity, SecurityDefinitions } from '@kaoto/camel-catalog/types';
 
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import { REST_DSL_VERBS } from '../../../models/special-processors.constants';
 import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 import { RouteXmlParser } from './route-xml-parser';
 import { StepParser } from './step-parser';
@@ -39,10 +40,9 @@ export class RestXmlParser {
   // Transform verbs like <get>, <post>, etc.
   private static parseRestVerbs(restElement: Element): Rest {
     const verbs: { [key: string]: unknown } = {};
-    const verbNames = ['get', 'post', 'put', 'delete', 'patch', 'head'];
 
     // For each verb, look for its elements and transform them
-    verbNames.forEach((verb) => {
+    REST_DSL_VERBS.forEach((verb) => {
       const verbInstances = Array.from(restElement.getElementsByTagName(verb));
       if (verbInstances.length > 0) {
         verbs[verb] = verbInstances.map((verbElement: Element) => this.parseRestVerb(verbElement));

@@ -564,6 +564,23 @@ describe('CamelComponentSchemaService', () => {
       ['interceptSendToEndpoint', [{ name: 'steps', type: 'branch' }]],
       ['onException', [{ name: 'steps', type: 'branch' }]],
       ['onCompletion', [{ name: 'steps', type: 'branch' }]],
+      [
+        'rest',
+        [
+          { name: 'get', type: 'array-clause' },
+          { name: 'post', type: 'array-clause' },
+          { name: 'put', type: 'array-clause' },
+          { name: 'delete', type: 'array-clause' },
+          { name: 'patch', type: 'array-clause' },
+          { name: 'head', type: 'array-clause' },
+        ],
+      ],
+      ['get', [{ name: 'to', type: 'single-clause' }]],
+      ['post', [{ name: 'to', type: 'single-clause' }]],
+      ['put', [{ name: 'to', type: 'single-clause' }]],
+      ['delete', [{ name: 'to', type: 'single-clause' }]],
+      ['patch', [{ name: 'to', type: 'single-clause' }]],
+      ['head', [{ name: 'to', type: 'single-clause' }]],
     ] as [string, CamelProcessorStepsProperties[]][])(
       `should return the steps properties for '%s'`,
       (processorName, result) => {

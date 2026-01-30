@@ -223,7 +223,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const processorName = (data as CamelRouteVisualEntityData).processorName;
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(processorName);
     const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(processorName);
-    const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
+    const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = CamelComponentSchemaService.canReplaceStep(processorName);
     const canRemoveStep = !CamelComponentSchemaService.DISABLED_REMOVE_STEPS.includes(processorName);
@@ -327,8 +327,8 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     }
 
     const pathArray = data.path.split('.');
-    const last = pathArray[pathArray.length - 1];
-    const penultimate = pathArray[pathArray.length - 2];
+    const last = pathArray.at(-1);
+    const penultimate = pathArray.at(-2);
 
     /**
      * If the last segment is a string and the penultimate is a number, it means the target is member of an array

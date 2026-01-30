@@ -1,7 +1,7 @@
 import './PlaceholderNode.scss';
 
 import { Icon } from '@patternfly/react-core';
-import { PlusCircleIcon } from '@patternfly/react-icons';
+import { CodeBranchIcon, PlusCircleIcon } from '@patternfly/react-icons';
 import type {
   DefaultNode,
   DropTargetSpec,
@@ -26,10 +26,11 @@ import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode } from '../../../../models';
-import { SettingsContext } from '../../../../providers';
+import { SettingsContext } from '../../../../providers/settings.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NODE_DRAG_TYPE } from '../customComponentUtils';
+import { useInsertStep } from '../hooks/insert-step.hook';
 import { useReplaceStep } from '../hooks/replace-step.hook';
 import { TargetAnchor } from '../target-anchor';
 import { checkNodeDropCompatibility } from './CustomNodeUtils';
@@ -61,6 +62,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     return null;
   }
   const { onReplaceNode } = useReplaceStep(vizNode);
+  const { onInsertStep } = useInsertStep(vizNode, AddStepMode.InsertSpecialChildStep);
 
   const placeholderNodeDropTargetSpec: DropTargetSpec<
     GraphElement,
@@ -94,6 +96,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   );
 
   const [dndDropProps, dndDropRef] = useDndDrop(placeholderNodeDropTargetSpec);
+  const isSpecialChildPlaceholder = vizNode.data.name === 'placeholder-special-child';
 
   return (
     <Layer id={DEFAULT_LAYER}>
@@ -101,7 +104,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
         className="placeholder-node"
         data-testid={`placeholder-node__${vizNode.id}`}
         data-nodelabel={label}
-        onClick={onReplaceNode}
+        onClick={isSpecialChildPlaceholder ? onInsertStep : onReplaceNode}
       >
         <foreignObject
           data-nodelabel={label}
@@ -118,9 +121,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
             })}
           >
             <div title={tooltipContent} className="placeholder-node__container__image">
-              <Icon size="lg">
-                <PlusCircleIcon />
-              </Icon>
+              <Icon size="lg">{isSpecialChildPlaceholder ? <CodeBranchIcon /> : <PlusCircleIcon />}</Icon>
             </div>
           </div>
         </foreignObject>

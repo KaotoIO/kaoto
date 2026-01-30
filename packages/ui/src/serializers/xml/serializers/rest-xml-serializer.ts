@@ -17,23 +17,22 @@
 import { Rest } from '@kaoto/camel-catalog/types';
 
 import { CamelCatalogService, CatalogKind } from '../../../models';
+import { REST_DSL_VERBS, REST_ELEMENT_NAME } from '../../../models/special-processors.constants';
 import { StepXmlSerializer } from './step-xml-serializer';
 
 export class RestXmlSerializer {
-  private static readonly REST_ELEMENT_NAME = 'rest';
-  private static readonly REST_VERBS = ['get', 'post', 'put', 'delete', 'patch', 'head'];
   //properties that are missing in the catalog (up to 4.9)
   private static readonly MISSING_PROPERTIES = ['param', 'security', 'responseMessage'];
 
   static serialize(rest: { [key: string]: unknown }, doc: Document): Element {
-    const element = StepXmlSerializer.serialize(RestXmlSerializer.REST_ELEMENT_NAME, rest, doc);
+    const element = StepXmlSerializer.serialize(REST_ELEMENT_NAME, rest, doc);
 
     let restObject = rest as unknown as Rest;
     if (rest.rest) restObject = rest.rest as unknown as Rest;
 
     this.handleSecurityDefinitions(element, restObject, doc);
 
-    this.REST_VERBS.forEach((verb) => {
+    REST_DSL_VERBS.forEach((verb) => {
       const verbKey = verb as keyof Rest;
       if (restObject[verbKey]) {
         (restObject[verbKey] as { [key: string]: unknown }[]).forEach((verbInstance: { [key: string]: unknown }) => {

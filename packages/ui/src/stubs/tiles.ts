@@ -78,6 +78,20 @@ export const processorInterceptTile: ITile = {
   tags: ['configuration'],
 };
 
+export const processorDoCatchTile: ITile = {
+  type: CatalogKind.Processor,
+  name: 'doCatch',
+  title: 'Do Catch',
+  tags: ['eip', 'error'],
+};
+
+export const processorDoFinallyTile: ITile = {
+  type: CatalogKind.Processor,
+  name: 'doFinally',
+  title: 'Do Finally',
+  tags: ['eip', 'error'],
+};
+
 export const componentSlackTile: ITile = {
   type: CatalogKind.Component,
   name: 'slack',
@@ -99,6 +113,13 @@ export const componentCronTile: ITile = {
   tags: ['scheduling', 'consumerOnly'],
 };
 
+export const componentDirectTile: ITile = {
+  type: CatalogKind.Component,
+  name: 'direct',
+  title: 'Direct',
+  tags: ['messaging'],
+};
+
 export const tiles: ITile[] = [
   kameletSourceTile,
   kameletSinkTile,
@@ -111,9 +132,12 @@ export const tiles: ITile[] = [
   processorWhenTile,
   processorOtherwiseTile,
   processorInterceptTile,
+  processorDoCatchTile,
+  processorDoFinallyTile,
   componentSlackTile,
   componentKubernetesSecretsTile,
   componentCronTile,
+  componentDirectTile,
 ];
 
 export const longTileList: ITile[] = [
