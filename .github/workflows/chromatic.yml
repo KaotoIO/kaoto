@@ -54,7 +54,7 @@ jobs:
         uses: chromaui/action@v13.3.5
         # Chromatic GitHub Action options
         with:
-          #👇 Chromatic projectToken, see https://storybook.js.org/tutorials/intro-to-storybook/react/en/deploy/ to obtain it
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # This token needs to be specified directly here so forks of the repository can push their changes to the chromatic UI
+          projectToken: chpt_7d9db951361ed23
           buildScriptName: build:storybook
           workingDir: packages/ui-tests
