@@ -2,6 +2,7 @@ import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto
 import { parse, stringify } from 'yaml';
 
 import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
+import { Test } from '../models/citrus/entities/Test';
 import { isXML } from './xml/kaoto-xml-parser';
 
 export class YamlCamelResourceSerializer implements CamelResourceSerializer {
@@ -23,7 +24,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     return !isXML(code);
   }
 
-  parse(code: string): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
+  parse(code: string): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test {
     if (!code || typeof code !== 'string') return [];
 
     this.comments = this.parseComments(code);

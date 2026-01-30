@@ -5,6 +5,7 @@ import {
   ICamelDataformatDefinition,
   ICamelLanguageDefinition,
   ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
@@ -18,6 +19,12 @@ export type DynamicCatalogTypeMap = {
   [CatalogKind.Dataformat]: ICamelDataformatDefinition;
   [CatalogKind.Loadbalancer]: ICamelProcessorDefinition;
   [CatalogKind.Kamelet]: IKameletDefinition;
+  [CatalogKind.TestAction]: ICitrusComponentDefinition;
+  [CatalogKind.TestActionGroup]: ICitrusComponentDefinition;
+  [CatalogKind.TestContainer]: ICitrusComponentDefinition;
+  [CatalogKind.TestEndpoint]: ICitrusComponentDefinition;
+  [CatalogKind.TestFunction]: ICitrusComponentDefinition;
+  [CatalogKind.TestValidationMatcher]: ICitrusComponentDefinition;
   [CatalogKind.Function]: Record<string, KaotoFunction>;
 };
 
