@@ -147,6 +147,9 @@ export const lazyLoadingTestXsd = fs.readFileSync(path.resolve(__dirname, './xml
 export const adtInXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_IN.xsd')).toString();
 export const adtOutXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_OUT.xsd')).toString();
 export const elementRefXsd = fs.readFileSync(path.resolve(__dirname, './xml/element-ref.xsd')).toString();
+export const accountLcXsd = fs.readFileSync(path.resolve(__dirname, './xml/account-lc.xsd')).toString();
+export const accountNsXsd = fs.readFileSync(path.resolve(__dirname, './xml/account-ns.xsd')).toString();
+export const accountNs2Xsd = fs.readFileSync(path.resolve(__dirname, './xml/account-ns2.xsd')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
