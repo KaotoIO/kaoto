@@ -24,12 +24,16 @@ describe('CustomEdge', () => {
   it('should render without error', () => {
     const parentElement = new BaseGraph();
     const element = new BaseEdge();
+    const edgeSource = new BaseNode();
+    const edgeTarget = new BaseNode();
+    edgeSource.setParent(parentElement);
+    edgeTarget.setParent(parentElement);
+    element.setSource(edgeSource);
+    element.setTarget(edgeTarget);
     const controller = ControllerService.createController();
     parentElement.setController(controller);
     element.setController(controller);
     element.setParent(parentElement);
-    element.setSource(new BaseNode());
-    element.setTarget(new BaseNode());
     element.setStartPoint(0, 0);
     element.setEndPoint(100, 100);
 
