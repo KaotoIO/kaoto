@@ -10,7 +10,7 @@ import { DocumentNodeData } from '../models/datamapper/visualization';
 import { TreeParsingService } from '../services/tree-parsing.service';
 import { XmlSchemaDocument } from '../services/xml-schema-document.model';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
-import { useDocumentTreeStore } from './document-tree.store';
+import { TreeConnectionPorts, useDocumentTreeStore } from './document-tree.store';
 
 describe('useDocumentTreeStore', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -24,7 +24,12 @@ describe('useDocumentTreeStore', () => {
   });
 
   afterEach(() => {
-    useDocumentTreeStore.setState({ expansionState: {} });
+    useDocumentTreeStore.setState({
+      expansionState: {},
+      nodesConnectionPorts: {},
+      selectedNodePath: null,
+      selectedNodeIsSource: false,
+    });
   });
 
   it('should start with empty state', () => {
@@ -127,6 +132,277 @@ describe('useDocumentTreeStore', () => {
       // Verify that the custom states were preserved for matching keys
       expect(state[rootPath]).toBe(true);
       expect(state[childPath]).toBe(false);
+    });
+  });
+
+  describe('setNodesConnectionPorts', () => {
+    it('should set connection ports for a document', () => {
+      const documentId = 'test-doc-id';
+      const ports: TreeConnectionPorts = {
+        path1: [10, 20],
+        path2: [30, 40],
+      };
+
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, ports);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.nodesConnectionPorts[documentId]).toEqual(ports);
+      expect(state.nodesConnectionPortsArray[documentId]).toEqual(['path1', 'path2']);
+    });
+
+    it('should update connection ports for an existing document', () => {
+      const documentId = 'test-doc-id';
+      const initialPorts: TreeConnectionPorts = { path1: [10, 20] };
+      const updatedPorts: TreeConnectionPorts = { path1: [15, 25], path2: [30, 40] };
+
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, initialPorts);
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, updatedPorts);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.nodesConnectionPorts[documentId]).toEqual(updatedPorts);
+      expect(state.nodesConnectionPortsArray[documentId]).toEqual(['path1', 'path2']);
+    });
+
+    it('should filter out paths containing :EDGE: from nodesConnectionPortsArray', () => {
+      const documentId = 'test-doc-id';
+      const ports: TreeConnectionPorts = {
+        path1: [10, 20],
+        'path2:EDGE:': [30, 40],
+        path3: [50, 60],
+        'some:EDGE:path': [70, 80],
+      };
+
+      useDocumentTreeStore.getState().setNodesConnectionPorts(documentId, ports);
+      const state = useDocumentTreeStore.getState();
+
+      // All ports should be in nodesConnectionPorts
+      expect(state.nodesConnectionPorts[documentId]).toEqual(ports);
+
+      // Only non-EDGE paths should be in nodesConnectionPortsArray
+      expect(state.nodesConnectionPortsArray[documentId]).toEqual(['path1', 'path3']);
+      expect(state.nodesConnectionPortsArray[documentId]).not.toContain('path2:EDGE:');
+      expect(state.nodesConnectionPortsArray[documentId]).not.toContain('some:EDGE:path');
+    });
+  });
+
+  describe('toggleExpansion', () => {
+    it('should toggle expansion state from false to true', () => {
+      const documentId = tree.documentId;
+      const nodePath = 'sourceBody:Body://';
+
+      // Set initial state to false
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentId]: {
+            [nodePath]: false,
+          },
+        },
+      });
+
+      useDocumentTreeStore.getState().toggleExpansion(documentId, nodePath);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.expansionState[documentId][nodePath]).toBe(true);
+    });
+
+    it('should toggle expansion state from true to false', () => {
+      const documentId = tree.documentId;
+      const nodePath = 'sourceBody:Body://';
+
+      // Set initial state to true
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentId]: {
+            [nodePath]: true,
+          },
+        },
+      });
+
+      useDocumentTreeStore.getState().toggleExpansion(documentId, nodePath);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.expansionState[documentId][nodePath]).toBe(false);
+    });
+
+    it('should create expansion state for new document', () => {
+      const documentId = 'new-doc-id';
+      const nodePath = 'new:path://';
+
+      useDocumentTreeStore.getState().toggleExpansion(documentId, nodePath);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.expansionState[documentId][nodePath]).toBe(true);
+    });
+  });
+
+  describe('isExpanded', () => {
+    it('should return true for expanded node', () => {
+      const documentId = tree.documentId;
+      const nodePath = 'sourceBody:Body://';
+
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentId]: {
+            [nodePath]: true,
+          },
+        },
+      });
+
+      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentId, nodePath);
+
+      expect(isExpanded).toBe(true);
+    });
+
+    it('should return false for collapsed node', () => {
+      const documentId = tree.documentId;
+      const nodePath = 'sourceBody:Body://';
+
+      useDocumentTreeStore.setState({
+        expansionState: {
+          [documentId]: {
+            [nodePath]: false,
+          },
+        },
+      });
+
+      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentId, nodePath);
+
+      expect(isExpanded).toBe(false);
+    });
+
+    it('should return false for non-existent node', () => {
+      const documentId = 'non-existent-doc';
+      const nodePath = 'non-existent:path://';
+
+      const isExpanded = useDocumentTreeStore.getState().isExpanded(documentId, nodePath);
+
+      expect(isExpanded).toBe(false);
+    });
+  });
+
+  describe('setSelectedNode', () => {
+    it('should set selected node as source', () => {
+      const nodePath = 'sourceBody:Body://';
+
+      useDocumentTreeStore.getState().setSelectedNode(nodePath, true);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBe(nodePath);
+      expect(state.selectedNodeIsSource).toBe(true);
+    });
+
+    it('should set selected node as target', () => {
+      const nodePath = 'targetBody:Body://';
+
+      useDocumentTreeStore.getState().setSelectedNode(nodePath, false);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBe(nodePath);
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+
+    it('should clear selection when nodePath is null', () => {
+      // First set a selection
+      useDocumentTreeStore.getState().setSelectedNode('some:path://', true);
+
+      // Then clear it
+      useDocumentTreeStore.getState().setSelectedNode(null, false);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBeNull();
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+  });
+
+  describe('toggleSelectedNode', () => {
+    it('should select a node when nothing is selected', () => {
+      const nodePath = 'sourceBody:Body://';
+
+      useDocumentTreeStore.getState().toggleSelectedNode(nodePath, true);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBe(nodePath);
+      expect(state.selectedNodeIsSource).toBe(true);
+    });
+
+    it('should deselect a node when it is already selected', () => {
+      const nodePath = 'sourceBody:Body://';
+
+      // First select the node
+      useDocumentTreeStore.getState().setSelectedNode(nodePath, true);
+
+      // Then toggle it (should deselect)
+      useDocumentTreeStore.getState().toggleSelectedNode(nodePath, true);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBeNull();
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+
+    it('should switch selection to a different node', () => {
+      const firstPath = 'sourceBody:Body://';
+      const secondPath = 'targetBody:Body://';
+
+      // Select first node
+      useDocumentTreeStore.getState().setSelectedNode(firstPath, true);
+
+      // Toggle second node (should switch selection)
+      useDocumentTreeStore.getState().toggleSelectedNode(secondPath, false);
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBe(secondPath);
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+  });
+
+  describe('clearSelection', () => {
+    it('should clear the selection', () => {
+      // First set a selection
+      useDocumentTreeStore.getState().setSelectedNode('some:path://', true);
+
+      // Then clear it
+      useDocumentTreeStore.getState().clearSelection();
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBeNull();
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+
+    it('should work when nothing is selected', () => {
+      useDocumentTreeStore.getState().clearSelection();
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.selectedNodePath).toBeNull();
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+  });
+
+  describe('isNodeSelected', () => {
+    it('should return true for selected node', () => {
+      const nodePath = 'sourceBody:Body://';
+
+      useDocumentTreeStore.getState().setSelectedNode(nodePath, true);
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath);
+
+      expect(isSelected).toBe(true);
+    });
+
+    it('should return false for non-selected node', () => {
+      const selectedPath = 'sourceBody:Body://';
+      const otherPath = 'targetBody:Body://';
+
+      useDocumentTreeStore.getState().setSelectedNode(selectedPath, true);
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(otherPath);
+
+      expect(isSelected).toBe(false);
+    });
+
+    it('should return false when nothing is selected', () => {
+      const nodePath = 'sourceBody:Body://';
+
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath);
+
+      expect(isSelected).toBe(false);
     });
   });
 });

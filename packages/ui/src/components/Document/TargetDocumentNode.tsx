@@ -1,14 +1,10 @@
 import clsx from 'clsx';
-import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useRef } from 'react';
+import { FunctionComponent, KeyboardEvent, memo, MouseEvent, useCallback, useMemo } from 'react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
-import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import {
-  AddMappingNodeData,
   FieldItemNodeData,
-  NodeReference,
   TargetDocumentNodeData,
   TargetNodeData,
   UnknownMappingNodeData,
@@ -18,7 +14,6 @@ import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { TargetNodeActions } from './actions/TargetNodeActions';
-import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
@@ -34,17 +29,16 @@ type DocumentNodeProps = {
  * Tree-based target node component that uses pre-parsed tree structure
  * for improved performance with large schemas
  */
-export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeNode, documentId, rank }) => {
-  const { getNodeReference, reloadNodeReferences, setNodeReference } = useCanvas();
-  const { isInSelectedMapping, toggleSelectedNodeReference } = useMappingLinks();
+export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ treeNode, documentId, rank }) => {
+  const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
   const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
   const nodeData = treeNode.nodeData;
   const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
 
-  const isDocument = VisualizationService.isDocumentNode(nodeData);
-  const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
-  const hasChildren = VisualizationService.hasChildren(nodeData);
+  const isDocument = useMemo(() => VisualizationService.isDocumentNode(nodeData), [nodeData]);
+  const isPrimitive = useMemo(() => VisualizationService.isPrimitiveDocumentNode(nodeData), [nodeData]);
+  const hasChildren = useMemo(() => VisualizationService.hasChildren(nodeData), [nodeData]);
 
   const handleClickToggle = useCallback(
     (event: MouseEvent) => {
@@ -52,49 +46,37 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
       if (!hasChildren) return;
 
       TreeUIService.toggleNode(documentId, treeNode.path);
-      reloadNodeReferences();
     },
-    [hasChildren, documentId, treeNode.path, reloadNodeReferences],
+    [hasChildren, documentId, treeNode.path],
   );
-  const isCollectionField = VisualizationService.isCollectionField(nodeData);
+  const isCollectionField = useMemo(() => VisualizationService.isCollectionField(nodeData), [nodeData]);
   const isChoiceField = VisualizationService.isChoiceField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable =
     !(nodeData instanceof UnknownMappingNodeData) &&
     (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
-  const headerRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const nodeRefId = nodeData.path.toString();
-  const nodeReference = useRef<NodeReference>({
-    path: nodeRefId,
-    isSource: false,
-    get headerRef() {
-      return headerRef.current;
-    },
-    get containerRef() {
-      return containerRef.current;
-    },
-  });
-  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
+  const nodePathString = nodeData.path.toString();
 
-  const showNodeActions = (isDocument && isPrimitive) || !isDocument;
+  const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
   const { refreshMappingTree } = useDataMapper();
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
   }, [refreshMappingTree]);
 
-  const isSelected = isInSelectedMapping(nodeReference);
+  // Get selection state from store
+  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString));
+
   const handleClickField = useCallback(
     (event: MouseEvent) => {
-      toggleSelectedNodeReference(nodeReference);
+      toggleSelectedNode(nodePathString, false); // false for target nodes
       event.stopPropagation();
     },
-    [toggleSelectedNodeReference],
+    [toggleSelectedNode, nodePathString],
   );
 
   const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNodeReference(nodeReference)),
-    [toggleSelectedNodeReference],
+    (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)), // false for source nodes
+    [nodePathString, toggleSelectedNode],
   );
 
   return (
@@ -107,9 +89,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
       onClick={handleClickField}
       onKeyDown={handleKeyDown}
     >
-      <NodeContainer ref={containerRef} nodeData={nodeData}>
+      <NodeContainer nodeData={nodeData}>
         <div className="node__header">
-          <NodeContainer nodeData={nodeData} ref={headerRef} className={clsx({ 'selected-container': isSelected })}>
+          <NodeContainer nodeData={nodeData} className={clsx({ 'selected-container': isSelected })}>
             <BaseNode
               data-testid={nodeData.title}
               isExpandable={hasChildren}
@@ -123,6 +105,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
               rank={rank}
               isSelected={isSelected}
+              isSource={false}
+              nodePath={nodePathString}
+              documentId={documentId}
             >
               {showNodeActions ? (
                 <TargetNodeActions
@@ -138,24 +123,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
             </BaseNode>
           </NodeContainer>
         </div>
-
-        {hasChildren && isExpanded && (
-          <div className="node__children">
-            {treeNode.children.map((childTreeNode) =>
-              childTreeNode.nodeData instanceof AddMappingNodeData ? (
-                <AddMappingNode nodeData={childTreeNode.nodeData} key={childTreeNode.path} rank={rank} />
-              ) : (
-                <TargetDocumentNode
-                  treeNode={childTreeNode}
-                  documentId={documentId}
-                  key={childTreeNode.path}
-                  rank={rank + 1}
-                />
-              ),
-            )}
-          </div>
-        )}
       </NodeContainer>
     </div>
   );
-};
+});
+
+TargetDocumentNode.displayName = 'TargetDocumentNode';
