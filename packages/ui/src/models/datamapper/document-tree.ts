@@ -6,6 +6,13 @@ export const INITIAL_PARSE_DEPTH = 3;
 /** Initial field counts for schema processing */
 export const INITIAL_FIELD_COUNTS = 100;
 
+export interface FlattenedNode {
+  treeNode: DocumentTreeNode;
+  depth: number;
+  index: number;
+  path: string;
+}
+
 /**
  * Document tree for managing pre-parsed schema structure
  * Handles the root node and provides tree-level operations
@@ -24,5 +31,44 @@ export class DocumentTree {
    */
   findNodeByPath(path: string): DocumentTreeNode | undefined {
     return this.root.findByPath(path);
+  }
+
+  /**
+   * Flattens the tree into an array of visible nodes based on expansion state
+   *
+   * Key behavior:
+   * - Always includes the root node
+   * - Only includes children if parent is expanded
+   * - Recursively checks expansion state down the tree
+   * - Calculates correct depth for indentation
+   *
+   * @param expansionState - Record mapping node paths to their expansion state
+   * @param startDepth - Starting depth for the root node (default: 0)
+   * @returns Array of flattened nodes with depth and index information
+   */
+  flatten(expansionState: Record<string, boolean>, startDepth = 0): FlattenedNode[] {
+    const result: FlattenedNode[] = [];
+
+    const traverse = (node: DocumentTreeNode, depth: number) => {
+      // Always add current node to result
+      result.push({
+        treeNode: node,
+        depth,
+        index: result.length,
+        path: node.path,
+      });
+
+      // Only traverse children if:
+      // 1. Node has children
+      // 2. Node is expanded (checked via expansion state)
+      if (node.children.length > 0 && (expansionState[node.path] ?? false)) {
+        node.children.forEach((child) => {
+          traverse(child, depth + 1);
+        });
+      }
+    };
+
+    traverse(this.root, startDepth);
+    return result;
   }
 }

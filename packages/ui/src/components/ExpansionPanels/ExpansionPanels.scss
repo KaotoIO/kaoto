@@ -9,9 +9,9 @@
   grid-template-rows: var(--grid-template, 1fr);
   transition: grid-template-rows var(--expansion-panel-animation);
 
-  // Disable transition during resize for instant updates
+  // Use minimal transition during resize for instant updates while still firing transitionend
   &:has([data-resizing='true']) {
-    transition: none;
+    transition: grid-template-rows 1ms;
   }
 
   &__spacer {
