@@ -1,5 +1,4 @@
 import { AlertProps } from '@patternfly/react-core';
-import { RefObject } from 'react';
 
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import {
@@ -196,14 +195,9 @@ export class FunctionNodeData implements NodeData {
 export interface IMappingLink {
   sourceNodePath: string;
   targetNodePath: string;
+  sourceDocumentId: string;
+  targetDocumentId: string;
   isSelected: boolean;
-}
-
-export interface NodeReference {
-  path: string;
-  isSource: boolean;
-  headerRef: HTMLDivElement | null;
-  containerRef: HTMLDivElement | null;
 }
 
 export type LineCoord = {
@@ -216,8 +210,10 @@ export type LineCoord = {
 export type LineProps = LineCoord & {
   sourceNodePath: string;
   targetNodePath: string;
-  isSelected?: boolean;
-  svgRef?: RefObject<SVGSVGElement | null>;
+  isSelected: boolean;
+  isPartial: boolean;
+  isSourceEdge: boolean;
+  isTargetEdge: boolean;
 };
 
 export type SendAlertProps = Partial<AlertProps & { description: string }>;

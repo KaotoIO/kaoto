@@ -162,10 +162,10 @@ When the container resizes (window resize, sidebar toggle, etc.):
 
 ## Integration with DataMapper
 
-The DataMapper uses `onLayoutChange` callbacks to trigger `reloadNodeReferences()`:
-- Updates the node reference map with new DOM positions
-- Triggers mapping line recalculation via `nodeReferenceVersion` counter
-- Lines are clamped to panel bounds in `MappingLinksService.calculateMappingLinkCoordinates()`
+The DataMapper uses `onLayoutChange` callbacks to trigger `batchUpdateConnectionPorts()`:
+- Queries all visible connection port elements from the DOM
+- Updates the Zustand store with new port positions in a single batch
+- `MappingLinksContainer` reactively recalculates line coordinates from stored positions
 
 ## CSS Structure
 

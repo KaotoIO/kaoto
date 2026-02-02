@@ -46,6 +46,26 @@
     min-width: 1px;
     overflow-x: clip;
     position: relative;
+
+    & [data-connection-port-location='top'] {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+      width: 1px;
+      height: 1px;
+    }
+
+    & [data-connection-port-location='bottom'] {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      display: block;
+      width: 1px;
+      height: 1px;
+    }
   }
 
   &__target-split {
