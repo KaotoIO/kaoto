@@ -20,6 +20,30 @@ Object.defineProperty(globalThis, 'ResizeObserver', {
   value: ResizeObserverMock,
 });
 
+// Mock IntersectionObserver for visibility tracking
+class IntersectionObserverMock {
+  observe = jest.fn();
+  unobserve = jest.fn();
+  disconnect = jest.fn();
+}
+
+Object.defineProperty(globalThis, 'IntersectionObserver', {
+  writable: true,
+  value: IntersectionObserverMock,
+});
+
+// Mock MutationObserver for DOM change tracking
+class MutationObserverMock {
+  observe = jest.fn();
+  disconnect = jest.fn();
+  takeRecords = jest.fn();
+}
+
+Object.defineProperty(globalThis, 'MutationObserver', {
+  writable: true,
+  value: MutationObserverMock,
+});
+
 enableSVGElementMocks();
 
 Object.defineProperty(window, 'fetch', {

@@ -9,8 +9,8 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
+import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { RenameParameterButton } from './RenameParameterButton';
 
 describe('RenameParameterButton', () => {
@@ -36,11 +36,11 @@ describe('RenameParameterButton', () => {
     };
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <ParamTest>
             <RenameParameterButton parameterName="testparam1" onRenameClick={renameAction} />
           </ParamTest>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     const renameBtn = await screen.findByTestId('rename-parameter-testparam1-button');

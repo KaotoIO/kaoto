@@ -1,19 +1,27 @@
 import './SourcePanel.scss';
 
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
-import { DocumentContent, DocumentHeader } from '../Document/BaseDocument';
+import { useDocumentTreeStore } from '../../store/document-tree.store';
+import { flattenTreeNodes } from '../../utils/flatten-tree-nodes';
+import { updateVisiblePortPositions } from '../../utils/update-visible-port-positions';
+import { VirtuosoWithVisibility } from '../DataMapper/VirtuosoWithVisibility';
+import { DocumentHeader } from '../Document/BaseDocument';
 import { ParametersSection } from '../Document/Parameters';
 import { SourceDocumentNode } from '../Document/SourceDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
-import { PANEL_COLLAPSED_HEIGHT, PANEL_DEFAULT_HEIGHT, PANEL_MIN_HEIGHT } from '../ExpansionPanels/panel-dimensions';
+import {
+  PANEL_COLLAPSED_HEIGHT,
+  PANEL_DEFAULT_HEIGHT,
+  PANEL_MIN_HEIGHT,
+  VIRTUOSO_OVERSCAN,
+} from '../ExpansionPanels/panel-dimensions';
 
 type SourcePanelProps = {
   isReadOnly?: boolean;
@@ -22,7 +30,6 @@ type SourcePanelProps = {
 
 export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = false, actionItems }) => {
   const { sourceBodyDocument } = useDataMapper();
-  const { reloadNodeReferences } = useCanvas();
 
   // Create tree for source body
   const sourceBodyNodeData = useMemo(() => new DocumentNodeData(sourceBodyDocument), [sourceBodyDocument]);
@@ -32,13 +39,17 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     setSourceBodyTree(TreeUIService.createTree(sourceBodyNodeData));
   }, [sourceBodyNodeData]);
 
+  // Optimize: Select only the expansion state for this document
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[sourceBodyNodeData.id] || {});
+
+  // Flatten tree based on expansion state
+  const flattenedNodes = useMemo(() => {
+    if (!sourceBodyTree) return [];
+    return flattenTreeNodes(sourceBodyTree.root, (path) => documentExpansionState[path] ?? false);
+  }, [sourceBodyTree, documentExpansionState]);
+
   // Check if body has schema (similar to parameter logic)
   const hasSchema = !sourceBodyNodeData.isPrimitive;
-
-  // Callback for layout changes (expand/collapse/resize) - triggers immediate mapping line refresh
-  const handleLayoutChange = useCallback(() => {
-    reloadNodeReferences();
-  }, [reloadNodeReferences]);
 
   return (
     <div id="panel-source" className="source-panel">
@@ -46,8 +57,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
         {/* Parameters section - self-contained component that manages all parameter state */}
         <ParametersSection
           isReadOnly={isReadOnly}
-          onScroll={reloadNodeReferences}
-          onLayoutChange={handleLayoutChange}
+          onLayoutChange={updateVisiblePortPositions}
           actionItems={actionItems}
         />
 
@@ -68,22 +78,25 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               additionalActions={[]}
             />
           }
-          onScroll={reloadNodeReferences}
-          onLayoutChange={handleLayoutChange}
+          onLayoutChange={updateVisiblePortPositions}
         >
           {/* Only render children if body has schema */}
           {hasSchema && sourceBodyTree && (
-            <DocumentContent
-              treeNode={sourceBodyTree.root}
-              isReadOnly={isReadOnly}
-              renderNodes={(childNode, readOnly) => (
-                <SourceDocumentNode
-                  treeNode={childNode}
-                  documentId={sourceBodyNodeData.id}
-                  isReadOnly={readOnly}
-                  rank={1}
-                />
-              )}
+            <VirtuosoWithVisibility
+              totalCount={flattenedNodes.length}
+              itemContent={(index) => {
+                const flattenedNode = flattenedNodes[index];
+                return (
+                  <SourceDocumentNode
+                    key={flattenedNode.path}
+                    treeNode={flattenedNode.treeNode}
+                    documentId={sourceBodyNodeData.id}
+                    isReadOnly={isReadOnly}
+                    rank={flattenedNode.depth + 1}
+                  />
+                );
+              }}
+              overscan={VIRTUOSO_OVERSCAN}
             />
           )}
         </ExpansionPanel>

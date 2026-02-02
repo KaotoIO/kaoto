@@ -3,7 +3,7 @@ import './BaseNode.scss';
 import { At, ChevronDown, ChevronRight, Choices, Draggable } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, Ref } from 'react';
 
 import { IDataTestID } from '../../../models';
 import { Types } from '../../../models/datamapper';
@@ -32,6 +32,15 @@ interface BaseNodeProps extends IDataTestID {
 
   /** Selection state */
   isSelected?: boolean;
+
+  /** Indicates if this is a source node (true) or target node (false). Defaults to true. */
+  isSource?: boolean;
+
+  /** Ref to the connection port circle element */
+  portRef?: Ref<HTMLSpanElement>;
+
+  /** Node path for connection port identification */
+  nodePath?: string;
 }
 
 export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
@@ -46,6 +55,9 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   title,
   rank,
   isSelected,
+  isSource = true,
+  portRef,
+  nodePath,
   'data-testid': dataTestId,
   children,
 }) => {
@@ -57,6 +69,16 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       data-selected={isSelected}
       style={{ '--node-rank': rank } as React.CSSProperties}
     >
+      {portRef && (
+        <span
+          ref={portRef}
+          className={`node__connection-port ${isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
+          data-testid={`connection-port-${dataTestId}`}
+          data-connection-port="true"
+          data-node-path={nodePath}
+        />
+      )}
+
       {isExpandable && (
         <Icon className="node__expand" onClick={onExpandChange}>
           {isExpanded && <ChevronDown data-testid={`expand-icon-${dataTestId}`} />}

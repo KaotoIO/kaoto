@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { createRef } from 'react';
 
 import { Types } from '../../../models/datamapper';
 import { BaseNode } from './BaseNode';
@@ -182,6 +183,49 @@ describe('BaseNode', () => {
       expect(screen.queryByTestId('collection-field-icon')).not.toBeInTheDocument();
       expect(screen.queryByTestId('attribute-field-icon')).not.toBeInTheDocument();
       expect(screen.getByText('Title')).toBeInTheDocument();
+    });
+  });
+
+  describe('Connection Port', () => {
+    it('should not render connection port when portRef is not provided', () => {
+      render(<BaseNode title="Title" data-testid="test-node" />);
+      expect(screen.queryByTestId('connection-port-test-node')).not.toBeInTheDocument();
+    });
+
+    it('should render connection port when portRef is provided', () => {
+      const portRef = createRef<HTMLSpanElement>();
+      render(<BaseNode title="Title" data-testid="test-node" portRef={portRef} />);
+      expect(screen.getByTestId('connection-port-test-node')).toBeInTheDocument();
+    });
+
+    it('should render source connection port by default', () => {
+      const portRef = createRef<HTMLSpanElement>();
+      render(<BaseNode title="Title" data-testid="test-node" portRef={portRef} />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveClass('node__connection-port--source');
+    });
+
+    it('should render source connection port when isSource is true', () => {
+      const portRef = createRef<HTMLSpanElement>();
+      render(<BaseNode title="Title" data-testid="test-node" portRef={portRef} isSource={true} />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveClass('node__connection-port--source');
+      expect(port).not.toHaveClass('node__connection-port--target');
+    });
+
+    it('should render target connection port when isSource is false', () => {
+      const portRef = createRef<HTMLSpanElement>();
+      render(<BaseNode title="Title" data-testid="test-node" portRef={portRef} isSource={false} />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveClass('node__connection-port--target');
+      expect(port).not.toHaveClass('node__connection-port--source');
+    });
+
+    it('should attach ref to connection port element', () => {
+      const portRef = createRef<HTMLSpanElement>();
+      render(<BaseNode title="Title" data-testid="test-node" portRef={portRef} />);
+      expect(portRef.current).toBeInstanceOf(HTMLSpanElement);
+      expect(portRef.current).toHaveClass('node__connection-port');
     });
   });
 });

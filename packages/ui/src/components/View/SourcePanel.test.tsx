@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 
+import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { SourcePanel } from './SourcePanel';
 
 // Mock ResizeObserver for ExpansionPanels
@@ -23,9 +23,9 @@ describe('SourcePanel', () => {
   it('should render action buttons by default', () => {
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <SourcePanel />
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     expect(screen.getByTestId('add-parameter-button')).toBeInTheDocument();
@@ -35,9 +35,9 @@ describe('SourcePanel', () => {
   it('should not render action buttons if isReadOnly=true', () => {
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <SourcePanel isReadOnly />
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     expect(screen.queryByTestId('add-parameter-button')).toBeFalsy();
@@ -49,9 +49,9 @@ describe('SourcePanel', () => {
     jest.useFakeTimers();
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <SourcePanel />
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 

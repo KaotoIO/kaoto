@@ -1,9 +1,11 @@
 export * from './camel-uri-helper';
 export * from './catalog-schema-loader';
 export * from './event-notifier';
+export * from './flatten-tree-nodes';
 export * from './get-array-property';
 export * from './get-custom-schema-from-kamelet';
 export * from './get-initial-layout';
+export * from './get-nearest-visible-port';
 export * from './get-serialized-model';
 export * from './get-value';
 export * from './get-viznodes-from-graph';
@@ -19,3 +21,4 @@ export * from './process-tree-node';
 export * from './promise-timeout';
 export * from './set-value';
 export * from './update-kamelet-from-custom-schema';
+export * from './update-visible-port-positions';
