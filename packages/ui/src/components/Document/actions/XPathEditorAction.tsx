@@ -2,9 +2,9 @@ import { ActionListItem, Button } from '@patternfly/react-core';
 import { PencilAltIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useState } from 'react';
 
-import { useCanvas } from '../../../hooks/useCanvas';
 import { ExpressionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { useDocumentTreeStore } from '../../../store';
 import { XPathEditorModal } from '../../XPath/XPathEditorModal';
 
 type XPathEditorProps = {
@@ -13,13 +13,13 @@ type XPathEditorProps = {
   onUpdate: () => void;
 };
 export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeData, mapping, onUpdate }) => {
-  const { reloadNodeReferences } = useCanvas();
+  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const launchXPathEditor = useCallback(() => setIsEditorOpen(true), []);
   const closeXPathEditor = useCallback(() => {
     setIsEditorOpen(false);
-    reloadNodeReferences();
-  }, [reloadNodeReferences]);
+    refreshConnectionPorts();
+  }, [refreshConnectionPorts]);
 
   return (
     <ActionListItem key="xpath-editor">

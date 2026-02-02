@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { TargetPanel } from './TargetPanel';
 
 // Mock ResizeObserver for ExpansionPanels
@@ -23,7 +23,7 @@ beforeAll(() => {
 describe('TargetPanel', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <DataMapperProvider>
-      <DataMapperCanvasProvider>{children}</DataMapperCanvasProvider>
+      <MappingLinksProvider>{children}</MappingLinksProvider>
     </DataMapperProvider>
   );
 

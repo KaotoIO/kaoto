@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { IVisualizationNode } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper/document';
@@ -45,6 +46,17 @@ describe('DataMapperPage', () => {
     },
   } as IMetadataApi;
 
+  // Helper to wrap components with VirtuosoMockContext for testing
+  const renderWithVirtuoso = (component: React.ReactElement) => {
+    return render(component, {
+      wrapper: ({ children }) => (
+        <VirtuosoMockContext.Provider value={{ viewportHeight: 600, itemHeight: 40 }}>
+          {children}
+        </VirtuosoMockContext.Provider>
+      ),
+    });
+  };
+
   beforeEach(() => {
     metadata = defaultMetadata;
     fileContents = {};
@@ -52,7 +64,7 @@ describe('DataMapperPage', () => {
 
   it('should render initial XSLT mappings', async () => {
     fileContents[metadata.xsltPath] = shipOrderToShipOrderXslt;
-    render(
+    renderWithVirtuoso(
       <MetadataProvider api={api}>
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
@@ -63,6 +75,7 @@ describe('DataMapperPage', () => {
 
   it('should render initial XSLT mappings with initial documents', async () => {
     fileContents['ShipOrder.xsd'] = shipOrderXsd;
+    fileContents[metadata.xsltPath] = shipOrderToShipOrderXslt;
     metadata.sourceBody = {
       filePath: ['ShipOrder.xsd'],
       type: DocumentDefinitionType.XML_SCHEMA,
@@ -75,7 +88,7 @@ describe('DataMapperPage', () => {
       filePath: [],
       type: DocumentDefinitionType.Primitive,
     };
-    render(
+    renderWithVirtuoso(
       <MetadataProvider api={api}>
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
@@ -87,8 +100,8 @@ describe('DataMapperPage', () => {
       expect(screen.getByTestId('document-doc-param-testparam1')).toBeInTheDocument();
       expect(screen.getByTestId('document-doc-sourceBody-Body')).toBeInTheDocument();
       expect(screen.getByTestId('document-doc-targetBody-Body')).toBeInTheDocument();
-      expect(screen.getByTestId(/node-source-fx-OrderId-\n*/)).toBeInTheDocument();
-      expect(screen.getByTestId(/node-target-fx-OrderId-\n*/)).toBeInTheDocument();
+      expect(screen.getByTestId(/node-source-fx-OrderId-.*/)).toBeInTheDocument();
+      expect(screen.getByTestId(/node-target-fx-OrderId-.*/)).toBeInTheDocument();
       executed = true;
     });
     /** We cannot rely on expect.assertions(6) since when there's a failure, an extra expectation is run */
@@ -97,7 +110,7 @@ describe('DataMapperPage', () => {
   });
 
   it('should not render toolbar menu in embedded mode', async () => {
-    render(
+    renderWithVirtuoso(
       <MetadataProvider api={api}>
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,
@@ -111,7 +124,7 @@ describe('DataMapperPage', () => {
   });
 
   it('should show an error message if vizNode is not provided', async () => {
-    render(<DataMapper />);
+    renderWithVirtuoso(<DataMapper />);
     const error = await screen.findByText('No associated DataMapper step was provided.');
     expect(error).toBeInTheDocument();
   });
@@ -135,7 +148,7 @@ describe('DataMapperPage', () => {
 
     const updateMappingFileSpy = jest.spyOn(DataMapperMetadataService, 'updateMappingFile').mockResolvedValue();
 
-    render(
+    renderWithVirtuoso(
       <MetadataProvider api={api}>
         <DataMapper vizNode={vizNode} />
       </MetadataProvider>,

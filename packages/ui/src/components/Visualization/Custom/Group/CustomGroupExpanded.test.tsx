@@ -38,6 +38,13 @@ jest.mock('../../../../hooks/processor-icon.hook', () => ({
   useProcessorIcon: () => ({ Icon: null, description: '' }),
 }));
 
+jest.mock('../../../IconResolver/node-icon-resolver', () => ({
+  NodeIconResolver: {
+    getIcon: jest.fn(() => Promise.resolve('data:image/svg+xml;base64,test')),
+    getDefaultCamelIcon: jest.fn(() => 'data:image/svg+xml;base64,default'),
+  },
+}));
+
 jest.mock('../Node/CustomNodeUtils', () => {
   const actual = jest.requireActual('../Node/CustomNodeUtils');
   return {
@@ -64,15 +71,20 @@ describe('CustomGroupExpanded', () => {
     jest.restoreAllMocks();
   });
 
-  function renderInContext(children: React.ReactNode) {
+  async function renderInContext(children: React.ReactNode) {
     const { Provider } = TestProvidersWrapper();
-    return render(
+    const result = render(
       <Provider>
         <VisualizationProvider controller={controller}>
           <ElementContext.Provider value={element}>{children}</ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,
     );
+    // Wait for async icon loading to complete
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    return result;
   }
 
   it('should throw when element is not a Node', () => {
@@ -86,15 +98,15 @@ describe('CustomGroupExpanded', () => {
     }).toThrow('CustomGroupExpanded must be used only on Node elements');
   });
 
-  it('should return null when element has no vizNode in data', () => {
+  it('should return null when element has no vizNode in data', async () => {
     jest.spyOn(element, 'getData').mockReturnValue({});
 
-    const { container } = renderInContext(<CustomGroupExpanded element={element} />);
+    const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(container).toMatchSnapshot();
   });
 
-  it('should render group container with data-testid when vizNode is provided', () => {
+  it('should render group container with data-testid when vizNode is provided', async () => {
     const vizNode = createVisualizationNode('choice-1', {
       catalogKind: CatalogKind.Processor,
       name: 'choice',
@@ -109,14 +121,14 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
     jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
 
-    renderInContext(<CustomGroupExpanded element={element} />);
+    await renderInContext(<CustomGroupExpanded element={element} />);
 
     const group = screen.getByTestId('custom-group__choice-1');
     expect(group).toBeInTheDocument();
     expect(group).toHaveAttribute('data-grouplabel', 'Choice');
   });
 
-  it('should render icon placeholder when group has validation warnings', () => {
+  it('should render icon placeholder when group has validation warnings', async () => {
     const vizNode = createVisualizationNode('choice-1', {
       catalogKind: CatalogKind.Processor,
       name: 'choice',
@@ -131,12 +143,12 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
     jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
 
-    renderInContext(<CustomGroupExpanded element={element} />);
+    await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(document.querySelector('.custom-group__container__icon-placeholder')).toBeInTheDocument();
   });
 
-  it('should show toolbar when nodeToolbarTrigger is onSelection and group is selected (covers shouldShowToolbar branch)', () => {
+  it('should show toolbar when nodeToolbarTrigger is onSelection and group is selected (covers shouldShowToolbar branch)', async () => {
     const vizNode = createVisualizationNode('when-0', {
       catalogKind: CatalogKind.Processor,
       name: 'when',
@@ -156,7 +168,7 @@ describe('CustomGroupExpanded', () => {
       saveSettings: jest.fn(),
     };
 
-    renderInContext(
+    await renderInContext(
       <SettingsProvider adapter={onSelectionAdapter}>
         <CustomGroupExpanded element={element} selected={true} />
       </SettingsProvider>,
@@ -165,7 +177,7 @@ describe('CustomGroupExpanded', () => {
     expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
   });
 
-  it('calls getNodeDragAndDropDirection when droppable, canDrop and hover are true (line 162)', () => {
+  it('calls getNodeDragAndDropDirection when droppable, canDrop and hover are true (line 162)', async () => {
     const groupVizNode = createVisualizationNode('choice-1', {
       catalogKind: CatalogKind.Processor,
       name: 'choice',
@@ -201,7 +213,7 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
     jest.spyOn(element, 'getBounds').mockReturnValue({ x: 0, y: 0, width: 100, height: 50 } as never);
 
-    renderInContext(<CustomGroupExpanded element={element} />);
+    await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(getNodeDragAndDropDirection).toHaveBeenCalledWith(draggedVizNode, groupVizNode, false);
   });

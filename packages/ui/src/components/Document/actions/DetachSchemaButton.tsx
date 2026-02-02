@@ -17,11 +17,11 @@ import { AlertVariant, Button, Modal, ModalBody, ModalFooter, ModalHeader, Modal
 import { ExportIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { DocumentService } from '../../../services/document.service';
+import { useDocumentTreeStore } from '../../../store';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -35,7 +35,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
   documentReferenceId,
 }) => {
   const { sendAlert, updateDocument } = useDataMapper();
-  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
+  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
 
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
@@ -50,21 +50,11 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
       sendAlert({ variant: AlertVariant.danger, title: 'Could not detach schema' });
     } else {
       updateDocument(result.document, result.documentDefinition, documentReferenceId);
-      clearNodeReferencesForDocument(documentType, documentId);
-      reloadNodeReferences();
+      refreshConnectionPorts();
     }
 
     closeModal();
-  }, [
-    documentType,
-    documentId,
-    closeModal,
-    sendAlert,
-    updateDocument,
-    documentReferenceId,
-    clearNodeReferencesForDocument,
-    reloadNodeReferences,
-  ]);
+  }, [documentType, documentId, closeModal, sendAlert, updateDocument, documentReferenceId, refreshConnectionPorts]);
 
   return (
     <>

@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import { ExpansionContext } from './ExpansionContext';
+import { ExpansionPanelContentContext } from './ExpansionPanelContentContext';
 
 interface ExpansionPanelProps {
   id?: string;
@@ -45,6 +46,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   const id = providedId ?? generatedId;
   const context = useContext(ExpansionContext);
   const panelRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [isResizing, setIsResizing] = useState(false);
   const resizeDataRef = useRef<{ startY: number; startHeight: number } | null>(null);
@@ -207,8 +209,8 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
         {summary}
       </div>
 
-      <div className="expansion-panel__content" onScroll={onScroll}>
-        {children}
+      <div className="expansion-panel__content" ref={contentRef} onScroll={onScroll}>
+        <ExpansionPanelContentContext.Provider value={contentRef}>{children}</ExpansionPanelContentContext.Provider>
       </div>
 
       {showResizeHandle && <div className="expansion-panel__resize-handle" onMouseDown={handleMouseDown} />}

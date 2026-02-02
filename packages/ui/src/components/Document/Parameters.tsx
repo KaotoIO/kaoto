@@ -1,5 +1,5 @@
-import './Parameters.scss';
 import './BaseDocument.scss';
+import './Parameters.scss';
 
 import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
@@ -10,6 +10,9 @@ import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
+import { useDocumentTreeStore } from '../../store/document-tree.store';
+import { flattenTreeNodes } from '../../utils/flatten-tree-nodes';
+import { VirtuosoWithVisibility } from '../DataMapper/VirtuosoWithVisibility';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import {
   PANEL_COLLAPSED_HEIGHT,
@@ -17,16 +20,16 @@ import {
   PANEL_INPUT_HEIGHT,
   PANEL_INPUT_MIN_HEIGHT,
   PANEL_MIN_HEIGHT,
+  VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
 import { DeleteParameterButton } from './actions/DeleteParameterButton';
 import { RenameParameterButton } from './actions/RenameParameterButton';
-import { DocumentContent, DocumentHeader } from './BaseDocument';
+import { DocumentHeader } from './BaseDocument';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNode } from './SourceDocumentNode';
 
 type ParametersSectionProps = {
   isReadOnly: boolean;
-  onScroll: () => void;
   onLayoutChange?: () => void;
   actionItems?: React.ReactNode[];
 };
@@ -98,7 +101,6 @@ type ParameterPanelProps = {
   renamingParameter: string | null;
   onStartRename: (name: string) => void;
   onStopRename: () => void;
-  onScroll: () => void;
   onLayoutChange?: () => void;
 };
 
@@ -113,7 +115,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   renamingParameter,
   onStartRename,
   onStopRename,
-  onScroll,
   onLayoutChange,
 }) => {
   const { mappingTree } = useDataMapper();
@@ -123,6 +124,15 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   useEffect(() => {
     setParameterTree(TreeUIService.createTree(parameterNodeData));
   }, [parameterNodeData]);
+
+  // Optimize: Select only the expansion state for this document
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[parameterNodeData.id] || {});
+
+  // Flatten tree based on expansion state
+  const flattenedNodes = useMemo(() => {
+    if (!parameterTree) return [];
+    return flattenTreeNodes(parameterTree.root, (path) => documentExpansionState[path] ?? false);
+  }, [parameterTree, documentExpansionState]);
 
   const hasSchema = !parameterNodeData.isPrimitive;
   const [isExpanded, setIsExpanded] = useState(hasSchema);
@@ -186,23 +196,26 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           </div>
         )
       }
-      onScroll={onScroll}
       onLayoutChange={onLayoutChange}
       onExpandedChange={setIsExpanded}
     >
       {/* Only render children if parameter has schema */}
       {hasSchema && parameterTree && (
-        <DocumentContent
-          treeNode={parameterTree.root}
-          isReadOnly={isReadOnly}
-          renderNodes={(childNode, readOnly) => (
-            <SourceDocumentNode
-              treeNode={childNode}
-              documentId={parameterTree.documentId}
-              isReadOnly={readOnly}
-              rank={1}
-            />
-          )}
+        <VirtuosoWithVisibility
+          totalCount={flattenedNodes.length}
+          itemContent={(index) => {
+            const flattenedNode = flattenedNodes[index];
+            return (
+              <SourceDocumentNode
+                key={flattenedNode.path}
+                treeNode={flattenedNode.treeNode}
+                documentId={parameterNodeData.id}
+                isReadOnly={isReadOnly}
+                rank={flattenedNode.depth + 1}
+              />
+            );
+          }}
+          overscan={VIRTUOSO_OVERSCAN}
         />
       )}
     </ExpansionPanel>
@@ -218,7 +231,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
  */
 export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
   isReadOnly,
-  onScroll,
   onLayoutChange,
   actionItems,
 }) => {
@@ -278,7 +290,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
         defaultExpanded={false}
         defaultHeight={PANEL_COLLAPSED_HEIGHT}
         minHeight={PANEL_MIN_HEIGHT}
-        onScroll={onScroll}
         onLayoutChange={onLayoutChange}
       >
         {/* NO CHILDREN - header only panel */}
@@ -295,7 +306,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
               defaultExpanded={false}
               defaultHeight={PANEL_INPUT_HEIGHT} // Fixed height to accommodate input + error messages
               minHeight={PANEL_INPUT_MIN_HEIGHT}
-              onScroll={onScroll}
               onLayoutChange={onLayoutChange}
             >
               {/* NO CHILDREN - input only */}
@@ -312,7 +322,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
               renamingParameter={renamingParameter}
               onStartRename={handleStartRename}
               onStopRename={handleStopRename}
-              onScroll={onScroll}
               onLayoutChange={onLayoutChange}
             />
           ))}

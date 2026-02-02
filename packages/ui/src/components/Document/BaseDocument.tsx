@@ -3,14 +3,13 @@ import './BaseDocument.scss';
 import { Draggable } from '@carbon/icons-react';
 import { ActionListGroup, ActionListItem, Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, ReactNode, useCallback, useMemo, useRef } from 'react';
+import { FunctionComponent, MouseEvent, ReactNode, useCallback, useMemo } from 'react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
-import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { DocumentNodeData, NodeReference } from '../../models/datamapper/visualization';
+import { DocumentNodeData } from '../../models/datamapper/visualization';
+import { useDocumentTreeStore } from '../../store';
 import { AttachSchemaButton } from './actions/AttachSchema';
 import { DetachSchemaButton } from './actions/DetachSchemaButton';
 import { NodeContainer } from './NodeContainer';
@@ -68,41 +67,24 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
   nodeData: externalNodeData,
 }) => {
   const { mappingTree } = useDataMapper();
-  const { getNodeReference, setNodeReference } = useCanvas();
-  const { isInSelectedMapping, toggleSelectedNodeReference } = useMappingLinks();
+  const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
   const nodeData = useMemo(() => externalNodeData || new DocumentNodeData(document), [externalNodeData, document]);
   const documentReferenceId = document.getReferenceId(mappingTree.namespaceMap);
   const hasSchema = !nodeData.isPrimitive;
 
-  // Create refs for node reference registration (needed for mapping lines)
-  const headerRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const nodeRefId = nodeData.path.toString();
-  const nodeReference = useRef<NodeReference>({
-    path: nodeRefId,
-    isSource: nodeData.isSource,
-    get headerRef() {
-      return headerRef.current;
-    },
-    get containerRef() {
-      return containerRef.current;
-    },
-  });
+  const nodePathString = nodeData.path.toString();
 
-  // Register node reference for mapping lines
-  getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
-
-  // Check if this node is in a selected mapping
-  const isSelected = isInSelectedMapping(nodeReference);
+  // Get selection state from store
+  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString));
 
   // Click handler for selecting/deselecting this node for mapping
   // Note: We don't stop propagation to allow ExpansionPanel toggle to work
   const handleClickField = useCallback(
     (_event: MouseEvent) => {
-      toggleSelectedNodeReference(nodeReference);
+      toggleSelectedNode(nodePathString, nodeData.isSource);
     },
-    [toggleSelectedNodeReference],
+    [toggleSelectedNode, nodePathString, nodeData.isSource],
   );
 
   const handleStopPropagation = useCallback((event: MouseEvent) => {
@@ -110,7 +92,7 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
   }, []);
 
   const headerContent = (
-    <div ref={headerRef} className={clsx('document-header', { 'selected-container': isSelected })}>
+    <div className={clsx('document-header', { 'selected-container': isSelected })}>
       {enableDnD && (
         <Icon className="node__spacer" data-drag-handler>
           <Draggable />
@@ -140,11 +122,10 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
     </div>
   );
 
-  // Always wrap in container div for containerRef and click handling
+  // Always wrap in container div for click handling
   // Conditionally wrap in NodeContainer for DnD functionality (primitives only)
   return (
     <div
-      ref={containerRef}
       data-testid={`document-${nodeData.id}`}
       data-selected={isSelected}
       onClick={handleClickField}
