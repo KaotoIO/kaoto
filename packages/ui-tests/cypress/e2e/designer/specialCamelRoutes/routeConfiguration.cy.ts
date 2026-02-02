@@ -7,19 +7,19 @@ describe('Test for root route configuration container', () => {
     cy.selectCamelRouteType('Configuration', 'routeConfiguration');
 
     // Open routeConfiguration configuration tab, using the first routeConfiguration node
-    cy.get(`g[data-nodelabel^="routeConfiguration-"]`).eq(0).click({ force: true });
+    cy.get(`g[data-grouplabel^="routeConfiguration-"]`).eq(0).click({ force: true });
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('description', 'routeConfigurationDescription');
     cy.closeStepConfigurationTab();
 
-    cy.openStepConfigurationTab('routeConfigurationDescription');
+    cy.openGroupConfigurationTab('routeConfigurationDescription');
   });
 
   it('Root route configuration', () => {
     cy.selectCamelRouteType('Configuration', 'routeConfiguration');
 
     // Open routeConfiguration configuration tab, using the first routeConfiguration node
-    cy.get(`g[data-nodelabel^="routeConfiguration-"]`).eq(0).click({ force: true });
+    cy.get(`g[data-grouplabel^="routeConfiguration-"]`).eq(0).click({ force: true });
 
     cy.selectFormTab('All');
 
