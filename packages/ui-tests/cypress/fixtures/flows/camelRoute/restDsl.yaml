@@ -1,0 +1,15 @@
+- rest:
+    id: rest-2812
+    get:
+      - id: get-3806
+        to:
+          id: to-3916
+          uri: direct
+          parameters:
+            name: operation-get-left
+      - id: get-1871
+        to:
+          id: to-3216
+          uri: direct
+          parameters:
+            name: operation-get-right
