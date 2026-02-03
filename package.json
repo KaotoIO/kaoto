@@ -21,6 +21,8 @@
     "typescript": "5.5.4"
   },
   "scripts": {
+    "prepare": "husky",
+    "husky:fix": "git config core.hooksPath .husky",
     "version": "lerna version",
     "publish": "lerna publish from-package"
   },
@@ -34,6 +36,17 @@
     "fast-xml-parser": "^5.0.9",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0"
+  },
+  "lint-staged": {
+    "packages/ui/src/**/*.{ts,tsx,js,jsx}": [
+      "yarn workspace @kaoto/kaoto lint:fix"
+    ],
+    "packages/ui/src/**/*.{css,scss}": [
+      "yarn workspace @kaoto/kaoto lint:style:fix"
+    ],
+    "packages/**/*.{ts,tsx,js,jsx,css,scss,md,json,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "packageManager": "yarn@4.9.4"
 }

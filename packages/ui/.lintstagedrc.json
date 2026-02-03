@@ -1,5 +1,0 @@
-{
-  "*.ts": "yarn workspace @kaoto/kaoto run eslint \"src/**/*.ts\"",
-  "*.tsx": "yarn workspace @kaoto/kaoto run eslint \"src/**/*.tsx\"",
-  "*.scss": "yarn workspace @kaoto/kaoto run lint:style"
-}
