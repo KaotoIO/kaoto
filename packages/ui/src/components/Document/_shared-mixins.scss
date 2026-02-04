@@ -1,0 +1,30 @@
+// ============================================================================
+// Shared mixins for header controls (buttons, inputs, icons)
+// ============================================================================
+
+@mixin header-button-style {
+  --pf-v6-c-button--PaddingTop: var(--datamapper-header-button-padding);
+  --pf-v6-c-button--PaddingBottom: var(--datamapper-header-button-padding);
+  --pf-v6-c-button--PaddingLeft: var(--datamapper-header-button-padding);
+  --pf-v6-c-button--PaddingRight: var(--datamapper-header-button-padding);
+
+  width: var(--datamapper-header-control-size) !important;
+  height: var(--datamapper-header-control-size) !important;
+  min-width: var(--datamapper-header-control-size);
+  max-width: var(--datamapper-header-control-size);
+  font-size: var(--datamapper-header-control-font-size);
+  display: inline-flex !important;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: var(--datamapper-header-icon-size);
+    height: var(--datamapper-header-icon-size);
+  }
+}
+
+@mixin header-input-style {
+  height: var(--datamapper-header-control-size);
+  font-size: var(--datamapper-header-control-font-size);
+}

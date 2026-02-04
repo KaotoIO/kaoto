@@ -1,7 +1,7 @@
 import './Parameters.scss';
 import './BaseDocument.scss';
 
-import { ActionList, ActionListItem, Button, Icon, Title } from '@patternfly/react-core';
+import { ActionList, ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -11,6 +11,13 @@ import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
+import {
+  PANEL_COLLAPSED_HEIGHT,
+  PANEL_DEFAULT_HEIGHT,
+  PANEL_INPUT_HEIGHT,
+  PANEL_INPUT_MIN_HEIGHT,
+  PANEL_MIN_HEIGHT,
+} from '../ExpansionPanels/panel-dimensions';
 import { DeleteParameterButton } from './actions/DeleteParameterButton';
 import { RenameParameterButton } from './actions/RenameParameterButton';
 import { DocumentContent, DocumentHeader } from './BaseDocument';
@@ -58,9 +65,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
 
   return (
     <div className="parameters-header" data-testid="source-parameters-header">
-      <Title headingLevel="h5" className="parameters-header__title">
-        Parameters
-      </Title>
+      <span className="parameters-header__title panel-header-text">Parameters</span>
       {!isReadOnly && (
         <ActionList isIconList className="parameters-header__actions">
           <ActionListItem>
@@ -161,8 +166,8 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
     <ExpansionPanel
       id={`parameter-${documentId}`}
       defaultExpanded={hasSchema}
-      defaultHeight={hasSchema ? 300 : 40}
-      minHeight={40}
+      defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
+      minHeight={PANEL_MIN_HEIGHT}
       summary={
         isRenaming ? (
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
@@ -174,11 +179,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
               </Icon>
             )}
             <DocumentHeader
-              header={
-                <Title headingLevel="h5" className="parameter-title-italic">
-                  {parameterName}
-                </Title>
-              }
+              header={<span className="panel-header-text panel-header-text--parameter">{parameterName}</span>}
               document={document}
               documentType={DocumentType.PARAM}
               isReadOnly={isReadOnly}
@@ -276,8 +277,8 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
           />
         }
         defaultExpanded={false}
-        defaultHeight={40}
-        minHeight={40}
+        defaultHeight={PANEL_COLLAPSED_HEIGHT}
+        minHeight={PANEL_MIN_HEIGHT}
         onScroll={onScroll}
         onLayoutChange={onLayoutChange}
       >
@@ -293,8 +294,8 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
               id="new-parameter-input"
               summary={<ParameterInputPlaceholder onComplete={handleCompleteAddParameter} />}
               defaultExpanded={false}
-              defaultHeight={230} // Fixed height to accommodate input + error messages
-              minHeight={140}
+              defaultHeight={PANEL_INPUT_HEIGHT} // Fixed height to accommodate input + error messages
+              minHeight={PANEL_INPUT_MIN_HEIGHT}
               onScroll={onScroll}
               onLayoutChange={onLayoutChange}
             >

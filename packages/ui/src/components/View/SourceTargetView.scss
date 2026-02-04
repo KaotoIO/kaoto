@@ -3,6 +3,39 @@
   overflow-x: auto;
   position: relative;
 
+  // Ensure no gap between Split items (PatternFly default gap should be 0)
+  /* stylelint-disable-next-line selector-class-pattern */
+  &.pf-v6-l-split {
+    --pf-v6-l-split--Gap: 0;
+  }
+
+  // DataMapper UI size configuration
+  // Override these CSS variables to customize DataMapper component sizes
+
+  // Global scale factor - change this one value to scale everything proportionally
+  --datamapper-scale-factor: 1; // 1 = full size, 0.8 = 80% size, etc.
+
+  // Document node row heights (scaled by factor)
+  --datamapper-node-row-height: calc(2rem * 0.8 * var(--datamapper-scale-factor)); // Height of each field/node row
+  --datamapper-input-height: calc(
+    1.75rem * 0.8 * var(--datamapper-scale-factor)
+  ); // Height of inputs and buttons in rows
+
+  --datamapper-node-font-size: calc(
+    0.875rem * 0.8 * var(--datamapper-scale-factor)
+  ); // Font size for node field names and values
+
+  // Panel header styling (fixed at 0.8x, does not scale with zoom)
+  --datamapper-panel-header-height: 1.28rem; // Height of panel headers (Body, Parameters sections)
+  --datamapper-panel-header-font-size: 0.8rem; // Font size for panel headers (Body, Parameters, parameter names)
+  --datamapper-panel-header-padding: 0.32rem; // Padding for panel headers
+
+  // Header controls sizing (buttons, inputs, icons in panel headers)
+  --datamapper-header-control-size: 1.4rem; // Size of buttons and inputs in headers (1.75rem * 0.8)
+  --datamapper-header-control-font-size: 0.7rem; // Font size for header controls (0.875rem * 0.8)
+  --datamapper-header-icon-size: 0.75rem; // Size of icons in headers
+  --datamapper-header-button-padding: 0.325rem; // Padding for header buttons
+
   &__source-split {
     width: 30%;
     min-width: 300px;
@@ -12,6 +45,7 @@
     width: 10%;
     min-width: 1px;
     overflow-x: clip;
+    position: relative;
   }
 
   &__target-split {
@@ -27,5 +61,30 @@
     border-radius: var(--pf-t--global--border--radius--small);
     border: 1px solid var(--pf-t--global--border--color--default);
     background-color: var(--pf-t--global--background--color--primary--default);
+    overflow: hidden; // Prevent overflow that might cause gaps
+  }
+
+  &__zoom-controls {
+    position: absolute;
+    bottom: var(--pf-t--global--spacer--md);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--pf-t--global--spacer--sm);
+    z-index: 100;
+    background-color: var(--pf-t--global--background--color--primary--default);
+    border: 1px solid var(--pf-t--global--border--color--default);
+    border-radius: var(--pf-t--global--border--radius--small);
+    padding: var(--pf-t--global--spacer--xs);
+    box-shadow: var(--pf-t--global--box-shadow--sm);
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-button {
+      --pf-v6-c-button--PaddingTop: var(--pf-t--global--spacer--xs);
+      --pf-v6-c-button--PaddingBottom: var(--pf-t--global--spacer--xs);
+      --pf-v6-c-button--PaddingLeft: var(--pf-t--global--spacer--xs);
+      --pf-v6-c-button--PaddingRight: var(--pf-t--global--spacer--xs);
+    }
   }
 }
