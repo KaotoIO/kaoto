@@ -34,6 +34,7 @@ describe('StepToolbar', () => {
   const mockGetNodeInteraction = jest.fn();
   const mockVizNode = {
     getNodeInteraction: mockGetNodeInteraction,
+    getNodeLabel: jest.fn().mockReturnValue('Test Node'),
   } as unknown as IVisualizationNode;
 
   const defaultNodeInteraction = {
@@ -80,13 +81,13 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      expect(screen.queryByTestId('step-toolbar-button-duplicate')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('step-toolbar-button-add-special')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('step-toolbar-button-disable')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('step-toolbar-button-enable-all')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('step-toolbar-button-replace')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('step-toolbar-button-delete')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('step-toolbar-button-delete-group')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-duplicate')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-add-special')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-disable')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-enable-all')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-replace')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-delete')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-delete-group')).not.toBeInTheDocument();
     });
   });
 
@@ -99,7 +100,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const duplicateButton = screen.getByTestId('step-toolbar-button-duplicate');
+      const duplicateButton = screen.getByTestId('Test Node|step-toolbar-button-duplicate');
       expect(duplicateButton).toBeInTheDocument();
       expect(duplicateButton).toHaveAttribute('title', 'Duplicate');
 
@@ -119,7 +120,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const moveButton = screen.getByTestId('step-toolbar-button-move-before');
+      const moveButton = screen.getByTestId('Test Node|step-toolbar-button-move-before');
       expect(moveButton).toBeInTheDocument();
       expect(moveButton).toHaveAttribute('title', 'Move before');
 
@@ -137,7 +138,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const moveButton = screen.getByTestId('step-toolbar-button-move-after');
+      const moveButton = screen.getByTestId('Test Node|step-toolbar-button-move-after');
       expect(moveButton).toBeInTheDocument();
       expect(moveButton).toHaveAttribute('title', 'Move after');
 
@@ -161,7 +162,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const addSpecialButton = screen.getByTestId('step-toolbar-button-add-special');
+      const addSpecialButton = screen.getByTestId('Test Node|step-toolbar-button-add-special');
       expect(addSpecialButton).toBeInTheDocument();
       expect(addSpecialButton).toHaveAttribute('title', 'Add branch');
 
@@ -184,7 +185,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const disableButton = screen.getByTestId('step-toolbar-button-disable');
+      const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
       expect(disableButton).toHaveAttribute('title', 'Disable step');
     });
 
@@ -199,7 +200,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const disableButton = screen.getByTestId('step-toolbar-button-disable');
+      const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
       expect(disableButton).toHaveAttribute('title', 'Enable step');
     });
 
@@ -215,7 +216,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const disableButton = screen.getByTestId('step-toolbar-button-disable');
+      const disableButton = screen.getByTestId('Test Node|step-toolbar-button-disable');
       act(() => {
         fireEvent.click(disableButton);
       });
@@ -232,7 +233,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const enableAllButton = screen.getByTestId('step-toolbar-button-enable-all');
+      const enableAllButton = screen.getByTestId('Test Node|step-toolbar-button-enable-all');
       expect(enableAllButton).toBeInTheDocument();
       expect(enableAllButton).toHaveAttribute('title', 'Enable all');
 
@@ -256,7 +257,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const replaceButton = screen.getByTestId('step-toolbar-button-replace');
+      const replaceButton = screen.getByTestId('Test Node|step-toolbar-button-replace');
       expect(replaceButton).toBeInTheDocument();
       expect(replaceButton).toHaveAttribute('title', 'Replace step');
 
@@ -275,7 +276,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={false} />);
       });
 
-      const collapseButton = screen.getByTestId('step-toolbar-button-collapse');
+      const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
       expect(collapseButton).toHaveAttribute('title', 'Collapse step');
     });
 
@@ -286,7 +287,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={true} />);
       });
 
-      const collapseButton = screen.getByTestId('step-toolbar-button-collapse');
+      const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
       expect(collapseButton).toHaveAttribute('title', 'Expand step');
     });
 
@@ -297,7 +298,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
       });
 
-      const collapseButton = screen.getByTestId('step-toolbar-button-collapse');
+      const collapseButton = screen.getByTestId('Test Node|step-toolbar-button-collapse');
       act(() => {
         fireEvent.click(collapseButton);
       });
@@ -309,7 +310,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      expect(screen.queryByTestId('step-toolbar-button-collapse')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-collapse')).not.toBeInTheDocument();
     });
   });
 
@@ -326,7 +327,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const deleteButton = screen.getByTestId('step-toolbar-button-delete');
+      const deleteButton = screen.getByTestId('Test Node|step-toolbar-button-delete');
       expect(deleteButton).toBeInTheDocument();
       expect(deleteButton).toHaveAttribute('title', 'Delete step');
 
@@ -350,7 +351,7 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} />);
       });
 
-      const deleteGroupButton = screen.getByTestId('step-toolbar-button-delete-group');
+      const deleteGroupButton = screen.getByTestId('Test Node|step-toolbar-button-delete-group');
       expect(deleteGroupButton).toBeInTheDocument();
       expect(deleteGroupButton).toHaveAttribute('title', 'Delete group');
 
@@ -382,14 +383,14 @@ describe('StepToolbar', () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
       });
 
-      expect(screen.getByTestId('step-toolbar-button-duplicate')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-add-special')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-disable')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-enable-all')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-replace')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-collapse')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-delete')).toBeInTheDocument();
-      expect(screen.getByTestId('step-toolbar-button-delete-group')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-duplicate')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-add-special')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-disable')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-enable-all')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-replace')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-collapse')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-delete')).toBeInTheDocument();
+      expect(screen.getByTestId('Test Node|step-toolbar-button-delete-group')).toBeInTheDocument();
     });
   });
 });

@@ -18,7 +18,7 @@ Cypress.Commands.add('openGroupConfigurationTab', (group: string, groupIndex?: n
 
 Cypress.Commands.add('toggleExpandGroup', (groupName: string) => {
   cy.get(`span[title="${groupName}"]`).click({ force: true });
-  cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+  cy.get(`[data-testid="${groupName}|step-toolbar-button-collapse"]`).click({ force: true });
 });
 
 Cypress.Commands.add('closeStepConfigurationTab', () => {
@@ -270,7 +270,7 @@ Cypress.Commands.add('DnDOnNode', (sourceNodeName: string, targetNodeName: strin
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
   const targetNode = cy.get(`[data-testid="${targetNodeName}"]`);
 
-  sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(0, 0, { position: 'center' });
+  sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
   targetNode.realMouseMove(0, 0, { position: 'center' }).realMouseUp();
 });
 
@@ -278,6 +278,6 @@ Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: strin
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
   const targetEdge = cy.get(`[data-id="${targetEdgeName}"]`);
 
-  sourceNode.realMouseDown({ button: 'left', position: 'center' }).realMouseMove(0, 0, { position: 'center' });
+  sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
   targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
 });

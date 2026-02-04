@@ -9,7 +9,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openStepConfigurationTab('timer');
 
-    cy.get('[data-testid="step-toolbar-button-replace"]').click();
+    cy.get('[data-testid="timer|step-toolbar-button-replace"]').click();
     cy.chooseFromCatalog('component', 'quartz');
 
     cy.checkNodeExist('quartz', 1);
@@ -21,7 +21,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openStepConfigurationTab('setHeader');
 
-    cy.get('[data-testid="step-toolbar-button-delete"]').click();
+    cy.get('[data-testid="setHeader|step-toolbar-button-delete"]').click();
 
     cy.checkNodeExist('setHeader', 0);
   });
@@ -31,7 +31,7 @@ describe('Test toolbar on hover actions', () => {
     cy.openDesignPage();
 
     cy.openStepConfigurationTab('setHeader');
-    cy.get('[data-testid="step-toolbar-button-disable"]').click();
+    cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').click();
 
     cy.openStepConfigurationTab('setHeader');
 
@@ -39,7 +39,7 @@ describe('Test toolbar on hover actions', () => {
     cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', true);
 
-    cy.get('[data-testid="step-toolbar-button-disable"]').click();
+    cy.get('[data-testid="setHeader|step-toolbar-button-disable"]').click();
 
     cy.openStepConfigurationTab('setHeader');
 
@@ -53,7 +53,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openGroupConfigurationTab('camel-route');
 
-    cy.get('[data-testid="step-toolbar-button-delete-group"]').click();
+    cy.get('[data-testid="camel-route|step-toolbar-button-delete-group"]').click();
     cy.get('[data-testid="action-confirmation-modal-btn-confirm"]').click();
 
     cy.get('[data-testid^="rf__node-node_0"]').should('have.length', 0);
@@ -68,7 +68,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openGroupConfigurationTab('choice');
 
-    cy.get('[data-testid="step-toolbar-button-add-special"]').click();
+    cy.get('[data-testid="choice|step-toolbar-button-add-special"]').click();
 
     cy.chooseFromCatalog('processor', 'when');
     cy.checkNodeExist('when', 4);
@@ -81,12 +81,12 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openGroupConfigurationTab('choice');
 
-    cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
     cy.checkNodeExist('when', 0);
     cy.checkNodeExist('otherwise', 0);
     cy.checkNodeExist('log', 0);
 
-    cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
     cy.checkNodeExist('when', 3);
     cy.checkNodeExist('otherwise', 1);
     cy.checkNodeExist('log', 1);
@@ -98,7 +98,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openGroupConfigurationTab('choice');
 
-    cy.get(`[data-testid="step-toolbar-button-collapse"]`).click({ force: true });
+    cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
     cy.checkNodeExist('when', 0);
     cy.checkNodeExist('otherwise', 0);
 

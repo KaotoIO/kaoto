@@ -218,7 +218,7 @@ Cypress.Commands.add('deleteRoute', (index: number) => {
 
 Cypress.Commands.add('deleteRouteInCanvas', (routeName: string) => {
   cy.openGroupConfigurationTab(routeName);
-  cy.get('button[data-testid="step-toolbar-button-delete-group"]').click();
+  cy.get(`button[data-testid="${routeName}|step-toolbar-button-delete-group"]`).click();
   cy.get('body').then(($body) => {
     if ($body.find('.pf-m-danger').length) {
       // Delete Confirmation Modal appeared, click on the confirm button
