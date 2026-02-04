@@ -11,8 +11,10 @@ import {
   GraphElement,
   GraphElementProps,
   isEdge,
+  Layer,
   observer,
   Point,
+  TOP_LAYER,
   useDndDrop,
 } from '@patternfly/react-topology';
 import { clsx } from 'clsx';
@@ -23,10 +25,28 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
-import { canDropOnEdge, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { AddStepIcon } from './AddStepIcon';
 
 type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
+
+interface EdgeAddStepIconSlotProps {
+  x: number;
+  y: number;
+  vizNode: IVisualizationNode;
+  className?: string;
+}
+
+const EdgeAddStepIconSlot: FunctionComponent<EdgeAddStepIconSlotProps> = ({ x, y, vizNode, className }) => (
+  <foreignObject x={x} y={y} width={CanvasDefaults.ADD_STEP_ICON_SIZE} height={CanvasDefaults.ADD_STEP_ICON_SIZE}>
+    <AddStepIcon className={className} title="Add step" vizNode={vizNode} mode={AddStepMode.PrependStep}>
+      <Icon size="lg">
+        <PlusCircleIcon />
+      </Icon>
+    </AddStepIcon>
+  </foreignObject>
+);
+
 interface CustomEdgeProps extends DefaultEdgeProps {
   /** We're not providing Data to edges */
   element: GraphElement<EdgeModel, unknown>;
@@ -46,15 +66,23 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   const customNodeDropTargetSpec: DropTargetSpec<
     GraphElement,
     unknown,
-    { droppable: boolean; hover: boolean; canDrop: boolean },
+    {
+      droppable: boolean;
+      hover: boolean;
+      canDrop: boolean;
+      dragItemType: string | undefined;
+      dragItem: GraphElement | undefined;
+    },
     GraphElementProps
   > = useMemo(
     () => ({
-      accept: [NODE_DRAG_TYPE],
+      accept: [NODE_DRAG_TYPE, GROUP_DRAG_TYPE],
       canDrop: (item, _monitor, _props) =>
         canDropOnEdge(item.getData().vizNode, element, entitiesContext.camelResource, catalogModalContext),
       collect: (monitor) => ({
         droppable: monitor.isDragging(),
+        dragItemType: monitor.getItemType(),
+        dragItem: monitor.getItem(),
         hover: monitor.isOver(),
         canDrop: monitor.canDrop(),
       }),
@@ -63,6 +91,14 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   );
 
   const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
+  const dragItemType = dndDropProps.dragItemType;
+  const dragItem = dndDropProps.dragItem;
+  const edgeSourceParent = element.getSource().getParent()?.getId();
+  const edgeTargetParent = element.getTarget().getParent()?.getId();
+  const refreshEdge =
+    dragItemType === GROUP_DRAG_TYPE &&
+    edgeSourceParent.slice(0, dragItem?.getId().length) === dragItem?.getId() &&
+    edgeTargetParent.slice(0, dragItem?.getId().length) === dragItem?.getId();
 
   /* If the edge connects to nodes in a collapsed group don't draw */
   const sourceParent = getClosestVisibleParent(element.getSource());
@@ -104,37 +140,45 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   }
 
   return (
-    <g className="custom-edge" ref={dndDropRef}>
-      <path className="custom-edge__background" d={edgeDRef.current} />
-      <path
-        className={clsx('custom-edge__body', {
-          'custom-edge__body__validDropTarget': dndDropProps.hover && dndDropProps.canDrop,
-        })}
-        d={edgeDRef.current}
-      />
-      <ConnectorArrow
-        isTarget
-        className={clsx('custom-edge__connector', {
-          'custom-edge__connector__validDropTarget': dndDropProps.hover && dndDropProps.canDrop,
-        })}
-        startPoint={startPointRef.current}
-        endPoint={endPointRef.current}
-      />
+    <Layer id={refreshEdge ? TOP_LAYER : undefined}>
+      <g className="custom-edge" ref={dndDropRef}>
+        <path className="custom-edge__background" d={edgeDRef.current} />
+        <path
+          className={clsx('custom-edge__body', {
+            'custom-edge__body__validDropTarget': dndDropProps.hover && dndDropProps.canDrop,
+          })}
+          d={edgeDRef.current}
+        />
+        <ConnectorArrow
+          isTarget
+          className={clsx('custom-edge__connector', {
+            'custom-edge__connector__validDropTarget': dndDropProps.hover && dndDropProps.canDrop,
+          })}
+          startPoint={startPointRef.current}
+          endPoint={endPointRef.current}
+        />
 
-      {!dndDropProps.droppable && shouldShowPrepend && (
-        <foreignObject x={x} y={y} width={CanvasDefaults.ADD_STEP_ICON_SIZE} height={CanvasDefaults.ADD_STEP_ICON_SIZE}>
-          <AddStepIcon
-            className="custom-edge__add-step"
-            title="Add step"
+        {/** Add Step Icon, appears when nothing is dragging and user hovers over the edge */}
+        {!dndDropProps.droppable && shouldShowPrepend && (
+          <EdgeAddStepIconSlot x={x} y={y} vizNode={vizNode} className="custom-edge__add-step" />
+        )}
+
+        {/** Add Step Icon, appears when a compatible node/group is being dragged over the edge */}
+        {dndDropProps.droppable && shouldShowPrepend && dndDropProps.hover && dndDropProps.canDrop && (
+          <EdgeAddStepIconSlot
+            x={
+              startPointRef.current.x +
+              (endPointRef.current.x - startPointRef.current.x - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
+            }
+            y={
+              startPointRef.current.y +
+              (endPointRef.current.y - startPointRef.current.y - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
+            }
             vizNode={vizNode}
-            mode={AddStepMode.PrependStep}
-          >
-            <Icon size="lg">
-              <PlusCircleIcon />
-            </Icon>
-          </AddStepIcon>
-        </foreignObject>
-      )}
-    </g>
+            className="add-step-icon__icon__validDropTarget"
+          />
+        )}
+      </g>
+    </Layer>
   );
 });

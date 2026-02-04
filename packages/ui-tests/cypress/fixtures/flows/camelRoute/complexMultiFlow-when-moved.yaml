@@ -1,0 +1,50 @@
+- route:
+    id: route-1
+    from:
+      uri: timer:template?period=1000
+      steps:
+        - choice:
+            id: Choice-route-1
+            description: Choice-route-1
+            otherwise:
+              steps:
+                - marshal: {}
+            when:
+              - description: when-log
+                steps:
+                  - log:
+                      message: ${body}
+                simple:
+                  expression: ${header.foo} == 1
+- route:
+    id: route-2
+    from:
+      id: from-1906
+      uri: timer
+      steps:
+        - choice:
+            id: choice-4271
+            description: Choice-route-2
+            otherwise:
+              id: otherwise-2957
+              steps:
+                - log:
+                    id: log-3648
+                    message: ${body}
+            when:
+              - id: when-1514
+                steps:
+                  - log:
+                      id: log-3831
+                      message: ${body}
+                expression:
+                  simple:
+                    expression: ${header.foo} == 1
+              - description: when-setHeader
+                steps:
+                  - setHeader:
+                      name: setHeader
+                      simple:
+                        expression: foo
+                simple:
+                  expression: ${header.foo} == 1

@@ -5,7 +5,7 @@ import React from 'react';
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
-import { CustomNodeObserver } from './CustomNode';
+import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 const mockRef = { current: null };
 
@@ -14,17 +14,8 @@ jest.mock('@patternfly/react-topology', () => {
   return {
     ...actual,
     Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
-    useDragNode: () => [{ node: undefined }, mockRef],
-    useDndDrop: () => [
-      {
-        droppable: false,
-        hover: false,
-        canDrop: false,
-        dragItemType: undefined,
-        dragItem: undefined,
-      },
-      mockRef,
-    ],
+    useDragNode: () => [{ node: undefined, dragEvent: undefined }, mockRef],
+    useDndDrop: () => [{ droppable: false, hover: false, canDrop: false }, mockRef],
     useAnchor: () => {},
     useHover: () => [false, mockRef],
   };
@@ -34,7 +25,7 @@ jest.mock('../../../../hooks/processor-icon.hook', () => ({
   useProcessorIcon: () => ({ Icon: null, description: '' }),
 }));
 
-describe('CustomNode', () => {
+describe('CustomGroupExpanded', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -45,9 +36,9 @@ describe('CustomNode', () => {
 
     expect(() => {
       act(() => {
-        render(<CustomNodeObserver element={edgeElement} />);
+        render(<CustomGroupExpanded element={edgeElement} />);
       });
-    }).toThrow('CustomNode must be used only on Node elements');
+    }).toThrow('CustomGroupExpanded must be used only on Node elements');
   });
 
   it('should return null when element has no vizNode in data', () => {
@@ -65,27 +56,25 @@ describe('CustomNode', () => {
       <Provider>
         <VisualizationProvider controller={controller}>
           <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} />
+            <CustomGroupExpanded element={element} />
           </ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,
     );
 
-    expect(container.querySelector('[data-testid^="custom-node__"]')).not.toBeInTheDocument();
+    expect(container).toMatchSnapshot();
   });
 
-  it('should render node container with label from vizNode', () => {
-    const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      catalogKind: CatalogKind.Component,
-      name: 'log',
-      path: 'route.from.steps.0.log',
+  it('should render group container with data-testid when vizNode is provided', () => {
+    const vizNode = createVisualizationNode('choice-1', {
+      catalogKind: CatalogKind.Processor,
+      name: 'choice',
+      path: 'route.from.steps.0.choice',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
     jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Log');
-    jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Choice');
 
     const parentElement = new BaseGraph();
     const element = new BaseNode();
@@ -95,7 +84,7 @@ describe('CustomNode', () => {
     element.setParent(parentElement);
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-log');
+    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
 
     const { Provider } = TestProvidersWrapper();
 
@@ -103,14 +92,14 @@ describe('CustomNode', () => {
       <Provider>
         <VisualizationProvider controller={controller}>
           <ElementContext.Provider value={element}>
-            <CustomNodeObserver element={element} />
+            <CustomGroupExpanded element={element} />
           </ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,
     );
 
-    const node = screen.getByTestId('custom-node__route.from.steps.0.log');
-    expect(node).toBeInTheDocument();
-    expect(node).toHaveAttribute('data-nodelabel', 'log');
+    const group = screen.getByTestId('custom-group__choice-1');
+    expect(group).toBeInTheDocument();
+    expect(group).toHaveAttribute('data-grouplabel', 'Choice');
   });
 });

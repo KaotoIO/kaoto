@@ -1,7 +1,8 @@
-import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { waitFor } from '@testing-library/react';
+
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
-import { IInteractionType, IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NoBendpointsEdge } from '../NoBendingEdge';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from './CustomNodeUtils';
 
 describe('CustomNodeUtils', () => {
@@ -68,98 +69,6 @@ describe('CustomNodeUtils', () => {
     });
   });
 
-  describe('handleValidNodeDrop', () => {
-    const noopGetOnCopyAddons = jest.fn().mockReturnValue([]);
-
-    it('should paste the dragged node as AppendStep when direction is forward', () => {
-      handleValidNodeDrop(vizNode1, vizNode2, false, jest.fn(), noopGetOnCopyAddons);
-
-      expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith(vizNode1.getCopiedContent(), AddStepMode.AppendStep);
-      expect(vizNode1.removeChild).toHaveBeenCalled();
-    });
-
-    it('should paste the dragged node as PrependStep when direction is backward', () => {
-      handleValidNodeDrop(vizNode2, vizNode1, false, jest.fn(), noopGetOnCopyAddons);
-
-      expect(vizNode1.pasteBaseEntityStep).toHaveBeenCalledWith(vizNode2.getCopiedContent(), AddStepMode.PrependStep);
-      expect(vizNode2.removeChild).toHaveBeenCalled();
-    });
-
-    it('should paste the dragged node as AppendStep when direction is forward, call the removeflow() instead', () => {
-      const interceptVizNode = getMockVizNode('intercept');
-      const interceptRouteConfigVizNode = getMockVizNode('routeConfiguration.intercept.1.intercept');
-      (interceptVizNode.getNodeInteraction as jest.Mock).mockReturnValue({
-        canRemoveStep: false,
-        canRemoveFlow: true,
-      });
-      const removeFlowMock = jest.fn();
-      handleValidNodeDrop(interceptVizNode, interceptRouteConfigVizNode, false, removeFlowMock, noopGetOnCopyAddons);
-
-      expect(interceptRouteConfigVizNode.pasteBaseEntityStep).toHaveBeenCalledWith(
-        interceptVizNode.getCopiedContent(),
-        AddStepMode.AppendStep,
-      );
-      expect(removeFlowMock).toHaveBeenCalled();
-    });
-
-    it('should not paste the dragged node if the dragged node getCopiedContent() returns undefined', () => {
-      (vizNode1.getCopiedContent as jest.Mock).mockReturnValueOnce(undefined);
-      handleValidNodeDrop(vizNode1, vizNode2, false, jest.fn(), noopGetOnCopyAddons);
-
-      expect(vizNode2.pasteBaseEntityStep).not.toHaveBeenCalled();
-      expect(vizNode1.removeChild).not.toHaveBeenCalled();
-    });
-
-    it('should process copied content through onCopyAddon when provided', () => {
-      const originalContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
-        name: 'kaoto-datamapper',
-        definition: {},
-      };
-      const transformedContent: IClipboardCopyObject = {
-        type: SourceSchemaType.Route,
-        name: 'step',
-        definition: {},
-      };
-
-      const datamapperVizNode = getMockVizNode('route.from.steps.0.step');
-      (datamapperVizNode.getCopiedContent as jest.Mock).mockReturnValue(originalContent);
-
-      const mockOnCopyAddon: IOnCopyAddon = {
-        type: IInteractionType.ON_COPY,
-        activationFn: jest.fn(),
-        callback: jest.fn().mockReturnValue(transformedContent),
-      };
-
-      const getOnCopyAddons = jest.fn().mockReturnValue([mockOnCopyAddon]);
-
-      handleValidNodeDrop(datamapperVizNode, vizNode2, false, jest.fn(), getOnCopyAddons);
-
-      expect(getOnCopyAddons).toHaveBeenCalledWith(datamapperVizNode);
-      expect(mockOnCopyAddon.callback).toHaveBeenCalledWith({
-        sourceVizNode: datamapperVizNode,
-        content: originalContent,
-      });
-      expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith(transformedContent, AddStepMode.AppendStep);
-      expect(datamapperVizNode.removeChild).toHaveBeenCalled();
-    });
-
-    it('should not paste if onCopyAddon returns undefined', () => {
-      const mockOnCopyAddon: IOnCopyAddon = {
-        type: IInteractionType.ON_COPY,
-        activationFn: jest.fn(),
-        callback: jest.fn().mockReturnValue(undefined),
-      };
-
-      const getOnCopyAddons = jest.fn().mockReturnValue([mockOnCopyAddon]);
-
-      handleValidNodeDrop(vizNode1, vizNode2, false, jest.fn(), getOnCopyAddons);
-
-      expect(vizNode2.pasteBaseEntityStep).not.toHaveBeenCalled();
-      expect(vizNode1.removeChild).not.toHaveBeenCalled();
-    });
-  });
-
   describe('checkNodeDropCompatibility', () => {
     it('should return false if dragged node content is undefined', () => {
       (vizNode1.getCopiedContent as jest.Mock).mockReturnValueOnce(undefined);
@@ -215,6 +124,163 @@ describe('CustomNodeUtils', () => {
       const result = checkNodeDropCompatibility(vizNode1, placeholderNode, mockValidate);
       expect(result).toBe(false);
       expect(mockValidate).toHaveBeenCalled();
+    });
+  });
+
+  describe('handleValidNodeDrop', () => {
+    const noopGetOnCopyAddons = () => [] as IOnCopyAddon[];
+
+    const createMockDraggedElement = (vizNode: IVisualizationNode) => ({
+      getData: jest.fn().mockReturnValue({ vizNode }),
+      getController: jest.fn().mockReturnValue({
+        fromModel: jest.fn(),
+      }),
+    });
+
+    const createMockDropResultNode = (vizNode: IVisualizationNode) => ({
+      getData: jest.fn().mockReturnValue({ vizNode }),
+    });
+
+    const createMockEntitiesContext = () => ({
+      camelResource: { removeEntity: jest.fn() },
+      updateEntitiesFromCamelResource: jest.fn(),
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('should return early when dragged element has no vizNode', () => {
+      const draggedElement = createMockDraggedElement(vizNode1);
+      (draggedElement.getData as jest.Mock).mockReturnValue({});
+      const dropResult = createMockDropResultNode(vizNode2);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement as never,
+        dropResult as never,
+        entitiesContext as never,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+      );
+
+      expect(vizNode2.pasteBaseEntityStep).not.toHaveBeenCalled();
+      expect(vizNode1.removeChild).not.toHaveBeenCalled();
+      expect(draggedElement.getController().fromModel).not.toHaveBeenCalled();
+    });
+
+    it('should return early when getCopiedContent returns undefined', () => {
+      (vizNode1.getCopiedContent as jest.Mock).mockReturnValueOnce(undefined);
+      const draggedElement = createMockDraggedElement(vizNode1);
+      const dropResult = createMockDropResultNode(vizNode2);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement as never,
+        dropResult as never,
+        entitiesContext as never,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+      );
+
+      expect(vizNode2.pasteBaseEntityStep).not.toHaveBeenCalled();
+      expect(vizNode1.removeChild).not.toHaveBeenCalled();
+    });
+
+    it('should paste and remove on forward direction (drop on node)', async () => {
+      (vizNode1.getId as jest.Mock).mockReturnValue('route1');
+      (vizNode2.getId as jest.Mock).mockReturnValue('route1');
+      const draggedElement = createMockDraggedElement(vizNode1);
+      const dropResult = createMockDropResultNode(vizNode2);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement as never,
+        dropResult as never,
+        entitiesContext as never,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+      );
+
+      expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.AppendStep);
+      expect(vizNode1.removeChild).toHaveBeenCalled();
+      expect(draggedElement.getController().fromModel).toHaveBeenCalledWith({ nodes: [], edges: [] });
+
+      await waitFor(() => {
+        expect(entitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+      });
+    });
+
+    it('should paste and remove on backward direction', () => {
+      (vizNode1.getId as jest.Mock).mockReturnValue('route1');
+      (vizNode2.getId as jest.Mock).mockReturnValue('route1');
+      const draggedElement = createMockDraggedElement(vizNode2);
+      const dropResult = createMockDropResultNode(vizNode1);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement as never,
+        dropResult as never,
+        entitiesContext as never,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+      );
+
+      expect(vizNode2.removeChild).toHaveBeenCalled();
+      expect(vizNode1.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.PrependStep);
+      expect(draggedElement.getController().fromModel).toHaveBeenCalledWith({ nodes: [], edges: [] });
+    });
+
+    it('should call removeEntity when canRemoveStep is false and canRemoveFlow is true', () => {
+      (vizNode1.getNodeInteraction as jest.Mock).mockReturnValue({
+        canHaveNextStep: true,
+        canHavePreviousStep: true,
+        canRemoveStep: false,
+        canRemoveFlow: true,
+      });
+      (vizNode1.getId as jest.Mock).mockReturnValue('route1');
+      (vizNode2.getId as jest.Mock).mockReturnValue('route1');
+      const draggedElement = createMockDraggedElement(vizNode1);
+      const dropResult = createMockDropResultNode(vizNode2);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement as never,
+        dropResult as never,
+        entitiesContext as never,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+      );
+
+      expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.AppendStep);
+      expect(vizNode1.removeChild).not.toHaveBeenCalled();
+      expect(entitiesContext.camelResource.removeEntity).toHaveBeenCalledWith(['route1']);
+    });
+
+    it('should use edge target as drop target when dropResult is NoBendpointsEdge (drop on edge)', async () => {
+      (vizNode1.getId as jest.Mock).mockReturnValue('route1');
+      (vizNode2.getId as jest.Mock).mockReturnValue('route1');
+      (vizNode1.getNodeInteraction as jest.Mock).mockReturnValue({
+        canHaveNextStep: true,
+        canHavePreviousStep: true,
+        canRemoveStep: true,
+        canRemoveFlow: false,
+      });
+      const draggedElement = createMockDraggedElement(vizNode1);
+      const edge = new NoBendpointsEdge();
+      const mockTarget = { getData: jest.fn().mockReturnValue({ vizNode: vizNode2 }) };
+      jest.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
+      const entitiesContext = createMockEntitiesContext();
+
+      handleValidNodeDrop(
+        draggedElement as never,
+        edge as never,
+        entitiesContext as never,
+        { getRegisteredInteractionAddons: noopGetOnCopyAddons } as never,
+      );
+
+      expect(vizNode2.pasteBaseEntityStep).toHaveBeenCalledWith('test-content', AddStepMode.PrependStep);
+      expect(vizNode1.removeChild).toHaveBeenCalled();
+      expect(draggedElement.getController().fromModel).toHaveBeenCalledWith({ nodes: [], edges: [] });
+
+      await waitFor(() => {
+        expect(entitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+      });
     });
   });
 });

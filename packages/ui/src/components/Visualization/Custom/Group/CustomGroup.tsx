@@ -51,7 +51,7 @@ const CustomGroupInner: FunctionComponent<ICustomGroup> = observer(({ element, o
   );
 });
 
-const CustomGroup: FunctionComponent<ICustomGroup> = ({ element, ...rest }: ICustomGroup) => {
+export const CustomGroup: FunctionComponent<ICustomGroup> = ({ element, ...rest }: ICustomGroup) => {
   if (!isNode(element)) {
     throw new Error('CustomGroup must be used only on Node elements');
   }

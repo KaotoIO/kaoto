@@ -1,8 +1,16 @@
 import { isDefined } from '@kaoto/forms';
+import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { EntitiesContextResult } from '../../../../providers/entities.provider';
+import {
+  IInteractionType,
+  INodeInteractionAddonContext,
+  IOnCopyAddon,
+} from '../../../registers/interactions/node-interaction-addon.model';
+import { CanvasNode } from '../../Canvas/canvas.models';
 import { processOnCopyAddon } from '../ContextMenu/item-interaction-helper';
+import { NoBendpointsEdge } from '../NoBendingEdge';
 
 export const getNodeDragAndDropDirection = (
   draggedVizNode: IVisualizationNode,
@@ -32,16 +40,32 @@ export const getNodeDragAndDropDirection = (
 };
 
 export const handleValidNodeDrop = (
-  draggedVizNode: IVisualizationNode,
-  droppedVizNode: IVisualizationNode,
-  droppedIntoEdge: boolean,
-  removeFlow: (flowId?: string) => void,
-  getOnCopyAddons: (vizNode: IVisualizationNode) => IOnCopyAddon[],
+  draggedElement: GraphElement<ElementModel, CanvasNode['data']>,
+  dropResult: GraphElement<ElementModel, unknown>,
+  entitiesContext: EntitiesContextResult,
+  nodeInteractionAddonContext: INodeInteractionAddonContext,
 ) => {
-  let draggedNodeContent = draggedVizNode.getCopiedContent();
+  const draggedVizNode = draggedElement.getData()?.vizNode;
+  if (!isDefined(draggedVizNode)) return;
+
+  let droppedVizNode: IVisualizationNode;
+  let droppedIntoEdge = false;
+
+  if (dropResult instanceof NoBendpointsEdge) {
+    droppedVizNode = dropResult.getTarget().getData().vizNode;
+    droppedIntoEdge = true;
+  } else {
+    droppedVizNode = (dropResult as Node).getData().vizNode;
+  }
+
+  let draggedNodeContent = draggedVizNode?.getCopiedContent();
   if (!isDefined(draggedNodeContent)) return;
 
-  draggedNodeContent = processOnCopyAddon(draggedVizNode, draggedNodeContent, getOnCopyAddons);
+  draggedNodeContent = processOnCopyAddon(
+    draggedVizNode,
+    draggedNodeContent,
+    (vn) => nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vn) as IOnCopyAddon[],
+  );
 
   if (!isDefined(draggedNodeContent)) return;
 
@@ -60,7 +84,7 @@ export const handleValidNodeDrop = (
         draggedVizNode.removeChild();
       } else if (draggedVizNodeinteraction.canRemoveFlow) {
         const flowId = draggedVizNode?.getId();
-        removeFlow(flowId);
+        entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
       }
       break;
     }
@@ -69,6 +93,15 @@ export const handleValidNodeDrop = (
       droppedVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.PrependStep);
       break;
   }
+
+  // Set an empty model to clear the graph
+  draggedElement.getController().fromModel({
+    nodes: [],
+    edges: [],
+  });
+  requestAnimationFrame(() => {
+    entitiesContext.updateEntitiesFromCamelResource();
+  });
 };
 
 export const checkNodeDropCompatibility = (
