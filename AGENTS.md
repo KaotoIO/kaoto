@@ -1,25 +1,25 @@
-## Kaoto AGENTS.md
+# Kaoto AGENTS.md
 
 Kaoto is a visual editor for Apache Camel integrations. This monorepo uses Yarn workspaces and Vite for the UI, plus Cypress and Storybook for testing and docs. Use the commands below when building, testing, or linting.
 
-### Packages
+## Packages
 
 - `@kaoto/kaoto` — main UI (Vite + React + TypeScript)
 - `@kaoto/kaoto-tests` — Storybook and Cypress E2E for the UI
 
-### Requirements
+## Requirements
 
-- Node.js: >= 18.x
-- Yarn: 4.x (this repo sets `"packageManager": "yarn@4.5.0"`)
+- Node.js: >= 22.x
+- Yarn: 4.x (this repo sets `"packageManager": "yarn@4.9.4"`)
 - OpenJDK: >= 17 (only needed if working with Camel catalog generation)
 
-### Setup
+## Setup
 
 ```bash
 yarn install
 ```
 
-### Development (UI)
+## Development (UI)
 
 ```bash
 # run dev server for @kaoto/kaoto
@@ -27,7 +27,7 @@ yarn workspace @kaoto/kaoto start
 # default dev URL: http://localhost:5173
 ```
 
-### Build
+## Build
 
 ```bash
 # build the UI
@@ -37,14 +37,14 @@ yarn workspace @kaoto/kaoto build
 yarn workspace @kaoto/kaoto build:lib
 ```
 
-### Preview (static preview server)
+## Preview (static preview server)
 
 ```bash
 yarn workspace @kaoto/kaoto preview
 # default preview URL: http://localhost:4173
 ```
 
-### Tests
+## Tests
 
 - Unit tests (UI):
 
@@ -55,7 +55,7 @@ yarn workspace @kaoto/kaoto test:watch
 
 - E2E tests and Storybook live here: `@kaoto/kaoto-tests` (see that package’s AGENTS.md for details).
 
-### Linting and Formatting
+## Linting and Formatting
 
 - UI code lint:
 
@@ -78,7 +78,7 @@ yarn workspace @kaoto/kaoto-tests lint
 yarn workspace @kaoto/kaoto-tests lint:fix
 ```
 
-### Storybook
+## Storybook
 
 ```bash
 # from ui-tests package
@@ -87,19 +87,19 @@ yarn workspace @kaoto/kaoto-tests storybook
 yarn workspace @kaoto/kaoto-tests build:storybook
 ```
 
-### Chromatic (optional)
+## Chromatic (optional)
 
 ```bash
 yarn workspace @kaoto/kaoto-tests chromatic
 ```
 
-### Docker (trial)
+## Docker (trial)
 
 ```bash
 docker run --rm -p 8080:8080 --name kaoto quay.io/kaotoio/kaoto-app:main
 ```
 
-### Code Style and Conventions
+## Code Style and Conventions
 
 - TypeScript: strict mode enabled (`strict: true`), `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`.
 - ESLint: TypeScript + Prettier integration; React and React Hooks rules enabled in the UI package.
@@ -109,14 +109,14 @@ Reference settings:
 
 - Prettier highlights: `semi: true`, `singleQuote: true`, `printWidth: 120`, `tabWidth: 2`, `trailingComma: 'all'`.
 
-### Monorepo tips (Yarn workspaces)
+## Monorepo tips (Yarn workspaces)
 
 - Use `yarn workspace <package-name> <script>` from the repo root.
 - Package names:
   - `@kaoto/kaoto`
   - `@kaoto/kaoto-tests`
 
-### CI/Agent expectations
+## CI/Agent expectations
 
 - Before committing or opening PRs, run:
 
