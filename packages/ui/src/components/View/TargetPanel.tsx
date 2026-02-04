@@ -1,6 +1,5 @@
 import './TargetPanel.scss';
 
-import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
@@ -18,6 +17,7 @@ import { DocumentContent, DocumentHeader } from '../Document/BaseDocument';
 import { TargetDocumentNode } from '../Document/TargetDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
+import { TARGET_PANEL_DEFAULT_HEIGHT, TARGET_PANEL_MIN_HEIGHT } from '../ExpansionPanels/panel-dimensions';
 
 export const TargetPanel: FunctionComponent = () => {
   const { targetBodyDocument, mappingTree, refreshMappingTree } = useDataMapper();
@@ -89,12 +89,12 @@ export const TargetPanel: FunctionComponent = () => {
         <ExpansionPanel
           id="target-body"
           defaultExpanded={true}
-          defaultHeight={500}
-          minHeight={100}
+          defaultHeight={TARGET_PANEL_DEFAULT_HEIGHT}
+          minHeight={TARGET_PANEL_MIN_HEIGHT}
           collapsible={false}
           summary={
             <DocumentHeader
-              header={<Title headingLevel="h5">Body</Title>}
+              header={<span className="panel-header-text">Body</span>}
               document={targetBodyDocument}
               documentType={DocumentType.TARGET_BODY}
               isReadOnly={false}

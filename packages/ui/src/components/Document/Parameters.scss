@@ -1,3 +1,6 @@
+// Import shared mixins
+@import './shared-mixins';
+
 .parameter-card {
   /* stylelint-disable-next-line selector-class-pattern */
   .pf-v6-c-card__header {
@@ -8,13 +11,87 @@
 
 .parameter-actions {
   padding: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
 
   --pf-v6-c-action-list--child--spacer-base: 0.5rem;
   --pf-v6-c-action-list--group--spacer-base: 0.5rem;
 
+  /* Make the input group take available space */
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-action-list__group:first-child {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Align buttons to the right and vertically with the input field */
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-action-list__group:last-child {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-action-list__item {
+      margin: 0;
+    }
+  }
+
+  /* Fixed size for parameter name input */
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-form-control {
+    height: var(--datamapper-header-control-size) !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 !important;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  input,
+  .pf-v6-c-text-input {
+    height: var(--datamapper-header-control-size) !important;
+    font-size: var(--datamapper-header-control-font-size) !important;
+    line-height: var(--datamapper-header-control-size) !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+
+    // Remove prominent focus outline
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+
+  /* Center the validation icon vertically */
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-form-control__utilities {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: var(--datamapper-header-control-size) !important;
+    padding: 0 0.35rem 0 0 !important;
+    margin: 0 !important;
+
+    svg {
+      width: var(--datamapper-header-icon-size) !important;
+      height: var(--datamapper-header-icon-size) !important;
+    }
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
   .pf-v6-c-button {
-    --pf-v6-c-button--PaddingLeft: 0.5rem;
-    --pf-v6-c-button--PaddingRight: 0.5rem;
+    @include header-button-style;
+  }
+
+  /* Fixed size for helper text (error messages) */
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-helper-text {
+    font-size: var(--datamapper-header-control-font-size);
+    margin-top: 0.25rem;
+    line-height: 1.2;
   }
 }
 
@@ -36,6 +113,12 @@
     margin-left: var(--pf-t--global--spacer--sm);
     margin-right: var(--pf-t--global--spacer--sm);
     color: var(--pf-t--global--icon--color--regular);
+
+    /* stylelint-disable-next-line no-descending-specificity */
+    svg {
+      width: var(--datamapper-header-icon-size);
+      height: var(--datamapper-header-icon-size);
+    }
   }
 
   // DocumentHeader container takes remaining space when chevron is present

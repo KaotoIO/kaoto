@@ -5,6 +5,7 @@
   position: relative;
   min-height: 0;
   height: 100%;
+  width: 100%;
 
   &[data-expanded='false'] {
     grid-template-rows: min-content 0 0;
@@ -22,10 +23,12 @@
 
   &__summary {
     cursor: pointer;
-    font-size: var(--pf-t--global--font--size--heading--h5);
-    font-weight: var(--pf-t--global--font--weight--heading--bold);
+    font-size: var(--datamapper-panel-header-font-size, var(--pf-t--global--font--size--heading--h5));
+    font-weight: var(--pf-t--global--font--weight--200); // Medium weight (500) - stronger than normal (400) but not bold (700)
     font-family: var(--pf-t--global--font--family--heading);
-    padding: var(--pf-t--global--spacer--sm);
+    font-style: normal;
+    padding: var(--datamapper-panel-header-padding, var(--pf-t--global--spacer--sm));
+    min-height: var(--datamapper-panel-header-height, auto);
     border: 1px solid var(--pf-t--color--gray--10);
     box-shadow: var(--pf-t--global--box-shadow--sm--bottom);
     user-select: none;

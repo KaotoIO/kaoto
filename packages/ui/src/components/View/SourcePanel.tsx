@@ -1,6 +1,5 @@
 import './SourcePanel.scss';
 
-import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
@@ -14,6 +13,7 @@ import { ParametersSection } from '../Document/Parameters';
 import { SourceDocumentNode } from '../Document/SourceDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
+import { PANEL_COLLAPSED_HEIGHT, PANEL_DEFAULT_HEIGHT, PANEL_MIN_HEIGHT } from '../ExpansionPanels/panel-dimensions';
 
 type SourcePanelProps = {
   isReadOnly?: boolean;
@@ -34,7 +34,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
   // Check if body has schema (similar to parameter logic)
   const hasSchema = !sourceBodyNodeData.isPrimitive;
 
-  // Callback for layout changes (expand/collapse/resize) - triggers mapping line refresh
+  // Callback for layout changes (expand/collapse/resize) - triggers immediate mapping line refresh
   const handleLayoutChange = useCallback(() => {
     reloadNodeReferences();
   }, [reloadNodeReferences]);
@@ -54,15 +54,15 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           id="source-body"
           key="source-body"
           defaultExpanded={hasSchema}
-          defaultHeight={hasSchema ? 300 : 40}
-          minHeight={40}
+          defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
+          minHeight={PANEL_MIN_HEIGHT}
           summary={
             <DocumentHeader
-              header={<Title headingLevel="h5">Body</Title>}
+              header={<span className="panel-header-text">Body</span>}
               document={sourceBodyDocument}
               documentType={DocumentType.SOURCE_BODY}
               isReadOnly={isReadOnly}
-              enableDnD={!hasSchema}
+              enableDnD={false}
               additionalActions={[]}
             />
           }

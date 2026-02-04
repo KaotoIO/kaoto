@@ -347,7 +347,9 @@ export class VisualizationService {
 
   static generateDndId(nodeData: NodeData) {
     // Use full path with documentType to ensure unique IDs between source and target
-    return nodeData instanceof DocumentNodeData ? nodeData.id : nodeData.path.toString().replace(/[/:]/g, '-');
+    return nodeData instanceof DocumentNodeData
+      ? nodeData.id
+      : nodeData.path.toString().replace(/\//g, '-').replace(/:/g, '-');
   }
 
   static addMapping(nodeData: AddMappingNodeData) {

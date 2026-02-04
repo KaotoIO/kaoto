@@ -1,3 +1,6 @@
+// Import shared mixins
+@import './shared-mixins';
+
 .document {
   // Actions used by DocumentHeader component
   &__actions {
@@ -13,14 +16,20 @@
 
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-button {
-      --pf-v6-c-button--PaddingLeft: 0.5rem;
-      --pf-v6-c-button--PaddingRight: 0.5rem;
+      @include header-button-style;
+    }
+
+    /* Fixed size inputs in document header actions */
+    input,
+    .pf-v6-c-text-input {
+      @include header-input-style;
     }
 
     /* Make input group expand like in BaseNode */
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-input-group {
       flex: 1;
+      height: var(--datamapper-header-control-size);
     }
 
     /* Make ActionListItem with input group expand */
@@ -44,7 +53,7 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  height: 2rem;
+  height: var(--datamapper-panel-header-height, 2rem);
 
   &__container {
     // Container for click handling and node reference
@@ -66,9 +75,13 @@
   /* stylelint-disable-next-line selector-class-pattern */
   .node__spacer {
     margin: 0 var(--pf-t--global--spacer--sm);
+    display: flex;
+    align-items: center;
 
     svg {
       display: block;
+      width: var(--datamapper-header-icon-size);
+      height: var(--datamapper-header-icon-size);
     }
   }
 }
@@ -84,7 +97,7 @@
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  height: 2rem;
+  height: var(--datamapper-panel-header-height, 2rem);
 
   &__title {
     margin: 0 var(--pf-t--global--spacer--sm);
@@ -103,10 +116,13 @@
 
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-button {
-      --pf-v6-c-button--PaddingLeft: 0.5rem;
-      --pf-v6-c-button--PaddingRight: 0.5rem;
+      @include header-button-style;
+    }
 
-      height: 1.75rem;
+    /* Fixed size inputs in parameters header actions */
+    input,
+    .pf-v6-c-text-input {
+      @include header-input-style;
     }
   }
 }
@@ -117,4 +133,18 @@
   padding: var(--pf-t--global--spacer--sm);
   background: var(--pf-t--global--background--color--secondary);
   border-bottom: 1px solid var(--pf-t--color--gray--10);
+}
+
+// Panel header text styling - replaces Title component
+.panel-header-text {
+  font-size: var(--datamapper-panel-header-font-size);
+  font-weight: var(--pf-t--global--font--weight--200); // Medium weight (500) - stronger than normal (400) but not bold (700)
+  font-family: var(--pf-t--global--font--family--heading);
+  font-style: normal;
+  margin: 0;
+
+  // Parameter names are italic
+  &--parameter {
+    font-style: italic;
+  }
 }
