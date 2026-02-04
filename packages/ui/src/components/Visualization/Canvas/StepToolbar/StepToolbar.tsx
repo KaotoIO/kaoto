@@ -15,9 +15,10 @@ import {
   TrashIcon,
 } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useContext } from 'react';
 
 import { AddStepMode, IDataTestID, IVisualizationNode } from '../../../../models';
+import { SettingsContext } from '../../../../providers/settings.provider';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';
 import { useDeleteStep } from '../../Custom/hooks/delete-step.hook';
 import { useDisableStep } from '../../Custom/hooks/disable-step.hook';
@@ -42,8 +43,10 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   onCollapseToggle,
   'data-testid': dataTestId,
 }) => {
+  const settingsAdapter = useContext(SettingsContext);
   const { canHaveSpecialChildren, canBeDisabled, canReplaceStep, canRemoveStep, canRemoveFlow } =
     vizNode.getNodeInteraction();
+  const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
   const { onInsertStep: onInsertSpecial } = useInsertStep(vizNode, AddStepMode.InsertSpecialChildStep);
   const { onToggleDisableNode, isDisabled } = useDisableStep(vizNode);
   const { areMultipleStepsDisabled, onEnableAllSteps } = useEnableAllSteps();
@@ -61,7 +64,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<BlueprintIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-duplicate"
+            data-testid={`${label}|step-toolbar-button-duplicate`}
             variant="control"
             title="Duplicate"
             onClick={(event) => {
@@ -75,7 +78,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<AngleDoubleUpIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-move-before"
+            data-testid={`${label}|step-toolbar-button-move-before`}
             variant="control"
             title="Move before"
             onClick={(event) => {
@@ -89,7 +92,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<AngleDoubleDownIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-move-after"
+            data-testid={`${label}|step-toolbar-button-move-after`}
             variant="control"
             title="Move after"
             onClick={(event) => {
@@ -103,7 +106,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<CodeBranchIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-add-special"
+            data-testid={`${label}|step-toolbar-button-add-special`}
             variant="control"
             title="Add branch"
             onClick={(event) => {
@@ -116,7 +119,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
         {canBeDisabled && (
           <Button
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-disable"
+            data-testid={`${label}|step-toolbar-button-disable`}
             variant="control"
             title={isDisabled ? 'Enable step' : 'Disable step'}
             onClick={(event) => {
@@ -132,7 +135,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<PowerOffIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-enable-all"
+            data-testid={`${label}|step-toolbar-button-enable-all`}
             variant="control"
             title="Enable all"
             onClick={(event) => {
@@ -146,7 +149,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<SyncAltIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-replace"
+            data-testid={`${label}|step-toolbar-button-replace`}
             variant="control"
             title="Replace step"
             onClick={(event) => {
@@ -159,7 +162,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
         {onCollapseToggle && (
           <Button
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-collapse"
+            data-testid={`${label}|step-toolbar-button-collapse`}
             variant="control"
             title={isCollapsed ? 'Expand step' : 'Collapse step'}
             onClick={(event) => {
@@ -175,7 +178,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<TrashIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-delete"
+            data-testid={`${label}|step-toolbar-button-delete`}
             variant="stateful"
             state="attention"
             title="Delete step"
@@ -190,7 +193,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
           <Button
             icon={<TrashIcon />}
             className="step-toolbar__button"
-            data-testid="step-toolbar-button-delete-group"
+            data-testid={`${label}|step-toolbar-button-delete-group`}
             variant="stateful"
             state="attention"
             title="Delete group"
