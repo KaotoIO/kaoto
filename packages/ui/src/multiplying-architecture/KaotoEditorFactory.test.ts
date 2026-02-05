@@ -2,7 +2,7 @@ jest.mock('./KaotoEditorApp');
 jest.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
 
-import { ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
+import { CanvasLayoutDirection, ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 import { KaotoEditorFactory } from './KaotoEditorFactory';
@@ -22,6 +22,7 @@ describe('KaotoEditorFactory', () => {
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
+      canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },
@@ -55,6 +56,7 @@ describe('KaotoEditorFactory', () => {
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
+      canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },
@@ -113,6 +115,7 @@ describe('KaotoEditorFactory', () => {
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
+      canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },
@@ -126,6 +129,7 @@ describe('KaotoEditorFactory', () => {
       nodeLabel: NodeLabelType.Id,
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
+      canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       experimentalFeatures: {
         enableDragAndDrop: false,
       },

@@ -1,6 +1,6 @@
 import { LocalStorageKeys } from '../local-storage-keys';
 import { LocalStorageSettingsAdapter } from './localstorage-settings-adapter';
-import { ColorScheme, NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
+import { CanvasLayoutDirection, ColorScheme, NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
 
 describe('LocalStorageSettingsAdapter', () => {
   beforeEach(() => {
@@ -24,6 +24,7 @@ describe('LocalStorageSettingsAdapter', () => {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
       },
+      canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       experimentalFeatures: {
         enableDragAndDrop: true,
       },
@@ -57,6 +58,7 @@ describe('LocalStorageSettingsAdapter', () => {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
       },
+      canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       experimentalFeatures: {
         enableDragAndDrop: true,
       },

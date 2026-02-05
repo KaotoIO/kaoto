@@ -1,3 +1,5 @@
+import './SettingsForm.scss';
+
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
@@ -32,7 +34,7 @@ export const SettingsForm: FunctionComponent = () => {
   };
 
   return (
-    <Card data-last-render={lastRender}>
+    <Card className="settings-form-card" data-last-render={lastRender}>
       <CardTitle>Settings</CardTitle>
 
       <CardBody>

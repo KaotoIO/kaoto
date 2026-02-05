@@ -31,8 +31,11 @@ import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.prov
 import { useLocalStorage } from '../../../hooks';
 import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
+import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { SettingsContext } from '../../../providers/settings.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
+import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
@@ -48,10 +51,17 @@ interface CanvasProps {
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ entities, contextToolbar }) => {
+  const settingsAdapter = useContext(SettingsContext);
+  const settingsLayout = useMemo(
+    () => getInitialLayout(settingsAdapter.getSettings().canvasLayoutDirection),
+    [settingsAdapter],
+  );
+  const activeLayout =
+    settingsLayout ?? localStorage.getItem(LocalStorageKeys.CanvasLayout) ?? CanvasDefaults.DEFAULT_LAYOUT;
+
   const [initialized, setInitialized] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [selectedNode, setSelectedNode] = useState<CanvasNode | undefined>(undefined);
-  const [activeLayout, setActiveLayout] = useLocalStorage(LocalStorageKeys.CanvasLayout, CanvasDefaults.DEFAULT_LAYOUT);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
     LocalStorageKeys.CanvasSidebarWidth,
     CanvasDefaults.DEFAULT_SIDEBAR_WIDTH,
@@ -146,28 +156,35 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
   }, [selectedIds, controller]);
 
   const controlButtons = useMemo(() => {
-    const customButtons: TopologyControlButton[] = [
-      {
-        id: 'topology-control-bar-h_layout-button',
-        icon: <HorizontalLayoutIcon />,
-        tooltip: 'Horizontal Layout',
-        callback: action(() => {
-          setActiveLayout(LayoutType.DagreHorizontal);
-          controller.getGraph().setLayout(LayoutType.DagreHorizontal);
-          controller.getGraph().layout();
-        }),
-      },
-      {
-        id: 'topology-control-bar-v_layout-button',
-        icon: <VerticalLayoutIcon />,
-        tooltip: 'Vertical Layout',
-        callback: action(() => {
-          setActiveLayout(LayoutType.DagreVertical);
-          controller.getGraph().setLayout(LayoutType.DagreVertical);
-          controller.getGraph().layout();
-        }),
-      },
-    ];
+    const customButtons: TopologyControlButton[] = [];
+
+    // Only show layout toggle buttons in 'user' mode
+    const settings = settingsAdapter.getSettings();
+    if (settings.canvasLayoutDirection === CanvasLayoutDirection.SelectInCanvas) {
+      customButtons.push(
+        {
+          id: 'topology-control-bar-h_layout-button',
+          icon: <HorizontalLayoutIcon />,
+          tooltip: 'Horizontal Layout',
+          callback: action(() => {
+            localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
+            controller.getGraph().setLayout(LayoutType.DagreHorizontal);
+            controller.getGraph().layout();
+          }),
+        },
+        {
+          id: 'topology-control-bar-v_layout-button',
+          icon: <VerticalLayoutIcon />,
+          tooltip: 'Vertical Layout',
+          callback: action(() => {
+            localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreVertical);
+            controller.getGraph().setLayout(LayoutType.DagreVertical);
+            controller.getGraph().layout();
+          }),
+        },
+      );
+    }
+
     if (catalogModalContext) {
       customButtons.push({
         id: 'topology-control-bar-catalog-button',
@@ -196,7 +213,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       legend: false,
       customButtons,
     });
-  }, [catalogModalContext, controller, setActiveLayout]);
+  }, [catalogModalContext, controller, settingsAdapter]);
 
   const handleCanvasClick = useCallback(
     (event: React.MouseEvent) => {

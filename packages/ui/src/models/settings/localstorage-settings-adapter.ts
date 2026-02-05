@@ -1,5 +1,5 @@
 import { LocalStorageKeys } from '../local-storage-keys';
-import { AbstractSettingsAdapter, ISettingsModel, SettingsModel } from './settings.model';
+import { AbstractSettingsAdapter, CanvasLayoutDirection, ISettingsModel, SettingsModel } from './settings.model';
 
 export class LocalStorageSettingsAdapter implements AbstractSettingsAdapter {
   private settings: ISettingsModel;
@@ -11,6 +11,8 @@ export class LocalStorageSettingsAdapter implements AbstractSettingsAdapter {
       apicurioRegistryUrl: '',
       customMediaTypes: [],
     };
+
+    parsedSettings.canvasLayoutDirection ??= CanvasLayoutDirection.SelectInCanvas;
 
     this.settings = new SettingsModel(parsedSettings);
   }
