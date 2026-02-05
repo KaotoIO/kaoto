@@ -1,7 +1,3 @@
-// ============================================================================
-// Shared mixins for header controls (buttons, inputs, icons)
-// ============================================================================
-
 @mixin header-button-style {
   --pf-v6-c-button--PaddingTop: var(--datamapper-header-button-padding);
   --pf-v6-c-button--PaddingBottom: var(--datamapper-header-button-padding);

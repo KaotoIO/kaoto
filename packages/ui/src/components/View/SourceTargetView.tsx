@@ -1,7 +1,8 @@
 import './SourceTargetView.scss';
 
-import { Split, SplitItem } from '@patternfly/react-core';
-import { CSSProperties, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import { Button, Split, SplitItem } from '@patternfly/react-core';
+import { SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
+import { CSSProperties, FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
@@ -34,6 +35,35 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
     setScaleFactor((prev) => Math.max(prev - 0.1, 0.7)); // Min 0.7x zoom
   }, []);
 
+  // Create action items for DataMapper header (zoom controls, and potentially debugger in the future)
+  const datamapperActionItems = useMemo(
+    () => [
+      <Button
+        key="zoom-in"
+        variant="plain"
+        icon={<SearchPlusIcon />}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleZoomIn();
+        }}
+        aria-label="Zoom in"
+        title="Zoom in"
+      />,
+      <Button
+        key="zoom-out"
+        variant="plain"
+        icon={<SearchMinusIcon />}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleZoomOut();
+        }}
+        aria-label="Zoom out"
+        title="Zoom out"
+      />,
+    ],
+    [handleZoomIn, handleZoomOut],
+  );
+
   // Reload node references when scale factor changes to update mapping lines
   useEffect(() => {
     // Give the browser time to apply the CSS changes before recalculating positions
@@ -52,7 +82,7 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   return (
     <Split className="source-target-view" onScroll={reloadNodeReferences} style={customStyles} ref={containerRef}>
       <SplitItem className="source-target-view__source-split" isFilled>
-        <SourcePanel onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+        <SourcePanel actionItems={datamapperActionItems} />
       </SplitItem>
 
       <SplitItem className="source-target-view__line-blank">

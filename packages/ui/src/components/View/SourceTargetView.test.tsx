@@ -257,4 +257,131 @@ describe('SourceTargetView', () => {
       });
     }, 30_000);
   });
+
+  describe('Zoom Controls', () => {
+    it('should render zoom in and zoom out buttons', async () => {
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const zoomInButton = screen.getByLabelText('Zoom in');
+      const zoomOutButton = screen.getByLabelText('Zoom out');
+
+      expect(zoomInButton).toBeInTheDocument();
+      expect(zoomOutButton).toBeInTheDocument();
+    });
+
+    it('should increase scale factor when zoom in is clicked', async () => {
+      const { container } = render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const zoomInButton = screen.getByLabelText('Zoom in');
+      const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
+
+      // Initial scale should be 1
+      expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1');
+
+      act(() => {
+        fireEvent.click(zoomInButton);
+      });
+
+      // After zoom in, scale should be 1.1
+      await waitFor(() => {
+        expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1.1');
+      });
+    });
+
+    it('should decrease scale factor when zoom out is clicked', async () => {
+      const { container } = render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const zoomOutButton = screen.getByLabelText('Zoom out');
+      const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
+
+      // Initial scale should be 1
+      expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1');
+
+      act(() => {
+        fireEvent.click(zoomOutButton);
+      });
+
+      // After zoom out, scale should be 0.9
+      await waitFor(() => {
+        expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('0.9');
+      });
+    });
+
+    it('should not zoom in beyond max scale (1.2x)', async () => {
+      const { container } = render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const zoomInButton = screen.getByLabelText('Zoom in');
+      const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
+
+      // Click zoom in 3 times (1.0 -> 1.1 -> 1.2 -> should stay at 1.2)
+      act(() => {
+        fireEvent.click(zoomInButton);
+        fireEvent.click(zoomInButton);
+        fireEvent.click(zoomInButton);
+      });
+
+      await waitFor(() => {
+        expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('1.2');
+      });
+    });
+
+    it('should not zoom out beyond min scale (0.7x)', async () => {
+      const { container } = render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <DataMapperCanvasProvider>
+              <SourceTargetView />
+            </DataMapperCanvasProvider>
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const zoomOutButton = screen.getByLabelText('Zoom out');
+      const sourceTargetView = container.querySelector('.source-target-view') as HTMLElement;
+
+      // Click zoom out 4 times (1.0 -> 0.9 -> 0.8 -> 0.7 -> should stay at 0.7)
+      act(() => {
+        fireEvent.click(zoomOutButton);
+        fireEvent.click(zoomOutButton);
+        fireEvent.click(zoomOutButton);
+        fireEvent.click(zoomOutButton);
+      });
+
+      await waitFor(() => {
+        expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('0.7');
+      });
+    });
+  });
 });

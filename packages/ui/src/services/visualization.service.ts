@@ -28,6 +28,10 @@ import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
 import { MappingService } from './mapping.service';
 
+// Regex patterns for DnD ID generation
+const FORWARD_SLASH_REGEX = /\//g;
+const COLON_REGEX = /:/g;
+
 type MappingNodePairType = {
   sourceNode?: SourceNodeDataType;
   targetNode?: TargetNodeDataType;
@@ -349,7 +353,7 @@ export class VisualizationService {
     // Use full path with documentType to ensure unique IDs between source and target
     return nodeData instanceof DocumentNodeData
       ? nodeData.id
-      : nodeData.path.toString().replace(/\//g, '-').replace(/:/g, '-');
+      : nodeData.path.toString().replace(FORWARD_SLASH_REGEX, '-').replace(COLON_REGEX, '-');
   }
 
   static addMapping(nodeData: AddMappingNodeData) {

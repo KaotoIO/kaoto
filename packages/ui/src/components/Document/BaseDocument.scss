@@ -1,8 +1,6 @@
-// Import shared mixins
 @use './shared-mixins' as *;
 
 .document {
-  // Actions used by DocumentHeader component
   &__actions {
     flex: 1;
     display: flex;
@@ -19,20 +17,17 @@
       @include header-button-style;
     }
 
-    /* Fixed size inputs in document header actions */
     input,
     .pf-v6-c-text-input {
       @include header-input-style;
     }
 
-    /* Make input group expand like in BaseNode */
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-input-group {
       flex: 1;
       height: var(--datamapper-header-control-size);
     }
 
-    /* Make ActionListItem with input group expand */
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-action-list__item {
       display: flex;
@@ -44,34 +39,23 @@
   }
 }
 
-// ============================================================================
-// ExpansionPanel-based architecture styles
-// ============================================================================
-
-// DocumentHeader - header component for ExpansionPanel summaries
 .document-header {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
   height: var(--datamapper-panel-header-height, 2rem);
 
-  &__container {
-    // Container for click handling and node reference
-  }
-
   &__title {
     display: flex;
     align-items: center;
-    min-width: 0; // Allow text truncation if needed
+    min-width: 0;
     margin: 0 var(--pf-t--global--spacer--sm);
 
-    // Remove default title margins
     h5 {
       margin: 0;
     }
   }
 
-  // Drag handle styling when inside NodeContainer
   /* stylelint-disable-next-line selector-class-pattern */
   .node__spacer {
     margin: 0 var(--pf-t--global--spacer--sm);
@@ -86,13 +70,11 @@
   }
 }
 
-// DocumentContent - content component for ExpansionPanel children
 .document-content {
   display: flex;
   flex-direction: column;
 }
 
-// ParametersHeader - header for the Parameters section
 .parameters-header {
   display: flex;
   flex-flow: row nowrap;
@@ -119,7 +101,6 @@
       @include header-button-style;
     }
 
-    /* Fixed size inputs in parameters header actions */
     input,
     .pf-v6-c-text-input {
       @include header-input-style;
@@ -127,7 +108,6 @@
   }
 }
 
-// Input placeholder for adding/renaming parameters
 .parameters-input-placeholder {
   flex-shrink: 0;
   padding: var(--pf-t--global--spacer--sm);
@@ -135,18 +115,13 @@
   border-bottom: 1px solid var(--pf-t--color--gray--10);
 }
 
-// Panel header text styling - replaces Title component
 .panel-header-text {
   font-size: var(--datamapper-panel-header-font-size);
-  font-weight: var(
-    --pf-t--global--font--weight--200
-  ); // Medium weight (500) - stronger than normal (400) but not bold (700)
-
+  font-weight: var(--pf-t--global--font--weight--200);
   font-family: var(--pf-t--global--font--family--heading);
   font-style: normal;
   margin: 0;
 
-  // Parameter names are italic
   &--parameter {
     font-style: italic;
   }
