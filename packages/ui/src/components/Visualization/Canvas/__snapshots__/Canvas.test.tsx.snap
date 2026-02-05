@@ -696,7 +696,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                     data-ouia-component-id="OUIA-Generated-Toolbar-7"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-17"
+                    id="pf-topology-control-bar-19"
                     style="background-color: transparent;"
                   >
                     <div
@@ -1629,7 +1629,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                     data-ouia-component-id="OUIA-Generated-Toolbar-6"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-15"
+                    id="pf-topology-control-bar-17"
                     style="background-color: transparent;"
                   >
                     <div
@@ -2075,7 +2075,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                     data-ouia-component-id="OUIA-Generated-Toolbar-9"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-21"
+                    id="pf-topology-control-bar-23"
                     style="background-color: transparent;"
                   >
                     <div
@@ -2516,7 +2516,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                     data-ouia-component-id="OUIA-Generated-Toolbar-8"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-19"
+                    id="pf-topology-control-bar-21"
                     style="background-color: transparent;"
                   >
                     <div
