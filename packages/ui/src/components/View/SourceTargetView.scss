@@ -63,28 +63,4 @@
     background-color: var(--pf-t--global--background--color--primary--default);
     overflow: hidden; // Prevent overflow that might cause gaps
   }
-
-  &__zoom-controls {
-    position: absolute;
-    bottom: var(--pf-t--global--spacer--md);
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: var(--pf-t--global--spacer--sm);
-    z-index: 100;
-    background-color: var(--pf-t--global--background--color--primary--default);
-    border: 1px solid var(--pf-t--global--border--color--default);
-    border-radius: var(--pf-t--global--border--radius--small);
-    padding: var(--pf-t--global--spacer--xs);
-    box-shadow: var(--pf-t--global--box-shadow--sm);
-
-    /* stylelint-disable-next-line selector-class-pattern */
-    .pf-v6-c-button {
-      --pf-v6-c-button--PaddingTop: var(--pf-t--global--spacer--xs);
-      --pf-v6-c-button--PaddingBottom: var(--pf-t--global--spacer--xs);
-      --pf-v6-c-button--PaddingLeft: var(--pf-t--global--spacer--xs);
-      --pf-v6-c-button--PaddingRight: var(--pf-t--global--spacer--xs);
-    }
-  }
 }

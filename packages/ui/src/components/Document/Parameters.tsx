@@ -1,9 +1,17 @@
 import './Parameters.scss';
 import './BaseDocument.scss';
 
-import { ActionList, ActionListItem, Button, Icon } from '@patternfly/react-core';
-import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
+import {
+  AngleDownIcon,
+  AngleRightIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  PlusIcon,
+  SearchMinusIcon,
+  SearchPlusIcon,
+} from '@patternfly/react-icons';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
@@ -28,6 +36,8 @@ type ParametersSectionProps = {
   isReadOnly: boolean;
   onScroll: () => void;
   onLayoutChange?: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
 };
 
 type ParametersHeaderProps = {
@@ -35,39 +45,27 @@ type ParametersHeaderProps = {
   onAddParameter: () => void;
   showParameters: boolean;
   onToggleParameters: () => void;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
 };
 
 /**
  * ParametersHeader - Simple header for the Parameters section
- * Shows "Parameters" title + Add button + Show/Hide toggle
+ * Shows "Parameters" title + Add/Eye buttons (when not readonly) + Zoom controls
  */
 export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   isReadOnly,
   onAddParameter,
   showParameters,
   onToggleParameters,
-}) => {
-  const handleAddClick = useCallback(
-    (event: MouseEvent) => {
-      event.stopPropagation(); // Prevent panel expansion when clicking add
-      onAddParameter();
-    },
-    [onAddParameter],
-  );
-
-  const handleToggleClick = useCallback(
-    (event: MouseEvent) => {
-      event.stopPropagation(); // Prevent panel expansion when clicking toggle
-      onToggleParameters();
-    },
-    [onToggleParameters],
-  );
-
-  return (
-    <div className="parameters-header" data-testid="source-parameters-header">
-      <span className="parameters-header__title panel-header-text">Parameters</span>
+  onZoomIn,
+  onZoomOut,
+}) => (
+  <div className="parameters-header" data-testid="source-parameters-header">
+    <span className="parameters-header__title panel-header-text">Parameters</span>
+    <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
-        <ActionList isIconList className="parameters-header__actions">
+        <>
           <ActionListItem>
             <Button
               icon={<PlusIcon />}
@@ -75,7 +73,10 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
               title="Add parameter"
               aria-label="Add parameter"
               data-testid="add-parameter-button"
-              onClick={handleAddClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddParameter();
+              }}
             />
           </ActionListItem>
           <ActionListItem>
@@ -84,15 +85,43 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
               title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
               aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
               data-testid="toggle-parameters-button"
-              onClick={handleToggleClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleParameters();
+              }}
               icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
             />
           </ActionListItem>
-        </ActionList>
+          <Divider orientation={{ default: 'vertical' }} />
+        </>
       )}
-    </div>
-  );
-};
+      <ActionListItem>
+        <Button
+          variant="plain"
+          icon={<SearchPlusIcon />}
+          onClick={(e) => {
+            e.stopPropagation();
+            onZoomIn();
+          }}
+          aria-label="Zoom in"
+          title="Zoom in"
+        />
+      </ActionListItem>
+      <ActionListItem>
+        <Button
+          variant="plain"
+          icon={<SearchMinusIcon />}
+          onClick={(e) => {
+            e.stopPropagation();
+            onZoomOut();
+          }}
+          aria-label="Zoom out"
+          title="Zoom out"
+        />
+      </ActionListItem>
+    </ActionList>
+  </div>
+);
 
 type ParameterPanelProps = {
   documentId: string;
@@ -223,6 +252,8 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
   isReadOnly,
   onScroll,
   onLayoutChange,
+  onZoomIn,
+  onZoomOut,
 }) => {
   const { sourceParameterMap } = useDataMapper();
 
@@ -274,6 +305,8 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
             onAddParameter={handleAddParameter}
             showParameters={showParameters}
             onToggleParameters={handleToggleParameters}
+            onZoomIn={onZoomIn}
+            onZoomOut={onZoomOut}
           />
         }
         defaultExpanded={false}

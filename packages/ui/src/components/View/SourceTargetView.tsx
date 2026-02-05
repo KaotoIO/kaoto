@@ -1,7 +1,5 @@
 import './SourceTargetView.scss';
 
-import { Button } from '@patternfly/react-core';
-import { MinusIcon, PlusIcon } from '@patternfly/react-icons';
 import { Split, SplitItem } from '@patternfly/react-core';
 import { CSSProperties, FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 
@@ -16,7 +14,9 @@ interface SourceTargetViewProps {
   uiScaleFactor?: number; // Optional scale factor, defaults to 1 (full size)
 }
 
-export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({ uiScaleFactor: initialScaleFactor = 1 }) => {
+export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
+  uiScaleFactor: initialScaleFactor = 1,
+}) => {
   const { reloadNodeReferences, setDefaultHandler } = useCanvas();
   const { mappingLinkCanvasRef } = useMappingLinks();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,7 +52,7 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({ uiS
   return (
     <Split className="source-target-view" onScroll={reloadNodeReferences} style={customStyles} ref={containerRef}>
       <SplitItem className="source-target-view__source-split" isFilled>
-        <SourcePanel />
+        <SourcePanel onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
       </SplitItem>
 
       <SplitItem className="source-target-view__line-blank">
@@ -64,24 +64,6 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({ uiS
       </SplitItem>
 
       <MappingLinksContainer />
-
-      {/* Zoom controls */}
-      <div className="source-target-view__zoom-controls">
-        <Button
-          variant="plain"
-          icon={<PlusIcon />}
-          onClick={handleZoomIn}
-          aria-label="Zoom in"
-          title="Zoom in"
-        />
-        <Button
-          variant="plain"
-          icon={<MinusIcon />}
-          onClick={handleZoomOut}
-          aria-label="Zoom out"
-          title="Zoom out"
-        />
-      </div>
     </Split>
   );
 };
