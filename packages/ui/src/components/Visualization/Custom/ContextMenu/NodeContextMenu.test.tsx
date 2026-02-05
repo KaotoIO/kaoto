@@ -248,4 +248,13 @@ describe('NodeContextMenu', () => {
 
     expect(item).toBeInTheDocument();
   });
+
+  it('should render an ItemHideOtherFlows item if canRemoveFlow is true', () => {
+    nodeInteractions.canRemoveFlow = true;
+    const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
+
+    const item = wrapper.getByTestId('context-menu-item-hide-rest');
+
+    expect(item).toBeInTheDocument();
+  });
 });

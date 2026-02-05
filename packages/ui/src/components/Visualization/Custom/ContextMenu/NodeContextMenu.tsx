@@ -23,6 +23,7 @@ import { ItemDeleteStep } from './ItemDeleteStep';
 import { ItemDisableStep } from './ItemDisableStep';
 import { ItemDuplicateStep } from './ItemDuplicateStep';
 import { ItemEnableAllSteps } from './ItemEnableAllSteps';
+import { ItemHideOtherFlows } from './ItemHideOtherFlows';
 import { ItemInsertStep } from './ItemInsertStep';
 import { ItemMoveStep } from './ItemMoveStep';
 import { ItemPasteStep } from './ItemPasteStep';
@@ -96,9 +97,6 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
     >
       {icons.moveBefore} Move Before
     </ItemMoveStep>,
-  );
-
-  items.push(
     <ItemMoveStep
       key="context-menu-item-move-next"
       data-testid="context-menu-item-move-next"
@@ -165,6 +163,11 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
   }
   if (nodeInteractions.canRemoveFlow) {
     items.push(
+      <ItemHideOtherFlows
+        key="context-menu-item-hide-rest"
+        data-testid="context-menu-item-hide-rest"
+        vizNode={vizNode}
+      />,
       <ItemDeleteGroup
         key="context-menu-container-remove"
         data-testid="context-menu-item-container-remove"
