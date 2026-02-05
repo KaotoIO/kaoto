@@ -150,6 +150,10 @@ export const elementRefXsd = fs.readFileSync(path.resolve(__dirname, './xml/elem
 export const accountLcXsd = fs.readFileSync(path.resolve(__dirname, './xml/account-lc.xsd')).toString();
 export const accountNsXsd = fs.readFileSync(path.resolve(__dirname, './xml/account-ns.xsd')).toString();
 export const accountNs2Xsd = fs.readFileSync(path.resolve(__dirname, './xml/account-ns2.xsd')).toString();
+export const mainWithIncludeXsd = fs.readFileSync(path.resolve(__dirname, './xml/MainWithInclude.xsd')).toString();
+export const commonTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/CommonTypes.xsd')).toString();
+export const mainWithImportXsd = fs.readFileSync(path.resolve(__dirname, './xml/MainWithImport.xsd')).toString();
+export const importedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/ImportedTypes.xsd')).toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {

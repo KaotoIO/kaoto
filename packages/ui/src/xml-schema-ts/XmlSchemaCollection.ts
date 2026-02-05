@@ -7,9 +7,7 @@ import { XmlSchemaMinInclusiveFacet } from './facet/XmlSchemaMinInclusiveFacet';
 import { XmlSchemaPatternFacet } from './facet/XmlSchemaPatternFacet';
 import { XmlSchemaWhiteSpaceFacet } from './facet/XmlSchemaWhiteSpaceFacet';
 import type { QName } from './QName';
-import type { CollectionURIResolver } from './resolver/CollectionURIResolver';
 import { DefaultURIResolver } from './resolver/DefaultURIResolver';
-import type { URIResolver } from './resolver/URIResolver';
 import { SchemaBuilder } from './SchemaBuilder';
 import type { SchemaKey } from './SchemaKey';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
@@ -30,7 +28,7 @@ export class XmlSchemaCollection {
 
   private knownNamespaceMap: Record<string, XmlSchema>;
   private namespaceContext: NamespacePrefixList | null;
-  private schemaResolver: URIResolver;
+  private schemaResolver: DefaultURIResolver;
   private schemas: SchemaKeyMap<XmlSchema>;
   constructor() {
     this.baseUri = null;
@@ -387,7 +385,7 @@ export class XmlSchemaCollection {
     this.stack.push(pKey);
   }
 
-  read(content: string, validator: (schema: XmlSchema) => void): XmlSchema {
+  read(content: string, validator: (schema: XmlSchema) => void, uri?: string): XmlSchema {
     const parser = new DOMParser();
     const document = parser.parseFromString(content, 'text/xml');
     const error = document.querySelector('parsererror');
@@ -396,7 +394,7 @@ export class XmlSchemaCollection {
         `XML Parser Error: ${error.textContent ?? 'The XML schema file had a parse error, but there was no reason provided'}`,
       );
     const builder = new SchemaBuilder(this, validator);
-    return builder.build(document);
+    return builder.build(document, uri);
   }
 
   /**
@@ -421,8 +419,7 @@ export class XmlSchemaCollection {
    */
   setBaseUri(baseUri: string) {
     this.baseUri = baseUri;
-    const target = (this.schemaResolver as CollectionURIResolver)?.setCollectionBaseURI;
-    target && target(baseUri);
+    this.schemaResolver.setCollectionBaseURI(baseUri);
   }
 
   setExtReg(extReg: ExtensionRegistry) {
@@ -453,7 +450,7 @@ export class XmlSchemaCollection {
    *
    * @param schemaResolver resolver
    */
-  setSchemaResolver(schemaResolver: URIResolver) {
+  setSchemaResolver(schemaResolver: DefaultURIResolver) {
     this.schemaResolver = schemaResolver;
   }
 

@@ -2,9 +2,11 @@ import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../mod
 import { Types } from '../models/datamapper/types';
 import {
   camelSpringXsd,
+  commonTypesXsd,
   elementRefXsd,
   extensionComplexXsd,
   extensionSimpleXsd,
+  importedTypesXsd,
   invalidComplexExtensionXsd,
   multiLevelExtensionXsd,
   multiLevelRestrictionXsd,
@@ -17,6 +19,7 @@ import {
   simpleTypeInheritanceXsd,
   testDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
+import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -744,5 +747,264 @@ describe('XmlSchemaDocumentService', () => {
 
     expect(result.rootElementOptions).toContainEqual({ namespaceUri: '', name: 'CSV' });
     expect(result.rootElementOptions).toContainEqual({ namespaceUri: '', name: 'ID' });
+  });
+
+  describe('with xs:include', () => {
+    it('should resolve xs:include with relative path', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="CommonTypes.xsd"/>
+  <xs:element name="Main" type="CommonType"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'MainWithInclude.xsd': mainSchema,
+          'CommonTypes.xsd': commonTypesXsd,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+
+      const mainElement = document.fields[0];
+      expect(mainElement.name).toEqual('Main');
+      expect(mainElement.namedTypeFragmentRefs.length).toEqual(1);
+
+      const commonTypeRef = mainElement.namedTypeFragmentRefs[0];
+      const commonType = document.namedTypeFragments[commonTypeRef];
+      expect(commonType).toBeDefined();
+      expect(commonType.fields.length).toEqual(2);
+      expect(commonType.fields[0].name).toEqual('field1');
+      expect(commonType.fields[1].name).toEqual('field2');
+    });
+
+    it('should resolve xs:include with simple filename in subdirectory', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="common.xsd"/>
+  <xs:element name="Main" type="CommonType"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'schemas/main.xsd': mainSchema,
+          'schemas/common.xsd': commonTypesXsd,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+    });
+
+    it('should throw clear error when included schema not in definitionFiles', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:include schemaLocation="CommonTypes.xsd"/>
+  <xs:element name="Main" type="CommonType"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'MainWithInclude.xsd': mainSchema,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('error');
+      expect(result.validationMessage).toContain('Schema not found');
+      expect(result.validationMessage).toContain('CommonTypes.xsd');
+    });
+  });
+
+  describe('with xs:import', () => {
+    it('should resolve xs:import with namespace and schemaLocation', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/main"
+           xmlns:types="http://example.com/types">
+  <xs:import namespace="http://example.com/types" schemaLocation="ImportedTypes.xsd"/>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="imported" type="types:ImportedType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'MainWithImport.xsd': mainSchema,
+          'ImportedTypes.xsd': importedTypesXsd,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+
+      const rootElement = document.fields[0];
+      expect(rootElement.name).toEqual('Root');
+      expect(rootElement.fields.length).toBeGreaterThan(0);
+
+      const importedField = rootElement.fields.find((f) => f.name === 'imported');
+      expect(importedField).toBeDefined();
+    });
+
+    it('should resolve xs:import with relative schemaLocation', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/main"
+           xmlns:types="http://example.com/types">
+  <xs:import namespace="http://example.com/types" schemaLocation="types.xsd"/>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="imported" type="types:ImportedType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'schemas/main.xsd': mainSchema,
+          'schemas/types.xsd': importedTypesXsd,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+    });
+
+    it('should handle multiple schemas importing same common schema', () => {
+      const schema1 = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/schema1"
+           xmlns:types="http://example.com/types">
+  <xs:import namespace="http://example.com/types" schemaLocation="ImportedTypes.xsd"/>
+  <xs:element name="Element1" type="types:ImportedType"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'schema1.xsd': schema1,
+          'ImportedTypes.xsd': importedTypesXsd,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+    });
+  });
+
+  describe('addSchemaFiles', () => {
+    it('should add additional schema files to existing document', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Main">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="field1" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'main.xsd': mainSchema,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const document = result.document as XmlSchemaDocument;
+
+      const additionalSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/additional">
+  <xs:complexType name="AdditionalType">
+    <xs:sequence>
+      <xs:element name="additionalField" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+
+      XmlSchemaDocumentService.addSchemaFiles(document, {
+        'additional.xsd': additionalSchema,
+      });
+
+      const additionalQName = new QName('http://example.com/additional', 'AdditionalType');
+      const additionalType = document.xmlSchemaCollection.getTypeByQName(additionalQName);
+      expect(additionalType).toBeDefined();
+    });
+
+    it('should allow schemas with imports to resolve after adding files', () => {
+      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Main" type="xs:string"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        undefined,
+        {
+          'main.xsd': mainSchema,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const document = result.document as XmlSchemaDocument;
+
+      const schemaWithImport = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/importing"
+           xmlns:imported="http://example.com/imported">
+  <xs:import namespace="http://example.com/imported" schemaLocation="imported.xsd"/>
+  <xs:element name="ImportingElement" type="imported:ImportedType"/>
+</xs:schema>`;
+
+      const importedSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/imported">
+  <xs:complexType name="ImportedType">
+    <xs:sequence>
+      <xs:element name="field" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+
+      XmlSchemaDocumentService.addSchemaFiles(document, {
+        'importing.xsd': schemaWithImport,
+        'imported.xsd': importedSchema,
+      });
+
+      const importedQName = new QName('http://example.com/imported', 'ImportedType');
+      const importedType = document.xmlSchemaCollection.getTypeByQName(importedQName);
+      expect(importedType).toBeDefined();
+    });
   });
 });

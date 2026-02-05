@@ -300,7 +300,7 @@ export class XmlSchemaDocumentUtilService {
     const filePaths = Object.keys(definitionFiles);
     for (const path of filePaths) {
       const fileContent = definitionFiles[path];
-      collection.read(fileContent, () => {});
+      collection.read(fileContent, () => {}, path);
     }
   }
 

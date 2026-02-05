@@ -63,6 +63,7 @@ export class XmlSchemaDocumentService {
     const docId = definition.documentType === DocumentType.PARAM ? definition.name! : 'Body';
 
     const collection = new XmlSchemaCollection();
+    definition.definitionFiles && collection.getSchemaResolver().addFiles(definition.definitionFiles);
 
     try {
       XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, definition.definitionFiles || {});
@@ -123,6 +124,22 @@ export class XmlSchemaDocumentService {
       document,
       rootElementOptions,
     };
+  }
+
+  /**
+   * Adds additional schema files to an existing document's schema collection.
+   * This is useful when field type overrides reference types defined in additional schema files.
+   * @param document - The document whose schema collection will be updated
+   * @param additionalFiles - Map of file paths to file contents to add
+   */
+  static addSchemaFiles(document: XmlSchemaDocument, additionalFiles: Record<string, string>): void {
+    const collection = document.xmlSchemaCollection;
+    const resolver = collection.getSchemaResolver();
+
+    resolver.addFiles(additionalFiles);
+
+    XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, additionalFiles);
+    XmlSchemaDocumentService.populateNamedTypeFragments(document);
   }
 
   /**
