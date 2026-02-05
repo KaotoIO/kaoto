@@ -17,11 +17,10 @@ import { PANEL_COLLAPSED_HEIGHT, PANEL_DEFAULT_HEIGHT, PANEL_MIN_HEIGHT } from '
 
 type SourcePanelProps = {
   isReadOnly?: boolean;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
+  actionItems?: React.ReactNode[];
 };
 
-export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = false, onZoomIn, onZoomOut }) => {
+export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = false, actionItems }) => {
   const { sourceBodyDocument } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
 
@@ -49,8 +48,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           isReadOnly={isReadOnly}
           onScroll={reloadNodeReferences}
           onLayoutChange={handleLayoutChange}
-          onZoomIn={onZoomIn}
-          onZoomOut={onZoomOut}
+          actionItems={actionItems}
         />
 
         {/* Source Body - behaves like parameters: collapsed when no schema */}

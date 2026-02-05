@@ -1,13 +1,4 @@
-import {
-  ActionList,
-  ActionListGroup,
-  ActionListItem,
-  AlertVariant,
-  Button,
-  HelperText,
-  HelperTextItem,
-  TextInput,
-} from '@patternfly/react-core';
+import { ActionList, ActionListGroup, ActionListItem, AlertVariant, Button } from '@patternfly/react-core';
 import { CheckIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { qname } from 'xml-name-validator';
@@ -15,6 +6,7 @@ import { qname } from 'xml-name-validator';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { DocumentService } from '../../services/document.service';
+import { ParameterInput } from './ParameterInput';
 
 enum ParameterNameValidation {
   EMPTY,
@@ -84,6 +76,16 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
     }
   }, [newParameterNameValidation]);
 
+  const errorMessage = useMemo(() => {
+    if (newParameterNameValidation === ParameterNameValidation.DUPLICATE) {
+      return `Parameter '${newParameterName}' already exists`;
+    }
+    if (newParameterNameValidation === ParameterNameValidation.INVALID) {
+      return `Invalid parameter name '${newParameterName}': it must be a valid QName`;
+    }
+    return undefined;
+  }, [newParameterNameValidation, newParameterName]);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -91,55 +93,48 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
   }, []);
 
   return (
-    <ActionList className="parameter-actions">
-      <ActionListGroup>
-        <ActionListItem>
-          <TextInput
-            ref={inputRef}
-            id="new-parameter-name"
-            data-testid="new-parameter-name-input"
-            onChange={(_event, text) => setNewParameterName(text)}
-            placeholder="parameter name"
-            validated={textInputValidatedProp}
-            value={newParameterName}
-          />
-          <HelperText data-testid="new-parameter-helper-text">
-            {newParameterNameValidation === ParameterNameValidation.DUPLICATE && (
-              <HelperTextItem data-testid="new-parameter-helper-text-duplicate" variant="error">
-                Parameter &apos;{newParameterName}&apos; already exists
-              </HelperTextItem>
-            )}
-            {newParameterNameValidation === ParameterNameValidation.INVALID && (
-              <HelperTextItem data-testid="new-parameter-helper-text-invalid" variant="error">
-                Invalid parameter name &apos;{newParameterName}&apos;: it must be a valid QName
-              </HelperTextItem>
-            )}
-          </HelperText>
-        </ActionListItem>
-      </ActionListGroup>
-      <ActionListGroup>
-        <ActionListItem>
-          <Button
-            icon={<CheckIcon />}
-            onClick={() => onSubmitParameter()}
-            variant="link"
-            isDisabled={newParameterNameValidation !== ParameterNameValidation.OK}
-            id="new-parameter-submit-btn"
-            data-testid="new-parameter-submit-btn"
-            aria-label="Submit new parameter"
-          ></Button>
-        </ActionListItem>
-        <ActionListItem>
-          <Button
-            icon={<TimesIcon />}
-            onClick={() => cancelNewParameter()}
-            variant="plain"
-            id="new-parameter-cancel-btn"
-            data-testid="new-parameter-cancel-btn"
-            aria-label={'Cancel new parameter'}
-          />
-        </ActionListItem>
-      </ActionListGroup>
-    </ActionList>
+    <>
+      <ActionList className="parameter-actions">
+        <ActionListGroup>
+          <ActionListItem>
+            <ParameterInput
+              ref={inputRef}
+              id="new-parameter-name"
+              data-testid="new-parameter-name-input"
+              value={newParameterName}
+              onChange={setNewParameterName}
+              placeholder="parameter name"
+              validated={textInputValidatedProp}
+            />
+          </ActionListItem>
+        </ActionListGroup>
+        <ActionListGroup>
+          <ActionListItem>
+            <Button
+              icon={<CheckIcon />}
+              onClick={() => onSubmitParameter()}
+              variant="link"
+              isDisabled={newParameterNameValidation !== ParameterNameValidation.OK}
+              id="new-parameter-submit-btn"
+              data-testid="new-parameter-submit-btn"
+              aria-label="Submit new parameter"
+            />
+          </ActionListItem>
+          <ActionListItem>
+            <Button
+              icon={<TimesIcon />}
+              onClick={() => cancelNewParameter()}
+              variant="plain"
+              id="new-parameter-cancel-btn"
+              data-testid="new-parameter-cancel-btn"
+              aria-label={'Cancel new parameter'}
+            />
+          </ActionListItem>
+        </ActionListGroup>
+      </ActionList>
+      <div className="parameter-input-error" data-testid="new-parameter-name-input-error">
+        {textInputValidatedProp === 'error' && errorMessage}
+      </div>
+    </>
   );
 };

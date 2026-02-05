@@ -2,15 +2,7 @@ import './Parameters.scss';
 import './BaseDocument.scss';
 
 import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
-import {
-  AngleDownIcon,
-  AngleRightIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  PlusIcon,
-  SearchMinusIcon,
-  SearchPlusIcon,
-} from '@patternfly/react-icons';
+import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -36,8 +28,7 @@ type ParametersSectionProps = {
   isReadOnly: boolean;
   onScroll: () => void;
   onLayoutChange?: () => void;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
+  actionItems?: React.ReactNode[];
 };
 
 type ParametersHeaderProps = {
@@ -45,21 +36,19 @@ type ParametersHeaderProps = {
   onAddParameter: () => void;
   showParameters: boolean;
   onToggleParameters: () => void;
-  onZoomIn: () => void;
-  onZoomOut: () => void;
+  actionItems?: React.ReactNode[];
 };
 
 /**
  * ParametersHeader - Simple header for the Parameters section
- * Shows "Parameters" title + Add/Eye buttons (when not readonly) + Zoom controls
+ * Shows "Parameters" title + Add/Eye buttons (when not readonly) + custom action items
  */
 export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   isReadOnly,
   onAddParameter,
   showParameters,
   onToggleParameters,
-  onZoomIn,
-  onZoomOut,
+  actionItems,
 }) => (
   <div className="parameters-header" data-testid="source-parameters-header">
     <span className="parameters-header__title panel-header-text">Parameters</span>
@@ -95,30 +84,9 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
           <Divider orientation={{ default: 'vertical' }} />
         </>
       )}
-      <ActionListItem>
-        <Button
-          variant="plain"
-          icon={<SearchPlusIcon />}
-          onClick={(e) => {
-            e.stopPropagation();
-            onZoomIn();
-          }}
-          aria-label="Zoom in"
-          title="Zoom in"
-        />
-      </ActionListItem>
-      <ActionListItem>
-        <Button
-          variant="plain"
-          icon={<SearchMinusIcon />}
-          onClick={(e) => {
-            e.stopPropagation();
-            onZoomOut();
-          }}
-          aria-label="Zoom out"
-          title="Zoom out"
-        />
-      </ActionListItem>
+      {actionItems?.map((item, index) => (
+        <ActionListItem key={index}>{item}</ActionListItem>
+      ))}
     </ActionList>
   </div>
 );
@@ -252,8 +220,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
   isReadOnly,
   onScroll,
   onLayoutChange,
-  onZoomIn,
-  onZoomOut,
+  actionItems,
 }) => {
   const { sourceParameterMap } = useDataMapper();
 
@@ -305,8 +272,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
             onAddParameter={handleAddParameter}
             showParameters={showParameters}
             onToggleParameters={handleToggleParameters}
-            onZoomIn={onZoomIn}
-            onZoomOut={onZoomOut}
+            actionItems={actionItems}
           />
         }
         defaultExpanded={false}

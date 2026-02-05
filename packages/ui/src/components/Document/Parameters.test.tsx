@@ -21,7 +21,7 @@ describe('ParametersSection', () => {
         >
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -81,7 +81,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -97,7 +97,9 @@ describe('ParametersSection', () => {
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1::' } });
     });
-    expect(screen.getByTestId('new-parameter-helper-text-invalid')).toBeInTheDocument();
+    const invalidError = screen.getByTestId('new-parameter-name-input-error');
+    expect(invalidError).toBeInTheDocument();
+    expect(invalidError).toHaveTextContent("Invalid parameter name 'testparam1::': it must be a valid QName");
     let submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
     act(() => {
@@ -114,7 +116,9 @@ describe('ParametersSection', () => {
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
-    expect(screen.getByTestId('new-parameter-helper-text-duplicate')).toBeInTheDocument();
+    const duplicateError = screen.getByTestId('new-parameter-name-input-error');
+    expect(duplicateError).toBeInTheDocument();
+    expect(duplicateError).toHaveTextContent("Parameter 'testparam1' already exists");
     submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
   });
@@ -125,7 +129,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -194,7 +198,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -252,7 +256,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={true} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={true} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -269,7 +273,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -303,7 +307,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -329,7 +333,7 @@ describe('ParametersSection', () => {
         <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
           <DataMapperCanvasProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+              <ParametersSection isReadOnly={false} onScroll={() => {}} />
             </ExpansionPanels>
           </DataMapperCanvasProvider>
         </DataMapperProvider>
@@ -378,7 +382,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -423,7 +427,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -472,7 +476,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -512,7 +516,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -548,7 +552,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -607,7 +611,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -676,7 +680,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -741,7 +745,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -809,7 +813,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -836,7 +840,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={true} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={true} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -862,7 +866,7 @@ describe('ParametersSection', () => {
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
             <DataMapperCanvasProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} onZoomIn={() => {}} onZoomOut={() => {}} />
+                <ParametersSection isReadOnly={false} onScroll={() => {}} />
               </ExpansionPanels>
             </DataMapperCanvasProvider>
           </DataMapperProvider>
@@ -897,169 +901,6 @@ describe('ParametersSection', () => {
       const deleteButton = screen.getByTestId('delete-parameter-testparam-button');
       expect(deleteButton).toHaveAttribute('title', 'Delete parameter');
       expect(deleteButton).toHaveAttribute('aria-label', 'Delete parameter');
-    });
-  });
-
-  describe('Zoom Controls', () => {
-    it('should render zoom in and zoom out buttons', async () => {
-      const mockZoomIn = jest.fn();
-      const mockZoomOut = jest.fn();
-      render(
-        <BrowserFilePickerMetadataProvider>
-          <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <ExpansionPanels>
-                <ParametersSection
-                  isReadOnly={false}
-                  onScroll={() => {}}
-                  onZoomIn={mockZoomIn}
-                  onZoomOut={mockZoomOut}
-                />
-              </ExpansionPanels>
-            </DataMapperCanvasProvider>
-          </DataMapperProvider>
-        </BrowserFilePickerMetadataProvider>,
-      );
-
-      // Both zoom buttons should be visible
-      const zoomInButton = await screen.findByTitle('Zoom in');
-      const zoomOutButton = screen.getByTitle('Zoom out');
-
-      expect(zoomInButton).toBeInTheDocument();
-      expect(zoomOutButton).toBeInTheDocument();
-      expect(zoomInButton).toHaveAttribute('aria-label', 'Zoom in');
-      expect(zoomOutButton).toHaveAttribute('aria-label', 'Zoom out');
-    });
-
-    it('should call onZoomIn when zoom in button is clicked', async () => {
-      const mockZoomIn = jest.fn();
-      const mockZoomOut = jest.fn();
-      render(
-        <BrowserFilePickerMetadataProvider>
-          <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <ExpansionPanels>
-                <ParametersSection
-                  isReadOnly={false}
-                  onScroll={() => {}}
-                  onZoomIn={mockZoomIn}
-                  onZoomOut={mockZoomOut}
-                />
-              </ExpansionPanels>
-            </DataMapperCanvasProvider>
-          </DataMapperProvider>
-        </BrowserFilePickerMetadataProvider>,
-      );
-
-      const zoomInButton = await screen.findByTitle('Zoom in');
-      act(() => {
-        fireEvent.click(zoomInButton);
-      });
-
-      expect(mockZoomIn).toHaveBeenCalledTimes(1);
-      expect(mockZoomOut).not.toHaveBeenCalled();
-    });
-
-    it('should call onZoomOut when zoom out button is clicked', async () => {
-      const mockZoomIn = jest.fn();
-      const mockZoomOut = jest.fn();
-      render(
-        <BrowserFilePickerMetadataProvider>
-          <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <ExpansionPanels>
-                <ParametersSection
-                  isReadOnly={false}
-                  onScroll={() => {}}
-                  onZoomIn={mockZoomIn}
-                  onZoomOut={mockZoomOut}
-                />
-              </ExpansionPanels>
-            </DataMapperCanvasProvider>
-          </DataMapperProvider>
-        </BrowserFilePickerMetadataProvider>,
-      );
-
-      const zoomOutButton = await screen.findByTitle('Zoom out');
-      act(() => {
-        fireEvent.click(zoomOutButton);
-      });
-
-      expect(mockZoomOut).toHaveBeenCalledTimes(1);
-      expect(mockZoomIn).not.toHaveBeenCalled();
-    });
-
-    it('should render zoom controls in read-only mode', async () => {
-      const mockZoomIn = jest.fn();
-      const mockZoomOut = jest.fn();
-      render(
-        <BrowserFilePickerMetadataProvider>
-          <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <ExpansionPanels>
-                <ParametersSection
-                  isReadOnly={true}
-                  onScroll={() => {}}
-                  onZoomIn={mockZoomIn}
-                  onZoomOut={mockZoomOut}
-                />
-              </ExpansionPanels>
-            </DataMapperCanvasProvider>
-          </DataMapperProvider>
-        </BrowserFilePickerMetadataProvider>,
-      );
-
-      // Zoom buttons should be visible even in read-only mode
-      const zoomInButton = await screen.findByTitle('Zoom in');
-      const zoomOutButton = screen.getByTitle('Zoom out');
-
-      expect(zoomInButton).toBeInTheDocument();
-      expect(zoomOutButton).toBeInTheDocument();
-
-      // Add/toggle buttons should not be visible
-      expect(screen.queryByTestId('add-parameter-button')).not.toBeInTheDocument();
-      expect(screen.queryByTestId('toggle-parameters-button')).not.toBeInTheDocument();
-    });
-
-    it('should handle multiple zoom clicks', async () => {
-      const mockZoomIn = jest.fn();
-      const mockZoomOut = jest.fn();
-      render(
-        <BrowserFilePickerMetadataProvider>
-          <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <ExpansionPanels>
-                <ParametersSection
-                  isReadOnly={false}
-                  onScroll={() => {}}
-                  onZoomIn={mockZoomIn}
-                  onZoomOut={mockZoomOut}
-                />
-              </ExpansionPanels>
-            </DataMapperCanvasProvider>
-          </DataMapperProvider>
-        </BrowserFilePickerMetadataProvider>,
-      );
-
-      const zoomInButton = await screen.findByTitle('Zoom in');
-      const zoomOutButton = screen.getByTitle('Zoom out');
-
-      // Click zoom in multiple times
-      act(() => {
-        fireEvent.click(zoomInButton);
-        fireEvent.click(zoomInButton);
-        fireEvent.click(zoomInButton);
-      });
-
-      expect(mockZoomIn).toHaveBeenCalledTimes(3);
-
-      // Click zoom out multiple times
-      act(() => {
-        fireEvent.click(zoomOutButton);
-        fireEvent.click(zoomOutButton);
-      });
-
-      expect(mockZoomOut).toHaveBeenCalledTimes(2);
     });
   });
 });
