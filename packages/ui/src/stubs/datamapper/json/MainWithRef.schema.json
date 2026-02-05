@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/schemas/main.json",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "address": { "$ref": "./CommonTypes.schema.json#/definitions/Address" },
+    "contact": { "$ref": "./CommonTypes.schema.json#/definitions/ContactInfo" }
+  },
+  "required": ["name"]
+}
