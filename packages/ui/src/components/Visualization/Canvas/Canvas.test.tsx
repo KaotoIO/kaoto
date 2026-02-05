@@ -3,13 +3,18 @@ import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
+import { LocalStorageKeys } from '../../../models/local-storage-keys';
+import { DefaultSettingsAdapter } from '../../../models/settings';
+import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
+import { SettingsProvider } from '../../../providers/settings.provider';
 import { VisibleFlowsContextResult } from '../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { kameletJson } from '../../../stubs/kamelet-route';
 import { Canvas } from './Canvas';
+import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
 
 describe('Canvas', () => {
@@ -339,5 +344,194 @@ describe('Canvas', () => {
       await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
       expect(result?.container).toMatchSnapshot();
     });
+  });
+
+  describe('Active Layout Priority', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    const TEST_CASES = [
+      {
+        canvasLayoutDirection: CanvasLayoutDirection.Horizontal,
+        layout: LayoutType.DagreHorizontal,
+        activationFn: () => {},
+      },
+      {
+        canvasLayoutDirection: CanvasLayoutDirection.Vertical,
+        layout: LayoutType.DagreVertical,
+        activationFn: () => {},
+      },
+      {
+        canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
+        layout: LayoutType.DagreHorizontal,
+        activationFn: () => {
+          localStorage.setItem(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
+        },
+      },
+      {
+        canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
+        layout: LayoutType.DagreVertical,
+        activationFn: () => {},
+      },
+    ];
+
+    it.each(TEST_CASES)(
+      'should use `$layout` layout when canvasLayoutDirection is set to `$canvasLayoutDirection`',
+      async ({ canvasLayoutDirection, layout, activationFn }) => {
+        activationFn();
+        const settingsAdapter = new DefaultSettingsAdapter({ canvasLayoutDirection });
+
+        const { Provider } = TestProvidersWrapper({
+          visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+        });
+
+        const controller = ControllerService.createController();
+        const fromModelSpy = jest.spyOn(controller, 'fromModel');
+
+        await act(async () => {
+          render(
+            <SettingsProvider adapter={settingsAdapter}>
+              <Provider>
+                <VisualizationProvider controller={controller}>
+                  <Canvas entities={[entity]} />
+                </VisualizationProvider>
+              </Provider>
+            </SettingsProvider>,
+          );
+        });
+
+        await act(async () => {
+          await jest.runAllTimersAsync();
+        });
+
+        expect(fromModelSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ graph: { id: 'g1', type: 'graph', layout } }),
+          false,
+        );
+      },
+    );
+  });
+
+  describe('Layout Toggle Buttons', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    afterEach(() => {
+      localStorage.clear();
+    });
+
+    it('should update localStorage when horizontal layout button is clicked', async () => {
+      const settingsAdapter = new DefaultSettingsAdapter({
+        canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
+      });
+
+      const { Provider } = TestProvidersWrapper({
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+      });
+
+      const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+
+      await act(async () => {
+        render(
+          <SettingsProvider adapter={settingsAdapter}>
+            <Provider>
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <Canvas entities={[entity]} />
+              </VisualizationProvider>
+            </Provider>
+          </SettingsProvider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      await waitFor(() => expect(screen.getByText('Horizontal Layout')).toBeInTheDocument());
+
+      const horizontalButton = screen.getByText('Horizontal Layout').closest('button')!;
+      expect(horizontalButton).toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(horizontalButton);
+      });
+
+      expect(localStorageSetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.CanvasLayout, LayoutType.DagreHorizontal);
+
+      localStorageSetItemSpy.mockRestore();
+    });
+
+    it('should update localStorage when vertical layout button is clicked', async () => {
+      const settingsAdapter = new DefaultSettingsAdapter({
+        canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
+      });
+
+      const { Provider } = TestProvidersWrapper({
+        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+      });
+
+      const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+
+      await act(async () => {
+        render(
+          <SettingsProvider adapter={settingsAdapter}>
+            <Provider>
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <Canvas entities={[entity]} />
+              </VisualizationProvider>
+            </Provider>
+          </SettingsProvider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      await waitFor(() => expect(screen.getByText('Vertical Layout')).toBeInTheDocument());
+
+      const verticalButton = screen.getByText('Vertical Layout').closest('button')!;
+      expect(verticalButton).toBeInTheDocument();
+
+      await act(async () => {
+        fireEvent.click(verticalButton);
+      });
+
+      expect(localStorageSetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.CanvasLayout, LayoutType.DagreVertical);
+
+      localStorageSetItemSpy.mockRestore();
+    });
+
+    it.each([CanvasLayoutDirection.Horizontal, CanvasLayoutDirection.Vertical])(
+      'should NOT show layout toggle buttons when canvasLayoutDirection is %s',
+      async (canvasLayoutDirection) => {
+        const settingsAdapter = new DefaultSettingsAdapter({ canvasLayoutDirection });
+
+        const { Provider } = TestProvidersWrapper({
+          visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+        });
+
+        await act(async () => {
+          render(
+            <SettingsProvider adapter={settingsAdapter}>
+              <Provider>
+                <VisualizationProvider controller={ControllerService.createController()}>
+                  <Canvas entities={[entity]} />
+                </VisualizationProvider>
+              </Provider>
+            </SettingsProvider>,
+          );
+        });
+
+        await act(async () => {
+          await jest.runAllTimersAsync();
+        });
+
+        expect(screen.queryByText('Horizontal Layout')).not.toBeInTheDocument();
+        expect(screen.queryByText('Vertical Layout')).not.toBeInTheDocument();
+      },
+    );
   });
 });

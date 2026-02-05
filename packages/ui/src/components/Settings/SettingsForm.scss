@@ -1,0 +1,12 @@
+.settings-form-card {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card__body {
+    flex: 1;
+    overflow: hidden auto;
+  }
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card__footer {
+    padding-block-start: var(--pf-v6-c-card--first-child--PaddingBlockStart);
+  }
+}

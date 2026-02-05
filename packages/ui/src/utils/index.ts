@@ -3,6 +3,7 @@ export * from './catalog-schema-loader';
 export * from './event-notifier';
 export * from './get-array-property';
 export * from './get-custom-schema-from-kamelet';
+export * from './get-initial-layout';
 export * from './get-serialized-model';
 export * from './get-value';
 export * from './get-viznodes-from-graph';

@@ -32,6 +32,13 @@
       "type": "string",
       "enum": ["auto", "light", "dark"]
     },
+    "canvasLayoutDirection": {
+      "title": "Canvas layout direction",
+      "description": "Choose the canvas layout behavior. `SelectInCanvas` lets users toggle layout via canvas buttons. `Horizontal` forces horizontal layout (buttons hidden). `Vertical` forces vertical layout (buttons hidden).",
+      "default": "SelectInCanvas",
+      "type": "string",
+      "enum": ["SelectInCanvas", "Horizontal", "Vertical"]
+    },
     "rest": {
       "title": "Rest configuration",
       "description": "Rest related settings",

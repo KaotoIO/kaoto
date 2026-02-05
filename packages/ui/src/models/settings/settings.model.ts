@@ -14,6 +14,12 @@ export const enum ColorScheme {
   Dark = 'dark',
 }
 
+export const enum CanvasLayoutDirection {
+  SelectInCanvas = 'SelectInCanvas',
+  Horizontal = 'Horizontal',
+  Vertical = 'Vertical',
+}
+
 export interface ISettingsModel {
   catalogUrl: string;
   nodeLabel: NodeLabelType;
@@ -23,6 +29,7 @@ export interface ISettingsModel {
     apicurioRegistryUrl: string;
     customMediaTypes: string[];
   };
+  canvasLayoutDirection: CanvasLayoutDirection;
   experimentalFeatures: {
     enableDragAndDrop: boolean;
   };
@@ -42,6 +49,7 @@ export class SettingsModel implements ISettingsModel {
     apicurioRegistryUrl: '',
     customMediaTypes: [] as string[],
   };
+  canvasLayoutDirection: CanvasLayoutDirection = CanvasLayoutDirection.SelectInCanvas;
   experimentalFeatures = {
     enableDragAndDrop: true,
   };
