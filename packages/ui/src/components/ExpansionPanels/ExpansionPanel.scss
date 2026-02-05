@@ -24,7 +24,10 @@
   &__summary {
     cursor: pointer;
     font-size: var(--datamapper-panel-header-font-size, var(--pf-t--global--font--size--heading--h5));
-    font-weight: var(--pf-t--global--font--weight--200); // Medium weight (500) - stronger than normal (400) but not bold (700)
+    font-weight: var(
+      --pf-t--global--font--weight--200
+    ); // Medium weight (500) - stronger than normal (400) but not bold (700)
+
     font-family: var(--pf-t--global--font--family--heading);
     font-style: normal;
     padding: var(--datamapper-panel-header-padding, var(--pf-t--global--spacer--sm));

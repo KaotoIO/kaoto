@@ -1,5 +1,35 @@
 // Import shared mixins
-@import './shared-mixins';
+@use './shared-mixins' as *;
+
+.parameters-header {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  &__title {
+    flex: 0 0 auto;
+  }
+
+  &__actions {
+    display: flex !important;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 0;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-action-list__item {
+      margin: 0;
+    }
+
+    /* Style the divider */
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-divider {
+      margin: 0 var(--pf-t--global--spacer--xs);
+    }
+  }
+}
 
 .parameter-card {
   /* stylelint-disable-next-line selector-class-pattern */

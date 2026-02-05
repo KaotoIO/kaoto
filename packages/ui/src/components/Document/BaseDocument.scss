@@ -1,5 +1,5 @@
 // Import shared mixins
-@import './shared-mixins';
+@use './shared-mixins' as *;
 
 .document {
   // Actions used by DocumentHeader component
@@ -138,7 +138,10 @@
 // Panel header text styling - replaces Title component
 .panel-header-text {
   font-size: var(--datamapper-panel-header-font-size);
-  font-weight: var(--pf-t--global--font--weight--200); // Medium weight (500) - stronger than normal (400) but not bold (700)
+  font-weight: var(
+    --pf-t--global--font--weight--200
+  ); // Medium weight (500) - stronger than normal (400) but not bold (700)
+
   font-family: var(--pf-t--global--font--family--heading);
   font-style: normal;
   margin: 0;
