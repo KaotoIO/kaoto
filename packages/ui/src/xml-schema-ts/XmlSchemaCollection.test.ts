@@ -375,4 +375,16 @@ describe('XmlSchemaCollection', () => {
       expect(xsdSchema).toBeUndefined();
     });
   });
+
+  describe('setBaseUri', () => {
+    it('should set base URI on collection and resolver', () => {
+      const collection = new XmlSchemaCollection();
+      const testUri = 'http://example.com/schemas';
+
+      collection.setBaseUri(testUri);
+
+      expect(collection.baseUri).toBe(testUri);
+      expect(collection.getSchemaResolver().getCollectionBaseURI()).toBe(testUri);
+    });
+  });
 });
