@@ -24,7 +24,7 @@ import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './sup
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
-  private baseFields = ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
+  private readonly baseFields = ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
 
   constructor(public entityDef: T) {}
 
