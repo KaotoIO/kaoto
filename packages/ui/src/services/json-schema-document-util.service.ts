@@ -285,6 +285,8 @@ export class JsonSchemaDocumentUtilService {
       }
     }
 
+    resolvedSchema ??= schemaCollection.resolveReference(ref, currentSchema);
+
     if (!resolvedSchema) {
       throw new Error(
         `Cannot resolve external schema reference [${ref}]: Schema '${schemaPart}' not found in loaded schemas`,

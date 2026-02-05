@@ -109,6 +109,7 @@ export interface JsonSchemaMetadata extends JSONSchema7 {
 export class JsonSchemaCollection {
   private readonly schemaArray: JsonSchemaMetadata[] = [];
   private readonly schemaMap = new Map<string, JsonSchemaMetadata>();
+  private definitionFiles: Record<string, string> = {};
 
   /**
    * Adds a JSON Schema to the collection.
@@ -199,6 +200,180 @@ export class JsonSchemaCollection {
    */
   getJsonSchemas(): JsonSchemaMetadata[] {
     return this.schemaArray;
+  }
+
+  /**
+   * Sets the definition files map for dynamic schema resolution.
+   * This enables automatic loading of schemas referenced via $ref.
+   *
+   * @param files - Map of file paths to file contents
+   *
+   * @example
+   * ```typescript
+   * collection.setDefinitionFiles({
+   *   'schemas/person.json': '{ "$id": "person", ... }',
+   *   'schemas/address.json': '{ "$id": "address", ... }'
+   * });
+   * ```
+   */
+  setDefinitionFiles(files: Record<string, string>): void {
+    this.definitionFiles = files;
+  }
+
+  /**
+   * Adds additional definition files to the collection.
+   * This allows dynamic loading of schemas after initial document creation.
+   *
+   * @param newFiles - Map of file paths to file contents to add
+   *
+   * @example
+   * ```typescript
+   * collection.addDefinitionFiles({
+   *   'schemas/customer.json': '{ "$id": "customer", ... }'
+   * });
+   * ```
+   */
+  addDefinitionFiles(newFiles: Record<string, string>): void {
+    Object.assign(this.definitionFiles, newFiles);
+  }
+
+  /**
+   * Resolves a JSON Schema $ref and loads the schema if needed.
+   * Uses a multi-tiered resolution strategy similar to XML DefaultURIResolver.
+   *
+   * @param ref - The $ref string to resolve (e.g., './types.json#/definitions/Address')
+   * @param currentSchema - The schema containing this $ref (for relative path resolution)
+   * @returns The resolved schema metadata, or undefined if not found or internal ref
+   *
+   * @example
+   * ```typescript
+   * const schema = collection.resolveReference('./types.json#/definitions/Address', currentSchema);
+   * ```
+   */
+  resolveReference(ref: string, currentSchema: JsonSchemaMetadata): JsonSchemaMetadata | undefined {
+    const [schemaPart] = ref.split('#');
+
+    if (!schemaPart || schemaPart === '') {
+      return undefined;
+    }
+
+    const schema = this.getJsonSchema(schemaPart);
+    if (schema) {
+      return schema;
+    }
+
+    if (this.definitionFiles[schemaPart]) {
+      return this.loadSchemaFromFileMap(schemaPart, this.definitionFiles[schemaPart]);
+    }
+
+    const resolvedPath = this.resolvePath(schemaPart, currentSchema.filePath);
+    if (resolvedPath !== schemaPart && this.definitionFiles[resolvedPath]) {
+      return this.loadSchemaFromFileMap(resolvedPath, this.definitionFiles[resolvedPath]);
+    }
+
+    const normalizedPath = this.normalizePath(schemaPart);
+    if (normalizedPath !== schemaPart && this.definitionFiles[normalizedPath]) {
+      return this.loadSchemaFromFileMap(normalizedPath, this.definitionFiles[normalizedPath]);
+    }
+
+    const filename = this.extractFilename(schemaPart);
+    return this.findByFilename(filename);
+  }
+
+  private loadSchemaFromFileMap(filePath: string, content: string): JsonSchemaMetadata {
+    try {
+      const schema = JsonSchemaDocumentUtilService.parseJsonSchema(content, filePath);
+      this.addJsonSchema(schema);
+
+      const aliases: string[] = [];
+      if (schema.$id && schema.$id !== schema.filePath) {
+        aliases.push(schema.filePath);
+      }
+      const relativePath = './' + schema.filePath;
+      if (relativePath !== schema.filePath) {
+        aliases.push(relativePath);
+      }
+      if (aliases.length > 0) {
+        this.addAlias(schema.identifier, ...aliases);
+      }
+
+      return schema;
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to load schema from "${filePath}": ${errorMessage}`);
+    }
+  }
+
+  private resolvePath(schemaLocation: string, baseUri: string): string {
+    if (this.isAbsolutePath(schemaLocation)) {
+      return schemaLocation;
+    }
+
+    const baseDir = this.extractDirectory(baseUri);
+    if (!baseDir) {
+      return schemaLocation;
+    }
+
+    const combined = `${baseDir}/${schemaLocation}`;
+    return this.normalizePath(combined);
+  }
+
+  private normalizePath(path: string): string {
+    const parts = path.split('/').filter((part) => part !== '.');
+
+    const normalized: string[] = [];
+    for (const part of parts) {
+      if (part === '..') {
+        if (normalized.length > 0 && normalized.at(-1) !== '..') {
+          normalized.pop();
+        } else {
+          normalized.push(part);
+        }
+      } else {
+        normalized.push(part);
+      }
+    }
+
+    return normalized.join('/');
+  }
+
+  private extractDirectory(path: string): string | null {
+    const lastSlash = path.lastIndexOf('/');
+    if (lastSlash === -1) {
+      return null;
+    }
+    return path.substring(0, lastSlash);
+  }
+
+  private extractFilename(path: string): string {
+    const lastSlash = path.lastIndexOf('/');
+    return lastSlash === -1 ? path : path.substring(lastSlash + 1);
+  }
+
+  private findByFilename(filename: string): JsonSchemaMetadata | undefined {
+    const matchingPaths: string[] = [];
+
+    for (const path of Object.keys(this.definitionFiles)) {
+      if (this.extractFilename(path) === filename) {
+        matchingPaths.push(path);
+      }
+    }
+
+    if (matchingPaths.length === 0) {
+      return undefined;
+    }
+
+    if (matchingPaths.length > 1) {
+      throw new Error(
+        `Ambiguous filename match for "${filename}". ` + `Multiple files with this name found in definitionFiles.`,
+      );
+    }
+
+    return this.loadSchemaFromFileMap(matchingPaths[0], this.definitionFiles[matchingPaths[0]]);
+  }
+
+  private isAbsolutePath(path: string): boolean {
+    return path.startsWith('/');
   }
 }
 

@@ -73,6 +73,7 @@ export class JsonSchemaDocumentService {
     }
 
     const jsonDocument = new JsonSchemaDocument(documentType, docId);
+    jsonDocument.schemaCollection.setDefinitionFiles(definition.definitionFiles || {});
 
     for (const schema of schemas) {
       jsonDocument.schemaCollection.addJsonSchema(schema);
@@ -112,6 +113,40 @@ export class JsonSchemaDocumentService {
       document,
       rootElementOptions: [],
     };
+  }
+
+  /**
+   * Adds additional schema files to an existing document's schema collection.
+   * This is useful when field type overrides reference types defined in additional schema files.
+   * @param document - The document whose schema collection will be updated
+   * @param additionalFiles - Map of file paths to file contents to add
+   */
+  static addSchemaFiles(document: JsonSchemaDocument, additionalFiles: Record<string, string>): void {
+    const collection = document.schemaCollection;
+
+    collection.addDefinitionFiles(additionalFiles);
+
+    for (const [filePath, fileContent] of Object.entries(additionalFiles)) {
+      try {
+        const metadata = JsonSchemaDocumentUtilService.parseJsonSchema(fileContent, filePath);
+        collection.addJsonSchema(metadata);
+
+        const aliases: string[] = [];
+        if (metadata.$id && metadata.$id !== metadata.filePath) {
+          aliases.push(metadata.filePath);
+        }
+        const relativePath = './' + metadata.filePath;
+        if (relativePath !== metadata.filePath) {
+          aliases.push(relativePath);
+        }
+        if (aliases.length > 0) {
+          collection.addAlias(metadata.identifier, ...aliases);
+        }
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to add schema file "${filePath}": ${errorMessage}`);
+      }
+    }
   }
 
   constructor(private readonly jsonDocument: JsonSchemaDocument) {}

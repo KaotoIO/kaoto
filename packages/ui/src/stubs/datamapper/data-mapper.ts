@@ -114,6 +114,12 @@ export const commonTypesJsonSchema = fs
   .toString();
 export const customerJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Customer.schema.json')).toString();
 export const orderJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Order.schema.json')).toString();
+export const mainWithRefJsonSchema = fs
+  .readFileSync(path.resolve(__dirname, './json/MainWithRef.schema.json'))
+  .toString();
+export const productJsonSchema = fs
+  .readFileSync(path.resolve(__dirname, './json/nested/Product.schema.json'))
+  .toString();
 
 export const orgXsd = fs.readFileSync(path.resolve(__dirname, './xml/Org.xsd')).toString();
 export const contactsXsd = fs.readFileSync(path.resolve(__dirname, './xml/Contacts.xsd')).toString();
