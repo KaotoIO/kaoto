@@ -348,18 +348,15 @@ export class CamelComponentSchemaService {
     schema = cloneDeep(processorDefinition.propertiesSchema);
 
     let actualComponentProperties: JSONSchema4 | undefined = undefined;
+    let requiredParams = schema.required;
 
     if (camelElementLookup.componentName !== undefined) {
       const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
       const componentSchema =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
-
-      if (componentSchema.required) {
-        schema.required = componentSchema.required;
-      }
+        catalogLookup?.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
 
       // Filter out producer/consumer properties depending upon the endpoint usage
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
+      if (catalogLookup?.definition !== undefined && componentSchema !== undefined) {
         actualComponentProperties = Object.fromEntries(
           Object.entries(componentSchema.properties ?? {}).filter((property) => {
             if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
@@ -369,6 +366,10 @@ export class CamelComponentSchemaService {
             }
           }),
         );
+
+        if (componentSchema.required) {
+          requiredParams = componentSchema.required;
+        }
       }
     }
 
@@ -390,7 +391,7 @@ export class CamelComponentSchemaService {
         title: 'Endpoint Properties',
         description: 'Endpoint properties description',
         properties: actualComponentProperties,
-        required: schema.required,
+        required: requiredParams,
       };
     }
 
