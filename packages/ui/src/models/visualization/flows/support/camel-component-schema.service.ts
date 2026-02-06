@@ -348,7 +348,7 @@ export class CamelComponentSchemaService {
     schema = cloneDeep(processorDefinition.propertiesSchema);
 
     let actualComponentProperties: JSONSchema4 | undefined = undefined;
-    let requiredParams = schema.required;
+    let requiredParams = undefined;
 
     if (camelElementLookup.componentName !== undefined) {
       const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
