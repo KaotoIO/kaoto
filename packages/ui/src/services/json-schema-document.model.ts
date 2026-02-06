@@ -5,6 +5,7 @@ import {
   BaseDocument,
   BaseField,
   CreateDocumentResult,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IField,
@@ -389,9 +390,9 @@ export class JsonSchemaDocument extends BaseDocument {
   definitionType: DocumentDefinitionType;
   schemaCollection = new JsonSchemaCollection();
 
-  constructor(documentType: DocumentType, documentId: string) {
-    super(documentType, documentId);
-    this.name = documentId;
+  constructor(definition: DocumentDefinition) {
+    super(definition);
+    this.name = definition.name;
     this.definitionType = DocumentDefinitionType.JSON_SCHEMA;
   }
 

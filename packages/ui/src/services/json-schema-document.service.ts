@@ -1,7 +1,6 @@
 import { JSONSchema7Definition } from 'json-schema';
 
-import { BODY_DOCUMENT_ID, DocumentDefinition } from '../models/datamapper';
-import { DocumentType } from '../models/datamapper/document';
+import { DocumentDefinition } from '../models/datamapper';
 import { Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { DocumentUtilService } from './document-util.service';
@@ -39,9 +38,6 @@ export class JsonSchemaDocumentService {
    * @returns CreateJsonSchemaDocumentResult with document and validation status
    */
   static createJsonSchemaDocument(definition: DocumentDefinition): CreateJsonSchemaDocumentResult {
-    const documentType = definition.documentType;
-    const docId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
-
     const filePaths = Object.keys(definition.definitionFiles || {});
     if (filePaths.length === 0) {
       return {
@@ -72,7 +68,7 @@ export class JsonSchemaDocumentService {
       primarySchema = found;
     }
 
-    const jsonDocument = new JsonSchemaDocument(documentType, docId);
+    const jsonDocument = new JsonSchemaDocument(definition);
     jsonDocument.schemaCollection.setDefinitionFiles(definition.definitionFiles || {});
 
     for (const schema of schemas) {

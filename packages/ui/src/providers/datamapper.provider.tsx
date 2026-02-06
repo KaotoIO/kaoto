@@ -21,6 +21,7 @@ import { SendAlertProps } from '../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
+  DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
   IDocument,
@@ -93,10 +94,14 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [sourceParameterMap, setSourceParameterMap] = useState<Map<string, IDocument>>(new Map<string, IDocument>());
   const [isSourceParametersExpanded, setSourceParametersExpanded] = useState<boolean>(true);
   const [sourceBodyDocument, setSourceBodyDocument] = useState<IDocument>(
-    new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID),
+    new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    ),
   );
   const [targetBodyDocument, setTargetBodyDocument] = useState<IDocument>(
-    new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID),
+    new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    ),
   );
 
   /**

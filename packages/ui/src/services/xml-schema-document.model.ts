@@ -3,8 +3,8 @@ import {
   BaseDocument,
   BaseField,
   CreateDocumentResult,
+  DocumentDefinition,
   DocumentDefinitionType,
-  DocumentType,
   IField,
   ITypeFragment,
 } from '../models/datamapper/document';
@@ -38,13 +38,12 @@ export class XmlSchemaDocument extends BaseDocument {
   definitionType: DocumentDefinitionType;
 
   constructor(
+    definition: DocumentDefinition,
     public xmlSchemaCollection: XmlSchemaCollection,
-    documentType: DocumentType,
-    documentId: string,
     public rootElement?: XmlSchemaElement,
   ) {
-    super(documentType, documentId);
-    this.name = documentId;
+    super(definition);
+    this.name = definition.name;
     this.definitionType = DocumentDefinitionType.XML_SCHEMA;
   }
 }

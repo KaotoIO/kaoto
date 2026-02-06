@@ -1,4 +1,4 @@
-import { DocumentType } from '../models/datamapper';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
@@ -13,7 +13,9 @@ import { JsonSchemaDocumentUtilService } from './json-schema-document-util.servi
 describe('JsonSchemaDocumentUtilService', () => {
   describe('getChildField()', () => {
     it('should find child field by key', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const parent = new JsonSchemaField(doc, 'parent', Types.Container);
       const child1 = new JsonSchemaField(doc, 'child1', Types.String);
       const child2 = new JsonSchemaField(doc, 'child2', Types.Integer);
@@ -26,7 +28,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should return undefined when key does not match', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const parent = new JsonSchemaField(doc, 'parent', Types.Container);
       const child1 = new JsonSchemaField(doc, 'child1', Types.String);
       parent.fields.push(child1);
@@ -42,7 +46,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should return undefined when type does not match', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const parent = new JsonSchemaField(doc, 'parent', Types.Container);
       const child1 = new JsonSchemaField(doc, 'child1', Types.String);
       parent.fields.push(child1);
@@ -85,7 +91,9 @@ describe('JsonSchemaDocumentUtilService', () => {
 
   describe('parseTypeOverride()', () => {
     it('should parse primitive type override', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('string', {}, field);
@@ -96,7 +104,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should parse number type override', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('number', {}, field);
@@ -107,7 +117,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should parse boolean type override', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('boolean', {}, field);
@@ -118,7 +130,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should parse array type override', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('array', {}, field);
@@ -129,7 +143,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should parse object type override', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('object', {}, field);
@@ -140,7 +156,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should parse type reference with #/ prefix as Container', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('#/definitions/MyType', {}, field);
@@ -151,7 +169,9 @@ describe('JsonSchemaDocumentUtilService', () => {
     });
 
     it('should return FORCE variant when overriding non-AnyType field', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const result = JsonSchemaDocumentUtilService.parseTypeOverride('number', {}, field);
