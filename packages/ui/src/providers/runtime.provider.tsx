@@ -6,7 +6,9 @@ import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { LoadingStatus, LocalStorageKeys } from '../models';
-import { versionCompare } from '../utils/version-compare';
+import { SourceSchemaType } from '../models/camel';
+import { CatalogSchemaLoader } from '../utils';
+import { findCatalog } from '../utils/catalog-helper';
 
 export interface IRuntimeContext {
   basePath: string;
@@ -33,10 +35,10 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   }
 
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
-  const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
+  const basePath = props.catalogUrl;
 
   useEffect(() => {
-    fetch(props.catalogUrl)
+    fetch(`${basePath}/${CatalogSchemaLoader.DEFAULT_CAMEL_CATALOG_INDEX_PATH}`)
       .then((response) => {
         setLoadingStatus(LoadingStatus.Loading);
         return response.json();
@@ -49,14 +51,10 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
           );
         }
         if (!isDefined(catalogLibraryEntry)) {
-          const redhatMainCatalogs = catalogLibrary.definitions
-            .filter((c: CatalogLibraryEntry) => c.runtime === 'Main' && c.name.includes('redhat'))
-            .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) =>
-              versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
-            );
-
-          catalogLibraryEntry = redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
+          catalogLibraryEntry = findCatalog(SourceSchemaType.Route, catalogLibrary);
         }
+
+        addCitrusCatalog(basePath, catalogLibrary);
 
         setCatalogLibrary(catalogLibrary);
         setSelectedCatalog(catalogLibraryEntry);
@@ -69,7 +67,26 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
         setLoadingStatus(LoadingStatus.Error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [basePath]);
+
+  function addCitrusCatalog(basePath: string, catalogLibrary: CatalogLibrary) {
+    const indexFile = `${basePath}/${CatalogSchemaLoader.DEFAULT_CITRUS_CATALOG_INDEX_PATH}`;
+    fetch(indexFile)
+      .then((response) => {
+        setLoadingStatus(LoadingStatus.Loading);
+        return response.json();
+      })
+      .then((citrusCatalogLibrary: CatalogLibrary) => {
+        catalogLibrary.definitions.push(...citrusCatalogLibrary.definitions);
+      })
+      .then(() => {
+        setLoadingStatus(LoadingStatus.Loaded);
+      })
+      .catch((error) => {
+        setErrorMessage(error.message);
+        setLoadingStatus(LoadingStatus.Error);
+      });
+  }
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({

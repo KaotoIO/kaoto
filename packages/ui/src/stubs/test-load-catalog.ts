@@ -2,11 +2,13 @@ import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction } from '@kaoto/camel
 
 import {
   CamelCatalogIndex,
+  CitrusCatalogIndex,
   ICamelComponentDefinition,
   ICamelDataformatDefinition,
   ICamelLanguageDefinition,
   ICamelLoadBalancerDefinition,
   ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../models';
 
@@ -85,5 +87,36 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     loadbalancerCatalog,
     entitiesCatalog,
     functionsCatalogMap,
+  };
+};
+
+export const getFirstCitrusCatalogMap = async (catalogLibrary: CatalogLibrary) => {
+  const [firstCatalogLibraryEntry] = catalogLibrary.definitions;
+
+  return await testLoadCitrusCatalog(firstCatalogLibraryEntry as CatalogLibraryEntry);
+};
+
+export const testLoadCitrusCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) => {
+  const catalogDefinition: CitrusCatalogIndex = (
+    await import(`@kaoto/camel-catalog/citrus/${catalogLibraryEntry.fileName}`)
+  ).default;
+
+  const catalogPath = `@kaoto/camel-catalog/citrus/${catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/') + 1)}`;
+
+  const actionsCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
+    `${catalogPath}${catalogDefinition.catalogs.actions.file}`
+  );
+  delete actionsCatalogMap.default;
+
+  const containersCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
+    `${catalogPath}${catalogDefinition.catalogs.containers.file}`
+  );
+  delete containersCatalogMap.default;
+
+  return {
+    catalogDefinition,
+    catalogPath,
+    actionsCatalogMap,
+    containersCatalogMap,
   };
 };

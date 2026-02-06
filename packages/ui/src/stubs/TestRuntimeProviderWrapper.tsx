@@ -11,7 +11,7 @@ interface TestRuntimeProviderWrapperResult extends IRuntimeContext {
 
 export const TestRuntimeProviderWrapper = (): TestRuntimeProviderWrapperResult => {
   const catalogLibraryCasted = catalogLibrary as CatalogLibrary;
-  const basePath = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
+  const basePath = CatalogSchemaLoader.DEFAULT_CATALOG_URL;
   const selectedCatalog = catalogLibraryCasted.definitions[0];
   const setSelectedCatalog = jest.fn();
 

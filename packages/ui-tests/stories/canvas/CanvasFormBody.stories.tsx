@@ -18,7 +18,7 @@ export default {
   component: CanvasFormBody,
   decorators: [
     (Story: StoryFn) => (
-      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_URL}>
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
             <CanvasFormTabsContext.Provider

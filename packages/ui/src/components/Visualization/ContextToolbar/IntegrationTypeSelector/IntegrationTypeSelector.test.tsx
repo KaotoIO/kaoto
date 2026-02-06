@@ -3,7 +3,7 @@ import { act, fireEvent, render } from '@testing-library/react';
 import { KaotoSchemaDefinition } from '../../../../models';
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { XmlCamelResourceSerializer } from '../../../../serializers';
-import { TestProvidersWrapper } from '../../../../stubs';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../stubs';
 import { IntegrationTypeSelector } from './IntegrationTypeSelector';
 
 describe('IntegrationTypeSelector.tsx', () => {
@@ -26,11 +26,14 @@ describe('IntegrationTypeSelector.tsx', () => {
   } as KaotoSchemaDefinition;
 
   it('should render all of the types', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelector />
+        </Provider>
+      </RuntimeProvider>,
     );
 
     const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
@@ -47,13 +50,16 @@ describe('IntegrationTypeSelector.tsx', () => {
   });
 
   it('should render only camel route when XML serializer is used', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper({
       camelResource: new CamelRouteResource(undefined, new XmlCamelResourceSerializer()),
     });
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelector />
+        </Provider>
+      </RuntimeProvider>,
     );
 
     const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
@@ -69,11 +75,14 @@ describe('IntegrationTypeSelector.tsx', () => {
   });
 
   it('should warn the user when adding a different type of flow', async () => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <IntegrationTypeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <IntegrationTypeSelector />
+        </Provider>
+      </RuntimeProvider>,
     );
 
     const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
