@@ -1,5 +1,6 @@
+@use './shared-mixins' as *;
+
 .document {
-  // Actions used by DocumentHeader component
   &__actions {
     flex: 1;
     display: flex;
@@ -13,17 +14,20 @@
 
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-button {
-      --pf-v6-c-button--PaddingLeft: 0.5rem;
-      --pf-v6-c-button--PaddingRight: 0.5rem;
+      @include header-button-style;
     }
 
-    /* Make input group expand like in BaseNode */
+    input,
+    .pf-v6-c-text-input {
+      @include header-input-style;
+    }
+
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-input-group {
       flex: 1;
+      height: var(--datamapper-header-control-size);
     }
 
-    /* Make ActionListItem with input group expand */
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-action-list__item {
       display: flex;
@@ -35,56 +39,47 @@
   }
 }
 
-// ============================================================================
-// ExpansionPanel-based architecture styles
-// ============================================================================
-
-// DocumentHeader - header component for ExpansionPanel summaries
 .document-header {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  height: 2rem;
-
-  &__container {
-    // Container for click handling and node reference
-  }
+  height: var(--datamapper-panel-header-height, 2rem);
 
   &__title {
     display: flex;
     align-items: center;
-    min-width: 0; // Allow text truncation if needed
+    min-width: 0;
     margin: 0 var(--pf-t--global--spacer--sm);
 
-    // Remove default title margins
     h5 {
       margin: 0;
     }
   }
 
-  // Drag handle styling when inside NodeContainer
   /* stylelint-disable-next-line selector-class-pattern */
   .node__spacer {
     margin: 0 var(--pf-t--global--spacer--sm);
+    display: flex;
+    align-items: center;
 
     svg {
       display: block;
+      width: var(--datamapper-header-icon-size);
+      height: var(--datamapper-header-icon-size);
     }
   }
 }
 
-// DocumentContent - content component for ExpansionPanel children
 .document-content {
   display: flex;
   flex-direction: column;
 }
 
-// ParametersHeader - header for the Parameters section
 .parameters-header {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
-  height: 2rem;
+  height: var(--datamapper-panel-header-height, 2rem);
 
   &__title {
     margin: 0 var(--pf-t--global--spacer--sm);
@@ -103,18 +98,31 @@
 
     /* stylelint-disable-next-line selector-class-pattern */
     .pf-v6-c-button {
-      --pf-v6-c-button--PaddingLeft: 0.5rem;
-      --pf-v6-c-button--PaddingRight: 0.5rem;
+      @include header-button-style;
+    }
 
-      height: 1.75rem;
+    input,
+    .pf-v6-c-text-input {
+      @include header-input-style;
     }
   }
 }
 
-// Input placeholder for adding/renaming parameters
 .parameters-input-placeholder {
   flex-shrink: 0;
   padding: var(--pf-t--global--spacer--sm);
   background: var(--pf-t--global--background--color--secondary);
   border-bottom: 1px solid var(--pf-t--color--gray--10);
+}
+
+.panel-header-text {
+  font-size: var(--datamapper-panel-header-font-size);
+  font-weight: var(--pf-t--global--font--weight--200);
+  font-family: var(--pf-t--global--font--family--heading);
+  font-style: normal;
+  margin: 0;
+
+  &--parameter {
+    font-style: italic;
+  }
 }

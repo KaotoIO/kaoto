@@ -1,9 +1,9 @@
 import './Parameters.scss';
 import './BaseDocument.scss';
 
-import { ActionList, ActionListItem, Button, Icon, Title } from '@patternfly/react-core';
+import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
@@ -11,6 +11,13 @@ import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
+import {
+  PANEL_COLLAPSED_HEIGHT,
+  PANEL_DEFAULT_HEIGHT,
+  PANEL_INPUT_HEIGHT,
+  PANEL_INPUT_MIN_HEIGHT,
+  PANEL_MIN_HEIGHT,
+} from '../ExpansionPanels/panel-dimensions';
 import { DeleteParameterButton } from './actions/DeleteParameterButton';
 import { RenameParameterButton } from './actions/RenameParameterButton';
 import { DocumentContent, DocumentHeader } from './BaseDocument';
@@ -21,6 +28,7 @@ type ParametersSectionProps = {
   isReadOnly: boolean;
   onScroll: () => void;
   onLayoutChange?: () => void;
+  actionItems?: React.ReactNode[];
 };
 
 type ParametersHeaderProps = {
@@ -28,41 +36,25 @@ type ParametersHeaderProps = {
   onAddParameter: () => void;
   showParameters: boolean;
   onToggleParameters: () => void;
+  actionItems?: React.ReactNode[];
 };
 
 /**
  * ParametersHeader - Simple header for the Parameters section
- * Shows "Parameters" title + Add button + Show/Hide toggle
+ * Shows "Parameters" title + Add/Eye buttons (when not readonly) + custom action items
  */
 export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   isReadOnly,
   onAddParameter,
   showParameters,
   onToggleParameters,
-}) => {
-  const handleAddClick = useCallback(
-    (event: MouseEvent) => {
-      event.stopPropagation(); // Prevent panel expansion when clicking add
-      onAddParameter();
-    },
-    [onAddParameter],
-  );
-
-  const handleToggleClick = useCallback(
-    (event: MouseEvent) => {
-      event.stopPropagation(); // Prevent panel expansion when clicking toggle
-      onToggleParameters();
-    },
-    [onToggleParameters],
-  );
-
-  return (
-    <div className="parameters-header" data-testid="source-parameters-header">
-      <Title headingLevel="h5" className="parameters-header__title">
-        Parameters
-      </Title>
+  actionItems,
+}) => (
+  <div className="parameters-header" data-testid="source-parameters-header">
+    <span className="parameters-header__title panel-header-text">Parameters</span>
+    <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
-        <ActionList isIconList className="parameters-header__actions">
+        <>
           <ActionListItem>
             <Button
               icon={<PlusIcon />}
@@ -70,7 +62,10 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
               title="Add parameter"
               aria-label="Add parameter"
               data-testid="add-parameter-button"
-              onClick={handleAddClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddParameter();
+              }}
             />
           </ActionListItem>
           <ActionListItem>
@@ -79,15 +74,22 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
               title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
               aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
               data-testid="toggle-parameters-button"
-              onClick={handleToggleClick}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleParameters();
+              }}
               icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
             />
           </ActionListItem>
-        </ActionList>
+          <Divider orientation={{ default: 'vertical' }} />
+        </>
       )}
-    </div>
-  );
-};
+      {actionItems?.map((item, index) => (
+        <ActionListItem key={index}>{item}</ActionListItem>
+      ))}
+    </ActionList>
+  </div>
+);
 
 type ParameterPanelProps = {
   documentId: string;
@@ -161,8 +163,8 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
     <ExpansionPanel
       id={`parameter-${documentId}`}
       defaultExpanded={hasSchema}
-      defaultHeight={hasSchema ? 300 : 40}
-      minHeight={40}
+      defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
+      minHeight={PANEL_MIN_HEIGHT}
       summary={
         isRenaming ? (
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
@@ -174,11 +176,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
               </Icon>
             )}
             <DocumentHeader
-              header={
-                <Title headingLevel="h5" className="parameter-title-italic">
-                  {parameterName}
-                </Title>
-              }
+              header={<span className="panel-header-text panel-header-text--parameter">{parameterName}</span>}
               document={document}
               documentType={DocumentType.PARAM}
               isReadOnly={isReadOnly}
@@ -222,6 +220,7 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
   isReadOnly,
   onScroll,
   onLayoutChange,
+  actionItems,
 }) => {
   const { sourceParameterMap } = useDataMapper();
 
@@ -273,11 +272,12 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
             onAddParameter={handleAddParameter}
             showParameters={showParameters}
             onToggleParameters={handleToggleParameters}
+            actionItems={actionItems}
           />
         }
         defaultExpanded={false}
-        defaultHeight={40}
-        minHeight={40}
+        defaultHeight={PANEL_COLLAPSED_HEIGHT}
+        minHeight={PANEL_MIN_HEIGHT}
         onScroll={onScroll}
         onLayoutChange={onLayoutChange}
       >
@@ -293,8 +293,8 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
               id="new-parameter-input"
               summary={<ParameterInputPlaceholder onComplete={handleCompleteAddParameter} />}
               defaultExpanded={false}
-              defaultHeight={230} // Fixed height to accommodate input + error messages
-              minHeight={140}
+              defaultHeight={PANEL_INPUT_HEIGHT} // Fixed height to accommodate input + error messages
+              minHeight={PANEL_INPUT_MIN_HEIGHT}
               onScroll={onScroll}
               onLayoutChange={onLayoutChange}
             >

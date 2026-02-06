@@ -5,7 +5,8 @@
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
-    height: 2rem;
+    height: var(--datamapper-node-row-height, 2rem);
+    font-size: var(--datamapper-node-font-size, 0.875rem);
 
     // Rank-based indentation - expand icon + margins = ~1.5rem per level
     margin-left: calc(var(--node-rank, 0) * 0.85rem);
@@ -25,7 +26,7 @@
     // stylelint-disable-next-line selector-class-pattern
     .pf-v6-c-action-list__item,
     .pf-v6-c-input-group {
-      height: 1.75rem;
+      height: var(--datamapper-input-height, 1.75rem);
     }
 
     .pf-v6-c-input-group {
@@ -36,7 +37,8 @@
     button,
     .pf-v6-c-text-input,
     .pf-v6-c-button {
-      height: 1.75rem;
+      height: var(--datamapper-input-height, 1.75rem);
+      font-size: var(--datamapper-node-font-size, 0.875rem);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -51,6 +53,11 @@
 
   &__expand {
     left: var(--pf-t--global--spacer--sm);
+
+    svg {
+      width: calc(1rem * var(--datamapper-scale-factor, 1));
+      height: calc(1rem * var(--datamapper-scale-factor, 1));
+    }
   }
 
   &__spacer {
@@ -58,6 +65,8 @@
 
     svg {
       display: block;
+      width: calc(1rem * var(--datamapper-scale-factor, 1));
+      height: calc(1rem * var(--datamapper-scale-factor, 1));
     }
   }
 }

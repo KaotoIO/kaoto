@@ -97,7 +97,9 @@ describe('ParametersSection', () => {
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1::' } });
     });
-    expect(screen.getByTestId('new-parameter-helper-text-invalid')).toBeInTheDocument();
+    const invalidError = screen.getByTestId('new-parameter-name-input-error');
+    expect(invalidError).toBeInTheDocument();
+    expect(invalidError).toHaveTextContent("Invalid parameter name 'testparam1::': it must be a valid QName");
     let submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
     act(() => {
@@ -114,7 +116,9 @@ describe('ParametersSection', () => {
     act(() => {
       fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });
     });
-    expect(screen.getByTestId('new-parameter-helper-text-duplicate')).toBeInTheDocument();
+    const duplicateError = screen.getByTestId('new-parameter-name-input-error');
+    expect(duplicateError).toBeInTheDocument();
+    expect(duplicateError).toHaveTextContent("Parameter 'testparam1' already exists");
     submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
   });

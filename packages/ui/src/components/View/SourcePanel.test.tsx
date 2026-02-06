@@ -24,7 +24,7 @@ describe('SourcePanel', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <SourcePanel></SourcePanel>
+          <SourcePanel />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
@@ -36,7 +36,7 @@ describe('SourcePanel', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <SourcePanel isReadOnly={true}></SourcePanel>
+          <SourcePanel isReadOnly />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );
@@ -50,7 +50,7 @@ describe('SourcePanel', () => {
     render(
       <DataMapperProvider>
         <DataMapperCanvasProvider>
-          <SourcePanel></SourcePanel>
+          <SourcePanel />
         </DataMapperCanvasProvider>
       </DataMapperProvider>,
     );

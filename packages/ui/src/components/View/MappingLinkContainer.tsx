@@ -10,7 +10,7 @@ import { MappingLink } from './MappingLink';
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
-  const { getNodeReference, nodeReferenceVersion } = useCanvas();
+  const { getNodeReference, nodeReferenceVersion, reloadNodeReferences } = useCanvas();
   const { getMappingLinks } = useMappingLinks();
   const svgRef = useRef<SVGSVGElement | null>(null);
   const isInitialRenderRef = useRef(true);
@@ -22,6 +22,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
   }, [getMappingLinks, getNodeReference]);
 
   // Refresh when node references change (via version counter)
+  // Scroll events are throttled at canvas provider level
+  // Layout changes (expand/collapse/add/remove) update immediately
   useEffect(() => {
     // On initial render, wait for ExpansionPanels grid layout to settle (CSS transition + layout)
     // This ensures mapping lines are clamped to correct container bounds
@@ -34,21 +36,20 @@ export const MappingLinksContainer: FunctionComponent = () => {
         });
       });
     } else {
-      // Subsequent updates - calculate immediately
+      // Subsequent updates - calculate immediately (user-initiated actions and throttled scroll)
       refreshLinks();
     }
   }, [refreshLinks, nodeReferenceVersion]);
 
-  // Refresh on window events
+  // Refresh on window resize - triggers immediate layout update
   useEffect(() => {
-    window.addEventListener('resize', refreshLinks);
-    window.addEventListener('scroll', refreshLinks);
+    const handleResize = () => reloadNodeReferences();
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('resize', refreshLinks);
-      window.removeEventListener('scroll', refreshLinks);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [refreshLinks]);
+  }, [reloadNodeReferences]);
 
   return (
     <svg className="mapping-links-container" ref={svgRef} data-testid="mapping-links">
