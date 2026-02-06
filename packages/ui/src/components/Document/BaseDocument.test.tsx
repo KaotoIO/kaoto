@@ -2,7 +2,13 @@ import { render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
-import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  PrimitiveDocument,
+} from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
@@ -20,7 +26,9 @@ describe('DocumentHeader', () => {
   );
 
   it('should render with enableDnD=false (default)', () => {
-    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
 
     render(
       <DocumentHeader
@@ -38,7 +46,9 @@ describe('DocumentHeader', () => {
   });
 
   it('should render with enableDnD=true', () => {
-    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
 
     const { container } = render(
       <DocumentHeader
@@ -58,7 +68,9 @@ describe('DocumentHeader', () => {
   });
 
   it('should render attach/detach schema buttons when not read-only', () => {
-    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
 
     render(
       <DocumentHeader
@@ -75,7 +87,9 @@ describe('DocumentHeader', () => {
   });
 
   it('should register node reference with accessible containerRef', () => {
-    const document = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     let capturedContainerRef: HTMLDivElement | null = null;
 
     // Helper component to access canvas context

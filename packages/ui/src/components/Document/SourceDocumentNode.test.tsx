@@ -1,7 +1,13 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  PrimitiveDocument,
+} from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
@@ -72,7 +78,9 @@ describe('SourceDocumentNode', () => {
   });
 
   it('should render a primitive document node', () => {
-    const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
@@ -174,7 +182,9 @@ describe('SourceDocumentNode', () => {
   });
 
   it('should render with draggable indicator for primitive document nodes', () => {
-    const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
@@ -206,7 +216,9 @@ describe('SourceDocumentNode', () => {
   });
 
   it('should render correct test-id when selected', () => {
-    const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const document = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(document);
     const tree = new DocumentTree(documentNodeData);
 
@@ -395,7 +407,9 @@ describe('SourceDocumentNode', () => {
 
   describe('Selection', () => {
     it('should render as selected when node is in selected mapping', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
@@ -419,7 +433,9 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should apply selected-container class when selected', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
@@ -445,7 +461,9 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should call toggleSelectedNodeReference when clicking field', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
@@ -504,7 +522,9 @@ describe('SourceDocumentNode', () => {
 
   describe('Node Reference', () => {
     it('should register node reference with correct path', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
@@ -521,7 +541,9 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should update node reference when changed', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
@@ -706,7 +728,9 @@ describe('SourceDocumentNode', () => {
     });
 
     it('should stop propagation on field click', () => {
-      const document = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 

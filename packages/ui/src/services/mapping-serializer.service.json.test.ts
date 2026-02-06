@@ -37,7 +37,9 @@ describe('MappingSerializerService / JSON', () => {
   const cartDocResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
   expect(cartDocResult.validationStatus).toBe('success');
   const cartParamDoc = cartDocResult.document!;
-  const orderSequenceParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
+  const orderSequenceParamDoc = new PrimitiveDocument(
+    new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'OrderSequence'),
+  );
   const sourceParameterMap = new Map<string, IDocument>([
     ['OrderSequence', orderSequenceParamDoc],
     ['Account', accountParamDoc],
@@ -46,7 +48,7 @@ describe('MappingSerializerService / JSON', () => {
   const targetDefinition = new DocumentDefinition(
     DocumentType.TARGET_BODY,
     DocumentDefinitionType.JSON_SCHEMA,
-    undefined,
+    BODY_DOCUMENT_ID,
     { 'ShipOrder.json': shipOrderJsonSchema },
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);

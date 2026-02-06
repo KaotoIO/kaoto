@@ -1,5 +1,11 @@
 import { PathExpression, PathSegment } from '../../models/datamapper';
-import { DocumentDefinition, DocumentDefinitionType, DocumentType, IDocument } from '../../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+} from '../../models/datamapper/document';
 import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
 import { cartXsd, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../xml-schema-document.service';
@@ -750,7 +756,7 @@ describe('XPathService', () => {
       const bodyDefinition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         { 'shipOrder.xsd': shipOrderXsd },
       );
       bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(bodyDefinition).document!;

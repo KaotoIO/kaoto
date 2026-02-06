@@ -89,8 +89,7 @@ export class DocumentService {
     documentId: string,
   ): CreateDocumentResult {
     const definition = new DocumentDefinition(documentType, schemaType, documentId);
-    const docId = documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
-    const doc = new PrimitiveDocument(definition.documentType, docId);
+    const doc = new PrimitiveDocument(definition);
     return { validationStatus: 'success', documentDefinition: definition, document: doc };
   }
 
@@ -117,10 +116,7 @@ export class DocumentService {
   private static doCreateDocumentFromDefinition(definition: DocumentDefinition): CreateDocumentResult {
     switch (definition.definitionType) {
       case DocumentDefinitionType.Primitive: {
-        const document = new PrimitiveDocument(
-          definition.documentType,
-          DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID,
-        );
+        const document = new PrimitiveDocument(definition);
         return {
           validationStatus: 'success',
           validationMessage: 'Schema validation successful',
@@ -159,17 +155,17 @@ export class DocumentService {
     };
     if (initModel.sourceBody) {
       const result = DocumentService.doCreateDocumentFromDefinition(initModel.sourceBody);
-      if (document) answer.sourceBodyDocument = result.document;
+      if (result.document) answer.sourceBodyDocument = result.document;
     }
     if (initModel.sourceParameters) {
       Object.entries(initModel.sourceParameters).forEach(([key, value]) => {
         const result = DocumentService.doCreateDocumentFromDefinition(value);
-        answer.sourceParameterMap.set(key, result.document ?? new PrimitiveDocument(DocumentType.PARAM, key));
+        answer.sourceParameterMap.set(key, result.document ?? new PrimitiveDocument(value));
       });
     }
     if (initModel.targetBody) {
       const result = DocumentService.doCreateDocumentFromDefinition(initModel.targetBody);
-      if (document) answer.targetBodyDocument = result.document;
+      if (result.document) answer.targetBodyDocument = result.document;
     }
     return answer;
   }
