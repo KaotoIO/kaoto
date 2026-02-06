@@ -92,7 +92,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getOmitFormFields(): string[] {
-    return this.getBaseEntity()?.getOmitFormFields() ?? [];
+    return this.getBaseEntity()?.getOmitFormFields(this.data.path) ?? [];
   }
 
   updateModel(value: unknown): void {

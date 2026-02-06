@@ -24,6 +24,8 @@ import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './sup
 import { ModelValidationService } from './support/validators/model-validation.service';
 
 export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
+  private readonly baseFields = ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
+
   constructor(public entityDef: T) {}
 
   abstract id: string;
@@ -108,8 +110,16 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return updatedDefinition;
   }
 
-  getOmitFormFields(): string[] {
-    return ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
+  getOmitFormFields(path?: string): string[] {
+    const nodeDefinition = this.getNodeDefinition(path);
+    if (
+      nodeDefinition &&
+      typeof nodeDefinition === 'object' &&
+      (('uri' in nodeDefinition && nodeDefinition.uri === '') || !('uri' in nodeDefinition))
+    ) {
+      return this.baseFields.filter((val) => val !== 'uri');
+    }
+    return this.baseFields;
   }
 
   updateModel(path: string | undefined, value: unknown): void {

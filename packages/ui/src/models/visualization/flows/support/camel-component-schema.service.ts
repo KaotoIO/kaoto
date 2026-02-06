@@ -1,5 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
+import { JSONSchema4 } from 'json-schema';
 import { cloneDeep } from 'lodash';
 
 import { CamelUriHelper, DATAMAPPER_ID_PREFIX, getValue, isDataMapperNode, ParsedParameters } from '../../../../utils';
@@ -370,31 +371,52 @@ export class CamelComponentSchemaService {
     }
     schema = cloneDeep(processorDefinition.propertiesSchema);
 
+    let actualComponentProperties: JSONSchema4 | undefined = undefined;
+    let requiredParams = undefined;
+
     if (camelElementLookup.componentName !== undefined) {
       const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      const componentSchema: KaotoSchemaDefinition['schema'] =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
+      const componentSchema =
+        catalogLookup?.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
 
       // Filter out producer/consumer properties depending upon the endpoint usage
-      const actualComponentProperties = Object.fromEntries(
-        Object.entries(componentSchema.properties ?? {}).filter((property) => {
-          if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
-            return !property[1].$comment?.includes('producer');
-          } else {
-            return !property[1].$comment?.includes('consumer');
-          }
-        }),
-      );
+      if (catalogLookup?.definition !== undefined && componentSchema !== undefined) {
+        actualComponentProperties = Object.fromEntries(
+          Object.entries(componentSchema.properties ?? {}).filter((property) => {
+            if (camelElementLookup.processorName === ('from' as keyof ProcessorDefinition)) {
+              return !property[1].$comment?.includes('producer');
+            } else {
+              return !property[1].$comment?.includes('consumer');
+            }
+          }),
+        );
 
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        schema.properties!.parameters = {
-          type: 'object',
-          title: 'Endpoint Properties',
-          description: 'Endpoint properties description',
-          properties: actualComponentProperties,
-          required: componentSchema.required,
-        };
+        if (componentSchema.required) {
+          requiredParams = componentSchema.required;
+        }
       }
+    }
+
+    if (actualComponentProperties === undefined && schema.properties !== undefined && 'uri' in schema.properties) {
+      actualComponentProperties = {
+        additionalProperties: {
+          $comment: 'group:common',
+          description:
+            'Additional properties for custom components, the properties have to be prefixed with additionalProperties.. E.g: additionalProperties.transactional.id=12345&additionalProperties.schema.registry.url=http://localhost:8811/avro. This is a multi-value option with prefix: additionalProperties.',
+          title: 'Additional Properties',
+          type: 'object',
+        } as JSONSchema4,
+      };
+    }
+
+    if (actualComponentProperties !== undefined) {
+      schema.properties!.parameters = {
+        type: 'object',
+        title: 'Endpoint Properties',
+        description: 'Endpoint properties description',
+        properties: actualComponentProperties,
+        required: requiredParams,
+      };
     }
 
     return schema;

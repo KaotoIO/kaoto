@@ -602,4 +602,30 @@ describe('AbstractCamelVisualEntity', () => {
       expect(updatedChoiceNode?.data.isGroup).toBe(false);
     });
   });
+
+  describe('getOmitFormFields', () => {
+    it('should return base fields with "uri" when node type is not an object', () => {
+      const result = abstractVisualEntity.getOmitFormFields('');
+      expect(result).toEqual(['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri']);
+    });
+    it('should return base fields without "uri" when node type is an empty object', () => {
+      abstractVisualEntity.updateModel('route.from.steps.0.hola', {});
+      const result = abstractVisualEntity.getOmitFormFields('route.from.steps.0.hola');
+      expect(result).toEqual(['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally']);
+    });
+    it('should return base fields with "uri" when node definition does not have uri property', () => {
+      const result = abstractVisualEntity.getOmitFormFields('route.from.steps.0.log');
+      expect(result).toEqual(['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri']);
+    });
+    it('should return base fields without "uri" when node definition has uri property and it is empty', () => {
+      abstractVisualEntity.updateModel('route.from.steps.0.toD', { uri: '' });
+      const result = abstractVisualEntity.getOmitFormFields('route.from.steps.0.toD');
+      expect(result).toEqual(['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally']);
+    });
+    it('should return base fields with "uri" when node definition has uri property but it is filled', () => {
+      abstractVisualEntity.updateModel('route.from.steps.0.hola', { uri: 'hola' });
+      const result = abstractVisualEntity.getOmitFormFields('route.from.steps.0.hola');
+      expect(result).toEqual(['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri']);
+    });
+  });
 });

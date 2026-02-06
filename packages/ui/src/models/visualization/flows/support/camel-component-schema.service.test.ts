@@ -130,6 +130,28 @@ describe('CamelComponentSchemaService', () => {
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-not-secured-sink');
       expect(result).toMatchSnapshot();
     });
+
+    it('should enable endpoint properties when component name is defined but the schema is not included in the camel catalogue', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const result = CamelComponentSchemaService.getSchema({
+        processorName: 'to' as keyof ProcessorDefinition,
+        componentName: 'custom',
+      });
+      const additionalProperties = result.properties?.parameters.properties?.additionalProperties;
+      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Component, 'custom');
+      expect(additionalProperties?.title).toBeDefined();
+    });
+
+    it('should enable endpoint properties when component name is undefined and uri is undefined', () => {
+      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const result = CamelComponentSchemaService.getSchema({
+        processorName: 'to' as keyof ProcessorDefinition,
+        componentName: undefined,
+      });
+      const additionalProperties = result.properties?.parameters.properties?.additionalProperties;
+      expect(camelCatalogServiceSpy).toHaveBeenCalledTimes(1);
+      expect(additionalProperties?.title).toBeDefined();
+    });
   });
 
   describe('getUpdatedDefinition', () => {
