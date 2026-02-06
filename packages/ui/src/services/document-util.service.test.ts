@@ -12,7 +12,7 @@ import { camelSpringXsd, lazyLoadingTestXsd, TestUtil } from '../stubs/datamappe
 import { DocumentUtilService } from './document-util.service';
 import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
-import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 describe('DocumentUtilService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -161,7 +161,7 @@ describe('DocumentUtilService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
 
-      DocumentUtilService.applyFieldTypeOverrides(doc, [], {}, XmlSchemaDocumentUtilService.parseTypeOverride);
+      DocumentUtilService.applyFieldTypeOverrides(doc, [], {}, XmlSchemaTypesService.parseTypeOverride);
 
       expect(orderPerson?.type).toBe(Types.String);
       expect(orderPerson?.typeOverride).toBe(TypeOverrideVariant.NONE);
@@ -183,7 +183,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
@@ -207,7 +207,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo');
@@ -239,7 +239,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
@@ -266,7 +266,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
@@ -307,7 +307,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const companyAfterOverride = doc.fields[0].fields.find((f) => f.name === 'Company');
@@ -344,7 +344,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const personAfterOverride = doc.fields[0].fields.find((f) => f.name === 'Person');
@@ -393,7 +393,7 @@ describe('DocumentUtilService', () => {
         doc,
         overrides,
         namespaceMap,
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
 
       const personAfterOverride = doc.fields[0].fields.find((f) => f.name === 'Person');
