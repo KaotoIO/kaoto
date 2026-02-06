@@ -123,7 +123,7 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
   });
 
-  describe('applyFieldTypeOverrides()', () => {
+  describe('processTypeOverrides()', () => {
     it('should apply type override to top-level JSON field', () => {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'account', {
         'account.json': accountJsonSchema,
@@ -141,12 +141,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        JsonSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, JsonSchemaTypesService.parseTypeOverride);
 
       const accountIdField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'AccountId');
       expect(accountIdField?.type).toBe(Types.Numeric);
@@ -170,12 +165,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        JsonSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, JsonSchemaTypesService.parseTypeOverride);
 
       const addressField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'Address');
       const cityField = addressField?.fields.find((f) => 'key' in f && f.key === 'City');
@@ -215,12 +205,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        JsonSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, JsonSchemaTypesService.parseTypeOverride);
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');
       expect(topLevelFoo?.type).toBe(Types.String);
@@ -264,12 +249,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        JsonSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, JsonSchemaTypesService.parseTypeOverride);
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');
       expect(topLevelFoo?.type).toBe(Types.Boolean);

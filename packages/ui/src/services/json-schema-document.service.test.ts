@@ -812,5 +812,23 @@ describe('JsonSchemaDocumentService', () => {
       expect(collection.getJsonSchema('http://example.com/schemas/common-types.json')).toBeDefined();
       expect(collection.getJsonSchema('http://example.com/schemas/customer.json')).toBeDefined();
     });
+
+    it('should return empty namespace map when adding JSON schemas', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'test.json': '{"type": "object"}' },
+      );
+
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      const document = result.document as JsonSchemaDocument;
+
+      const updatedNamespaceMap = JsonSchemaDocumentService.addSchemaFiles(document, {
+        'additional.json': '{"type": "object", "properties": {"field": {"type": "string"}}}',
+      });
+
+      expect(updatedNamespaceMap).toEqual({});
+    });
   });
 });

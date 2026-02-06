@@ -156,12 +156,12 @@ describe('DocumentUtilService', () => {
     });
   });
 
-  describe('applyFieldTypeOverrides()', () => {
+  describe('processTypeOverrides()', () => {
     it('should not modify document when no overrides provided', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
 
-      DocumentUtilService.applyFieldTypeOverrides(doc, [], {}, XmlSchemaTypesService.parseTypeOverride);
+      DocumentUtilService.processTypeOverrides(doc, [], {}, XmlSchemaTypesService.parseTypeOverride);
 
       expect(orderPerson?.type).toBe(Types.String);
       expect(orderPerson?.typeOverride).toBe(TypeOverrideVariant.NONE);
@@ -179,12 +179,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       expect(orderPerson?.type).toBe(Types.Integer);
@@ -203,12 +198,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo');
       const city = shipTo?.fields.find((f) => f.name === 'City');
@@ -235,12 +225,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       expect(orderPerson?.type).toBe(Types.Integer);
@@ -262,12 +247,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       expect(orderPerson?.type).toBe(Types.Container);
@@ -303,12 +283,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const companyAfterOverride = doc.fields[0].fields.find((f) => f.name === 'Company');
       expect(companyAfterOverride?.namedTypeFragmentRefs).toHaveLength(1);
@@ -340,12 +315,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const personAfterOverride = doc.fields[0].fields.find((f) => f.name === 'Person');
       expect(personAfterOverride?.namedTypeFragmentRefs).toHaveLength(0);
@@ -389,12 +359,7 @@ describe('DocumentUtilService', () => {
         },
       ];
 
-      DocumentUtilService.applyFieldTypeOverrides(
-        doc,
-        overrides,
-        namespaceMap,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
       const personAfterOverride = doc.fields[0].fields.find((f) => f.name === 'Person');
       const nameField = personAfterOverride?.fields.find((f) => f.name === 'Name');

@@ -828,4 +828,104 @@ describe('DataMapperProvider', () => {
       expect(result.current!.targetBodyDocument.definitionType).toEqual(DocumentDefinitionType.Primitive);
     });
   });
+
+  describe('Namespace synchronization', () => {
+    it('should call onUpdateNamespaceMap when refreshMappingTree is called', async () => {
+      const mockOnUpdateNamespaceMap = jest.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateNamespaceMap={mockOnUpdateNamespaceMap}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+
+      expect(mockOnUpdateNamespaceMap).toHaveBeenCalled();
+      const namespaceMap = mockOnUpdateNamespaceMap.mock.calls[0][0];
+      expect(namespaceMap).toBeDefined();
+      expect(namespaceMap['fn']).toBe('http://www.w3.org/2005/xpath-functions');
+      expect(namespaceMap['xs']).toBe('http://www.w3.org/2001/XMLSchema');
+      expect(namespaceMap['xsl']).toBe('http://www.w3.org/1999/XSL/Transform');
+    });
+
+    it('should call onUpdateNamespaceMap when resetMappingTree is called', async () => {
+      const mockOnUpdateNamespaceMap = jest.fn();
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateNamespaceMap={mockOnUpdateNamespaceMap}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.resetMappingTree();
+      });
+
+      expect(mockOnUpdateNamespaceMap).toHaveBeenCalled();
+      const namespaceMap = mockOnUpdateNamespaceMap.mock.calls[0][0];
+      expect(namespaceMap).toBeDefined();
+      expect(namespaceMap['fn']).toBe('http://www.w3.org/2005/xpath-functions');
+      expect(namespaceMap['xs']).toBe('http://www.w3.org/2001/XMLSchema');
+      expect(namespaceMap['xsl']).toBe('http://www.w3.org/1999/XSL/Transform');
+    });
+
+    it('should initialize namespace map from DocumentInitializationModel on load', async () => {
+      const sourceDocDef = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'Body',
+        {},
+      );
+
+      const targetDocDef = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.Primitive,
+        'Body',
+        {},
+      );
+
+      const documentInitializationModel = new DocumentInitializationModel({}, sourceDocDef, targetDocDef);
+      documentInitializationModel.namespaceMap = {
+        tns: 'http://example.com/test',
+        custom: 'http://example.com/custom',
+      };
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider documentInitializationModel={documentInitializationModel}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current!.mappingTree.namespaceMap['tns']).toBe('http://example.com/test');
+        expect(result.current!.mappingTree.namespaceMap['custom']).toBe('http://example.com/custom');
+        expect(result.current!.mappingTree.namespaceMap['fn']).toBe('http://www.w3.org/2005/xpath-functions');
+        expect(result.current!.mappingTree.namespaceMap['xs']).toBe('http://www.w3.org/2001/XMLSchema');
+        expect(result.current!.mappingTree.namespaceMap['xsl']).toBe('http://www.w3.org/1999/XSL/Transform');
+      });
+    });
+
+    it('should not call onUpdateNamespaceMap when not provided', async () => {
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      expect(() => {
+        act(() => {
+          result.current.refreshMappingTree();
+        });
+      }).not.toThrow();
+
+      expect(() => {
+        act(() => {
+          result.current.resetMappingTree();
+        });
+      }).not.toThrow();
+    });
+  });
 });
