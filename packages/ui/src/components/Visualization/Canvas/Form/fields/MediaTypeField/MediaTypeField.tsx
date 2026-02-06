@@ -13,8 +13,7 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, KeyboardEvent, MouseEvent, Ref, useCallback, useContext, useMemo, useState } from 'react';
 
-import { useLocalStorage } from '../../../../../../hooks/local-storage.hook';
-import { LocalStorageKeys } from '../../../../../../models/local-storage-keys';
+import { SettingsContext } from '../../../../../../providers/settings.provider';
 
 const COMMON_MEDIA_TYPES = [
   'application/json',
@@ -68,7 +67,11 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
   const { value, onChange, disabled } = useFieldValue<string | undefined>(propName);
   const [isOpen, setIsOpen] = useState(false);
   const [customValue, setCustomValue] = useState('');
-  const [storedMediaTypes, setStoredMediaTypes] = useLocalStorage<string[]>(LocalStorageKeys.MediaTypes, []);
+  const settingsAdapter = useContext(SettingsContext);
+  const settings = settingsAdapter.getSettings();
+  const storedMediaTypes = useMemo(() => {
+    return settings.rest.customMediaTypes;
+  }, [settings]);
 
   const selectedValues = useMemo(() => parseMediaTypes(value), [value]);
 
@@ -103,13 +106,20 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
     const nextValues = selectedValues.includes(trimmed) ? selectedValues : [...selectedValues, trimmed];
 
     if (nextStored !== storedMediaTypes) {
-      setStoredMediaTypes(nextStored);
+      const updatedSettings = {
+        ...settings,
+        rest: {
+          ...settings.rest,
+          customMediaTypes: nextStored,
+        },
+      };
+      settingsAdapter.saveSettings(updatedSettings);
     }
     if (nextValues !== selectedValues) {
       onChange(nextValues.join(', '));
     }
     setCustomValue('');
-  }, [customValue, onChange, selectedValues, setStoredMediaTypes, storedMediaTypes]);
+  }, [customValue, onChange, selectedValues, storedMediaTypes, settings, settingsAdapter]);
 
   const onCustomKeyDown = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {

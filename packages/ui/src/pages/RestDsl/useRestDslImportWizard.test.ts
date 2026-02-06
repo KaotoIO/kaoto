@@ -347,7 +347,7 @@ describe('useRestDslImportWizard', () => {
         SettingsContext.Provider,
         {
           value: {
-            getSettings: () => ({ apicurioRegistryUrl: '' }),
+            getSettings: () => ({ rest: { apicurioRegistryUrl: '', customMediaTypes: [] } }),
           } as never,
         },
         createElement(

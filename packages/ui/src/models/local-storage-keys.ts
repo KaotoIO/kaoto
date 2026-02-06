@@ -7,5 +7,4 @@ export const enum LocalStorageKeys {
   NavigationExpanded = 'navigationExpanded',
   SelectedCatalog = 'selectedCatalog',
   Settings = 'settings',
-  MediaTypes = 'mediaTypes',
 }

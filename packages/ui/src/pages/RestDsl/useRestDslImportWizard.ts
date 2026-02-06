@@ -254,7 +254,7 @@ export const useRestDslImportWizard = ({ isActive }: UseRestDslImportWizardArgs)
   const entitiesContext = useContext(EntitiesContext);
   const settingsAdapter = useContext(SettingsContext);
   const sourceCode = useContext(SourceCodeContext);
-  const apicurioRegistryUrl = settingsAdapter.getSettings().apicurioRegistryUrl;
+  const apicurioRegistryUrl = settingsAdapter.getSettings().rest.apicurioRegistryUrl;
 
   const [importOperations, setImportOperations] = useState<ImportOperation[]>([]);
   const [openApiLoadSource, setOpenApiLoadSource] = useState<ImportLoadSource>(undefined);
