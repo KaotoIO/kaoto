@@ -69,7 +69,7 @@ describe('DocumentUtilService', () => {
       const definition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         { 'camel-spring.xsd': camelSpringXsd },
         { namespaceUri: 'http://camel.apache.org/schema/spring', name: 'routes' },
       );

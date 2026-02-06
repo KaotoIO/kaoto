@@ -1,4 +1,5 @@
 import {
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IField,
@@ -157,7 +158,7 @@ describe('DocumentService', () => {
       );
       expect(result.validationStatus).toBe('success');
       expect(result.document instanceof PrimitiveDocument).toBeTruthy();
-      expect(result.document?.documentId).toEqual('Body');
+      expect(result.document?.documentId).toEqual('test');
       expect(result.documentDefinition).toBeDefined();
       expect(result.documentDefinition?.documentType).toBe(DocumentType.SOURCE_BODY);
       expect(result.documentDefinition?.definitionType).toBe(DocumentDefinitionType.Primitive);
@@ -388,7 +389,9 @@ describe('DocumentService', () => {
 
   describe('getRootElementQName()', () => {
     it('should return null for non-XML schema documents', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'test');
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test'),
+      );
       const qName = DocumentService.getRootElementQName(primitiveDoc);
       expect(qName).toBeNull();
     });
@@ -421,7 +424,9 @@ describe('DocumentService', () => {
 
   describe('updateRootElement()', () => {
     it('should return original document for non-XML schema documents', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'test');
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test'),
+      );
       const rootElementOption: RootElementOption = {
         name: 'Test',
         namespaceUri: 'http://test.com',
@@ -475,14 +480,14 @@ describe('DocumentService', () => {
         DocumentDefinitionType.Primitive,
         'sourceTest',
       );
-      expect(sourceResult.document?.documentId).toEqual('Body');
+      expect(sourceResult.document?.documentId).toEqual('sourceTest');
 
       const targetResult = DocumentService.createPrimitiveDocument(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.Primitive,
         'targetTest',
       );
-      expect(targetResult.document?.documentId).toEqual('Body');
+      expect(targetResult.document?.documentId).toEqual('targetTest');
 
       const paramResult = DocumentService.createPrimitiveDocument(
         DocumentType.PARAM,
@@ -517,7 +522,9 @@ describe('DocumentService', () => {
     };
 
     it('should rename a primitive document', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'test');
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test'),
+      );
 
       DocumentService.renameDocument(primitiveDoc, 'renamedTest');
       expect(primitiveDoc).toBeDefined();

@@ -41,11 +41,13 @@ describe('VisualizationService / JSON', () => {
   const cartResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
   expect(cartResult.validationStatus).toBe('success');
   const cartDoc = cartResult.document!;
-  const orderSequenceDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
+  const orderSequenceDoc = new PrimitiveDocument(
+    new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'OrderSequence'),
+  );
   const targetDefinition = new DocumentDefinition(
     DocumentType.TARGET_BODY,
     DocumentDefinitionType.JSON_SCHEMA,
-    undefined,
+    BODY_DOCUMENT_ID,
     { 'ShipOrder.json': shipOrderJsonSchema },
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
@@ -198,7 +200,7 @@ describe('VisualizationService / JSON', () => {
     const camelYamlDefinition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
       DocumentDefinitionType.JSON_SCHEMA,
-      undefined,
+      BODY_DOCUMENT_ID,
       { 'CamelYamlDsl.json': camelYamlDslJsonSchema },
     );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(camelYamlDefinition);

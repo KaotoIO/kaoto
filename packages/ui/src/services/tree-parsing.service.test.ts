@@ -1,4 +1,11 @@
-import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  PrimitiveDocument,
+} from '../models/datamapper/document';
 import { DocumentTree, INITIAL_PARSE_DEPTH } from '../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../models/datamapper/document-tree-node';
 import { DocumentNodeData, FieldNodeData } from '../models/datamapper/visualization';
@@ -40,7 +47,9 @@ describe('TreeParsingService', () => {
     });
 
     it('should stop parsing at primitive nodes regardless of depth', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const primitiveDocNode = new DocumentNodeData(primitiveDoc);
       const primitiveTree = new DocumentTree(primitiveDocNode);
 

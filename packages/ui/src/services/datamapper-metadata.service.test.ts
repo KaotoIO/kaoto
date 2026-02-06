@@ -443,7 +443,7 @@ describe('DataMapperMetadataService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         {
           'Order.schema.json': orderJsonSchema,
           'Customer.schema.json': customerJsonSchema,

@@ -10,7 +10,9 @@ import { JsonSchemaDocumentUtilService } from './json-schema-document-util.servi
 describe('DocumentUtilService - JSON Schema', () => {
   describe('adoptTypeFragment()', () => {
     it('should adopt type when fragment has type defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const fragment = {
@@ -25,7 +27,9 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt minOccurs when fragment has it defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const fragment = {
@@ -40,7 +44,9 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt maxOccurs when fragment has it defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const fragment = {
@@ -55,7 +61,9 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt all fields from fragment using JSON Schema adopt logic', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.Container);
 
       const fragmentField1 = new JsonSchemaField(doc, 'child1', Types.String);

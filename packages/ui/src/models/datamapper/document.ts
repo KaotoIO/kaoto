@@ -126,6 +126,8 @@ export interface IDocument {
   path: NodePath;
   /** Named type fragments (reusable type definitions) available in this document */
   namedTypeFragments: Record<string, ITypeFragment>;
+  /** The definition used to create this document */
+  definition: DocumentDefinition;
   /** Total count of all fields (including nested) in this document */
   totalFieldCount: number;
   /** Whether this document type uses namespaces */
@@ -152,20 +154,21 @@ export interface IDocument {
  * Provides common functionality for document operations.
  */
 export abstract class BaseDocument implements IDocument {
-  constructor(
-    public documentType: DocumentType,
-    public documentId: string,
-  ) {
-    this.path = NodePath.fromDocument(documentType, documentId);
-  }
-
+  documentType: DocumentType;
+  documentId: string;
+  path: NodePath;
   fields: IField[] = [];
   name: string = '';
   abstract definitionType: DocumentDefinitionType;
-  path: NodePath;
   namedTypeFragments: Record<string, ITypeFragment> = {};
   abstract totalFieldCount: number;
   abstract isNamespaceAware: boolean;
+
+  constructor(public definition: DocumentDefinition) {
+    this.documentType = definition.documentType;
+    this.documentId = definition.name;
+    this.path = NodePath.fromDocument(this.documentType, this.documentId);
+  }
 
   getReferenceId(_namespaceMap: { [p: string]: string }): string {
     return this.documentType === DocumentType.PARAM ? this.documentId : '';
@@ -181,12 +184,12 @@ export abstract class BaseDocument implements IDocument {
  * Used as a placeholder when no schema is provided.
  */
 export class PrimitiveDocument extends BaseDocument implements IField {
-  constructor(documentType: DocumentType, documentId: string) {
-    super(documentType, documentId);
-    this.name = this.documentId;
+  constructor(definition: DocumentDefinition) {
+    super(definition);
+    this.name = definition.name;
     this.displayName = this.name;
-    this.id = this.documentId;
-    this.path = NodePath.fromDocument(documentType, documentId);
+    this.id = definition.name;
+    this.path = NodePath.fromDocument(definition.documentType, definition.name);
   }
 
   definitionType: DocumentDefinitionType = DocumentDefinitionType.Primitive;
@@ -310,7 +313,7 @@ export class DocumentDefinition {
   constructor(
     public documentType: DocumentType,
     public definitionType: DocumentDefinitionType,
-    public name?: string,
+    public name: string,
     public definitionFiles?: Record<string, string>,
     public rootElementChoice?: RootElementOption,
     public fieldTypeOverrides?: IFieldTypeOverride[],
@@ -330,10 +333,12 @@ export class DocumentInitializationModel {
     public sourceBody: DocumentDefinition = {
       documentType: DocumentType.SOURCE_BODY,
       definitionType: DocumentDefinitionType.Primitive,
+      name: BODY_DOCUMENT_ID,
     },
     public targetBody: DocumentDefinition = {
       documentType: DocumentType.TARGET_BODY,
       definitionType: DocumentDefinitionType.Primitive,
+      name: BODY_DOCUMENT_ID,
     },
   ) {}
 }

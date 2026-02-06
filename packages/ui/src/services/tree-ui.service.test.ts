@@ -1,4 +1,10 @@
-import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  PrimitiveDocument,
+} from '../models/datamapper/document';
 import { DocumentTree } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../store/document-tree.store';
@@ -71,7 +77,9 @@ describe('TreeUIService', () => {
     });
 
     it('should create tree for primitive document', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const primitiveDocNode = new DocumentNodeData(primitiveDoc);
 
       const tree = TreeUIService.createTree(primitiveDocNode);
@@ -382,7 +390,9 @@ describe('TreeUIService', () => {
     });
 
     it('should handle primitive document tree', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const primitiveDocNode = new DocumentNodeData(primitiveDoc);
       const tree = TreeUIService.createTree(primitiveDocNode);
 

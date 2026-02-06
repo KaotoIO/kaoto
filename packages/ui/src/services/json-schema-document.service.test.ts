@@ -1,7 +1,7 @@
 import { JSONSchema7 } from 'json-schema';
 
 import { DocumentDefinition, DocumentDefinitionType, PathExpression, Types } from '../models/datamapper';
-import { DocumentType } from '../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType } from '../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
 import {
   accountJsonSchema,
@@ -20,7 +20,7 @@ function createTestJsonDocument(documentType: DocumentType, documentId: string, 
   const definition = new DocumentDefinition(
     documentType,
     DocumentDefinitionType.JSON_SCHEMA,
-    documentType === DocumentType.PARAM ? documentId : undefined,
+    documentType === DocumentType.PARAM ? documentId : BODY_DOCUMENT_ID,
     { [`${documentId}.json`]: content },
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
@@ -515,7 +515,7 @@ describe('JsonSchemaDocumentService', () => {
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
-      documentId: string | undefined,
+      documentId: string,
       schemas: Record<string, string>,
       rootElementChoice?: { namespaceUri: string; name: string },
     ): JsonSchemaDocument => {
@@ -677,7 +677,7 @@ describe('JsonSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'MainWithRef.schema.json': mainWithRefJsonSchema,
           'CommonTypes.schema.json': commonTypesJsonSchema,
@@ -706,7 +706,7 @@ describe('JsonSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'nested/Product.schema.json': productJsonSchema,
           'CommonTypes.schema.json': commonTypesJsonSchema,
@@ -735,7 +735,7 @@ describe('JsonSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'MainWithRef.schema.json': mainWithRefJsonSchema,
         },
@@ -752,7 +752,7 @@ describe('JsonSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'test.json': '{"type": "object", "properties": {"name": {"type": "string"}}}',
         },
@@ -780,7 +780,7 @@ describe('JsonSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'test.json': '{"type": "object"}',
         },
@@ -800,7 +800,7 @@ describe('JsonSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'test.json': '{"type": "object"}',
         },

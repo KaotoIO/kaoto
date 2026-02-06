@@ -4,6 +4,7 @@ import { parse } from 'yaml';
 
 import {
   BaseDocument,
+  BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
@@ -163,9 +164,14 @@ export const importedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/I
 
 export class TestUtil {
   static createSourceOrderDoc() {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'shipOrder.xsd': shipOrderXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'shipOrder.xsd': shipOrderXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
       throw new Error(result.validationMessage || 'Failed to create document');
@@ -174,9 +180,14 @@ export class TestUtil {
   }
 
   static createCamelSpringXsdSourceDoc() {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'camelSpring.xsd': camelSpringXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'camelSpring.xsd': camelSpringXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
       throw new Error(result.validationMessage || 'Failed to create document');
@@ -185,9 +196,14 @@ export class TestUtil {
   }
 
   static createTargetOrderDoc() {
-    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'shipOrder.xsd': shipOrderXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'shipOrder.xsd': shipOrderXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
       throw new Error(result.validationMessage || 'Failed to create document');
@@ -196,9 +212,14 @@ export class TestUtil {
   }
 
   static createJSONTargetOrderDoc() {
-    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, undefined, {
-      'shipOrder.json': shipOrderJsonSchema,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.JSON_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'shipOrder.json': shipOrderJsonSchema,
+      },
+    );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
       throw new Error(result.validationMessage || 'Failed to create document');
@@ -225,7 +246,9 @@ export class TestUtil {
 
   static createParameterMap() {
     const sourceParamDoc = TestUtil.createParamOrderDoc('sourceParam1');
-    const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
+    const sourcePrimitiveParamDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'primitive'),
+    );
     const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.XML_SCHEMA, cartXsd);
     return new Map<string, IDocument>([
       ['sourceParam1', sourceParamDoc],
@@ -235,7 +258,9 @@ export class TestUtil {
   }
 
   static createJSONParameterMap() {
-    const sourcePrimitiveParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'primitive');
+    const sourcePrimitiveParamDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'primitive'),
+    );
     const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
     const cart2ParamDoc = TestUtil.createParamOrderDoc('cart2', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
     return new Map<string, IDocument>([
@@ -246,16 +271,26 @@ export class TestUtil {
   }
 
   static createAdtInDoc() {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'ADT_IN.xsd': adtInXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'ADT_IN.xsd': adtInXsd,
+      },
+    );
     return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
 
   static createAdtOutDoc() {
-    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'ADT_OUT.xsd': adtOutXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'ADT_OUT.xsd': adtOutXsd,
+      },
+    );
     return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   }
 }
