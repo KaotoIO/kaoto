@@ -257,6 +257,17 @@ export class CamelComponentSchemaService {
   static getMultiValueSerializedDefinition(path: string, definition: any): ParsedParameters | undefined {
     const camelElementLookup = this.getCamelComponentLookup(path, definition);
     if (camelElementLookup.componentName === undefined) {
+      const processorSchema = this.getSchema(camelElementLookup);
+      const acceptsUri = processorSchema.properties !== undefined && 'uri' in processorSchema.properties;
+
+      if (acceptsUri && definition.parameters?.additionalProperties) {
+        const filteredParameters = { ...definition.parameters };
+        const additionalProps = filteredParameters.additionalProperties;
+        delete filteredParameters.additionalProperties;
+        Object.assign(filteredParameters, additionalProps);
+        return Object.assign({}, definition, { parameters: filteredParameters });
+      }
+
       return definition;
     }
 
@@ -284,6 +295,17 @@ export class CamelComponentSchemaService {
           }
         });
       }
+
+      if (
+        catalogLookup.catalogKind === CatalogKind.Component &&
+        catalogLookup.definition === undefined &&
+        definition.parameters?.additionalProperties
+      ) {
+        const additionalProps = definition.parameters.additionalProperties;
+        delete filteredParameters.additionalProperties;
+        Object.assign(filteredParameters, additionalProps);
+      }
+
       return Object.assign({}, definition, { parameters: { ...filteredParameters, ...defaultMultiValues } });
     }
     return definition;
@@ -500,6 +522,15 @@ export class CamelComponentSchemaService {
         if (value.multiValue) multiValueParameters.set(key, value.prefix!);
       });
     }
+
+    if (catalogLookup === undefined || catalogLookup.definition === undefined) {
+      if (definition.parameters && Object.keys(definition.parameters).length > 0) {
+        const additionalProps = { ...definition.parameters };
+        definition.parameters = { additionalProperties: additionalProps };
+      }
+      return;
+    }
+
     if (multiValueParameters.size > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const parameters: any = {};
