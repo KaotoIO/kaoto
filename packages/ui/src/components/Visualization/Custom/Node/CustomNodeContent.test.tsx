@@ -9,6 +9,12 @@ jest.mock('../../../IconResolver', () => ({
   ),
 }));
 
+jest.mock('../../../RenderingAnchor/RenderingAnchor', () => ({
+  RenderingAnchor: ({ anchorTag }: { anchorTag: string }) => (
+    <div data-testid="rendering-anchor" data-anchor={anchorTag} />
+  ),
+}));
+
 describe('NodeContent', () => {
   const createMockVizNode = (): IVisualizationNode => {
     return {
@@ -192,5 +198,6 @@ describe('NodeContent', () => {
     expect(screen.getByTitle('3')).toBeInTheDocument();
     expect(screen.getByTestId('processor-icon')).toBeInTheDocument();
     expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
+    expect(screen.getByTestId('rendering-anchor')).toBeInTheDocument();
   });
 });

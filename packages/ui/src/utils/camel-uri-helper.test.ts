@@ -26,12 +26,34 @@ describe('CamelUriHelper', () => {
     it.each([
       [{}, {}, undefined],
       [{ processorName: 'to', componentName: 'direct' }, { parameters: { name: 'anotherWorld' } }, 'anotherWorld'],
+      [{ processorName: 'to', componentName: 'direct' }, { uri: 'direct:anotherWorld' }, 'anotherWorld'],
+      [
+        { processorName: 'to', componentName: 'direct' },
+        { uri: 'direct', parameters: { name: 'anotherWorld' } },
+        'anotherWorld',
+      ],
+      [{ processorName: 'to', componentName: 'direct' }, 'direct:anotherWorld', 'anotherWorld'],
     ] as Array<[ICamelElementLookupResult, unknown, string | undefined]>)(
       'for `%s` with `%s` value, it should return %s',
       (camelElementLookup, value, expected) => {
         expect(CamelUriHelper.getSemanticString(camelElementLookup, value)).toBe(expected);
       },
     );
+  });
+
+  describe('getDirectEndpointName', () => {
+    it.each([
+      [undefined, undefined],
+      [null, undefined],
+      [{}, undefined],
+      ['direct:addPet', 'addPet'],
+      [{ uri: 'direct:addPet' }, 'addPet'],
+      [{ uri: 'direct:addPet?block=true' }, 'addPet'],
+      [{ uri: 'direct', parameters: { name: 'addPet' } }, 'addPet'],
+      [{ uri: 'seda:addPet', parameters: { name: 'addPet' } }, 'addPet'],
+    ])('should return `%s` for `%s`', (value, expected) => {
+      expect(CamelUriHelper.getDirectEndpointName(value)).toBe(expected);
+    });
   });
 
   describe('getParametersFromPathString', () => {
