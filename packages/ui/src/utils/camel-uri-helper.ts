@@ -15,8 +15,9 @@ export class CamelUriHelper {
     'http://httpUri': 'http://',
     'https://httpUri': 'https://',
   };
+  private static readonly DIRECT_SCHEME = 'direct';
 
-  static getUriString<T>(value: T | undefined | null): string | undefined {
+  static getUriString(value: unknown | undefined | null): string | undefined {
     /** For string-based processor definitions, we can return the definition itself */
     if (typeof value === 'string' && value !== '') {
       return value;
@@ -32,21 +33,56 @@ export class CamelUriHelper {
     return undefined;
   }
 
-  static getSemanticString<T>(
+  static getSemanticString(
     camelElementLookup: ICamelElementLookupResult,
-    value: T | undefined | null,
+    value: unknown | undefined | null,
   ): string | undefined {
-    /** For string-based processor definitions, we return undefined */
-    if (!isDefined(value) || typeof value === 'string') {
+    if (!isDefined(value)) {
       return undefined;
     }
 
     switch (camelElementLookup.componentName) {
       case 'direct':
-        return getValue(value, 'parameters.name');
+        return this.getDirectEndpointName(value);
     }
 
     return undefined;
+  }
+
+  static getDirectEndpointName(value: unknown | undefined | null): string | undefined {
+    if (!isDefined(value)) {
+      return undefined;
+    }
+
+    if (typeof value === 'string') {
+      return this.getDirectEndpointNameFromUri(value);
+    }
+
+    const uri = getValue(value, 'uri');
+    if (typeof uri === 'string') {
+      const directEndpointName = this.getDirectEndpointNameFromUri(uri);
+      if (directEndpointName) {
+        return directEndpointName;
+      }
+    }
+
+    const name = getValue(value, 'parameters.name');
+    if (typeof name === 'string' && name.trim() !== '') {
+      return name;
+    }
+
+    return undefined;
+  }
+
+  private static getDirectEndpointNameFromUri(uri: string): string | undefined {
+    const [uriPath] = uri.split('?');
+
+    if (!uriPath.startsWith(`${this.DIRECT_SCHEME}:`)) {
+      return undefined;
+    }
+
+    const endpointName = uriPath.substring(`${this.DIRECT_SCHEME}:`.length).trim();
+    return endpointName === '' ? undefined : endpointName;
   }
 
   private static cleanUriParts(uri: string, syntax: string): string {

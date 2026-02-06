@@ -4,6 +4,8 @@ import { ElementType, FunctionComponent } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { IconResolver } from '../../../IconResolver';
+import { Anchors } from '../../../registers/anchors';
+import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 
 export interface CustomNodeContentProps {
@@ -46,6 +48,7 @@ export const CustomNodeContent: FunctionComponent<CustomNodeContentProps> = ({
           </Icon>
         </FloatingCircle>
       )}
+      <RenderingAnchor anchorTag={Anchors.CanvasNodeBottomRight} vizNode={vizNode} />
     </div>
   );
 };
