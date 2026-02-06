@@ -84,7 +84,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
             ctx,
             metadataId,
             metadata,
-            definition.name!,
+            definition.name,
             definition,
           );
       }
@@ -116,6 +116,14 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     [ctx, metadata],
   );
 
+  const onUpdateNamespaceMap = useCallback(
+    (namespaceMap: Record<string, string>) => {
+      if (!metadataId || !metadata) return;
+      DataMapperMetadataService.setNamespaceMap(ctx, metadataId, metadata, namespaceMap);
+    },
+    [ctx, metadata, metadataId],
+  );
+
   if (!metadataId) {
     return <>No associated DataMapper step was provided.</>;
   }
@@ -132,6 +140,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       onRenameParameter={onRenameParameter}
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
+      onUpdateNamespaceMap={onUpdateNamespaceMap}
     >
       <DataMapperCanvasProvider>
         <DataMapperControl />

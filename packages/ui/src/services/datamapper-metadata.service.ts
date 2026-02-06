@@ -93,6 +93,9 @@ export class DataMapperMetadataService {
     return new Promise((resolve) => {
       const answer = new DocumentInitializationModel();
       const namespaceMap = metadata.namespaceMap || {};
+      if (Object.keys(namespaceMap).length > 0) {
+        answer.namespaceMap = namespaceMap;
+      }
       const sourceBodyPromise = DataMapperMetadataService.doLoadDocument(
         api,
         DocumentType.SOURCE_BODY,

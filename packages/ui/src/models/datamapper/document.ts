@@ -340,6 +340,7 @@ export class DocumentInitializationModel {
       definitionType: DocumentDefinitionType.Primitive,
       name: BODY_DOCUMENT_ID,
     },
+    public namespaceMap: Record<string, string> = {},
   ) {}
 }
 
