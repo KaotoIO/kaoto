@@ -30,6 +30,9 @@
     </xsd:element>
 
     <xsd:complexType abstract="true" name="BaseRequest">
+        <xsd:annotation>
+            <xsd:documentation>Base request type extending Message.</xsd:documentation>
+        </xsd:annotation>
         <xsd:complexContent>
             <xsd:extension base="Message">
                 <xsd:sequence>
@@ -44,6 +47,9 @@
     </xsd:complexType>
 
     <xsd:complexType abstract="true" name="Message">
+        <xsd:annotation>
+            <xsd:documentation>The base message type.</xsd:documentation>
+        </xsd:annotation>
         <xsd:sequence>
             <xsd:annotation>
                 <xsd:documentation>Message body.
@@ -57,4 +63,10 @@
             </xsd:element>
         </xsd:sequence>
     </xsd:complexType>
+
+    <xsd:simpleType name="ShortString">
+        <xsd:restriction base="xsd:string">
+            <xsd:maxLength value="50"/>
+        </xsd:restriction>
+    </xsd:simpleType>
 </xsd:schema>

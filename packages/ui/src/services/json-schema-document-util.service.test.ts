@@ -9,6 +9,7 @@ import {
   JsonSchemaMetadata,
 } from './json-schema-document.model';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
+import { JsonSchemaTypesService } from './json-schema-types.service';
 
 describe('JsonSchemaDocumentUtilService', () => {
   describe('getChildField()', () => {
@@ -96,7 +97,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('string', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('string', {}, field);
 
       expect(result.type).toBe(Types.String);
       expect(result.typeQName).toEqual(new QName(null, 'string'));
@@ -109,7 +110,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('number', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('number', {}, field);
 
       expect(result.type).toBe(Types.Numeric);
       expect(result.typeQName).toEqual(new QName(null, 'number'));
@@ -122,7 +123,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('boolean', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('boolean', {}, field);
 
       expect(result.type).toBe(Types.Boolean);
       expect(result.typeQName).toEqual(new QName(null, 'boolean'));
@@ -135,7 +136,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('array', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('array', {}, field);
 
       expect(result.type).toBe(Types.Array);
       expect(result.typeQName).toEqual(new QName(null, 'array'));
@@ -148,7 +149,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('object', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('object', {}, field);
 
       expect(result.type).toBe(Types.Container);
       expect(result.typeQName).toEqual(new QName(null, 'object'));
@@ -161,7 +162,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('#/definitions/MyType', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('#/definitions/MyType', {}, field);
 
       expect(result.type).toBe(Types.Container);
       expect(result.typeQName).toEqual(new QName(null, '#/definitions/MyType'));
@@ -174,7 +175,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       );
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
-      const result = JsonSchemaDocumentUtilService.parseTypeOverride('number', {}, field);
+      const result = JsonSchemaTypesService.parseTypeOverride('number', {}, field);
 
       expect(result.type).toBe(Types.Numeric);
       expect(result.variant).toBe(TypeOverrideVariant.FORCE);
@@ -183,31 +184,31 @@ describe('JsonSchemaDocumentUtilService', () => {
 
   describe('mapTypeStringToEnum()', () => {
     it('should map "string" to String type', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('string')).toBe(Types.String);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('string')).toBe(Types.String);
     });
 
     it('should map "number" to Numeric type', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('number')).toBe(Types.Numeric);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('number')).toBe(Types.Numeric);
     });
 
     it('should map "integer" to Integer type', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('integer')).toBe(Types.Integer);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('integer')).toBe(Types.Integer);
     });
 
     it('should map "boolean" to Boolean type', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('boolean')).toBe(Types.Boolean);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('boolean')).toBe(Types.Boolean);
     });
 
     it('should map "array" to Array type', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('array')).toBe(Types.Array);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('array')).toBe(Types.Array);
     });
 
     it('should map "object" to Container type', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('object')).toBe(Types.Container);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('object')).toBe(Types.Container);
     });
 
     it('should fallback to AnyType for unknown type string', () => {
-      expect(JsonSchemaDocumentUtilService.mapTypeStringToEnum('unknown')).toBe(Types.AnyType);
+      expect(JsonSchemaTypesService.mapTypeStringToEnum('unknown')).toBe(Types.AnyType);
     });
   });
 

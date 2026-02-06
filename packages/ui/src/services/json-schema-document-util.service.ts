@@ -1,8 +1,7 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { IField, IParentType } from '../models/datamapper/document';
-import { TypeOverrideVariant, Types } from '../models/datamapper/types';
-import { QName } from '../xml-schema-ts/QName';
+import { Types } from '../models/datamapper/types';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaCollection, JsonSchemaMetadata, JsonSchemaReference } from './json-schema-document.model';
 
@@ -64,61 +63,6 @@ export class JsonSchemaDocumentUtilService {
         return 'array';
       default:
         return 'map';
-    }
-  }
-
-  /**
-   * Parses a type override string and determines the override variant.
-   * @param typeString - The type string to parse (e.g., "string", "object", "#/definitions/MyType")
-   * @param _namespaceMap - Namespace map (not used for JSON schemas)
-   * @param field - The field being overridden
-   * @returns Object containing the parsed type, QName, and override variant
-   */
-  static parseTypeOverride(
-    typeString: string,
-    _namespaceMap: Record<string, string>,
-    field: IField,
-  ): { type: Types; typeQName: QName; variant: TypeOverrideVariant } {
-    const type = typeString.startsWith('#/')
-      ? Types.Container
-      : JsonSchemaDocumentUtilService.mapTypeStringToEnum(typeString);
-
-    const typeQName = new QName(null, typeString);
-
-    const variant = JsonSchemaDocumentUtilService.determineOverrideVariant(field, type, typeString);
-
-    return { type, typeQName, variant };
-  }
-
-  private static determineOverrideVariant(field: IField, _newType: Types, _typeString: string): TypeOverrideVariant {
-    if (field.originalType === Types.AnyType) {
-      return TypeOverrideVariant.SAFE;
-    }
-
-    return TypeOverrideVariant.FORCE;
-  }
-
-  /**
-   * Maps a JSON Schema type string to the corresponding Types enum value.
-   * @param typeString - The JSON Schema type string (e.g., "string", "number", "object", "array")
-   * @returns The corresponding Types enum value
-   */
-  static mapTypeStringToEnum(typeString: string): Types {
-    switch (typeString.toLowerCase()) {
-      case 'string':
-        return Types.String;
-      case 'number':
-        return Types.Numeric;
-      case 'integer':
-        return Types.Integer;
-      case 'boolean':
-        return Types.Boolean;
-      case 'object':
-        return Types.Container;
-      case 'array':
-        return Types.Array;
-      default:
-        return Types.AnyType;
     }
   }
 

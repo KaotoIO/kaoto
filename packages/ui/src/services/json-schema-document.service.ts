@@ -14,6 +14,7 @@ import {
   JsonSchemaTypeFragment,
 } from './json-schema-document.model';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
+import { JsonSchemaTypesService } from './json-schema-types.service';
 
 /**
  * The collection of JSON schema handling logic. {@link createJsonSchemaDocument} consumes JSON schema
@@ -98,7 +99,7 @@ export class JsonSchemaDocumentService {
         document,
         definition.fieldTypeOverrides,
         definition.namespaceMap || {},
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
     }
 

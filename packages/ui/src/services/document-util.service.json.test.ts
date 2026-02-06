@@ -5,7 +5,7 @@ import { accountJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
+import { JsonSchemaTypesService } from './json-schema-types.service';
 
 describe('DocumentUtilService - JSON Schema', () => {
   describe('adoptTypeFragment()', () => {
@@ -145,7 +145,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const accountIdField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'AccountId');
@@ -174,7 +174,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const addressField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'Address');
@@ -219,7 +219,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');
@@ -268,7 +268,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');

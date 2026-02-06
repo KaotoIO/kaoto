@@ -45,6 +45,7 @@ import type {
 } from './xml-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 /**
  * The collection of XML schema handling logic. {@link createXmlSchemaDocument} consumes XML schema
@@ -108,7 +109,7 @@ export class XmlSchemaDocumentService {
         document,
         definition.fieldTypeOverrides,
         definition.namespaceMap || {},
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
     }
 
