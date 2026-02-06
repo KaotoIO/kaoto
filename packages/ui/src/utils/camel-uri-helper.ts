@@ -252,6 +252,19 @@ export class CamelUriHelper {
 
   /** Remove the scheme from the URI string: 'avro:netty:localhost:41414/foo' => 'netty:localhost:41414/foo' */
   private static getUriWithoutScheme(uriString: string, uriSyntax: string): string {
-    return uriString.substring(uriSyntax.indexOf(':') + 1);
+    const schemeEndIndex = uriSyntax.indexOf(':') + 1;
+    let result = uriString.substring(schemeEndIndex);
+
+    /**
+     * If the URI uses :// (e.g. ftp://host:port/dir) but the syntax only uses :
+     * (e.g. ftp:host:port/directoryName), strip the leading // so the URI
+     * can be correctly matched against the syntax delimiters.
+     */
+    const syntaxAfterScheme = uriSyntax.substring(schemeEndIndex);
+    if (result.startsWith('//') && !syntaxAfterScheme.startsWith('//')) {
+      result = result.substring(2);
+    }
+
+    return result;
   }
 }

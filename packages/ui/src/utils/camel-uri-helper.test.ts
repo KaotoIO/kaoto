@@ -65,7 +65,7 @@ describe('CamelUriHelper', () => {
       {
         syntax: 'atmosphere-websocket:servicePath',
         uri: 'atmosphere-websocket://localhost:8080/echo',
-        result: { servicePath: '//localhost:8080/echo' },
+        result: { servicePath: 'localhost:8080/echo' },
       },
       {
         syntax: 'avro:transport:host:port/messageName',
@@ -118,6 +118,18 @@ describe('CamelUriHelper', () => {
         uri: 'ftp:localhost:21/a/nested/directory',
         requiredParameters: ['host'],
         result: { host: 'localhost', port: 21, directoryName: 'a/nested/directory' },
+      },
+      {
+        syntax: 'ftp:host:port/directoryName',
+        uri: 'ftp://localhost:21/a/nested/directory',
+        requiredParameters: ['host'],
+        result: { host: 'localhost', port: 21, directoryName: 'a/nested/directory' },
+      },
+      {
+        syntax: 'sftp:host:port/directoryName',
+        uri: 'sftp://myHost:22/upload',
+        requiredParameters: ['host'],
+        result: { host: 'myHost', port: 22, directoryName: 'upload' },
       },
       {
         syntax: 'rest-openapi:specificationUri#operationId',
@@ -215,8 +227,8 @@ describe('CamelUriHelper', () => {
       {
         uri: 'atmosphere-websocket',
         syntax: 'atmosphere-websocket:servicePath',
-        parameters: { servicePath: '//localhost:8080/echo' },
-        result: 'atmosphere-websocket://localhost:8080/echo',
+        parameters: { servicePath: 'localhost:8080/echo' },
+        result: 'atmosphere-websocket:localhost:8080/echo',
       },
       {
         uri: 'avro',
