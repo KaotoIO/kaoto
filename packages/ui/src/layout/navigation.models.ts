@@ -1,5 +1,3 @@
-import { Links } from '../router/links.models';
-
 export interface SelectedNavItem {
   groupId: number | string;
   itemId: number | string;
@@ -8,8 +6,10 @@ export interface SelectedNavItem {
 
 interface SingleNavElement {
   title: string;
-  to: Links;
+  to: string;
   hidden?: () => boolean;
+  onClick?: () => void;
+  isActive?: boolean | ((pathname: string) => boolean);
 }
 
 interface NestedNavElement {

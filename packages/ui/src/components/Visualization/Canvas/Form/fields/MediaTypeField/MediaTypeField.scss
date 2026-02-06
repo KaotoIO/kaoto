@@ -1,0 +1,14 @@
+.media-type-field-list {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.media-type-field-custom {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+}
+
+.media-type-field-custom .pf-v6-c-text-input {
+  flex: 1;
+}

@@ -24,6 +24,14 @@ export const router = createHashRouter([
         lazy: async () => import('./pages/SourceCode'),
       },
       {
+        path: Links.Rest,
+        lazy: async () => import('./pages/RestDsl'),
+      },
+      {
+        path: Links.RestImport,
+        lazy: async () => import('./pages/RestDslImport'),
+      },
+      {
         path: Links.Catalog,
         lazy: async () => import('./pages/Catalog'),
       },
@@ -46,7 +54,8 @@ export const router = createHashRouter([
       {
         path: Links.DataMapper,
         lazy: async () => {
-          if (import.meta.env.VITE_ENABLE_DATAMAPPER_DEBUGGER === 'true') {
+          const envFlag = typeof process !== 'undefined' ? process.env.VITE_ENABLE_DATAMAPPER_DEBUGGER : undefined;
+          if (envFlag === 'true') {
             return import('./components/DataMapper/debug/page');
           } else {
             return import('./pages/DataMapperNotYetInBrowser');

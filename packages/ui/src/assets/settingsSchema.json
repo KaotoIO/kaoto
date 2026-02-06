@@ -32,6 +32,29 @@
       "type": "string",
       "enum": ["auto", "light", "dark"]
     },
+    "rest": {
+      "title": "Rest configuration",
+      "description": "Rest related settings",
+      "type": "object",
+      "properties": {
+        "apicurioRegistryUrl": {
+          "title": "Apicurio Registry URL",
+          "description": "URL that points to Apicurio Registry.",
+          "default": "<empty string>",
+          "type": "string",
+          "format": "uri"
+        },
+        "customMediaTypes": {
+          "title": "Custom media types",
+          "description": "These values are available in Rest DSL Consumes/Produces fields. Add media type (e.g., application/vnd.api+json)",
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "experimentalFeatures": {
       "title": "Experimental features",
       "description": "Enable / disable experimental features",

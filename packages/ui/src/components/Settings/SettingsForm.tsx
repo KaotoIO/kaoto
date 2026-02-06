@@ -1,5 +1,5 @@
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
-import { Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
+import { Button, Card, CardBody, CardFooter, CardTitle, Flex, FlexItem } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ import { KaotoSchemaDefinition } from '../../models';
 import { SettingsModel } from '../../models/settings';
 import { SettingsContext } from '../../providers/settings.provider';
 import { Links } from '../../router/links.models';
+import { customFieldsFactoryfactory } from '../Visualization/Canvas/Form/fields/custom-fields-factory';
 
 export const SettingsForm: FunctionComponent = () => {
   const settingsAdapter = useContext(SettingsContext);
@@ -41,14 +42,19 @@ export const SettingsForm: FunctionComponent = () => {
             schema={settingsSchema as KaotoSchemaDefinition['schema']}
             model={settings}
             onChange={onChangeModel}
+            customFieldsFactory={customFieldsFactoryfactory}
           />
         </CanvasFormTabsContext.Provider>
       </CardBody>
 
       <CardFooter>
-        <Button data-testid="settings-form-save-btn" variant="primary" onClick={onSave}>
-          Save
-        </Button>
+        <Flex justifyContent={{ default: 'justifyContentFlexEnd' }} style={{ width: '100%' }}>
+          <FlexItem>
+            <Button data-testid="settings-form-save-btn" variant="primary" onClick={onSave}>
+              Apply
+            </Button>
+          </FlexItem>
+        </Flex>
       </CardFooter>
     </Card>
   );

@@ -3,6 +3,7 @@ export const enum LocalStorageKeys {
   CatalogLayout = 'catalogLayout',
   CanvasLayout = 'canvasLayout',
   CanvasSidebarWidth = 'canvasSidebarWidth',
+  RestDslNavWidth = 'restDslNavWidth',
   NavigationExpanded = 'navigationExpanded',
   SelectedCatalog = 'selectedCatalog',
   Settings = 'settings',
