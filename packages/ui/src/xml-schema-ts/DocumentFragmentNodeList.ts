@@ -57,6 +57,6 @@ export class DocumentFragmentNodeList implements NodeList {
     throw new Error('Method not implemented.');
   }
   [Symbol.iterator](): IterableIterator<Node> {
-    throw new Error('Method not implemented.');
+    return this.nodes[Symbol.iterator]();
   }
 }

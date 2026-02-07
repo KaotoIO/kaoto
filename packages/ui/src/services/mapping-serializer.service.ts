@@ -2,6 +2,8 @@ import xmlFormat from 'xml-formatter';
 
 import {
   BaseField,
+  DocumentDefinition,
+  DocumentDefinitionType,
   DocumentType,
   IDocument,
   IField,
@@ -273,7 +275,10 @@ export class MappingSerializerService {
       const paramEl = param as Element;
       const name = paramEl.getAttribute('name');
       if (!name || sourceParameterMap.has(name)) continue;
-      sourceParameterMap.set(name, new PrimitiveDocument(DocumentType.PARAM, name));
+      sourceParameterMap.set(
+        name,
+        new PrimitiveDocument(new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, name)),
+      );
     }
   }
 

@@ -29,7 +29,9 @@ describe('MappingLinksService : JSON', () => {
   let targetDoc: JsonSchemaDocument;
   let paramsMap: Map<string, IDocument>;
   let mappingTree: MappingTree;
-  const dummySourceBodyDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+  const dummySourceBodyDoc = new PrimitiveDocument(
+    new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+  );
 
   beforeAll(() => {
     mockRandomValues();
@@ -51,7 +53,9 @@ describe('MappingLinksService : JSON', () => {
     const cartResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
     expect(cartResult.validationStatus).toBe('success');
     cartParamDoc = cartResult.document as JsonSchemaDocument;
-    const orderSequenceParamDoc = new PrimitiveDocument(DocumentType.PARAM, 'OrderSequence');
+    const orderSequenceParamDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'OrderSequence'),
+    );
     paramsMap = new Map<string, IDocument>([
       ['OrderSequence', orderSequenceParamDoc],
       ['Account', accountParamDoc],
@@ -60,7 +64,7 @@ describe('MappingLinksService : JSON', () => {
     const targetDefinition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
       DocumentDefinitionType.JSON_SCHEMA,
-      undefined,
+      BODY_DOCUMENT_ID,
       { 'ShipOrder.json': shipOrderJsonSchema },
     );
     const targetResult = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
@@ -75,7 +79,9 @@ describe('MappingLinksService : JSON', () => {
       const links = MappingLinksService.extractMappingLinks(
         mappingTree,
         paramsMap,
-        new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID),
+        new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        ),
       );
       expect(links.length).toEqual(13);
       expect(links[0].sourceNodePath).toMatch('fj-string-AccountId');

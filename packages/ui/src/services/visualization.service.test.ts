@@ -139,7 +139,9 @@ describe('VisualizationService', () => {
       });
 
       it('should add If on primitive target body', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -197,7 +199,9 @@ describe('VisualizationService', () => {
       });
 
       it('should add Choose-When-Otherwise on primitive target body', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -258,7 +262,9 @@ describe('VisualizationService', () => {
       });
 
       it('should add When in primitive target body choose', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -320,7 +326,9 @@ describe('VisualizationService', () => {
       });
 
       it('should add Otherwise in primitive target body choose', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -380,7 +388,9 @@ describe('VisualizationService', () => {
       });
 
       it('should apply value selector on primitive target body', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -397,7 +407,9 @@ describe('VisualizationService', () => {
 
     describe('getExpressionItemForNode()', () => {
       it('should return ValueSelector for primitive target body', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -415,7 +427,9 @@ describe('VisualizationService', () => {
 
     describe('deleteMappingItem()', () => {
       it('should delete primitive target body mapping', () => {
-        const primitiveTargetDoc = new PrimitiveDocument(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
         tree = new MappingTree(
           primitiveTargetDoc.documentType,
           primitiveTargetDoc.documentId,
@@ -608,7 +622,7 @@ describe('VisualizationService', () => {
         const extensionSimpleDef = new DocumentDefinition(
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
-          undefined,
+          BODY_DOCUMENT_ID,
           { 'ExtensionSimple.xsd': extensionSimpleXsd },
         );
         const sourceDocResult = XmlSchemaDocumentService.createXmlSchemaDocument(extensionSimpleDef);
@@ -651,7 +665,7 @@ describe('VisualizationService', () => {
       const contactsDefinition = new DocumentDefinition(
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         { 'Contacts.xsd': contactsXsd },
       );
       const contactsResult = XmlSchemaDocumentService.createXmlSchemaDocument(contactsDefinition);
@@ -737,7 +751,7 @@ describe('VisualizationService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         { 'extensionSimple.xsd': extensionSimpleXsd },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -779,7 +793,7 @@ describe('VisualizationService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         { 'extensionComplex.xsd': extensionComplexXsd },
         { namespaceUri: 'http://www.example.com/TEST', name: 'Request' },
       );
@@ -810,7 +824,7 @@ describe('VisualizationService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        BODY_DOCUMENT_ID,
         { 'schemaTest.xsd': schemaTestXsd },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);

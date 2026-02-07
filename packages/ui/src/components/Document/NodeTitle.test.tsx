@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import {
   BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   PrimitiveDocument,
@@ -24,7 +25,9 @@ describe('NodeTitle', () => {
   };
 
   it('should render document title with Title component when isDocument is true', () => {
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
     render(<NodeTitle nodeData={documentNodeData} isDocument={true} rank={0} />);
@@ -47,7 +50,9 @@ describe('NodeTitle', () => {
   });
 
   it('should render with truncate class by default for document node', () => {
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
     render(<NodeTitle nodeData={documentNodeData} isDocument={false} rank={0} />);
@@ -57,7 +62,9 @@ describe('NodeTitle', () => {
   });
 
   it('should render content correctly with custom className', () => {
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(primitiveDoc);
     const customClass = 'custom-test-class';
 
@@ -69,7 +76,9 @@ describe('NodeTitle', () => {
   });
 
   it('should handle PrimitiveDocument node data', () => {
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, 'primitive-doc');
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'primitive-doc'),
+    );
     const primitiveNodeData = new DocumentNodeData(primitiveDoc);
 
     render(<NodeTitle nodeData={primitiveNodeData} isDocument={true} rank={0} />);
@@ -81,7 +90,9 @@ describe('NodeTitle', () => {
 
   it('should handle long titles with truncation', () => {
     const longTitle = 'This is a very long document title that should be truncated properly when rendered';
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, longTitle);
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, longTitle),
+    );
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
     render(<NodeTitle nodeData={documentNodeData} isDocument={true} rank={0} />);
@@ -92,7 +103,9 @@ describe('NodeTitle', () => {
   });
 
   it('should render with truncate class by default', () => {
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
     render(<NodeTitle nodeData={documentNodeData} isDocument={false} rank={0} />);
@@ -102,7 +115,9 @@ describe('NodeTitle', () => {
   });
 
   it('should handle undefined className gracefully', () => {
-    const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+    const primitiveDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
     const documentNodeData = new DocumentNodeData(primitiveDoc);
 
     render(<NodeTitle nodeData={documentNodeData} isDocument={false} className={undefined} rank={0} />);

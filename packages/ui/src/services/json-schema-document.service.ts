@@ -1,7 +1,6 @@
 import { JSONSchema7Definition } from 'json-schema';
 
-import { BODY_DOCUMENT_ID, DocumentDefinition } from '../models/datamapper';
-import { DocumentType } from '../models/datamapper/document';
+import { DocumentDefinition } from '../models/datamapper';
 import { Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { DocumentUtilService } from './document-util.service';
@@ -15,6 +14,7 @@ import {
   JsonSchemaTypeFragment,
 } from './json-schema-document.model';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
+import { JsonSchemaTypesService } from './json-schema-types.service';
 
 /**
  * The collection of JSON schema handling logic. {@link createJsonSchemaDocument} consumes JSON schema
@@ -39,9 +39,6 @@ export class JsonSchemaDocumentService {
    * @returns CreateJsonSchemaDocumentResult with document and validation status
    */
   static createJsonSchemaDocument(definition: DocumentDefinition): CreateJsonSchemaDocumentResult {
-    const documentType = definition.documentType;
-    const docId = definition.documentType === DocumentType.PARAM ? definition.name! : BODY_DOCUMENT_ID;
-
     const filePaths = Object.keys(definition.definitionFiles || {});
     if (filePaths.length === 0) {
       return {
@@ -72,7 +69,7 @@ export class JsonSchemaDocumentService {
       primarySchema = found;
     }
 
-    const jsonDocument = new JsonSchemaDocument(documentType, docId);
+    const jsonDocument = new JsonSchemaDocument(definition);
     jsonDocument.schemaCollection.setDefinitionFiles(definition.definitionFiles || {});
 
     for (const schema of schemas) {
@@ -98,11 +95,11 @@ export class JsonSchemaDocumentService {
     const document = jsonDocument;
 
     if (definition.fieldTypeOverrides?.length) {
-      DocumentUtilService.applyFieldTypeOverrides(
+      DocumentUtilService.processTypeOverrides(
         document,
         definition.fieldTypeOverrides,
         definition.namespaceMap || {},
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
     }
 
@@ -120,8 +117,9 @@ export class JsonSchemaDocumentService {
    * This is useful when field type overrides reference types defined in additional schema files.
    * @param document - The document whose schema collection will be updated
    * @param additionalFiles - Map of file paths to file contents to add
+   * @returns Empty namespace map (JSON Schema doesn't use namespaces, but this maintains API consistency)
    */
-  static addSchemaFiles(document: JsonSchemaDocument, additionalFiles: Record<string, string>): void {
+  static addSchemaFiles(document: JsonSchemaDocument, additionalFiles: Record<string, string>): Record<string, string> {
     const collection = document.schemaCollection;
 
     collection.addDefinitionFiles(additionalFiles);
@@ -147,6 +145,8 @@ export class JsonSchemaDocumentService {
         throw new Error(`Failed to add schema file "${filePath}": ${errorMessage}`);
       }
     }
+
+    return {};
   }
 
   constructor(private readonly jsonDocument: JsonSchemaDocument) {}

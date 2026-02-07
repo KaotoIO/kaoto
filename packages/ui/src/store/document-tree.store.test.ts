@@ -1,4 +1,10 @@
-import { BODY_DOCUMENT_ID, DocumentType, PrimitiveDocument } from '../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  PrimitiveDocument,
+} from '../models/datamapper/document';
 import { DocumentTree } from '../models/datamapper/document-tree';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import { TreeParsingService } from '../services/tree-parsing.service';
@@ -76,7 +82,9 @@ describe('useDocumentTreeStore', () => {
     });
 
     it('should not include primitive nodes in expansion state', () => {
-      const primitiveDoc = new PrimitiveDocument(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID);
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
       const primitiveDocNode = new DocumentNodeData(primitiveDoc);
       const primitiveTree = new DocumentTree(primitiveDocNode);
 

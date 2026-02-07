@@ -16,6 +16,7 @@ import {
   WhenItem,
 } from '../models/datamapper/mapping';
 import { DocumentService } from './document.service';
+import { DocumentUtilService } from './document-util.service';
 import { XPathService } from './xpath/xpath.service';
 
 export class MappingService {
@@ -369,15 +370,8 @@ export class MappingService {
       ([_prefix, uri]) => field.namespaceURI && uri === field.namespaceURI,
     );
     if (!existingns && field.namespaceURI) {
-      const prefix = field.namespacePrefix ?? MappingService.createNSPrefix(mappingTree);
+      const prefix = field.namespacePrefix ?? DocumentUtilService.generateNamespacePrefix(mappingTree.namespaceMap);
       mappingTree.namespaceMap[prefix] = field.namespaceURI;
-    }
-  }
-
-  private static createNSPrefix(mappingTree: MappingTree) {
-    for (let index = 0; ; index++) {
-      const prefix = `ns${index}`;
-      if (!mappingTree.namespaceMap[prefix]) return prefix;
     }
   }
 

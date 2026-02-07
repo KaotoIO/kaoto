@@ -1,4 +1,4 @@
-import { DocumentDefinition, DocumentType, RootElementOption } from '../models/datamapper/document';
+import { DocumentDefinition, RootElementOption } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
@@ -45,6 +45,7 @@ import type {
 } from './xml-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 /**
  * The collection of XML schema handling logic. {@link createXmlSchemaDocument} consumes XML schema
@@ -59,9 +60,6 @@ export class XmlSchemaDocumentService {
    * @returns {@link CreateXmlSchemaDocumentResult} with document, root element options, and validation status
    */
   static createXmlSchemaDocument(definition: DocumentDefinition): CreateXmlSchemaDocumentResult {
-    const documentType = definition.documentType;
-    const docId = definition.documentType === DocumentType.PARAM ? definition.name! : 'Body';
-
     const collection = new XmlSchemaCollection();
     definition.definitionFiles && collection.getSchemaResolver().addFiles(definition.definitionFiles);
 
@@ -101,17 +99,17 @@ export class XmlSchemaDocumentService {
       };
     }
 
-    const document = new XmlSchemaDocument(collection, documentType, docId, rootElement);
+    const document = new XmlSchemaDocument(definition, collection, rootElement);
 
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
 
     if (definition.fieldTypeOverrides?.length && definition.fieldTypeOverrides.length > 0) {
-      DocumentUtilService.applyFieldTypeOverrides(
+      DocumentUtilService.processTypeOverrides(
         document,
         definition.fieldTypeOverrides,
         definition.namespaceMap || {},
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
     }
 
@@ -131,8 +129,9 @@ export class XmlSchemaDocumentService {
    * This is useful when field type overrides reference types defined in additional schema files.
    * @param document - The document whose schema collection will be updated
    * @param additionalFiles - Map of file paths to file contents to add
+   * @returns Updated namespace map with new namespaces from added schemas
    */
-  static addSchemaFiles(document: XmlSchemaDocument, additionalFiles: Record<string, string>): void {
+  static addSchemaFiles(document: XmlSchemaDocument, additionalFiles: Record<string, string>): Record<string, string> {
     const collection = document.xmlSchemaCollection;
     const resolver = collection.getSchemaResolver();
 
@@ -140,6 +139,81 @@ export class XmlSchemaDocumentService {
 
     XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, additionalFiles);
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
+
+    const existingNamespaceMap = document.definition.namespaceMap || {};
+    const newNamespaces = XmlSchemaDocumentService.extractNamespacesFromSchemas(additionalFiles, existingNamespaceMap);
+
+    const updatedNamespaceMap = XmlSchemaDocumentService.mergeNamespaceMaps(existingNamespaceMap, newNamespaces);
+
+    return updatedNamespaceMap;
+  }
+
+  /**
+   * Extracts namespace mappings from XML schema files.
+   * Parses each schema file to extract targetNamespace and generates appropriate prefixes.
+   * Filters out standard XML/XSD namespaces.
+   *
+   * @param schemaFiles - Map of file paths to schema file contents
+   * @param existingNamespaceMap - Existing namespace map to check for conflicts
+   * @returns Map of generated prefix -> namespace URI
+   */
+  private static extractNamespacesFromSchemas(
+    schemaFiles: Record<string, string>,
+    existingNamespaceMap: Record<string, string>,
+  ): Record<string, string> {
+    const newNamespaces: Record<string, string> = {};
+    const tempCollection = new XmlSchemaCollection();
+
+    for (const [filePath, content] of Object.entries(schemaFiles)) {
+      try {
+        const schema = tempCollection.read(content, () => {}, filePath);
+        const targetNamespace = schema.getTargetNamespace();
+
+        if (!targetNamespace) {
+          continue;
+        }
+
+        const standardNamespaces = new Set([
+          'http://www.w3.org/2001/XMLSchema',
+          'http://www.w3.org/XML/1998/namespace',
+        ]);
+
+        if (standardNamespaces.has(targetNamespace)) {
+          continue;
+        }
+
+        const alreadyMapped =
+          Object.values(existingNamespaceMap).includes(targetNamespace) ||
+          Object.values(newNamespaces).includes(targetNamespace);
+
+        if (alreadyMapped) {
+          continue;
+        }
+
+        const combinedMap = { ...existingNamespaceMap, ...newNamespaces };
+        const prefix = DocumentUtilService.generateNamespacePrefix(combinedMap);
+        newNamespaces[prefix] = targetNamespace;
+      } catch (error) {
+        console.warn(`Failed to extract namespace from ${filePath}:`, error);
+      }
+    }
+
+    return newNamespaces;
+  }
+
+  /**
+   * Merges existing namespace map with newly extracted namespaces.
+   * Existing mappings take precedence to avoid breaking existing references.
+   *
+   * @param existingMap - Current namespace map from DocumentDefinition
+   * @param newNamespaces - Newly extracted namespace mappings
+   * @returns Merged namespace map
+   */
+  private static mergeNamespaceMaps(
+    existingMap: Record<string, string>,
+    newNamespaces: Record<string, string>,
+  ): Record<string, string> {
+    return { ...existingMap, ...newNamespaces };
   }
 
   /**
@@ -156,12 +230,7 @@ export class XmlSchemaDocumentService {
       throw new Error(`Unable to find a root element ${newRootQName.toString()}`);
     }
 
-    const newDocument = new XmlSchemaDocument(
-      document.xmlSchemaCollection,
-      document.documentType,
-      document.documentId,
-      newRootElement,
-    );
+    const newDocument = new XmlSchemaDocument(document.definition, document.xmlSchemaCollection, newRootElement);
 
     XmlSchemaDocumentService.populateNamedTypeFragments(newDocument);
     XmlSchemaDocumentService.populateElement(newDocument, newDocument.fields, newDocument.rootElement!);
