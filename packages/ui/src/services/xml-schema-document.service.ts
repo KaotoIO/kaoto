@@ -1,4 +1,4 @@
-import { DocumentDefinition, DocumentType, RootElementOption } from '../models/datamapper/document';
+import { DocumentDefinition, RootElementOption } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
@@ -45,6 +45,7 @@ import type {
 } from './xml-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 /**
  * The collection of XML schema handling logic. {@link createXmlSchemaDocument} consumes XML schema
@@ -59,9 +60,6 @@ export class XmlSchemaDocumentService {
    * @returns {@link CreateXmlSchemaDocumentResult} with document, root element options, and validation status
    */
   static createXmlSchemaDocument(definition: DocumentDefinition): CreateXmlSchemaDocumentResult {
-    const documentType = definition.documentType;
-    const docId = definition.documentType === DocumentType.PARAM ? definition.name! : 'Body';
-
     const collection = new XmlSchemaCollection();
     definition.definitionFiles && collection.getSchemaResolver().addFiles(definition.definitionFiles);
 
@@ -101,7 +99,7 @@ export class XmlSchemaDocumentService {
       };
     }
 
-    const document = new XmlSchemaDocument(collection, documentType, docId, rootElement);
+    const document = new XmlSchemaDocument(definition, collection, rootElement);
 
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
@@ -111,7 +109,7 @@ export class XmlSchemaDocumentService {
         document,
         definition.fieldTypeOverrides,
         definition.namespaceMap || {},
-        XmlSchemaDocumentUtilService.parseTypeOverride,
+        XmlSchemaTypesService.parseTypeOverride,
       );
     }
 
@@ -156,12 +154,7 @@ export class XmlSchemaDocumentService {
       throw new Error(`Unable to find a root element ${newRootQName.toString()}`);
     }
 
-    const newDocument = new XmlSchemaDocument(
-      document.xmlSchemaCollection,
-      document.documentType,
-      document.documentId,
-      newRootElement,
-    );
+    const newDocument = new XmlSchemaDocument(document.definition, document.xmlSchemaCollection, newRootElement);
 
     XmlSchemaDocumentService.populateNamedTypeFragments(newDocument);
     XmlSchemaDocumentService.populateElement(newDocument, newDocument.fields, newDocument.rootElement!);

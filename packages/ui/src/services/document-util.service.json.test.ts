@@ -5,12 +5,14 @@ import { accountJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
+import { JsonSchemaTypesService } from './json-schema-types.service';
 
 describe('DocumentUtilService - JSON Schema', () => {
   describe('adoptTypeFragment()', () => {
     it('should adopt type when fragment has type defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.AnyType);
 
       const fragment = {
@@ -25,7 +27,9 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt minOccurs when fragment has it defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const fragment = {
@@ -40,7 +44,9 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt maxOccurs when fragment has it defined', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.String);
 
       const fragment = {
@@ -55,7 +61,9 @@ describe('DocumentUtilService - JSON Schema', () => {
     });
 
     it('should adopt all fields from fragment using JSON Schema adopt logic', () => {
-      const doc = new JsonSchemaDocument(DocumentType.PARAM, 'test-doc');
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
       const field = new JsonSchemaField(doc, 'testField', Types.Container);
 
       const fragmentField1 = new JsonSchemaField(doc, 'child1', Types.String);
@@ -137,7 +145,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const accountIdField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'AccountId');
@@ -166,7 +174,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const addressField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'Address');
@@ -211,7 +219,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');
@@ -260,7 +268,7 @@ describe('DocumentUtilService - JSON Schema', () => {
         doc,
         overrides,
         namespaceMap,
-        JsonSchemaDocumentUtilService.parseTypeOverride,
+        JsonSchemaTypesService.parseTypeOverride,
       );
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');

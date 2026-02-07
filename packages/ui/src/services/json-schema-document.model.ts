@@ -1,10 +1,11 @@
-import { JSONSchema7 } from 'json-schema';
+import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import {
   BaseDocument,
   BaseField,
   CreateDocumentResult,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IField,
@@ -280,6 +281,29 @@ export class JsonSchemaCollection {
     return this.findByFilename(filename);
   }
 
+  /**
+   * Gets all definitions from all schemas in the collection.
+   * Combines $defs and definitions from all schemas into a single Map.
+   *
+   * @returns Map of definition paths to their schema definitions
+   */
+  getDefinitions(): Map<string, JSONSchema7Definition> {
+    const definitions = new Map<string, JSONSchema7Definition>();
+    for (const schema of this.schemaArray) {
+      if (schema.$defs) {
+        for (const [key, value] of Object.entries(schema.$defs)) {
+          definitions.set(`#/$defs/${key}`, value);
+        }
+      }
+      if (schema.definitions) {
+        for (const [key, value] of Object.entries(schema.definitions)) {
+          definitions.set(`#/definitions/${key}`, value);
+        }
+      }
+    }
+    return definitions;
+  }
+
   private loadSchemaFromFileMap(filePath: string, content: string): JsonSchemaMetadata {
     try {
       const schema = JsonSchemaDocumentUtilService.parseJsonSchema(content, filePath);
@@ -389,9 +413,9 @@ export class JsonSchemaDocument extends BaseDocument {
   definitionType: DocumentDefinitionType;
   schemaCollection = new JsonSchemaCollection();
 
-  constructor(documentType: DocumentType, documentId: string) {
-    super(documentType, documentId);
-    this.name = documentId;
+  constructor(definition: DocumentDefinition) {
+    super(definition);
+    this.name = definition.name;
     this.definitionType = DocumentDefinitionType.JSON_SCHEMA;
   }
 

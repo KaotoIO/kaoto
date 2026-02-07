@@ -17,6 +17,7 @@ import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 describe('XmlSchemaDocumentUtilService', () => {
   describe('getFirstElement()', () => {
@@ -87,7 +88,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const field = doc.fields[0].fields[0];
       const namespaceMap = { xs: NS_XML_SCHEMA };
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('xs:string', namespaceMap, field);
+      const result = XmlSchemaTypesService.parseTypeOverride('xs:string', namespaceMap, field);
 
       expect(result.type).toBe(Types.String);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'string'));
@@ -99,7 +100,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const field = doc.fields[0].fields[0];
       const namespaceMap = { xs: NS_XML_SCHEMA };
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('xs:int', namespaceMap, field);
+      const result = XmlSchemaTypesService.parseTypeOverride('xs:int', namespaceMap, field);
 
       expect(result.type).toBe(Types.Integer);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'int'));
@@ -111,7 +112,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const field = doc.fields[0].fields[0];
       const namespaceMap = { xs: NS_XML_SCHEMA };
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('xs:boolean', namespaceMap, field);
+      const result = XmlSchemaTypesService.parseTypeOverride('xs:boolean', namespaceMap, field);
 
       expect(result.type).toBe(Types.Boolean);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'boolean'));
@@ -123,7 +124,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const field = doc.fields[0].fields[0];
       const namespaceMap = { xs: NS_XML_SCHEMA };
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('xs:date', namespaceMap, field);
+      const result = XmlSchemaTypesService.parseTypeOverride('xs:date', namespaceMap, field);
 
       expect(result.type).toBe(Types.Date);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'date'));
@@ -135,7 +136,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const field = doc.fields[0].fields[0];
       const namespaceMap = { xs: NS_XML_SCHEMA };
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('xs:decimal', namespaceMap, field);
+      const result = XmlSchemaTypesService.parseTypeOverride('xs:decimal', namespaceMap, field);
 
       expect(result.type).toBe(Types.Decimal);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'decimal'));
@@ -147,7 +148,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo');
       const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'http://www.kaoto.io/order' };
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('xs:string', namespaceMap, shipTo!);
+      const result = XmlSchemaTypesService.parseTypeOverride('xs:string', namespaceMap, shipTo!);
 
       expect(result.type).toBe(Types.String);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'string'));
@@ -160,7 +161,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       field.type = Types.AnyType;
       const namespaceMap = {};
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('CustomType', namespaceMap, field);
+      const result = XmlSchemaTypesService.parseTypeOverride('CustomType', namespaceMap, field);
 
       expect(result.type).toBe(Types.Container);
       expect(result.typeQName).toEqual(new QName(null, 'CustomType'));
@@ -182,7 +183,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const requestField = doc.fields.find((f) => f.name === 'Request');
       if (!requestField) throw new Error('Request field not found');
 
-      const baseResult = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
+      const baseResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
 
       expect(baseResult.type).toBe(Types.Container);
       expect(baseResult.typeQName).toEqual(new QName('http://www.example.com/TEST', 'BaseRequest'));
@@ -203,11 +204,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const addressField = doc.fields.find((f) => f.name === 'Address');
       if (!addressField) throw new Error('Address field not found');
 
-      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
-        'ns0:BaseAddress',
-        namespaceMap,
-        addressField,
-      );
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseAddress', namespaceMap, addressField);
 
       expect(overrideResult.type).toBe(Types.Container);
       expect(overrideResult.typeQName).toEqual(new QName('http://www.example.com/RESTRICT', 'BaseAddress'));
@@ -219,7 +216,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo');
       if (!shipTo) throw new Error('ShipTo field not found');
 
-      const result = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:UnrelatedType', namespaceMap, shipTo);
+      const result = XmlSchemaTypesService.parseTypeOverride('ns0:UnrelatedType', namespaceMap, shipTo);
 
       expect(result.variant).toBe(TypeOverrideVariant.FORCE);
     });
@@ -242,11 +239,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       requestField.originalType = Types.Container;
       requestField.originalTypeQName = new QName('http://www.example.com/TEST', 'Message');
 
-      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
-        'ns0:BaseRequest',
-        namespaceMap,
-        requestField,
-      );
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
 
       expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
@@ -270,11 +263,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       addressField.originalType = Types.Container;
       addressField.originalTypeQName = new QName('http://www.example.com/RESTRICT', 'BaseAddress');
 
-      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
-        'ns0:SimpleAddress',
-        namespaceMap,
-        addressField,
-      );
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:SimpleAddress', namespaceMap, addressField);
 
       expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
@@ -298,11 +287,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       requestField.originalType = Types.Container;
       requestField.originalTypeQName = new QName('http://www.example.com/TEST', 'UnrelatedType');
 
-      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
-        'ns0:BaseRequest',
-        namespaceMap,
-        requestField,
-      );
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
 
       expect(overrideResult.variant).toBe(TypeOverrideVariant.FORCE);
       expect(overrideResult.type).toBe(Types.Container);
@@ -326,7 +311,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       extendedValueField.originalType = Types.Container;
       extendedValueField.originalTypeQName = new QName('http://www.example.com/SIMPLEINHERIT', 'ExtendedValueType');
 
-      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride(
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride(
         'ns0:ComplexExtendingSimple',
         namespaceMap,
         extendedValueField,
@@ -354,7 +339,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       ageField.originalType = Types.Container;
       ageField.originalTypeQName = new QName('http://www.example.com/SIMPLETYPE', 'BaseInteger');
 
-      const overrideResult = XmlSchemaDocumentUtilService.parseTypeOverride('ns0:AgeType', namespaceMap, ageField);
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:AgeType', namespaceMap, ageField);
 
       expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
@@ -363,119 +348,115 @@ describe('XmlSchemaDocumentUtilService', () => {
 
   describe('mapTypeStringToEnum()', () => {
     it('should map xs:string to String type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'string')).toBe(Types.String);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'string')).toBe(Types.String);
     });
 
     it('should map xs:normalizedString to String type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'normalizedString')).toBe(Types.String);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'normalizedString')).toBe(Types.String);
     });
 
     it('should map xs:int to Integer type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'int')).toBe(Types.Integer);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'int')).toBe(Types.Integer);
     });
 
     it('should map xs:integer to Integer type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'integer')).toBe(Types.Integer);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'integer')).toBe(Types.Integer);
     });
 
     it('should map xs:long to Integer type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'long')).toBe(Types.Integer);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'long')).toBe(Types.Integer);
     });
 
     it('should map xs:decimal to Decimal type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'decimal')).toBe(Types.Decimal);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'decimal')).toBe(Types.Decimal);
     });
 
     it('should map xs:double to Double type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'double')).toBe(Types.Double);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'double')).toBe(Types.Double);
     });
 
     it('should map xs:float to Float type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'float')).toBe(Types.Float);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'float')).toBe(Types.Float);
     });
 
     it('should map xs:boolean to Boolean type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'boolean')).toBe(Types.Boolean);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'boolean')).toBe(Types.Boolean);
     });
 
     it('should map xs:date to Date type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'date')).toBe(Types.Date);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'date')).toBe(Types.Date);
     });
 
     it('should map xs:dateTime to DateTime type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'dateTime')).toBe(Types.DateTime);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'dateTime')).toBe(Types.DateTime);
     });
 
     it('should map xs:time to Time type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'time')).toBe(Types.Time);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'time')).toBe(Types.Time);
     });
 
     it('should map xs:duration to Duration type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'duration')).toBe(Types.Duration);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'duration')).toBe(Types.Duration);
     });
 
     it('should map xs:dayTimeDuration to DayTimeDuration type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'dayTimeDuration')).toBe(
-        Types.DayTimeDuration,
-      );
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'dayTimeDuration')).toBe(Types.DayTimeDuration);
     });
 
     it('should map xs:yearMonthDuration to Duration type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'yearMonthDuration')).toBe(Types.Duration);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'yearMonthDuration')).toBe(Types.Duration);
     });
 
     it('should map xs:hexBinary to String type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'hexBinary')).toBe(Types.String);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'hexBinary')).toBe(Types.String);
     });
 
     it('should map xs:base64Binary to String type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'base64Binary')).toBe(Types.String);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'base64Binary')).toBe(Types.String);
     });
 
     it('should map xs:anyURI to AnyURI type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'anyURI')).toBe(Types.AnyURI);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'anyURI')).toBe(Types.AnyURI);
     });
 
     it('should map xs:QName to QName type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'QName')).toBe(Types.QName);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'QName')).toBe(Types.QName);
     });
 
     it('should map xs:NOTATION to String type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'NOTATION')).toBe(Types.String);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'NOTATION')).toBe(Types.String);
     });
 
     it('should map lowercase xs:datetime to DateTime type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'datetime')).toBe(Types.DateTime);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'datetime')).toBe(Types.DateTime);
     });
 
     it('should map lowercase xs:daytimeduration to Duration type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'daytimeduration')).toBe(Types.Duration);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'daytimeduration')).toBe(Types.Duration);
     });
 
     it('should map lowercase xs:yearmonthduration to Duration type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'yearmonthduration')).toBe(Types.Duration);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'yearmonthduration')).toBe(Types.Duration);
     });
 
     it('should map lowercase xs:anyuri to AnyURI type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'anyuri')).toBe(Types.AnyURI);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'anyuri')).toBe(Types.AnyURI);
     });
 
     it('should map lowercase xs:qname to QName type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'qname')).toBe(Types.QName);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'qname')).toBe(Types.QName);
     });
 
     it('should map lowercase xs:notation to String type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'notation')).toBe(Types.String);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'notation')).toBe(Types.String);
     });
 
     it('should map custom namespace type to Container', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum('http://custom.namespace', 'CustomType')).toBe(
-        Types.Container,
-      );
+      expect(XmlSchemaTypesService.mapTypeStringToEnum('http://custom.namespace', 'CustomType')).toBe(Types.Container);
     });
 
     it('should fallback to AnyType for unknown xs type', () => {
-      expect(XmlSchemaDocumentUtilService.mapTypeStringToEnum(NS_XML_SCHEMA, 'unknownType')).toBe(Types.AnyType);
+      expect(XmlSchemaTypesService.mapTypeStringToEnum(NS_XML_SCHEMA, 'unknownType')).toBe(Types.AnyType);
     });
   });
 

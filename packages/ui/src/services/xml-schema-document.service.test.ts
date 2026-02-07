@@ -1,4 +1,9 @@
-import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+} from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import {
   camelSpringXsd,
@@ -26,9 +31,14 @@ import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service
 
 describe('XmlSchemaDocumentService', () => {
   it('should parse ShipOrder XML schema', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'shipOrder.xsd': shipOrderXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'shipOrder.xsd': shipOrderXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -45,9 +55,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse TestDocument XML schema', () => {
-    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'testDocument.xsd': testDocumentXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'testDocument.xsd': testDocumentXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -59,9 +74,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse camel-spring.xsd XML schema', () => {
-    const definition = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'camel-spring.xsd': camelSpringXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'camel-spring.xsd': camelSpringXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -92,9 +112,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse ExtensionSimple.xsd', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'extensionSimple.xsd': extensionSimpleXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'extensionSimple.xsd': extensionSimpleXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -151,7 +176,7 @@ describe('XmlSchemaDocumentService', () => {
     const definition = new DocumentDefinition(
       DocumentType.SOURCE_BODY,
       DocumentDefinitionType.XML_SCHEMA,
-      undefined,
+      BODY_DOCUMENT_ID,
       { 'extensionComplex.xsd': extensionComplexXsd },
       { namespaceUri: 'http://www.example.com/TEST', name: 'Request' },
     );
@@ -184,7 +209,7 @@ describe('XmlSchemaDocumentService', () => {
     const definition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
       DocumentDefinitionType.XML_SCHEMA,
-      undefined,
+      BODY_DOCUMENT_ID,
       { 'camel-spring.xsd': camelSpringXsd },
       { namespaceUri: 'http://camel.apache.org/schema/spring', name: 'routes' },
     );
@@ -209,9 +234,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should create XML Schema Document', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'shipOrder.xsd': shipOrderXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'shipOrder.xsd': shipOrderXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const doc = result.document as XmlSchemaDocument;
@@ -234,9 +264,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse SchemaTest.xsd with advanced features', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'schemaTest.xsd': schemaTestXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'schemaTest.xsd': schemaTestXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -302,9 +337,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should handle XmlSchemaField getExpression with namespaceMap', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'extensionSimple.xsd': extensionSimpleXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'extensionSimple.xsd': extensionSimpleXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -333,9 +373,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse RestrictionSimple.xsd', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'restrictionSimple.xsd': restrictionSimpleXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'restrictionSimple.xsd': restrictionSimpleXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -370,9 +415,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse RestrictionComplex.xsd', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'restrictionComplex.xsd': restrictionComplexXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'restrictionComplex.xsd': restrictionComplexXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -424,9 +474,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should parse RestrictionInheritance.xsd with nested content models', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'restrictionInheritance.xsd': restrictionInheritanceXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'restrictionInheritance.xsd': restrictionInheritanceXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -478,9 +533,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should handle multi-level extension inheritance', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'multiLevelExtension.xsd': multiLevelExtensionXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'multiLevelExtension.xsd': multiLevelExtensionXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -526,9 +586,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should handle multi-level restriction inheritance', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'multiLevelRestriction.xsd': multiLevelRestrictionXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'multiLevelRestriction.xsd': multiLevelRestrictionXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -571,9 +636,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should handle XmlSchemaField isIdentical method correctly', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'extensionSimple.xsd': extensionSimpleXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'extensionSimple.xsd': extensionSimpleXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -597,9 +667,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should merge attributes from base type in restrictions', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'restrictionSimple.xsd': restrictionSimpleXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'restrictionSimple.xsd': restrictionSimpleXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -621,9 +696,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should support getChildField with namespace matching', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'extensionSimple.xsd': extensionSimpleXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'extensionSimple.xsd': extensionSimpleXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -649,9 +729,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should handle extension that attempts to redefine base elements', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'invalidComplexExtension.xsd': invalidComplexExtensionXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'invalidComplexExtension.xsd': invalidComplexExtensionXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -696,9 +781,14 @@ describe('XmlSchemaDocumentService', () => {
   });
 
   it('should handle simpleType inheritance with extension and restriction', () => {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, undefined, {
-      'simpleTypeInheritance.xsd': simpleTypeInheritanceXsd,
-    });
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'simpleTypeInheritance.xsd': simpleTypeInheritanceXsd,
+      },
+    );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('success');
     const document = result.document as XmlSchemaDocument;
@@ -732,7 +822,7 @@ describe('XmlSchemaDocumentService', () => {
     const definition = new DocumentDefinition(
       DocumentType.SOURCE_BODY,
       DocumentDefinitionType.XML_SCHEMA,
-      undefined,
+      BODY_DOCUMENT_ID,
       { 'element-ref.xsd': elementRefXsd },
       { namespaceUri: '', name: 'CSV' },
     );
@@ -760,7 +850,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'MainWithInclude.xsd': mainSchema,
           'CommonTypes.xsd': commonTypesXsd,
@@ -793,7 +883,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'schemas/main.xsd': mainSchema,
           'schemas/common.xsd': commonTypesXsd,
@@ -815,7 +905,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'MainWithInclude.xsd': mainSchema,
         },
@@ -846,7 +936,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'MainWithImport.xsd': mainSchema,
           'ImportedTypes.xsd': importedTypesXsd,
@@ -883,7 +973,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'schemas/main.xsd': mainSchema,
           'schemas/types.xsd': importedTypesXsd,
@@ -907,7 +997,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'schema1.xsd': schema1,
           'ImportedTypes.xsd': importedTypesXsd,
@@ -936,7 +1026,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'main.xsd': mainSchema,
         },
@@ -971,7 +1061,7 @@ describe('XmlSchemaDocumentService', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
-        undefined,
+        'test-doc',
         {
           'main.xsd': mainSchema,
         },
