@@ -7,6 +7,14 @@ import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils';
 import { useEditorApi } from './editor-api';
 
+const mockController = {
+  fromModel: jest.fn(),
+};
+
+jest.mock('@patternfly/react-topology', () => ({
+  useVisualizationController: () => mockController,
+}));
+
 describe('useEditorApi', () => {
   const mockSetCodeAndNotify = jest.fn();
 
@@ -103,6 +111,10 @@ describe('useEditorApi', () => {
       await result.current.editorApi.undo();
     });
 
+    expect(mockController.fromModel).toHaveBeenCalledWith({
+      nodes: [],
+      edges: [],
+    });
     expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', { code: '', path: '' });
     expect(storeUndoSpy).toHaveBeenCalled();
   });
@@ -117,6 +129,10 @@ describe('useEditorApi', () => {
       await result.current.editorApi.redo();
     });
 
+    expect(mockController.fromModel).toHaveBeenCalledWith({
+      nodes: [],
+      edges: [],
+    });
     expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', { code: '', path: '' });
     expect(storeRedoSpy).toHaveBeenCalled();
   });
