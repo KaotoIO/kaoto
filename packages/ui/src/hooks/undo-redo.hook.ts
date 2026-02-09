@@ -1,3 +1,4 @@
+import { useVisualizationController } from '@patternfly/react-topology';
 import { useCallback } from 'react';
 import { useStore } from 'zustand';
 
@@ -6,6 +7,7 @@ import { EventNotifier } from '../utils';
 
 export const useUndoRedo = () => {
   const eventNotifier = EventNotifier.getInstance();
+  const controller = useVisualizationController();
   const {
     undo: storeUndo,
     redo: storeRedo,
@@ -24,19 +26,33 @@ export const useUndoRedo = () => {
 
   const undo = useCallback(() => {
     storeUndo();
+
+    // Set an empty model to clear the graph, Fixes an issue rendering special child nodes incorrectly
+    controller.fromModel({
+      nodes: [],
+      edges: [],
+    });
+
     eventNotifier.next('code:updated', {
       code: useSourceCodeStore.getState().sourceCode,
       path: useSourceCodeStore.getState().path,
     });
-  }, [storeUndo, eventNotifier]);
+  }, [storeUndo, controller, eventNotifier]);
 
   const redo = useCallback(() => {
     storeRedo();
+
+    // Set an empty model to clear the graph, Fixes an issue rendering special child nodes incorrectly
+    controller.fromModel({
+      nodes: [],
+      edges: [],
+    });
+
     eventNotifier.next('code:updated', {
       code: useSourceCodeStore.getState().sourceCode,
       path: useSourceCodeStore.getState().path,
     });
-  }, [storeRedo, eventNotifier]);
+  }, [storeRedo, controller, eventNotifier]);
 
   return { undo, redo, clear, canUndo, canRedo };
 };
