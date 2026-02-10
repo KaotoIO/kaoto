@@ -54,7 +54,7 @@
   "dependencies": {
     "@carbon/icons-react": "^11.67.0",
     "@dnd-kit/core": "^6.1.0",
-    "@kaoto/forms": "^1.5.9",
+    "@kaoto/forms": "^1.6.0",
     "@kie-tools-core/editor": "^10.0.0",
     "@kie-tools-core/notifications": "^10.0.0",
     "@visx/shape": "^3.12.0",
