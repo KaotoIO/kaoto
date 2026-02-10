@@ -46,7 +46,8 @@ export class JsonSchemaDocumentService {
     if (filePaths.length === 0) {
       return {
         validationStatus: 'error',
-        validationMessage: 'No schema files provided in DocumentDefinition',
+        errors: ['No schema files provided in DocumentDefinition'],
+        documentDefinition: definition,
       };
     }
 
@@ -66,7 +67,8 @@ export class JsonSchemaDocumentService {
       if (!found) {
         return {
           validationStatus: 'error',
-          validationMessage: `Primary schema file '${definition.rootElementChoice.name}' not found in loaded schemas`,
+          errors: [`Primary schema file '${definition.rootElementChoice.name}' not found in loaded schemas`],
+          documentDefinition: definition,
         };
       }
       primarySchema = found;
@@ -77,7 +79,9 @@ export class JsonSchemaDocumentService {
     if (analysisResult.errors.length > 0) {
       return {
         validationStatus: 'error',
-        validationMessage: analysisResult.errors.join('; '),
+        errors: analysisResult.errors,
+        warnings: analysisResult.warnings,
+        documentDefinition: definition,
       };
     }
 
@@ -105,14 +109,9 @@ export class JsonSchemaDocumentService {
       );
     }
 
-    const validationWarnings = analysisResult.warnings;
-    const validationStatus = validationWarnings.length > 0 ? 'warning' : 'success';
-    const validationMessage =
-      validationWarnings.length > 0 ? validationWarnings.join('; ') : 'Schema validation successful';
-
     return {
-      validationStatus,
-      validationMessage,
+      validationStatus: analysisResult.warnings.length > 0 ? 'warning' : 'success',
+      warnings: analysisResult.warnings,
       documentDefinition: definition,
       document,
       rootElementOptions: [],
@@ -142,6 +141,33 @@ export class JsonSchemaDocumentService {
     }
 
     return {};
+  }
+
+  /**
+   * Removes a schema file from the definition and re-creates the document with updated analysis.
+   * The original definition is not mutated. The returned result always contains the updated
+   * {@link DocumentDefinition} even when validation fails, so callers can continue working with it
+   * (e.g. adding replacement files).
+   *
+   * @param definition - The current document definition containing schema files
+   * @param filePath - The key of the schema file to remove from {@link DocumentDefinition.definitionFiles}
+   * @returns A {@link CreateJsonSchemaDocumentResult} with updated validation status, errors/warnings, and definition
+   */
+  static removeSchemaFile(definition: DocumentDefinition, filePath: string): CreateJsonSchemaDocumentResult {
+    const updatedFiles = { ...definition.definitionFiles };
+    delete updatedFiles[filePath];
+
+    const updatedDefinition = new DocumentDefinition(
+      definition.documentType,
+      definition.definitionType,
+      definition.name,
+      updatedFiles,
+      definition.rootElementChoice,
+      definition.fieldTypeOverrides,
+      definition.namespaceMap,
+    );
+
+    return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition);
   }
 
   private static populateDependencyMetadata(

@@ -64,14 +64,14 @@ export class DocumentService {
         schemaFilePaths,
       );
       if (!documentDefinition) {
-        return { validationStatus: 'error', validationMessage: 'Could not read schema file(s)' };
+        return { validationStatus: 'error', errors: ['Could not read schema file(s)'] };
       }
 
       return DocumentService.doCreateDocumentFromDefinition(documentDefinition);
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       const errorMessage = error?.message || 'Unknown validation error';
-      return { validationStatus: 'error', validationMessage: errorMessage };
+      return { validationStatus: 'error', errors: [errorMessage] };
     }
   }
 
@@ -119,7 +119,6 @@ export class DocumentService {
         const document = new PrimitiveDocument(definition);
         return {
           validationStatus: 'success',
-          validationMessage: 'Schema validation successful',
           documentDefinition: definition,
           document,
           rootElementOptions: [],
@@ -132,7 +131,30 @@ export class DocumentService {
       default:
         return {
           validationStatus: 'error',
-          validationMessage: `Unsupported definition type: ${definition.definitionType}`,
+          errors: [`Unsupported definition type: ${definition.definitionType}`],
+        };
+    }
+  }
+
+  /**
+   * Removes a schema file from the definition and re-creates the document with updated analysis.
+   * Delegates to {@link XmlSchemaDocumentService.removeSchemaFile} or
+   * {@link JsonSchemaDocumentService.removeSchemaFile} based on the definition type.
+   *
+   * @param definition - The current document definition containing schema files
+   * @param filePath - The key of the schema file to remove from {@link DocumentDefinition.definitionFiles}
+   * @returns A {@link CreateDocumentResult} with updated validation status, errors/warnings, and definition
+   */
+  static removeSchemaFile(definition: DocumentDefinition, filePath: string): CreateDocumentResult {
+    switch (definition.definitionType) {
+      case DocumentDefinitionType.XML_SCHEMA:
+        return XmlSchemaDocumentService.removeSchemaFile(definition, filePath);
+      case DocumentDefinitionType.JSON_SCHEMA:
+        return JsonSchemaDocumentService.removeSchemaFile(definition, filePath);
+      default:
+        return {
+          validationStatus: 'error',
+          errors: [`removeSchemaFile is not supported for definition type: ${definition.definitionType}`],
         };
     }
   }

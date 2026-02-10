@@ -25,7 +25,7 @@ function createTestJsonDocument(documentType: DocumentType, documentId: string, 
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
   if (result.validationStatus === 'error' || !result.document) {
-    throw new Error(result.validationMessage || 'Failed to create document');
+    throw new Error(result.errors?.join('; ') || 'Failed to create document');
   }
   return result.document;
 }
@@ -522,7 +522,7 @@ describe('JsonSchemaDocumentService', () => {
       );
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       if (result.validationStatus === 'error' || !result.document) {
-        throw new Error(result.validationMessage || 'Failed to create document');
+        throw new Error(result.errors?.join('; ') || 'Failed to create document');
       }
       return result.document;
     };
@@ -662,7 +662,9 @@ describe('JsonSchemaDocumentService', () => {
 
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('NonExistent.schema.json');
+      expect(result.errors?.join('; ')).toContain('NonExistent.schema.json');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!.length).toBeGreaterThan(0);
     });
   });
 
@@ -737,7 +739,9 @@ describe('JsonSchemaDocumentService', () => {
 
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('CommonTypes.schema.json');
+      expect(result.errors?.join('; ')).toContain('CommonTypes.schema.json');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!.length).toBeGreaterThan(0);
     });
   });
 
@@ -829,6 +833,71 @@ describe('JsonSchemaDocumentService', () => {
       });
 
       expect(updatedNamespaceMap).toEqual({});
+    });
+  });
+
+  describe('removeSchemaFile', () => {
+    it('should return error with updated definition when removing a dependency file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        {
+          'MainWithRef.schema.json': mainWithRefJsonSchema,
+          'CommonTypes.schema.json': commonTypesJsonSchema,
+        },
+      );
+      const initialResult = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(initialResult.validationStatus).toBe('success');
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.schema.json');
+      expect(removeResult.validationStatus).toBe('error');
+      expect(removeResult.errors).toBeDefined();
+      expect(removeResult.errors!.length).toBeGreaterThan(0);
+      expect(removeResult.documentDefinition).toBeDefined();
+      expect(removeResult.documentDefinition!.definitionFiles!['CommonTypes.schema.json']).toBeUndefined();
+      expect(removeResult.documentDefinition!.definitionFiles!['MainWithRef.schema.json']).toBeDefined();
+    });
+
+    it('should succeed when removing a non-essential schema file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': accountJsonSchema, 'camelYamlDsl.json': camelYamlDslJsonSchema },
+      );
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'camelYamlDsl.json');
+      expect(removeResult.validationStatus).toBe('success');
+      expect(removeResult.document).toBeDefined();
+    });
+
+    it('should return error when removing all schema files', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': accountJsonSchema },
+      );
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'Account.schema.json');
+      expect(removeResult.validationStatus).toBe('error');
+      expect(removeResult.errors).toBeDefined();
+    });
+
+    it('should not mutate the original definition', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        {
+          'MainWithRef.schema.json': mainWithRefJsonSchema,
+          'CommonTypes.schema.json': commonTypesJsonSchema,
+        },
+      );
+
+      JsonSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.schema.json');
+      expect(definition.definitionFiles!['CommonTypes.schema.json']).toBeDefined();
     });
   });
 });

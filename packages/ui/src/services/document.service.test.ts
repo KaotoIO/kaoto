@@ -1,4 +1,5 @@
 import {
+  BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
@@ -83,9 +84,9 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toBeDefined();
+      expect(result.errors?.length).toBeGreaterThan(0);
       expect(result.document).toBeUndefined();
-      expect(result.documentDefinition).toBeUndefined();
+      expect(result.documentDefinition).toBeDefined();
     });
 
     it('should create a JSON schema document', async () => {
@@ -124,7 +125,7 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toBeDefined();
+      expect(result.errors?.length).toBeGreaterThan(0);
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeUndefined();
     });
@@ -143,9 +144,9 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toBe("There's no top level Element in the schema");
+      expect(result.errors![0]).toBe("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
-      expect(result.documentDefinition).toBeUndefined();
+      expect(result.documentDefinition).toBeDefined();
     });
   });
 
@@ -299,9 +300,9 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain("There's no top level Element in the schema");
+      expect(result.errors![0]).toContain("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
-      expect(result.documentDefinition).toBeUndefined();
+      expect(result.documentDefinition).toBeDefined();
     });
 
     it('should handle malformed JSON for JSON schema', async () => {
@@ -318,7 +319,7 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toBeDefined();
+      expect(result.errors!.length).toBeGreaterThan(0);
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeUndefined();
     });
@@ -582,6 +583,51 @@ describe('DocumentService', () => {
       expect(originalDocument.path.documentId).toBe('renamedTest');
 
       testFieldPath(originalDocument, 'renamedTest');
+    });
+  });
+
+  describe('removeSchemaFile()', () => {
+    it('should delegate to XmlSchemaDocumentService for XML schemas', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'test.xsd': `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="test" type="xs:string" />
+</xs:schema>`,
+        },
+      );
+
+      const result = DocumentService.removeSchemaFile(definition, 'test.xsd');
+      expect(result.validationStatus).toBe('error');
+      expect(result.errors).toBeDefined();
+    });
+
+    it('should delegate to JsonSchemaDocumentService for JSON schemas', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'test.json': '{"type": "object"}' },
+      );
+
+      const result = DocumentService.removeSchemaFile(definition, 'test.json');
+      expect(result.validationStatus).toBe('error');
+      expect(result.errors).toBeDefined();
+    });
+
+    it('should return error for unsupported definition types', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.Primitive,
+        BODY_DOCUMENT_ID,
+      );
+
+      const result = DocumentService.removeSchemaFile(definition, 'test.txt');
+      expect(result.validationStatus).toBe('error');
+      expect(result.errors).toBeDefined();
     });
   });
 });

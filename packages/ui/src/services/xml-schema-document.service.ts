@@ -69,7 +69,9 @@ export class XmlSchemaDocumentService {
     if (analysis.errors.length > 0) {
       return {
         validationStatus: 'error',
-        validationMessage: analysis.errors.join('; '),
+        errors: analysis.errors,
+        warnings: analysis.warnings,
+        documentDefinition: definition,
       };
     }
 
@@ -81,14 +83,16 @@ export class XmlSchemaDocumentService {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         validationStatus: 'error',
-        validationMessage: errorMessage,
+        errors: [errorMessage],
+        documentDefinition: definition,
       };
     }
 
     if (collection.getXmlSchemas().length === 0) {
       return {
         validationStatus: 'error',
-        validationMessage: 'No schema files provided in DocumentDefinition',
+        errors: ['No schema files provided in DocumentDefinition'],
+        documentDefinition: definition,
       };
     }
 
@@ -96,7 +100,8 @@ export class XmlSchemaDocumentService {
     if (totalElements === 0) {
       return {
         validationStatus: 'error',
-        validationMessage: "There's no top level Element in the schema",
+        errors: ["There's no top level Element in the schema"],
+        documentDefinition: definition,
       };
     }
 
@@ -107,7 +112,8 @@ export class XmlSchemaDocumentService {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         validationStatus: 'error',
-        validationMessage: errorMessage,
+        errors: [errorMessage],
+        documentDefinition: definition,
       };
     }
 
@@ -128,12 +134,12 @@ export class XmlSchemaDocumentService {
     const rootElementOptions = XmlSchemaDocumentUtilService.collectRootElementOptions(collection);
 
     return {
-      validationStatus: 'success',
-      validationMessage: 'Schema validation successful',
+      validationStatus: analysis.warnings.length > 0 ? 'warning' : 'success',
+      warnings: analysis.warnings,
       documentDefinition: definition,
       document,
       rootElementOptions,
-    };
+    } as CreateXmlSchemaDocumentResult;
   }
 
   /**
@@ -158,6 +164,33 @@ export class XmlSchemaDocumentService {
     const updatedNamespaceMap = XmlSchemaDocumentService.mergeNamespaceMaps(existingNamespaceMap, newNamespaces);
 
     return updatedNamespaceMap;
+  }
+
+  /**
+   * Removes a schema file from the definition and re-creates the document with updated analysis.
+   * The original definition is not mutated. The returned result always contains the updated
+   * {@link DocumentDefinition} even when validation fails, so callers can continue working with it
+   * (e.g. adding replacement files).
+   *
+   * @param definition - The current document definition containing schema files
+   * @param filePath - The key of the schema file to remove from {@link DocumentDefinition.definitionFiles}
+   * @returns A {@link CreateXmlSchemaDocumentResult} with updated validation status, errors/warnings, and definition
+   */
+  static removeSchemaFile(definition: DocumentDefinition, filePath: string): CreateXmlSchemaDocumentResult {
+    const updatedFiles = { ...definition.definitionFiles };
+    delete updatedFiles[filePath];
+
+    const updatedDefinition = new DocumentDefinition(
+      definition.documentType,
+      definition.definitionType,
+      definition.name,
+      updatedFiles,
+      definition.rootElementChoice,
+      definition.fieldTypeOverrides,
+      definition.namespaceMap,
+    );
+
+    return XmlSchemaDocumentService.createXmlSchemaDocument(updatedDefinition);
   }
 
   /**
