@@ -4,8 +4,10 @@ import { PredicateOperator } from '../../../models/datamapper/xpath';
 import {
   ComparisonExprNode,
   ExprNode,
+  ExprSingleNode,
   FilterExprNode,
   FunctionCallNode,
+  IfExprNode,
   LiteralNode,
   NameTestNode,
   ParenthesizedExprNode,
@@ -163,7 +165,7 @@ export class CstVisitor {
   }
 
   private static visitExpr(node: CstNode): ExprNode {
-    const expressions: (PathExprNode | ComparisonExprNode | LiteralNode | FunctionCallNode | VarRefNode)[] = [];
+    const expressions: ExprSingleNode[] = [];
 
     if ('children' in node && node.children.ExprSingle) {
       for (const exprSingle of node.children.ExprSingle) {
@@ -184,9 +186,13 @@ export class CstVisitor {
     return exprNode;
   }
 
-  private static visitExprSingle(
-    node: CstNode,
-  ): PathExprNode | ComparisonExprNode | LiteralNode | FunctionCallNode | VarRefNode | undefined {
+  private static visitExprSingle(node: CstNode): ExprSingleNode | undefined {
+    // Check for IfExpr first
+    const ifExpr = CstVisitor.getSingleNode(node, ['IfExpr']);
+    if (ifExpr && 'children' in ifExpr) {
+      return CstVisitor.visitIfExpr(ifExpr);
+    }
+
     const orExpr = CstVisitor.getSingleNode(node, ['OrExpr']);
     if (!orExpr || !('children' in orExpr)) return undefined;
 
@@ -764,5 +770,33 @@ export class CstVisitor {
     }
 
     return CstVisitor.extractPathExprsFromChildren(node);
+  }
+
+  private static visitIfExpr(node: CstNode): IfExprNode {
+    const conditionCst = CstVisitor.getSingleNode(node, ['Expr']);
+    const conditionNode = conditionCst && 'children' in conditionCst ? CstVisitor.visitExpr(conditionCst) : undefined;
+
+    const exprSingles = CstVisitor.getNodes(node, ['ExprSingle']);
+    const thenCst = exprSingles?.[0];
+    const elseCst = exprSingles?.[1];
+
+    const thenNode = thenCst && 'children' in thenCst ? CstVisitor.visitExprSingle(thenCst) : undefined;
+    const elseNode = elseCst && 'children' in elseCst ? CstVisitor.visitExprSingle(elseCst) : undefined;
+
+    // XPath grammar ensures all three parts (condition, then, else) are present
+    // Non-null assertion is safe as parser would have failed for incomplete if-else
+    const ifNode: IfExprNode = {
+      type: XPathNodeType.IfExpr,
+      range: CstVisitor.createRangeFromNode(node),
+      condition: conditionNode!,
+      thenExpr: thenNode!,
+      elseExpr: elseNode!,
+    };
+
+    if (conditionNode) conditionNode.parent = ifNode;
+    if (thenNode) thenNode.parent = ifNode;
+    if (elseNode) elseNode.parent = ifNode;
+
+    return ifNode;
   }
 }

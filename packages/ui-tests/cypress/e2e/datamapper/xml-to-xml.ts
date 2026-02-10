@@ -171,4 +171,21 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.deleteParameter('Account');
     cy.countMappingLines(0);
   });
+
+  it('import mappings with XPath if-else expression', () => {
+    cy.openDataMapper();
+    cy.attachSourceBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.importMappings('datamapper/xslt/ShipOrderWithIfElse.xsl');
+
+    cy.get('[data-testid^="node-source-fx-OrderPerson"]').should('exist');
+    cy.get('[data-testid^="node-target-fx-OrderPerson"]').should('exist');
+
+    cy.countMappingLines(8);
+
+    cy.get('[data-testid^="node-source-fx-OrderPerson"]').first().click({ force: true });
+    cy.checkFieldSelected('source', 'fx', 'OrderPerson', true);
+    cy.checkFieldSelected('target', 'fx', 'OrderPerson', true);
+    cy.checkMappingLineSelected(true);
+  });
 });

@@ -35,6 +35,7 @@ export enum XPathNodeType {
   ReverseStep = 'ReverseStep',
   ParenthesizedExpr = 'ParenthesizedExpr',
   Expr = 'Expr',
+  IfExpr = 'IfExpr',
 }
 
 /**
@@ -127,6 +128,18 @@ export interface FilterExprNode extends XPathNode {
 export type PrimaryExprNode = LiteralNode | VarRefNode | ParenthesizedExprNode | ContextItemExprNode | FunctionCallNode;
 
 /**
+ * Union type for single expression nodes that can be returned by ExprSingle.
+ * Represents individual XPath expressions including paths, comparisons, literals, function calls, variables, and if-else expressions.
+ */
+export type ExprSingleNode =
+  | PathExprNode
+  | ComparisonExprNode
+  | LiteralNode
+  | FunctionCallNode
+  | VarRefNode
+  | IfExprNode;
+
+/**
  * Literal value in an XPath expression.
  * Examples:
  * - `"hello"` (string literal)
@@ -190,6 +203,13 @@ export interface ParenthesizedExprNode extends XPathNode {
   expr?: ExprNode;
 }
 
+export interface IfExprNode extends XPathNode {
+  type: XPathNodeType.IfExpr;
+  condition: ExprNode;
+  thenExpr: ExprSingleNode;
+  elseExpr: ExprSingleNode;
+}
+
 /**
  * Top-level expression container, can hold one or more sub-expressions.
  * Examples:
@@ -199,7 +219,7 @@ export interface ParenthesizedExprNode extends XPathNode {
  */
 export interface ExprNode extends XPathNode {
   type: XPathNodeType.Expr;
-  expressions: (PathExprNode | ComparisonExprNode | LiteralNode | FunctionCallNode | VarRefNode)[];
+  expressions: ExprSingleNode[];
 }
 
 /**
