@@ -38,6 +38,7 @@ import { XmlSchemaSimpleTypeList } from '../xml-schema-ts/simple/XmlSchemaSimple
 import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchemaSimpleTypeUnion } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeUnion';
 import { DocumentUtilService } from './document-util.service';
+import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
 import type {
   CreateXmlSchemaDocumentResult,
   XmlSchemaParentType,
@@ -61,10 +62,21 @@ export class XmlSchemaDocumentService {
    */
   static createXmlSchemaDocument(definition: DocumentDefinition): CreateXmlSchemaDocumentResult {
     const collection = new XmlSchemaCollection();
-    definition.definitionFiles && collection.getSchemaResolver().addFiles(definition.definitionFiles);
+    const definitionFiles = definition.definitionFiles || {};
+    collection.getSchemaResolver().addFiles(definitionFiles);
+
+    const analysis = XmlSchemaAnalysisService.analyze(definitionFiles);
+    if (analysis.errors.length > 0) {
+      return {
+        validationStatus: 'error',
+        validationMessage: analysis.errors.join('; '),
+      };
+    }
 
     try {
-      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, definition.definitionFiles || {});
+      for (const path of analysis.loadOrder) {
+        collection.read(definitionFiles[path], () => {}, path);
+      }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
@@ -466,13 +478,13 @@ export class XmlSchemaDocumentService {
       groupParticle
         .getItems()
         .forEach((member: XmlSchemaChoiceMember) =>
-          XmlSchemaDocumentService.populateChoiceMember(parent, fields, member),
+          XmlSchemaDocumentService.populateSequenceOrChoiceMember(parent, fields, member),
         );
     } else if (groupParticle instanceof XmlSchemaSequence) {
       groupParticle
         .getItems()
         .forEach((member: XmlSchemaSequenceMember) =>
-          XmlSchemaDocumentService.populateSequenceMember(parent, fields, member),
+          XmlSchemaDocumentService.populateSequenceOrChoiceMember(parent, fields, member),
         );
     } else if (groupParticle instanceof XmlSchemaAll) {
       groupParticle
@@ -488,24 +500,10 @@ export class XmlSchemaDocumentService {
     group && XmlSchemaDocumentService.populateGroup(parent, fields, group);
   }
 
-  private static populateChoiceMember(
+  private static populateSequenceOrChoiceMember(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
-    member: XmlSchemaChoiceMember,
-  ) {
-    if (member instanceof XmlSchemaGroupRef) {
-      XmlSchemaDocumentService.populateGroupRef(parent, fields, member);
-    } else if (member instanceof XmlSchemaGroup) {
-      XmlSchemaDocumentService.populateGroup(parent, fields, member);
-    } else if (member instanceof XmlSchemaParticle) {
-      XmlSchemaDocumentService.populateParticle(parent, fields, member);
-    }
-  }
-
-  private static populateSequenceMember(
-    parent: XmlSchemaParentType,
-    fields: XmlSchemaField[],
-    member: XmlSchemaSequenceMember,
+    member: XmlSchemaSequenceMember | XmlSchemaChoiceMember,
   ) {
     if (member instanceof XmlSchemaGroupRef) {
       XmlSchemaDocumentService.populateGroupRef(parent, fields, member);
