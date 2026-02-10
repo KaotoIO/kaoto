@@ -77,6 +77,15 @@ export class XmlSchemaAnalysisService {
 
     const warnings = XmlSchemaAnalysisService.detectCircularImports(fileInfos, edges);
 
+    const includeNsErrors = XmlSchemaAnalysisService.validateIncludeNamespaces(fileInfos, edges);
+    errors.push(...includeNsErrors);
+
+    const importNsErrors = XmlSchemaAnalysisService.validateImportNamespaces(fileInfos, edges);
+    errors.push(...importNsErrors);
+
+    const duplicateNsWarnings = XmlSchemaAnalysisService.detectDuplicateTargetNamespaces(fileInfos);
+    warnings.push(...duplicateNsWarnings);
+
     const loadOrder = XmlSchemaAnalysisService.topologicalSort(Object.keys(definitionFiles), edges);
 
     return { fileInfos, edges, errors, warnings, loadOrder };
@@ -253,6 +262,78 @@ export class XmlSchemaAnalysisService {
       }
     }
 
+    return warnings;
+  }
+
+  private static validateIncludeNamespaces(fileInfos: Map<string, SchemaFileInfo>, edges: DependencyEdge[]): string[] {
+    const errors: string[] = [];
+    for (const edge of edges) {
+      if (edge.directive.type !== 'include') {
+        continue;
+      }
+      const parentInfo = fileInfos.get(edge.from);
+      const includedInfo = fileInfos.get(edge.to);
+      if (!parentInfo || !includedInfo) {
+        continue;
+      }
+      if (includedInfo.targetNamespace === null) {
+        continue;
+      }
+      if (includedInfo.targetNamespace !== parentInfo.targetNamespace) {
+        const parentNs = parentInfo.targetNamespace ?? '(no targetNamespace)';
+        const includedNs = includedInfo.targetNamespace;
+        errors.push(
+          `Namespace mismatch in xs:include: "${edge.from}" (targetNamespace: ${parentNs})` +
+            ` includes "${edge.to}" (targetNamespace: ${includedNs}).` +
+            ` Included schemas must have the same targetNamespace or no targetNamespace (chameleon include).`,
+        );
+      }
+    }
+    return errors;
+  }
+
+  private static validateImportNamespaces(fileInfos: Map<string, SchemaFileInfo>, edges: DependencyEdge[]): string[] {
+    const errors: string[] = [];
+    for (const edge of edges) {
+      if (edge.directive.type !== 'import') {
+        continue;
+      }
+      const importedInfo = fileInfos.get(edge.to);
+      if (!importedInfo) {
+        continue;
+      }
+      const declaredNs = edge.directive.namespace;
+      const actualNs = importedInfo.targetNamespace;
+      if (declaredNs === actualNs) {
+        continue;
+      }
+      const declaredLabel = declaredNs ?? '(no namespace)';
+      const actualLabel = actualNs ?? '(no targetNamespace)';
+      errors.push(
+        `Namespace mismatch in xs:import: "${edge.from}" declares namespace ${declaredLabel}` +
+          ` but "${edge.to}" has targetNamespace ${actualLabel}`,
+      );
+    }
+    return errors;
+  }
+
+  private static detectDuplicateTargetNamespaces(fileInfos: Map<string, SchemaFileInfo>): string[] {
+    const nsByNamespace = new Map<string, string[]>();
+    for (const [filePath, info] of fileInfos) {
+      if (info.targetNamespace === null) {
+        continue;
+      }
+      const files = nsByNamespace.get(info.targetNamespace) ?? [];
+      files.push(filePath);
+      nsByNamespace.set(info.targetNamespace, files);
+    }
+    const warnings: string[] = [];
+    for (const [ns, files] of nsByNamespace) {
+      if (files.length > 1) {
+        const fileList = files.map((f) => `"${f}"`).join(', ');
+        warnings.push(`Multiple schemas share targetNamespace "${ns}": ${fileList}`);
+      }
+    }
     return warnings;
   }
 
