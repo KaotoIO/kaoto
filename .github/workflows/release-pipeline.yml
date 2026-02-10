@@ -39,6 +39,7 @@ jobs:
 
   npm-release:
     permissions:
+      id-token: write  # Required for OIDC
       contents: write
     runs-on: ubuntu-latest
     needs:
@@ -66,7 +67,6 @@ jobs:
       - name: 'Version and publish'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.KAOTO_NPM_TOKEN }}
         run: yarn publish
 
   container-image-release:
