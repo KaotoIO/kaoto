@@ -73,6 +73,10 @@ export interface JsonSchemaMetadata extends JSONSchema7 {
    * Updated as the schema is navigated during $ref resolution.
    */
   path: string;
+
+  schemaDependencies?: string[];
+
+  schemaDependents?: string[];
 }
 
 /**

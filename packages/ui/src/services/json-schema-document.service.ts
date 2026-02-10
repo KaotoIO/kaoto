@@ -4,8 +4,11 @@ import { DocumentDefinition } from '../models/datamapper';
 import { Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { DocumentUtilService } from './document-util.service';
+import type { JsonSchemaAnalysisReport } from './json-schema-analysis.service';
+import { JsonSchemaAnalysisService } from './json-schema-analysis.service';
 import {
   CreateJsonSchemaDocumentResult,
+  JsonSchemaCollection,
   JsonSchemaDocument,
   JsonSchemaField,
   JsonSchemaMetadata,
@@ -69,23 +72,22 @@ export class JsonSchemaDocumentService {
       primarySchema = found;
     }
 
+    const analysisResult = JsonSchemaAnalysisService.analyze(schemas, definition.definitionFiles);
+
+    if (analysisResult.errors.length > 0) {
+      return {
+        validationStatus: 'error',
+        validationMessage: analysisResult.errors.join('; '),
+      };
+    }
+
+    JsonSchemaDocumentService.populateDependencyMetadata(schemas, analysisResult);
+
     const jsonDocument = new JsonSchemaDocument(definition);
     jsonDocument.schemaCollection.setDefinitionFiles(definition.definitionFiles || {});
 
     for (const schema of schemas) {
-      jsonDocument.schemaCollection.addJsonSchema(schema);
-
-      const aliases: string[] = [];
-      if (schema.$id && schema.$id !== schema.filePath) {
-        aliases.push(schema.filePath);
-      }
-      const relativePath = './' + schema.filePath;
-      if (relativePath !== schema.filePath) {
-        aliases.push(relativePath);
-      }
-      if (aliases.length > 0) {
-        jsonDocument.schemaCollection.addAlias(schema.identifier, ...aliases);
-      }
+      JsonSchemaDocumentService.registerSchemaWithAliases(jsonDocument.schemaCollection, schema);
     }
 
     const jsonService = new JsonSchemaDocumentService(jsonDocument);
@@ -103,9 +105,14 @@ export class JsonSchemaDocumentService {
       );
     }
 
+    const validationWarnings = analysisResult.warnings;
+    const validationStatus = validationWarnings.length > 0 ? 'warning' : 'success';
+    const validationMessage =
+      validationWarnings.length > 0 ? validationWarnings.join('; ') : 'Schema validation successful';
+
     return {
-      validationStatus: 'success',
-      validationMessage: 'Schema validation successful',
+      validationStatus,
+      validationMessage,
       documentDefinition: definition,
       document,
       rootElementOptions: [],
@@ -126,23 +133,46 @@ export class JsonSchemaDocumentService {
     for (const [filePath, fileContent] of Object.entries(additionalFiles)) {
       try {
         const metadata = JsonSchemaDocumentUtilService.parseJsonSchema(fileContent, filePath);
-        collection.addJsonSchema(metadata);
-
-        const aliases: string[] = [];
-        if (metadata.$id && metadata.$id !== metadata.filePath) {
-          aliases.push(metadata.filePath);
-        }
-        const relativePath = './' + metadata.filePath;
-        if (relativePath !== metadata.filePath) {
-          aliases.push(relativePath);
-        }
-        if (aliases.length > 0) {
-          collection.addAlias(metadata.identifier, ...aliases);
-        }
+        JsonSchemaDocumentService.registerSchemaWithAliases(collection, metadata);
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         throw new Error(`Failed to add schema file "${filePath}": ${errorMessage}`);
       }
+    }
+  }
+
+  private static populateDependencyMetadata(
+    schemas: JsonSchemaMetadata[],
+    analysisResult: JsonSchemaAnalysisReport,
+  ): void {
+    for (const schema of schemas) {
+      const node = analysisResult.nodes.get(schema.identifier);
+      if (!node) continue;
+
+      const uniqueOutbound = new Set<string>();
+      for (const edge of node.outbound) {
+        if (edge.from !== edge.to) {
+          uniqueOutbound.add(edge.to);
+        }
+      }
+      schema.schemaDependencies = [...uniqueOutbound];
+      schema.schemaDependents = node.inbound.map((e) => e.from);
+    }
+  }
+
+  private static registerSchemaWithAliases(collection: JsonSchemaCollection, schema: JsonSchemaMetadata): void {
+    collection.addJsonSchema(schema);
+
+    const aliases: string[] = [];
+    if (schema.$id && schema.$id !== schema.filePath) {
+      aliases.push(schema.filePath);
+    }
+    const relativePath = './' + schema.filePath;
+    if (relativePath !== schema.filePath) {
+      aliases.push(relativePath);
+    }
+    if (aliases.length > 0) {
+      collection.addAlias(schema.identifier, ...aliases);
     }
   }
 

@@ -24,7 +24,7 @@ function createTestJsonDocument(documentType: DocumentType, documentId: string, 
     { [`${documentId}.json`]: content },
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
-  if (result.validationStatus !== 'success' || !result.document) {
+  if (result.validationStatus === 'error' || !result.document) {
     throw new Error(result.validationMessage || 'Failed to create document');
   }
   return result.document;
@@ -371,9 +371,7 @@ describe('JsonSchemaDocumentService', () => {
 
     expect(() => {
       createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
-    }).toThrow(
-      `Cannot resolve external schema reference [https://example.com/schema.json]: Schema 'https://example.com/schema.json' not found in loaded schemas`,
-    );
+    }).toThrow('https://example.com/schema.json');
   });
 
   it('should throw error for external file reference in $ref', () => {
@@ -386,9 +384,7 @@ describe('JsonSchemaDocumentService', () => {
 
     expect(() => {
       createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
-    }).toThrow(
-      `Cannot resolve external schema reference [./external-schema.json]: Schema './external-schema.json' not found in loaded schemas`,
-    );
+    }).toThrow('external-schema.json');
   });
 
   it('should throw error for external reference in nested schema definition', () => {
@@ -404,9 +400,7 @@ describe('JsonSchemaDocumentService', () => {
 
     expect(() => {
       createTestJsonDocument(DocumentType.TARGET_BODY, 'test', JSON.stringify(schema));
-    }).toThrow(
-      `Cannot resolve external schema reference [http://json-schema.org/draft-07/schema#]: Schema 'http://json-schema.org/draft-07/schema' not found in loaded schemas`,
-    );
+    }).toThrow('json-schema.org/draft-07/schema');
   });
 
   it('should allow internal references starting with #', () => {
@@ -527,7 +521,7 @@ describe('JsonSchemaDocumentService', () => {
         rootElementChoice,
       );
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
-      if (result.validationStatus !== 'success' || !result.document) {
+      if (result.validationStatus === 'error' || !result.document) {
         throw new Error(result.validationMessage || 'Failed to create document');
       }
       return result.document;
@@ -731,7 +725,7 @@ describe('JsonSchemaDocumentService', () => {
       expect(moneyType.fields.find((f) => f.key === 'currency')).toBeDefined();
     });
 
-    it('should throw error when referenced schema is missing', () => {
+    it('should return error when referenced schema is missing', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
@@ -741,9 +735,9 @@ describe('JsonSchemaDocumentService', () => {
         },
       );
 
-      expect(() => {
-        JsonSchemaDocumentService.createJsonSchemaDocument(definition);
-      }).toThrow('CommonTypes.schema.json');
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('error');
+      expect(result.validationMessage).toContain('CommonTypes.schema.json');
     });
   });
 
