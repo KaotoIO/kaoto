@@ -104,6 +104,12 @@ export class JsonSchemaAnalysisService {
       errors.push(`Missing schema reference: '${missing.ref}' referenced from '${missing.from}' could not be resolved`);
     }
 
+    const duplicateIdErrors = JsonSchemaAnalysisService.detectDuplicateIds(schemas);
+    errors.push(...duplicateIdErrors);
+
+    const idFilePathWarnings = JsonSchemaAnalysisService.detectIdFilePathConflicts(schemas);
+    warnings.push(...idFilePathWarnings);
+
     return {
       nodes,
       edges,
@@ -542,6 +548,51 @@ export class JsonSchemaAnalysisService {
         }
       }
     }
+  }
+
+  private static detectDuplicateIds(schemas: JsonSchemaMetadata[]): string[] {
+    const idToFilePaths = new Map<string, string[]>();
+    for (const schema of schemas) {
+      if (!schema.$id) {
+        continue;
+      }
+      const existing = idToFilePaths.get(schema.$id);
+      if (existing) {
+        existing.push(schema.filePath);
+      } else {
+        idToFilePaths.set(schema.$id, [schema.filePath]);
+      }
+    }
+
+    const errors: string[] = [];
+    for (const [id, filePaths] of idToFilePaths) {
+      if (filePaths.length > 1) {
+        const fileList = filePaths.map((fp) => `'${fp}'`).join(', ');
+        errors.push(`Duplicate $id '${id}' found in files: ${fileList}`);
+      }
+    }
+    return errors;
+  }
+
+  private static detectIdFilePathConflicts(schemas: JsonSchemaMetadata[]): string[] {
+    const filePathToSchema = new Map<string, JsonSchemaMetadata>();
+    for (const schema of schemas) {
+      filePathToSchema.set(schema.filePath, schema);
+    }
+
+    const warnings: string[] = [];
+    for (const schema of schemas) {
+      if (!schema.$id || schema.$id === schema.filePath) {
+        continue;
+      }
+      const conflicting = filePathToSchema.get(schema.$id);
+      if (conflicting && conflicting.filePath !== schema.filePath) {
+        warnings.push(
+          `Schema $id '${schema.$id}' in file '${schema.filePath}' conflicts with file path of another schema '${conflicting.filePath}'`,
+        );
+      }
+    }
+    return warnings;
   }
 
   private static resolvePath(schemaLocation: string, baseUri: string): string {

@@ -560,6 +560,182 @@ describe('JsonSchemaAnalysisService', () => {
         expect(result.loadOrder).toHaveLength(0);
       });
     });
+
+    describe('duplicate $id detection', () => {
+      it('should detect duplicate $id across two files', () => {
+        const schemaA = createMetadata('http://example.com/types.json', 'a/types.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+        });
+        const schemaB = createMetadata('http://example.com/types.json', 'b/types.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        expect(duplicateErrors).toHaveLength(1);
+        expect(duplicateErrors[0]).toContain('http://example.com/types.json');
+        expect(duplicateErrors[0]).toContain('a/types.json');
+        expect(duplicateErrors[0]).toContain('b/types.json');
+      });
+
+      it('should not report duplicate when $id is absent', () => {
+        const schemaA = createMetadata('a.json', 'a.json', { type: 'object' });
+        const schemaB = createMetadata('b.json', 'b.json', { type: 'object' });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        expect(duplicateErrors).toHaveLength(0);
+      });
+
+      it('should not report duplicate for single schema with $id', () => {
+        const schema = createMetadata('http://example.com/schema.json', 'schema.json', {
+          $id: 'http://example.com/schema.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schema]);
+
+        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        expect(duplicateErrors).toHaveLength(0);
+      });
+
+      it('should detect duplicate $id across three files', () => {
+        const schemaA = createMetadata('http://example.com/types.json', 'a.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+        });
+        const schemaB = createMetadata('http://example.com/types.json', 'b.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+        });
+        const schemaC = createMetadata('http://example.com/types.json', 'c.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB, schemaC]);
+
+        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        expect(duplicateErrors).toHaveLength(1);
+        expect(duplicateErrors[0]).toContain('a.json');
+        expect(duplicateErrors[0]).toContain('b.json');
+        expect(duplicateErrors[0]).toContain('c.json');
+      });
+
+      it('should not report duplicate when $id values are different', () => {
+        const schemaA = createMetadata('http://example.com/a.json', 'a.json', {
+          $id: 'http://example.com/a.json',
+          type: 'object',
+        });
+        const schemaB = createMetadata('http://example.com/b.json', 'b.json', {
+          $id: 'http://example.com/b.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        expect(duplicateErrors).toHaveLength(0);
+      });
+    });
+
+    describe('$id vs file path conflict detection', () => {
+      it('should warn when $id matches another schema file path', () => {
+        const schemaA = createMetadata('http://example.com/types.json', 'schemas/types.json', {
+          $id: 'b.json',
+          type: 'object',
+        });
+        const schemaB = createMetadata('b.json', 'b.json', { type: 'object' });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        expect(idWarnings).toHaveLength(1);
+        expect(idWarnings[0]).toContain('b.json');
+        expect(idWarnings[0]).toContain('schemas/types.json');
+      });
+
+      it('should not warn when $id matches own file path', () => {
+        const schema = createMetadata('schema.json', 'schema.json', {
+          $id: 'schema.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schema]);
+
+        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        expect(idWarnings).toHaveLength(0);
+      });
+
+      it('should not warn when no $id conflicts exist', () => {
+        const schemaA = createMetadata('http://example.com/a.json', 'a.json', {
+          $id: 'http://example.com/a.json',
+          type: 'object',
+        });
+        const schemaB = createMetadata('http://example.com/b.json', 'b.json', {
+          $id: 'http://example.com/b.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        expect(idWarnings).toHaveLength(0);
+      });
+
+      it('should not warn when schema has no $id', () => {
+        const schemaA = createMetadata('a.json', 'a.json', { type: 'object' });
+        const schemaB = createMetadata('b.json', 'b.json', { type: 'object' });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        expect(idWarnings).toHaveLength(0);
+      });
+    });
+
+    describe('conflict detection integration', () => {
+      it('should not affect existing analysis results when conflicts are detected', () => {
+        const schemaA = createMetadata('http://example.com/types.json', 'a/types.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+          properties: {
+            b: { $ref: './b.json' },
+          },
+        });
+        const schemaB = createMetadata('http://example.com/types.json', 'b/types.json', {
+          $id: 'http://example.com/types.json',
+          type: 'object',
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        expect(result.nodes.size).toBeGreaterThan(0);
+        expect(result.loadOrder.length).toBeGreaterThan(0);
+        expect(result.errors.some((e) => e.includes('Duplicate $id'))).toBe(true);
+      });
+
+      it('should detect duplicate $id through analyzeFromDefinitionFiles', () => {
+        const definitionFiles = {
+          'a/types.json': JSON.stringify({
+            $id: 'http://example.com/types.json',
+            type: 'object',
+          }),
+          'b/types.json': JSON.stringify({
+            $id: 'http://example.com/types.json',
+            type: 'object',
+          }),
+        };
+
+        const result = JsonSchemaAnalysisService.analyzeFromDefinitionFiles(definitionFiles);
+
+        expect(result.errors.some((e) => e.includes('Duplicate $id'))).toBe(true);
+      });
+    });
   });
 
   describe('analyzeFromDefinitionFiles', () => {
