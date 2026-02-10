@@ -1,11 +1,31 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { EnumField } from '@kaoto/forms';
 
+import { ICamelComponentDefinition } from '../../../../../models/camel-components-catalog';
+import { CatalogKind } from '../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../models/kaoto-schema';
+import { CamelCatalogService } from '../../../../../models/visualization/flows/camel-catalog.service';
+import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
+import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 
 describe('customFieldsFactoryfactory', () => {
+  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
+
+  beforeEach(async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    componentCatalogMap = catalogsMap.componentCatalogMap;
+
+    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
+  });
+
+  afterEach(() => {
+    CamelCatalogService.clearCatalogs();
+  });
+
   it('returns EnumField for enums regardless of the schema type', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'object', enum: ['option 1', 'option 2', 'option 3'] };
     const result = customFieldsFactoryfactory(schema);
@@ -22,6 +42,25 @@ describe('customFieldsFactoryfactory', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Ref' };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(UnprefixedBeanField);
+  });
+
+  it('returns DirectEndpointNameField for direct component name schema from camel catalog', () => {
+    const directNameSchema = componentCatalogMap.direct.propertiesSchema?.properties?.name;
+
+    expect(directNameSchema).toBeDefined();
+
+    const result = customFieldsFactoryfactory(directNameSchema ?? {});
+    expect(result).toBe(DirectEndpointNameField);
+  });
+
+  it('returns DirectEndpointNameField for a matching direct endpoint schema', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Name',
+      description: 'Sets the direct endpoint name',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(DirectEndpointNameField);
   });
 
   it('returns ExpressionField for format "expression"', () => {
