@@ -263,7 +263,7 @@ describe('XmlSchemaDocumentService', () => {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('error');
-    expect(result.validationMessage).toContain('an XML declaration must be at the start of the document');
+    expect(result.errors![0]).toContain('an XML declaration must be at the start of the document');
   });
 
   it('should parse SchemaTest.xsd with advanced features', () => {
@@ -903,9 +903,9 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('Missing required schema');
-      expect(result.validationMessage).toContain('CommonTypes.xsd');
-      expect(result.validationMessage).toContain('MainWithInclude.xsd');
+      expect(result.errors![0]).toContain('Missing required schema');
+      expect(result.errors![0]).toContain('CommonTypes.xsd');
+      expect(result.errors![0]).toContain('MainWithInclude.xsd');
     });
   });
 
@@ -1255,10 +1255,12 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('Missing required schema');
-      expect(result.validationMessage).toContain('Missing.xsd');
-      expect(result.validationMessage).toContain('main.xsd');
-      expect(result.validationMessage).toContain('xs:include');
+      expect(result.errors![0]).toContain('Missing required schema');
+      expect(result.errors![0]).toContain('Missing.xsd');
+      expect(result.errors![0]).toContain('main.xsd');
+      expect(result.errors![0]).toContain('xs:include');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!.length).toBeGreaterThan(0);
     });
 
     it('should return actionable error for missing imported schema', () => {
@@ -1278,9 +1280,11 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('Missing required schema');
-      expect(result.validationMessage).toContain('types.xsd');
-      expect(result.validationMessage).toContain('xs:import');
+      expect(result.errors![0]).toContain('Missing required schema');
+      expect(result.errors![0]).toContain('types.xsd');
+      expect(result.errors![0]).toContain('xs:import');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!.length).toBeGreaterThan(0);
     });
 
     it('should return error for circular includes', () => {
@@ -1304,10 +1308,12 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.validationMessage).toContain('Circular xs:include');
+      expect(result.errors![0]).toContain('Circular xs:include');
+      expect(result.errors).toBeDefined();
+      expect(result.errors!.length).toBeGreaterThan(0);
     });
 
-    it('should succeed with circular imports (different namespaces)', () => {
+    it('should warn with circular imports (different namespaces)', () => {
       const schemaA = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://example.com/a"
@@ -1331,7 +1337,11 @@ describe('XmlSchemaDocumentService', () => {
         { 'A.xsd': schemaA, 'B.xsd': schemaB },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      expect(result.validationStatus).toBe('success');
+      expect(result.validationStatus).toBe('warning');
+      expect(result.warnings).toBeDefined();
+      expect(result.warnings!.length).toBeGreaterThan(0);
+      expect(result.warnings![0]).toContain('Circular xs:import');
+      expect(result.document).toBeDefined();
     });
 
     it('should load deep dependency chain in correct order', () => {
@@ -1371,6 +1381,71 @@ describe('XmlSchemaDocumentService', () => {
       const document = result.document as XmlSchemaDocument;
       expect(document).toBeDefined();
       expect(document.fields[0].name).toBe('Main');
+    });
+  });
+
+  describe('removeSchemaFile', () => {
+    it('should return error with updated definition when removing a dependency file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'MainWithInclude.xsd': mainWithIncludeXsd,
+          'CommonTypes.xsd': commonTypesXsd,
+        },
+      );
+      const initialResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(initialResult.validationStatus).not.toBe('error');
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.xsd');
+      expect(removeResult.validationStatus).toBe('error');
+      expect(removeResult.errors).toBeDefined();
+      expect(removeResult.errors!.length).toBeGreaterThan(0);
+      expect(removeResult.documentDefinition).toBeDefined();
+      expect(removeResult.documentDefinition!.definitionFiles!['CommonTypes.xsd']).toBeUndefined();
+      expect(removeResult.documentDefinition!.definitionFiles!['MainWithInclude.xsd']).toBeDefined();
+    });
+
+    it('should succeed when removing a non-essential schema file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': shipOrderXsd, 'ImportedTypes.xsd': importedTypesXsd },
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'ImportedTypes.xsd');
+      expect(removeResult.validationStatus).toBe('success');
+      expect(removeResult.document).toBeDefined();
+    });
+
+    it('should return error when removing all schema files', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': shipOrderXsd },
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd');
+      expect(removeResult.validationStatus).toBe('error');
+      expect(removeResult.errors).toBeDefined();
+    });
+
+    it('should not mutate the original definition', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'MainWithInclude.xsd': mainWithIncludeXsd,
+          'CommonTypes.xsd': commonTypesXsd,
+        },
+      );
+
+      XmlSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.xsd');
+      expect(definition.definitionFiles!['CommonTypes.xsd']).toBeDefined();
     });
   });
 });

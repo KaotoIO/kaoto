@@ -359,7 +359,8 @@ export type RootElementOption = {
  */
 export interface CreateDocumentResult {
   validationStatus: 'success' | 'warning' | 'error';
-  validationMessage?: string;
+  errors?: string[];
+  warnings?: string[];
   documentDefinition?: DocumentDefinition;
   document?: IDocument;
   rootElementOptions?: RootElementOption[];

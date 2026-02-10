@@ -250,7 +250,7 @@ describe('DataMapperMetadataService', () => {
 
       const docResult = JsonSchemaDocumentService.createJsonSchemaDocument(result.sourceBody);
       if (docResult.validationStatus !== 'success') {
-        throw new Error(`Validation failed: ${docResult.validationMessage}`);
+        throw new Error(`Validation failed: ${docResult.errors?.join('; ')}`);
       }
       const root = docResult.document!.fields[0];
       const customerId = root.fields.find((f) => f.key === 'customerId');

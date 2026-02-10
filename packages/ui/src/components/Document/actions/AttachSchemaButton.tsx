@@ -119,22 +119,25 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
         if (!DataMapperStepService.supportsJsonBody()) {
           setCreateDocumentResult({
             validationStatus: 'error',
-            validationMessage:
+            errors: [
               'JSON source body is not supported. The xslt-saxon component requires the useJsonBody parameter which is not available in this Camel version. Please use parameter for JSON source.',
+            ],
           });
           return;
         }
       } else if (!['.xml', '.xsd'].includes(fileExtension)) {
         setCreateDocumentResult({
           validationStatus: 'error',
-          validationMessage: `Unknown file extension '${fileExtension}'. Only XML schema file (.xml, .xsd) is supported.`,
+          errors: [`Unknown file extension '${fileExtension}'. Only XML schema file (.xml, .xsd) is supported.`],
         });
         return;
       }
     } else if (!['.json', '.xsd', '.xml'].includes(fileExtension)) {
       setCreateDocumentResult({
         validationStatus: 'error',
-        validationMessage: `Unknown file extension '${fileExtension}'. Either XML schema (.xsd, .xml) or JSON schema (.json) file is supported.`,
+        errors: [
+          `Unknown file extension '${fileExtension}'. Either XML schema (.xsd, .xml) or JSON schema (.json) file is supported.`,
+        ],
       });
       return;
     }
@@ -167,7 +170,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
 
   const onCommit = useCallback(async () => {
     if (!createDocumentResult?.document || !createDocumentResult.documentDefinition) {
-      setCreateDocumentResult({ validationStatus: 'error', validationMessage: 'Please select a schema file first' });
+      setCreateDocumentResult({ validationStatus: 'error', errors: ['Please select a schema file first'] });
       return;
     }
 
@@ -179,7 +182,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       const cause = error['message'] ? ': ' + error['message'] : '';
-      setCreateDocumentResult({ validationStatus: 'error', validationMessage: `Cannot attach the schema ${cause}` });
+      setCreateDocumentResult({ validationStatus: 'error', errors: [`Cannot attach the schema ${cause}`] });
     } finally {
       setIsLoading(false);
     }
@@ -224,6 +227,10 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
       filePaths.length > 0 && createDocumentResult?.validationStatus === 'success' && createDocumentResult?.document
     );
   }, [filePaths.length, createDocumentResult]);
+
+  const validationMessage = useMemo(() => {
+    return (createDocumentResult?.errors ?? createDocumentResult?.warnings ?? []).join('; ');
+  }, [createDocumentResult]);
 
   return (
     <>
@@ -273,7 +280,7 @@ export const AttachSchemaButton: FunctionComponent<AttachSchemaProps> = ({
                       data-testid="attach-schema-modal-text-helper"
                       variant={createDocumentResult.validationStatus}
                     >
-                      {createDocumentResult.validationMessage}
+                      {validationMessage}
                     </HelperTextItem>
                   </HelperText>
                 </FormHelperText>

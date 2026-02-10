@@ -40,7 +40,8 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
 
       if (result.validationStatus !== 'success') {
         const variant = result.validationStatus === 'warning' ? AlertVariant.warning : AlertVariant.danger;
-        sendAlert({ variant: variant, title: result.validationMessage });
+        const messages = result.errors ?? result.warnings ?? [];
+        sendAlert({ variant: variant, title: messages.join('; ') });
       } else if (!result.documentDefinition || !result.document) {
         sendAlert({ variant: AlertVariant.danger, title: 'Could not create a parameter' });
       } else {

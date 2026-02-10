@@ -174,7 +174,7 @@ export class TestUtil {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.validationMessage || 'Failed to create document');
+      throw new Error(result.errors?.join('; ') || 'Failed to create document');
     }
     return result.document;
   }
@@ -190,7 +190,7 @@ export class TestUtil {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.validationMessage || 'Failed to create document');
+      throw new Error(result.errors?.join('; ') || 'Failed to create document');
     }
     return result.document;
   }
@@ -206,7 +206,7 @@ export class TestUtil {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.validationMessage || 'Failed to create document');
+      throw new Error(result.errors?.join('; ') || 'Failed to create document');
     }
     return result.document;
   }
@@ -222,7 +222,7 @@ export class TestUtil {
     );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.validationMessage || 'Failed to create document');
+      throw new Error(result.errors?.join('; ') || 'Failed to create document');
     }
     return result.document;
   }
