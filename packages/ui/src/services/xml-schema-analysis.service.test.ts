@@ -4,13 +4,16 @@ describe('XmlSchemaAnalysisService', () => {
   const makeSchema = (opts?: {
     targetNamespace?: string;
     includes?: string[];
-    imports?: { ns: string; loc: string }[];
+    imports?: { ns?: string; loc: string }[];
     elements?: string;
   }) => {
     const ns = opts?.targetNamespace ? ` targetNamespace="${opts.targetNamespace}"` : '';
     const includes = (opts?.includes ?? []).map((loc) => `  <xs:include schemaLocation="${loc}"/>`).join('\n');
     const imports = (opts?.imports ?? [])
-      .map((imp) => `  <xs:import namespace="${imp.ns}" schemaLocation="${imp.loc}"/>`)
+      .map((imp) => {
+        const nsAttr = imp.ns == null ? '' : ` namespace="${imp.ns}"`;
+        return `  <xs:import${nsAttr} schemaLocation="${imp.loc}"/>`;
+      })
       .join('\n');
     const elements = opts?.elements ?? '  <xs:element name="Root" type="xs:string"/>';
     return `<?xml version="1.0" encoding="UTF-8"?>
@@ -221,5 +224,182 @@ ${elements}
     expect(result.errors).toHaveLength(0);
     expect(result.edges).toHaveLength(1);
     expect(result.edges[0].to).toBe('schemas/common.xsd');
+  });
+
+  describe('namespace validation', () => {
+    describe('xs:include namespace validation', () => {
+      it('should allow include with matching targetNamespace', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            includes: ['helper.xsd'],
+          }),
+          'helper.xsd': makeSchema({ targetNamespace: 'http://example.com/main' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+      });
+
+      it('should report error for include with mismatched targetNamespace', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            includes: ['helper.xsd'],
+          }),
+          'helper.xsd': makeSchema({ targetNamespace: 'http://example.com/other' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        expect(nsErrors).toHaveLength(1);
+        expect(nsErrors[0]).toContain('xs:include');
+        expect(nsErrors[0]).toContain('main.xsd');
+        expect(nsErrors[0]).toContain('helper.xsd');
+      });
+
+      it('should allow chameleon include (no targetNamespace on included schema)', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            includes: ['helper.xsd'],
+          }),
+          'helper.xsd': makeSchema(),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+      });
+
+      it('should allow include when both schemas have no targetNamespace', () => {
+        const files = {
+          'main.xsd': makeSchema({ includes: ['helper.xsd'] }),
+          'helper.xsd': makeSchema(),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+      });
+
+      it('should report error when parent has no targetNamespace but included schema does', () => {
+        const files = {
+          'main.xsd': makeSchema({ includes: ['helper.xsd'] }),
+          'helper.xsd': makeSchema({ targetNamespace: 'http://example.com/helper' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        expect(nsErrors).toHaveLength(1);
+        expect(nsErrors[0]).toContain('xs:include');
+        expect(nsErrors[0]).toContain('main.xsd');
+        expect(nsErrors[0]).toContain('helper.xsd');
+        expect(nsErrors[0]).toContain('chameleon');
+      });
+    });
+
+    describe('xs:import namespace validation', () => {
+      it('should allow import with matching namespace', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            imports: [{ ns: 'http://example.com/types', loc: 'types.xsd' }],
+          }),
+          'types.xsd': makeSchema({ targetNamespace: 'http://example.com/types' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+      });
+
+      it('should report error for import with mismatched namespace', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            imports: [{ ns: 'http://example.com/types', loc: 'types.xsd' }],
+          }),
+          'types.xsd': makeSchema({ targetNamespace: 'http://example.com/other' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        expect(nsErrors).toHaveLength(1);
+        expect(nsErrors[0]).toContain('xs:import');
+        expect(nsErrors[0]).toContain('main.xsd');
+        expect(nsErrors[0]).toContain('types.xsd');
+      });
+
+      it('should report error when import has no namespace but schema has targetNamespace', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            imports: [{ loc: 'types.xsd' }],
+          }),
+          'types.xsd': makeSchema({ targetNamespace: 'http://example.com/types' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        expect(nsErrors).toHaveLength(1);
+        expect(nsErrors[0]).toContain('xs:import');
+      });
+
+      it('should report error when import has namespace but schema has no targetNamespace', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/main',
+            imports: [{ ns: 'http://example.com/types', loc: 'types.xsd' }],
+          }),
+          'types.xsd': makeSchema(),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        expect(nsErrors).toHaveLength(1);
+        expect(nsErrors[0]).toContain('xs:import');
+      });
+
+      it('should allow import when both namespace and targetNamespace are absent', () => {
+        const files = {
+          'main.xsd': makeSchema({ imports: [{ loc: 'types.xsd' }] }),
+          'types.xsd': makeSchema(),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+      });
+    });
+
+    describe('duplicate targetNamespace detection', () => {
+      it('should warn when multiple schemas share the same targetNamespace', () => {
+        const files = {
+          'types1.xsd': makeSchema({ targetNamespace: 'http://example.com/types' }),
+          'types2.xsd': makeSchema({ targetNamespace: 'http://example.com/types' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+        const nsWarnings = result.warnings.filter((w) => w.includes('Multiple schemas'));
+        expect(nsWarnings).toHaveLength(1);
+        expect(nsWarnings[0]).toContain('http://example.com/types');
+        expect(nsWarnings[0]).toContain('types1.xsd');
+        expect(nsWarnings[0]).toContain('types2.xsd');
+      });
+
+      it('should not warn when schemas have no targetNamespace', () => {
+        const files = {
+          'A.xsd': makeSchema(),
+          'B.xsd': makeSchema(),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        const nsWarnings = result.warnings.filter((w) => w.includes('Multiple schemas'));
+        expect(nsWarnings).toHaveLength(0);
+      });
+    });
+
+    it('should report multiple namespace issues at once', () => {
+      const files = {
+        'main.xsd': makeSchema({
+          targetNamespace: 'http://example.com/main',
+          includes: ['bad-include.xsd'],
+          imports: [{ ns: 'http://example.com/types', loc: 'bad-import.xsd' }],
+        }),
+        'bad-include.xsd': makeSchema({ targetNamespace: 'http://example.com/wrong' }),
+        'bad-import.xsd': makeSchema({ targetNamespace: 'http://example.com/other' }),
+      };
+      const result = XmlSchemaAnalysisService.analyze(files);
+      const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+      expect(nsErrors).toHaveLength(2);
+      expect(nsErrors.some((e) => e.includes('xs:include'))).toBe(true);
+      expect(nsErrors.some((e) => e.includes('xs:import'))).toBe(true);
+    });
   });
 });
