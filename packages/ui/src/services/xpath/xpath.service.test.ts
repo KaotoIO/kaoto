@@ -575,6 +575,40 @@ describe('XPathService', () => {
         expect(paths[0].pathSegments[2].name).toEqual('node');
       });
     });
+
+    describe('if-else expressions (issue #2917)', () => {
+      it('should extract fields from condition and branches', () => {
+        const paths = XPathService.extractFieldPaths(
+          'if ($order/status = "VIP") then $order/totalPrice * 0.8 else $order/totalPrice',
+        );
+        expect(paths.length).toEqual(2);
+
+        // First path: order/status (used in condition)
+        expect(paths[0].documentReferenceName).toEqual('order');
+        expect(paths[0].pathSegments.length).toEqual(1);
+        expect(paths[0].pathSegments[0].name).toEqual('status');
+
+        // Second path: order/totalPrice (used in both then and else branches)
+        expect(paths[1].documentReferenceName).toEqual('order');
+        expect(paths[1].pathSegments.length).toEqual(1);
+        expect(paths[1].pathSegments[0].name).toEqual('totalPrice');
+      });
+
+      it('should extract fields from nested if-else', () => {
+        const paths = XPathService.extractFieldPaths(
+          'if ($price > 100) then (if ($vip) then $price * 0.8 else $price * 0.9) else $price',
+        );
+        expect(paths.length).toEqual(2);
+
+        // price field
+        expect(paths[0].documentReferenceName).toEqual('price');
+        expect(paths[0].pathSegments.length).toEqual(0);
+
+        // vip field
+        expect(paths[1].documentReferenceName).toEqual('vip');
+        expect(paths[1].pathSegments.length).toEqual(0);
+      });
+    });
   });
 
   describe('toXPathString()', () => {

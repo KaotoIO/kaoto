@@ -3,6 +3,7 @@ import {
   ExprNode,
   FilterExprNode,
   FunctionCallNode,
+  IfExprNode,
   ParenthesizedExprNode,
   PathExprNode,
   PredicateNode,
@@ -95,6 +96,12 @@ export class XPathUtil {
     if (node.nodeTest) this.traverseNode(node.nodeTest, callback);
   }
 
+  private static traverseIfExpr(node: IfExprNode, callback: (node: XPathNode) => void): void {
+    if (node.condition) this.traverseNode(node.condition, callback);
+    if (node.thenExpr) this.traverseNode(node.thenExpr, callback);
+    if (node.elseExpr) this.traverseNode(node.elseExpr, callback);
+  }
+
   private static traverseNode(node: XPathNode, callback: (node: XPathNode) => void): void {
     callback(node);
 
@@ -122,6 +129,9 @@ export class XPathUtil {
         break;
       case XPathNodeType.ParenthesizedExpr:
         this.traverseParenthesizedExpr(node as ParenthesizedExprNode, callback);
+        break;
+      case XPathNodeType.IfExpr:
+        this.traverseIfExpr(node as IfExprNode, callback);
         break;
       case XPathNodeType.ReverseStep:
         this.traverseReverseStep(node as ReverseStepNode, callback);
