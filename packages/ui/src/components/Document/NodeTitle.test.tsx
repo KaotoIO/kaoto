@@ -144,20 +144,7 @@ describe('NodeTitle', () => {
     });
   });
 
-  it('should display an asterisk when the field information is required', async () => {
-    const shipOrderDoc = TestUtil.createSourceOrderDoc();
-    const documentNodeData = new DocumentNodeData(shipOrderDoc);
-    const mockField = createMockField();
-    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
-    fieldNodeData.field.minOccurs = 1;
-
-    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
-
-    const element = screen.getByText('*');
-    expect(element).toBeVisible();
-  });
-
-  it('should not display an asterisk when the field information is optional', async () => {
+  it('should display an optional icon when the field information is optional', async () => {
     const shipOrderDoc = TestUtil.createSourceOrderDoc();
     const documentNodeData = new DocumentNodeData(shipOrderDoc);
     const mockField = createMockField();
@@ -166,8 +153,36 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.queryByText('*');
-    expect(element).not.toBeInTheDocument();
+    const element = screen.getByAltText('Optional');
+    expect(element).toBeVisible();
+  });
+
+  it('should display an repeat 0+ icon when the field information can be repeated 0+ times', async () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const mockField = createMockField();
+    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
+    fieldNodeData.field.minOccurs = 0;
+    fieldNodeData.field.maxOccurs = 'unbounded';
+
+    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
+
+    const element = screen.getByAltText('Repeat0');
+    expect(element).toBeVisible();
+  });
+
+  it('should display an repeat 1+ icon when the field information can be repeated 1+ times', async () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const mockField = createMockField();
+    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
+    fieldNodeData.field.minOccurs = 1;
+    fieldNodeData.field.maxOccurs = 'unbounded';
+
+    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
+
+    const element = screen.getByAltText('Repeat1');
+    expect(element).toBeVisible();
   });
 
   it('should not display popover for MappingNodeData', async () => {
