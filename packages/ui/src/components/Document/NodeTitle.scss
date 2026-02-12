@@ -21,8 +21,10 @@
 
 div.node-title-container {
   display: flex;
+  align-items: center;
 }
 
-img.datamapper-marker-field {
-  margin: 2px;
+.datamapper-marker-field {
+  width: 1.75rem;
+  height: 1.25rem;
 }

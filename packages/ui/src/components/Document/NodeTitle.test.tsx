@@ -153,7 +153,7 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.getByAltText('Optional');
+    const element = screen.getByLabelText('Optional');
     expect(element).toBeVisible();
   });
 
@@ -167,7 +167,7 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.getByAltText('Repeat0');
+    const element = screen.getByLabelText('Repeat0');
     expect(element).toBeVisible();
   });
 
@@ -181,7 +181,7 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.getByAltText('Repeat1');
+    const element = screen.getByLabelText('Repeat1');
     expect(element).toBeVisible();
   });
 
