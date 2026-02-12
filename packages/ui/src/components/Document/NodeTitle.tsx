@@ -4,9 +4,9 @@ import { Label, Popover, Title } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
-import optionalIcon from '../../assets/data-mapper/field-icons/optional-icon.svg';
-import repeat0Icon from '../../assets/data-mapper/field-icons/repeat0-icon.svg';
-import repeat1Icon from '../../assets/data-mapper/field-icons/repeat1-icon.svg';
+import OptIcon from '../../assets/data-mapper/field-icons/OptIcon';
+import Repeat0Icon from '../../assets/data-mapper/field-icons/Repeat0Icon';
+import Repeat1Icon from '../../assets/data-mapper/field-icons/Repeat1Icon';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
@@ -71,12 +71,12 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
             {title}
           </span>
           {optionalField && !repeatingField0 && (
-            <img className="datamapper-marker-field" src={optionalIcon} alt="Optional" />
+            <OptIcon className="node__spacer datamapper-marker-field" aria-label="Optional" />
           )}
           {repeatingField0 && !repeatingField1 && (
-            <img className="datamapper-marker-field" src={repeat0Icon} alt="Repeat0" />
+            <Repeat0Icon className="node__spacer datamapper-marker-field" aria-label="Repeat0" />
           )}
-          {repeatingField1 && <img className="datamapper-marker-field" src={repeat1Icon} alt="Repeat1" />}
+          {repeatingField1 && <Repeat1Icon className="node__spacer datamapper-marker-field" aria-label="Repeat1" />}
         </div>
       </Popover>
     );
