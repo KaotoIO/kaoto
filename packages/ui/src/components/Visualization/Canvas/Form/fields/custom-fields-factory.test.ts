@@ -11,6 +11,7 @@ import { PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
+import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 
 describe('customFieldsFactoryfactory', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
@@ -73,6 +74,18 @@ describe('customFieldsFactoryfactory', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'string', format: 'expressionProperty' };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(ExpressionField);
+  });
+
+  it('returns MediaTypeField for title "Consumes"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Consumes' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(MediaTypeField);
+  });
+
+  it('returns MediaTypeField for title "Produces"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Produces' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(MediaTypeField);
   });
 
   it('returns undefined for string type with unrelated format', () => {

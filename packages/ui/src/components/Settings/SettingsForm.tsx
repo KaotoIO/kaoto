@@ -9,6 +9,7 @@ import { KaotoSchemaDefinition } from '../../models';
 import { SettingsModel } from '../../models/settings';
 import { SettingsContext } from '../../providers/settings.provider';
 import { Links } from '../../router/links.models';
+import { customFieldsFactoryfactory } from '../Visualization/Canvas/Form/fields/custom-fields-factory';
 
 export const SettingsForm: FunctionComponent = () => {
   const settingsAdapter = useContext(SettingsContext);
@@ -41,6 +42,7 @@ export const SettingsForm: FunctionComponent = () => {
             schema={settingsSchema as KaotoSchemaDefinition['schema']}
             model={settings}
             onChange={onChangeModel}
+            customFieldsFactory={customFieldsFactoryfactory}
           />
         </CanvasFormTabsContext.Provider>
       </CardBody>
