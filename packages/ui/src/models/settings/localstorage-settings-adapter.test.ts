@@ -3,6 +3,10 @@ import { LocalStorageSettingsAdapter } from './localstorage-settings-adapter';
 import { ColorScheme, NodeLabelType, NodeToolbarTrigger, SettingsModel } from './settings.model';
 
 describe('LocalStorageSettingsAdapter', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it('should create an instance with the default settings', () => {
     const adapter = new LocalStorageSettingsAdapter();
 
@@ -16,6 +20,10 @@ describe('LocalStorageSettingsAdapter', () => {
       nodeLabel: NodeLabelType.Description,
       nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
       colorScheme: ColorScheme.Auto,
+      rest: {
+        apicurioRegistryUrl: '',
+        customMediaTypes: [],
+      },
       experimentalFeatures: {
         enableDragAndDrop: true,
       },
@@ -29,7 +37,9 @@ describe('LocalStorageSettingsAdapter', () => {
   it('should retrieve the saved settings from localStorage after creating a new instance', () => {
     const localStorageGetItemSpy = jest.spyOn(Storage.prototype, 'getItem');
 
-    new LocalStorageSettingsAdapter();
+    expect(() => {
+      return new LocalStorageSettingsAdapter();
+    }).not.toThrow();
 
     expect(localStorageGetItemSpy).toHaveBeenCalledWith(LocalStorageKeys.Settings);
   });
@@ -43,6 +53,10 @@ describe('LocalStorageSettingsAdapter', () => {
       nodeLabel: NodeLabelType.Description,
       nodeToolbarTrigger: NodeToolbarTrigger.onSelection,
       colorScheme: ColorScheme.Auto,
+      rest: {
+        apicurioRegistryUrl: '',
+        customMediaTypes: [],
+      },
       experimentalFeatures: {
         enableDragAndDrop: true,
       },

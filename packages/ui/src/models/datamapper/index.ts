@@ -1,7 +1,6 @@
 export * from './document';
 export * from './mapping';
 export * from './nodepath';
-export * from './schema';
 export { NS_XSL } from './standard-namespaces';
 export * from './types';
 export * from './view';
