@@ -52,8 +52,7 @@ describe('SourceTargetView', () => {
       });
 
       await waitFor(() => {
-        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-        expect(text.value).toEqual('ShipOrder.xsd');
+        screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
       });
 
       const commitButton = await screen.findByTestId('attach-schema-modal-btn-attach');
@@ -126,8 +125,7 @@ describe('SourceTargetView', () => {
       });
 
       await waitFor(() => {
-        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-        expect(text.value).toEqual('ShipOrder.xsd');
+        screen.getByTestId('attach-schema-file-item-ShipOrder.xsd');
         const xmlSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-xml');
         expect(xmlSchemaRadio.checked).toBeTruthy();
         const jsonSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-json');
@@ -182,8 +180,7 @@ describe('SourceTargetView', () => {
       });
 
       await waitFor(() => {
-        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-        expect(text.value).toEqual('ShipOrder.json');
+        screen.getByTestId('attach-schema-file-item-ShipOrder.json');
         const jsonSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-json');
         expect(jsonSchemaRadio.checked).toBeTruthy();
         const xmlSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-xml');
@@ -238,8 +235,7 @@ describe('SourceTargetView', () => {
       });
 
       await waitFor(() => {
-        const text: HTMLInputElement = screen.getByTestId('attach-schema-modal-text');
-        expect(text.value).toEqual('CamelYamlDsl.json');
+        screen.getByTestId('attach-schema-file-item-CamelYamlDsl.json');
         const jsonSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-json');
         expect(jsonSchemaRadio.checked).toBeTruthy();
         const xmlSchemaRadio: HTMLInputElement = screen.getByTestId('attach-schema-modal-option-xml');

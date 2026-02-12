@@ -55,10 +55,11 @@ ${elements}
     };
     const result = XmlSchemaAnalysisService.analyze(files);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0]).toContain('Missing required schema');
-    expect(result.errors[0]).toContain('B.xsd');
-    expect(result.errors[0]).toContain('A.xsd');
-    expect(result.errors[0]).toContain('xs:include');
+    expect(result.errors[0].message).toContain('Missing required schema');
+    expect(result.errors[0].message).toContain('B.xsd');
+    expect(result.errors[0].message).toContain('A.xsd');
+    expect(result.errors[0].message).toContain('xs:include');
+    expect(result.errors[0].filePath).toBe('A.xsd');
   });
 
   it('should report missing imported schema', () => {
@@ -67,10 +68,11 @@ ${elements}
     };
     const result = XmlSchemaAnalysisService.analyze(files);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0]).toContain('Missing required schema');
-    expect(result.errors[0]).toContain('types.xsd');
-    expect(result.errors[0]).toContain('A.xsd');
-    expect(result.errors[0]).toContain('xs:import');
+    expect(result.errors[0].message).toContain('Missing required schema');
+    expect(result.errors[0].message).toContain('types.xsd');
+    expect(result.errors[0].message).toContain('A.xsd');
+    expect(result.errors[0].message).toContain('xs:import');
+    expect(result.errors[0].filePath).toBe('A.xsd');
   });
 
   it('should detect circular includes', () => {
@@ -79,10 +81,11 @@ ${elements}
       'B.xsd': makeSchema({ includes: ['A.xsd'] }),
     };
     const result = XmlSchemaAnalysisService.analyze(files);
-    const circularErrors = result.errors.filter((e) => e.includes('Circular'));
+    const circularErrors = result.errors.filter((e) => e.message.includes('Circular'));
     expect(circularErrors.length).toBeGreaterThan(0);
-    expect(circularErrors[0]).toContain('A.xsd');
-    expect(circularErrors[0]).toContain('B.xsd');
+    expect(circularErrors[0].message).toContain('A.xsd');
+    expect(circularErrors[0].message).toContain('B.xsd');
+    expect(circularErrors[0].filePath).toBeUndefined();
   });
 
   it('should allow circular imports (different namespaces)', () => {
@@ -99,7 +102,7 @@ ${elements}
     const result = XmlSchemaAnalysisService.analyze(files);
     expect(result.errors).toHaveLength(0);
     expect(result.warnings).toHaveLength(1);
-    expect(result.warnings[0]).toContain('Circular xs:import');
+    expect(result.warnings[0].message).toContain('Circular xs:import');
     expect(result.loadOrder).toContain('A.xsd');
     expect(result.loadOrder).toContain('B.xsd');
   });
@@ -126,8 +129,9 @@ ${elements}
     };
     const result = XmlSchemaAnalysisService.analyze(files);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0]).toContain('C.xsd');
-    expect(result.errors[0]).toContain('B.xsd');
+    expect(result.errors[0].message).toContain('C.xsd');
+    expect(result.errors[0].message).toContain('B.xsd');
+    expect(result.errors[0].filePath).toBe('B.xsd');
   });
 
   it('should handle mixed include/import scenarios', () => {
@@ -211,8 +215,9 @@ ${elements}
     };
     const result = XmlSchemaAnalysisService.analyze(files);
     expect(result.errors).toHaveLength(1);
-    expect(result.errors[0]).toContain('XML parse error');
-    expect(result.errors[0]).toContain('invalid.xsd');
+    expect(result.errors[0].message).toContain('XML parse error');
+    expect(result.errors[0].message).toContain('invalid.xsd');
+    expect(result.errors[0].filePath).toBe('invalid.xsd');
   });
 
   it('should resolve path with parent directory references', () => {
@@ -249,11 +254,11 @@ ${elements}
           'helper.xsd': makeSchema({ targetNamespace: 'http://example.com/other' }),
         };
         const result = XmlSchemaAnalysisService.analyze(files);
-        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        const nsErrors = result.errors.filter((e) => e.message.includes('Namespace mismatch'));
         expect(nsErrors).toHaveLength(1);
-        expect(nsErrors[0]).toContain('xs:include');
-        expect(nsErrors[0]).toContain('main.xsd');
-        expect(nsErrors[0]).toContain('helper.xsd');
+        expect(nsErrors[0].message).toContain('xs:include');
+        expect(nsErrors[0].message).toContain('main.xsd');
+        expect(nsErrors[0].message).toContain('helper.xsd');
       });
 
       it('should allow chameleon include (no targetNamespace on included schema)', () => {
@@ -283,12 +288,12 @@ ${elements}
           'helper.xsd': makeSchema({ targetNamespace: 'http://example.com/helper' }),
         };
         const result = XmlSchemaAnalysisService.analyze(files);
-        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        const nsErrors = result.errors.filter((e) => e.message.includes('Namespace mismatch'));
         expect(nsErrors).toHaveLength(1);
-        expect(nsErrors[0]).toContain('xs:include');
-        expect(nsErrors[0]).toContain('main.xsd');
-        expect(nsErrors[0]).toContain('helper.xsd');
-        expect(nsErrors[0]).toContain('chameleon');
+        expect(nsErrors[0].message).toContain('xs:include');
+        expect(nsErrors[0].message).toContain('main.xsd');
+        expect(nsErrors[0].message).toContain('helper.xsd');
+        expect(nsErrors[0].message).toContain('chameleon');
       });
     });
 
@@ -314,11 +319,11 @@ ${elements}
           'types.xsd': makeSchema({ targetNamespace: 'http://example.com/other' }),
         };
         const result = XmlSchemaAnalysisService.analyze(files);
-        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        const nsErrors = result.errors.filter((e) => e.message.includes('Namespace mismatch'));
         expect(nsErrors).toHaveLength(1);
-        expect(nsErrors[0]).toContain('xs:import');
-        expect(nsErrors[0]).toContain('main.xsd');
-        expect(nsErrors[0]).toContain('types.xsd');
+        expect(nsErrors[0].message).toContain('xs:import');
+        expect(nsErrors[0].message).toContain('main.xsd');
+        expect(nsErrors[0].message).toContain('types.xsd');
       });
 
       it('should report error when import has no namespace but schema has targetNamespace', () => {
@@ -330,9 +335,9 @@ ${elements}
           'types.xsd': makeSchema({ targetNamespace: 'http://example.com/types' }),
         };
         const result = XmlSchemaAnalysisService.analyze(files);
-        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        const nsErrors = result.errors.filter((e) => e.message.includes('Namespace mismatch'));
         expect(nsErrors).toHaveLength(1);
-        expect(nsErrors[0]).toContain('xs:import');
+        expect(nsErrors[0].message).toContain('xs:import');
       });
 
       it('should report error when import has namespace but schema has no targetNamespace', () => {
@@ -344,9 +349,9 @@ ${elements}
           'types.xsd': makeSchema(),
         };
         const result = XmlSchemaAnalysisService.analyze(files);
-        const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+        const nsErrors = result.errors.filter((e) => e.message.includes('Namespace mismatch'));
         expect(nsErrors).toHaveLength(1);
-        expect(nsErrors[0]).toContain('xs:import');
+        expect(nsErrors[0].message).toContain('xs:import');
       });
 
       it('should allow import when both namespace and targetNamespace are absent', () => {
@@ -367,11 +372,11 @@ ${elements}
         };
         const result = XmlSchemaAnalysisService.analyze(files);
         expect(result.errors).toHaveLength(0);
-        const nsWarnings = result.warnings.filter((w) => w.includes('Multiple schemas'));
+        const nsWarnings = result.warnings.filter((w) => w.message.includes('Multiple schemas'));
         expect(nsWarnings).toHaveLength(1);
-        expect(nsWarnings[0]).toContain('http://example.com/types');
-        expect(nsWarnings[0]).toContain('types1.xsd');
-        expect(nsWarnings[0]).toContain('types2.xsd');
+        expect(nsWarnings[0].message).toContain('http://example.com/types');
+        expect(nsWarnings[0].message).toContain('types1.xsd');
+        expect(nsWarnings[0].message).toContain('types2.xsd');
       });
 
       it('should not warn when schemas have no targetNamespace', () => {
@@ -380,7 +385,22 @@ ${elements}
           'B.xsd': makeSchema(),
         };
         const result = XmlSchemaAnalysisService.analyze(files);
-        const nsWarnings = result.warnings.filter((w) => w.includes('Multiple schemas'));
+        const nsWarnings = result.warnings.filter((w) => w.message.includes('Multiple schemas'));
+        expect(nsWarnings).toHaveLength(0);
+      });
+
+      it('should not warn when same-namespace schemas are connected via xs:include', () => {
+        const files = {
+          'main.xsd': makeSchema({
+            targetNamespace: 'http://example.com/shared',
+            includes: ['componentA.xsd', 'componentB.xsd'],
+          }),
+          'componentA.xsd': makeSchema({ targetNamespace: 'http://example.com/shared' }),
+          'componentB.xsd': makeSchema({ targetNamespace: 'http://example.com/shared' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toHaveLength(0);
+        const nsWarnings = result.warnings.filter((w) => w.message.includes('Multiple schemas'));
         expect(nsWarnings).toHaveLength(0);
       });
     });
@@ -396,10 +416,10 @@ ${elements}
         'bad-import.xsd': makeSchema({ targetNamespace: 'http://example.com/other' }),
       };
       const result = XmlSchemaAnalysisService.analyze(files);
-      const nsErrors = result.errors.filter((e) => e.includes('Namespace mismatch'));
+      const nsErrors = result.errors.filter((e) => e.message.includes('Namespace mismatch'));
       expect(nsErrors).toHaveLength(2);
-      expect(nsErrors.some((e) => e.includes('xs:include'))).toBe(true);
-      expect(nsErrors.some((e) => e.includes('xs:import'))).toBe(true);
+      expect(nsErrors.some((e) => e.message.includes('xs:include'))).toBe(true);
+      expect(nsErrors.some((e) => e.message.includes('xs:import'))).toBe(true);
     });
   });
 });

@@ -15,6 +15,9 @@ import {
   invalidComplexExtensionXsd,
   mainWithImportXsd,
   mainWithIncludeXsd,
+  multiIncludeComponentAXsd,
+  multiIncludeComponentBXsd,
+  multiIncludeMainXsd,
   multiLevelExtensionXsd,
   multiLevelRestrictionXsd,
   restrictionComplexXsd,
@@ -263,7 +266,7 @@ describe('XmlSchemaDocumentService', () => {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     expect(result.validationStatus).toBe('error');
-    expect(result.errors![0]).toContain('an XML declaration must be at the start of the document');
+    expect(result.errors![0].message).toContain('an XML declaration must be at the start of the document');
   });
 
   it('should parse SchemaTest.xsd with advanced features', () => {
@@ -903,9 +906,32 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.errors![0]).toContain('Missing required schema');
-      expect(result.errors![0]).toContain('CommonTypes.xsd');
-      expect(result.errors![0]).toContain('MainWithInclude.xsd');
+      expect(result.errors![0].message).toContain('Missing required schema');
+      expect(result.errors![0].message).toContain('CommonTypes.xsd');
+      expect(result.errors![0].message).toContain('MainWithInclude.xsd');
+    });
+
+    it('should load multiple schemas with same targetNamespace connected via xs:include', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'MultiIncludeMain.xsd': multiIncludeMainXsd,
+          'MultiIncludeComponentA.xsd': multiIncludeComponentAXsd,
+          'MultiIncludeComponentB.xsd': multiIncludeComponentBXsd,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).not.toBe('error');
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+
+      const rootElement = document.fields[0];
+      expect(rootElement.name).toEqual('Root');
+      expect(rootElement.fields).toHaveLength(2);
+      expect(rootElement.fields[0].name).toEqual('partA');
+      expect(rootElement.fields[1].name).toEqual('partB');
     });
   });
 
@@ -1255,10 +1281,10 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.errors![0]).toContain('Missing required schema');
-      expect(result.errors![0]).toContain('Missing.xsd');
-      expect(result.errors![0]).toContain('main.xsd');
-      expect(result.errors![0]).toContain('xs:include');
+      expect(result.errors![0].message).toContain('Missing required schema');
+      expect(result.errors![0].message).toContain('Missing.xsd');
+      expect(result.errors![0].message).toContain('main.xsd');
+      expect(result.errors![0].message).toContain('xs:include');
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
     });
@@ -1280,9 +1306,9 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.errors![0]).toContain('Missing required schema');
-      expect(result.errors![0]).toContain('types.xsd');
-      expect(result.errors![0]).toContain('xs:import');
+      expect(result.errors![0].message).toContain('Missing required schema');
+      expect(result.errors![0].message).toContain('types.xsd');
+      expect(result.errors![0].message).toContain('xs:import');
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
     });
@@ -1308,7 +1334,7 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.errors![0]).toContain('Circular xs:include');
+      expect(result.errors![0].message).toContain('Circular xs:include');
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
     });
@@ -1338,9 +1364,8 @@ describe('XmlSchemaDocumentService', () => {
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('warning');
-      expect(result.warnings).toBeDefined();
-      expect(result.warnings!.length).toBeGreaterThan(0);
-      expect(result.warnings![0]).toContain('Circular xs:import');
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings![0].message).toContain('Circular xs:import');
       expect(result.document).toBeDefined();
     });
 

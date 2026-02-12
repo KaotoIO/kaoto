@@ -327,10 +327,9 @@ export class DataMapperMetadataService {
     fileNamePattern: string,
   ): Promise<string[] | string | undefined> {
     return await api.askUserForFileSelection(fileNamePattern, undefined, {
-      canPickMany: false, // TODO set to true once we support xs:include/xs:import, i.e. multiple files
-      placeHolder:
-        'Choose the schema file to attach. Type a text to narrow down the candidates. The file path is shown as a relative path from the active Camel file opening with Kaoto.',
-      title: 'Attaching document schema file',
+      canPickMany: true,
+      placeHolder: 'Choose schema file(s) to attach. You can upload more files later to resolve dependencies.',
+      title: 'Attaching document schema file(s)',
     });
   }
 

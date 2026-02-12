@@ -1,6 +1,6 @@
 import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
-import { SchemaAnalysisReport } from '../models/datamapper/schema';
+import { ReportMessage, SchemaAnalysisReport } from '../models/datamapper/schema';
 import { JsonSchemaMetadata } from './json-schema-document.model';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 import { PathUtil } from './path-util';
@@ -94,14 +94,17 @@ export class JsonSchemaAnalysisService {
     const circularDependencies = JsonSchemaAnalysisService.detectCircularDependencies(nodes);
     const loadOrder = JsonSchemaAnalysisService.computeLoadingOrder(nodes, circularDependencies);
 
-    const warnings: string[] = [];
+    const warnings: ReportMessage[] = [];
     for (const cycle of circularDependencies) {
-      warnings.push(`Circular dependency detected: ${cycle.chain.join(' → ')}`);
+      warnings.push({ message: `Circular dependency detected: ${cycle.chain.join(' → ')}` });
     }
 
-    const errors: string[] = [];
+    const errors: ReportMessage[] = [];
     for (const missing of missingReferences) {
-      errors.push(`Missing schema reference: '${missing.ref}' referenced from '${missing.from}' could not be resolved`);
+      errors.push({
+        message: `Missing schema reference: '${missing.ref}' referenced from '${missing.from}' could not be resolved`,
+        filePath: nodes.get(missing.from)?.filePath ?? missing.from,
+      });
     }
 
     const duplicateIdErrors = JsonSchemaAnalysisService.detectDuplicateIds(schemas);
@@ -550,7 +553,7 @@ export class JsonSchemaAnalysisService {
     }
   }
 
-  private static detectDuplicateIds(schemas: JsonSchemaMetadata[]): string[] {
+  private static detectDuplicateIds(schemas: JsonSchemaMetadata[]): ReportMessage[] {
     const idToFilePaths = new Map<string, string[]>();
     for (const schema of schemas) {
       if (!schema.$id) {
@@ -564,32 +567,33 @@ export class JsonSchemaAnalysisService {
       }
     }
 
-    const errors: string[] = [];
+    const errors: ReportMessage[] = [];
     for (const [id, filePaths] of idToFilePaths) {
       if (filePaths.length > 1) {
         const fileList = filePaths.map((fp) => `'${fp}'`).join(', ');
-        errors.push(`Duplicate $id '${id}' found in files: ${fileList}`);
+        errors.push({ message: `Duplicate $id '${id}' found in files: ${fileList}` });
       }
     }
     return errors;
   }
 
-  private static detectIdFilePathConflicts(schemas: JsonSchemaMetadata[]): string[] {
+  private static detectIdFilePathConflicts(schemas: JsonSchemaMetadata[]): ReportMessage[] {
     const filePathToSchema = new Map<string, JsonSchemaMetadata>();
     for (const schema of schemas) {
       filePathToSchema.set(schema.filePath, schema);
     }
 
-    const warnings: string[] = [];
+    const warnings: ReportMessage[] = [];
     for (const schema of schemas) {
       if (!schema.$id || schema.$id === schema.filePath) {
         continue;
       }
       const conflicting = filePathToSchema.get(schema.$id);
       if (conflicting && conflicting.filePath !== schema.filePath) {
-        warnings.push(
-          `Schema $id '${schema.$id}' in file '${schema.filePath}' conflicts with file path of another schema '${conflicting.filePath}'`,
-        );
+        warnings.push({
+          message: `Schema $id '${schema.$id}' in file '${schema.filePath}' conflicts with file path of another schema '${conflicting.filePath}'`,
+          filePath: schema.filePath,
+        });
       }
     }
     return warnings;

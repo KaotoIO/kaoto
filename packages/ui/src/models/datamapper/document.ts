@@ -3,6 +3,7 @@ import { MaxOccursType } from '../../xml-schema-ts/constants';
 import { QName } from '../../xml-schema-ts/QName';
 import { IFieldTypeOverride } from './metadata';
 import { NodePath } from './nodepath';
+import { ReportMessage } from './schema';
 import { TypeOverrideVariant, Types } from './types';
 import { Predicate } from './xpath';
 
@@ -378,8 +379,8 @@ export type RootElementOption = {
  */
 export interface CreateDocumentResult {
   validationStatus: 'success' | 'warning' | 'error';
-  errors?: string[];
-  warnings?: string[];
+  errors?: ReportMessage[];
+  warnings?: ReportMessage[];
   documentDefinition?: DocumentDefinition;
   document?: IDocument;
   rootElementOptions?: RootElementOption[];

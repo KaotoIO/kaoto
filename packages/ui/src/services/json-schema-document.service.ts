@@ -46,7 +46,7 @@ export class JsonSchemaDocumentService {
     if (filePaths.length === 0) {
       return {
         validationStatus: 'error',
-        errors: ['No schema files provided in DocumentDefinition'],
+        errors: [{ message: 'No schema files provided in DocumentDefinition' }],
         documentDefinition: definition,
       };
     }
@@ -67,7 +67,9 @@ export class JsonSchemaDocumentService {
       if (!found) {
         return {
           validationStatus: 'error',
-          errors: [`Primary schema file '${definition.rootElementChoice.name}' not found in loaded schemas`],
+          errors: [
+            { message: `Primary schema file '${definition.rootElementChoice.name}' not found in loaded schemas` },
+          ],
           documentDefinition: definition,
         };
       }
@@ -109,9 +111,12 @@ export class JsonSchemaDocumentService {
       );
     }
 
+    const validationWarnings = analysisResult.warnings;
+    const validationStatus = validationWarnings.length > 0 ? 'warning' : 'success';
+
     return {
-      validationStatus: analysisResult.warnings.length > 0 ? 'warning' : 'success',
-      warnings: analysisResult.warnings,
+      validationStatus,
+      warnings: validationWarnings.length > 0 ? validationWarnings : undefined,
       documentDefinition: definition,
       document,
       rootElementOptions: [],

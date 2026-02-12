@@ -532,6 +532,12 @@ export class SchemaBuilder {
     this.setNamespaceAttributes(this.currentSchema, schemaEl);
 
     const schemaKey = new SchemaKey(this.currentSchema.getLogicalTargetNamespace(), systemId);
+
+    const existing = this.collection.getSchema(schemaKey);
+    if (existing != null) {
+      return existing;
+    }
+
     this.handleSchemaElementBasics(schemaEl, systemId, schemaKey);
 
     let el = XDOMUtil.getFirstChildElementNS(schemaEl, XmlSchema.SCHEMA_NS);
@@ -598,7 +604,7 @@ export class SchemaBuilder {
       if (this.collection.check(key)) {
         this.collection.push(key);
         try {
-          const readSchema = this.collection.read(source, validator);
+          const readSchema = this.collection.read(source, validator, systemId);
           this.putCachedSchema(targetNamespace, schemaLocation, baseUri || '', readSchema);
           return readSchema;
         } finally {

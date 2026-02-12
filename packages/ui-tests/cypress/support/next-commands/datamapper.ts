@@ -5,7 +5,7 @@ Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
   }
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
-  cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  cy.get('[data-testid="attach-schema-file-list"]').should('exist');
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
   // Verify schema was attached by checking for child nodes in source body
   cy.get('.source-panel').find('[data-testid^="node-source-"]').should('exist');
@@ -18,7 +18,7 @@ Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
 
-  cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  cy.get('[data-testid="attach-schema-file-list"]').should('exist');
   if (filePath.endsWith('json')) {
     cy.get('[data-testid="attach-schema-modal-option-json"]').should('be.checked');
     cy.get('[data-testid="attach-schema-modal-option-xml"]').should('not.be.checked');
@@ -54,7 +54,7 @@ Cypress.Commands.add('attachParameterSchema', (name: string, filePath: string) =
   cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
   cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
 
-  cy.get('[data-testid="attach-schema-modal-text"]').invoke('val').should('not.be.empty');
+  cy.get('[data-testid="attach-schema-file-list"]').should('exist');
   if (filePath.endsWith('json')) {
     cy.get('[data-testid="attach-schema-modal-option-json"]').should('be.checked');
     cy.get('[data-testid="attach-schema-modal-option-xml"]').should('not.be.checked');

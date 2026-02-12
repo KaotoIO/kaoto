@@ -250,7 +250,7 @@ describe('DataMapperMetadataService', () => {
 
       const docResult = JsonSchemaDocumentService.createJsonSchemaDocument(result.sourceBody);
       if (docResult.validationStatus !== 'success') {
-        throw new Error(`Validation failed: ${docResult.errors?.join('; ')}`);
+        throw new Error(`Validation failed: ${docResult.errors?.map((e) => e.message).join('; ')}`);
       }
       const root = docResult.document!.fields[0];
       const customerId = root.fields.find((f) => f.key === 'customerId');
@@ -632,9 +632,9 @@ describe('DataMapperMetadataService', () => {
       const result = await DataMapperMetadataService.selectDocumentSchema(mockApi, '**/*.xsd');
 
       expect(mockApi.askUserForFileSelection).toHaveBeenCalledWith('**/*.xsd', undefined, {
-        canPickMany: false,
-        placeHolder: expect.stringContaining('Choose the schema file to attach'),
-        title: 'Attaching document schema file',
+        canPickMany: true,
+        placeHolder: 'Choose schema file(s) to attach. You can upload more files later to resolve dependencies.',
+        title: 'Attaching document schema file(s)',
       });
       expect(result).toBe(selectedFile);
     });
