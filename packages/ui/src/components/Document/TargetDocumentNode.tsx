@@ -7,6 +7,7 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import {
   AddMappingNodeData,
+  FieldItemNodeData,
   NodeReference,
   TargetDocumentNodeData,
   TargetNodeData,
@@ -37,6 +38,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
 
   const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
   const nodeData = treeNode.nodeData;
+  const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
   const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
@@ -101,7 +103,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               isExpanded={isExpanded}
               onExpandChange={handleClickToggle}
               isDraggable={isDraggable}
-              iconType={nodeData.type}
+              iconType={iconType}
               isCollectionField={isCollectionField}
               isAttributeField={isAttributeField}
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
