@@ -18,11 +18,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
   const fileContentsRef = useRef<Record<string, string>>(undefined);
 
   const askUserForFileSelection = useCallback(
-    (
-      include: string,
-      _exclude?: string,
-      _options?: Record<string, unknown>,
-    ): Promise<string[] | string | undefined> => {
+    (include: string, _exclude?: string, options?: Record<string, unknown>): Promise<string[] | string | undefined> => {
       if (!fileInputRef.current) return Promise.resolve(undefined);
 
       if (include === SCHEMA_FILE_NAME_PATTERN_XML) {
@@ -31,11 +27,12 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
         fileInputRef.current.accept = SCHEMA_FILE_ACCEPT_PATTERN;
       }
 
+      fileInputRef.current.multiple = !!options?.canPickMany;
       fileInputRef.current.click();
       return new Promise<Record<string, string>>((resolve, reject) => {
         fileSelectionRef.current = { resolve, reject };
       }).then((files) => {
-        fileContentsRef.current = files;
+        fileContentsRef.current = { ...fileContentsRef.current, ...files };
         return Object.keys(files);
       });
     },

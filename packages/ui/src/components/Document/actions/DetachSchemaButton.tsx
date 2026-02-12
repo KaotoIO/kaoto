@@ -45,7 +45,7 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
     if (result.validationStatus !== 'success') {
       const variant = result.validationStatus === 'warning' ? AlertVariant.warning : AlertVariant.danger;
       const messages = result.errors ?? result.warnings ?? [];
-      sendAlert({ variant: variant, title: messages.join('; ') });
+      sendAlert({ variant: variant, title: messages.map((m) => m.message).join('; ') });
     } else if (!result.documentDefinition || !result.document) {
       sendAlert({ variant: AlertVariant.danger, title: 'Could not detach schema' });
     } else {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/multi-include"
+           xmlns:mi="http://example.com/multi-include"
+           elementFormDefault="qualified">
+  <xs:complexType name="TypeA">
+    <xs:sequence>
+      <xs:element name="fieldA1" type="xs:string"/>
+      <xs:element name="fieldA2" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

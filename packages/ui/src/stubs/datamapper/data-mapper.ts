@@ -161,6 +161,13 @@ export const mainWithIncludeXsd = fs.readFileSync(path.resolve(__dirname, './xml
 export const commonTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/CommonTypes.xsd')).toString();
 export const mainWithImportXsd = fs.readFileSync(path.resolve(__dirname, './xml/MainWithImport.xsd')).toString();
 export const importedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/ImportedTypes.xsd')).toString();
+export const multiIncludeMainXsd = fs.readFileSync(path.resolve(__dirname, './xml/MultiIncludeMain.xsd')).toString();
+export const multiIncludeComponentAXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/MultiIncludeComponentA.xsd'))
+  .toString();
+export const multiIncludeComponentBXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/MultiIncludeComponentB.xsd'))
+  .toString();
 
 export class TestUtil {
   static createSourceOrderDoc() {
@@ -174,7 +181,7 @@ export class TestUtil {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.errors?.join('; ') || 'Failed to create document');
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
     }
     return result.document;
   }
@@ -190,7 +197,7 @@ export class TestUtil {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.errors?.join('; ') || 'Failed to create document');
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
     }
     return result.document;
   }
@@ -206,7 +213,7 @@ export class TestUtil {
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.errors?.join('; ') || 'Failed to create document');
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
     }
     return result.document;
   }
@@ -222,7 +229,7 @@ export class TestUtil {
     );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.errors?.join('; ') || 'Failed to create document');
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
     }
     return result.document;
   }

@@ -64,14 +64,14 @@ export class DocumentService {
         schemaFilePaths,
       );
       if (!documentDefinition) {
-        return { validationStatus: 'error', errors: ['Could not read schema file(s)'] };
+        return { validationStatus: 'error', errors: [{ message: 'Could not read schema file(s)' }] };
       }
 
       return DocumentService.doCreateDocumentFromDefinition(documentDefinition);
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       const errorMessage = error?.message || 'Unknown validation error';
-      return { validationStatus: 'error', errors: [errorMessage] };
+      return { validationStatus: 'error', errors: [{ message: errorMessage }] };
     }
   }
 
@@ -131,7 +131,7 @@ export class DocumentService {
       default:
         return {
           validationStatus: 'error',
-          errors: [`Unsupported definition type: ${definition.definitionType}`],
+          errors: [{ message: `Unsupported definition type: ${definition.definitionType}` }],
         };
     }
   }
@@ -154,7 +154,7 @@ export class DocumentService {
       default:
         return {
           validationStatus: 'error',
-          errors: [`removeSchemaFile is not supported for definition type: ${definition.definitionType}`],
+          errors: [{ message: `removeSchemaFile is not supported for definition type: ${definition.definitionType}` }],
         };
     }
   }

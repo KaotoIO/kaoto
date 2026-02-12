@@ -144,7 +144,7 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.errors![0]).toBe("There's no top level Element in the schema");
+      expect(result.errors![0].message).toBe("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeDefined();
     });
@@ -300,7 +300,7 @@ describe('DocumentService', () => {
       );
 
       expect(result.validationStatus).toBe('error');
-      expect(result.errors![0]).toContain("There's no top level Element in the schema");
+      expect(result.errors![0].message).toContain("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeDefined();
     });

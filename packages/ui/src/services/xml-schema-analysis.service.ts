@@ -1,4 +1,4 @@
-import { SchemaAnalysisReport } from '../models/datamapper/schema';
+import { ReportMessage, SchemaAnalysisReport } from '../models/datamapper/schema';
 import { PathUtil } from './path-util';
 
 interface SchemaDirective {
@@ -45,13 +45,13 @@ export class XmlSchemaAnalysisService {
   static analyze(definitionFiles: Record<string, string>): XmlSchemaAnalysisReport {
     const fileInfos = new Map<string, SchemaFileInfo>();
     const edges: DependencyEdge[] = [];
-    const errors: string[] = [];
+    const errors: ReportMessage[] = [];
 
     for (const [filePath, content] of Object.entries(definitionFiles)) {
       const { info, parseError } = XmlSchemaAnalysisService.parseSchemaFileInfo(filePath, content);
       fileInfos.set(filePath, info);
       if (parseError) {
-        errors.push(parseError);
+        errors.push({ message: parseError, filePath });
       }
     }
 
@@ -65,9 +65,10 @@ export class XmlSchemaAnalysisService {
         if (resolvedPath) {
           edges.push({ from: filePath, to: resolvedPath, directive });
         } else {
-          errors.push(
-            `Missing required schema: "${directive.schemaLocation}" referenced by "${filePath}" via xs:${directive.type}`,
-          );
+          errors.push({
+            message: `Missing required schema: "${directive.schemaLocation}" referenced by "${filePath}" via xs:${directive.type}`,
+            filePath,
+          });
         }
       }
     }
@@ -83,7 +84,7 @@ export class XmlSchemaAnalysisService {
     const importNsErrors = XmlSchemaAnalysisService.validateImportNamespaces(fileInfos, edges);
     errors.push(...importNsErrors);
 
-    const duplicateNsWarnings = XmlSchemaAnalysisService.detectDuplicateTargetNamespaces(fileInfos);
+    const duplicateNsWarnings = XmlSchemaAnalysisService.detectDuplicateTargetNamespaces(fileInfos, edges);
     warnings.push(...duplicateNsWarnings);
 
     const loadOrder = XmlSchemaAnalysisService.topologicalSort(Object.keys(definitionFiles), edges);
@@ -175,7 +176,10 @@ export class XmlSchemaAnalysisService {
     return null;
   }
 
-  private static detectCircularIncludes(fileInfos: Map<string, SchemaFileInfo>, edges: DependencyEdge[]): string[] {
+  private static detectCircularIncludes(
+    fileInfos: Map<string, SchemaFileInfo>,
+    edges: DependencyEdge[],
+  ): ReportMessage[] {
     const includeAdj = new Map<string, string[]>();
     for (const edge of edges) {
       if (edge.directive.type === 'include') {
@@ -185,7 +189,7 @@ export class XmlSchemaAnalysisService {
       }
     }
 
-    const errors: string[] = [];
+    const errors: ReportMessage[] = [];
     const visited = new Set<string>();
     const inStack = new Set<string>();
     const stack: string[] = [];
@@ -201,7 +205,7 @@ export class XmlSchemaAnalysisService {
           const cycle = stack.slice(cycleStart);
           cycle.push(neighbor);
           const circularInclude = cycle.map((p) => `"${p}"`).join(' -> ');
-          errors.push(`Circular xs:include detected: ${circularInclude}`);
+          errors.push({ message: `Circular xs:include detected: ${circularInclude}` });
         } else if (!visited.has(neighbor)) {
           dfs(neighbor);
         }
@@ -220,7 +224,10 @@ export class XmlSchemaAnalysisService {
     return errors;
   }
 
-  private static detectCircularImports(fileInfos: Map<string, SchemaFileInfo>, edges: DependencyEdge[]): string[] {
+  private static detectCircularImports(
+    fileInfos: Map<string, SchemaFileInfo>,
+    edges: DependencyEdge[],
+  ): ReportMessage[] {
     const importAdj = new Map<string, string[]>();
     for (const edge of edges) {
       if (edge.directive.type === 'import') {
@@ -230,7 +237,7 @@ export class XmlSchemaAnalysisService {
       }
     }
 
-    const warnings: string[] = [];
+    const warnings: ReportMessage[] = [];
     const visited = new Set<string>();
     const inStack = new Set<string>();
     const stack: string[] = [];
@@ -246,7 +253,7 @@ export class XmlSchemaAnalysisService {
           const cycle = stack.slice(cycleStart);
           cycle.push(neighbor);
           const circularImport = cycle.map((p) => `"${p}"`).join(' -> ');
-          warnings.push(`Circular xs:import detected: ${circularImport}`);
+          warnings.push({ message: `Circular xs:import detected: ${circularImport}` });
         } else if (!visited.has(neighbor)) {
           dfs(neighbor);
         }
@@ -265,8 +272,11 @@ export class XmlSchemaAnalysisService {
     return warnings;
   }
 
-  private static validateIncludeNamespaces(fileInfos: Map<string, SchemaFileInfo>, edges: DependencyEdge[]): string[] {
-    const errors: string[] = [];
+  private static validateIncludeNamespaces(
+    fileInfos: Map<string, SchemaFileInfo>,
+    edges: DependencyEdge[],
+  ): ReportMessage[] {
+    const errors: ReportMessage[] = [];
     for (const edge of edges) {
       if (edge.directive.type !== 'include') {
         continue;
@@ -282,18 +292,23 @@ export class XmlSchemaAnalysisService {
       if (includedInfo.targetNamespace !== parentInfo.targetNamespace) {
         const parentNs = parentInfo.targetNamespace ?? '(no targetNamespace)';
         const includedNs = includedInfo.targetNamespace;
-        errors.push(
-          `Namespace mismatch in xs:include: "${edge.from}" (targetNamespace: ${parentNs})` +
+        errors.push({
+          message:
+            `Namespace mismatch in xs:include: "${edge.from}" (targetNamespace: ${parentNs})` +
             ` includes "${edge.to}" (targetNamespace: ${includedNs}).` +
             ` Included schemas must have the same targetNamespace or no targetNamespace (chameleon include).`,
-        );
+          filePath: edge.from,
+        });
       }
     }
     return errors;
   }
 
-  private static validateImportNamespaces(fileInfos: Map<string, SchemaFileInfo>, edges: DependencyEdge[]): string[] {
-    const errors: string[] = [];
+  private static validateImportNamespaces(
+    fileInfos: Map<string, SchemaFileInfo>,
+    edges: DependencyEdge[],
+  ): ReportMessage[] {
+    const errors: ReportMessage[] = [];
     for (const edge of edges) {
       if (edge.directive.type !== 'import') {
         continue;
@@ -309,30 +324,48 @@ export class XmlSchemaAnalysisService {
       }
       const declaredLabel = declaredNs ?? '(no namespace)';
       const actualLabel = actualNs ?? '(no targetNamespace)';
-      errors.push(
-        `Namespace mismatch in xs:import: "${edge.from}" declares namespace ${declaredLabel}` +
+      errors.push({
+        message:
+          `Namespace mismatch in xs:import: "${edge.from}" declares namespace ${declaredLabel}` +
           ` but "${edge.to}" has targetNamespace ${actualLabel}`,
-      );
+        filePath: edge.from,
+      });
     }
     return errors;
   }
 
-  private static detectDuplicateTargetNamespaces(fileInfos: Map<string, SchemaFileInfo>): string[] {
+  private static detectDuplicateTargetNamespaces(
+    fileInfos: Map<string, SchemaFileInfo>,
+    edges: DependencyEdge[],
+  ): ReportMessage[] {
+    const includeTargets = new Set(edges.filter((e) => e.directive.type === 'include').map((e) => e.to));
+    const includeEdges = edges.filter((e) => e.directive.type === 'include');
+
     const nsByNamespace = new Map<string, string[]>();
     for (const [filePath, info] of fileInfos) {
       if (info.targetNamespace === null) {
+        continue;
+      }
+      if (includeTargets.has(filePath)) {
         continue;
       }
       const files = nsByNamespace.get(info.targetNamespace) ?? [];
       files.push(filePath);
       nsByNamespace.set(info.targetNamespace, files);
     }
-    const warnings: string[] = [];
+    const warnings: ReportMessage[] = [];
     for (const [ns, files] of nsByNamespace) {
-      if (files.length > 1) {
-        const fileList = files.map((f) => `"${f}"`).join(', ');
-        warnings.push(`Multiple schemas share targetNamespace "${ns}": ${fileList}`);
+      if (files.length <= 1) continue;
+
+      const allFilesWithNs = new Set<string>();
+      for (const [fp, info] of fileInfos) {
+        if (info.targetNamespace === ns) allFilesWithNs.add(fp);
       }
+      const connectedViaIncludes = includeEdges.some((e) => allFilesWithNs.has(e.from) && allFilesWithNs.has(e.to));
+      if (connectedViaIncludes) continue;
+
+      const fileList = files.map((f) => `"${f}"`).join(', ');
+      warnings.push({ message: `Multiple schemas share targetNamespace "${ns}": ${fileList}` });
     }
     return warnings;
   }

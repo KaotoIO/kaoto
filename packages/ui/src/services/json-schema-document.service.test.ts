@@ -25,7 +25,7 @@ function createTestJsonDocument(documentType: DocumentType, documentId: string, 
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
   if (result.validationStatus === 'error' || !result.document) {
-    throw new Error(result.errors?.join('; ') || 'Failed to create document');
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
   }
   return result.document;
 }
@@ -522,7 +522,7 @@ describe('JsonSchemaDocumentService', () => {
       );
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       if (result.validationStatus === 'error' || !result.document) {
-        throw new Error(result.errors?.join('; ') || 'Failed to create document');
+        throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
       }
       return result.document;
     };
@@ -662,7 +662,7 @@ describe('JsonSchemaDocumentService', () => {
 
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.errors?.join('; ')).toContain('NonExistent.schema.json');
+      expect(result.errors?.map((e) => e.message).join('; ')).toContain('NonExistent.schema.json');
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
     });
@@ -739,7 +739,7 @@ describe('JsonSchemaDocumentService', () => {
 
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       expect(result.validationStatus).toBe('error');
-      expect(result.errors?.join('; ')).toContain('CommonTypes.schema.json');
+      expect(result.errors?.map((e) => e.message).join('; ')).toContain('CommonTypes.schema.json');
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
     });

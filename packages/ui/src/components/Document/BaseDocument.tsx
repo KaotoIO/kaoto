@@ -11,7 +11,7 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { DocumentNodeData, NodeReference } from '../../models/datamapper/visualization';
-import { AttachSchemaButton } from './actions/AttachSchemaButton';
+import { AttachSchemaButton } from './actions/AttachSchema';
 import { DetachSchemaButton } from './actions/DetachSchemaButton';
 import { NodeContainer } from './NodeContainer';
 

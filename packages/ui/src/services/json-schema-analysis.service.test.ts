@@ -382,7 +382,7 @@ describe('JsonSchemaAnalysisService', () => {
         expect(result.circularDependencies[0].chain).toContain('A');
         expect(result.circularDependencies[0].chain).toContain('B');
         expect(result.warnings.length).toBeGreaterThan(0);
-        expect(result.warnings[0]).toContain('Circular dependency');
+        expect(result.warnings[0].message).toContain('Circular dependency');
         expect(result.loadOrder).toHaveLength(2);
       });
 
@@ -440,7 +440,8 @@ describe('JsonSchemaAnalysisService', () => {
         expect(result.missingReferences[0].from).toBe('main');
         expect(result.missingReferences[0].ref).toBe('./Missing.json#/definitions/Type');
         expect(result.errors.length).toBeGreaterThan(0);
-        expect(result.errors[0]).toContain('Missing schema reference');
+        expect(result.errors[0].message).toContain('Missing schema reference');
+        expect(result.errors[0].filePath).toBe('main.json');
       });
 
       it('should not report missing when ref exists in definitionFiles', () => {
@@ -574,11 +575,11 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
 
-        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        const duplicateErrors = result.errors.filter((e) => e.message.includes('Duplicate $id'));
         expect(duplicateErrors).toHaveLength(1);
-        expect(duplicateErrors[0]).toContain('http://example.com/types.json');
-        expect(duplicateErrors[0]).toContain('a/types.json');
-        expect(duplicateErrors[0]).toContain('b/types.json');
+        expect(duplicateErrors[0].message).toContain('http://example.com/types.json');
+        expect(duplicateErrors[0].message).toContain('a/types.json');
+        expect(duplicateErrors[0].message).toContain('b/types.json');
       });
 
       it('should not report duplicate when $id is absent', () => {
@@ -587,7 +588,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
 
-        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        const duplicateErrors = result.errors.filter((e) => e.message.includes('Duplicate $id'));
         expect(duplicateErrors).toHaveLength(0);
       });
 
@@ -599,7 +600,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schema]);
 
-        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        const duplicateErrors = result.errors.filter((e) => e.message.includes('Duplicate $id'));
         expect(duplicateErrors).toHaveLength(0);
       });
 
@@ -619,11 +620,11 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB, schemaC]);
 
-        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        const duplicateErrors = result.errors.filter((e) => e.message.includes('Duplicate $id'));
         expect(duplicateErrors).toHaveLength(1);
-        expect(duplicateErrors[0]).toContain('a.json');
-        expect(duplicateErrors[0]).toContain('b.json');
-        expect(duplicateErrors[0]).toContain('c.json');
+        expect(duplicateErrors[0].message).toContain('a.json');
+        expect(duplicateErrors[0].message).toContain('b.json');
+        expect(duplicateErrors[0].message).toContain('c.json');
       });
 
       it('should not report duplicate when $id values are different', () => {
@@ -638,7 +639,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
 
-        const duplicateErrors = result.errors.filter((e) => e.includes('Duplicate $id'));
+        const duplicateErrors = result.errors.filter((e) => e.message.includes('Duplicate $id'));
         expect(duplicateErrors).toHaveLength(0);
       });
     });
@@ -653,10 +654,10 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
 
-        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        const idWarnings = result.warnings.filter((w) => w.message.includes('conflicts with file path'));
         expect(idWarnings).toHaveLength(1);
-        expect(idWarnings[0]).toContain('b.json');
-        expect(idWarnings[0]).toContain('schemas/types.json');
+        expect(idWarnings[0].message).toContain('b.json');
+        expect(idWarnings[0].message).toContain('schemas/types.json');
       });
 
       it('should not warn when $id matches own file path', () => {
@@ -667,7 +668,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schema]);
 
-        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        const idWarnings = result.warnings.filter((w) => w.message.includes('conflicts with file path'));
         expect(idWarnings).toHaveLength(0);
       });
 
@@ -683,7 +684,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
 
-        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        const idWarnings = result.warnings.filter((w) => w.message.includes('conflicts with file path'));
         expect(idWarnings).toHaveLength(0);
       });
 
@@ -693,7 +694,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
 
-        const idWarnings = result.warnings.filter((w) => w.includes('conflicts with file path'));
+        const idWarnings = result.warnings.filter((w) => w.message.includes('conflicts with file path'));
         expect(idWarnings).toHaveLength(0);
       });
     });
@@ -716,7 +717,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         expect(result.nodes.size).toBeGreaterThan(0);
         expect(result.loadOrder.length).toBeGreaterThan(0);
-        expect(result.errors.some((e) => e.includes('Duplicate $id'))).toBe(true);
+        expect(result.errors.some((e) => e.message.includes('Duplicate $id'))).toBe(true);
       });
 
       it('should detect duplicate $id through analyzeFromDefinitionFiles', () => {
@@ -733,7 +734,7 @@ describe('JsonSchemaAnalysisService', () => {
 
         const result = JsonSchemaAnalysisService.analyzeFromDefinitionFiles(definitionFiles);
 
-        expect(result.errors.some((e) => e.includes('Duplicate $id'))).toBe(true);
+        expect(result.errors.some((e) => e.message.includes('Duplicate $id'))).toBe(true);
       });
     });
   });

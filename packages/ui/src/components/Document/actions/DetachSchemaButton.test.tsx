@@ -168,7 +168,7 @@ describe('DetachSchemaButton', () => {
     const mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'error',
-      errors: ['Failed to create primitive document'],
+      errors: [{ message: 'Failed to create primitive document' }],
     });
 
     const mockSendAlert = jest.fn();
@@ -216,7 +216,7 @@ describe('DetachSchemaButton', () => {
     const mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'warning',
-      warnings: ['Warning during document creation'],
+      warnings: [{ message: 'Warning during document creation' }],
     });
 
     const mockSendAlert = jest.fn();
