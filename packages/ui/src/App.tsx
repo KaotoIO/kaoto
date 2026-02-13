@@ -13,6 +13,7 @@ import { CatalogTilesProvider } from './dynamic-catalog/catalog-tiles.provider';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
+  CollapsedGroupsProvider,
   EntitiesProvider,
   KeyboardShortcutsProvider,
   RuntimeProvider,
@@ -49,21 +50,23 @@ function App() {
                 <Shell>
                   <CatalogTilesProvider>
                     <VisualizationProvider controller={controller}>
-                      <VisibleFlowsProvider>
-                        <RenderingProvider>
-                          <RegisterComponents>
-                            <NodeInteractionAddonProvider>
-                              <RegisterNodeInteractionAddons>
-                                <SuggestionRegistryProvider>
-                                  <KeyboardShortcutsProvider>
-                                    <Outlet />
-                                  </KeyboardShortcutsProvider>
-                                </SuggestionRegistryProvider>
-                              </RegisterNodeInteractionAddons>
-                            </NodeInteractionAddonProvider>
-                          </RegisterComponents>
-                        </RenderingProvider>
-                      </VisibleFlowsProvider>
+                      <CollapsedGroupsProvider>
+                        <VisibleFlowsProvider>
+                          <RenderingProvider>
+                            <RegisterComponents>
+                              <NodeInteractionAddonProvider>
+                                <RegisterNodeInteractionAddons>
+                                  <SuggestionRegistryProvider>
+                                    <KeyboardShortcutsProvider>
+                                      <Outlet />
+                                    </KeyboardShortcutsProvider>
+                                  </SuggestionRegistryProvider>
+                                </RegisterNodeInteractionAddons>
+                              </NodeInteractionAddonProvider>
+                            </RegisterComponents>
+                          </RenderingProvider>
+                        </VisibleFlowsProvider>
+                      </CollapsedGroupsProvider>
                     </VisualizationProvider>
                   </CatalogTilesProvider>
                 </Shell>

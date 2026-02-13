@@ -1,4 +1,5 @@
 export * from './action-confirmation-modal.provider';
+export * from './collapsed-groups.provider';
 export * from './entities.provider';
 export * from './keyboard-shortcuts.provider';
 export * from './metadata.provider';

@@ -1,13 +1,16 @@
 import type { ElementModel, GraphElement } from '@patternfly/react-topology';
 import { action, Dimensions, isNode } from '@patternfly/react-topology';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
+import { CollapsedGroupsContext } from '../../../../providers/collapsed-groups.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 
 export const useCollapseStep = (element: GraphElement<ElementModel, unknown>) => {
   if (!isNode(element)) {
     throw new Error('useCollapseStep must be used only on Node elements');
   }
+
+  const collapsedGroupsContext = useContext(CollapsedGroupsContext);
 
   const handleOnCollapse = useCallback(
     (collapsed: boolean) => {
@@ -18,9 +21,17 @@ export const useCollapseStep = (element: GraphElement<ElementModel, unknown>) =>
 
         element.setCollapsed(collapsed);
         element.getController().getGraph().layout();
+
+        // UPDATE CONTEXT when user manually collapses/expands
+        collapsedGroupsContext?.setGroupCollapsed(element.getId(), collapsed);
+
+        // When expanding, we want to remove the node from the collapsed state in context to avoid stale nodes
+        if (!collapsed) {
+          collapsedGroupsContext?.removeGroupCollapsedState(element.getId());
+        }
       })();
     },
-    [element],
+    [element, collapsedGroupsContext],
   );
 
   const onExpandNode = useCallback(() => {

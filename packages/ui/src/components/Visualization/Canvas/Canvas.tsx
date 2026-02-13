@@ -32,6 +32,7 @@ import { useLocalStorage } from '../../../hooks';
 import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { CollapsedGroupsContext } from '../../../providers/collapsed-groups.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
@@ -59,6 +60,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
+  const collapsedGroupsContext = useContext(CollapsedGroupsContext);
+  const collapsedGroups = collapsedGroupsContext?.collapsedGroups ?? {};
 
   const controller = useVisualizationController();
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
@@ -90,6 +93,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       }
     });
 
+    Object.keys(collapsedGroups).forEach((nodeId) => {
+      const groupNode = nodes.find((node) => node.id === nodeId && node.group);
+      if (!groupNode) return;
+      groupNode.collapsed = true;
+      groupNode.width = CanvasDefaults.DEFAULT_NODE_WIDTH;
+      groupNode.height = CanvasDefaults.DEFAULT_NODE_HEIGHT;
+    });
+
     const model: Model = {
       nodes,
       edges,
@@ -115,7 +126,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
       controller.getGraph().layout();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controller, entities, visibleFlows]);
+  }, [controller, entities, visibleFlows, collapsedGroups]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
 
