@@ -58,6 +58,39 @@ export interface IDocumentMetadata {
    * Allows customization of field types beyond their schema-defined types.
    */
   fieldTypeOverrides?: IFieldTypeOverride[];
+
+  /**
+   * Array of user selections for xs:choice fields in the document.
+   * Persists which choice member is selected for each choice field.
+   */
+  choiceSelections?: IChoiceSelection[];
+}
+
+/**
+ * Represents a user selection for an xs:choice field in a document.
+ */
+export interface IChoiceSelection {
+  /**
+   * Path to the choice field in the document structure.
+   * Uses element XPath segments for elements and `{choice:N}` segments
+   * (0-based index) for choice compositors.
+   *
+   * The `{choice:N}` syntax is intentionally distinct from XPath to avoid
+   * ambiguity with XPath predicates. Therefore, `choicePath` is not directly
+   * parseable as XPath expression.
+   *
+   * Examples:
+   * - `/ns0:Root/{choice:0}` — single choice under Root
+   * - `/ns0:Root/{choice:0}` and `/ns0:Root/{choice:1}` — sibling choices
+   * - `/ns0:Root/{choice:0}/ns0:Option1/{choice:0}` — choice nested via element
+   * - `/ns0:Root/{choice:0}/{choice:0}` — choice directly nested in choice
+   */
+  choicePath: string;
+
+  /**
+   * The 0-based index of the selected choice member.
+   */
+  selectedMemberIndex: number;
 }
 
 /**

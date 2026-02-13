@@ -5,7 +5,12 @@ import {
   DocumentInitializationModel,
   DocumentType,
 } from '../models/datamapper';
-import { IDataMapperMetadata, IDocumentMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
+import {
+  IChoiceSelection,
+  IDataMapperMetadata,
+  IDocumentMetadata,
+  IFieldTypeOverride,
+} from '../models/datamapper/metadata';
 import { IMetadataApi } from '../providers';
 import { EMPTY_XSL } from './mapping-serializer.service';
 
@@ -431,6 +436,50 @@ export class DataMapperMetadataService {
   ): IFieldTypeOverride[] {
     const docMetadata = this.getDocumentMetadata(metadata, documentType, paramName);
     return docMetadata?.fieldTypeOverrides || [];
+  }
+
+  /**
+   * Sets the choice selections for the specified document.
+   * Replaces the entire choice selections array and persists the metadata.
+   * @param api The metadata API
+   * @param metadataId The metadata identifier
+   * @param metadata The DataMapper metadata
+   * @param documentType The document type (SOURCE_BODY, TARGET_BODY, or PARAM)
+   * @param paramName The parameter name (required when documentType is PARAM)
+   * @param selections The complete array of choice selections to set
+   */
+  static async setChoiceSelections(
+    api: IMetadataApi,
+    metadataId: string,
+    metadata: IDataMapperMetadata,
+    documentType: DocumentType,
+    paramName: string | undefined,
+    selections: IChoiceSelection[],
+  ) {
+    const docMetadata = this.getDocumentMetadata(metadata, documentType, paramName);
+    if (!docMetadata) {
+      return;
+    }
+
+    docMetadata.choiceSelections = selections;
+
+    await api.setMetadata(metadataId, metadata);
+  }
+
+  /**
+   * Gets the choice selections for the specified document.
+   * @param metadata The DataMapper metadata
+   * @param documentType The document type (SOURCE_BODY, TARGET_BODY, or PARAM)
+   * @param paramName The parameter name (required when documentType is PARAM)
+   * @returns The array of choice selections, or an empty array if none exist
+   */
+  static getChoiceSelections(
+    metadata: IDataMapperMetadata,
+    documentType: DocumentType,
+    paramName?: string,
+  ): IChoiceSelection[] {
+    const docMetadata = this.getDocumentMetadata(metadata, documentType, paramName);
+    return docMetadata?.choiceSelections || [];
   }
 
   /**
