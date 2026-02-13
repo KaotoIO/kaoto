@@ -4,7 +4,6 @@ import {
   HelperTextItem,
   InputGroup,
   InputGroupItem,
-  InputGroupText,
   Modal,
   ModalBody,
   ModalFooter,
@@ -147,9 +146,16 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
         return;
       }
 
+      if (createDocumentResult?.documentDefinition) {
+        const result = DocumentService.removeSchemaFile(createDocumentResult.documentDefinition, filePathToRemove);
+        if (result.document) {
+          setCreateDocumentResult(result);
+          return;
+        }
+      }
       await validateAndCreateDocument(remaining);
     },
-    [filePaths, validateAndCreateDocument],
+    [filePaths, validateAndCreateDocument, createDocumentResult],
   );
 
   const onRemoveAllFiles = useCallback(() => {
@@ -163,11 +169,20 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     return createDocumentResult.rootElementOptions.length > 0;
   }, [createDocumentResult?.rootElementOptions]);
 
+  const selectedRootOption: RootElementOption | undefined = useMemo(() => {
+    const rootQName = DocumentService.getRootElementQName(createDocumentResult?.document);
+    if (!rootQName || !createDocumentResult?.rootElementOptions) return undefined;
+    return createDocumentResult.rootElementOptions.find(
+      (opt) => opt.name === rootQName.getLocalPart() && opt.namespaceUri === (rootQName.getNamespaceURI() || ''),
+    );
+  }, [createDocumentResult]);
+
   const onUpdateRootElement = useCallback(
     (option: RootElementOption) => {
       if (!createDocumentResult?.document || !createDocumentResult?.documentDefinition) return;
       createDocumentResult.documentDefinition.rootElementChoice = option;
-      createDocumentResult.document = DocumentService.updateRootElement(createDocumentResult?.document, option);
+      const updatedDoc = DocumentService.updateRootElement(createDocumentResult.document, option);
+      setCreateDocumentResult({ ...createDocumentResult, document: updatedDoc });
     },
     [createDocumentResult],
   );
@@ -313,12 +328,11 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
           </StackItem>
           {hasRootElementOptions && (
             <StackItem>
-              <InputGroup>
-                <InputGroupText>Root element</InputGroupText>
-                <InputGroupItem>
-                  <RootElementSelect createDocumentResult={createDocumentResult!} onUpdate={onUpdateRootElement} />
-                </InputGroupItem>
-              </InputGroup>
+              <RootElementSelect
+                rootElementOptions={createDocumentResult!.rootElementOptions!}
+                selectedOption={selectedRootOption}
+                onChange={onUpdateRootElement}
+              />
             </StackItem>
           )}
         </Stack>

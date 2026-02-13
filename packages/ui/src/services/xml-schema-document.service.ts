@@ -199,6 +199,17 @@ export class XmlSchemaDocumentService {
       definition.namespaceMap,
     );
 
+    // Try to create the Document object. It could fail if the root element user chose was defined in the removed
+    // schema file. In that case, we unset `updatedDefinition.rootElementChoice` and retry.
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(updatedDefinition);
+
+    // If it succeeds or a root element was not set, return as it is
+    if (result.document || !definition.rootElementChoice) {
+      return result;
+    }
+
+    // Unset the root element and retry
+    updatedDefinition.rootElementChoice = undefined;
     return XmlSchemaDocumentService.createXmlSchemaDocument(updatedDefinition);
   }
 

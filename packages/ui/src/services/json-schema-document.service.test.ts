@@ -899,5 +899,38 @@ describe('JsonSchemaDocumentService', () => {
       JsonSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.schema.json');
       expect(definition.definitionFiles!['CommonTypes.schema.json']).toBeDefined();
     });
+
+    it('should fallback to first schema when rootElementChoice is the removed file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': accountJsonSchema, 'camelYamlDsl.json': camelYamlDslJsonSchema },
+        { namespaceUri: '', name: 'Account.schema.json' },
+      );
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'Account.schema.json');
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.rootElementChoice).toBeUndefined();
+    });
+
+    it('should preserve rootElementChoice when it is not the removed file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': accountJsonSchema, 'camelYamlDsl.json': camelYamlDslJsonSchema },
+        { namespaceUri: '', name: 'Account.schema.json' },
+      );
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'camelYamlDsl.json');
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.rootElementChoice).toEqual({
+        namespaceUri: '',
+        name: 'Account.schema.json',
+      });
+    });
   });
 });

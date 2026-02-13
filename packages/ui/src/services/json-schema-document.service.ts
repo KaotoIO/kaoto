@@ -172,6 +172,17 @@ export class JsonSchemaDocumentService {
       definition.namespaceMap,
     );
 
+    // Try to create the Document object. It could fail if the primary schema is the removed schema file.
+    // In that case, we unset updatedDefinition.rootElementChoice and retry.
+    const result = JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition);
+
+    // If it succeeds or a primary schema not set, return as it is
+    if (result.document || !definition.rootElementChoice) {
+      return result;
+    }
+
+    // Unset the primary schema and retry
+    updatedDefinition.rootElementChoice = undefined;
     return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition);
   }
 

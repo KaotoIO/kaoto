@@ -1472,5 +1472,41 @@ describe('XmlSchemaDocumentService', () => {
       XmlSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.xsd');
       expect(definition.definitionFiles!['CommonTypes.xsd']).toBeDefined();
     });
+
+    it('should fallback to first element when rootElementChoice is in the removed file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': shipOrderXsd, 'element-ref.xsd': elementRefXsd },
+        { namespaceUri: 'io.kaoto.datamapper.poc.test', name: 'ShipOrder' },
+      );
+
+      const initialResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(initialResult.document).toBeDefined();
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd');
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.rootElementChoice).toBeUndefined();
+    });
+
+    it('should preserve rootElementChoice when it is not in the removed file', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': shipOrderXsd, 'element-ref.xsd': elementRefXsd },
+        { namespaceUri: 'io.kaoto.datamapper.poc.test', name: 'ShipOrder' },
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'element-ref.xsd');
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.rootElementChoice).toEqual({
+        namespaceUri: 'io.kaoto.datamapper.poc.test',
+        name: 'ShipOrder',
+      });
+    });
   });
 });
