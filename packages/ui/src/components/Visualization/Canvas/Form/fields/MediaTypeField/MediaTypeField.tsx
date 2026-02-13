@@ -138,6 +138,7 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
       isExpanded={isOpen}
       isFullWidth
       isDisabled={disabled}
+      data-testid="media-type-field-toggle"
     >
       {selectedValues.length > 0 ? selectedValues.join(', ') : 'Select media types'}
     </MenuToggle>

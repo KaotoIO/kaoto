@@ -171,3 +171,17 @@ Cypress.Commands.add('documentationTableCompare', (routeName: string, expectedTa
         });
     });
 });
+
+Cypress.Commands.add('toggleMediaTypeField', (nodeName: string) => {
+  cy.get(`[data-testid="#.${nodeName}__field-wrapper"]`).within(() => {
+    cy.get('[data-testid="media-type-field-toggle"]').click();
+  });
+});
+
+Cypress.Commands.add('selectMediaTypes', (nodeName: string, mediaType: string[]) => {
+  cy.toggleMediaTypeField(nodeName);
+  mediaType.forEach((type) => {
+    cy.contains('.pf-v6-c-menu__item-text', type).click();
+  });
+  cy.toggleMediaTypeField(nodeName);
+});

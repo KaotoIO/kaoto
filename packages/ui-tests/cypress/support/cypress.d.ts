@@ -125,6 +125,8 @@ declare global {
       switchWrappedSection(sectionName: string, wrapped: boolean): Chainable<JQuery<Element>>;
       generateDocumentationPreview(): Chainable<JQuery<Element>>;
       documentationTableCompare(routeName: string, expectedTableData: string[][]): Chainable<JQuery<Element>>;
+      toggleMediaTypeField(nodeName: string): Chainable<JQuery<Element>>;
+      selectMediaTypes(nodeName: string, mediaType: string[]): Chainable<JQuery<Element>>;
       // metadata
       expandWrappedMetadataSection(sectionName: string): Chainable<JQuery<Element>>;
       closeWrappedMetadataSection(sectionName: string): Chainable<JQuery<Element>>;
