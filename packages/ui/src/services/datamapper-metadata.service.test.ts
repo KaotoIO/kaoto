@@ -1,5 +1,5 @@
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
-import { IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { IChoiceSelection, IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
 import { commonTypesJsonSchema, customerJsonSchema, orderJsonSchema } from '../stubs/datamapper/data-mapper';
@@ -1264,6 +1264,240 @@ describe('DataMapperMetadataService', () => {
       const overrides = DataMapperMetadataService.getFieldTypeOverrides(metadata, DocumentType.PARAM, 'nonexistent');
 
       expect(overrides).toEqual([]);
+    });
+  });
+
+  describe('setChoiceSelections()', () => {
+    it('should set choice selections on source body', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['source.xsd'] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns0: 'http://example.com/source' },
+      };
+      const selections: IChoiceSelection[] = [
+        { choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 1 },
+        { choicePath: '/ns0:Root/{choice:1}', selectedMemberIndex: 0 },
+      ];
+
+      await DataMapperMetadataService.setChoiceSelections(
+        mockApi,
+        'test-id',
+        metadata,
+        DocumentType.SOURCE_BODY,
+        undefined,
+        selections,
+      );
+
+      expect(metadata.sourceBody.choiceSelections).toEqual(selections);
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', metadata);
+    });
+
+    it('should set choice selections on target body', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['target.xsd'] },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns1: 'http://example.com/target' },
+      };
+      const selections: IChoiceSelection[] = [{ choicePath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }];
+
+      await DataMapperMetadataService.setChoiceSelections(
+        mockApi,
+        'test-id',
+        metadata,
+        DocumentType.TARGET_BODY,
+        undefined,
+        selections,
+      );
+
+      expect(metadata.targetBody.choiceSelections).toEqual(selections);
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', metadata);
+    });
+
+    it('should set choice selections on source parameter', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {
+          param1: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['param1.xsd'] },
+        },
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns0: 'http://example.com/param' },
+      };
+      const selections: IChoiceSelection[] = [{ choicePath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }];
+
+      await DataMapperMetadataService.setChoiceSelections(
+        mockApi,
+        'test-id',
+        metadata,
+        DocumentType.PARAM,
+        'param1',
+        selections,
+      );
+
+      expect(metadata.sourceParameters['param1'].choiceSelections).toEqual(selections);
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', metadata);
+    });
+
+    it('should overwrite existing choice selections', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['source.xsd'],
+          choiceSelections: [{ choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 }],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns0: 'http://example.com/source' },
+      };
+      const newSelections: IChoiceSelection[] = [
+        { choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 2 },
+        { choicePath: '/ns0:Root/{choice:0}/ns0:Option1/{choice:0}', selectedMemberIndex: 1 },
+      ];
+
+      await DataMapperMetadataService.setChoiceSelections(
+        mockApi,
+        'test-id',
+        metadata,
+        DocumentType.SOURCE_BODY,
+        undefined,
+        newSelections,
+      );
+
+      expect(metadata.sourceBody.choiceSelections).toEqual(newSelections);
+      expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', metadata);
+    });
+
+    it('should handle non-existent parameter gracefully', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      await DataMapperMetadataService.setChoiceSelections(
+        mockApi,
+        'test-id',
+        metadata,
+        DocumentType.PARAM,
+        'nonexistent',
+        [{ choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 }],
+      );
+
+      expect(mockApi.setMetadata).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getChoiceSelections()', () => {
+    it('should return choice selections for source body', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['source.xsd'],
+          choiceSelections: [
+            { choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 },
+            { choicePath: '/ns0:Root/{choice:1}', selectedMemberIndex: 1 },
+          ],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns0: 'http://example.com/source' },
+      };
+
+      const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.SOURCE_BODY);
+
+      expect(selections).toHaveLength(2);
+      expect(selections[0]).toEqual({ choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 });
+      expect(selections[1]).toEqual({ choicePath: '/ns0:Root/{choice:1}', selectedMemberIndex: 1 });
+    });
+
+    it('should return choice selections for target body', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['target.xsd'],
+          choiceSelections: [{ choicePath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }],
+        },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns1: 'http://example.com/target' },
+      };
+
+      const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.TARGET_BODY);
+
+      expect(selections).toHaveLength(1);
+      expect(selections[0]).toEqual({ choicePath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 });
+    });
+
+    it('should return choice selections for source parameter', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {
+          param1: {
+            type: DocumentDefinitionType.XML_SCHEMA,
+            filePath: ['param1.xsd'],
+            choiceSelections: [{ choicePath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }],
+          },
+        },
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+        namespaceMap: { ns0: 'http://example.com/param' },
+      };
+
+      const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.PARAM, 'param1');
+
+      expect(selections).toHaveLength(1);
+      expect(selections[0]).toEqual({ choicePath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 });
+    });
+
+    it('should return empty array when choiceSelections is undefined', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['source.xsd'] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.SOURCE_BODY);
+
+      expect(selections).toEqual([]);
+    });
+
+    it('should return empty array when choiceSelections is empty', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['source.xsd'],
+          choiceSelections: [],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.SOURCE_BODY);
+
+      expect(selections).toEqual([]);
+    });
+
+    it('should return empty array for non-existent parameter', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.PARAM, 'nonexistent');
+
+      expect(selections).toEqual([]);
     });
   });
 
