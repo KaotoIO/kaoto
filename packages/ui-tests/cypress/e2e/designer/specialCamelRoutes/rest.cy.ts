@@ -12,10 +12,9 @@ describe('Test for root rest container', () => {
     cy.selectFormTab('All');
 
     cy.interactWithConfigInputObject('description', 'description Label');
-    cy.interactWithConfigInputObject('note', 'testNote');
     cy.interactWithConfigInputObject('path', 'testPath');
-    cy.interactWithConfigInputObject('consumes', 'testConsumes');
-    cy.interactWithConfigInputObject('produces', 'testProduces');
+    cy.selectMediaTypes('consumes', ['application/json', 'application/xml']);
+    cy.selectMediaTypes('produces', ['application/json', 'application/xml']);
     cy.selectInTypeaheadField('bindingMode', 'json');
 
     // Insert special node intercept to Route Configuration
@@ -26,10 +25,9 @@ describe('Test for root rest container', () => {
 
     cy.checkCodeSpanLine('- rest:');
     cy.checkCodeSpanLine('description: description Label');
-    cy.checkCodeSpanLine('note: testNote');
     cy.checkCodeSpanLine('path: testPath');
-    cy.checkCodeSpanLine('consumes: testConsumes');
-    cy.checkCodeSpanLine('produces: testProduces');
+    cy.checkCodeSpanLine('consumes: application/json, application/xml');
+    cy.checkCodeSpanLine('produces: application/json, application/xml');
     cy.checkCodeSpanLine('bindingMode: json');
     cy.checkCodeSpanLine('get:');
   });
