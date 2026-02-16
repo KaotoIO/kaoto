@@ -13,10 +13,23 @@ import { VisualizationService } from '../../../services/visualization.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { ConditionMenuAction } from './ConditionMenuAction';
 
+// Mock useDataMapper hook
+jest.mock('../../../hooks/useDataMapper', () => ({
+  useDataMapper: jest.fn(),
+}));
+
 describe('ConditionMenuAction', () => {
   const targetDoc = TestUtil.createTargetOrderDoc();
   const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
   const documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+
+  beforeEach(() => {
+    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    useDataMapper.mockReturnValue({
+      mappingTree,
+      updateDocument: jest.fn(),
+    });
+  });
 
   it('should apply ValueSelector', () => {
     const nodeData = new TargetFieldNodeData(
