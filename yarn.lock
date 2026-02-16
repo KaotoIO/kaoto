@@ -3286,6 +3286,7 @@ __metadata:
     "@types/json-schema": "npm:^7.0.15"
     "@types/lodash": "npm:^4"
     "@types/node": "npm:^22.0.0"
+    "@types/openapi-v3": "npm:^3.0.0"
     "@types/react": "npm:^19.2.7"
     "@types/react-dom": "npm:^19.2.3"
     "@types/uuid": "npm:^10.0.0"
@@ -6483,6 +6484,13 @@ __metadata:
   version: 2.4.4
   resolution: "@types/normalize-package-data@npm:2.4.4"
   checksum: 10/65dff72b543997b7be8b0265eca7ace0e34b75c3e5fee31de11179d08fa7124a7a5587265d53d0409532ecb7f7fba662c2012807963e1f9b059653ec2c83ee05
+  languageName: node
+  linkType: hard
+
+"@types/openapi-v3@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@types/openapi-v3@npm:3.0.0"
+  checksum: 10/a793fb3edfa511bfd3f370ebcc813277cd5e7b886c60a45bbd9777c78620bd47cc651f38e22f952a97d91a8920af46917755a131a3907091c8df7e2e89b1617a
   languageName: node
   linkType: hard
 
