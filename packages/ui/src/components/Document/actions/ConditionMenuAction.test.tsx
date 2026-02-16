@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
+import { TypeOverrideVariant, Types } from '../../../models/datamapper/types';
 import {
   AddMappingNodeData,
   MappingNodeData,
@@ -218,5 +219,63 @@ describe('ConditionMenuAction', () => {
     });
 
     await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
+  });
+
+  it('should show Override type option in menu for field nodes', () => {
+    const nodeData = new TargetFieldNodeData(
+      documentNodeData,
+      targetDoc.fields[0],
+      new FieldItem(mappingTree, targetDoc.fields[0]),
+    );
+    const onUpdateMock = jest.fn();
+    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+    const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+    act(() => {
+      fireEvent.click(actionToggle);
+    });
+
+    expect(screen.getByText('Override field type')).toBeInTheDocument();
+  });
+
+  it('should open TypeOverrideModal when Override type is clicked', () => {
+    const nodeData = new TargetFieldNodeData(
+      documentNodeData,
+      targetDoc.fields[0],
+      new FieldItem(mappingTree, targetDoc.fields[0]),
+    );
+    const onUpdateMock = jest.fn();
+    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+    const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+    act(() => {
+      fireEvent.click(actionToggle);
+    });
+
+    const overrideTypeButton = screen.getByText('Override field type');
+    act(() => {
+      fireEvent.click(overrideTypeButton);
+    });
+
+    // Check that modal is open by looking for modal content
+    expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+    expect(screen.getByText('Original Type:')).toBeInTheDocument();
+  });
+
+  it('should show Reset override option when field has type override', () => {
+    const field = targetDoc.fields[0];
+    field.typeOverride = TypeOverrideVariant.SAFE;
+    field.originalType = Types.String;
+
+    const nodeData = new TargetFieldNodeData(documentNodeData, field, new FieldItem(mappingTree, field));
+    const onUpdateMock = jest.fn();
+    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+    const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+    act(() => {
+      fireEvent.click(actionToggle);
+    });
+
+    expect(screen.getByText('Reset override')).toBeInTheDocument();
   });
 });

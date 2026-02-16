@@ -182,7 +182,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
                 isExpanded={isExpanded}
                 onExpandChange={handleClickToggle}
                 isDraggable={isDraggable}
-                iconType={nodeData.type}
+                iconType={field?.type ?? nodeData.type}
                 isCollectionField={isCollectionField}
                 isAttributeField={isAttributeField}
                 title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
