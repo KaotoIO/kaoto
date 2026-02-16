@@ -411,7 +411,7 @@ describe('Camel Route', () => {
       /** toDirect */
       const toDirectNode = choiceNode.getNextNode()!;
       expect(toDirectNode.data.path).toEqual('route.from.steps.2.to');
-      expect(toDirectNode.getNodeLabel()).toEqual('direct');
+      expect(toDirectNode.getNodeLabel()).toEqual('my-route');
       expect(toDirectNode.getPreviousNode()).toBe(choiceNode);
       expect(toDirectNode.getNextNode()?.data.isPlaceholder).toBe(true);
 

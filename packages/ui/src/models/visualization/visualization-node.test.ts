@@ -343,7 +343,7 @@ describe('VisualizationNode', () => {
 
       expect(node.getChildren()?.[0].getNodeLabel()).toEqual('timer');
       expect(node.getChildren()?.[1].getNodeLabel()).toEqual('choice');
-      expect(node.getChildren()?.[2].getNodeLabel()).toEqual('direct');
+      expect(node.getChildren()?.[2].getNodeLabel()).toEqual('my-route');
       expect(node.getChildren()).toHaveLength(4);
       expect(node.getChildren()?.[3].data.isPlaceholder).toBe(true);
       expect(fromNode!.getChildren()).toHaveLength(0);
@@ -466,7 +466,7 @@ describe('VisualizationNode', () => {
       expect(node.getChildren()?.[1].getNodeLabel()).toEqual('set-header');
       expect(node.getChildren()?.[2].getNodeLabel()).toEqual('log');
       expect(node.getChildren()?.[3].getNodeLabel()).toEqual('choice');
-      expect(node.getChildren()?.[4].getNodeLabel()).toEqual('direct');
+      expect(node.getChildren()?.[4].getNodeLabel()).toEqual('my-route');
       expect(node.getChildren()).toHaveLength(6);
       expect(node.getChildren()?.[5].data.isPlaceholder).toBe(true);
       expect(fromNode!.getChildren()).toHaveLength(0);
