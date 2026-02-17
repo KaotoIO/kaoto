@@ -7,9 +7,11 @@ import { CatalogKind } from '../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../models/kaoto-schema';
 import { CamelCatalogService } from '../../../../../models/visualization/flows/camel-catalog.service';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
-import { PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
+import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
+import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { UriField } from './UriField/UriField';
@@ -140,5 +142,23 @@ describe('customFieldsFactoryfactory', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'uri' };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBeUndefined();
+  });
+
+  it('returns DataSourceBeanField for string type with title containing "Data Source"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'My Data Source Bean' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(DataSourceBeanField);
+  });
+
+  it('returns CustomMediaTypes for array type with title "Custom media types"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'array', title: 'Custom media types' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(CustomMediaTypes);
+  });
+
+  it('returns EndpointPropertiesField for object type with title "Endpoint Properties"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'object', title: 'Endpoint Properties' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointPropertiesField);
   });
 });
