@@ -1,31 +1,16 @@
 import {
   ActionListItem,
-  Button,
   Dropdown,
   DropdownItem,
   DropdownList,
-  Form,
-  FormGroup,
-  FormHelperText,
-  HelperText,
-  HelperTextItem,
   Icon,
   MenuToggle,
   MenuToggleElement,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalVariant,
-  Select,
-  SelectList,
-  SelectOption,
 } from '@patternfly/react-core';
 import { AddCircleOIcon, EllipsisVIcon, WrenchIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, Ref, useCallback, useEffect, useState } from 'react';
+import { FunctionComponent, MouseEvent, Ref, useCallback, useState } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { IField } from '../../../models/datamapper/document';
 import { ChooseItem } from '../../../models/datamapper/mapping';
 import { IFieldTypeInfo, TypeOverrideVariant } from '../../../models/datamapper/types';
 import {
@@ -37,173 +22,7 @@ import {
 import { DEFAULT_POPPER_PROPS } from '../../../models/popper-default';
 import { FieldTypeOverrideService } from '../../../services/field-type-override.service';
 import { VisualizationService } from '../../../services/visualization.service';
-
-type TypeOverrideModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (selectedType: IFieldTypeInfo) => void;
-  onRemove: () => void;
-  field: IField;
-};
-
-export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  onRemove,
-  field,
-}) => {
-  const { mappingTree } = useDataMapper();
-  const [selectedType, setSelectedType] = useState<IFieldTypeInfo | null>(null);
-  const [typeCandidates, setTypeCandidates] = useState<Record<string, IFieldTypeInfo>>({});
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && field) {
-      const namespaceMap = mappingTree.namespaceMap;
-      // For JSON Schema or fields without safe candidates, use all available types
-      let candidates = FieldTypeOverrideService.getSafeOverrideCandidates(field, namespaceMap);
-      if (Object.keys(candidates).length === 0) {
-        candidates = FieldTypeOverrideService.getAllOverrideCandidates(field.ownerDocument, namespaceMap);
-      }
-      setTypeCandidates(candidates);
-
-      // If field has an existing override, pre-select it
-      if (field.typeOverride !== TypeOverrideVariant.NONE) {
-        // Use the current type (which is the overridden type)
-        const currentTypeString = field.typeQName?.toString() || field.type;
-        // Find the matching candidate - candidates is keyed by typeString
-        const currentTypeInfo = candidates[currentTypeString];
-        if (currentTypeInfo) {
-          setSelectedType(currentTypeInfo);
-        } else {
-          // Fallback: try to find by displayName matching the type
-          const fallbackTypeInfo = Object.values(candidates).find(
-            (candidate) => candidate.displayName === field.type || candidate.typeString.includes(field.type),
-          );
-          setSelectedType(fallbackTypeInfo || null);
-        }
-      } else {
-        setSelectedType(null);
-      }
-    }
-  }, [isOpen, field, mappingTree.namespaceMap]);
-
-  const handleTypeSelect = useCallback(
-    (_event: MouseEvent | undefined, value: string | number | undefined) => {
-      const typeString = value as string;
-      const typeInfo = typeCandidates[typeString];
-      if (typeInfo) {
-        setSelectedType(typeInfo);
-      }
-      setIsSelectOpen(false);
-    },
-    [typeCandidates],
-  );
-
-  const handleSave = useCallback(() => {
-    if (selectedType) {
-      onSave(selectedType);
-    }
-  }, [selectedType, onSave]);
-
-  const handleRemove = useCallback(() => {
-    onRemove();
-  }, [onRemove]);
-
-  const handleModalClick = useCallback((event: MouseEvent) => {
-    event.stopPropagation();
-  }, []);
-
-  const hasExistingOverride = field?.typeOverride !== TypeOverrideVariant.NONE;
-
-  const originalTypeDisplay = field?.originalTypeQName?.toString() || field?.originalType || field?.type || 'Unknown';
-  const fieldName = field?.displayName || field?.name || 'Field';
-  const fieldPath = field?.path?.toString() || '';
-  const modalTitle = (
-    <>
-      <Icon size="md" status="warning" isInline>
-        <WrenchIcon />
-      </Icon>{' '}
-      Type Override: {fieldName}
-    </>
-  );
-
-  return (
-    <Modal
-      variant={ModalVariant.medium}
-      isOpen={isOpen}
-      onClose={onClose}
-      onClick={handleModalClick}
-      appendTo={() => document.body}
-    >
-      <ModalHeader title={modalTitle} />
-      <ModalBody>
-        <Form>
-          <FormGroup>
-            <p>
-              <strong>Field Path:</strong> {fieldPath}
-            </p>
-          </FormGroup>
-
-          <FormGroup>
-            <p>
-              <strong>Original Type:</strong> {originalTypeDisplay}
-            </p>
-          </FormGroup>
-
-          <FormGroup label="" fieldId="type-select" isRequired>
-            <Select
-              id="type-select"
-              isOpen={isSelectOpen}
-              selected={selectedType?.typeString}
-              onSelect={handleTypeSelect}
-              onOpenChange={(isOpen) => setIsSelectOpen(isOpen)}
-              toggle={(toggleRef) => (
-                <MenuToggle
-                  ref={toggleRef}
-                  onClick={() => setIsSelectOpen(!isSelectOpen)}
-                  isExpanded={isSelectOpen}
-                  isFullWidth
-                >
-                  {selectedType?.displayName || 'Select a new type...'}
-                </MenuToggle>
-              )}
-            >
-              <SelectList>
-                {Object.entries(typeCandidates).map(([typeString, typeInfo]) => (
-                  <SelectOption key={typeString} value={typeString}>
-                    {typeInfo.displayName}
-                  </SelectOption>
-                ))}
-              </SelectList>
-            </Select>
-            {selectedType && selectedType.description && (
-              <FormHelperText>
-                <HelperText>
-                  <HelperTextItem>{selectedType.description}</HelperTextItem>
-                </HelperText>
-              </FormHelperText>
-            )}
-          </FormGroup>
-        </Form>
-      </ModalBody>
-      <ModalFooter>
-        {hasExistingOverride && (
-          <Button key="remove" variant="danger" onClick={handleRemove} style={{ marginRight: 'auto' }}>
-            Remove Override
-          </Button>
-        )}
-        <Button key="cancel" variant="link" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button key="save" variant="primary" onClick={handleSave} isDisabled={!selectedType}>
-          Save
-        </Button>
-      </ModalFooter>
-    </Modal>
-  );
-};
+import { TypeOverrideModal } from './TypeOverrideModal';
 
 type ConditionMenuProps = {
   dropdownLabel?: string;
@@ -224,8 +43,8 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dro
   const isValueSelectorNode = VisualizationService.isValueSelectorNode(nodeData);
   // Support both TargetFieldNodeData (field without mapping) and FieldItemNodeData (field with mapping)
   const isFieldNode = nodeData instanceof TargetFieldNodeData || nodeData instanceof FieldItemNodeData;
-  const field = isFieldNode ? (nodeData as TargetFieldNodeData | FieldItemNodeData).field : undefined;
-  const hasTypeOverride = field && field.typeOverride !== TypeOverrideVariant.NONE;
+  const field = isFieldNode ? nodeData.field : undefined;
+  const hasTypeOverride = field?.typeOverride !== TypeOverrideVariant.NONE;
 
   const onToggleActionMenu = useCallback(
     (_event: MouseEvent | undefined) => {

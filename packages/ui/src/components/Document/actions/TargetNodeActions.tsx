@@ -9,8 +9,9 @@ import { IFieldTypeInfo, TypeOverrideVariant } from '../../../models/datamapper/
 import { FieldItemNodeData, TargetFieldNodeData, TargetNodeData } from '../../../models/datamapper/visualization';
 import { FieldTypeOverrideService } from '../../../services/field-type-override.service';
 import { VisualizationService } from '../../../services/visualization.service';
-import { ConditionMenuAction, TypeOverrideModal } from './ConditionMenuAction';
+import { ConditionMenuAction } from './ConditionMenuAction';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
+import { TypeOverrideModal } from './TypeOverrideModal';
 import { XPathEditorAction } from './XPathEditorAction';
 import { XPathInputAction } from './XPathInputAction';
 
@@ -33,7 +34,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
 
   // Check if node has type override
   const isFieldNode = nodeData instanceof TargetFieldNodeData || nodeData instanceof FieldItemNodeData;
-  const field = isFieldNode ? (nodeData as TargetFieldNodeData | FieldItemNodeData).field : undefined;
+  const field = isFieldNode ? nodeData.field : undefined;
   const hasTypeOverride = field && field.typeOverride !== TypeOverrideVariant.NONE;
   const originalType = hasTypeOverride ? field?.originalType : undefined;
 

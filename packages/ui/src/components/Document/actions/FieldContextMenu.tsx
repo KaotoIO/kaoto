@@ -48,5 +48,3 @@ export const FieldContextMenu: FunctionComponent<IFieldContextMenuProps> = ({
     </Menu>
   );
 };
-
-// Made with Bob

@@ -96,5 +96,3 @@ describe('FieldContextMenu', () => {
     expect(screen.queryByText('Reset Override')).not.toBeInTheDocument();
   });
 });
-
-// Made with Bob

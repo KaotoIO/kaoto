@@ -57,19 +57,11 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
 
       // If field has an existing override, pre-select it
       if (field.typeOverride === TypeOverrideVariant.SAFE || field.typeOverride === TypeOverrideVariant.FORCE) {
-        // Use the current type (which is the overridden type)
-        const currentTypeString = field.typeQName?.toString() || field.type;
-        // Find the matching candidate - candidates is keyed by typeString
-        const currentTypeInfo = candidates[currentTypeString];
-        if (currentTypeInfo) {
-          setSelectedType(currentTypeInfo);
-        } else {
-          // Fallback: try to find by displayName matching the type
-          const fallbackTypeInfo = Object.values(candidates).find(
-            (candidate) => candidate.displayName === field.type || candidate.typeString.includes(field.type),
-          );
-          setSelectedType(fallbackTypeInfo || null);
-        }
+        // Find the matching candidate by comparing the type enum value
+        // field.type contains the enum value (e.g., "integer", "string")
+        // candidate.type also contains the enum value, so we can match directly
+        const currentTypeInfo = Object.values(candidates).find((candidate) => candidate.type === field.type);
+        setSelectedType(currentTypeInfo || null);
       } else {
         setSelectedType(null);
       }
@@ -152,7 +144,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
             </p>
           </FormGroup>
 
-          <FormGroup label="" fieldId="type-select" isRequired>
+          <FormGroup label="New Type" fieldId="type-select" isRequired>
             <Select
               id="type-select"
               isOpen={isSelectOpen}
@@ -162,11 +154,13 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
               toggle={renderToggle}
             >
               <SelectList>
-                {Object.entries(typeCandidates).map(([typeString, typeInfo]) => (
-                  <SelectOption key={typeString} value={typeString}>
-                    {typeInfo.displayName}
-                  </SelectOption>
-                ))}
+                {Object.entries(typeCandidates)
+                  .sort(([, a], [, b]) => a.displayName.localeCompare(b.displayName))
+                  .map(([typeString, typeInfo]) => (
+                    <SelectOption key={typeString} value={typeString}>
+                      {typeInfo.displayName}
+                    </SelectOption>
+                  ))}
               </SelectList>
             </Select>
             {selectedType?.description && (
@@ -195,5 +189,3 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     </Modal>
   );
 };
-
-// Made with Bob

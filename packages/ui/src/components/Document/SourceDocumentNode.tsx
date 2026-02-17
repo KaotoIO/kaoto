@@ -13,8 +13,8 @@ import { FieldTypeOverrideService } from '../../services/field-type-override.ser
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
-import { TypeOverrideModal } from './actions/TypeOverrideModal';
 import { FieldContextMenu } from './actions/FieldContextMenu';
+import { TypeOverrideModal } from './actions/TypeOverrideModal';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle';
@@ -63,6 +63,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
   );
 
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
+  const isChoiceField = VisualizationService.isChoiceField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -91,7 +92,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
 
   // Type override detection and handlers
   const isFieldNode = nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData;
-  const field = isFieldNode ? (nodeData as FieldNodeData | FieldItemNodeData).field : undefined;
+  const field = isFieldNode ? nodeData.field : undefined;
   const hasTypeOverride = field && field.typeOverride !== TypeOverrideVariant.NONE;
 
   const handleContextMenu = useCallback(
@@ -184,6 +185,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
                 isDraggable={isDraggable}
                 iconType={field?.type ?? nodeData.type}
                 isCollectionField={isCollectionField}
+                isChoiceField={isChoiceField}
                 isAttributeField={isAttributeField}
                 title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
                 rank={rank}
@@ -212,6 +214,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
       {/* Context Menu */}
       {showContextMenu && (
         <div
+          role="button"
           style={{
             position: 'fixed',
             top: 0,
@@ -221,14 +224,24 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = ({
             zIndex: 999,
           }}
           onClick={() => setShowContextMenu(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') setShowContextMenu(false);
+          }}
+          tabIndex={0}
+          aria-label="Close context menu backdrop"
         >
           <div
+            role="dialog"
+            aria-label="Field context menu"
+            aria-modal="true"
             style={{
               position: 'absolute',
               left: contextMenuPosition.x,
               top: contextMenuPosition.y,
             }}
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            tabIndex={-1}
           >
             <FieldContextMenu
               hasOverride={hasTypeOverride}

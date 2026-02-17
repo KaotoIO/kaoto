@@ -278,4 +278,98 @@ describe('ConditionMenuAction', () => {
 
     expect(screen.getByText('Reset override')).toBeInTheDocument();
   });
+
+  it('should call updateDocument when Reset override is clicked', () => {
+    const field = targetDoc.fields[0];
+    field.typeOverride = TypeOverrideVariant.SAFE;
+    field.originalType = Types.String;
+
+    const nodeData = new TargetFieldNodeData(documentNodeData, field, new FieldItem(mappingTree, field));
+    const onUpdateMock = jest.fn();
+    const updateDocumentMock = jest.fn();
+
+    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    useDataMapper.mockReturnValue({
+      mappingTree,
+      updateDocument: updateDocumentMock,
+    });
+
+    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+    const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+    act(() => {
+      fireEvent.click(actionToggle);
+    });
+
+    const resetButton = screen.getByText('Reset override');
+    act(() => {
+      fireEvent.click(resetButton);
+    });
+
+    expect(updateDocumentMock).toHaveBeenCalled();
+    expect(onUpdateMock).toHaveBeenCalled();
+  });
+
+  it('should render modal with disabled Save button when no type selected', () => {
+    const field = targetDoc.fields[0];
+    const nodeData = new TargetFieldNodeData(documentNodeData, field, new FieldItem(mappingTree, field));
+    const onUpdateMock = jest.fn();
+
+    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+    // Open modal
+    const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+    act(() => {
+      fireEvent.click(actionToggle);
+    });
+
+    const overrideTypeButton = screen.getByText('Override field type');
+    act(() => {
+      fireEvent.click(overrideTypeButton);
+    });
+
+    // Modal should be open with Save button disabled initially
+    const saveButton = screen.getByText('Save').closest('button');
+    expect(saveButton).toBeDisabled();
+
+    // Verify modal is rendered
+    expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+  });
+
+  it('should call updateDocument and onUpdate when Remove Override is clicked in modal', () => {
+    const field = targetDoc.fields[0];
+    field.typeOverride = TypeOverrideVariant.SAFE;
+    const nodeData = new TargetFieldNodeData(documentNodeData, field, new FieldItem(mappingTree, field));
+    const onUpdateMock = jest.fn();
+    const updateDocumentMock = jest.fn();
+
+    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    useDataMapper.mockReturnValue({
+      mappingTree,
+      updateDocument: updateDocumentMock,
+    });
+
+    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+    // Open modal
+    const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+    act(() => {
+      fireEvent.click(actionToggle);
+    });
+
+    const overrideTypeButton = screen.getByText('Override field type');
+    act(() => {
+      fireEvent.click(overrideTypeButton);
+    });
+
+    // Click Remove Override in modal
+    const removeButton = screen.getByRole('button', { name: 'Remove Override' });
+    act(() => {
+      fireEvent.click(removeButton);
+    });
+
+    // Should call updateDocument and onUpdate
+    expect(updateDocumentMock).toHaveBeenCalled();
+    expect(onUpdateMock).toHaveBeenCalled();
+  });
 });

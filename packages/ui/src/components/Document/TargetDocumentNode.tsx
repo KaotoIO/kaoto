@@ -95,7 +95,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     const isFieldNode = nodeData instanceof TargetFieldNodeData || nodeData instanceof FieldItemNodeData;
     if (!isFieldNode) return null;
 
-    const field = (nodeData as TargetFieldNodeData | FieldItemNodeData).field;
+    const field = nodeData.field;
     const hasTypeOverride = field.typeOverride !== TypeOverrideVariant.NONE;
 
     if (hasTypeOverride && !hasMapping) {
