@@ -13,7 +13,6 @@ import { NodeLabelType } from '../../settings';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
-import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -214,12 +213,20 @@ describe('AbstractCamelVisualEntity', () => {
       expect(abstractVisualEntity.entityDef.route.from.uri).toEqual(newUri);
     });
 
-    it('should delegate the serialization to the `CamelComponentSchemaService`', () => {
-      const newUri = 'timer';
-      const spy = jest.spyOn(CamelComponentSchemaService, 'getMultiValueSerializedDefinition');
-      abstractVisualEntity.updateModel('from', { uri: newUri });
+    it('should assign the provided value without serializing multivalue parameters', () => {
+      const parameters = {
+        jobParameters: { name: 'daily' },
+      };
 
-      expect(spy).toHaveBeenCalledWith('from', { uri: newUri });
+      abstractVisualEntity.updateModel('route.from.steps.2.to.parameters', parameters);
+
+      expect(abstractVisualEntity.getNodeDefinition('route.from.steps.2.to')).toEqual({
+        uri: 'direct',
+        parameters: {
+          name: 'my-route',
+          ...parameters,
+        },
+      });
     });
   });
 
