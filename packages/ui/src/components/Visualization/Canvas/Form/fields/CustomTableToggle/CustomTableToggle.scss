@@ -1,0 +1,9 @@
+.custom-mode-toggle {
+  display: flex;
+  justify-content: flex-end;
+
+  span:has(svg) {
+    display: flex;
+    align-items: center;
+  }
+}

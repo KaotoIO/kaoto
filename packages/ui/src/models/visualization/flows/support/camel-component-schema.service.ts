@@ -387,13 +387,8 @@ export class CamelComponentSchemaService {
       );
 
       if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        schema.properties!.parameters = {
-          type: 'object',
-          title: 'Endpoint Properties',
-          description: 'Endpoint properties description',
-          properties: actualComponentProperties,
-          required: componentSchema.required,
-        };
+        schema.properties!.parameters.properties = actualComponentProperties;
+        schema.properties!.parameters.required = componentSchema.required;
       }
     }
 
