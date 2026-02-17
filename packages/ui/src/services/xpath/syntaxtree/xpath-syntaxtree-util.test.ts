@@ -108,6 +108,59 @@ describe('XPathUtil', () => {
       const predicateNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.Predicate);
       expect(predicateNodes.length).toBe(1);
     });
+
+    it('should find PathExpr nodes inside ArithmeticExpr', () => {
+      const xpath = 'Price * Quantity + 10';
+      const ast = XPathService.parse(xpath).exprNode;
+      if (!ast) return;
+
+      const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+      // Price, Quantity, and literal 10 (which is also wrapped in PathExpr)
+      expect(pathNodes.length).toBeGreaterThanOrEqual(2);
+
+      // Verify that Price and Quantity are found
+      const pathNames = pathNodes
+        .filter((node) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
+        .map((node) => (node.steps[0].nodeTest as NameTestNode).localName);
+      expect(pathNames).toContain('Price');
+      expect(pathNames).toContain('Quantity');
+    });
+
+    it('should find PathExpr nodes inside LogicalExpr', () => {
+      const xpath = 'Name = "VIP" and OrderId = "123"';
+      const ast = XPathService.parse(xpath).exprNode;
+      if (!ast) return;
+
+      const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+      // Name, OrderId, and literals (which are also wrapped in PathExpr)
+      expect(pathNodes.length).toBeGreaterThanOrEqual(2);
+
+      // Verify that Name and OrderId are found
+      const pathNames = pathNodes
+        .filter((node) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
+        .map((node) => (node.steps[0].nodeTest as NameTestNode).localName);
+      expect(pathNames).toContain('Name');
+      expect(pathNames).toContain('OrderId');
+    });
+
+    it('should find PathExpr nodes in nested arithmetic expressions', () => {
+      const xpath = '(Price * Quantity) + (Tax * Rate)';
+      const ast = XPathService.parse(xpath).exprNode;
+      if (!ast) return;
+
+      const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+      // Price, Quantity, Tax, Rate (and possibly parenthesized expressions)
+      expect(pathNodes.length).toBeGreaterThanOrEqual(4);
+
+      // Verify that all field names are found
+      const pathNames = pathNodes
+        .filter((node) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
+        .map((node) => (node.steps[0].nodeTest as NameTestNode).localName);
+      expect(pathNames).toContain('Price');
+      expect(pathNames).toContain('Quantity');
+      expect(pathNames).toContain('Tax');
+      expect(pathNames).toContain('Rate');
+    });
   });
 
   describe('getParentChain()', () => {
