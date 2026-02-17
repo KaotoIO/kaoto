@@ -2,6 +2,7 @@ import { CustomFieldsFactory, EnumField } from '@kaoto/forms';
 
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { CustomTableToggle } from './CustomTableToggle/CustomTableToggle';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
@@ -19,6 +20,34 @@ const isMediaTypeField = (schema: Parameters<CustomFieldsFactory>[0]): boolean =
   return schema.type === 'string' && (schema.title === 'Consumes' || schema.title === 'Produces');
 };
 
+const isBeanField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.format?.startsWith('bean:') === true;
+};
+
+const isRefField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.title === 'Ref';
+};
+
+const isDataSourceField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.title?.includes('Data Source') === true;
+};
+
+const isExpressionField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.format === 'expression' || schema.format === 'expressionProperty';
+};
+
+const isCustomMediaTypesField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'array' && schema.title === 'Custom media types';
+};
+
+const isUriField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.title === 'Uri';
+};
+
+const isEndpointPropertiesField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'object' && schema.title === 'Endpoint Properties';
+};
+
 export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
   /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
@@ -29,15 +58,15 @@ export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
     return DirectEndpointNameField;
   }
 
-  if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
+  if (isBeanField(schema)) {
     return PrefixedBeanField;
   }
 
-  if (schema.type === 'string' && schema.title === 'Ref') {
+  if (isRefField(schema)) {
     return UnprefixedBeanField;
   }
 
-  if (schema.type === 'string' && schema.title?.includes('Data Source')) {
+  if (isDataSourceField(schema)) {
     return DataSourceBeanField;
   }
 
@@ -45,16 +74,20 @@ export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
     return MediaTypeField;
   }
 
-  if (schema.format === 'expression' || schema.format === 'expressionProperty') {
+  if (isExpressionField(schema)) {
     return ExpressionField;
   }
 
-  if (schema.type === 'array' && schema.title === 'Custom media types') {
+  if (isCustomMediaTypesField(schema)) {
     return CustomMediaTypes;
   }
 
-  if (schema.type === 'string' && schema.title === 'Uri') {
+  if (isUriField(schema)) {
     return UriField;
+  }
+
+  if (isEndpointPropertiesField(schema)) {
+    return CustomTableToggle;
   }
 
   return undefined;
