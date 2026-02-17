@@ -2,6 +2,8 @@ import { CstElement, CstNode, IToken } from 'chevrotain';
 
 import { PredicateOperator } from '../../../models/datamapper/xpath';
 import {
+  ArithmeticExprNode,
+  ArithmeticOperator,
   ComparisonExprNode,
   ExprNode,
   ExprSingleNode,
@@ -9,6 +11,8 @@ import {
   FunctionCallNode,
   IfExprNode,
   LiteralNode,
+  LogicalExprNode,
+  LogicalOperator,
   NameTestNode,
   ParenthesizedExprNode,
   PathExprNode,
@@ -21,6 +25,37 @@ import {
   XPathNodeType,
 } from './xpath-syntaxtree-model';
 import { XPathUtil } from './xpath-syntaxtree-util';
+
+// Type aliases to reduce cognitive complexity and improve readability
+type ArithmeticResult =
+  | ArithmeticExprNode
+  | PathExprNode
+  | LiteralNode
+  | VarRefNode
+  | FunctionCallNode
+  | ParenthesizedExprNode
+  | undefined;
+
+type LogicalResult =
+  | LogicalExprNode
+  | ComparisonExprNode
+  | ArithmeticExprNode
+  | PathExprNode
+  | ParenthesizedExprNode
+  | undefined;
+
+type BinaryExprNode = ArithmeticExprNode | LogicalExprNode;
+
+/**
+ * Configuration for processing binary expressions (arithmetic or logical).
+ * This abstraction eliminates duplication between arithmetic and logical expression handling.
+ */
+interface BinaryExpressionConfig<TNode, TOperator> {
+  operandPath: string[];
+  extractOperator: (node: CstElement) => TOperator | undefined;
+  visitOperand: (operand: CstElement) => TNode;
+  createNode: (cstNode: CstElement, left: TNode, right: TNode, operator: TOperator | undefined) => TNode;
+}
 
 /**
  * A visitor that converts Chevrotain Concrete Syntax Tree (CST) nodes to a logical syntax tree node object {@link ExprNode}
@@ -196,34 +231,90 @@ export class CstVisitor {
     const orExpr = CstVisitor.getSingleNode(node, ['OrExpr']);
     if (!orExpr || !('children' in orExpr)) return undefined;
 
-    const andExpr = CstVisitor.getSingleNode(orExpr, ['AndExpr']);
-    if (!andExpr || !('children' in andExpr)) return undefined;
+    return CstVisitor.unwrapOrExpr(orExpr);
+  }
 
-    const comparisonExpr = CstVisitor.getSingleNode(andExpr, ['ComparisonExpr']);
-    if (!comparisonExpr || !('children' in comparisonExpr)) return undefined;
+  /**
+   * Generic helper to unwrap or visit a logical expression node.
+   * Eliminates duplication between unwrapOrExpr and unwrapAndExpr.
+   *
+   * @param element - The CST element to process
+   * @param opType - The expected logical operator type (Or or And)
+   * @param visitFn - Function to call if the operator matches
+   * @param nextChildName - Path to the next child node in the CST hierarchy
+   * @param nextStepFn - Function to call for the next level of processing
+   * @returns The result of visiting or unwrapping the expression
+   */
+  private static unwrapOrVisit(
+    element: CstElement,
+    opType: LogicalOperator,
+    visitFn: (node: CstElement) => ExprSingleNode | undefined,
+    nextChildName: string[],
+    nextStepFn: (node: CstElement) => ExprSingleNode | undefined,
+  ): ExprSingleNode | undefined {
+    // Check if this node actually performs the logic (e.g., OR / AND)
+    if (CstVisitor.extractLogicalOperator(element) === opType) {
+      return visitFn(element);
+    }
 
-    const operator = CstVisitor.extractComparisonOperator(comparisonExpr);
-    if (operator && operator !== PredicateOperator.Unknown) {
+    // Validate and unwrap to the next level
+    const nextNode = CstVisitor.getSingleNode(element, nextChildName);
+    if (nextNode && 'children' in nextNode) {
+      return nextStepFn(nextNode);
+    }
+
+    return undefined;
+  }
+
+  private static unwrapOrExpr(orExpr: CstElement): ExprSingleNode | undefined {
+    return CstVisitor.unwrapOrVisit(
+      orExpr,
+      LogicalOperator.Or,
+      CstVisitor.visitOrExpr,
+      ['AndExpr'],
+      CstVisitor.unwrapAndExpr,
+    );
+  }
+
+  private static unwrapAndExpr(andExpr: CstElement): ExprSingleNode | undefined {
+    return CstVisitor.unwrapOrVisit(
+      andExpr,
+      LogicalOperator.And,
+      CstVisitor.visitAndExpr,
+      ['ComparisonExpr'],
+      CstVisitor.processComparisonExpr,
+    );
+  }
+
+  private static processComparisonExpr(comparisonExpr: CstElement): ExprSingleNode | undefined {
+    // Check for comparison operations
+    const compOperator = CstVisitor.extractComparisonOperator(comparisonExpr);
+    if (compOperator && compOperator !== PredicateOperator.Unknown) {
       return CstVisitor.visitComparisonExpr(comparisonExpr);
     }
 
     const rangeExpr = CstVisitor.getSingleNode(comparisonExpr, ['RangeExpr']);
-    if (!rangeExpr) return undefined;
+    if (!rangeExpr || !('children' in rangeExpr)) return undefined;
 
     const additiveExpr = CstVisitor.getSingleNode(rangeExpr, ['AdditiveExpr']);
-    if (additiveExpr && 'children' in additiveExpr && additiveExpr.children.MultiplicativeExpr) {
-      const firstMultExpr = additiveExpr.children.MultiplicativeExpr[0];
-      const pathExpr = CstVisitor.getSingleNode(firstMultExpr, [
-        'UnionExpr',
-        'IntersectExceptExpr',
-        'InstanceofExpr',
-        'PathExpr',
-      ]);
-      if (pathExpr && 'children' in pathExpr) {
-        return CstVisitor.visitPathExpr(pathExpr);
+    if (!additiveExpr || !('children' in additiveExpr)) return undefined;
+
+    // Check for arithmetic operations (additive: +, -)
+    const additiveOperator = CstVisitor.extractArithmeticOperator(additiveExpr);
+    if (additiveOperator) {
+      return CstVisitor.visitAdditiveExpr(additiveExpr);
+    }
+
+    // Check for arithmetic operations (multiplicative: *, div, idiv, mod)
+    const multiplicativeExpr = CstVisitor.getSingleNode(additiveExpr, ['MultiplicativeExpr']);
+    if (multiplicativeExpr && 'children' in multiplicativeExpr) {
+      const multOperator = CstVisitor.extractArithmeticOperator(multiplicativeExpr);
+      if (multOperator) {
+        return CstVisitor.visitMultiplicativeExpr(multiplicativeExpr);
       }
     }
 
+    // No operators found - extract simple path expression
     const pathExpr = CstVisitor.getSingleNode(rangeExpr, [
       'AdditiveExpr',
       'MultiplicativeExpr',
@@ -511,13 +602,15 @@ export class CstVisitor {
       expressions: [],
     };
 
-    const arithmeticPaths = CstVisitor.extractAllPathExprsFromCST(exprSingle);
-    if (arithmeticPaths.length > 0) {
-      exprNode.expressions.push(...arithmeticPaths);
-      CstVisitor.setParent(arithmeticPaths, exprNode);
-    } else {
-      const result = CstVisitor.visitExprSingle(exprSingle);
-      if (result) {
+    const result = CstVisitor.visitExprSingle(exprSingle);
+    if (result) {
+      // Extract path expressions from the operand (handles PathExpr, ArithmeticExpr, LogicalExpr)
+      const paths = CstVisitor.extractPathsFromOperand(result);
+      if (paths.length > 0) {
+        exprNode.expressions.push(...paths);
+        CstVisitor.setParent(paths, exprNode);
+      } else {
+        // For other expression types (literals, var refs, etc.), add directly
         exprNode.expressions.push(result);
         result.parent = exprNode;
       }
@@ -620,6 +713,290 @@ export class CstVisitor {
 
     return predicates;
   }
+  /**
+   * Extracts arithmetic operator from CST node children.
+   * Maps CST operator tokens to ArithmeticOperator enum values.
+   */
+  private static extractArithmeticOperator(node: CstElement): ArithmeticOperator | undefined {
+    const children = 'children' in node && node.children;
+    if (!children) return undefined;
+
+    if ('Plus' in children) return ArithmeticOperator.Plus;
+    if ('Minus' in children) return ArithmeticOperator.Minus;
+    if ('Asterisk' in children) return ArithmeticOperator.Multiply;
+    if ('Div' in children) return ArithmeticOperator.Div;
+    if ('Idiv' in children) return ArithmeticOperator.Idiv;
+    if ('Mod' in children) return ArithmeticOperator.Mod;
+
+    return undefined;
+  }
+
+  /**
+   * Extracts tokens for a specific operator type from children
+   */
+  private static extractOperatorTokens(
+    children: Record<string, unknown>,
+    key: string,
+    operator: ArithmeticOperator,
+  ): Array<{ offset: number; operator: ArithmeticOperator }> {
+    const result: Array<{ offset: number; operator: ArithmeticOperator }> = [];
+    if (!(key in children)) return result;
+
+    const tokens = children[key];
+    if (!Array.isArray(tokens)) return result;
+
+    for (const token of tokens) {
+      if ('startOffset' in token) {
+        result.push({ offset: token.startOffset as number, operator });
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Extracts all arithmetic operators from CST node in the order they appear.
+   * For chained expressions like "a - b + c", returns [Minus, Plus] in order.
+   */
+  private static extractArithmeticOperators(node: CstElement): ArithmeticOperator[] {
+    const children = 'children' in node && node.children;
+    if (!children) return [];
+
+    const operators: Array<{ offset: number; operator: ArithmeticOperator }> = [];
+
+    // Extract each operator type with its position
+    const operatorTypes: Array<{ key: string; value: ArithmeticOperator }> = [
+      { key: 'Plus', value: ArithmeticOperator.Plus },
+      { key: 'Minus', value: ArithmeticOperator.Minus },
+      { key: 'Asterisk', value: ArithmeticOperator.Multiply },
+      { key: 'Div', value: ArithmeticOperator.Div },
+      { key: 'Idiv', value: ArithmeticOperator.Idiv },
+      { key: 'Mod', value: ArithmeticOperator.Mod },
+    ];
+
+    for (const { key, value } of operatorTypes) {
+      operators.push(...CstVisitor.extractOperatorTokens(children, key, value));
+    }
+
+    // Sort by offset to preserve order
+    operators.sort((a, b) => a.offset - b.offset);
+    return operators.map((op) => op.operator);
+  }
+
+  /**
+   * Extracts logical operator from CST node children.
+   * Maps CST operator tokens to LogicalOperator enum values.
+   */
+  private static extractLogicalOperator(node: CstElement): LogicalOperator | undefined {
+    const children = 'children' in node && node.children;
+    if (!children) return undefined;
+
+    if ('And' in children) return LogicalOperator.And;
+    if ('Or' in children) return LogicalOperator.Or;
+
+    return undefined;
+  }
+
+  /**
+   * Generic visitor for binary expressions (arithmetic or logical).
+   * Handles chained operations like `a + b + c` or `cond1 and cond2 and cond3`.
+   * Eliminates code duplication between arithmetic and logical expression handling.
+   *
+   * @param node - CST node containing operands and operators
+   * @param config - Configuration object defining how to process this binary expression type
+   * @returns The resulting node or the single operand if no operators present
+   */
+  private static visitBinaryExpr<TNode, TOperator>(
+    node: CstElement,
+    config: BinaryExpressionConfig<TNode, TOperator>,
+  ): TNode | undefined {
+    if (!('children' in node)) return undefined;
+
+    const operands = CstVisitor.getNodes(node, config.operandPath);
+    if (!operands || operands.length === 0) return undefined;
+
+    // Single operand - recursively process it
+    if (operands.length === 1) {
+      return config.visitOperand(operands[0]);
+    }
+
+    // Multiple operands - build chained expression
+    return CstVisitor.buildChainedBinaryExpr(node, operands, config);
+  }
+
+  /**
+   * Builds a chained binary expression from multiple operands.
+   * For "a + b + c", creates nested structure: (a + b) + c
+   */
+  private static buildChainedBinaryExpr<TNode, TOperator>(
+    cstNode: CstElement,
+    operands: CstElement[],
+    config: BinaryExpressionConfig<TNode, TOperator>,
+  ): TNode | undefined {
+    let result: TNode | undefined;
+
+    for (let i = 0; i < operands.length; i++) {
+      const operand = config.visitOperand(operands[i]);
+      if (!operand) continue;
+
+      if (i === 0) {
+        result = operand;
+      } else if (result) {
+        const operator = config.extractOperator(cstNode);
+        result = config.createNode(cstNode, result, operand, operator);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Extracts path expression from a UnionExpr operand
+   */
+  private static extractPathFromUnionExpr(unionExpr: CstElement): PathExprNode | undefined {
+    const pathExpr = CstVisitor.getSingleNode(unionExpr, ['IntersectExceptExpr', 'InstanceofExpr', 'PathExpr']);
+    if (!pathExpr || !('children' in pathExpr)) return undefined;
+    return CstVisitor.visitPathExpr(pathExpr);
+  }
+
+  /**
+   * Visits a MultiplicativeExpr CST node.
+   * Handles operations: *, div, idiv, mod
+   * Example: `price * quantity` or `count mod 10`
+   */
+  private static visitMultiplicativeExpr(node: CstElement): ArithmeticResult {
+    // Extract all operators in order for mixed multiplicative operators
+    // For "a * b div c", this gives [Multiply, Div] in correct order
+    const operators = CstVisitor.extractArithmeticOperators(node);
+    let operatorIndex = 0;
+
+    return CstVisitor.visitBinaryExpr<ArithmeticResult, ArithmeticOperator>(node, {
+      operandPath: ['UnionExpr'],
+      extractOperator: () => operators[operatorIndex++],
+      visitOperand: (operand) => CstVisitor.extractPathFromUnionExpr(operand),
+      createNode: (cstNode, left, right, operator) => CstVisitor.createArithmeticNode(cstNode, left, right, operator),
+    });
+  }
+
+  /**
+   * Creates an ArithmeticExprNode with proper parent references.
+   * Returns left operand if operator or either operand is missing.
+   *
+   * @param cstNode - The CST node for source range information
+   * @param left - Left operand of the arithmetic expression
+   * @param right - Right operand of the arithmetic expression
+   * @param operator - The arithmetic operator (+, -, *, div, idiv, mod)
+   * @returns The created ArithmeticExprNode, or left operand if operator/right is missing
+   */
+  private static createArithmeticNode(
+    cstNode: CstElement,
+    left: ArithmeticResult,
+    right: ArithmeticResult,
+    operator: ArithmeticOperator | undefined,
+  ): ArithmeticResult {
+    if (!operator || !left || !right) return left;
+
+    const arithmeticNode: ArithmeticExprNode = {
+      type: XPathNodeType.ArithmeticExpr,
+      range: CstVisitor.createRangeFromNode(cstNode),
+      left,
+      operator,
+      right,
+    };
+
+    left.parent = arithmeticNode;
+    right.parent = arithmeticNode;
+    return arithmeticNode;
+  }
+
+  /**
+   * Visits an AdditiveExpr CST node.
+   * Handles operations: +, -
+   * Example: `price + tax` or `total - discount`
+   */
+  private static visitAdditiveExpr(node: CstElement): ArithmeticResult {
+    // Extract all operators in order to handle mixed operators correctly
+    // For "a - b + c", this gives [Minus, Plus] so each pair gets the right operator
+    const operators = CstVisitor.extractArithmeticOperators(node);
+    let operatorIndex = 0;
+
+    return CstVisitor.visitBinaryExpr<ArithmeticResult, ArithmeticOperator>(node, {
+      operandPath: ['MultiplicativeExpr'],
+      extractOperator: () => operators[operatorIndex++],
+      visitOperand: (operand) => CstVisitor.visitMultiplicativeExpr(operand),
+      createNode: (cstNode, left, right, operator) => CstVisitor.createArithmeticNode(cstNode, left, right, operator),
+    });
+  }
+
+  /**
+   * Creates a LogicalExprNode with proper parent references.
+   * Returns left operand if either operand is missing.
+   *
+   * @param cstNode - The CST node for source range information
+   * @param left - Left operand of the logical expression
+   * @param right - Right operand of the logical expression
+   * @param operator - The logical operator (And or Or)
+   * @returns The created LogicalExprNode, or left operand if right is missing
+   */
+  private static createLogicalNode(
+    cstNode: CstElement,
+    left: LogicalResult,
+    right: LogicalResult,
+    operator: LogicalOperator,
+  ): LogicalResult {
+    if (!left || !right) return left;
+
+    const logicalNode: LogicalExprNode = {
+      type: XPathNodeType.LogicalExpr,
+      range: CstVisitor.createRangeFromNode(cstNode),
+      left,
+      operator,
+      right,
+    };
+
+    left.parent = logicalNode;
+    right.parent = logicalNode;
+    return logicalNode;
+  }
+
+  /**
+   * Visits an AndExpr CST node.
+   * Handles logical AND operations: `condition1 and condition2`
+   */
+  private static visitAndExpr(node: CstElement): LogicalResult {
+    return CstVisitor.visitBinaryExpr<LogicalResult, LogicalOperator>(node, {
+      operandPath: ['ComparisonExpr'],
+      extractOperator: () => LogicalOperator.And,
+      visitOperand: (operand) => {
+        const result = CstVisitor.processComparisonExpr(operand);
+        // Filter to only return valid logical operand types
+        if (
+          result &&
+          (result.type === XPathNodeType.LogicalExpr ||
+            result.type === XPathNodeType.ComparisonExpr ||
+            result.type === XPathNodeType.ArithmeticExpr ||
+            result.type === XPathNodeType.PathExpr ||
+            result.type === XPathNodeType.ParenthesizedExpr)
+        ) {
+          return result as LogicalResult;
+        }
+        return undefined;
+      },
+      createNode: (cstNode, left, right) => CstVisitor.createLogicalNode(cstNode, left, right, LogicalOperator.And),
+    });
+  }
+
+  /**
+   * Visits an OrExpr CST node.
+   * Handles logical OR operations: `condition1 or condition2`
+   */
+  private static visitOrExpr(node: CstElement): LogicalResult {
+    return CstVisitor.visitBinaryExpr<LogicalResult, LogicalOperator>(node, {
+      operandPath: ['AndExpr'],
+      extractOperator: () => LogicalOperator.Or,
+      visitOperand: (operand) => CstVisitor.visitAndExpr(operand),
+      createNode: (cstNode, left, right) => CstVisitor.createLogicalNode(cstNode, left, right, LogicalOperator.Or),
+    });
+  }
 
   private static visitComparisonExpr(node: CstElement): ComparisonExprNode | undefined {
     const rangeExprArray = CstVisitor.getNodes(node, ['RangeExpr']);
@@ -672,104 +1049,33 @@ export class CstVisitor {
     return operator ?? PredicateOperator.Unknown;
   }
 
-  private static extractPathExprsFromParenthesizedExpr(parenthesizedExpr: CstElement): PathExprNode[] {
-    if (!('children' in parenthesizedExpr)) {
-      return [];
+  /**
+   * Extracts path expressions from a single operand.
+   * If operand is a PathExpr, returns it in an array; if it's a binary expression (arithmetic/logical),
+   * recursively extracts all paths from it.
+   *
+   * @param operand - The expression operand to extract paths from
+   * @returns Array of PathExprNode instances found in the operand
+   */
+  private static extractPathsFromOperand(operand: ExprSingleNode): PathExprNode[] {
+    if (operand.type === XPathNodeType.PathExpr) {
+      return [operand];
     }
-    const expr = parenthesizedExpr.children['Expr'];
-    if (expr && expr.length > 0 && 'children' in expr[0]) {
-      return CstVisitor.extractAllPathExprsFromCST(expr[0]);
+    if (operand.type === XPathNodeType.ArithmeticExpr || operand.type === XPathNodeType.LogicalExpr) {
+      return CstVisitor.extractPathExprsFromBinaryExpr(operand);
     }
     return [];
   }
 
-  private static extractPathExprsFromFunctionCall(functionCall: CstElement): PathExprNode[] {
-    const paths: PathExprNode[] = [];
-    if (!('children' in functionCall) || !functionCall.children.ExprSingle) {
-      return paths;
-    }
-    for (const exprSingle of functionCall.children.ExprSingle) {
-      if ('children' in exprSingle) {
-        paths.push(...CstVisitor.extractAllPathExprsFromCST(exprSingle));
-      }
-    }
-    return paths;
-  }
-
-  private static extractPathExprsFromFilterExpr(node: CstNode, filterExpr: CstElement): PathExprNode[] {
-    const literal = CstVisitor.getSingleNode(filterExpr, ['Literal']);
-    if (literal) {
-      return [];
-    }
-
-    const contextItemExpr = CstVisitor.getSingleNode(filterExpr, ['ContextItemExpr']);
-    if (contextItemExpr) {
-      return [CstVisitor.visitPathExpr(node)];
-    }
-
-    const parenthesizedExpr = CstVisitor.getSingleNode(filterExpr, ['ParenthesizedExpr']);
-    if (parenthesizedExpr && 'children' in parenthesizedExpr) {
-      return CstVisitor.extractPathExprsFromParenthesizedExpr(parenthesizedExpr);
-    }
-
-    const functionCall = CstVisitor.getSingleNode(filterExpr, ['FunctionCall']);
-    if (functionCall && 'children' in functionCall) {
-      return CstVisitor.extractPathExprsFromFunctionCall(functionCall);
-    }
-
-    return [CstVisitor.visitPathExpr(node)];
-  }
-
-  private static extractPathExprsFromPathExprNode(node: CstNode): PathExprNode[] {
-    const relativePathExpr = CstVisitor.getSingleNode(node, ['RelativePathExpr']);
-    if (!relativePathExpr || !('children' in relativePathExpr)) {
-      return [];
-    }
-
-    const childPathSegments = CstVisitor.getNodes(relativePathExpr, ['ChildPathSegmentExpr']);
-    if (childPathSegments && childPathSegments.length > 0) {
-      return [CstVisitor.visitPathExpr(node)];
-    }
-
-    const filterExpr = CstVisitor.getSingleNode(relativePathExpr, ['StepExpr', 'FilterExpr']);
-    if (!filterExpr || !('children' in filterExpr)) {
-      return [CstVisitor.visitPathExpr(node)];
-    }
-
-    return CstVisitor.extractPathExprsFromFilterExpr(node, filterExpr);
-  }
-
-  private static extractPathExprsFromChildrenArray(children: CstElement[]): PathExprNode[] {
-    const paths: PathExprNode[] = [];
-    for (const child of children) {
-      if (('children' in child || 'name' in child) && 'children' in child) {
-        paths.push(...CstVisitor.extractAllPathExprsFromCST(child));
-      }
-    }
-    return paths;
-  }
-
-  private static extractPathExprsFromChildren(node: CstNode): PathExprNode[] {
-    const paths: PathExprNode[] = [];
-    if (!('children' in node)) {
-      return paths;
-    }
-
-    for (const children of Object.values(node.children)) {
-      if (Array.isArray(children)) {
-        paths.push(...CstVisitor.extractPathExprsFromChildrenArray(children));
-      }
-    }
-
-    return paths;
-  }
-
-  private static extractAllPathExprsFromCST(node: CstNode): PathExprNode[] {
-    if (node.name === 'PathExpr' && 'children' in node) {
-      return CstVisitor.extractPathExprsFromPathExprNode(node);
-    }
-
-    return CstVisitor.extractPathExprsFromChildren(node);
+  /**
+   * Extracts all PathExprNode instances from an ArithmeticExprNode or LogicalExprNode.
+   * Recursively traverses left and right operands to collect all path expressions.
+   * This is crucial for DataMapper to draw mapping lines for all fields in arithmetic/logical expressions.
+   *
+   * Example: For `price * quantity`, this extracts both `price` and `quantity` paths.
+   */
+  private static extractPathExprsFromBinaryExpr(node: BinaryExprNode): PathExprNode[] {
+    return [...CstVisitor.extractPathsFromOperand(node.left), ...CstVisitor.extractPathsFromOperand(node.right)];
   }
 
   private static visitIfExpr(node: CstNode): IfExprNode {

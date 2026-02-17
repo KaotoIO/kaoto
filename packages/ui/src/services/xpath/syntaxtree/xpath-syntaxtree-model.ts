@@ -31,11 +31,35 @@ export enum XPathNodeType {
   ContextItemExpr = 'ContextItemExpr',
   Predicate = 'Predicate',
   ComparisonExpr = 'ComparisonExpr',
+  ArithmeticExpr = 'ArithmeticExpr',
+  LogicalExpr = 'LogicalExpr',
   NameTest = 'NameTest',
   ReverseStep = 'ReverseStep',
   ParenthesizedExpr = 'ParenthesizedExpr',
   Expr = 'Expr',
   IfExpr = 'IfExpr',
+}
+
+/**
+ * Arithmetic operators for mathematical expressions.
+ * Used in ArithmeticExprNode to represent operations like addition, multiplication, etc.
+ */
+export enum ArithmeticOperator {
+  Plus = 'Plus',
+  Minus = 'Minus',
+  Multiply = 'Multiply',
+  Div = 'Div',
+  Idiv = 'Idiv',
+  Mod = 'Mod',
+}
+
+/**
+ * Logical operators for boolean expressions.
+ * Used in LogicalExprNode to represent AND/OR operations.
+ */
+export enum LogicalOperator {
+  And = 'And',
+  Or = 'Or',
 }
 
 /**
@@ -134,9 +158,12 @@ export type PrimaryExprNode = LiteralNode | VarRefNode | ParenthesizedExprNode |
 export type ExprSingleNode =
   | PathExprNode
   | ComparisonExprNode
+  | ArithmeticExprNode
+  | LogicalExprNode
   | LiteralNode
   | FunctionCallNode
   | VarRefNode
+  | ParenthesizedExprNode
   | IfExprNode;
 
 /**
@@ -216,10 +243,22 @@ export interface IfExprNode extends XPathNode {
  * - `/foo/bar` (single path expression)
  * - `concat(a, b, c)` (function with multiple expr arguments)
  * - `$var > 5` (comparison expression)
+ * - `price * quantity` (arithmetic expression)
+ * - `condition1 and condition2` (logical expression)
  */
 export interface ExprNode extends XPathNode {
   type: XPathNodeType.Expr;
-  expressions: ExprSingleNode[];
+  expressions: (
+    | PathExprNode
+    | ComparisonExprNode
+    | ArithmeticExprNode
+    | LogicalExprNode
+    | LiteralNode
+    | FunctionCallNode
+    | VarRefNode
+    | ParenthesizedExprNode
+    | IfExprNode
+  )[];
 }
 
 /**
@@ -248,4 +287,38 @@ export interface ComparisonExprNode extends XPathNode {
   left: PathExprNode | LiteralNode | VarRefNode;
   operator: PredicateOperator;
   right?: PathExprNode | LiteralNode | VarRefNode;
+}
+
+/**
+ * Arithmetic expression for mathematical operations.
+ * Represents binary arithmetic operations like addition, subtraction, multiplication, division, etc.
+ * Examples:
+ * - `price * quantity` (multiplication)
+ * - `total + tax` (addition)
+ * - `amount - discount` (subtraction)
+ * - `price div quantity` (division)
+ * - `count mod 10` (modulo)
+ * - `a + b + c` (chained operations, represented as nested ArithmeticExprNode)
+ */
+export interface ArithmeticExprNode extends XPathNode {
+  type: XPathNodeType.ArithmeticExpr;
+  left: PathExprNode | LiteralNode | VarRefNode | ArithmeticExprNode | FunctionCallNode | ParenthesizedExprNode;
+  operator: ArithmeticOperator;
+  right: PathExprNode | LiteralNode | VarRefNode | ArithmeticExprNode | FunctionCallNode | ParenthesizedExprNode;
+}
+
+/**
+ * Logical expression for boolean operations.
+ * Represents binary logical operations like AND and OR.
+ * Examples:
+ * - `condition1 and condition2` (logical AND)
+ * - `condition1 or condition2` (logical OR)
+ * - `(price > 100) and (quantity < 10)` (compound conditions)
+ * - `cond1 and cond2 and cond3` (chained operations, represented as nested LogicalExprNode)
+ */
+export interface LogicalExprNode extends XPathNode {
+  type: XPathNodeType.LogicalExpr;
+  left: ComparisonExprNode | LogicalExprNode | ArithmeticExprNode | PathExprNode | ParenthesizedExprNode;
+  operator: LogicalOperator;
+  right: ComparisonExprNode | LogicalExprNode | ArithmeticExprNode | PathExprNode | ParenthesizedExprNode;
 }

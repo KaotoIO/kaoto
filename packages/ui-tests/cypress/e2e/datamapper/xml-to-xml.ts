@@ -188,4 +188,36 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.checkFieldSelected('target', 'fx', 'OrderPerson', true);
     cy.checkMappingLineSelected(true);
   });
+
+  it('import mappings with XPath arithmetic and logical operators', () => {
+    cy.openDataMapper();
+    cy.attachSourceBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.attachTargetBodySchema('datamapper/xsd/ShipOrder.xsd');
+    cy.importMappings('datamapper/xslt/ShipOrderWithOperators.xsl');
+
+    // Verify that fields used in operators are present
+    cy.get('[data-testid^="node-source-fx-OrderPerson"]').should('exist');
+    cy.get('[data-testid^="node-source-fx-OrderId"]').should('exist');
+    cy.get('[data-testid^="node-source-fx-Price"]').should('exist');
+    cy.get('[data-testid^="node-source-fx-Quantity"]').should('exist');
+
+    // Count mapping lines - should include all operands from arithmetic and logical expressions
+    // OrderId (1) + OrderPerson with 'and' operator (2) + Name (1) + Title (1) +
+    // Note with arithmetic operators (2: Price, Quantity) + Quantity with subtraction (1) + Price (1) = 10 lines
+    cy.countMappingLines(10);
+
+    // Test arithmetic operator mapping: Price * Quantity + 10 -> Note
+    // Should create mapping lines for both Price and Quantity
+    cy.get('[data-testid^="node-source-fx-Price"]').first().click({ force: true });
+    cy.checkFieldSelected('source', 'fx', 'Price', true);
+    cy.checkFieldSelected('target', 'fx', 'Note', true);
+    cy.checkMappingLineSelected(true);
+
+    // Test logical operator mapping: OrderPerson = 'VIP' and OrderId = '123'
+    // Should create mapping lines for both OrderPerson and OrderId
+    cy.get('[data-testid^="node-source-fx-OrderPerson"]').first().click({ force: true });
+    cy.checkFieldSelected('source', 'fx', 'OrderPerson', true);
+    cy.checkFieldSelected('target', 'fx', 'OrderPerson', true);
+    cy.checkMappingLineSelected(true);
+  });
 });
