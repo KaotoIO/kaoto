@@ -130,6 +130,16 @@ describe('BaseNode', () => {
       expect(screen.queryByTestId('collection-field-icon')).not.toBeInTheDocument();
     });
 
+    it('should render choice icon when isChoiceField is true', () => {
+      render(<BaseNode title="Title" data-testid="test-node" isChoiceField={true} />);
+      expect(screen.getByTestId('choice-field-icon')).toBeInTheDocument();
+    });
+
+    it('should not render choice icon when isChoiceField is false', () => {
+      render(<BaseNode title="Title" data-testid="test-node" isChoiceField={false} />);
+      expect(screen.queryByTestId('choice-field-icon')).not.toBeInTheDocument();
+    });
+
     it('should render attribute icon when isAttributeField is true', () => {
       render(<BaseNode title="Title" data-testid="test-node" isAttributeField={true} />);
       expect(screen.getByTestId('attribute-field-icon')).toBeInTheDocument();

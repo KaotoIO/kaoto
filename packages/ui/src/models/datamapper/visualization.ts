@@ -21,8 +21,8 @@ export interface TargetNodeData extends NodeData {
   mapping?: MappingParentType;
 }
 
-export type SourceNodeDataType = DocumentNodeData | FieldNodeData;
-export type TargetNodeDataType = TargetDocumentNodeData | TargetFieldNodeData;
+export type SourceNodeDataType = DocumentNodeData | FieldNodeData | ChoiceFieldNodeData;
+export type TargetNodeDataType = TargetDocumentNodeData | TargetFieldNodeData | TargetChoiceFieldNodeData;
 
 export class DocumentNodeData implements NodeData {
   constructor(document: IDocument) {
@@ -83,6 +83,14 @@ export class TargetFieldNodeData extends FieldNodeData implements TargetNodeData
     this.mappingTree = parent.mappingTree;
   }
   mappingTree: MappingTree;
+}
+
+export class ChoiceFieldNodeData extends FieldNodeData {
+  choiceField?: IField;
+}
+
+export class TargetChoiceFieldNodeData extends TargetFieldNodeData {
+  choiceField?: IField;
 }
 
 export class MappingNodeData implements TargetNodeData {

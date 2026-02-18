@@ -55,6 +55,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     [hasChildren, documentId, treeNode.path, reloadNodeReferences],
   );
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
+  const isChoiceField = VisualizationService.isChoiceField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -105,6 +106,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               isDraggable={isDraggable}
               iconType={iconType}
               isCollectionField={isCollectionField}
+              isChoiceField={isChoiceField}
               isAttributeField={isAttributeField}
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
               rank={rank}
