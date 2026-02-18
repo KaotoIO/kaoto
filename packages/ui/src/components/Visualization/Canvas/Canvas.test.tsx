@@ -1,11 +1,13 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
+import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { SettingsProvider } from '../../../providers/settings.provider';
@@ -16,6 +18,12 @@ import { kameletJson } from '../../../stubs/kamelet-route';
 import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
+
+jest.mock('./apply-collapse-state', () => ({
+  applyCollapseState: jest.fn(),
+}));
+
+import { applyCollapseState } from './apply-collapse-state';
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
@@ -118,6 +126,49 @@ describe('Canvas', () => {
     // This won't be called the first time
     expect(fromModelSpy).not.toHaveBeenCalledWith(expect.anything(), true);
     expect(layoutSpy).not.toHaveBeenCalled();
+  });
+
+  it('when initialized is true, runs fromModel(model, true), and applyCollapseState', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper({
+      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
+    });
+    const controller = ControllerService.createController();
+    const fromModelSpy = jest.spyOn(controller, 'fromModel');
+
+    // Stateful child so we can update entities without re-rendering Provider
+    let setEntitiesState: (next: BaseVisualCamelEntity[]) => void = () => {};
+    const Inner = () => {
+      const [entities, setEntities] = useState<BaseVisualCamelEntity[]>([entity]);
+      setEntitiesState = setEntities;
+      return (
+        <VisualizationProvider controller={controller}>
+          <Canvas entities={entities} />
+        </VisualizationProvider>
+      );
+    };
+
+    render(
+      <Provider>
+        <Inner />
+      </Provider>,
+    );
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+    expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), false);
+
+    fromModelSpy.mockClear();
+
+    await act(async () => {
+      setEntitiesState([entity].slice());
+    });
+    await act(async () => {
+      await jest.runAllTimersAsync();
+    });
+
+    expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
+    expect(applyCollapseState).toHaveBeenCalledWith(controller);
   });
 
   it('should be able to delete the routes', async () => {

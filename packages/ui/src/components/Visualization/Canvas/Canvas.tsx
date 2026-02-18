@@ -40,6 +40,7 @@ import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
 import { VisualizationEmptyState } from '../EmptyState';
+import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
@@ -122,6 +123,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({ enti
 
     requestAnimationFrame(() => {
       controller.fromModel(model, true);
+      applyCollapseState(controller);
       controller.getGraph().layout();
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
