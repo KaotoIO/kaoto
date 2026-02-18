@@ -145,3 +145,5 @@ storybook-static
 
 # OS
 .DS_Store
+
+.bob/notes
