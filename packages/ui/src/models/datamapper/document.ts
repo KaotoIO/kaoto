@@ -65,8 +65,6 @@ export interface IField {
   predicates: Predicate[];
   /** Whether this field represents a choice compositor */
   isChoice?: boolean;
-  /** Array of choice option fields */
-  choiceMembers?: IField[];
   /** Index of selected member (0-based), undefined = show all */
   selectedMemberIndex?: number;
 
@@ -263,7 +261,6 @@ export class BaseField implements IField {
   namedTypeFragmentRefs: string[] = [];
   predicates: Predicate[] = [];
   isChoice?: boolean;
-  choiceMembers?: IField[];
   selectedMemberIndex?: number;
 
   protected mergeInto(existing: IField): void {
@@ -273,7 +270,6 @@ export class BaseField implements IField {
       !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
     }
     if (this.isChoice !== undefined) existing.isChoice = this.isChoice;
-    if (this.choiceMembers !== undefined) existing.choiceMembers = this.choiceMembers;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
     for (const child of this.fields) child.adopt(existing);
   }
@@ -299,7 +295,6 @@ export class BaseField implements IField {
     adopted.namespaceURI = this.namespaceURI;
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     adopted.isChoice = this.isChoice;
-    adopted.choiceMembers = this.choiceMembers;
     adopted.selectedMemberIndex = this.selectedMemberIndex;
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
     parent.fields.push(adopted);

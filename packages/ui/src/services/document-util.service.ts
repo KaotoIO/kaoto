@@ -341,4 +341,16 @@ export class DocumentUtilService {
       }
     }
   }
+
+  static formatChoiceDisplayName(choiceMembers?: IField[]): string {
+    if (!choiceMembers || choiceMembers.length === 0) {
+      return 'choice (empty)';
+    }
+    const memberNames = choiceMembers.map((m) => m.name).join(' | ');
+    const maxLength = 40;
+    if (memberNames.length > maxLength) {
+      return `choice (${memberNames.substring(0, maxLength - 3)}...)`;
+    }
+    return `choice (${memberNames})`;
+  }
 }

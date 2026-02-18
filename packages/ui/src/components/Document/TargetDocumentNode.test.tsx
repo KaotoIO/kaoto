@@ -6,13 +6,20 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { DocumentNodeData } from '../../models/datamapper/visualization';
+import { MappingTree } from '../../models/datamapper/mapping';
+import {
+  DocumentNodeData,
+  TargetChoiceFieldNodeData,
+  TargetDocumentNodeData,
+} from '../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { DocumentUtilService } from '../../services/document-util.service';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -151,6 +158,34 @@ describe('TargetDocumentNode', () => {
 
     const icons = screen.getAllByRole('img', { hidden: true });
     expect(icons.length).toBeGreaterThan(0);
+  });
+
+  it('should render a choice field with choice icon', () => {
+    const document = TestUtil.createTargetOrderDoc();
+    const tree = new MappingTree(document.documentType, document.documentId, DocumentDefinitionType.XML_SCHEMA);
+    const documentNodeData = new TargetDocumentNodeData(document, tree);
+    const baseField = document.fields[0];
+    const memberFields = [
+      { ...baseField, name: 'email', displayName: 'email', fields: [] },
+      { ...baseField, name: 'phone', displayName: 'phone', fields: [] },
+    ];
+    const choiceField = {
+      ...baseField,
+      name: 'choice',
+      displayName: DocumentUtilService.formatChoiceDisplayName(memberFields as unknown as IField[]),
+      isChoice: true,
+      fields: memberFields,
+    } as unknown as typeof baseField;
+    const choiceNodeData = new TargetChoiceFieldNodeData(documentNodeData, choiceField);
+    const choiceTreeNode = new DocumentTreeNode(choiceNodeData);
+
+    act(() => {
+      render(<TargetDocumentNode treeNode={choiceTreeNode} documentId={documentNodeData.id} rank={1} />, {
+        wrapper,
+      });
+    });
+
+    expect(screen.getByTestId('choice-field-icon')).toBeInTheDocument();
   });
 
   it('should render with draggable indicator for non-document nodes', () => {

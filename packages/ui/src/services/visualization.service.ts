@@ -13,12 +13,14 @@ import {
 } from '../models/datamapper/mapping';
 import {
   AddMappingNodeData,
+  ChoiceFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   NodeData,
   SourceNodeDataType,
+  TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
@@ -66,7 +68,33 @@ export class VisualizationService {
     );
   }
 
-  private static doGenerateNodeDataFromFields(parent: NodeData, fields: IField[], mappings?: MappingItem[]) {
+  private static doGenerateNodeDataFromChoiceField(
+    parent: NodeData,
+    field: IField,
+    mappings?: MappingItem[],
+  ): NodeData {
+    const selectedMember =
+      field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
+    const nodeField = selectedMember ?? field;
+    if (parent.isSource) {
+      const choiceNodeData = new ChoiceFieldNodeData(parent, nodeField);
+      if (selectedMember) choiceNodeData.choiceField = field;
+      return choiceNodeData;
+    }
+
+    const mappingsForMember =
+      selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
+    const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
+    const choiceNodeData = new TargetChoiceFieldNodeData(parent as TargetNodeData, nodeField, mapping);
+    if (selectedMember) choiceNodeData.choiceField = field;
+    return choiceNodeData;
+  }
+
+  private static doGenerateNodeDataFromFields(
+    parent: NodeData,
+    fields: IField[],
+    mappings?: MappingItem[],
+  ): NodeData[] {
     const answer: NodeData[] = [];
     if (parent.isPrimitive && mappings) {
       mappings
@@ -74,6 +102,11 @@ export class VisualizationService {
         .forEach((m) => answer.push(new MappingNodeData(parent as TargetNodeData, m)));
     }
     return fields.reduce((acc, field) => {
+      if (field.isChoice) {
+        acc.push(VisualizationService.doGenerateNodeDataFromChoiceField(parent, field, mappings));
+        return acc;
+      }
+
       const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
       if (mappingsForField.length === 0) {
         const fieldNodeData = parent.isSource
@@ -100,6 +133,22 @@ export class VisualizationService {
   }
 
   static generateNonDocumentNodeDataChildren(parent: NodeData): NodeData[] {
+    if (parent instanceof ChoiceFieldNodeData || parent instanceof TargetChoiceFieldNodeData) {
+      let fields: IField[];
+      if (parent.field.isChoice && parent.field.selectedMemberIndex !== undefined) {
+        fields = [parent.field].filter(Boolean);
+      } else if (parent.field.isChoice) {
+        fields = parent.field.fields;
+      } else {
+        DocumentUtilService.resolveTypeFragment(parent.field);
+        fields = parent.field.fields;
+      }
+      return VisualizationService.doGenerateNodeDataFromFields(
+        parent,
+        fields,
+        'mapping' in parent ? parent.mapping?.children : undefined,
+      );
+    }
     if (parent instanceof FieldNodeData || parent instanceof FieldItemNodeData) {
       DocumentUtilService.resolveTypeFragment(parent.field);
       return VisualizationService.doGenerateNodeDataFromFields(
@@ -147,6 +196,10 @@ export class VisualizationService {
 
   static isAttributeField(nodeData: NodeData) {
     return nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
+  }
+
+  static isChoiceField(nodeData: NodeData) {
+    return nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData;
   }
 
   static isRecursiveField(nodeData: NodeData) {
