@@ -5,29 +5,56 @@ import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './B
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
+import { UriField } from './UriField/UriField';
 
-export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
-  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
-    /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
-    return EnumField;
-  } else if (
+const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return (
     schema.type === 'string' &&
     schema.title === 'Name' &&
-    schema.description?.toLowerCase().includes('direct endpoint')
-  ) {
+    schema.description?.toLowerCase().includes('direct endpoint') === true
+  );
+};
+
+const isMediaTypeField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && (schema.title === 'Consumes' || schema.title === 'Produces');
+};
+
+export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
+  /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
+    return EnumField;
+  }
+
+  if (isDirectEndpointName(schema)) {
     return DirectEndpointNameField;
-  } else if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
+  }
+
+  if (schema.type === 'string' && schema.format?.startsWith('bean:')) {
     return PrefixedBeanField;
-  } else if (schema.type === 'string' && schema.title === 'Ref') {
+  }
+
+  if (schema.type === 'string' && schema.title === 'Ref') {
     return UnprefixedBeanField;
-  } else if (schema.type === 'string' && schema.title?.includes('Data Source')) {
+  }
+
+  if (schema.type === 'string' && schema.title?.includes('Data Source')) {
     return DataSourceBeanField;
-  } else if (schema.type === 'string' && (schema.title === 'Consumes' || schema.title === 'Produces')) {
+  }
+
+  if (isMediaTypeField(schema)) {
     return MediaTypeField;
-  } else if (schema.format === 'expression' || schema.format === 'expressionProperty') {
+  }
+
+  if (schema.format === 'expression' || schema.format === 'expressionProperty') {
     return ExpressionField;
-  } else if (schema.type === 'array' && schema.title === 'Custom media types') {
+  }
+
+  if (schema.type === 'array' && schema.title === 'Custom media types') {
     return CustomMediaTypes;
+  }
+
+  if (schema.type === 'string' && schema.title === 'Uri') {
+    return UriField;
   }
 
   return undefined;
