@@ -96,6 +96,40 @@ describe('canDropOnEdge', () => {
     expect(catalogModalContext.checkCompatibility).not.toHaveBeenCalled();
   });
 
+  it('should return false when both following and preceding nodes path has the dragged node path', () => {
+    const draggedMockVizNode = getMockVizNode('0.choice');
+    const sourceMockVizNode = getMockVizNode('0.choice.when.0.steps.0.to');
+    const targetMockVizNode = getMockVizNode('0.choice.when.0.steps.1.log');
+
+    draggedMockVizNode.getId = jest.fn().mockReturnValue('test-id');
+    targetMockVizNode.getId = jest.fn().mockReturnValue('test-id');
+
+    const mockEdge = createMockEdge(sourceMockVizNode, targetMockVizNode);
+
+    const result = canDropOnEdge(draggedMockVizNode, mockEdge, camelResource, catalogModalContext);
+
+    expect(result).toBe(false);
+    expect(camelResource.getCompatibleComponents).not.toHaveBeenCalled();
+    expect(catalogModalContext.checkCompatibility).not.toHaveBeenCalled();
+  });
+
+  it('should return true when both following and preceding nodes path has the dragged node path but different root', () => {
+    const draggedMockVizNode = getMockVizNode('0.choice');
+    const sourceMockVizNode = getMockVizNode('0.choice.when.0.steps.0.to');
+    const targetMockVizNode = getMockVizNode('0.choice.when.0.steps.1.log');
+
+    draggedMockVizNode.getId = jest.fn().mockReturnValue('test-id1');
+    targetMockVizNode.getId = jest.fn().mockReturnValue('test-id2');
+
+    const mockEdge = createMockEdge(sourceMockVizNode, targetMockVizNode);
+
+    const result = canDropOnEdge(draggedMockVizNode, mockEdge, camelResource, catalogModalContext);
+
+    expect(result).toBe(true);
+    expect(camelResource.getCompatibleComponents).toHaveBeenCalled();
+    expect(catalogModalContext.checkCompatibility).toHaveBeenCalled();
+  });
+
   it('should return false when checkCompatibility returns false', () => {
     const mockFilter = ['filter1', 'filter2'];
     (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);

@@ -87,12 +87,16 @@ const PlaceholderNodeContainer: FunctionComponent<PlaceholderNodeContainerProps>
     <div
       data-testid={`${vizNode.getId()}|${vizNode.id}`}
       className={clsx('placeholder-node__container', {
-        'placeholder-node__container__dropTarget': canDrop && hover,
-        'placeholder-node__container__possibleDropTargets': canDrop && droppable && !hover,
         'placeholder-node__container__draggedNode': isDraggingWithinGroup,
       })}
     >
-      <div title={tooltipContent} className="placeholder-node__container__image">
+      <div
+        title={tooltipContent}
+        className={clsx('placeholder-node__container__image', {
+          'placeholder-node__container__image__dropTarget': droppable && canDrop && hover,
+          'placeholder-node__container__image__possibleDropTargets': canDrop && droppable && !hover,
+        })}
+      >
         <Icon size="lg">{isSpecialChildPlaceholder ? <CodeBranchIcon /> : <PlusCircleIcon />}</Icon>
       </div>
     </div>

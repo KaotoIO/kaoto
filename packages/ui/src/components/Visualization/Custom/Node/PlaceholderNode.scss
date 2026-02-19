@@ -9,14 +9,6 @@
       align-items: center;
       justify-content: center;
 
-      &__dropTarget {
-        @include custom.drop-target;
-      }
-
-      &__possibleDropTargets {
-        @include custom.possible-drop-targets;
-      }
-
       &__draggedNode {
         @include custom.drag-node;
       }
@@ -27,6 +19,14 @@
         background-color: var(--custom-node-BackgroundColor);
         padding: var(--pf-t--global--spacer--md);
         color: var(--pf-topology__edge--Stroke);
+
+        &__possibleDropTargets {
+          border: var(--custom-node-border-width) dashed var(--custom-component-possibleDropTarget);
+        }
+
+        &__dropTarget {
+          border: var(--custom-node-border-width) dashed var(--custom-component-dropTarget);
+        }
       }
 
       &:hover &__image {
