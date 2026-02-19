@@ -25,6 +25,21 @@ const canDropOnEdge = (
   )
     return false;
 
+  /*
+   if both following and preceding nodes path has the dragged node path,
+   it means we're dragging the node on its own edge, so we should not allow it 
+  */
+  const draggedNodePath = draggedVizNode.data.path;
+  const followingNodePath = followingVizNode.data.path;
+  const precedingNodePath = precedingVizNode.data.path;
+  if (
+    followingNodePath?.includes(draggedNodePath) &&
+    precedingNodePath?.includes(draggedNodePath) &&
+    followingVizNode.getId() === draggedVizNode.getId()
+  ) {
+    return false;
+  }
+
   const filter = camelResource.getCompatibleComponents(
     AddStepMode.PrependStep,
     followingVizNode.data,

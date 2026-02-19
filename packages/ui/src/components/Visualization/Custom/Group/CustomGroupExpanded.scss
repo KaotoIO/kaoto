@@ -85,6 +85,14 @@
       &__dropTarget-left {
         border-left: var(--custom-group-border-dropTarget);
       }
+
+      &__possibleDropTarget-right {
+        border-right: var(--custom-group-border-possibleDropTarget);
+      }
+
+      &__possibleDropTarget-left {
+        border-left: var(--custom-group-border-possibleDropTarget);
+      }
     }
 
     &__disabled-icon {

@@ -158,7 +158,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragGroupRef);
 
     let dropDirection: 'forward' | 'backward' | null = null;
-    if (dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover) {
+    if (dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode) {
       dropDirection = getNodeDragAndDropDirection(draggedVizNode, groupVizNode, false);
     }
 
@@ -197,8 +197,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
               className={clsx('custom-group__container', {
                 'custom-group__container__draggedGroup': isDraggingGroup || refreshGroup,
-                'custom-group__container__dropTarget-right': dropDirection === 'forward',
-                'custom-group__container__dropTarget-left': dropDirection === 'backward',
+                'custom-group__container__dropTarget-right': dropDirection === 'forward' && dndDropProps.hover,
+                'custom-group__container__dropTarget-left': dropDirection === 'backward' && dndDropProps.hover,
+                'custom-group__container__possibleDropTarget-right': dropDirection === 'forward' && !dndDropProps.hover,
+                'custom-group__container__possibleDropTarget-left': dropDirection === 'backward' && !dndDropProps.hover,
               })}
             >
               <div className="custom-group__container__text" title={tooltipContent}>

@@ -17,6 +17,12 @@
         stroke-dasharray: 5, 5;
         stroke-width: 3;
       }
+
+      &__possibleDropTargets {
+        stroke: var(--custom-component-possibleDropTarget);
+        stroke-dasharray: 5, 5;
+        stroke-width: 5;
+      }
     }
 
     &__connector {
@@ -28,6 +34,12 @@
         stroke: var(--custom-component-dropTarget);
         stroke-width: 3;
         fill: var(--custom-component-dropTarget);
+      }
+
+      &__possibleDropTargets {
+        stroke: var(--custom-component-possibleDropTarget);
+        stroke-width: 3;
+        fill: var(--custom-component-possibleDropTarget);
       }
     }
 

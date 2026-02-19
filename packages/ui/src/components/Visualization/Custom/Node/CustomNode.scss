@@ -10,14 +10,6 @@
       flex-flow: column nowrap;
       justify-content: space-around;
 
-      &__dropTarget {
-        @include custom.drop-target;
-      }
-
-      &__possibleDropTargets {
-        @include custom.possible-drop-targets;
-      }
-
       &__draggable {
         @include dnd.cursor-grab;
       }
