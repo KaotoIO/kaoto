@@ -135,7 +135,7 @@ jobs:
           repositories: kaoto-operator
 
       - name: '🔔 Notify operator repo'
-        if: ${{ github.event.inputs.stable && !contains(github.event.inputs.tag_version, '-RC') }}
+        if: ${{ github.event.inputs.stable == 'true' && !contains(github.event.inputs.tag_version, '-RC') }}
         run: |
           gh api repos/KaotoIO/kaoto-operator/dispatches \
             --field event_type=kaoto-release \
