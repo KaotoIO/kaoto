@@ -123,3 +123,22 @@ jobs:
         run: |
           docker push quay.io/kaotoio/kaoto-app:stable
         if: ${{ github.event.inputs.stable }}
+
+      - name: '🔑 Generate GitHub App token'
+        if: ${{ github.event.inputs.stable && !contains(github.event.inputs.tag_version, '-RC') }}
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.KAOTO_RELEASE_APP_KEY }}
+          private-key: ${{ secrets.KAOTO_NPM_TOKEN }}
+          owner: KaotoIO
+          repositories: kaoto-operator
+
+      - name: '🔔 Notify operator repo'
+        if: ${{ github.event.inputs.stable == 'true' && !contains(github.event.inputs.tag_version, '-RC') }}
+        run: |
+          gh api repos/KaotoIO/kaoto-operator/dispatches \
+            --field event_type=kaoto-release \
+            --field 'client_payload[kaoto_version]=${{ github.event.inputs.tag_version }}'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
