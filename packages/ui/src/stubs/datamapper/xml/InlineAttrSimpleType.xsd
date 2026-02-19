@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Minimal reproducer for: "Cannot read properties of null (reading 'getLocalPart')"
+
+  Root cause: XmlSchemaDocumentService.populateAttribute() at line 496 assumes
+  attr.getSchemaTypeName() is never null, but it returns null when an xs:attribute
+  defines its type inline with a child xs:simpleType instead of using type="...".
+
+  The essential trigger is any xs:attribute element that has a child xs:simpleType
+  rather than a type="xs:something" XML attribute on the tag itself.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:attribute name="Status">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="Active"/>
+            <xs:enumeration value="Inactive"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

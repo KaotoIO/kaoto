@@ -169,6 +169,13 @@ export const multiIncludeComponentBXsd = fs
   .readFileSync(path.resolve(__dirname, './xml/MultiIncludeComponentB.xsd'))
   .toString();
 
+export const inlineAttrSimpleTypeXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/InlineAttrSimpleType.xsd'))
+  .toString();
+export const anonymousGlobalElementRefLargeXsd = fs
+  .readFileSync(path.resolve(__dirname, './xml/AnonymousGlobalElementRefLarge.xsd'))
+  .toString();
+
 export class TestUtil {
   static createSourceOrderDoc() {
     const definition = new DocumentDefinition(
