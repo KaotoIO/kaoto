@@ -413,7 +413,40 @@ export class XmlSchemaDocumentService {
     fields.push(field);
 
     ownerDoc.totalFieldCount++;
-    XmlSchemaDocumentService.populateSchemaType(ownerDoc, field, resolvedElement.getSchemaType());
+
+    const schemaType = resolvedElement.getSchemaType();
+    if (refTarget != null && schemaType instanceof XmlSchemaComplexType && !schemaType.getQName()) {
+      XmlSchemaDocumentService.populateGlobalElementFragment(ownerDoc, resolvedElement, schemaType, field);
+    } else {
+      XmlSchemaDocumentService.populateSchemaType(ownerDoc, field, schemaType);
+    }
+  }
+
+  private static populateGlobalElementFragment(
+    document: XmlSchemaDocument,
+    element: XmlSchemaElement,
+    schemaType: XmlSchemaComplexType,
+    field: XmlSchemaField,
+  ) {
+    const wireName = element.getWireName()!;
+    const fragmentKey = `__elem:${wireName.getNamespaceURI() ?? ''}:${wireName.getLocalPart()}`;
+
+    if (!document.namedTypeFragments[fragmentKey]) {
+      const fragmentFields: XmlSchemaField[] = [];
+      const fragment: XmlSchemaTypeFragment = { fields: fragmentFields, namedTypeFragmentRefs: [] };
+      document.namedTypeFragments[fragmentKey] = fragment;
+
+      XmlSchemaDocumentService.populateContentModel(document, fragment, schemaType.getContentModel());
+      const attributes = schemaType.getAttributes();
+      for (const attr of attributes) {
+        XmlSchemaDocumentService.populateAttributeOrGroupRef(document, fragmentFields, attr);
+      }
+      XmlSchemaDocumentService.populateParticle(document, fragmentFields, schemaType.getParticle());
+    }
+
+    field.type = Types.Container;
+    field.originalType = Types.Container;
+    field.namedTypeFragmentRefs.push(fragmentKey);
   }
 
   private static populateSchemaType(
@@ -493,7 +526,8 @@ export class XmlSchemaDocumentService {
     field.namespaceURI = namespaceURI;
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
-    field.type = Types[capitalize(attr.getSchemaTypeName()!.getLocalPart()!) as keyof typeof Types] || Types.AnyType;
+    const attrTypeName = attr.getSchemaTypeName()?.getLocalPart();
+    field.type = (attrTypeName ? Types[capitalize(attrTypeName) as keyof typeof Types] : null) || Types.AnyType;
     field.originalType = field.type;
     fields.push(field);
 

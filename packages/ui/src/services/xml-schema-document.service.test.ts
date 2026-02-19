@@ -6,12 +6,14 @@ import {
 } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import {
+  anonymousGlobalElementRefLargeXsd,
   camelSpringXsd,
   commonTypesXsd,
   elementRefXsd,
   extensionComplexXsd,
   extensionSimpleXsd,
   importedTypesXsd,
+  inlineAttrSimpleTypeXsd,
   invalidComplexExtensionXsd,
   mainWithImportXsd,
   mainWithIncludeXsd,
@@ -1508,5 +1510,58 @@ describe('XmlSchemaDocumentService', () => {
         name: 'ShipOrder',
       });
     });
+  });
+
+  it('should load attribute with inline simple type without crashing', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'InlineAttrSimpleType.xsd': inlineAttrSimpleTypeXsd },
+      { namespaceUri: '', name: 'Root' },
+    );
+
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    expect(document).toBeDefined();
+    expect(document.fields[0].name).toEqual('Root');
+
+    const statusAttr = document.fields[0].fields.find((f) => f.name === 'Status' && f.isAttribute);
+    expect(statusAttr).toBeDefined();
+    expect(statusAttr!.type).toEqual(Types.AnyType);
+  });
+
+  it('should load large anonymous-typed global element ref schema within time budget', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'AnonymousGlobalElementRefLarge.xsd': anonymousGlobalElementRefLargeXsd },
+      { namespaceUri: '', name: 'Root' },
+    );
+
+    const start = performance.now();
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    const elapsed = performance.now() - start;
+
+    expect(result.validationStatus).toBe('success');
+    expect(result.document).toBeDefined();
+    expect(elapsed).toBeLessThan(5000);
+
+    const document = result.document as XmlSchemaDocument;
+    expect(document.namedTypeFragments['__elem::TypeA01']).toBeDefined();
+    expect(document.namedTypeFragments['__elem::TypeB01']).toBeDefined();
+    expect(document.namedTypeFragments['__elem::TypeC01']).toBeDefined();
+    expect(document.namedTypeFragments['__elem::TypeD01']).toBeDefined();
+    expect(document.namedTypeFragments['__elem::TypeE01']).toBeDefined();
+    expect(document.namedTypeFragments['__elem::TypeF01']).toBeDefined();
+
+    const bigContainerFragment = document.namedTypeFragments['BigContainer'];
+    expect(bigContainerFragment).toBeDefined();
+    const typeA01Field = bigContainerFragment.fields.find((f) => f.name === 'TypeA01');
+    expect(typeA01Field).toBeDefined();
+    expect(typeA01Field!.type).toEqual(Types.Container);
+    expect(typeA01Field!.originalType).toEqual(Types.Container);
   });
 });

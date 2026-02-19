@@ -1,0 +1,1686 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Large-scale reproducer for the anonymous global element ref OOM bug.
+  7-level chain; TypeB through TypeF are shared across all parent contexts.
+
+  Without fix: TypeF is expanded 20*18*15*12*10 = 648000 times,
+  producing ~31,104,000 leaf field objects. At ~150 ns/object in V8
+  this takes ~4.7s — a visible browser hang.
+  With fix: 131 objects total. Near-instant.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="BigContainer">
+    <xs:choice>
+      <xs:element ref="TypeA01"/>
+      <xs:element ref="TypeA02"/>
+      <xs:element ref="TypeA03"/>
+      <xs:element ref="TypeA04"/>
+      <xs:element ref="TypeA05"/>
+      <xs:element ref="TypeA06"/>
+      <xs:element ref="TypeA07"/>
+      <xs:element ref="TypeA08"/>
+      <xs:element ref="TypeA09"/>
+      <xs:element ref="TypeA10"/>
+      <xs:element ref="TypeA11"/>
+      <xs:element ref="TypeA12"/>
+      <xs:element ref="TypeA13"/>
+      <xs:element ref="TypeA14"/>
+      <xs:element ref="TypeA15"/>
+      <xs:element ref="TypeA16"/>
+      <xs:element ref="TypeA17"/>
+      <xs:element ref="TypeA18"/>
+      <xs:element ref="TypeA19"/>
+      <xs:element ref="TypeA20"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:element name="Root" type="BigContainer"/>
+
+  <!-- 20 global elements, xs:choice of 18 TypeB elements -->
+  <xs:element name="TypeA01">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA02">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA03">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA04">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA05">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA06">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA07">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA08">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA09">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA10">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA11">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA12">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA13">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA14">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA15">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA16">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA17">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA18">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA19">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeA20">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeB01"/>
+        <xs:element ref="TypeB02"/>
+        <xs:element ref="TypeB03"/>
+        <xs:element ref="TypeB04"/>
+        <xs:element ref="TypeB05"/>
+        <xs:element ref="TypeB06"/>
+        <xs:element ref="TypeB07"/>
+        <xs:element ref="TypeB08"/>
+        <xs:element ref="TypeB09"/>
+        <xs:element ref="TypeB10"/>
+        <xs:element ref="TypeB11"/>
+        <xs:element ref="TypeB12"/>
+        <xs:element ref="TypeB13"/>
+        <xs:element ref="TypeB14"/>
+        <xs:element ref="TypeB15"/>
+        <xs:element ref="TypeB16"/>
+        <xs:element ref="TypeB17"/>
+        <xs:element ref="TypeB18"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 18 global elements, xs:choice of 15 TypeC elements -->
+  <xs:element name="TypeB01">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB02">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB03">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB04">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB05">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB06">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB07">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB08">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB09">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB10">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB11">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB12">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB13">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB14">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB15">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB16">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB17">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeB18">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeC01"/>
+        <xs:element ref="TypeC02"/>
+        <xs:element ref="TypeC03"/>
+        <xs:element ref="TypeC04"/>
+        <xs:element ref="TypeC05"/>
+        <xs:element ref="TypeC06"/>
+        <xs:element ref="TypeC07"/>
+        <xs:element ref="TypeC08"/>
+        <xs:element ref="TypeC09"/>
+        <xs:element ref="TypeC10"/>
+        <xs:element ref="TypeC11"/>
+        <xs:element ref="TypeC12"/>
+        <xs:element ref="TypeC13"/>
+        <xs:element ref="TypeC14"/>
+        <xs:element ref="TypeC15"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 15 global elements, xs:choice of 12 TypeD elements -->
+  <xs:element name="TypeC01">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC02">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC03">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC04">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC05">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC06">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC07">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC08">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC09">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC10">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC11">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC12">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC13">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC14">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeC15">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeD01"/>
+        <xs:element ref="TypeD02"/>
+        <xs:element ref="TypeD03"/>
+        <xs:element ref="TypeD04"/>
+        <xs:element ref="TypeD05"/>
+        <xs:element ref="TypeD06"/>
+        <xs:element ref="TypeD07"/>
+        <xs:element ref="TypeD08"/>
+        <xs:element ref="TypeD09"/>
+        <xs:element ref="TypeD10"/>
+        <xs:element ref="TypeD11"/>
+        <xs:element ref="TypeD12"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 12 global elements, xs:choice of 10 TypeE elements -->
+  <xs:element name="TypeD01">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD02">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD03">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD04">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD05">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD06">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD07">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD08">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD09">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD10">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD11">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeD12">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeE01"/>
+        <xs:element ref="TypeE02"/>
+        <xs:element ref="TypeE03"/>
+        <xs:element ref="TypeE04"/>
+        <xs:element ref="TypeE05"/>
+        <xs:element ref="TypeE06"/>
+        <xs:element ref="TypeE07"/>
+        <xs:element ref="TypeE08"/>
+        <xs:element ref="TypeE09"/>
+        <xs:element ref="TypeE10"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 10 global elements, xs:choice of 8 TypeF elements -->
+  <xs:element name="TypeE01">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE02">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE03">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE04">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE05">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE06">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE07">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE08">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE09">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeE10">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="TypeF01"/>
+        <xs:element ref="TypeF02"/>
+        <xs:element ref="TypeF03"/>
+        <xs:element ref="TypeF04"/>
+        <xs:element ref="TypeF05"/>
+        <xs:element ref="TypeF06"/>
+        <xs:element ref="TypeF07"/>
+        <xs:element ref="TypeF08"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 8 shared leaf elements, xs:sequence of 6 fields -->
+  <xs:element name="TypeF01">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF02">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF03">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF04">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF05">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF06">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF07">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="TypeF08">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Field01" type="xs:string"/>
+        <xs:element name="Field02" type="xs:string"/>
+        <xs:element name="Field03" type="xs:string"/>
+        <xs:element name="Field04" type="xs:string"/>
+        <xs:element name="Field05" type="xs:string"/>
+        <xs:element name="Field06" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
