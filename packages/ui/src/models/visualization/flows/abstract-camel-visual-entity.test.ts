@@ -199,6 +199,12 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
+  it('should return the list of fields to omit from forms', () => {
+    const result = abstractVisualEntity.getOmitFormFields();
+
+    expect(result).toEqual(['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally']);
+  });
+
   describe('updateModel', () => {
     it('should update the model with the new value', () => {
       const newUri = 'timer';
