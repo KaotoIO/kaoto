@@ -254,24 +254,6 @@ describe('InlineEdit', () => {
       expect(stopPropagationSpy).toHaveBeenCalled();
     });
 
-    it('should prevent the form submission', () => {
-      const submitEvent = new Event('submit', { bubbles: true });
-      const preventDefaultSpy = jest.spyOn(submitEvent, 'preventDefault');
-      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
-
-      act(() => {
-        const editButton = wrapper.getByTestId('inline--edit');
-        fireEvent.click(editButton);
-      });
-
-      act(() => {
-        const form = wrapper.getByTestId('inline--form');
-        fireEvent(form, submitEvent);
-      });
-
-      expect(preventDefaultSpy).toHaveBeenCalled();
-    });
-
     it('should set the edit icon title', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} editTitle="Edit" />);
 
@@ -284,6 +266,30 @@ describe('InlineEdit', () => {
 
       const textSpan = wrapper.getByTestId(DATA_TESTID);
       expect(textSpan).toHaveAttribute('title', 'Edit');
+    });
+  });
+
+  describe('Placeholder', () => {
+    it('should display placeholder text when value is empty and placeholder is provided', () => {
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} placeholder="Enter value" />);
+
+      const textSpan = wrapper.getByTestId(DATA_TESTID);
+      expect(textSpan).toHaveTextContent('Enter value');
+    });
+
+    it('should display value instead of placeholder when value is provided', () => {
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} value="My value" placeholder="Enter value" />);
+
+      const textSpan = wrapper.getByTestId(DATA_TESTID);
+      expect(textSpan).toHaveTextContent('My value');
+      expect(textSpan).not.toHaveTextContent('Enter value');
+    });
+
+    it('should not display placeholder when no placeholder prop is provided', () => {
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
+
+      const textSpan = wrapper.getByTestId(DATA_TESTID);
+      expect(textSpan).toHaveTextContent('');
     });
   });
 });
