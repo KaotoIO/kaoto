@@ -1,15 +1,19 @@
+import { Icon } from '@patternfly/react-core';
+import { WrenchIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
+import { TypeOverrideVariant } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
   NodeReference,
   TargetDocumentNodeData,
+  TargetFieldNodeData,
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
@@ -79,6 +83,37 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     refreshMappingTree();
   }, [refreshMappingTree]);
 
+  // Check if this node has an actual mapping (expressionItem exists)
+  const hasMapping = useMemo(() => {
+    if (!showNodeActions) return false;
+    const expressionItem = VisualizationService.getExpressionItemForNode(nodeData as TargetNodeData);
+    return !!expressionItem;
+  }, [showNodeActions, nodeData]);
+
+  // Create type override indicator if field has override and no mapping
+  const typeOverrideIndicator = useMemo(() => {
+    const isFieldNode = nodeData instanceof TargetFieldNodeData || nodeData instanceof FieldItemNodeData;
+    if (!isFieldNode) return null;
+
+    const field = nodeData.field;
+    const hasTypeOverride = field.typeOverride !== TypeOverrideVariant.NONE;
+
+    if (hasTypeOverride && !hasMapping) {
+      return (
+        <Icon
+          className="node__spacer"
+          size="sm"
+          status="warning"
+          isInline
+          title={`Type overridden: ${field.originalType} → ${field.type}`}
+        >
+          <WrenchIcon />
+        </Icon>
+      );
+    }
+    return null;
+  }, [nodeData, hasMapping]);
+
   const isSelected = isInSelectedMapping(nodeReference);
   const handleClickField = useCallback(
     (event: MouseEvent) => {
@@ -109,6 +144,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               isChoiceField={isChoiceField}
               isAttributeField={isAttributeField}
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
+              typeOverrideIndicator={typeOverrideIndicator}
               rank={rank}
               isSelected={isSelected}
             >
