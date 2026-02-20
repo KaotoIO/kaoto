@@ -386,7 +386,7 @@ export class CamelComponentSchemaService {
         }),
       );
 
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
+      if (catalogLookup.definition !== undefined && componentSchema !== undefined && schema.properties!.parameters) {
         schema.properties!.parameters.properties = actualComponentProperties;
         schema.properties!.parameters.required = componentSchema.required;
       }
