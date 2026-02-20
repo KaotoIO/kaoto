@@ -109,7 +109,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
   }
 
   getOmitFormFields(): string[] {
-    return ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally', 'uri'];
+    return ['from', 'outputs', 'steps', 'when', 'otherwise', 'doCatch', 'doFinally'];
   }
 
   updateModel(path: string | undefined, value: unknown): void {

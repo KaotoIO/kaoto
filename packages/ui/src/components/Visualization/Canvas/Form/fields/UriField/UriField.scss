@@ -1,0 +1,7 @@
+.uri-group {
+  text-transform: none;
+}
+
+[class~='pf-v6-c-form__group']:has(.uri-group) span[class~='pf-v6-c-form__label-text'] {
+  text-transform: lowercase;
+}

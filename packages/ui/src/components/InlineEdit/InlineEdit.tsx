@@ -2,7 +2,6 @@ import './InlineEdit.scss';
 
 import {
   Button,
-  Form,
   FormGroup,
   FormHelperText,
   HelperText,
@@ -12,14 +11,7 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { CheckIcon, ExclamationCircleIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
-import {
-  FormEventHandler,
-  FunctionComponent,
-  KeyboardEventHandler,
-  MouseEventHandler,
-  useCallback,
-  useState,
-} from 'react';
+import { FunctionComponent, KeyboardEventHandler, MouseEventHandler, useCallback, useState } from 'react';
 
 import { IDataTestID, ValidationResult, ValidationStatus } from '../../models';
 
@@ -30,6 +22,8 @@ interface IInlineEdit extends IDataTestID {
   validator?: (value: string) => ValidationResult;
   onChange?: (value: string) => void;
   onClick?: () => void;
+  placeholder?: string;
+  className?: string;
 }
 
 export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
@@ -111,10 +105,6 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
     [cancelValue],
   );
 
-  const noop: FormEventHandler<HTMLFormElement> = useCallback((event) => {
-    event.preventDefault();
-  }, []);
-
   return (
     <>
       {isReadOnly ? (
@@ -125,8 +115,9 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
             data-clickable={typeof props.onClick === 'function'}
             data-testid={props['data-testid']}
             onClick={props.onClick}
+            className={props.className ? props.className : undefined}
           >
-            {props.value}
+            {props.value || props.placeholder}
           </span>
           &nbsp;&nbsp;
           <Button
@@ -138,8 +129,8 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
           />
         </>
       ) : (
-        <Form onSubmit={noop} data-testid={props['data-testid'] + '--form'}>
-          <FormGroup type="text" fieldId="edit-value">
+        <FormGroup data-testid={props['data-testid'] + '--form'}>
+          <FormGroup type="text" fieldId="edit-value" className={props.className ? props.className : undefined}>
             <InputGroup>
               <InputGroupItem isFill>
                 <TextInput
@@ -189,7 +180,7 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
               </InputGroupItem>
             </InputGroup>
           </FormGroup>
-        </Form>
+        </FormGroup>
       )}
     </>
   );
