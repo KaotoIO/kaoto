@@ -19,6 +19,8 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
       "type": "string",
     },
     "parameters": {
+      "description": "The key-value pairs of the properties to configure this endpoint",
+      "title": "Endpoint Properties",
       "type": "object",
     },
     "uri": {
@@ -74,7 +76,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
       "type": "string",
     },
     "parameters": {
-      "description": "Endpoint properties description",
+      "description": "The key-value pairs of the properties to configure this endpoint",
       "properties": {
         "bootstrapServers": {
           "description": "Comma separated list of Kafka Broker URLs",
@@ -163,7 +165,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
       "type": "string",
     },
     "parameters": {
-      "description": "Endpoint properties description",
+      "description": "The key-value pairs of the properties to configure this endpoint",
       "properties": {
         "exchangeFormatter": {
           "$comment": "group:advanced",

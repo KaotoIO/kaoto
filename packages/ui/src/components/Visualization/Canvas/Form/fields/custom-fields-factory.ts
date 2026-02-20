@@ -2,6 +2,7 @@ import { CustomFieldsFactory, EnumField } from '@kaoto/forms';
 
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { CustomTableToggle } from './CustomTableToggle/CustomTableToggle';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
@@ -28,6 +29,8 @@ export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
     return ExpressionField;
   } else if (schema.type === 'array' && schema.title === 'Custom media types') {
     return CustomMediaTypes;
+  } else if (schema.type === 'object' && schema.title === 'Endpoint Properties') {
+    return CustomTableToggle;
   }
 
   return undefined;
