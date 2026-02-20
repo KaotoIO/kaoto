@@ -23,11 +23,11 @@ describe('RestDslImportPage', () => {
     expect(screen.getByLabelText('Upload file')).toBeInTheDocument();
   });
 
-  it('navigates back to the Home page when closing the wizard', async () => {
+  it('navigates back to the Rest editor page when closing the wizard', async () => {
     render(
       <MemoryRouter initialEntries={[Links.RestImport]}>
         <Routes>
-          <Route path={Links.Home} element={<p>Home page</p>} />
+          <Route path={Links.Rest} element={<p>Rest editor</p>} />
           <Route path={Links.RestImport} element={<RestDslImportPage />} />
         </Routes>
       </MemoryRouter>,
@@ -43,7 +43,7 @@ describe('RestDslImportPage', () => {
       fireEvent.click(goToRestEditorButton);
     });
 
-    expect(screen.getByText('Home page')).toBeInTheDocument();
+    expect(screen.getByText('Rest editor')).toBeInTheDocument();
   });
 
   it('navigates back to the Home page when closing the wizard', async () => {

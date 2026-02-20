@@ -1,0 +1,52 @@
+.rest-dsl-operation-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.rest-dsl-operation-path {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rest-dsl-operation-verb {
+  font-size: var(--pf-v6-global--FontSize--xs);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--pf-v6-global--BackgroundColor--200);
+  min-width: 44px;
+  text-align: center;
+}
+
+.rest-dsl-operation-verb-get {
+  background: #e6f4ff;
+  color: #004080;
+}
+
+.rest-dsl-operation-verb-post {
+  background: #f3f0ff;
+  color: #3f1b8b;
+}
+
+.rest-dsl-operation-verb-put {
+  background: #e8fff5;
+  color: #0a6b4f;
+}
+
+.rest-dsl-operation-verb-delete {
+  background: #fff0f0;
+  color: #8a0000;
+}
+
+.rest-dsl-operation-verb-patch {
+  background: #fff8e5;
+  color: #7a4b00;
+}
+
+.rest-dsl-operation-verb-head {
+  background: #f0f4f8;
+  color: #47515c;
+}
