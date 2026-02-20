@@ -3,8 +3,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
+import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { MappingSerializerService } from '../../../services/mapping-serializer.service';
 import { conditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
@@ -18,9 +18,9 @@ describe('DeleteMappingItemAction', () => {
     const onDeleteMock = jest.fn();
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DeleteMappingItemAction nodeData={nodeData} onDelete={onDeleteMock} />
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     const deleteBtn = await screen.findByTestId('delete-mapping-btn');
@@ -53,9 +53,9 @@ describe('DeleteMappingItemAction', () => {
     const onDeleteMock = jest.fn();
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DeleteMappingItemAction nodeData={nodeData} onDelete={onDeleteMock} />
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     const deleteBtn = await screen.findByTestId('delete-mapping-btn');

@@ -1,25 +1,28 @@
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 
+import { useDocumentTreeStore } from '../../store';
 import { MappingLink } from './MappingLink';
 
-const mockGetNodeReference = jest.fn();
-const mockToggleSelectedNodeReference = jest.fn();
-
-jest.mock('../../hooks/useCanvas', () => ({
-  useCanvas: () => ({
-    getNodeReference: mockGetNodeReference,
-  }),
-}));
+const mockToggleSelectedNode = jest.fn();
 
 jest.mock('../../hooks/useMappingLinks', () => ({
   useMappingLinks: () => ({
     mappingLinkCanvasRef: { current: { getBoundingClientRect: () => ({ left: 10, right: 110 }) } },
-    toggleSelectedNodeReference: mockToggleSelectedNodeReference,
+    getMappingLinks: jest.fn().mockReturnValue([]),
+    isNodeInSelectedMapping: jest.fn().mockReturnValue(false),
   }),
 }));
 
 describe('MappingLink', () => {
+  beforeEach(() => {
+    useDocumentTreeStore.setState({ toggleSelectedNode: mockToggleSelectedNode });
+  });
+
+  afterEach(() => {
+    mockToggleSelectedNode.mockClear();
+  });
+
   const defaultProps = {
     x1: 10,
     y1: 20,
@@ -59,16 +62,14 @@ describe('MappingLink', () => {
     expect(getByTestId('mapping-link-selected-10-20-100-200').classList).toContain('mapping-link--selected');
   });
 
-  it('calls toggleSelectedNodeReference on line click', () => {
-    mockGetNodeReference.mockReturnValue('node-ref');
+  it('calls toggleSelectedNode on line click', () => {
     const { getByTestId } = render(
       <svg>
         <MappingLink {...defaultProps} />
       </svg>,
     );
     fireEvent.click(getByTestId('mapping-link-10-20-100-200'));
-    expect(mockGetNodeReference).toHaveBeenCalledWith('target.path');
-    expect(mockToggleSelectedNodeReference).toHaveBeenCalledWith('node-ref');
+    expect(mockToggleSelectedNode).toHaveBeenCalledWith('target.path', false);
   });
 
   it('changes dot radius on mouse enter/leave', () => {

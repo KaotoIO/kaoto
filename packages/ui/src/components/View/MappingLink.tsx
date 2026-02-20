@@ -5,9 +5,9 @@ import { Circle, LinePath } from '@visx/shape';
 import clsx from 'clsx';
 import { FunctionComponent, useCallback, useState } from 'react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
+import { useDocumentTreeStore } from '../../store';
 
 const getY = (d: number[]) => d[1];
 const getX = (d: number[]) => d[0];
@@ -22,8 +22,8 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   isSelected = false,
   svgRef,
 }) => {
-  const { getNodeReference } = useCanvas();
-  const { mappingLinkCanvasRef, toggleSelectedNodeReference } = useMappingLinks();
+  const { mappingLinkCanvasRef } = useMappingLinks();
+  const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
   const [isOver, setIsOver] = useState<boolean>(false);
   const dotRadius = isOver ? 6 : 3;
   const svgRect = svgRef?.current?.getBoundingClientRect();
@@ -41,9 +41,9 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   }, []);
 
   const onLineClick = useCallback(() => {
-    const newRef = getNodeReference(targetNodePath);
-    toggleSelectedNodeReference(newRef);
-  }, [getNodeReference, targetNodePath, toggleSelectedNodeReference]);
+    // Select the target node - this will highlight all involved nodes in the mapping
+    toggleSelectedNode(targetNodePath, false);
+  }, [toggleSelectedNode, targetNodePath]);
 
   return (
     <>

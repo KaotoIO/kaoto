@@ -1,29 +1,41 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { VirtuosoMockContext } from 'react-virtuoso';
 
+import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
 import { shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import { ParametersSection } from './Parameters';
 
 describe('ParametersSection', () => {
+  // Helper to wrap components with VirtuosoMockContext for testing
+  const renderWithVirtuoso = (component: React.ReactElement) => {
+    return render(component, {
+      wrapper: ({ children }) => (
+        <VirtuosoMockContext.Provider value={{ viewportHeight: 600, itemHeight: 40 }}>
+          {children}
+        </VirtuosoMockContext.Provider>
+      ),
+    });
+  };
+
   it('should add, rename, and remove a parameter', async () => {
     const mockUpdateDocument = jest.fn();
     const mockDeleteParameter = jest.fn();
     const mockRenameParameter = jest.fn();
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider
           onUpdateDocument={mockUpdateDocument}
           onDeleteParameter={mockDeleteParameter}
           onRenameParameter={mockRenameParameter}
         >
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -76,14 +88,14 @@ describe('ParametersSection', () => {
   it('should show validation error for invalid parameter name', async () => {
     const mockUpdateDocument = jest.fn();
     const mockDeleteParameter = jest.fn();
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -124,14 +136,14 @@ describe('ParametersSection', () => {
   });
 
   it('should attach and detach a schema', async () => {
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -192,14 +204,14 @@ describe('ParametersSection', () => {
   });
 
   it('should attach JSON schema', async () => {
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -249,14 +261,14 @@ describe('ParametersSection', () => {
   });
 
   it('should be read-only when isReadOnly is true', async () => {
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={true} onScroll={() => {}} />
+              <ParametersSection isReadOnly={true} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -266,14 +278,14 @@ describe('ParametersSection', () => {
   });
 
   it('should cancel adding new parameter', async () => {
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -300,14 +312,14 @@ describe('ParametersSection', () => {
   // and tested separately in ExpansionPanel.test.tsx
 
   it('should handle empty parameter name validation', async () => {
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -326,14 +338,14 @@ describe('ParametersSection', () => {
 
   it('should handle parameter submission with duplicate parameter check', async () => {
     const mockUpdateDocument = jest.fn();
-    render(
+    renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <ExpansionPanels>
-              <ParametersSection isReadOnly={false} onScroll={() => {}} />
+              <ParametersSection isReadOnly={false} />
             </ExpansionPanels>
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -375,14 +387,14 @@ describe('ParametersSection', () => {
   describe('Show/Hide All Parameters Toggle', () => {
     it('should hide all parameters when toggle button is clicked', async () => {
       const mockUpdateDocument = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -420,14 +432,14 @@ describe('ParametersSection', () => {
 
     it('should show all parameters when toggle button is clicked again', async () => {
       const mockUpdateDocument = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -469,14 +481,14 @@ describe('ParametersSection', () => {
     });
 
     it('should change toggle button icon and title when hiding/showing parameters', async () => {
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -509,14 +521,14 @@ describe('ParametersSection', () => {
 
   describe('Auto-Show Parameters', () => {
     it('should auto-show parameters when clicking add button while hidden', async () => {
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -545,14 +557,14 @@ describe('ParametersSection', () => {
     it('should keep parameter when cancel button is clicked in delete modal', async () => {
       const mockUpdateDocument = jest.fn();
       const mockDeleteParameter = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -604,14 +616,14 @@ describe('ParametersSection', () => {
   describe('Multiple Parameters Interaction', () => {
     it('should handle multiple parameters independently', async () => {
       const mockUpdateDocument = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -673,14 +685,14 @@ describe('ParametersSection', () => {
     it('should delete one parameter while keeping others', async () => {
       const mockUpdateDocument = jest.fn();
       const mockDeleteParameter = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -738,14 +750,14 @@ describe('ParametersSection', () => {
 
     it('should hide/show all parameters simultaneously', async () => {
       const mockUpdateDocument = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -806,14 +818,14 @@ describe('ParametersSection', () => {
 
   describe('Empty State', () => {
     it('should show only header and add button when no parameters exist', async () => {
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -833,14 +845,14 @@ describe('ParametersSection', () => {
     });
 
     it('should not show toggle button in read-only mode', async () => {
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={true} onScroll={() => {}} />
+                <ParametersSection isReadOnly={true} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -859,14 +871,14 @@ describe('ParametersSection', () => {
   describe('Parameter Actions Visibility', () => {
     it('should show rename and delete buttons for each parameter', async () => {
       const mockUpdateDocument = jest.fn();
-      render(
+      renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
-            <DataMapperCanvasProvider>
+            <MappingLinksProvider>
               <ExpansionPanels>
-                <ParametersSection isReadOnly={false} onScroll={() => {}} />
+                <ParametersSection isReadOnly={false} />
               </ExpansionPanels>
-            </DataMapperCanvasProvider>
+            </MappingLinksProvider>
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );

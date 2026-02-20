@@ -3289,6 +3289,7 @@ __metadata:
     "@types/openapi-v3": "npm:^3.0.0"
     "@types/react": "npm:^19.2.7"
     "@types/react-dom": "npm:^19.2.3"
+    "@types/use-sync-external-store": "npm:^1"
     "@types/uuid": "npm:^10.0.0"
     "@types/xml-name-validator": "npm:^4.0.3"
     "@visx/shape": "npm:^3.12.0"
@@ -3322,6 +3323,7 @@ __metadata:
     react-monaco-editor: "npm:^0.59.0"
     react-router-dom: "npm:^6.14.1"
     react-test-renderer: "npm:^19.2.1"
+    react-virtuoso: "npm:^4.18.1"
     remark-gfm: "npm:^4.0.1"
     rimraf: "npm:^6.0.0"
     sass-embedded: "npm:^1.79.5"
@@ -3334,6 +3336,7 @@ __metadata:
     ts-node: "npm:^10.9.1"
     typescript: "npm:^5.4.2"
     typescript-eslint: "npm:^8.5.0"
+    use-sync-external-store: "npm:^1.6.0"
     usehooks-ts: "npm:^3.0.0"
     uuid: "npm:^10.0.0"
     vite: "npm:^5.4.0"
@@ -3343,7 +3346,7 @@ __metadata:
     xml-name-validator: "npm:^5.0.0"
     yaml: "npm:^2.3.2"
     zundo: "npm:^2.3.0"
-    zustand: "npm:^4.3.9"
+    zustand: "npm:^5.0.11"
   peerDependencies:
     "@kaoto/camel-catalog": ^0.2.2 || ^0.3.0
     "@patternfly/patternfly": ^6.4.0
@@ -6631,6 +6634,13 @@ __metadata:
   version: 2.0.11
   resolution: "@types/unist@npm:2.0.11"
   checksum: 10/6d436e832bc35c6dde9f056ac515ebf2b3384a1d7f63679d12358766f9b313368077402e9c1126a14d827f10370a5485e628bf61aa91117cf4fc882423191a4e
+  languageName: node
+  linkType: hard
+
+"@types/use-sync-external-store@npm:^1":
+  version: 1.5.0
+  resolution: "@types/use-sync-external-store@npm:1.5.0"
+  checksum: 10/39e5be8dc2cca080b490f2f79fed4381ae7eebee3f981208e359856733eafb2479d229db07a552f6c99fe0b5c09b3e46a3e6a870e00a88b50f3e690e73d2649b
   languageName: node
   linkType: hard
 
@@ -17000,6 +17010,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-virtuoso@npm:^4.18.1":
+  version: 4.18.1
+  resolution: "react-virtuoso@npm:4.18.1"
+  peerDependencies:
+    react: ">=16 || >=17 || >= 18 || >= 19"
+    react-dom: ">=16 || >=17 || >= 18 || >=19"
+  checksum: 10/82e56c2db4d110d6a04942c0b084a89c2d0426b872e85b8497425256ddc751aba964d6b2b68b4d35e16bd43b6b9b9af6e554a8083e52ad3a4bfaa66a03c85b35
+  languageName: node
+  linkType: hard
+
 "react@npm:19.2.1":
   version: 19.2.1
   resolution: "react@npm:19.2.1"
@@ -20010,12 +20030,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"use-sync-external-store@npm:^1.2.2":
-  version: 1.4.0
-  resolution: "use-sync-external-store@npm:1.4.0"
+"use-sync-external-store@npm:^1.6.0":
+  version: 1.6.0
+  resolution: "use-sync-external-store@npm:1.6.0"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10/08bf581a8a2effaefc355e9d18ed025d436230f4cc973db2f593166df357cf63e47b9097b6e5089b594758bde322e1737754ad64905e030d70f8ff7ee671fd01
+  checksum: 10/b40ad2847ba220695bff2d4ba4f4d60391c0fb4fb012faa7a4c18eb38b69181936f5edc55a522c4d20a788d1a879b73c3810952c9d0fd128d01cb3f22042c09e
   languageName: node
   linkType: hard
 
@@ -20868,15 +20888,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand@npm:^4.3.9":
-  version: 4.5.7
-  resolution: "zustand@npm:4.5.7"
-  dependencies:
-    use-sync-external-store: "npm:^1.2.2"
+"zustand@npm:^5.0.11":
+  version: 5.0.11
+  resolution: "zustand@npm:5.0.11"
   peerDependencies:
-    "@types/react": ">=16.8"
+    "@types/react": ">=18.0.0"
     immer: ">=9.0.6"
-    react: ">=16.8"
+    react: ">=18.0.0"
+    use-sync-external-store: ">=1.2.0"
   peerDependenciesMeta:
     "@types/react":
       optional: true
@@ -20884,7 +20903,9 @@ __metadata:
       optional: true
     react:
       optional: true
-  checksum: 10/21c47ea1c9bb0363b714a7e371a91b9afaeabc5c9c2f522803a0fb412605b1e037c4f975a7377529de8f2857e60d1f4586e7ade18444168ecc492e38779e605d
+    use-sync-external-store:
+      optional: true
+  checksum: 10/424fd22458576534ee450ff63bcd1053443ec1beac60ef4225c1e548e9504924b7dc81ad8419d0e2df9bf9675eccdda6578edc4706b80ab59af05358108df362
   languageName: node
   linkType: hard
 

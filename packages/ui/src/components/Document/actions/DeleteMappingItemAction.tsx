@@ -10,11 +10,11 @@ import {
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useCanvas } from '../../../hooks/useCanvas';
 import { useToggle } from '../../../hooks/useToggle';
 import { ConditionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
+import { useDocumentTreeStore } from '../../../store';
 
 type DeleteItemProps = {
   nodeData: TargetNodeData;
@@ -23,17 +23,14 @@ type DeleteItemProps = {
 
 export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ nodeData, onDelete }) => {
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
-  const { clearNodeReferencesForPath, reloadNodeReferences } = useCanvas();
+  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
 
   const onConfirmDelete = useCallback(() => {
-    if (nodeData.mapping && nodeData.mapping instanceof ConditionItem) {
-      clearNodeReferencesForPath(nodeData.mapping.nodePath.toString());
-      reloadNodeReferences();
-    }
     VisualizationService.deleteMappingItem(nodeData);
+    refreshConnectionPorts();
     onDelete();
     closeModal();
-  }, [clearNodeReferencesForPath, closeModal, nodeData, onDelete, reloadNodeReferences]);
+  }, [closeModal, nodeData, onDelete, refreshConnectionPorts]);
   const title = `Delete ${nodeData.title} mapping`;
   let warningMessage = undefined;
   if (
