@@ -1,9 +1,11 @@
 import {
+  ArithmeticExprNode,
   ComparisonExprNode,
   ExprNode,
   FilterExprNode,
   FunctionCallNode,
   IfExprNode,
+  LogicalExprNode,
   ParenthesizedExprNode,
   PathExprNode,
   PredicateNode,
@@ -102,6 +104,16 @@ export class XPathUtil {
     if (node.elseExpr) this.traverseNode(node.elseExpr, callback);
   }
 
+  private static traverseArithmeticExpr(node: ArithmeticExprNode, callback: (node: XPathNode) => void): void {
+    this.traverseNode(node.left, callback);
+    this.traverseNode(node.right, callback);
+  }
+
+  private static traverseLogicalExpr(node: LogicalExprNode, callback: (node: XPathNode) => void): void {
+    this.traverseNode(node.left, callback);
+    this.traverseNode(node.right, callback);
+  }
+
   private static traverseNode(node: XPathNode, callback: (node: XPathNode) => void): void {
     callback(node);
 
@@ -132,6 +144,12 @@ export class XPathUtil {
         break;
       case XPathNodeType.IfExpr:
         this.traverseIfExpr(node as IfExprNode, callback);
+        break;
+      case XPathNodeType.ArithmeticExpr:
+        this.traverseArithmeticExpr(node as ArithmeticExprNode, callback);
+        break;
+      case XPathNodeType.LogicalExpr:
+        this.traverseLogicalExpr(node as LogicalExprNode, callback);
         break;
       case XPathNodeType.ReverseStep:
         this.traverseReverseStep(node as ReverseStepNode, callback);
