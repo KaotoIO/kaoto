@@ -415,7 +415,7 @@ export class XmlSchemaDocumentService {
     ownerDoc.totalFieldCount++;
 
     const schemaType = resolvedElement.getSchemaType();
-    if (refTarget != null && schemaType instanceof XmlSchemaComplexType && !schemaType.getQName()) {
+    if (refTarget !== null && schemaType instanceof XmlSchemaComplexType && !schemaType.getQName()) {
       XmlSchemaDocumentService.populateGlobalElementFragment(ownerDoc, resolvedElement, schemaType, field);
     } else {
       XmlSchemaDocumentService.populateSchemaType(ownerDoc, field, schemaType);
