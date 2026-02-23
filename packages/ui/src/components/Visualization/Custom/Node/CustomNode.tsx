@@ -129,7 +129,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
         ? isGHover || isToolbarHover || selected
         : selected;
-    const dndSettingsEnabled = settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop;
     const canDragNode = vizNode?.canDragNode() ?? false;
 
     const hasSomeInteractions = useMemo(
@@ -165,7 +164,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       () => ({
         item: { type: NODE_DRAG_TYPE },
         canDrag: () => {
-          return dndSettingsEnabled && canDragNode;
+          return canDragNode;
         },
         end(dropResult, monitor) {
           if (monitor.didDrop() && dropResult) {
@@ -179,7 +178,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
           node: monitor.getItem(),
         }),
       }),
-      [canDragNode, dndSettingsEnabled, element, entitiesContext, nodeInteractionAddonContext],
+      [canDragNode, element, entitiesContext, nodeInteractionAddonContext],
     );
 
     const customNodeDropTargetSpec: DropTargetSpec<
@@ -279,7 +278,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
                   dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover,
                 'custom-node__container__possibleDropTargets':
                   dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
-                'custom-node__container__draggable': dndSettingsEnabled && canDragNode,
+                'custom-node__container__draggable': canDragNode,
                 'custom-node__container__draggedNode': isDraggedNode,
               }}
               vizNode={vizNode}
