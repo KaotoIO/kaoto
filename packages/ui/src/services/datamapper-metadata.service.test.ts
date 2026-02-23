@@ -1277,8 +1277,8 @@ describe('DataMapperMetadataService', () => {
         namespaceMap: { ns0: 'http://example.com/source' },
       };
       const selections: IChoiceSelection[] = [
-        { choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 1 },
-        { choicePath: '/ns0:Root/{choice:1}', selectedMemberIndex: 0 },
+        { schemaPath: '/ns0:Root/{choice:0}', selectedMemberIndex: 1 },
+        { schemaPath: '/ns0:Root/{choice:1}', selectedMemberIndex: 0 },
       ];
 
       await DataMapperMetadataService.setChoiceSelections(
@@ -1302,7 +1302,7 @@ describe('DataMapperMetadataService', () => {
         xsltPath: 'transform.xsl',
         namespaceMap: { ns1: 'http://example.com/target' },
       };
-      const selections: IChoiceSelection[] = [{ choicePath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }];
+      const selections: IChoiceSelection[] = [{ schemaPath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }];
 
       await DataMapperMetadataService.setChoiceSelections(
         mockApi,
@@ -1327,7 +1327,7 @@ describe('DataMapperMetadataService', () => {
         xsltPath: 'transform.xsl',
         namespaceMap: { ns0: 'http://example.com/param' },
       };
-      const selections: IChoiceSelection[] = [{ choicePath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }];
+      const selections: IChoiceSelection[] = [{ schemaPath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }];
 
       await DataMapperMetadataService.setChoiceSelections(
         mockApi,
@@ -1347,7 +1347,7 @@ describe('DataMapperMetadataService', () => {
         sourceBody: {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['source.xsd'],
-          choiceSelections: [{ choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 }],
+          choiceSelections: [{ schemaPath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 }],
         },
         sourceParameters: {},
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -1355,8 +1355,8 @@ describe('DataMapperMetadataService', () => {
         namespaceMap: { ns0: 'http://example.com/source' },
       };
       const newSelections: IChoiceSelection[] = [
-        { choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 2 },
-        { choicePath: '/ns0:Root/{choice:0}/ns0:Option1/{choice:0}', selectedMemberIndex: 1 },
+        { schemaPath: '/ns0:Root/{choice:0}', selectedMemberIndex: 2 },
+        { schemaPath: '/ns0:Root/{choice:0}/ns0:Option1/{choice:0}', selectedMemberIndex: 1 },
       ];
 
       await DataMapperMetadataService.setChoiceSelections(
@@ -1386,7 +1386,7 @@ describe('DataMapperMetadataService', () => {
         metadata,
         DocumentType.PARAM,
         'nonexistent',
-        [{ choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 }],
+        [{ schemaPath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 }],
       );
 
       expect(mockApi.setMetadata).not.toHaveBeenCalled();
@@ -1400,8 +1400,8 @@ describe('DataMapperMetadataService', () => {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['source.xsd'],
           choiceSelections: [
-            { choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 },
-            { choicePath: '/ns0:Root/{choice:1}', selectedMemberIndex: 1 },
+            { schemaPath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 },
+            { schemaPath: '/ns0:Root/{choice:1}', selectedMemberIndex: 1 },
           ],
         },
         sourceParameters: {},
@@ -1413,8 +1413,8 @@ describe('DataMapperMetadataService', () => {
       const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.SOURCE_BODY);
 
       expect(selections).toHaveLength(2);
-      expect(selections[0]).toEqual({ choicePath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 });
-      expect(selections[1]).toEqual({ choicePath: '/ns0:Root/{choice:1}', selectedMemberIndex: 1 });
+      expect(selections[0]).toEqual({ schemaPath: '/ns0:Root/{choice:0}', selectedMemberIndex: 0 });
+      expect(selections[1]).toEqual({ schemaPath: '/ns0:Root/{choice:1}', selectedMemberIndex: 1 });
     });
 
     it('should return choice selections for target body', () => {
@@ -1424,7 +1424,7 @@ describe('DataMapperMetadataService', () => {
         targetBody: {
           type: DocumentDefinitionType.XML_SCHEMA,
           filePath: ['target.xsd'],
-          choiceSelections: [{ choicePath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }],
+          choiceSelections: [{ schemaPath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }],
         },
         xsltPath: 'transform.xsl',
         namespaceMap: { ns1: 'http://example.com/target' },
@@ -1433,7 +1433,7 @@ describe('DataMapperMetadataService', () => {
       const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.TARGET_BODY);
 
       expect(selections).toHaveLength(1);
-      expect(selections[0]).toEqual({ choicePath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 });
+      expect(selections[0]).toEqual({ schemaPath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 });
     });
 
     it('should return choice selections for source parameter', () => {
@@ -1443,7 +1443,7 @@ describe('DataMapperMetadataService', () => {
           param1: {
             type: DocumentDefinitionType.XML_SCHEMA,
             filePath: ['param1.xsd'],
-            choiceSelections: [{ choicePath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }],
+            choiceSelections: [{ schemaPath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }],
           },
         },
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
@@ -1454,7 +1454,7 @@ describe('DataMapperMetadataService', () => {
       const selections = DataMapperMetadataService.getChoiceSelections(metadata, DocumentType.PARAM, 'param1');
 
       expect(selections).toHaveLength(1);
-      expect(selections[0]).toEqual({ choicePath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 });
+      expect(selections[0]).toEqual({ schemaPath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 });
     });
 
     it('should return empty array when choiceSelections is undefined', () => {

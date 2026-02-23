@@ -58,6 +58,150 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result).toBeUndefined();
     });
+
+    it('should find field inside choice member', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+      const regularField = new JsonSchemaField(doc, 'regularField', Types.String);
+
+      const choiceField = new JsonSchemaField(doc, 'contactChoice', Types.Container);
+      choiceField.isChoice = true;
+      const emailField = new JsonSchemaField(doc, 'email', Types.String);
+      const phoneField = new JsonSchemaField(doc, 'phone', Types.String);
+      choiceField.fields.push(emailField, phoneField);
+
+      parent.fields.push(regularField, choiceField);
+
+      const result = JsonSchemaDocumentUtilService.getChildField(parent, Types.String, 'email', NS_XPATH_FUNCTIONS);
+
+      expect(result).toBeDefined();
+      expect((result as JsonSchemaField).key).toBe('email');
+    });
+
+    it('should prefer direct child over choice member with same key', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+      const directEmail = new JsonSchemaField(doc, 'email', Types.String);
+
+      const choiceField = new JsonSchemaField(doc, 'contactChoice', Types.Container);
+      choiceField.isChoice = true;
+      const choiceEmail = new JsonSchemaField(doc, 'email', Types.Integer);
+      choiceField.fields.push(choiceEmail);
+
+      parent.fields.push(directEmail, choiceField);
+
+      const result = JsonSchemaDocumentUtilService.getChildField(parent, Types.String, 'email', NS_XPATH_FUNCTIONS);
+
+      expect(result).toBeDefined();
+      expect((result as JsonSchemaField).type).toBe(Types.String);
+    });
+
+    it('should find field in nested choice', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+
+      const outerChoice = new JsonSchemaField(doc, 'outerChoice', Types.Container);
+      outerChoice.isChoice = true;
+
+      const innerChoice = new JsonSchemaField(doc, 'innerChoice', Types.Container);
+      innerChoice.isChoice = true;
+
+      const deepField = new JsonSchemaField(doc, 'deepField', Types.String);
+      innerChoice.fields.push(deepField);
+      outerChoice.fields.push(innerChoice);
+      parent.fields.push(outerChoice);
+
+      const result = JsonSchemaDocumentUtilService.getChildField(parent, Types.String, 'deepField', NS_XPATH_FUNCTIONS);
+
+      expect(result).toBeDefined();
+      expect((result as JsonSchemaField).key).toBe('deepField');
+    });
+
+    it('should return undefined when field not found in choice or regular fields', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+      const regularField = new JsonSchemaField(doc, 'regularField', Types.String);
+
+      const choiceField = new JsonSchemaField(doc, 'contactChoice', Types.Container);
+      choiceField.isChoice = true;
+      const emailField = new JsonSchemaField(doc, 'email', Types.String);
+      choiceField.fields.push(emailField);
+
+      parent.fields.push(regularField, choiceField);
+
+      const result = JsonSchemaDocumentUtilService.getChildField(
+        parent,
+        Types.String,
+        'nonexistent',
+        NS_XPATH_FUNCTIONS,
+      );
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle empty choice', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+      const regularField = new JsonSchemaField(doc, 'regularField', Types.String);
+
+      const emptyChoice = new JsonSchemaField(doc, 'emptyChoice', Types.Container);
+      emptyChoice.isChoice = true;
+
+      parent.fields.push(regularField, emptyChoice);
+
+      const result = JsonSchemaDocumentUtilService.getChildField(parent, Types.String, 'email', NS_XPATH_FUNCTIONS);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle multiple choices in same parent', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+
+      const contactChoice = new JsonSchemaField(doc, 'contactChoice', Types.Container);
+      contactChoice.isChoice = true;
+      const emailField = new JsonSchemaField(doc, 'email', Types.String);
+      const phoneField = new JsonSchemaField(doc, 'phone', Types.String);
+      contactChoice.fields.push(emailField, phoneField);
+
+      const addressChoice = new JsonSchemaField(doc, 'addressChoice', Types.Container);
+      addressChoice.isChoice = true;
+      const streetField = new JsonSchemaField(doc, 'street', Types.String);
+      const cityField = new JsonSchemaField(doc, 'city', Types.String);
+      addressChoice.fields.push(streetField, cityField);
+
+      parent.fields.push(contactChoice, addressChoice);
+
+      const emailResult = JsonSchemaDocumentUtilService.getChildField(
+        parent,
+        Types.String,
+        'email',
+        NS_XPATH_FUNCTIONS,
+      );
+      expect(emailResult).toBeDefined();
+      expect((emailResult as JsonSchemaField).key).toBe('email');
+
+      const streetResult = JsonSchemaDocumentUtilService.getChildField(
+        parent,
+        Types.String,
+        'street',
+        NS_XPATH_FUNCTIONS,
+      );
+      expect(streetResult).toBeDefined();
+      expect((streetResult as JsonSchemaField).key).toBe('street');
+    });
   });
 
   describe('toXsltTypeName()', () => {

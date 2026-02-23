@@ -158,6 +158,7 @@ export class DataMapperMetadataService {
           definitionFiles,
           documentMetadata.rootElementChoice,
           documentMetadata.fieldTypeOverrides,
+          documentMetadata.choiceSelections,
           namespaceMap,
         );
         resolve(answer);
@@ -210,6 +211,7 @@ export class DataMapperMetadataService {
       filePath: filePaths,
       rootElementChoice: definition.rootElementChoice,
       fieldTypeOverrides: existingMetadata?.fieldTypeOverrides || [],
+      choiceSelections: existingMetadata?.choiceSelections,
     };
     const metadataPromise = api.setMetadata(metadataId, metadata);
     const filePromises =

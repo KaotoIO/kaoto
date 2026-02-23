@@ -40,9 +40,41 @@ export class XmlSchemaDocumentUtilService {
    */
   static getChildField(parent: IParentType, name: string, namespaceURI?: string | null): IField | undefined {
     const resolvedParent = 'parent' in parent ? DocumentUtilService.resolveTypeFragment(parent) : parent;
-    return resolvedParent.fields.find((f) => {
+
+    const directChild = resolvedParent.fields.find((f) => {
       return f.name === name && ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI);
     });
+
+    if (directChild) return directChild;
+
+    for (const field of resolvedParent.fields) {
+      if (field.isChoice) {
+        const found = XmlSchemaDocumentUtilService.findInChoiceByNameAndNamespace(field, name, namespaceURI);
+        if (found) return found;
+      }
+    }
+
+    return undefined;
+  }
+
+  private static findInChoiceByNameAndNamespace(
+    choiceField: IField,
+    name: string,
+    namespaceURI?: string | null,
+  ): IField | undefined {
+    for (const choiceMember of choiceField.fields) {
+      if (
+        choiceMember.name === name &&
+        ((!namespaceURI && !choiceMember.namespaceURI) || choiceMember.namespaceURI === namespaceURI)
+      ) {
+        return choiceMember;
+      }
+      if (choiceMember.isChoice) {
+        const nested = XmlSchemaDocumentUtilService.getChildField(choiceMember, name, namespaceURI);
+        if (nested) return nested;
+      }
+    }
+    return undefined;
   }
 
   /**

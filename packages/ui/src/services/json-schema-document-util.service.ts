@@ -32,7 +32,8 @@ export class JsonSchemaDocumentUtilService {
     namespaceURI: string,
   ): IField | undefined {
     const resolvedParent = 'parent' in parentField ? DocumentUtilService.resolveTypeFragment(parentField) : parentField;
-    return resolvedParent.fields.find((f) => {
+
+    const directChild = resolvedParent.fields.find((f) => {
       return (
         'key' in f &&
         f.key === fieldKey &&
@@ -40,6 +41,41 @@ export class JsonSchemaDocumentUtilService {
         ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI)
       );
     });
+
+    if (directChild) return directChild;
+
+    for (const field of resolvedParent.fields) {
+      if (field.isChoice) {
+        const found = JsonSchemaDocumentUtilService.findInChoiceByKeyAndType(field, type, fieldKey, namespaceURI);
+        if (found) return found;
+      }
+    }
+
+    return undefined;
+  }
+
+  private static findInChoiceByKeyAndType(
+    choiceField: IField,
+    type: Types,
+    fieldKey: string,
+    namespaceURI: string,
+  ): IField | undefined {
+    for (const choiceMember of choiceField.fields) {
+      if (
+        'key' in choiceMember &&
+        choiceMember.key === fieldKey &&
+        JsonSchemaDocumentUtilService.toXsltTypeName(choiceMember.type) ===
+          JsonSchemaDocumentUtilService.toXsltTypeName(type) &&
+        ((!namespaceURI && !choiceMember.namespaceURI) || choiceMember.namespaceURI === namespaceURI)
+      ) {
+        return choiceMember;
+      }
+      if (choiceMember.isChoice) {
+        const nested = JsonSchemaDocumentUtilService.getChildField(choiceMember, type, fieldKey, namespaceURI);
+        if (nested) return nested;
+      }
+    }
+    return undefined;
   }
 
   /**

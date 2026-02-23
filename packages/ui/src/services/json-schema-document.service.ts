@@ -111,6 +111,10 @@ export class JsonSchemaDocumentService {
       );
     }
 
+    if (definition.choiceSelections?.length) {
+      DocumentUtilService.processChoiceSelections(document, definition.choiceSelections, definition.namespaceMap || {});
+    }
+
     const validationWarnings = analysisResult.warnings;
     const validationStatus = validationWarnings.length > 0 ? 'warning' : 'success';
 
@@ -169,6 +173,7 @@ export class JsonSchemaDocumentService {
       updatedFiles,
       definition.rootElementChoice,
       definition.fieldTypeOverrides,
+      definition.choiceSelections,
       definition.namespaceMap,
     );
 

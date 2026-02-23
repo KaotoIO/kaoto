@@ -1117,6 +1117,7 @@ describe('XmlSchemaDocumentService', () => {
         { 'main.xsd': mainSchema },
         undefined,
         undefined,
+        undefined,
         { ns0: 'http://example.com/main' },
       );
 
@@ -1218,6 +1219,7 @@ describe('XmlSchemaDocumentService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
         { 'main.xsd': mainSchema },
+        undefined,
         undefined,
         undefined,
         { ns0: 'http://example.com/main' },
