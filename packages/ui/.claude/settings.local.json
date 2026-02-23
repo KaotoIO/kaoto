@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api repos/KaotoIO/kaoto/pulls/2982/reviews/3847791547 2>/dev/null || gh pr view 2982 --repo KaotoIO/kaoto --json reviews 2>/dev/null)",
+      "Bash(cd /home/toigaras/workspace/Kaoto/kaoto/2358-2812 && yarn workspace @kaoto/kaoto run test --testPathPattern=\"document.service\" 2>&1)",
+      "Bash(cd /home/toigaras/workspace/Kaoto/kaoto/2358-2812 && yarn workspace @kaoto/kaoto run test --testPathPattern=\"document.service.test\" 2>&1 | grep -E \"\\(PASS|FAIL|✓|✗|×|●|Tests:|Test Suites:\\)\")",
+      "Bash(cd /home/toigaras/workspace/Kaoto/kaoto/2358-2812 && yarn workspace @kaoto/kaoto run build 2>&1 | tail -20)",
+      "Bash(cd /home/toigaras/workspace/Kaoto/kaoto/2358-2812 && yarn workspace @kaoto/kaoto run test -- --testPathPattern=\"document.service.test\" --silent 2>&1)",
+      "Bash(cd /home/toigaras/workspace/Kaoto/kaoto/2358-2812 && yarn workspace @kaoto/kaoto run test --testPathPattern=\"document.service.test\" 2>&1)"
+    ]
+  }
+}

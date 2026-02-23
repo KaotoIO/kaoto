@@ -130,14 +130,18 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
 
-    if (definition.fieldTypeOverrides?.length) {
-      DocumentUtilService.processTypeOverrides(
-        document,
-        definition.fieldTypeOverrides,
-        definition.namespaceMap || {},
-        XmlSchemaTypesService.parseTypeOverride,
-      );
-    }
+    DocumentUtilService.processTypeOverrides(
+      document,
+      definition.fieldTypeOverrides ?? [],
+      definition.namespaceMap || {},
+      XmlSchemaTypesService.parseTypeOverride,
+    );
+
+    DocumentUtilService.processChoiceSelections(
+      document,
+      definition.choiceSelections ?? [],
+      definition.namespaceMap || {},
+    );
 
     const rootElementOptions = XmlSchemaDocumentUtilService.collectRootElementOptions(collection);
     const validationWarnings = analysis.warnings;
@@ -196,6 +200,7 @@ export class XmlSchemaDocumentService {
       updatedFiles,
       definition.rootElementChoice,
       definition.fieldTypeOverrides,
+      definition.choiceSelections,
       definition.namespaceMap,
     );
 
@@ -282,10 +287,11 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Recreates {@link XmlSchemaDocument} object with a new root element. Other part including {@link XmlSchema} object
-   * is reused from passed in {@link XmlSchemaDocument} object.
-   * @param document
-   * @param rootElementOption
+   * Recreates an {@link XmlSchemaDocument} with a new root element, reusing the existing {@link XmlSchemaCollection}.
+   * @param document - The existing document whose schema collection will be reused
+   * @param rootElementOption - Specifies the namespace URI and local name of the new root element
+   * @returns A new {@link XmlSchemaDocument} with the updated root element and fully populated fields
+   * @throws Error if the specified root element is not found in the schema collection
    */
   static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
     const newRootQName = new QName(rootElementOption.namespaceUri, rootElementOption.name);
@@ -294,6 +300,9 @@ export class XmlSchemaDocumentService {
     if (!newRootElement) {
       throw new Error(`Unable to find a root element ${newRootQName.toString()}`);
     }
+
+    document.definition.fieldTypeOverrides = [];
+    document.definition.choiceSelections = [];
 
     const newDocument = new XmlSchemaDocument(document.definition, document.xmlSchemaCollection, newRootElement);
 
@@ -357,9 +366,9 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Populate all named type definitions (complexType and simpleType) from the schema into namedTypeFragments.
-   * This must be done before processing elements to ensure base types are available for extensions.
-   * @param document
+   * Populates all named type definitions (complexType and simpleType) from the schema into namedTypeFragments.
+   * Must be called before processing elements to ensure base types are available for extensions and restrictions.
+   * @param document - The document whose schema collection will be traversed and whose namedTypeFragments will be populated
    */
   static populateNamedTypeFragments(document: XmlSchemaDocument) {
     const schemas = document.xmlSchemaCollection.getUserSchemas();
@@ -385,10 +394,12 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Populate XML Element as a field into {@link fields} array passed in as an argument.
-   * @param parent
-   * @param fields
-   * @param element
+   * Populates an XML element as an {@link XmlSchemaField} into the given fields array.
+   * Skips elements that already exist in fields (by name, namespace, and isAttribute). Resolves element references
+   * and delegates to schema type handling to populate child fields and type metadata.
+   * @param parent - The parent document or field that owns the fields array
+   * @param fields - The target array to append the new field to
+   * @param element - The XML schema element to convert into a field
    */
   static populateElement(parent: XmlSchemaParentType, fields: XmlSchemaField[], element: XmlSchemaElement) {
     const name = element.getWireName()!.getLocalPart()!;
@@ -507,10 +518,12 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Populate XML Attribute as a field into {@link fields} array passed in as an argument.
-   * @param parent
-   * @param fields
-   * @param attr
+   * Populates an XML attribute as an {@link XmlSchemaField} into the given fields array.
+   * Skips attributes that already exist in fields (by name, namespace, and isAttribute). Handles required,
+   * optional, and prohibited use cases by setting minOccurs and maxOccurs accordingly.
+   * @param parent - The parent document or field that owns the fields array
+   * @param fields - The target array to append the new field to
+   * @param attr - The XML schema attribute to convert into a field
    */
   static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
     const name = attr.getWireName()!.getLocalPart()!;

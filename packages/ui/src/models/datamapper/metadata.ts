@@ -76,7 +76,7 @@ export interface IChoiceSelection {
    * (0-based index) for choice compositors.
    *
    * The `{choice:N}` syntax is intentionally distinct from XPath to avoid
-   * ambiguity with XPath predicates. Therefore, `choicePath` is not directly
+   * ambiguity with XPath predicates. Therefore, `schemaPath` is not directly
    * parseable as XPath expression.
    *
    * Examples:
@@ -85,7 +85,7 @@ export interface IChoiceSelection {
    * - `/ns0:Root/{choice:0}/ns0:Option1/{choice:0}` — choice nested via element
    * - `/ns0:Root/{choice:0}/{choice:0}` — choice directly nested in choice
    */
-  choicePath: string;
+  schemaPath: string;
 
   /**
    * The 0-based index of the selected choice member.

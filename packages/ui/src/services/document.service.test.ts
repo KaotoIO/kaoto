@@ -9,11 +9,12 @@ import {
   PrimitiveDocument,
   RootElementOption,
 } from '../models/datamapper';
+import { TypeOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
 import { cartJsonSchema, multipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
-import { XmlSchemaDocument } from './xml-schema-document.model';
+import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -187,6 +188,116 @@ describe('DocumentService', () => {
       expect(DocumentService.hasField(sourceDoc, sourceDoc.fields[0].fields[0])).toBeTruthy();
       expect(DocumentService.hasField(sourceDoc, targetDoc.fields[0].fields[0])).toBeFalsy();
     });
+
+    it('should recognize a field nested inside a choice compositor as a descendant', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
+      choiceField.isChoice = true;
+      const emailField = new XmlSchemaField(choiceField, 'email', false);
+      choiceField.fields = [emailField];
+      shipOrderField.fields.push(choiceField);
+
+      expect(DocumentService.hasField(doc, emailField)).toBeTruthy();
+    });
+  });
+
+  describe('getCompatibleField()', () => {
+    it('should find a compatible field when the matching field is inside a choice compositor in the target document', () => {
+      const srcDoc = TestUtil.createSourceOrderDoc();
+      const tgtDoc = TestUtil.createTargetOrderDoc();
+      const srcShipOrderField = srcDoc.fields[0];
+      const srcEmailField = new XmlSchemaField(srcShipOrderField, 'email', false);
+      srcShipOrderField.fields.push(srcEmailField);
+
+      const tgtShipOrderField = tgtDoc.fields[0];
+      const tgtChoiceField = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      tgtChoiceField.isChoice = true;
+      const tgtEmailField = new XmlSchemaField(tgtChoiceField, 'email', false);
+      tgtChoiceField.fields = [tgtEmailField];
+      tgtShipOrderField.fields.push(tgtChoiceField);
+
+      const result = DocumentService.getCompatibleField(tgtDoc, srcEmailField);
+
+      expect(result?.name).toEqual('email');
+    });
+
+    it('should find a compatible field when the matching field is inside a nested choice compositor', () => {
+      const srcDoc = TestUtil.createSourceOrderDoc();
+      const tgtDoc = TestUtil.createTargetOrderDoc();
+      const srcShipOrderField = srcDoc.fields[0];
+      const srcTargetField = new XmlSchemaField(srcShipOrderField, 'payload', false);
+      srcShipOrderField.fields.push(srcTargetField);
+
+      const tgtShipOrderField = tgtDoc.fields[0];
+      const outerChoice = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      outerChoice.isChoice = true;
+      const innerChoice = new XmlSchemaField(outerChoice, 'choice', false);
+      innerChoice.isChoice = true;
+      const tgtPayloadField = new XmlSchemaField(innerChoice, 'payload', false);
+      innerChoice.fields = [tgtPayloadField];
+      outerChoice.fields = [innerChoice];
+      tgtShipOrderField.fields.push(outerChoice);
+
+      const result = DocumentService.getCompatibleField(tgtDoc, srcTargetField);
+
+      expect(result?.name).toEqual('payload');
+    });
+
+    it('should find email in the correct choice compositor when matched by positional index', () => {
+      const srcDoc = TestUtil.createSourceOrderDoc();
+      const tgtDoc = TestUtil.createTargetOrderDoc();
+
+      const srcShipOrderField = srcDoc.fields[0];
+      const srcChoice0 = new XmlSchemaField(srcShipOrderField, 'choice', false);
+      srcChoice0.isChoice = true;
+      srcChoice0.fields = [new XmlSchemaField(srcChoice0, 'phone', false)];
+      const srcChoice1 = new XmlSchemaField(srcShipOrderField, 'choice', false);
+      srcChoice1.isChoice = true;
+      const srcEmailField = new XmlSchemaField(srcChoice1, 'email', false);
+      srcChoice1.fields = [srcEmailField];
+      srcShipOrderField.fields.push(srcChoice0, srcChoice1);
+
+      const tgtShipOrderField = tgtDoc.fields[0];
+      const tgtChoice0 = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      tgtChoice0.isChoice = true;
+      tgtChoice0.fields = [new XmlSchemaField(tgtChoice0, 'phone', false)];
+      const tgtChoice1 = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      tgtChoice1.isChoice = true;
+      const tgtEmailField = new XmlSchemaField(tgtChoice1, 'email', false);
+      tgtChoice1.fields = [tgtEmailField];
+      tgtShipOrderField.fields.push(tgtChoice0, tgtChoice1);
+
+      const result = DocumentService.getCompatibleField(tgtDoc, srcEmailField);
+
+      expect(result?.name).toEqual('email');
+    });
+
+    it('should return undefined when the source choice index has no corresponding choice in the target', () => {
+      const srcDoc = TestUtil.createSourceOrderDoc();
+      const tgtDoc = TestUtil.createTargetOrderDoc();
+
+      const srcShipOrderField = srcDoc.fields[0];
+      const srcChoice0 = new XmlSchemaField(srcShipOrderField, 'choice', false);
+      srcChoice0.isChoice = true;
+      srcChoice0.fields = [new XmlSchemaField(srcChoice0, 'phone', false)];
+      const srcChoice1 = new XmlSchemaField(srcShipOrderField, 'choice', false);
+      srcChoice1.isChoice = true;
+      const srcEmailField = new XmlSchemaField(srcChoice1, 'email', false);
+      srcChoice1.fields = [srcEmailField];
+      srcShipOrderField.fields.push(srcChoice0, srcChoice1);
+
+      const tgtShipOrderField = tgtDoc.fields[0];
+      const tgtChoice0 = new XmlSchemaField(tgtShipOrderField, 'choice', false);
+      tgtChoice0.isChoice = true;
+      const tgtEmailField = new XmlSchemaField(tgtChoice0, 'email', false);
+      tgtChoice0.fields = [tgtEmailField];
+      tgtShipOrderField.fields.push(tgtChoice0);
+
+      const result = DocumentService.getCompatibleField(tgtDoc, srcEmailField);
+
+      expect(result).toBeUndefined();
+    });
   });
 
   describe('getFieldFromPathSegments()', () => {
@@ -194,6 +305,66 @@ describe('DocumentService', () => {
       const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('ShipTo')];
       const field = DocumentService.getFieldFromPathSegments(namespaces, sourceDoc, pathSegments);
       expect(field?.name).toEqual('ShipTo');
+    });
+
+    it('should find a field nested directly inside a choice compositor', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
+      choiceField.isChoice = true;
+      const emailField = new XmlSchemaField(choiceField, 'email', false);
+      choiceField.fields = [emailField];
+      shipOrderField.fields.push(choiceField);
+
+      const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('email')];
+      const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
+
+      expect(result?.name).toEqual('email');
+    });
+
+    it('should find a field nested inside a nested choice compositor', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const outerChoice = new XmlSchemaField(shipOrderField, 'choice', false);
+      outerChoice.isChoice = true;
+      const innerChoice = new XmlSchemaField(outerChoice, 'choice', false);
+      innerChoice.isChoice = true;
+      const targetField = new XmlSchemaField(innerChoice, 'target', false);
+      innerChoice.fields = [targetField];
+      outerChoice.fields = [innerChoice];
+      shipOrderField.fields.push(outerChoice);
+
+      const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('target')];
+      const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
+
+      expect(result?.name).toEqual('target');
+    });
+
+    it('should navigate through multiple levels of unresolved namedTypeFragmentRefs', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+
+      const lazyField = new XmlSchemaField(shipOrderField, 'lazyField', false);
+      const deepLazyChild = new XmlSchemaField(lazyField, 'deepLazyChild', false);
+      const leafField = new XmlSchemaField(deepLazyChild, 'leafField', false);
+
+      doc.namedTypeFragments['deepFragment'] = { namedTypeFragmentRefs: [], fields: [leafField] };
+      deepLazyChild.namedTypeFragmentRefs.push('deepFragment');
+
+      doc.namedTypeFragments['topFragment'] = { namedTypeFragmentRefs: [], fields: [deepLazyChild] };
+      lazyField.namedTypeFragmentRefs.push('topFragment');
+
+      shipOrderField.fields.push(lazyField);
+
+      const pathSegments = [
+        new PathSegment('ShipOrder', false, 'kaoto'),
+        new PathSegment('lazyField'),
+        new PathSegment('deepLazyChild'),
+        new PathSegment('leafField'),
+      ];
+      const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
+
+      expect(result?.name).toEqual('leafField');
     });
   });
 
@@ -471,6 +642,38 @@ describe('DocumentService', () => {
       const updatedQName = DocumentService.getRootElementQName(updatedDocument);
       expect(updatedQName?.getLocalPart()).toBe('Invoice');
       expect(updatedQName?.getNamespaceURI()).toBe('io.kaoto.datamapper.test.multiple');
+    });
+
+    it('should clear fieldTypeOverrides and choiceSelections from the definition when root element changes', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['MultipleElements.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const originalDocument = result.document as XmlSchemaDocument;
+
+      originalDocument.definition.fieldTypeOverrides = [
+        { path: '/old:Order/field', type: 'xs:int', originalType: 'xs:string', variant: TypeOverrideVariant.SAFE },
+      ];
+      originalDocument.definition.choiceSelections = [{ schemaPath: '/old:Order/{choice:0}', selectedMemberIndex: 1 }];
+
+      const invoiceOption: RootElementOption = {
+        name: 'Invoice',
+        namespaceUri: 'io.kaoto.datamapper.test.multiple',
+      };
+
+      const updatedDocument = DocumentService.updateRootElement(originalDocument, invoiceOption);
+
+      expect(updatedDocument.definition.fieldTypeOverrides).toEqual([]);
+      expect(updatedDocument.definition.choiceSelections).toEqual([]);
     });
   });
 

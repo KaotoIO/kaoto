@@ -1,4 +1,3 @@
-import { PathSegment } from '../models/datamapper';
 import {
   BODY_DOCUMENT_ID,
   CreateDocumentResult,
@@ -9,9 +8,10 @@ import {
   IDocument,
   IField,
   IParentType,
+  PathSegment,
   PrimitiveDocument,
   RootElementOption,
-} from '../models/datamapper/document';
+} from '../models/datamapper';
 import { IMetadataApi } from '../providers';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -159,17 +159,35 @@ export class DocumentService {
     }
   }
 
+  /**
+   * Updates the root element of an {@link XmlSchemaDocument}.
+   * Non-XML schema documents are returned unchanged.
+   * @param document - The document to update
+   * @param rootElementOption - The new root element to use
+   * @returns The updated document
+   */
   static updateRootElement(document: IDocument, rootElementOption: RootElementOption): IDocument {
     if (!(document instanceof XmlSchemaDocument)) return document;
 
     return XmlSchemaDocumentService.updateRootElement(document, rootElementOption);
   }
 
+  /**
+   * Returns the qualified name of the root element for an {@link XmlSchemaDocument}.
+   * Returns null for non-XML schema documents.
+   * @param document - The document to inspect
+   * @returns The root element QName, or null if not applicable
+   */
   static getRootElementQName(document?: IDocument) {
     if (!(document instanceof XmlSchemaDocument)) return null;
     return document.rootElement?.getQName();
   }
 
+  /**
+   * Creates the initial set of source and target documents from a {@link DocumentInitializationModel}.
+   * @param initModel - The initialization model containing document definitions
+   * @returns An object containing the source body document, source parameter map, and target body document; or null if no model is provided
+   */
   static createInitialDocuments(initModel?: DocumentInitializationModel): InitialDocumentsSet | null {
     if (!initModel) return null;
     const answer: InitialDocumentsSet = {
@@ -192,6 +210,13 @@ export class DocumentService {
     return answer;
   }
 
+  /**
+   * Checks whether a field belongs to the given document.
+   * Verifies document type and document ID before searching descendants.
+   * @param document - The document to check
+   * @param field - The field to locate
+   * @returns true if the field belongs to the document, false otherwise
+   */
   static hasField(document: IDocument, field: IField) {
     if (
       document.documentType !== field.ownerDocument.documentType ||
@@ -203,31 +228,98 @@ export class DocumentService {
     return DocumentService.isDescendant(document, field);
   }
 
+  /**
+   * Checks whether a field is a descendant of the given parent field or document.
+   * Recurses through child fields and choice members.
+   * @param parent - The parent field or document to search within
+   * @param child - The field to look for
+   * @returns true if child is a descendant of parent, false otherwise
+   */
   static isDescendant(parent: IField | IDocument, child: IField): boolean {
-    return !!parent.fields.find((f) => f === child || DocumentService.isDescendant(f, child));
+    for (const f of parent.fields) {
+      if (f === child || DocumentService.isDescendant(f, child)) {
+        return true;
+      }
+    }
+    return false;
   }
 
+  /**
+   * Finds the field in the given document that corresponds to the given field from another document.
+   * Navigates by matching name, namespace, and isAttribute along the field's ancestor stack.
+   * @param document - The document to search in
+   * @param field - The field from another document to match against
+   * @returns The compatible field if found, undefined otherwise
+   */
   static getCompatibleField(document: IDocument, field: IField): IField | undefined {
     if (document instanceof PrimitiveDocument) return field instanceof PrimitiveDocument ? document : undefined;
     if (field instanceof PrimitiveDocument) return undefined;
 
     let left: IField | undefined = undefined;
     const fieldStack = DocumentUtilService.getFieldStack(field, true);
-    for (const right of fieldStack.reverse()) {
-      const parent: IParentType = left ? left : document;
-      left = parent.fields.find((leftTest: IField) => {
-        const isAttributeOrElementMatching = leftTest.isAttribute === right.isAttribute;
-        const isNamespaceMatching =
-          !leftTest.ownerDocument.isNamespaceAware ||
-          !right.ownerDocument.isNamespaceAware ||
-          leftTest.namespaceURI === right.namespaceURI;
-        return isAttributeOrElementMatching && isNamespaceMatching && leftTest.name === right.name;
-      });
-      if (!left) return undefined;
+    for (const right of fieldStack.slice().reverse()) {
+      const parent: IParentType = left ?? document;
+      if (right.isChoice) {
+        const rightChoices: IField[] = right.parent.fields.filter((f) => f.isChoice);
+        const leftChoices: IField[] = parent.fields.filter((f) => f.isChoice);
+        const choiceIndex: number = rightChoices.indexOf(right);
+        const choiceFound: IField | undefined = choiceIndex >= 0 ? leftChoices[choiceIndex] : undefined;
+        if (!choiceFound) return undefined;
+        left = choiceFound;
+        continue;
+      }
+      const found = DocumentService.findCompatibleFieldInParent(parent, right);
+      if (!found) return undefined;
+      left = found;
     }
     return left;
   }
 
+  private static findCompatibleFieldInParent(parent: IParentType, right: IField): IField | undefined {
+    const directChild = parent.fields.find((leftTest: IField) => {
+      const isAttributeOrElementMatching = leftTest.isAttribute === right.isAttribute;
+      const isNamespaceMatching =
+        !leftTest.ownerDocument.isNamespaceAware ||
+        !right.ownerDocument.isNamespaceAware ||
+        leftTest.namespaceURI === right.namespaceURI;
+      return isAttributeOrElementMatching && isNamespaceMatching && leftTest.name === right.name;
+    });
+    if (directChild) return directChild;
+
+    for (const parentField of parent.fields) {
+      if (parentField.isChoice) {
+        const found = DocumentService.findCompatibleFieldInChoice(parentField, right);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  }
+
+  private static findCompatibleFieldInChoice(choiceField: IField, target: IField): IField | undefined {
+    for (const member of choiceField.fields) {
+      const isAttributeOrElementMatching = member.isAttribute === target.isAttribute;
+      const isNamespaceMatching =
+        !member.ownerDocument.isNamespaceAware ||
+        !target.ownerDocument.isNamespaceAware ||
+        member.namespaceURI === target.namespaceURI;
+      if (isAttributeOrElementMatching && isNamespaceMatching && member.name === target.name) {
+        return member;
+      }
+      if (member.isChoice) {
+        const nested = this.findCompatibleFieldInChoice(member, target);
+        if (nested) return nested;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Navigates the document tree using XPath path segments and returns the field at the path.
+   * @param namespaces - Namespace prefix to URI mapping for XPath resolution
+   * @param document - The document to navigate within
+   * @param pathSegments - Ordered array of path segments from root to target field
+   * @returns The field at the specified path, or undefined if not found
+   */
   static getFieldFromPathSegments(
     namespaces: { [p: string]: string },
     document: IDocument,
@@ -237,43 +329,111 @@ export class DocumentService {
 
     for (const segment of pathSegments) {
       if (!segment) continue;
-      const child: IField | undefined = parent.fields.find((f) => {
-        const resolvedField = DocumentUtilService.resolveTypeFragment(f);
-        return XPathService.matchSegment(namespaces, resolvedField, segment);
-      });
-      if (!child) {
+
+      const found = DocumentService.findFieldBySegmentInParent(parent, namespaces, segment);
+      if (!found) {
         return undefined;
       }
-      parent = child;
+      parent = found;
     }
     return parent;
   }
 
+  private static findFieldBySegmentInParent(
+    parent: IDocument | IField,
+    namespaces: { [p: string]: string },
+    segment: PathSegment,
+  ): IField | undefined {
+    const directChild = parent.fields.find((f) => {
+      const resolvedField = DocumentUtilService.resolveTypeFragment(f);
+      return XPathService.matchSegment(namespaces, resolvedField, segment);
+    });
+    if (directChild) return directChild;
+
+    for (const field of parent.fields) {
+      if (field.isChoice) {
+        const found = DocumentService.findFieldInChoiceBySegment(namespaces, field, segment);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  }
+
+  private static findFieldInChoiceBySegment(
+    namespaces: { [p: string]: string },
+    choiceField: IField,
+    segment: PathSegment,
+  ): IField | undefined {
+    for (const member of choiceField.fields) {
+      const resolvedField = DocumentUtilService.resolveTypeFragment(member);
+      if (XPathService.matchSegment(namespaces, resolvedField, segment)) {
+        return member;
+      }
+      if (member.isChoice) {
+        const nested = this.findFieldInChoiceBySegment(namespaces, member, segment);
+        if (nested) return nested;
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Returns true if the given parent is a field rather than a document.
+   * @param parent - The parent field or document to inspect
+   * @returns true if parent is a field, false if it is a document
+   */
   static isNonPrimitiveField(parent: IParentType) {
     return parent && !('documentType' in parent);
   }
 
+  /**
+   * Checks whether a field is recursive, i.e. its type also appears in its ancestor chain.
+   * @param field - The field to check
+   * @returns true if the field is recursive, false otherwise
+   */
   static isRecursiveField(field: IField) {
     const name = field.name;
     const namespace = field.namespaceURI;
     const stack = DocumentUtilService.getFieldStack(field);
-    return !!stack.find((f) => f.name === name && f.namespaceURI === namespace);
+    return stack.some((f) => f.name === name && f.namespaceURI === namespace);
   }
 
+  /**
+   * Returns true if the document is not a primitive document and has at least one field.
+   * @param document - The document to inspect
+   * @returns true if the document has fields, false otherwise
+   */
   static hasFields(document: IDocument) {
     return !(document instanceof PrimitiveDocument) && document.fields.length > 0;
   }
 
+  /**
+   * Returns true if the field can have child fields.
+   * Attributes are never considered to have children in XML Schema.
+   * @param field - The field to inspect
+   * @returns true if the field has or can have children, false otherwise
+   */
   static hasChildren(field: IField) {
     // Attributes cannot have children in XML Schema
     if (field.isAttribute) return false;
     return field.fields.length > 0 || field.namedTypeFragmentRefs.length > 0;
   }
 
+  /**
+   * Returns true if the field represents a collection (maxOccurs is 'unbounded' or greater than 1).
+   * @param field - The field to inspect
+   * @returns true if the field is a collection, false otherwise
+   */
   static isCollectionField(field: IField) {
     return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
   }
 
+  /**
+   * Renames a document and updates all nested field paths to reflect the new document ID.
+   * Modifies the document and its fields in place.
+   * @param document - The document to rename
+   * @param newDocumentId - The new document ID to assign
+   */
   static renameDocument(document: IDocument, newDocumentId: string): void {
     document.documentId = newDocumentId;
     document.name = newDocumentId;

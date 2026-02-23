@@ -1,7 +1,7 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { MaxOccursType } from '../../xml-schema-ts/constants';
 import { QName } from '../../xml-schema-ts/QName';
-import { IFieldTypeOverride } from './metadata';
+import { IChoiceSelection, IFieldTypeOverride } from './metadata';
 import { NodePath } from './nodepath';
 import { ReportMessage } from './schema';
 import { TypeOverrideVariant, Types } from './types';
@@ -332,6 +332,7 @@ export class DocumentDefinition {
     public definitionFiles?: Record<string, string>,
     public rootElementChoice?: RootElementOption,
     public fieldTypeOverrides?: IFieldTypeOverride[],
+    public choiceSelections?: IChoiceSelection[],
     public namespaceMap?: Record<string, string>,
   ) {
     if (!definitionFiles) this.definitionFiles = {};

@@ -1,7 +1,8 @@
-import { IDocument, IField, IParentType, ITypeFragment, PrimitiveDocument } from '../models/datamapper';
-import { IFieldTypeOverride } from '../models/datamapper/metadata';
+import { IDocument, IField, IParentType, ITypeFragment, PathSegment, PrimitiveDocument } from '../models/datamapper';
+import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
+import { SchemaPathService } from './schema-path.service';
 import { XPathService } from './xpath/xpath.service';
 
 export type ParseTypeOverrideFn = (
@@ -19,6 +20,12 @@ export type ParseTypeOverrideFn = (
  * @see JsonSchemaDocumentService
  */
 export class DocumentUtilService {
+  /**
+   * Returns the owner document for the given field or document.
+   * If the argument is a field, its {@link IField.ownerDocument} is returned; otherwise the argument itself is returned.
+   * @param docOrField - A field or document
+   * @returns The owner document cast to the specified DocumentType
+   */
   static getOwnerDocument<DocumentType extends IDocument>(docOrField: IParentType): DocumentType {
     return ('ownerDocument' in docOrField ? docOrField.ownerDocument : docOrField) as DocumentType;
   }
@@ -28,7 +35,7 @@ export class DocumentUtilService {
    *
    *  @TODO is it safe to change field type dynamically even on XML field? we might eventually need to readahead field type
    *  even for XML field just like JSON field does, see {@link JsonSchemaDocumentService.createJsonSchemaDocument}
-   * @param field
+   * @param field - The field to resolve type fragments for
    */
   static resolveTypeFragment(field: IField): IField {
     if (field.namedTypeFragmentRefs.length === 0) return field;
@@ -41,6 +48,12 @@ export class DocumentUtilService {
     return field;
   }
 
+  /**
+   * Merges a {@link ITypeFragment} into a field, adopting its type, occurrence constraints, and child fields.
+   * Recursively resolves and adopts any nested type fragment references from the owner document.
+   * @param field - The field to adopt the fragment into
+   * @param fragment - The type fragment whose properties and children will be merged into the field
+   */
   static adoptTypeFragment(field: IField, fragment: ITypeFragment) {
     const doc = DocumentUtilService.getOwnerDocument(field);
     if (fragment.type) field.type = fragment.type;
@@ -53,6 +66,12 @@ export class DocumentUtilService {
     });
   }
 
+  /**
+   * Builds the ancestor chain of a field, walking up through parent references to the document root.
+   * @param field - The field to build the ancestor stack for
+   * @param includeItself - If true, the field itself is prepended to the returned array
+   * @returns Array of ancestor fields ordered from the field (or its parent) up to the document root
+   */
   static getFieldStack(field: IField, includeItself: boolean = false): IField[] {
     if (field instanceof PrimitiveDocument) return [];
     const fieldStack: IField[] = [];
@@ -252,22 +271,52 @@ export class DocumentUtilService {
         continue;
       }
 
-      if ('parent' in current && current.namedTypeFragmentRefs.length > 0) {
-        DocumentUtilService.resolveTypeFragment(current);
-      }
-
-      const childField: IField | undefined = current.fields.find((f) =>
-        XPathService.matchSegment(namespaceMap, f, segment),
-      );
-
-      if (!childField) {
+      const found = DocumentUtilService.findFieldBySegmentInParent(current, namespaceMap, segment);
+      if (!found) {
         return undefined;
       }
-
-      current = childField;
+      current = found;
     }
 
     return 'parent' in current ? current : undefined;
+  }
+
+  private static findFieldBySegmentInParent(
+    current: IDocument | IField,
+    namespaceMap: Record<string, string>,
+    segment: PathSegment,
+  ): IField | undefined {
+    if ('parent' in current && current.namedTypeFragmentRefs.length > 0) {
+      DocumentUtilService.resolveTypeFragment(current);
+    }
+
+    const directChild = current.fields.find((f) => XPathService.matchSegment(namespaceMap, f, segment));
+    if (directChild) return directChild;
+
+    for (const field of current.fields) {
+      if (field.isChoice) {
+        const found = DocumentUtilService.findFieldInChoiceBySegment(namespaceMap, field, segment);
+        if (found) return found;
+      }
+    }
+    return undefined;
+  }
+
+  private static findFieldInChoiceBySegment(
+    namespaceMap: Record<string, string>,
+    choiceField: IField,
+    segment: PathSegment,
+  ): IField | undefined {
+    for (const member of choiceField.fields) {
+      if (XPathService.matchSegment(namespaceMap, member, segment)) {
+        return member;
+      }
+      if (member.isChoice) {
+        const nested = this.findFieldInChoiceBySegment(namespaceMap, member, segment);
+        if (nested) return nested;
+      }
+    }
+    return undefined;
   }
 
   /**
@@ -324,6 +373,96 @@ export class DocumentUtilService {
   }
 
   /**
+   * Low level API to apply multiple choice selections to a document.
+   * Iterates through all provided selections and delegates to {@link processChoiceSelection} for each.
+   *
+   * @param document - The document to apply selections to
+   * @param selections - Array of choice selections to apply
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
+   *
+   * @see processChoiceSelection
+   * @see removeChoiceSelection
+   */
+  static processChoiceSelections(
+    document: IDocument,
+    selections: IChoiceSelection[],
+    namespaceMap: Record<string, string>,
+  ): void {
+    for (const selection of selections) {
+      DocumentUtilService.processChoiceSelection(document, selection, namespaceMap);
+    }
+  }
+
+  /**
+   * Low level API to apply a single choice selection to a document and update its definition.
+   * Navigates to the choice field using the schemaPath and sets its {@link IField.selectedMemberIndex}.
+   * Also updates {@link DocumentDefinition.choiceSelections} to keep the definition in sync with the live document.
+   *
+   * @param document - The document to apply the selection to
+   * @param selection - The choice selection containing the path and selected member index
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
+   *
+   * @see processChoiceSelections
+   * @see removeChoiceSelection
+   */
+  static processChoiceSelection(
+    document: IDocument,
+    selection: IChoiceSelection,
+    namespaceMap: Record<string, string>,
+  ): void {
+    const choiceField = SchemaPathService.navigateToField(document, selection.schemaPath, namespaceMap);
+    if (!choiceField) return;
+
+    const applied = DocumentUtilService.applyChoiceSelectionToField(choiceField, selection.selectedMemberIndex);
+    if (!applied) return;
+
+    document.definition.choiceSelections ??= [];
+    const existingIndex = document.definition.choiceSelections.findIndex((s) => s.schemaPath === selection.schemaPath);
+    if (existingIndex >= 0) {
+      document.definition.choiceSelections[existingIndex] = selection;
+    } else {
+      document.definition.choiceSelections.push(selection);
+    }
+  }
+
+  /**
+   * Low level API to remove a choice selection from a document and update its definition.
+   * Navigates to the choice field and clears its {@link IField.selectedMemberIndex}.
+   * Also removes the selection from {@link DocumentDefinition.choiceSelections}.
+   *
+   * @param document - The document to remove the selection from
+   * @param schemaPath - The path string identifying the choice field (uses {@link IChoiceSelection.schemaPath} format)
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
+   *
+   * @see processChoiceSelection
+   * @see processChoiceSelections
+   */
+  static removeChoiceSelection(document: IDocument, schemaPath: string, namespaceMap: Record<string, string>): void {
+    if (!document.definition.choiceSelections) return;
+
+    const existingIndex = document.definition.choiceSelections.findIndex((s) => s.schemaPath === schemaPath);
+    if (existingIndex < 0) return;
+
+    const choiceField = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
+    if (choiceField) {
+      choiceField.selectedMemberIndex = undefined;
+    }
+
+    document.definition.choiceSelections = document.definition.choiceSelections.filter(
+      (s) => s.schemaPath !== schemaPath,
+    );
+  }
+
+  private static applyChoiceSelectionToField(choiceField: IField, selectedMemberIndex: number): boolean {
+    if (selectedMemberIndex < 0 || selectedMemberIndex >= choiceField.fields.length) {
+      // Ignoring out of length selectedMemberIndex
+      return false;
+    }
+    choiceField.selectedMemberIndex = selectedMemberIndex;
+    return true;
+  }
+
+  /**
    * Generates a unique namespace prefix following sequential pattern (ns0, ns1, ns2, ...).
    * Starts from 'ns0' and increments until an available prefix is found.
    *
@@ -342,6 +481,12 @@ export class DocumentUtilService {
     }
   }
 
+  /**
+   * Generates a human-readable display name for a choice compositor based on its member names.
+   * Joins member names with ' | ' and truncates to 40 characters if needed.
+   * @param choiceMembers - The member fields of the choice compositor
+   * @returns A formatted display string such as "choice (option1 | option2)"
+   */
   static formatChoiceDisplayName(choiceMembers?: IField[]): string {
     if (!choiceMembers || choiceMembers.length === 0) {
       return 'choice (empty)';
