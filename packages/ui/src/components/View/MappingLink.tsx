@@ -20,6 +20,7 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   sourceNodePath,
   targetNodePath,
   isSelected = false,
+  isPartial = false,
   svgRef,
 }) => {
   const { mappingLinkCanvasRef } = useMappingLinks();
@@ -60,6 +61,7 @@ export const MappingLink: FunctionComponent<LineProps> = ({
         curve={curveMonotoneX}
         className={clsx('mapping-link', {
           'mapping-link--selected': isSelected,
+          'mapping-link--partial': isPartial,
         })}
         onClick={onLineClick}
         onMouseEnter={onMouseEnter}

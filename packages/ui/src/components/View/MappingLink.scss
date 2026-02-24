@@ -11,4 +11,9 @@
     stroke: var(--pf-t--global--border--color--brand--default);
     stroke-width: 6;
   }
+
+  &--partial {
+    stroke-dasharray: 5, 5;
+    opacity: 0.5;
+  }
 }

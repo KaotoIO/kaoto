@@ -193,6 +193,7 @@ export type LineProps = LineCoord & {
   sourceNodePath: string;
   targetNodePath: string;
   isSelected?: boolean;
+  isPartial?: boolean;
   svgRef?: RefObject<SVGSVGElement | null>;
 };
 
