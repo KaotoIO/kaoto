@@ -24,9 +24,6 @@ export const VirtuosoWithVisibility: FunctionComponent<Omit<VirtuosoProps<unknow
   // Get the ExpansionPanel's content ref from context (the actual scroll/clip container)
   const scrollContainerRef = useContext(ExpansionPanelContentContext);
 
-  // Note: IntersectionObserver disabled in favor of simpler rebuild-on-scroll approach
-  // useConnectionPortVisibility(scrollContainerRef);
-
   // Listen to scroll events on the actual scroll container
   // When using customScrollParent, Virtuoso's onScroll doesn't fire
   useEffect(() => {
