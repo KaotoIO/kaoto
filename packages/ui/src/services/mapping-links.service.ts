@@ -121,6 +121,6 @@ export class MappingLinksService {
   static isNodeInSelectedMapping(mappingLinks: IMappingLink[], nodePath: string): boolean {
     return !!mappingLinks
       .filter((link) => link.isSelected)
-      .find((link) => link.sourceNodePath === nodePath || link.targetNodePath === nodePath);
+      .some((link) => link.sourceNodePath === nodePath || link.targetNodePath === nodePath);
   }
 }

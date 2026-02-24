@@ -1,4 +1,4 @@
-import { RefObject, useEffect } from 'react';
+import { RefObject, useCallback, useEffect } from 'react';
 
 import { useDocumentTreeStore } from '../store/document-tree.store';
 
@@ -13,27 +13,27 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
   const setConnectionPort = useDocumentTreeStore((state) => state.setConnectionPort);
   const unsetConnectionPort = useDocumentTreeStore((state) => state.unsetConnectionPort);
 
-  useEffect(() => {
-    // Skip if no ref provided or no container element
-    if (!scrollContainerRef) return;
-    const containerElement = scrollContainerRef.current;
-    if (!containerElement) return;
-
-    // Map to track which ports we're currently observing
-    const observedPorts = new Map<Element, string>();
-
-    /**
-     * Calculate and update position for a connection port element
-     */
-    const updatePortPosition = (element: Element) => {
-      const nodePath = (element as HTMLElement).dataset.nodePath;
+  /**
+   * Calculate and update position for a connection port element
+   */
+  const updatePortPosition = useCallback(
+    (element: HTMLElement) => {
+      const nodePath = element.dataset.nodePath;
       if (!nodePath) return;
 
       const rect = element.getBoundingClientRect();
       const position: [number, number] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
 
       setConnectionPort(nodePath, position);
-    };
+    },
+    [setConnectionPort],
+  );
+
+  useEffect(() => {
+    if (!scrollContainerRef?.current) return;
+
+    // Map to track which ports we're currently observing
+    const observedPorts = new Map<Element, string>();
 
     /**
      * IntersectionObserver callback - handles elements entering/leaving viewport
@@ -46,7 +46,7 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
         if (entry.isIntersecting) {
           // Element is visible - calculate and register position
           // This fires both when element first enters AND when it moves within viewport
-          updatePortPosition(entry.target);
+          updatePortPosition(entry.target as HTMLElement);
         } else {
           // Element is no longer visible - unregister
           unsetConnectionPort(nodePath);
@@ -59,7 +59,7 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
     // rootMargin: Shrink the intersection area to create a buffer zone
     // This ensures elements in Virtuoso's overscan are marked as not intersecting
     const intersectionObserver = new IntersectionObserver(intersectionCallback, {
-      root: containerElement,
+      root: scrollContainerRef.current,
       threshold: 0,
       rootMargin: '-10px', // 10px buffer to exclude overscan elements
     });
@@ -72,12 +72,11 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
         // Check added nodes
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType !== Node.ELEMENT_NODE) return;
-
-          const element = node as Element;
+          const element = node as HTMLElement;
 
           // Check if the added node itself is a connection port
-          if (element.getAttribute('data-connection-port') === 'true') {
-            const nodePath = (element as HTMLElement).dataset.nodePath;
+          if (element.dataset.connectionPort === 'true') {
+            const nodePath = element.dataset.nodePath;
             if (nodePath && !observedPorts.has(element)) {
               intersectionObserver.observe(element);
               observedPorts.set(element, nodePath);
@@ -98,8 +97,7 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
         // Handle removed nodes - clean up observation tracking AND remove from store
         mutation.removedNodes.forEach((node) => {
           if (node.nodeType !== Node.ELEMENT_NODE) return;
-
-          const element = node as Element;
+          const element = node as HTMLElement;
 
           // If removed node is a connection port
           if (observedPorts.has(element)) {
@@ -131,13 +129,13 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
     const mutationObserver = new MutationObserver(mutationCallback);
 
     // Start observing the container for child node additions/removals
-    mutationObserver.observe(containerElement, {
+    mutationObserver.observe(scrollContainerRef.current, {
       childList: true,
       subtree: true,
     });
 
     // Observe all existing connection ports
-    const existingPorts = containerElement.querySelectorAll('[data-connection-port="true"]');
+    const existingPorts = scrollContainerRef.current.querySelectorAll('[data-connection-port="true"]');
     existingPorts.forEach((port) => {
       const nodePath = (port as HTMLElement).dataset.nodePath;
       if (nodePath) {
@@ -146,11 +144,10 @@ export const useConnectionPortVisibility = (scrollContainerRef: RefObject<HTMLEl
       }
     });
 
-    // Cleanup on unmount
     return () => {
       intersectionObserver.disconnect();
       mutationObserver.disconnect();
       observedPorts.clear();
     };
-  }, [scrollContainerRef, setConnectionPort, unsetConnectionPort]);
+  }, [scrollContainerRef, setConnectionPort, unsetConnectionPort, updatePortPosition]);
 };
