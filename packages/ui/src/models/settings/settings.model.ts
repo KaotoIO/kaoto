@@ -30,6 +30,9 @@ export interface ISettingsModel {
     customMediaTypes: string[];
   };
   canvasLayoutDirection: CanvasLayoutDirection;
+  experimentalFeatures: {
+    enableDragAndDrop: boolean;
+  };
 }
 
 export interface AbstractSettingsAdapter {
@@ -47,10 +50,13 @@ export class SettingsModel implements ISettingsModel {
     customMediaTypes: [] as string[],
   };
   canvasLayoutDirection: CanvasLayoutDirection = CanvasLayoutDirection.SelectInCanvas;
+  experimentalFeatures = {
+    enableDragAndDrop: true,
+  };
 
   constructor(options: Partial<ISettingsModel> = {}) {
     // Extract nested objects before Object.assign
-    const { rest, ...topLevel } = options;
+    const { rest, experimentalFeatures, ...topLevel } = options;
 
     // Assign top-level properties
     Object.assign(this, topLevel);
@@ -58,6 +64,9 @@ export class SettingsModel implements ISettingsModel {
     // Deep merge nested objects to preserve defaults
     if (rest) {
       this.rest = { ...this.rest, ...rest };
+    }
+    if (experimentalFeatures) {
+      this.experimentalFeatures = { ...this.experimentalFeatures, ...experimentalFeatures };
     }
   }
 }

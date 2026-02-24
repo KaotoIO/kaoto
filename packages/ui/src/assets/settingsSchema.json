@@ -61,6 +61,20 @@
           }
         }
       }
+    },
+    "experimentalFeatures": {
+      "title": "Experimental features",
+      "description": "Enable / disable experimental features",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enableDragAndDrop": {
+          "title": "Enable Drag & Drop",
+          "description": "Control whether to enable drag and drop feature",
+          "type": "boolean",
+          "default": false
+        }
+      }
     }
   }
 }
