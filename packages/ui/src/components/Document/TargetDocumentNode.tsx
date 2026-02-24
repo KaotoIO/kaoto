@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FunctionComponent, memo, MouseEvent, useCallback, useMemo, useRef } from 'react';
+import { FunctionComponent, memo, MouseEvent, useCallback, useMemo } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
@@ -48,7 +48,6 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
   const isAttributeField = useMemo(() => VisualizationService.isAttributeField(nodeData), [nodeData]);
   const isDraggable = useMemo(() => !isDocument || isPrimitive, [isDocument, isPrimitive]);
   const nodePathString = nodeData.path.toString();
-  const portRef = useRef<HTMLSpanElement>(null);
 
   const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
   const { refreshMappingTree } = useDataMapper();
@@ -91,7 +90,6 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
               rank={rank}
               isSelected={isSelected}
               isSource={false}
-              portRef={portRef}
               nodePath={nodePathString}
             >
               {showNodeActions ? (

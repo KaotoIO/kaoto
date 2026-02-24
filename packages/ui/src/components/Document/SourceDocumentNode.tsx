@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FunctionComponent, memo, MouseEvent, useCallback, useRef } from 'react';
+import { FunctionComponent, memo, MouseEvent, useCallback } from 'react';
 
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { TreeUIService } from '../../services/tree-ui.service';
@@ -45,7 +45,6 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo((
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
   const nodePathString = nodeData.path.toString();
-  const portRef = useRef<HTMLSpanElement>(null);
 
   // Get selection state from store
   const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString));
@@ -81,7 +80,6 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo((
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
               rank={rank}
               isSelected={isSelected}
-              portRef={portRef}
               nodePath={nodePathString}
             />
           </NodeContainer>
