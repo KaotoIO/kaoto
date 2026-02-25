@@ -338,7 +338,7 @@ export class XmlSchemaDocumentService {
     }
 
     const fields: XmlSchemaField[] = [];
-    const typeFragment: XmlSchemaTypeFragment = { fields, namedTypeFragmentRefs: [] };
+    const typeFragment: XmlSchemaTypeFragment = { type: Types.Container, fields, namedTypeFragmentRefs: [] };
     document.namedTypeFragments[typeFragmentName] = typeFragment;
 
     XmlSchemaDocumentService.populateContentModel(document, typeFragment, schemaType.getContentModel());

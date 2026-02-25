@@ -37,31 +37,58 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dro
     [isActionMenuOpen],
   );
 
+  const renderToggle = useCallback(
+    (toggleRef: Ref<MenuToggleElement>) => (
+      <MenuToggle
+        icon={dropdownLabel ? <AddCircleOIcon /> : <EllipsisVIcon />}
+        ref={toggleRef}
+        onClick={onToggleActionMenu}
+        variant={dropdownLabel ? 'secondary' : 'plain'}
+        isExpanded={isActionMenuOpen}
+        aria-label="Transformation Action list"
+        data-testid="transformation-actions-menu-toggle"
+      >
+        {dropdownLabel}
+      </MenuToggle>
+    ),
+    [dropdownLabel, onToggleActionMenu, isActionMenuOpen],
+  );
+
   const onSelectAction = useCallback(
     (event: MouseEvent | undefined, value: string | number | undefined) => {
       event?.stopPropagation();
       switch (value) {
         case 'selector':
           VisualizationService.applyValueSelector(nodeData);
+          onUpdate();
+          setIsActionMenuOpen(false);
           break;
         case 'if':
           VisualizationService.applyIf(nodeData);
+          onUpdate();
+          setIsActionMenuOpen(false);
           break;
         case 'choose':
           VisualizationService.applyChooseWhenOtherwise(nodeData);
+          onUpdate();
+          setIsActionMenuOpen(false);
           break;
         case 'foreach':
           VisualizationService.applyForEach(nodeData as TargetFieldNodeData);
+          onUpdate();
+          setIsActionMenuOpen(false);
           break;
         case 'when':
           VisualizationService.applyWhen(nodeData);
+          onUpdate();
+          setIsActionMenuOpen(false);
           break;
         case 'otherwise':
           VisualizationService.applyOtherwise(nodeData);
+          onUpdate();
+          setIsActionMenuOpen(false);
           break;
       }
-      onUpdate();
-      setIsActionMenuOpen(false);
     },
     [nodeData, onUpdate],
   );
@@ -71,19 +98,7 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dro
       <ActionListItem key="transformation-actions">
         <Dropdown
           onSelect={onSelectAction}
-          toggle={(toggleRef: Ref<MenuToggleElement>) => (
-            <MenuToggle
-              icon={dropdownLabel ? <AddCircleOIcon /> : <EllipsisVIcon />}
-              ref={toggleRef}
-              onClick={onToggleActionMenu}
-              variant={dropdownLabel ? 'secondary' : 'plain'}
-              isExpanded={isActionMenuOpen}
-              aria-label="Transformation Action list"
-              data-testid="transformation-actions-menu-toggle"
-            >
-              {dropdownLabel}
-            </MenuToggle>
-          )}
+          toggle={renderToggle}
           isOpen={isActionMenuOpen}
           onOpenChange={(isOpen: boolean) => setIsActionMenuOpen(isOpen)}
           popperProps={DEFAULT_POPPER_PROPS}

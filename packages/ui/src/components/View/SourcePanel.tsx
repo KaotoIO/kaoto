@@ -21,11 +21,15 @@ type SourcePanelProps = {
 };
 
 export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = false, actionItems }) => {
-  const { sourceBodyDocument } = useDataMapper();
+  const { sourceBodyDocument, documentRevision } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
 
-  // Create tree for source body
-  const sourceBodyNodeData = useMemo(() => new DocumentNodeData(sourceBodyDocument), [sourceBodyDocument]);
+  // Create tree for source body (documentRevision forces rebuild after in-place field mutations like type override)
+  const sourceBodyNodeData = useMemo(
+    () => new DocumentNodeData(sourceBodyDocument),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sourceBodyDocument, documentRevision],
+  );
   const [sourceBodyTree, setSourceBodyTree] = useState<DocumentTree | undefined>(undefined);
 
   useEffect(() => {

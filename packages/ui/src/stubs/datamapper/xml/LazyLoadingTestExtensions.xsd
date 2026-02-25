@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/LAZYTEST"
+           xmlns:tns="http://www.example.com/LAZYTEST"
+           elementFormDefault="qualified">
+
+  <!-- Extension of AddressType: adds Country and PostalBox -->
+  <xs:complexType name="DetailedAddressType">
+    <xs:complexContent>
+      <xs:extension base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="Country" type="xs:string"/>
+          <xs:element name="PostalBox" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds EmployeeId and Department -->
+  <xs:complexType name="EmployeeType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="EmployeeId" type="xs:string"/>
+          <xs:element name="Department" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Restriction of AddressType: makes ZipCode required pattern -->
+  <xs:complexType name="USAddressType">
+    <xs:complexContent>
+      <xs:restriction base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="Street" type="xs:string"/>
+          <xs:element name="City" type="xs:string"/>
+          <xs:element name="ZipCode">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="[0-9]{5}(-[0-9]{4})?"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>
