@@ -6,11 +6,20 @@ import {
   Types,
 } from '../models/datamapper';
 import { IField } from '../models/datamapper/document';
+import { DocumentTree } from '../models/datamapper/document-tree';
 import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant } from '../models/datamapper/types';
-import { getCamelSpringXsd, getLazyLoadingTestXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { DocumentNodeData } from '../models/datamapper/visualization';
+import {
+  getCamelSpringXsd,
+  getLazyLoadingTestExtensionsXsd,
+  getLazyLoadingTestXsd,
+  TestUtil,
+} from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
+import { TreeParsingService } from './tree-parsing.service';
+import { VisualizationService } from './visualization.service';
 import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
@@ -996,6 +1005,165 @@ describe('DocumentUtilService', () => {
       const result = DocumentUtilService.formatChoiceDisplayName(longMembers);
       expect(result).toContain('...');
       expect(result).toMatch(/^choice \(.+\.\.\.\)$/);
+    });
+  });
+
+  describe('type override with supplementary schema (extension type)', () => {
+    const NS = 'http://www.example.com/LAZYTEST';
+
+    function createLazyLoadingDoc() {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'LazyLoadingTest.xsd': getLazyLoadingTestXsd() },
+        { namespaceUri: NS, name: 'Root' },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      return result.document!;
+    }
+
+    it('should populate DetailedAddressType fragment with base + extension fields after uploading extension schema', () => {
+      const doc = createLazyLoadingDoc();
+
+      // Upload extension schema
+      XmlSchemaDocumentService.addSchemaFiles(doc, {
+        'LazyLoadingTestExtensions.xsd': getLazyLoadingTestExtensionsXsd(),
+      });
+
+      // Verify the fragment exists and has fields
+      const fragmentKey = `{${NS}}DetailedAddressType`;
+      const fragment = doc.namedTypeFragments[fragmentKey];
+      expect(fragment).toBeDefined();
+      expect(fragment.fields.length).toBeGreaterThan(0);
+
+      // Should have base type fields (Street, City, ZipCode) + extension fields (Country, PostalBox)
+      const fieldNames = fragment.fields.map((f) => f.name);
+      expect(fieldNames).toContain('Street');
+      expect(fieldNames).toContain('City');
+      expect(fieldNames).toContain('ZipCode');
+      expect(fieldNames).toContain('Country');
+      expect(fieldNames).toContain('PostalBox');
+    });
+
+    it('should resolve extension type children after type override and resolveTypeFragment', () => {
+      const doc = createLazyLoadingDoc();
+      const namespaceMap = { tns: NS };
+
+      // Upload extension schema
+      XmlSchemaDocumentService.addSchemaFiles(doc, {
+        'LazyLoadingTestExtensions.xsd': getLazyLoadingTestExtensionsXsd(),
+      });
+
+      // Find the Address field under Person
+      const root = doc.fields[0];
+      DocumentUtilService.resolveTypeFragment(root);
+      const person = root.fields.find((f) => f.name === 'Person');
+      expect(person).toBeDefined();
+      DocumentUtilService.resolveTypeFragment(person!);
+      const address = person!.fields.find((f) => f.name === 'Address');
+      expect(address).toBeDefined();
+      expect(address!.type).toBe(Types.Container);
+
+      // Apply type override to DetailedAddressType
+      const overrides: IFieldTypeOverride[] = [
+        {
+          schemaPath: '/tns:Root/tns:Person/tns:Address',
+          type: 'tns:DetailedAddressType',
+          originalType: 'tns:USAddressType',
+          variant: TypeOverrideVariant.SAFE,
+        },
+      ];
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      // After override, field should have namedTypeFragmentRefs
+      expect(address!.fields).toHaveLength(0);
+      expect(address!.namedTypeFragmentRefs).toHaveLength(1);
+      expect(address!.type).toBe(Types.Container);
+
+      // Resolve the type fragment (simulates what happens during tree parsing)
+      DocumentUtilService.resolveTypeFragment(address!);
+
+      // After resolution, field should have children from the extension type
+      expect(address!.fields.length).toBeGreaterThan(0);
+      const childNames = address!.fields.map((f) => f.name);
+      expect(childNames).toContain('Street');
+      expect(childNames).toContain('City');
+      expect(childNames).toContain('ZipCode');
+      expect(childNames).toContain('Country');
+      expect(childNames).toContain('PostalBox');
+
+      // Verify the field type is still Container after adoption
+      expect(address!.type).toBe(Types.Container);
+    });
+
+    it('should show overridden field children in tree rebuild (full TreeParsingService flow)', () => {
+      const doc = createLazyLoadingDoc();
+      const namespaceMap = { tns: NS };
+
+      // Upload extension schema
+      XmlSchemaDocumentService.addSchemaFiles(doc, {
+        'LazyLoadingTestExtensions.xsd': getLazyLoadingTestExtensionsXsd(),
+      });
+
+      // Build initial tree (simulates what SourcePanel does)
+      const nodeData = new DocumentNodeData(doc);
+      const tree = new DocumentTree(nodeData);
+      TreeParsingService.parseTree(tree);
+
+      // Verify initial structure: Root > Person > Address > [Street, City, ZipCode]
+      const rootTreeNode = tree.root.children[0]; // Root element
+      expect(rootTreeNode).toBeDefined();
+      const personTreeNode = rootTreeNode.children.find((c) => c.nodeData.title === 'Person');
+      expect(personTreeNode).toBeDefined();
+      const addressTreeNode = personTreeNode!.children.find((c) => c.nodeData.title === 'Address');
+      expect(addressTreeNode).toBeDefined();
+      expect(addressTreeNode!.children).toHaveLength(3); // Street, City, ZipCode
+
+      // Get the actual field to apply override
+      const root = doc.fields[0];
+      const person = root.fields.find((f) => f.name === 'Person');
+      const address = person!.fields.find((f) => f.name === 'Address');
+
+      // Apply type override to DetailedAddressType
+      const overrides: IFieldTypeOverride[] = [
+        {
+          schemaPath: '/tns:Root/tns:Person/tns:Address',
+          type: 'tns:DetailedAddressType',
+          originalType: 'tns:USAddressType',
+          variant: TypeOverrideVariant.SAFE,
+        },
+      ];
+      DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      // Verify override was applied
+      expect(address!.fields).toHaveLength(0);
+      expect(address!.namedTypeFragmentRefs).toHaveLength(1);
+
+      // Rebuild tree (simulates what happens after documentRevision change)
+      const newNodeData = new DocumentNodeData(doc);
+      const newTree = new DocumentTree(newNodeData);
+      TreeParsingService.parseTree(newTree);
+
+      // Verify new tree: Root > Person > Address > [Street, City, ZipCode, Country, PostalBox]
+      const newRootTreeNode = newTree.root.children[0];
+      expect(newRootTreeNode).toBeDefined();
+      const newPersonTreeNode = newRootTreeNode.children.find((c) => c.nodeData.title === 'Person');
+      expect(newPersonTreeNode).toBeDefined();
+      const newAddressTreeNode = newPersonTreeNode!.children.find((c) => c.nodeData.title === 'Address');
+      expect(newAddressTreeNode).toBeDefined();
+      expect(newAddressTreeNode!.children.length).toBeGreaterThanOrEqual(5);
+      const childTitles = newAddressTreeNode!.children.map((c) => c.nodeData.title);
+      expect(childTitles).toContain('Street');
+      expect(childTitles).toContain('City');
+      expect(childTitles).toContain('ZipCode');
+      expect(childTitles).toContain('Country');
+      expect(childTitles).toContain('PostalBox');
+
+      // Also verify the field type
+      const newAddressField = VisualizationService.getField(newAddressTreeNode!.nodeData);
+      expect(newAddressField?.type).toBe(Types.Container);
     });
   });
 });

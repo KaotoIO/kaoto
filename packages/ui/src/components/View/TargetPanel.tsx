@@ -20,13 +20,14 @@ import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import { TARGET_PANEL_DEFAULT_HEIGHT, TARGET_PANEL_MIN_HEIGHT } from '../ExpansionPanels/panel-dimensions';
 
 export const TargetPanel: FunctionComponent = () => {
-  const { targetBodyDocument, mappingTree, refreshMappingTree } = useDataMapper();
+  const { targetBodyDocument, mappingTree, refreshMappingTree, documentRevision } = useDataMapper();
   const { reloadNodeReferences } = useCanvas();
 
-  // Create tree for target body
+  // Create tree for target body (documentRevision forces rebuild after in-place field mutations like type override)
   const targetBodyNodeData = useMemo(
     () => new TargetDocumentNodeData(targetBodyDocument, mappingTree),
-    [targetBodyDocument, mappingTree],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [targetBodyDocument, mappingTree, documentRevision],
   );
   const [targetBodyTree, setTargetBodyTree] = useState<DocumentTree | undefined>(undefined);
 
