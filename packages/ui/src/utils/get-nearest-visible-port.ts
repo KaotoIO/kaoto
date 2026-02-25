@@ -1,4 +1,5 @@
 import { NodePath } from '../models/datamapper/nodepath';
+import { TreeExpansionState } from '../store/document-tree.store';
 
 /**
  * Finds the nearest visible connection port for a given node path.
@@ -6,28 +7,32 @@ import { NodePath } from '../models/datamapper/nodepath';
  * walks up the parent hierarchy to find the first ancestor with a registered port.
  *
  * @param nodePath - The full path of the node (e.g., "SOURCE_BODY:customer://customer/address/zipcode")
- * @param connectionPorts - Map of registered connection ports
+ * @param connectionPortsMap - Map of registered connection ports
+ * @param expansionStateMap - Map of document's nodes expansion state
  * @returns The position of the nearest visible port, or null if none found
  */
 export function getNearestVisiblePort(
   nodePath: string,
-  connectionPorts: Record<string, [number, number]>,
+  connectionPortsMap: Record<string, [number, number]>,
+  expansionStateMap: Record<string, TreeExpansionState>,
 ): [number, number] | null {
-  if (connectionPorts[nodePath]) {
-    return connectionPorts[nodePath];
+  /* If the node is present in the connection port map, it's visible. (Not virtualized away nor collapsed) */
+  if (connectionPortsMap[nodePath]) {
+    return connectionPortsMap[nodePath];
   }
 
   const path = new NodePath(nodePath);
+  const documentId = `doc-${path.documentType}-${path.documentId}`;
 
   while (path.pathSegments.length > 0) {
     // Remove the last segment to get the parent path
     path.pathSegments = path.pathSegments.slice(0, -1);
     const parentPath = path.toString();
 
-    if (connectionPorts[parentPath]) {
-      return connectionPorts[parentPath];
+    if (connectionPortsMap[parentPath] && !expansionStateMap[documentId][parentPath]) {
+      return connectionPortsMap[parentPath];
     }
   }
 
-  return null;
+  return connectionPortsMap['EDGE:top'];
 }

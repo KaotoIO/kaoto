@@ -17,6 +17,7 @@ const sortMappingLines = (a: LineProps, b: LineProps): 0 | 1 | -1 => {
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const nodesConnectionPorts = useDocumentTreeStore((state) => state.nodesConnectionPorts);
+  const expansionState = useDocumentTreeStore((state) => state.expansionState);
   const connectionPortVersion = useDocumentTreeStore((state) => state.connectionPortVersion);
 
   const { getMappingLinks } = useMappingLinks();
@@ -32,9 +33,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
   // Calculate line coordinates from mapping links and connection ports
   const lineCoordList: LineProps[] = mappingLinks
     .map(({ sourceNodePath, targetNodePath, isSelected }) => {
-      // Find the nearest visible port (walks up parent hierarchy if node is collapsed)
-      const sourcePort = getNearestVisiblePort(sourceNodePath, nodesConnectionPorts);
-      const targetPort = getNearestVisiblePort(targetNodePath, nodesConnectionPorts);
+      const sourcePort = getNearestVisiblePort(sourceNodePath, nodesConnectionPorts, expansionState);
+      const targetPort = getNearestVisiblePort(targetNodePath, nodesConnectionPorts, expansionState);
 
       // Only create line if both ports exist
       if (!sourcePort || !targetPort) {
