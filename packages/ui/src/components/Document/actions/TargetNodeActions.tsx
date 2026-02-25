@@ -20,6 +20,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
   const allowConditionMenu = VisualizationService.allowConditionMenu(nodeData);
   const isDeletable = VisualizationService.isDeletableNode(nodeData);
+
   const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
     event.stopPropagation();
   }, []);
