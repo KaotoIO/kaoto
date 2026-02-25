@@ -198,6 +198,13 @@ export class VisualizationService {
     return nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
   }
 
+  static getField(nodeData: NodeData): IField | undefined {
+    if (nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData) {
+      return nodeData.field;
+    }
+    return undefined;
+  }
+
   static isChoiceField(nodeData: NodeData) {
     return nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData;
   }
