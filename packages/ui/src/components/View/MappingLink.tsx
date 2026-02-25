@@ -5,7 +5,6 @@ import { Circle, LinePath } from '@visx/shape';
 import clsx from 'clsx';
 import { FunctionComponent, useCallback, useState } from 'react';
 
-import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
 import { useDocumentTreeStore } from '../../store';
 
@@ -19,19 +18,16 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   y2,
   sourceNodePath,
   targetNodePath,
-  isSelected = false,
-  isPartial = false,
-  svgRef,
+  isSelected,
+  isPartial,
 }) => {
-  const { mappingLinkCanvasRef } = useMappingLinks();
   const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
   const [isOver, setIsOver] = useState<boolean>(false);
   const dotRadius = isOver ? 6 : 3;
-  const svgRect = svgRef?.current?.getBoundingClientRect();
-  const canvasRect = mappingLinkCanvasRef?.current?.getBoundingClientRect();
-  const svgRectLeft = svgRect?.left ?? 0;
-  const canvasLeft = canvasRect ? canvasRect.left - svgRectLeft : undefined;
-  const canvasRight = canvasRect ? canvasRect.right - svgRectLeft : undefined;
+
+  // Calculate control points as 10% from each end
+  const controlPoint1X = x1 + (x2 - x1) * 0.1;
+  const controlPoint2X = x1 + (x2 - x1) * 0.9;
 
   const onMouseEnter = useCallback(() => {
     setIsOver(true);
@@ -46,16 +42,18 @@ export const MappingLink: FunctionComponent<LineProps> = ({
     toggleSelectedNode(targetNodePath, false);
   }, [toggleSelectedNode, targetNodePath]);
 
+  const curveData: [number, number][] = [
+    [x1, y1],
+    [controlPoint1X, y1],
+    [controlPoint2X, y2],
+    [x2, y2],
+  ];
+
   return (
     <>
       <Circle role="presentation" r={dotRadius} cx={x1} cy={y1} />
       <LinePath<[number, number]>
-        data={[
-          [x1, y1],
-          [canvasLeft ?? x1, y1],
-          [canvasRight ?? x2, y2],
-          [x2, y2],
-        ]}
+        data={curveData}
         x={getX}
         y={getY}
         curve={curveMonotoneX}

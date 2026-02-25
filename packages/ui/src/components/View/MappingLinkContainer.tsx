@@ -30,26 +30,29 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const svgOffsetLeft = svgRect?.left ?? 0;
   const svgOffsetTop = svgRect?.top ?? 0;
 
-  // Calculate line coordinates from mapping links and connection ports
   const lineCoordList: LineProps[] = mappingLinks
     .map(({ sourceNodePath, targetNodePath, isSelected }) => {
       const sourcePort = getNearestVisiblePort(sourceNodePath, nodesConnectionPorts, expansionState);
       const targetPort = getNearestVisiblePort(targetNodePath, nodesConnectionPorts, expansionState);
+      const isPartial = sourcePort.connectionTarget !== 'node' || targetPort.connectionTarget !== 'node';
+      const isSourceEdge = sourcePort.connectionTarget === 'edge';
+      const isTargetEdge = targetPort.connectionTarget === 'edge';
 
-      // Only create line if both ports exist
-      if (!sourcePort || !targetPort) {
+      /* Only create line if there's one 'node' or 'parent' involved. */
+      if (isSourceEdge && isTargetEdge) {
         return null;
       }
 
-      // Convert absolute screen coordinates to SVG-relative coordinates
+      /* Convert absolute screen coordinates to SVG-relative coordinates */
       return {
-        x1: sourcePort[0] - svgOffsetLeft,
-        y1: sourcePort[1] - svgOffsetTop,
-        x2: targetPort[0] - svgOffsetLeft,
-        y2: targetPort[1] - svgOffsetTop,
+        x1: sourcePort.position[0] - svgOffsetLeft,
+        y1: sourcePort.position[1] - svgOffsetTop,
+        x2: targetPort.position[0] - svgOffsetLeft,
+        y2: targetPort.position[1] - svgOffsetTop,
         sourceNodePath,
         targetNodePath,
         isSelected,
+        isPartial,
       } as LineProps;
     })
     .filter((line): line is LineProps => line !== null)
@@ -71,7 +74,6 @@ export const MappingLinksContainer: FunctionComponent = () => {
         {lineCoordList.map((lineProps) => (
           <MappingLink
             key={`${lineProps.sourceNodePath}-${lineProps.targetNodePath}`}
-            svgRef={svgRef}
             x1={lineProps.x1}
             y1={lineProps.y1}
             x2={lineProps.x2}
@@ -79,6 +81,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
             sourceNodePath={lineProps.sourceNodePath}
             targetNodePath={lineProps.targetNodePath}
             isSelected={lineProps.isSelected}
+            isPartial={lineProps.isPartial}
           />
         ))}
       </g>
