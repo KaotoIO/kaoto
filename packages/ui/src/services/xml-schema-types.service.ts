@@ -55,10 +55,16 @@ export class XmlSchemaTypesService {
     const prefix = parts.length > 1 ? parts[0] : '';
     const localPart = parts.length > 1 ? parts[1] : parts[0];
 
-    const namespaceURI = prefix ? namespaceMap[prefix] || '' : '';
-    const typeQName = new QName(namespaceURI || null, localPart);
-
+    let namespaceURI = prefix ? namespaceMap[prefix] || '' : '';
     const type = XmlSchemaTypesService.mapTypeStringToEnum(namespaceURI, localPart);
+
+    // For Container types without namespace prefix, resolve namespace from schema collection
+    // to ensure the QName matches the fragment key format ({namespaceURI}localPart)
+    if (type === Types.Container && !namespaceURI) {
+      namespaceURI = XmlSchemaTypesService.resolveNamespaceForUnprefixedType(localPart, field);
+    }
+
+    const typeQName = new QName(namespaceURI || null, localPart);
 
     const variant = XmlSchemaTypesService.determineOverrideVariant(field, type, typeQName, namespaceURI);
 
@@ -406,6 +412,34 @@ export class XmlSchemaTypesService {
     if (!baseSchemaType) return false;
 
     return XmlSchemaTypesService.isExtensionOrRestriction(baseSchemaType, targetBaseType, collection);
+  }
+
+  /**
+   * Resolve the namespace URI for an unprefixed type name by searching the schema collection.
+   *
+   * When a type string has no namespace prefix (e.g., "USAddressType" instead of "tns:USAddressType"),
+   * this method searches through the document's schema collection to find the type and return
+   * its actual namespace URI. This ensures the QName matches the fragment key format used
+   * in namedTypeFragments ({namespaceURI}localPart).
+   *
+   * @param localPart - The local part of the type name
+   * @param field - The field being overridden (used to access the owner document's schema collection)
+   * @returns The namespace URI if found, empty string otherwise
+   */
+  private static resolveNamespaceForUnprefixedType(localPart: string, field: IField): string {
+    const ownerDoc = field.ownerDocument;
+    if (!('xmlSchemaCollection' in ownerDoc)) return '';
+
+    const xmlDoc = ownerDoc as XmlSchemaDocument;
+    for (const schema of xmlDoc.xmlSchemaCollection.getUserSchemas()) {
+      for (const type of schema.getSchemaTypes().values()) {
+        const qName = type.getQName();
+        if (qName?.getLocalPart() === localPart) {
+          return qName.getNamespaceURI() || '';
+        }
+      }
+    }
+    return '';
   }
 
   /**
