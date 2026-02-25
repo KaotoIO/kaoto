@@ -1,9 +1,8 @@
-import { IDocument, IField, IParentType, ITypeFragment, PathSegment, PrimitiveDocument } from '../models/datamapper';
+import { IDocument, IField, IParentType, ITypeFragment, PrimitiveDocument } from '../models/datamapper';
 import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { SchemaPathService } from './schema-path.service';
-import { XPathService } from './xpath/xpath.service';
 
 export type ParseTypeOverrideFn = (
   typeString: string,
@@ -92,14 +91,14 @@ export class DocumentUtilService {
    *
    * @param document - The document to apply overrides to
    * @param overrides - Array of field type overrides to apply
-   * @param namespaceMap - Namespace prefix to URI mapping for XPath resolution
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
    * @param parseTypeOverride - Function to parse type override strings
    *
    * @example
    * ```typescript
    * const overrides = [
-   *   { path: '/ns0:ShipOrder/ns0:OrderPerson', type: 'xs:int', originalType: 'xs:string', variant: TypeOverrideVariant.FORCE },
-   *   { path: '/ns0:ShipOrder/ShipTo/City', type: 'xs:boolean', originalType: 'xs:string', variant: TypeOverrideVariant.FORCE }
+   *   { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', type: 'xs:int', originalType: 'xs:string', variant: TypeOverrideVariant.FORCE },
+   *   { schemaPath: '/ns0:ShipOrder/ShipTo/City', type: 'xs:boolean', originalType: 'xs:string', variant: TypeOverrideVariant.FORCE }
    * ];
    * DocumentUtilService.processTypeOverrides(
    *   document,
@@ -119,7 +118,7 @@ export class DocumentUtilService {
     parseTypeOverride: ParseTypeOverrideFn,
   ): void {
     for (const override of overrides) {
-      const field = DocumentUtilService.navigateToFieldByPath(document, override.path, namespaceMap);
+      const field = SchemaPathService.navigateToField(document, override.schemaPath, namespaceMap);
       if (field) {
         DocumentUtilService.applyTypeOverrideToField(field, override.type, namespaceMap, parseTypeOverride);
       }
@@ -130,20 +129,20 @@ export class DocumentUtilService {
    * Low level API to apply a field type override to a document.
    * UI component should use {@link FieldTypeOverrideService.applyFieldTypeOverride()}.
    *
-   * Navigates to the specified field using XPath and changes its type. Also updates
+   * Navigates to the specified field using schema path and changes its type. Also updates
    * the DocumentDefinition.fieldTypeOverrides to keep the definition in sync with
    * the live document. This ensures that when the document is recreated from the
    * definition, the override will be reapplied.
    *
    * @param document - The document to apply the override to
    * @param override - The field type override to apply
-   * @param namespaceMap - Namespace prefix to URI mapping for XPath resolution
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
    * @param parseTypeOverride - Function to parse type override strings (format-specific)
    *
    * @example
    * ```typescript
    * const override: IFieldTypeOverride = {
-   *   path: '/ns0:ShipOrder/ns0:OrderPerson',
+   *   schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
    *   type: 'xs:int',
    *   originalType: 'xs:string',
    *   variant: TypeOverrideVariant.FORCE,
@@ -175,19 +174,20 @@ export class DocumentUtilService {
     override: IFieldTypeOverride,
     namespaceMap: Record<string, string>,
     parseTypeOverride: ParseTypeOverrideFn,
-  ): void {
-    const field = DocumentUtilService.navigateToFieldByPath(document, override.path, namespaceMap);
-    if (field) {
-      DocumentUtilService.applyTypeOverrideToField(field, override.type, namespaceMap, parseTypeOverride);
+  ): boolean {
+    const field = SchemaPathService.navigateToField(document, override.schemaPath, namespaceMap);
+    if (!field) return false;
 
-      document.definition.fieldTypeOverrides ??= [];
-      const existingIndex = document.definition.fieldTypeOverrides.findIndex((o) => o.path === override.path);
-      if (existingIndex >= 0) {
-        document.definition.fieldTypeOverrides[existingIndex] = override;
-      } else {
-        document.definition.fieldTypeOverrides.push(override);
-      }
+    DocumentUtilService.applyTypeOverrideToField(field, override.type, namespaceMap, parseTypeOverride);
+
+    document.definition.fieldTypeOverrides ??= [];
+    const existingIndex = document.definition.fieldTypeOverrides.findIndex((o) => o.schemaPath === override.schemaPath);
+    if (existingIndex >= 0) {
+      document.definition.fieldTypeOverrides[existingIndex] = override;
+    } else {
+      document.definition.fieldTypeOverrides.push(override);
     }
+    return true;
   }
 
   /**
@@ -202,8 +202,8 @@ export class DocumentUtilService {
    * in the live document and keep the DocumentDefinition in sync.
    *
    * @param document - The document to remove the override from
-   * @param path - XPath string identifying the field (e.g., '/ns0:ShipOrder/ns0:OrderPerson')
-   * @param namespaceMap - Namespace prefix to URI mapping for XPath resolution
+   * @param schemaPath - Schema path string identifying the field (e.g., '/ns0:ShipOrder/ns0:OrderPerson')
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
    *
    * @example
    * ```typescript
@@ -224,99 +224,21 @@ export class DocumentUtilService {
    * @see processTypeOverride
    * @see processTypeOverrides
    */
-  static removeTypeOverride(document: IDocument, path: string, namespaceMap: Record<string, string>): void {
-    if (!document.definition.fieldTypeOverrides) {
-      return;
-    }
+  static removeTypeOverride(document: IDocument, schemaPath: string, namespaceMap: Record<string, string>): boolean {
+    if (!document.definition.fieldTypeOverrides) return false;
 
-    const override = document.definition.fieldTypeOverrides.find((o) => o.path === path);
-    if (!override) {
-      return;
-    }
+    const override = document.definition.fieldTypeOverrides.find((o) => o.schemaPath === schemaPath);
+    if (!override) return false;
 
-    const field = DocumentUtilService.navigateToFieldByPath(document, path, namespaceMap);
+    const field = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
     if (field) {
       DocumentUtilService.restoreOriginalTypeToField(field);
     }
 
-    document.definition.fieldTypeOverrides = document.definition.fieldTypeOverrides.filter((o) => o.path !== path);
-  }
-
-  /**
-   * Navigate to a field in the document tree using an XPath expression.
-   *
-   * Resolves type fragments as needed while navigating to ensure the field
-   * structure is fully expanded.
-   *
-   * @param document - The document to navigate in
-   * @param xpathString - XPath expression identifying the field
-   * @param namespaceMap - Namespace prefix to URI mapping
-   * @returns The field if found, undefined otherwise
-   */
-  private static navigateToFieldByPath(
-    document: IDocument,
-    xpathString: string,
-    namespaceMap: Record<string, string>,
-  ): IField | undefined {
-    const pathExpressions = XPathService.extractFieldPaths(xpathString);
-    if (pathExpressions.length === 0) {
-      return undefined;
-    }
-
-    const pathExpression = pathExpressions[0];
-    let current: IDocument | IField = document;
-
-    for (const segment of pathExpression.pathSegments) {
-      if (segment.isAttribute) {
-        continue;
-      }
-
-      const found = DocumentUtilService.findFieldBySegmentInParent(current, namespaceMap, segment);
-      if (!found) {
-        return undefined;
-      }
-      current = found;
-    }
-
-    return 'parent' in current ? current : undefined;
-  }
-
-  private static findFieldBySegmentInParent(
-    current: IDocument | IField,
-    namespaceMap: Record<string, string>,
-    segment: PathSegment,
-  ): IField | undefined {
-    if ('parent' in current && current.namedTypeFragmentRefs.length > 0) {
-      DocumentUtilService.resolveTypeFragment(current);
-    }
-
-    const directChild = current.fields.find((f) => XPathService.matchSegment(namespaceMap, f, segment));
-    if (directChild) return directChild;
-
-    for (const field of current.fields) {
-      if (field.isChoice) {
-        const found = DocumentUtilService.findFieldInChoiceBySegment(namespaceMap, field, segment);
-        if (found) return found;
-      }
-    }
-    return undefined;
-  }
-
-  private static findFieldInChoiceBySegment(
-    namespaceMap: Record<string, string>,
-    choiceField: IField,
-    segment: PathSegment,
-  ): IField | undefined {
-    for (const member of choiceField.fields) {
-      if (XPathService.matchSegment(namespaceMap, member, segment)) {
-        return member;
-      }
-      if (member.isChoice) {
-        const nested = this.findFieldInChoiceBySegment(namespaceMap, member, segment);
-        if (nested) return nested;
-      }
-    }
-    return undefined;
+    document.definition.fieldTypeOverrides = document.definition.fieldTypeOverrides.filter(
+      (o) => o.schemaPath !== schemaPath,
+    );
+    return true;
   }
 
   /**
@@ -409,12 +331,12 @@ export class DocumentUtilService {
     document: IDocument,
     selection: IChoiceSelection,
     namespaceMap: Record<string, string>,
-  ): void {
-    const choiceField = SchemaPathService.navigateToField(document, selection.schemaPath, namespaceMap);
-    if (!choiceField) return;
+  ): boolean {
+    const choiceField = SchemaPathService.navigateToChoiceField(document, selection.schemaPath, namespaceMap);
+    if (!choiceField) return false;
 
     const applied = DocumentUtilService.applyChoiceSelectionToField(choiceField, selection.selectedMemberIndex);
-    if (!applied) return;
+    if (!applied) return false;
 
     document.definition.choiceSelections ??= [];
     const existingIndex = document.definition.choiceSelections.findIndex((s) => s.schemaPath === selection.schemaPath);
@@ -423,6 +345,7 @@ export class DocumentUtilService {
     } else {
       document.definition.choiceSelections.push(selection);
     }
+    return true;
   }
 
   /**
@@ -437,13 +360,13 @@ export class DocumentUtilService {
    * @see processChoiceSelection
    * @see processChoiceSelections
    */
-  static removeChoiceSelection(document: IDocument, schemaPath: string, namespaceMap: Record<string, string>): void {
-    if (!document.definition.choiceSelections) return;
+  static removeChoiceSelection(document: IDocument, schemaPath: string, namespaceMap: Record<string, string>): boolean {
+    if (!document.definition.choiceSelections) return false;
 
     const existingIndex = document.definition.choiceSelections.findIndex((s) => s.schemaPath === schemaPath);
-    if (existingIndex < 0) return;
+    if (existingIndex < 0) return false;
 
-    const choiceField = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
+    const choiceField = SchemaPathService.navigateToChoiceField(document, schemaPath, namespaceMap);
     if (choiceField) {
       choiceField.selectedMemberIndex = undefined;
     }
@@ -451,6 +374,7 @@ export class DocumentUtilService {
     document.definition.choiceSelections = document.definition.choiceSelections.filter(
       (s) => s.schemaPath !== schemaPath,
     );
+    return true;
   }
 
   private static applyChoiceSelectionToField(choiceField: IField, selectedMemberIndex: number): boolean {
@@ -460,6 +384,78 @@ export class DocumentUtilService {
     }
     choiceField.selectedMemberIndex = selectedMemberIndex;
     return true;
+  }
+
+  /**
+   * Unified depth-ordered initialization of type overrides and choice selections.
+   *
+   * Combines type overrides and choice selections, sorts by schema path depth (shallower first),
+   * with type overrides applied before choice selections at the same depth, then applies each in order.
+   * This ordering ensures parent overrides are applied before descendant choice selections,
+   * preventing stale navigation when a type override collapses a subtree.
+   *
+   * @param document - The document to apply overrides and selections to
+   * @param typeOverrides - Array of field type overrides to apply
+   * @param choiceSelections - Array of choice selections to apply
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
+   * @param parseTypeOverride - Function to parse type override strings
+   */
+  static processOverrides(
+    document: IDocument,
+    typeOverrides: IFieldTypeOverride[],
+    choiceSelections: IChoiceSelection[],
+    namespaceMap: Record<string, string>,
+    parseTypeOverride: ParseTypeOverrideFn,
+  ): void {
+    type TaggedItem =
+      | { kind: 'typeOverride'; item: IFieldTypeOverride }
+      | { kind: 'choiceSelection'; item: IChoiceSelection };
+
+    const items: TaggedItem[] = [
+      ...typeOverrides.map((item): TaggedItem => ({ kind: 'typeOverride', item })),
+      ...choiceSelections.map((item): TaggedItem => ({ kind: 'choiceSelection', item })),
+    ];
+
+    items.sort((a, b) => {
+      const depthA = a.item.schemaPath.split('/').filter(Boolean).length;
+      const depthB = b.item.schemaPath.split('/').filter(Boolean).length;
+      if (depthA !== depthB) return depthA - depthB;
+      if (a.kind === b.kind) return 0;
+      return a.kind === 'typeOverride' ? -1 : 1;
+    });
+
+    for (const tagged of items) {
+      if (tagged.kind === 'typeOverride') {
+        DocumentUtilService.processTypeOverride(document, tagged.item, namespaceMap, parseTypeOverride);
+      } else {
+        DocumentUtilService.processChoiceSelection(document, tagged.item, namespaceMap);
+      }
+    }
+  }
+
+  /**
+   * Removes all field type overrides and choice selections whose schema path starts with
+   * `schemaPath + "/"` (i.e. strict descendants of the given path).
+   * The entry at `schemaPath` itself is preserved.
+   *
+   * Call this after applying a type override or changing a choice selection to invalidate
+   * stale descendant overrides and selections whose ancestor has changed.
+   *
+   * @param document - The document whose definition will be pruned
+   * @param schemaPath - The schema path of the changed field; all descendants will be removed
+   */
+  static invalidateDescendants(document: IDocument, schemaPath: string): void {
+    const prefix = schemaPath + '/';
+    if (document.definition.fieldTypeOverrides) {
+      document.definition.fieldTypeOverrides = document.definition.fieldTypeOverrides.filter(
+        (o) => !o.schemaPath.startsWith(prefix),
+      );
+    }
+    if (document.definition.choiceSelections) {
+      document.definition.choiceSelections = document.definition.choiceSelections.filter(
+        (s) => !s.schemaPath.startsWith(prefix),
+      );
+    }
   }
 
   /**

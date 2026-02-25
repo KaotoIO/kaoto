@@ -2,15 +2,26 @@ import { DocumentDefinitionType, RootElementOption } from './document';
 import { TypeOverrideVariant } from './types';
 
 /**
+ * Shared base for overrides and selections that are addressed by schema path.
+ */
+export interface IBaseOverride {
+  /**
+   * Path to the field in the document structure.
+   * Uses element XPath segments for elements and `{choice:N}` segments
+   * (0-based index) for choice compositors.
+   *
+   * The `{choice:N}` syntax is intentionally distinct from XPath to avoid
+   * ambiguity with XPath predicates. Therefore, `schemaPath` is not directly
+   * parseable as XPath expression.
+   */
+  schemaPath: string;
+}
+
+/**
  * Represents a field type override configuration for a document field.
  * Used to override the default type of a field with a custom type.
  */
-export interface IFieldTypeOverride {
-  /**
-   * The path to the field in the document structure.
-   */
-  path: string;
-
+export interface IFieldTypeOverride extends IBaseOverride {
   /**
    * The new type to apply to the field.
    */
@@ -68,25 +79,14 @@ export interface IDocumentMetadata {
 
 /**
  * Represents a user selection for an xs:choice field in a document.
+ *
+ * Examples of `schemaPath`:
+ * - `/ns0:Root/{choice:0}` — single choice under Root
+ * - `/ns0:Root/{choice:0}` and `/ns0:Root/{choice:1}` — sibling choices
+ * - `/ns0:Root/{choice:0}/ns0:Option1/{choice:0}` — choice nested via element
+ * - `/ns0:Root/{choice:0}/{choice:0}` — choice directly nested in choice
  */
-export interface IChoiceSelection {
-  /**
-   * Path to the choice field in the document structure.
-   * Uses element XPath segments for elements and `{choice:N}` segments
-   * (0-based index) for choice compositors.
-   *
-   * The `{choice:N}` syntax is intentionally distinct from XPath to avoid
-   * ambiguity with XPath predicates. Therefore, `schemaPath` is not directly
-   * parseable as XPath expression.
-   *
-   * Examples:
-   * - `/ns0:Root/{choice:0}` — single choice under Root
-   * - `/ns0:Root/{choice:0}` and `/ns0:Root/{choice:1}` — sibling choices
-   * - `/ns0:Root/{choice:0}/ns0:Option1/{choice:0}` — choice nested via element
-   * - `/ns0:Root/{choice:0}/{choice:0}` — choice directly nested in choice
-   */
-  schemaPath: string;
-
+export interface IChoiceSelection extends IBaseOverride {
   /**
    * The 0-based index of the selected choice member.
    */

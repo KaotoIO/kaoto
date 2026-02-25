@@ -134,7 +134,7 @@ describe('DocumentUtilService - JSON Schema', () => {
       const namespaceMap = { fn: 'http://www.w3.org/2005/xpath-functions' };
       const overrides: IFieldTypeOverride[] = [
         {
-          path: '/fn:map/fn:string[@key="AccountId"]',
+          schemaPath: '/fn:map/fn:string[@key="AccountId"]',
           type: 'number',
           originalType: 'string',
           variant: TypeOverrideVariant.FORCE,
@@ -158,7 +158,7 @@ describe('DocumentUtilService - JSON Schema', () => {
       const namespaceMap = { fn: 'http://www.w3.org/2005/xpath-functions' };
       const overrides: IFieldTypeOverride[] = [
         {
-          path: '/fn:map/fn:map[@key="Address"]/fn:string[@key="City"]',
+          schemaPath: '/fn:map/fn:map[@key="Address"]/fn:string[@key="City"]',
           type: 'number',
           originalType: 'string',
           variant: TypeOverrideVariant.FORCE,
@@ -198,7 +198,7 @@ describe('DocumentUtilService - JSON Schema', () => {
 
       const overrides: IFieldTypeOverride[] = [
         {
-          path: '/fn:map/fn:map[@key="map"]/fn:string[@key="foo"]',
+          schemaPath: '/fn:map/fn:map[@key="map"]/fn:string[@key="foo"]',
           type: 'number',
           originalType: 'string',
           variant: TypeOverrideVariant.FORCE,
@@ -242,7 +242,7 @@ describe('DocumentUtilService - JSON Schema', () => {
 
       const overrides: IFieldTypeOverride[] = [
         {
-          path: '/fn:map/fn:string[@key="foo"]',
+          schemaPath: '/fn:map/fn:string[@key="foo"]',
           type: 'boolean',
           originalType: 'string',
           variant: TypeOverrideVariant.FORCE,

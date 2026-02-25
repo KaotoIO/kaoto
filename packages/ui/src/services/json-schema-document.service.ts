@@ -102,18 +102,13 @@ export class JsonSchemaDocumentService {
 
     const document = jsonDocument;
 
-    if (definition.fieldTypeOverrides?.length) {
-      DocumentUtilService.processTypeOverrides(
-        document,
-        definition.fieldTypeOverrides,
-        definition.namespaceMap || {},
-        JsonSchemaTypesService.parseTypeOverride,
-      );
-    }
-
-    if (definition.choiceSelections?.length) {
-      DocumentUtilService.processChoiceSelections(document, definition.choiceSelections, definition.namespaceMap || {});
-    }
+    DocumentUtilService.processOverrides(
+      document,
+      definition.fieldTypeOverrides ?? [],
+      definition.choiceSelections ?? [],
+      definition.namespaceMap || {},
+      JsonSchemaTypesService.parseTypeOverride,
+    );
 
     const validationWarnings = analysisResult.warnings;
     const validationStatus = validationWarnings.length > 0 ? 'warning' : 'success';

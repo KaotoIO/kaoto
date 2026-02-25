@@ -130,17 +130,12 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
 
-    DocumentUtilService.processTypeOverrides(
+    DocumentUtilService.processOverrides(
       document,
       definition.fieldTypeOverrides ?? [],
-      definition.namespaceMap || {},
-      XmlSchemaTypesService.parseTypeOverride,
-    );
-
-    DocumentUtilService.processChoiceSelections(
-      document,
       definition.choiceSelections ?? [],
       definition.namespaceMap || {},
+      XmlSchemaTypesService.parseTypeOverride,
     );
 
     const rootElementOptions = XmlSchemaDocumentUtilService.collectRootElementOptions(collection);

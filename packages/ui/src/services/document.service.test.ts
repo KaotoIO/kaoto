@@ -661,7 +661,12 @@ describe('DocumentService', () => {
       const originalDocument = result.document as XmlSchemaDocument;
 
       originalDocument.definition.fieldTypeOverrides = [
-        { path: '/old:Order/field', type: 'xs:int', originalType: 'xs:string', variant: TypeOverrideVariant.SAFE },
+        {
+          schemaPath: '/old:Order/field',
+          type: 'xs:int',
+          originalType: 'xs:string',
+          variant: TypeOverrideVariant.SAFE,
+        },
       ];
       originalDocument.definition.choiceSelections = [{ schemaPath: '/old:Order/{choice:0}', selectedMemberIndex: 1 }];
 
