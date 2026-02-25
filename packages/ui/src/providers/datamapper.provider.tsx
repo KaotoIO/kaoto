@@ -278,7 +278,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
        * can be different.
        */
       removeStaleMappings(document.documentType, document.documentId, document, previousDocumentReferenceId);
-      setNewDocument(document.documentType, document.documentId, document);
+      setNewDocument(
+        document.documentType,
+        document.documentId,
+        // Shallow clone to create new reference — triggers React re-render after in-place mutations
+        Object.assign(Object.create(Object.getPrototypeOf(document)), document),
+      );
+
       refreshMappingTree();
       onUpdateDocument?.(definition);
     },
