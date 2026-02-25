@@ -1,4 +1,3 @@
-import { PathExpression, PathSegment } from '../models/datamapper';
 import { DocumentDefinition, IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
 import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../models/datamapper/types';
@@ -10,7 +9,6 @@ import { SchemaPathService } from './schema-path.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
-import { XPathService } from './xpath/xpath.service';
 
 /**
  * Service for field type override operations.
@@ -133,12 +131,12 @@ export class FieldTypeOverrideService {
    *
    * Converts field type info (typically selected from the UI) into an
    * IFieldTypeOverride object that can be applied to the document. This utility
-   * generates the XPath for the field and constructs the override definition with
+   * generates the schema path for the field and constructs the override definition with
    * all required properties.
    *
    * @param field - The field to create the override for
    * @param candidate - The field type info selected by the user
-   * @param namespaceMap - Namespace prefix to URI mapping for XPath generation
+   * @param namespaceMap - Namespace prefix to URI mapping for schema path generation
    * @param variant - The override variant (SAFE or FORCE)
    * @returns A complete IFieldTypeOverride definition ready to be applied
    *
@@ -160,7 +158,7 @@ export class FieldTypeOverrideService {
    *   TypeOverrideVariant.FORCE
    * );
    * // Returns: {
-   * //   path: '/ns0:ShipOrder/ns0:OrderPerson',
+   * //   schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
    * //   type: 'xs:int',
    * //   originalType: 'xs:string',
    * //   variant: TypeOverrideVariant.FORCE
@@ -182,23 +180,10 @@ export class FieldTypeOverrideService {
     namespaceMap: Record<string, string>,
     variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE,
   ): IFieldTypeOverride {
-    const fieldStack = DocumentUtilService.getFieldStack(field, true).reverse();
-    const pathSegments: PathSegment[] = [];
-
-    for (const f of fieldStack) {
-      const nsEntry = Object.entries(namespaceMap).find(([, uri]) => f.namespaceURI === uri);
-      const nsPrefix = nsEntry ? nsEntry[0] : '';
-      pathSegments.push(new PathSegment(f.name, f.isAttribute, nsPrefix, f.predicates));
-    }
-
-    const pathExpression = new PathExpression(undefined, false);
-    pathExpression.pathSegments = pathSegments;
-    const path = XPathService.toXPathString(pathExpression);
-
+    const schemaPath = SchemaPathService.build(field, namespaceMap);
     const originalTypeString = field.originalTypeQName?.toString() ?? field.originalType;
-
     return {
-      path,
+      schemaPath,
       type: candidate.typeString,
       originalType: originalTypeString,
       variant,
@@ -270,7 +255,10 @@ export class FieldTypeOverrideService {
     }
 
     const override = FieldTypeOverrideService.createFieldTypeOverride(field, candidate, namespaceMap, variant);
-    DocumentUtilService.processTypeOverride(document, override, namespaceMap, parseTypeOverrideFn);
+    const changed = DocumentUtilService.processTypeOverride(document, override, namespaceMap, parseTypeOverrideFn);
+    if (changed) {
+      DocumentUtilService.invalidateDescendants(document, override.schemaPath);
+    }
   }
 
   /**
@@ -298,21 +286,11 @@ export class FieldTypeOverrideService {
    */
   static revertFieldTypeOverride(document: IDocument, field: IField, namespaceMap: Record<string, string>): void {
     if (field.typeOverride === TypeOverrideVariant.NONE) return;
-
-    const fieldStack = DocumentUtilService.getFieldStack(field, true).reverse();
-    const pathSegments: PathSegment[] = [];
-
-    for (const f of fieldStack) {
-      const nsEntry = Object.entries(namespaceMap).find(([, uri]) => f.namespaceURI === uri);
-      const nsPrefix = nsEntry ? nsEntry[0] : '';
-      pathSegments.push(new PathSegment(f.name, f.isAttribute, nsPrefix, f.predicates));
+    const schemaPath = SchemaPathService.build(field, namespaceMap);
+    const changed = DocumentUtilService.removeTypeOverride(document, schemaPath, namespaceMap);
+    if (changed) {
+      DocumentUtilService.invalidateDescendants(document, schemaPath);
     }
-
-    const pathExpression = new PathExpression(undefined, false);
-    pathExpression.pathSegments = pathSegments;
-    const path = XPathService.toXPathString(pathExpression);
-
-    DocumentUtilService.removeTypeOverride(document, path, namespaceMap);
   }
 
   /**
@@ -431,7 +409,10 @@ export class FieldTypeOverrideService {
     if (!choiceField.isChoice) return;
     const schemaPath = SchemaPathService.build(choiceField, namespaceMap);
     const selection: IChoiceSelection = { schemaPath, selectedMemberIndex };
-    DocumentUtilService.processChoiceSelection(document, selection, namespaceMap);
+    const changed = DocumentUtilService.processChoiceSelection(document, selection, namespaceMap);
+    if (changed) {
+      DocumentUtilService.invalidateDescendants(document, schemaPath);
+    }
   }
 
   /**
@@ -462,6 +443,9 @@ export class FieldTypeOverrideService {
   static revertChoiceSelection(document: IDocument, choiceField: IField, namespaceMap: Record<string, string>): void {
     if (choiceField.selectedMemberIndex === undefined) return;
     const schemaPath = SchemaPathService.build(choiceField, namespaceMap);
-    DocumentUtilService.removeChoiceSelection(document, schemaPath, namespaceMap);
+    const changed = DocumentUtilService.removeChoiceSelection(document, schemaPath, namespaceMap);
+    if (changed) {
+      DocumentUtilService.invalidateDescendants(document, schemaPath);
+    }
   }
 }

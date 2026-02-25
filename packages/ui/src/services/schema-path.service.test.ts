@@ -119,6 +119,15 @@ describe('SchemaPathService', () => {
   });
 
   describe('navigateToField()', () => {
+    it('should navigate to a regular (non-choice) field', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+
+      const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
+
+      expect(result).toBeDefined();
+      expect(result?.isChoice).toBeFalsy();
+    });
+
     it('should navigate to a choice field', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
@@ -138,10 +147,59 @@ describe('SchemaPathService', () => {
       expect(result).toBeUndefined();
     });
 
+    it('should return undefined for non-existent path', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+
+      const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/NonExistent', namespaceMap);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should navigate to a field inside a choice member', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = makeChoiceField(shipOrderField, []);
+      const emailField = new XmlSchemaField(choiceField, 'email', false);
+      const emailAddressField = new XmlSchemaField(emailField, 'emailAddress', false);
+      emailField.fields = [emailAddressField];
+      choiceField.fields = [emailField];
+      shipOrderField.fields.push(choiceField);
+
+      const result = SchemaPathService.navigateToField(
+        doc,
+        '/ns0:ShipOrder/{choice:0}/email/emailAddress',
+        namespaceMap,
+      );
+
+      expect(result).toBeDefined();
+      expect(result?.name).toBe('emailAddress');
+    });
+  });
+
+  describe('navigateToChoiceField()', () => {
+    it('should navigate to a choice field', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = makeChoiceField(shipOrderField, ['email', 'phone']);
+      shipOrderField.fields.push(choiceField);
+
+      const result = SchemaPathService.navigateToChoiceField(doc, '/ns0:ShipOrder/{choice:0}', namespaceMap);
+
+      expect(result?.isChoice).toBe(true);
+    });
+
+    it('should return undefined for empty path', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+
+      const result = SchemaPathService.navigateToChoiceField(doc, '', namespaceMap);
+
+      expect(result).toBeUndefined();
+    });
+
     it('should return undefined when terminal field is not a choice', () => {
       const doc = TestUtil.createSourceOrderDoc();
 
-      const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
+      const result = SchemaPathService.navigateToChoiceField(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
 
       expect(result).toBeUndefined();
     });
@@ -160,7 +218,11 @@ describe('SchemaPathService', () => {
       intermediateField.namedTypeFragmentRefs = ['fragId'];
       shipOrderField.fields.push(intermediateField);
 
-      const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/intermediate/{choice:0}', namespaceMap);
+      const result = SchemaPathService.navigateToChoiceField(
+        doc,
+        '/ns0:ShipOrder/intermediate/{choice:0}',
+        namespaceMap,
+      );
 
       expect(result?.isChoice).toBe(true);
     });
@@ -181,7 +243,7 @@ describe('SchemaPathService', () => {
       intermediateField.namedTypeFragmentRefs = ['fragId'];
       shipOrderField.fields.push(intermediateField);
 
-      const result = SchemaPathService.navigateToField(
+      const result = SchemaPathService.navigateToChoiceField(
         doc,
         '/ns0:ShipOrder/intermediate/innerField/{choice:0}',
         namespaceMap,

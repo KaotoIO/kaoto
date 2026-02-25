@@ -1,3 +1,4 @@
+import { PathExpression, PathSegment } from '../models/datamapper';
 import { IDocument, IField } from '../models/datamapper/document';
 import { DocumentUtilService } from './document-util.service';
 import { XPathService } from './xpath/xpath.service';
@@ -74,16 +75,19 @@ export class SchemaPathService {
   private static buildElementSegment(field: IField, namespaceMap: Record<string, string>): string {
     const nsEntry = Object.entries(namespaceMap).find(([, uri]) => field.namespaceURI === uri);
     const nsPrefix = nsEntry ? nsEntry[0] : '';
-    return nsPrefix ? `${nsPrefix}:${field.name}` : field.name;
+    const segment = new PathSegment(field.name, field.isAttribute, nsPrefix, field.predicates);
+    const pathExpr = new PathExpression(undefined, true);
+    pathExpr.pathSegments = [segment];
+    return XPathService.toXPathString(pathExpr);
   }
 
   /**
-   * Navigates to a choice compositor field in a document tree using a schema path.
+   * Navigates to any field in a document tree using a schema path.
    *
    * @param document - The document to navigate in
-   * @param schemaPath - The schema path string identifying the choice field
+   * @param schemaPath - The schema path string identifying the field
    * @param namespaceMap - Namespace prefix to URI mapping for element segment resolution
-   * @returns The choice field if found, undefined otherwise
+   * @returns The field if found, undefined otherwise
    */
   static navigateToField(
     document: IDocument,
@@ -108,7 +112,25 @@ export class SchemaPathService {
     }
 
     if (!('parent' in current)) return undefined;
-    return current.isChoice ? current : undefined;
+    return current;
+  }
+
+  /**
+   * Navigates to a choice compositor field in a document tree using a schema path.
+   * Delegates to {@link navigateToField} and adds a guard that the terminal field is a choice.
+   *
+   * @param document - The document to navigate in
+   * @param schemaPath - The schema path string identifying the choice field
+   * @param namespaceMap - Namespace prefix to URI mapping for element segment resolution
+   * @returns The choice field if found and it is a choice compositor, undefined otherwise
+   */
+  static navigateToChoiceField(
+    document: IDocument,
+    schemaPath: string,
+    namespaceMap: Record<string, string>,
+  ): IField | undefined {
+    const field = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
+    return field?.isChoice ? field : undefined;
   }
 
   private static findElementChild(

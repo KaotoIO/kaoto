@@ -189,31 +189,22 @@ export class DataMapperMetadataService {
     metadata: IDataMapperMetadata,
     definition: DocumentDefinition,
   ) {
-    metadata.sourceBody = await DataMapperMetadataService.doCreateDocumentMetadata(
-      api,
-      metadataId,
-      metadata,
-      definition,
-    );
-    api.setMetadata(metadataId, metadata);
+    metadata.sourceBody = await DataMapperMetadataService.doCreateDocumentMetadata(api, definition);
+    await api.setMetadata(metadataId, metadata);
   }
 
   private static doCreateDocumentMetadata(
     api: IMetadataApi,
-    metadataId: string,
-    metadata: IDataMapperMetadata,
     definition: DocumentDefinition,
-    existingMetadata?: IDocumentMetadata,
   ): Promise<IDocumentMetadata> {
     const filePaths = definition.definitionFiles ? Object.keys(definition.definitionFiles) : [];
     const answer: IDocumentMetadata = {
       type: definition.definitionType,
       filePath: filePaths,
       rootElementChoice: definition.rootElementChoice,
-      fieldTypeOverrides: existingMetadata?.fieldTypeOverrides || [],
-      choiceSelections: existingMetadata?.choiceSelections,
+      fieldTypeOverrides: definition.fieldTypeOverrides,
+      choiceSelections: definition.choiceSelections,
     };
-    const metadataPromise = api.setMetadata(metadataId, metadata);
     const filePromises =
       api.shouldSaveSchema && definition.definitionFiles
         ? Object.entries(definition.definitionFiles).map(([path, content]) => {
@@ -223,7 +214,7 @@ export class DataMapperMetadataService {
           })
         : [];
     return new Promise((resolve) => {
-      Promise.allSettled([metadataPromise, ...filePromises]).then(() => resolve(answer));
+      Promise.allSettled(filePromises).then(() => resolve(answer));
     });
   }
 
@@ -240,13 +231,8 @@ export class DataMapperMetadataService {
     metadata: IDataMapperMetadata,
     definition: DocumentDefinition,
   ) {
-    metadata.targetBody = await DataMapperMetadataService.doCreateDocumentMetadata(
-      api,
-      metadataId,
-      metadata,
-      definition,
-    );
-    api.setMetadata(metadataId, metadata);
+    metadata.targetBody = await DataMapperMetadataService.doCreateDocumentMetadata(api, definition);
+    await api.setMetadata(metadataId, metadata);
   }
 
   /**
@@ -264,13 +250,8 @@ export class DataMapperMetadataService {
     name: string,
     definition: DocumentDefinition,
   ) {
-    metadata.sourceParameters[name] = await DataMapperMetadataService.doCreateDocumentMetadata(
-      api,
-      metadataId,
-      metadata,
-      definition,
-    );
-    api.setMetadata(metadataId, metadata);
+    metadata.sourceParameters[name] = await DataMapperMetadataService.doCreateDocumentMetadata(api, definition);
+    await api.setMetadata(metadataId, metadata);
   }
 
   /**
@@ -360,71 +341,6 @@ export class DataMapperMetadataService {
   }
 
   /**
-   * Sets or updates a field type override for a document.
-   * If an override with the same path already exists, it will be updated.
-   * @param api The metadata API
-   * @param metadataId The metadata identifier
-   * @param metadata The DataMapper metadata to update
-   * @param documentType The type of document (SOURCE_BODY, TARGET_BODY, or PARAM)
-   * @param paramName The parameter name (required if documentType is PARAM)
-   * @param fieldTypeOverride The field type override to set
-   */
-  static async setFieldTypeOverride(
-    api: IMetadataApi,
-    metadataId: string,
-    metadata: IDataMapperMetadata,
-    documentType: DocumentType,
-    paramName: string | undefined,
-    fieldTypeOverride: IFieldTypeOverride,
-  ) {
-    const docMetadata = this.getDocumentMetadata(metadata, documentType, paramName);
-    if (!docMetadata) {
-      return;
-    }
-
-    docMetadata.fieldTypeOverrides ??= [];
-
-    const existingIndex = docMetadata.fieldTypeOverrides.findIndex(
-      (override) => override.path === fieldTypeOverride.path,
-    );
-
-    if (existingIndex >= 0) {
-      docMetadata.fieldTypeOverrides[existingIndex] = fieldTypeOverride;
-    } else {
-      docMetadata.fieldTypeOverrides.push(fieldTypeOverride);
-    }
-
-    await api.setMetadata(metadataId, metadata);
-  }
-
-  /**
-   * Removes a field type override from a document by its path.
-   * @param api The metadata API
-   * @param metadataId The metadata identifier
-   * @param metadata The DataMapper metadata to update
-   * @param documentType The type of document (SOURCE_BODY, TARGET_BODY, or PARAM)
-   * @param paramName The parameter name (required if documentType is PARAM)
-   * @param path The XPath of the field type override to remove
-   */
-  static async removeFieldTypeOverride(
-    api: IMetadataApi,
-    metadataId: string,
-    metadata: IDataMapperMetadata,
-    documentType: DocumentType,
-    paramName: string | undefined,
-    path: string,
-  ) {
-    const docMetadata = this.getDocumentMetadata(metadata, documentType, paramName);
-    if (!docMetadata?.fieldTypeOverrides) {
-      return;
-    }
-
-    docMetadata.fieldTypeOverrides = docMetadata.fieldTypeOverrides.filter((override) => override.path !== path);
-
-    await api.setMetadata(metadataId, metadata);
-  }
-
-  /**
    * Gets all field type overrides for a document.
    * @param metadata The DataMapper metadata
    * @param documentType The type of document (SOURCE_BODY, TARGET_BODY, or PARAM)
@@ -464,6 +380,34 @@ export class DataMapperMetadataService {
     }
 
     docMetadata.choiceSelections = selections;
+
+    await api.setMetadata(metadataId, metadata);
+  }
+
+  /**
+   * Sets the field type overrides for the specified document.
+   * Replaces the entire field type overrides array and persists the metadata.
+   * @param api The metadata API
+   * @param metadataId The metadata identifier
+   * @param metadata The DataMapper metadata
+   * @param documentType The document type (SOURCE_BODY, TARGET_BODY, or PARAM)
+   * @param paramName The parameter name (required when documentType is PARAM)
+   * @param fieldTypeOverrides The complete array of field type overrides to set
+   */
+  static async setFieldTypeOverrides(
+    api: IMetadataApi,
+    metadataId: string,
+    metadata: IDataMapperMetadata,
+    documentType: DocumentType,
+    paramName: string | undefined,
+    fieldTypeOverrides: IFieldTypeOverride[],
+  ) {
+    const docMetadata = this.getDocumentMetadata(metadata, documentType, paramName);
+    if (!docMetadata) {
+      return;
+    }
+
+    docMetadata.fieldTypeOverrides = fieldTypeOverrides;
 
     await api.setMetadata(metadataId, metadata);
   }
