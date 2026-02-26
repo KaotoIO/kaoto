@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
+import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -7,7 +7,6 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import {
   AddMappingNodeData,
-  FieldItemNodeData,
   NodeReference,
   TargetDocumentNodeData,
   TargetNodeData,
@@ -16,6 +15,7 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
+import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
 import { NodeContainer } from './NodeContainer';
@@ -38,7 +38,8 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
 
   const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
   const nodeData = treeNode.nodeData;
-  const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
+  const field = VisualizationService.getField(nodeData);
+  const iconType = field?.type ?? nodeData.type;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
   const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
@@ -79,6 +80,16 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     refreshMappingTree();
   }, [refreshMappingTree]);
 
+  // Check if this node has an actual mapping (expressionItem exists)
+  const hasMapping = useMemo(() => {
+    if (!showNodeActions) return false;
+    const expressionItem = VisualizationService.getExpressionItemForNode(nodeData as TargetNodeData);
+    return !!expressionItem;
+  }, [showNodeActions, nodeData]);
+
+  // Show type override indicator only when there is no mapping (TargetNodeActions shows its own indicator when mapped)
+  const typeOverrideIndicator = hasMapping ? null : renderTypeOverrideIndicator(field);
+
   const isSelected = isInSelectedMapping(nodeReference);
   const handleClickField = useCallback(
     (event: MouseEvent) => {
@@ -88,12 +99,27 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     [toggleSelectedNodeReference],
   );
 
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleSelectedNodeReference(nodeReference);
+      }
+    },
+    [toggleSelectedNodeReference],
+  );
+
   return (
     <div
+      role="treeitem"
+      tabIndex={0}
+      aria-selected={isSelected}
       data-testid={`node-target-${nodeData.id}`}
       data-selected={isSelected}
       className="node__container"
       onClick={handleClickField}
+      onKeyDown={handleKeyDown}
     >
       <NodeContainer ref={containerRef} nodeData={nodeData}>
         <div className="node__header">
@@ -109,6 +135,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               isChoiceField={isChoiceField}
               isAttributeField={isAttributeField}
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
+              typeOverrideIndicator={typeOverrideIndicator}
               rank={rank}
               isSelected={isSelected}
             >

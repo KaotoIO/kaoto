@@ -7,6 +7,7 @@ import { FunctionComponent } from 'react';
 import OptIcon from '../../assets/data-mapper/field-icons/OptIcon';
 import Repeat0Icon from '../../assets/data-mapper/field-icons/Repeat0Icon';
 import Repeat1Icon from '../../assets/data-mapper/field-icons/Repeat1Icon';
+import { TypeOverrideVariant } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
@@ -47,6 +48,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
     const optionalField = nodeData.field.minOccurs === 0;
     const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
     const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
+    const hasTypeOverride = nodeData.field.typeOverride !== TypeOverrideVariant.NONE;
 
     return (
       <Popover
@@ -63,6 +65,18 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
               <span className="popover__cell">maxOccurs :&nbsp;</span>
               <span className="popover__cell">{nodeData.field.maxOccurs}</span>
             </div>
+            {hasTypeOverride && (
+              <>
+                <div className="popover__row">
+                  <span className="popover__cell">Original type :&nbsp;</span>
+                  <span className="popover__cell">{nodeData.field.originalType}</span>
+                </div>
+                <div className="popover__row">
+                  <span className="popover__cell">Overridden type :&nbsp;</span>
+                  <span className="popover__cell">{nodeData.field.type}</span>
+                </div>
+              </>
+            )}
           </div>
         }
       >

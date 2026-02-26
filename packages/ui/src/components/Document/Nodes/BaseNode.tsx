@@ -32,6 +32,9 @@ interface BaseNodeProps extends IDataTestID {
 
   /** Selection state */
   isSelected?: boolean;
+
+  /** Optional type override indicator to show after field icon */
+  typeOverrideIndicator?: ReactNode;
 }
 
 export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
@@ -46,6 +49,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   title,
   rank,
   isSelected,
+  typeOverrideIndicator,
   'data-testid': dataTestId,
   children,
 }) => {
@@ -81,6 +85,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Icon>
       )}
       <FieldIcon className="node__spacer" type={iconType} />
+      {typeOverrideIndicator}
 
       {isAttributeField && (
         <Icon className="node__spacer" data-testid="attribute-field-icon">

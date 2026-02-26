@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import {
@@ -11,10 +11,12 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { ChoiceFieldNodeData, DocumentNodeData } from '../../models/datamapper/visualization';
+import { TypeOverrideVariant, Types } from '../../models/datamapper/types';
+import { ChoiceFieldNodeData, DocumentNodeData, FieldNodeData } from '../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DocumentUtilService } from '../../services/document-util.service';
+import { FieldTypeOverrideService } from '../../services/field-type-override.service';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -810,6 +812,420 @@ describe('SourceDocumentNode', () => {
 
       // Node should be selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+    });
+  });
+
+  describe('Type Override UI', () => {
+    it('should open context menu on right-click for field nodes', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      expect(screen.getByText('Override Type...')).toBeInTheDocument();
+    });
+
+    it('should not open context menu in read-only mode', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={true} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    });
+
+    it('should not open context menu for document nodes', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    });
+
+    it('should close context menu when clicking outside', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      expect(screen.getByText('Override Type...')).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.mouseDown(globalThis.document.body);
+      });
+
+      expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    });
+
+    it('should close context menu when pressing Escape', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      expect(screen.getByText('Override Type...')).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.keyDown(globalThis.document, { key: 'Escape' });
+      });
+
+      expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    });
+
+    it('should open Type Override Modal when clicking Override Type menu item', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      const overrideTypeButton = screen.getByText('Override Type...');
+      act(() => {
+        fireEvent.click(overrideTypeButton);
+      });
+
+      expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+    });
+
+    it('should show Reset Override menu item when field has type override', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      // Apply type override to the field
+      const fieldNodeData = fieldNode.nodeData as FieldNodeData;
+      const field = fieldNodeData.field;
+      field.typeOverride = TypeOverrideVariant.SAFE;
+      field.originalType = Types.String;
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      expect(screen.getByText('Override Type...')).toBeInTheDocument();
+      expect(screen.getByText('Reset Override')).toBeInTheDocument();
+    });
+
+    it('should call FieldTypeOverrideService.revertFieldTypeOverride when clicking Reset Override', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      // Apply type override to the field
+      const fieldNodeData = fieldNode.nodeData as FieldNodeData;
+      const field = fieldNodeData.field;
+      field.typeOverride = TypeOverrideVariant.SAFE;
+      field.originalType = Types.String;
+
+      const revertSpy = jest.spyOn(FieldTypeOverrideService, 'revertFieldTypeOverride');
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      const resetButton = screen.getByText('Reset Override');
+      act(() => {
+        fireEvent.click(resetButton);
+      });
+
+      expect(revertSpy).toHaveBeenCalledWith(document, field, expect.any(Object));
+
+      revertSpy.mockRestore();
+    });
+
+    it('should call FieldTypeOverrideService.applyFieldTypeOverride when saving type override', async () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      const applySpy = jest.spyOn(FieldTypeOverrideService, 'applyFieldTypeOverride');
+      const mockCandidates = {
+        'xs:int': {
+          typeString: 'xs:int',
+          displayName: 'int',
+          description: 'Integer type',
+          type: Types.Integer,
+          namespaceURI: 'http://www.w3.org/2001/XMLSchema',
+          isBuiltIn: true,
+        },
+      };
+      const getSafeSpy = jest
+        .spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates')
+        .mockReturnValue(mockCandidates);
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      const overrideTypeButton = screen.getByText('Override Type...');
+      act(() => {
+        fireEvent.click(overrideTypeButton);
+      });
+
+      // Wait for modal to open
+      await waitFor(() => {
+        expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+      });
+
+      // Open type selector
+      const toggle = screen.getByRole('button', { name: 'Select a new type...' });
+      act(() => {
+        fireEvent.click(toggle);
+      });
+
+      // Select int type
+      const intOptions = screen.getAllByText('int');
+      const intOption = intOptions.find((el) => el.closest('[role="option"]'));
+      if (!intOption) {
+        throw new Error('Int option not found');
+      }
+      act(() => {
+        fireEvent.click(intOption);
+      });
+
+      // Click Save
+      await waitFor(() => {
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        expect(saveButton).not.toBeDisabled();
+      });
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      act(() => {
+        fireEvent.click(saveButton);
+      });
+
+      const fieldNodeData = fieldNode.nodeData as FieldNodeData;
+      const field = fieldNodeData.field;
+      expect(applySpy).toHaveBeenCalledWith(
+        document,
+        field,
+        mockCandidates['xs:int'],
+        expect.any(Object),
+        TypeOverrideVariant.SAFE,
+      );
+
+      applySpy.mockRestore();
+      getSafeSpy.mockRestore();
+    });
+
+    it('should display type override indicator when field has type override', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      // Apply type override to the field
+      const fieldNodeData = fieldNode.nodeData as FieldNodeData;
+      const field = fieldNodeData.field;
+      field.typeOverride = TypeOverrideVariant.SAFE;
+      field.originalType = Types.String;
+      field.type = Types.Integer;
+
+      const { container } = render(
+        <SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />,
+        { wrapper },
+      );
+
+      // Check for type override indicator by title text
+      const overrideIndicator = container.querySelector(`[title*="Type overridden"]`);
+      expect(overrideIndicator).toBeInTheDocument();
+    });
+
+    it('should not display type override indicator when field has no override', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      const { container } = render(
+        <SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />,
+        { wrapper },
+      );
+
+      // Check that type override indicator is not present
+      const overrideIndicator = container.querySelector(`[title*="Type overridden"]`);
+      expect(overrideIndicator).not.toBeInTheDocument();
+    });
+
+    it('should close modal when Remove Override button is clicked in modal', async () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      // Apply type override to the field
+      const fieldNodeData = fieldNode.nodeData as FieldNodeData;
+      const field = fieldNodeData.field;
+      field.typeOverride = TypeOverrideVariant.SAFE;
+      field.originalType = Types.String;
+      field.type = Types.Integer;
+
+      const revertSpy = jest.spyOn(FieldTypeOverrideService, 'revertFieldTypeOverride');
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      const overrideTypeButton = screen.getByText('Override Type...');
+      act(() => {
+        fireEvent.click(overrideTypeButton);
+      });
+
+      // Wait for modal to open
+      await waitFor(() => {
+        expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+      });
+
+      // Click Remove Override button in modal
+      const removeButton = screen.getByRole('button', { name: 'Remove Override' });
+      act(() => {
+        fireEvent.click(removeButton);
+      });
+
+      expect(revertSpy).toHaveBeenCalledWith(document, field, expect.any(Object));
+
+      // Modal should be closed
+      await waitFor(() => {
+        expect(screen.queryByText(/Type Override:/)).not.toBeInTheDocument();
+      });
+
+      revertSpy.mockRestore();
+    });
+
+    it('should close modal when Cancel button is clicked', async () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const fieldNode = tree.root.children[0];
+
+      render(<SourceDocumentNode treeNode={fieldNode} documentId={documentNodeData.id} isReadOnly={false} rank={1} />, {
+        wrapper,
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${fieldNode.nodeData.id}`);
+
+      act(() => {
+        fireEvent.contextMenu(nodeContainer);
+      });
+
+      const overrideTypeButton = screen.getByText('Override Type...');
+      act(() => {
+        fireEvent.click(overrideTypeButton);
+      });
+
+      // Wait for modal to open
+      await waitFor(() => {
+        expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+      });
+
+      // Click Cancel button
+      const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+      act(() => {
+        fireEvent.click(cancelButton);
+      });
+
+      // Modal should be closed
+      await waitFor(() => {
+        expect(screen.queryByText(/Type Override:/)).not.toBeInTheDocument();
+      });
     });
   });
 });
