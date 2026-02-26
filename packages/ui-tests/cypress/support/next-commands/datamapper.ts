@@ -13,19 +13,8 @@ Cypress.Commands.add('attachSourceBodySchema', (filePath: string) => {
   cy.wait(100);
 });
 
-Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
-  cy.get('[data-testid="attach-schema-targetBody-Body-button"]').click();
-  cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
-  cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePath);
-
-  cy.get('[data-testid="attach-schema-file-list"]').should('exist');
-  if (filePath.endsWith('json')) {
-    cy.get('[data-testid="attach-schema-modal-option-json"]').should('be.checked');
-    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('not.be.checked');
-  } else {
-    cy.get('[data-testid="attach-schema-modal-option-json"]').should('not.be.checked');
-    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('be.checked');
-  }
+Cypress.Commands.add('attachTargetBodySchema', (filePath: string | string[]) => {
+  cy.addTargetBodySchema(filePath);
 
   cy.get('[data-testid="attach-schema-modal-btn-attach"]').click();
 
@@ -33,6 +22,29 @@ Cypress.Commands.add('attachTargetBodySchema', (filePath: string) => {
   cy.get('.target-panel').find('[data-testid^="node-target-"]').should('exist');
   // Wait for panel heights to stabilize after schema attachment
   cy.wait(100);
+});
+
+Cypress.Commands.add('addTargetBodySchema', (filePath: string | string[]) => {
+  // Normalize input to array for consistent processing
+  const filePaths = Array.isArray(filePath) ? filePath : [filePath];
+
+  cy.get('[data-testid="attach-schema-targetBody-Body-button"]').click();
+  cy.get('[data-testid="attach-schema-modal-btn-file"]').click();
+
+  // Attach each file
+  cy.get('[data-testid="attach-schema-file-input"]').attachFile(filePaths);
+
+  cy.get('[data-testid="attach-schema-file-list"]').should('exist');
+
+  // Check file type based on the first file
+  const firstFile = filePaths[0];
+  if (firstFile.endsWith('json')) {
+    cy.get('[data-testid="attach-schema-modal-option-json"]').should('be.checked');
+    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('not.be.checked');
+  } else {
+    cy.get('[data-testid="attach-schema-modal-option-json"]').should('not.be.checked');
+    cy.get('[data-testid="attach-schema-modal-option-xml"]').should('be.checked');
+  }
 });
 
 Cypress.Commands.add('addParameter', (name: string) => {

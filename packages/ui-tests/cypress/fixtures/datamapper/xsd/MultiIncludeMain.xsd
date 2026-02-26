@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/multi-include"
+           xmlns:mi="http://example.com/multi-include"
+           elementFormDefault="qualified">
+  <xs:include schemaLocation="MultiIncludeComponentA.xsd"/>
+  <xs:include schemaLocation="MultiIncludeComponentB.xsd"/>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="partA" type="mi:TypeA"/>
+        <xs:element name="partB" type="mi:TypeB"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

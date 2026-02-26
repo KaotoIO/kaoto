@@ -155,7 +155,8 @@ declare global {
       compareFileWithMonacoEditor(filePath: string): Chainable<JQuery<Element>>;
       // DataMapper
       attachSourceBodySchema(filePath: string): Chainable<JQuery<Element>>;
-      attachTargetBodySchema(filePath: string): Chainable<JQuery<Element>>;
+      attachTargetBodySchema(filePath: string | string[]): Chainable<JQuery<Element>>;
+      addTargetBodySchema(filePath: string | string[]): Chainable<JQuery<Element>>;
       addParameter(name: string): Chainable<JQuery<Element>>;
       deleteParameter(name: string): Chainable<JQuery<Element>>;
       attachParameterSchema(name: string, filePath: string): Chainable<JQuery<Element>>;
