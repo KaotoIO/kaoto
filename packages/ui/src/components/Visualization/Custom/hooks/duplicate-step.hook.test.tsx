@@ -7,6 +7,7 @@ import { CamelRouteResource } from '../../../../models/camel/camel-route-resourc
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
+import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { camelRouteJson } from '../../../../stubs/camel-route';
 import { updateIds } from '../../../../utils/update-ids';
@@ -87,12 +88,22 @@ describe('useDuplicateStep', () => {
     getRegisteredInteractionAddons: jest.fn().mockReturnValue([]),
   };
 
+  const mockVisibleFlowsContext: VisibleFlowsContextResult = {
+    visibleFlows: { route: true },
+    allFlowsVisible: true,
+    visualFlowsApi: {
+      toggleFlowVisible: jest.fn(),
+    } as never,
+  };
+
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <EntitiesContext.Provider value={mockEntitiesContext}>
       <CatalogModalContext.Provider value={mockCatalogModalContext}>
-        <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
-          {children}
-        </NodeInteractionAddonContext.Provider>
+        <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
+          <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+            {children}
+          </NodeInteractionAddonContext.Provider>
+        </VisibleFlowsContext.Provider>
       </CatalogModalContext.Provider>
     </EntitiesContext.Provider>
   );
@@ -188,15 +199,22 @@ describe('useDuplicateStep', () => {
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
     });
 
-    it('should call entitiesContext.camelResource.addNewEntity() and finally updateEntitiesFromCamelResource()', async () => {
+    it('should call entitiesContext.camelResource.addNewEntity() with original entity ID and finally updateEntitiesFromCamelResource()', async () => {
       const camelResourceAddNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
       const routeVizNodeContent = updateIds(routeVizNode.getCopiedContent()!);
       const { result } = renderHook(() => useDuplicateStep(routeVizNode), { wrapper });
       await result.current.onDuplicate();
 
       expect(camelResourceAddNewEntitySpy).toHaveBeenCalledTimes(1);
-      expect(camelResourceAddNewEntitySpy).toHaveBeenCalledWith(routeVizNodeContent.name as string, {
-        [routeVizNodeContent.name]: routeVizNodeContent.definition,
+      expect(camelResourceAddNewEntitySpy).toHaveBeenCalledWith(
+        routeVizNodeContent.name as string,
+        { [routeVizNodeContent.name]: routeVizNodeContent.definition },
+        routeVizNode.getId(),
+      );
+      expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).toHaveBeenCalledTimes(1);
+      expect(mockController.fromModel).toHaveBeenCalledWith({
+        nodes: [],
+        edges: [],
       });
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
     });
