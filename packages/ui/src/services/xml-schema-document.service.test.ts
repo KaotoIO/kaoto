@@ -4,8 +4,9 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../models/datamapper/document';
+import { IFieldSubstitution } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA_INSTANCE } from '../models/datamapper/standard-namespaces';
-import { Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../models/datamapper/types';
 import {
   getAnonymousGlobalElementRefLargeXsd,
   getCamelSpringXsd,
@@ -1483,6 +1484,34 @@ describe('XmlSchemaDocumentService', () => {
         name: 'ShipOrder',
       });
     });
+
+    it('should clear fieldTypeOverrides, choiceSelections and fieldSubstitutions when rootElementChoice file is removed', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd(), 'element-ref.xsd': getElementRefXsd() },
+        { namespaceUri: 'io.kaoto.datamapper.poc.test', name: 'ShipOrder' },
+      );
+      definition.fieldTypeOverrides = [
+        { schemaPath: '/old/path', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/old/{choice:0}', selectedMemberIndex: 1 }];
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/old/path',
+        name: 'ns0:newName',
+        originalName: 'ns0:oldName',
+      };
+      definition.fieldSubstitutions = [substitution];
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd');
+
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toEqual([]);
+      expect(removeResult.documentDefinition!.choiceSelections).toEqual([]);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toEqual([]);
+    });
   });
 
   it('should load attribute with inline simple type without crashing', () => {
@@ -1535,6 +1564,5 @@ describe('XmlSchemaDocumentService', () => {
     const typeA01Field = bigContainerFragment.fields.find((f) => f.name === 'TypeA01');
     expect(typeA01Field).toBeDefined();
     expect(typeA01Field!.type).toEqual(Types.Container);
-    expect(typeA01Field!.originalType).toEqual(Types.Container);
   });
 });

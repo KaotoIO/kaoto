@@ -1,10 +1,10 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { MaxOccursType } from '../../xml-schema-ts/constants';
 import { QName } from '../../xml-schema-ts/QName';
-import { IChoiceSelection, IFieldTypeOverride } from './metadata';
+import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from './metadata';
 import { NodePath } from './nodepath';
 import { ReportMessage } from './schema';
-import { TypeOverrideVariant, Types } from './types';
+import { FieldOverrideVariant, Types } from './types';
 import { Predicate } from './xpath';
 
 /**
@@ -12,6 +12,50 @@ import { Predicate } from './xpath';
  * A field can be a child of either a document or another field.
  */
 export type IParentType = IDocument | IField;
+
+/**
+ * Immutable snapshot of a field's identity and structure taken **before** the first type override
+ * or substitution is applied. Stored on {@link IField.originalField} and cleared on revert.
+ *
+ * ## Restoration strategy
+ *
+ * On revert, `restoreOriginalTypeToField` restores `fields` and `namedTypeFragmentRefs`
+ * independently to cover all schema variants:
+ *
+ * | Schema variant | Snapshot | Restored state |
+ * |---|---|---|
+ * | XML named type | `refs=[T]`, `fields=undefined` | `fields=[]`, `refs=[T]` — re-expandable via `resolveTypeFragment` |
+ * | XML inline anonymous type | `refs=[]`, `fields=[c1,c2]` | `fields=[c1,c2]`, `refs=[]` — inline children restored directly |
+ * | JSON `$ref` + `properties` | `refs=[R]`, `fields=[inline]` | `fields=[inline]`, `refs=[R]` — pre-expansion state restored |
+ * | Simple / primitive type | `refs=[]`, `fields=undefined` | `fields=[]`, `refs=[]` (or derived from type) |
+ *
+ * ## Snapshot safety
+ *
+ * The snapshot is always taken in a **pre-adoption** context via `??=` guards in
+ * `resolveTypeFragment` (before `adoptTypeFragment` runs) and `applyTypeOverrideToField` (only
+ * fires when `originalField` is still `undefined`, which means `resolveTypeFragment` has not yet
+ * expanded the field). Post-adoption children therefore can never appear in `fields`.
+ *
+ * `fields` is captured as a **shallow-copied array** of field references (not a deep copy).
+ * This preserves pre-override membership while keeping object identity for existing child nodes.
+ * `applyTypeOverrideToField` replaces `field.fields` with a new empty array rather than mutating
+ * existing elements, so the snapshot remains unaffected by subsequent adoptions.
+ */
+export interface IOriginalFieldState {
+  name: string;
+  namespaceURI: string | null;
+  namespacePrefix: string | null;
+  type: Types;
+  typeQName: QName | null;
+  /** Original `namedTypeFragmentRefs` at snapshot time. Set at field expansion for named types; empty for inline types. */
+  namedTypeFragmentRefs: string[];
+  /**
+   * Original `fields` at snapshot time. Present when the field held inline children at capture
+   * time (XML anonymous complex type, or JSON `$ref` + `properties` mixed node). Absent (`undefined`)
+   * for named-type fields whose children are re-derived from `namedTypeFragmentRefs` on expansion.
+   */
+  fields?: IField[];
+}
 
 /**
  * Document ID constant for the main body document.
@@ -39,12 +83,14 @@ export interface IField {
   type: Types;
   /** The data format specific, qualified name of the current type of this field, if applicable */
   typeQName: QName | null;
-  /** Original data type of this field before any overrides, in DataMapper common style */
-  originalType: Types;
-  /** The data format specific, qualified name of the original type of this field before any overrides, if applicable */
-  originalTypeQName: QName | null;
+  /**
+   * Snapshot of the original field state. Set lazily on field expansion or just before the first override or substitution,
+   * whichever comes first. Cleared when the override is reverted.
+   * @see IOriginalFieldState for the restoration strategy covering all schema variants.
+   */
+  originalField?: IOriginalFieldState;
   /** Indicates whether and how the type has been overridden */
-  typeOverride: TypeOverrideVariant;
+  typeOverride: FieldOverrideVariant;
   /** Child fields for complex types */
   fields: IField[];
   /** Whether this field represents an attribute (vs element) */
@@ -211,9 +257,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   parent: IParentType = this;
   type = Types.AnyType;
   typeQName: QName | null = null;
-  originalType = Types.AnyType;
-  originalTypeQName: QName | null = null;
-  typeOverride = TypeOverrideVariant.NONE;
+  typeOverride = FieldOverrideVariant.NONE;
   path: NodePath;
   id: string;
   displayName: string;
@@ -253,9 +297,7 @@ export class BaseField implements IField {
   isAttribute: boolean = false;
   type = Types.AnyType;
   typeQName: QName | null = null;
-  originalType = Types.AnyType;
-  originalTypeQName: QName | null = null;
-  typeOverride = TypeOverrideVariant.NONE;
+  typeOverride = FieldOverrideVariant.NONE;
   minOccurs: number = 0;
   maxOccurs: MaxOccursType = 1;
   defaultValue: string | null = null;
@@ -266,6 +308,7 @@ export class BaseField implements IField {
   predicates: Predicate[] = [];
   isChoice?: boolean;
   selectedMemberIndex?: number;
+  originalField?: IOriginalFieldState;
 
   protected mergeInto(existing: IField): void {
     if (this.type && this.type !== Types.AnyType) existing.type = this.type;
@@ -290,9 +333,8 @@ export class BaseField implements IField {
     adopted.isAttribute = this.isAttribute;
     adopted.type = this.type;
     adopted.typeQName = this.typeQName;
-    adopted.originalType = this.originalType;
-    adopted.originalTypeQName = this.originalTypeQName;
     adopted.typeOverride = this.typeOverride;
+    adopted.originalField = this.originalField;
     adopted.minOccurs = this.minOccurs;
     adopted.maxOccurs = this.maxOccurs;
     adopted.defaultValue = this.defaultValue;
@@ -339,6 +381,7 @@ export class DocumentDefinition {
     public rootElementChoice?: RootElementOption,
     public fieldTypeOverrides?: IFieldTypeOverride[],
     public choiceSelections?: IChoiceSelection[],
+    public fieldSubstitutions?: IFieldSubstitution[],
   ) {
     if (!definitionFiles) this.definitionFiles = {};
   }
