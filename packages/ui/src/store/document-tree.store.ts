@@ -39,7 +39,7 @@ export interface DocumentTreeState {
   /** Get expansion state of a node */
   isExpanded: (documentId: string, nodePath: string) => boolean;
 
-  /** Trigger recalculation of all connection ports (e.g., on scroll) */
+  /** @deprecated No longer needed - connection ports are updated via useDocumentScroll hook */
   refreshConnectionPorts: () => void;
 
   /** Selection state management */
@@ -110,10 +110,10 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         return get().expansionState[documentId]?.[nodePath] ?? false;
       },
 
+      /** @deprecated Only increments version without updating positions - use useDocumentScroll instead */
       refreshConnectionPorts: () => {
-        set((state) => ({
-          connectionPortVersion: state.connectionPortVersion + 1,
-        }));
+        // This method is deprecated and does nothing useful
+        // Connection ports are now updated automatically via useDocumentScroll effects
       },
 
       setSelectedNode: (nodePath, isSource) => {

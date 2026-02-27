@@ -128,7 +128,8 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[parameterNodeData.id] || {});
-  const onScroll = useDocumentScroll(parameterNodeData.id);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const onScroll = useDocumentScroll(parameterNodeData.id, contentRef);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -141,23 +142,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   const parameterName = document.documentId;
   const isRenaming = renamingParameter === parameterName;
   const documentReferenceId = document.getReferenceId(mappingTree.namespaceMap);
-
-  // Track hasSchema changes to trigger mapping line updates when schema is attached/detached
-  const prevHasSchemaRef = useRef(hasSchema);
-  const onLayoutChangeRef = useRef(onLayoutChange);
-  onLayoutChangeRef.current = onLayoutChange;
-
-  useEffect(() => {
-    // Only trigger layout change if hasSchema actually changed (not on initial mount)
-    if (prevHasSchemaRef.current !== hasSchema) {
-      prevHasSchemaRef.current = hasSchema;
-      // Wait for ExpansionPanel CSS grid animation (150ms) + child node mounting
-      // This ensures mapping lines are recalculated after the panel is fully expanded
-      setTimeout(() => {
-        onLayoutChangeRef.current?.();
-      }, 200);
-    }
-  }, [hasSchema]);
 
   const parameterActions = useMemo(
     () => [
@@ -177,6 +161,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
       defaultExpanded={hasSchema}
       defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
       minHeight={PANEL_MIN_HEIGHT}
+      ref={contentRef}
       summary={
         isRenaming ? (
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
@@ -198,6 +183,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           </div>
         )
       }
+      onScroll={onScroll}
       onLayoutChange={onScroll}
       onExpandedChange={setIsExpanded}
     >

@@ -1,6 +1,6 @@
 import './TargetPanel.scss';
 
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -42,13 +42,16 @@ export const TargetPanel: FunctionComponent = () => {
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[targetBodyNodeData.id] || {});
-  const onScroll = useDocumentScroll(targetBodyNodeData.id);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const onScroll = useDocumentScroll(targetBodyNodeData.id, contentRef);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
     if (!targetBodyTree) return [];
     return flattenTreeNodes(targetBodyTree.root, (path) => documentExpansionState[path] ?? false);
   }, [targetBodyTree, documentExpansionState]);
+
+  const hasSchema = !targetBodyNodeData.isPrimitive;
 
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
@@ -92,8 +95,6 @@ export const TargetPanel: FunctionComponent = () => {
     return actions;
   }, [expressionItem, targetBodyNodeData, handleUpdate]);
 
-  const hasSchema = !targetBodyNodeData.isPrimitive;
-
   return (
     <div id="panel-target" className="target-panel">
       <ExpansionPanels lastPanelId="target-body">
@@ -103,6 +104,7 @@ export const TargetPanel: FunctionComponent = () => {
           defaultHeight={TARGET_PANEL_DEFAULT_HEIGHT}
           minHeight={TARGET_PANEL_MIN_HEIGHT}
           collapsible={false}
+          ref={contentRef}
           summary={
             <DocumentHeader
               header={<span className="panel-header-text">Body</span>}
@@ -114,6 +116,7 @@ export const TargetPanel: FunctionComponent = () => {
               nodeData={targetBodyNodeData}
             />
           }
+          onScroll={onScroll}
           onLayoutChange={onScroll}
         >
           {hasSchema && targetBodyTree && (

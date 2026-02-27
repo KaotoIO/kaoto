@@ -21,7 +21,6 @@ import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { DocumentService } from '../../../services/document.service';
-import { useDocumentTreeStore } from '../../../store';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;
@@ -35,7 +34,6 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
   documentReferenceId,
 }) => {
   const { sendAlert, updateDocument } = useDataMapper();
-  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
 
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
@@ -50,11 +48,10 @@ export const DetachSchemaButton: FunctionComponent<DeleteSchemaProps> = ({
       sendAlert({ variant: AlertVariant.danger, title: 'Could not detach schema' });
     } else {
       updateDocument(result.document, result.documentDefinition, documentReferenceId);
-      refreshConnectionPorts();
     }
 
     closeModal();
-  }, [documentType, documentId, closeModal, sendAlert, updateDocument, documentReferenceId, refreshConnectionPorts]);
+  }, [documentType, documentId, closeModal, sendAlert, updateDocument, documentReferenceId]);
 
   return (
     <>

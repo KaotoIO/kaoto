@@ -23,7 +23,7 @@ export function getNearestVisiblePort(
   const { nodesConnectionPorts, nodesConnectionPortsArray, expansionState, expansionStateArray } = options;
 
   /* If the document's connection ports don't exist, return edge bottom fallback */
-  if (!nodesConnectionPorts || !nodesConnectionPorts['EDGE:bottom']) {
+  if (!nodesConnectionPorts?.['EDGE:bottom']) {
     return { connectionTarget: 'edge', position: [0, 0] };
   }
 

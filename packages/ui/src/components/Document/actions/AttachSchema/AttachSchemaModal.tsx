@@ -28,7 +28,6 @@ import { MetadataContext } from '../../../../providers';
 import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { DocumentService } from '../../../../services/document.service';
-import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { RootElementSelect } from './RootElementSelect';
 import { SchemaFileDataList } from './SchemaFileDataList';
 import {
@@ -60,7 +59,6 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
 }) => {
   const api = useContext(MetadataContext)!;
   const { setIsLoading, updateDocument } = useDataMapper();
-  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
   const [selectedSchemaType, setSelectedSchemaType] = useState<DocumentDefinitionType>(
     DocumentDefinitionType.XML_SCHEMA,
   );
@@ -199,7 +197,6 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     setIsLoading(true);
     try {
       updateDocument(createDocumentResult.document, createDocumentResult.documentDefinition, documentReferenceId);
-      refreshConnectionPorts();
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       const cause = error['message'] ? ': ' + error['message'] : '';
@@ -213,7 +210,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     onModalClose();
     setCreateDocumentResult(null);
     setFilePaths([]);
-  }, [setIsLoading, updateDocument, createDocumentResult, documentReferenceId, onModalClose, refreshConnectionPorts]);
+  }, [setIsLoading, updateDocument, createDocumentResult, documentReferenceId, onModalClose]);
 
   const onCancel = useCallback(() => {
     onModalClose();

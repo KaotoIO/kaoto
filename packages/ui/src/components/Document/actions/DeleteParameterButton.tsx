@@ -6,7 +6,6 @@ import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentType } from '../../../models/datamapper/document';
 import { MappingService } from '../../../services/mapping.service';
-import { useDocumentTreeStore } from '../../../store';
 
 type DeleteParameterProps = {
   parameterName: string;
@@ -18,7 +17,6 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
   parameterReferenceId,
 }) => {
   const { mappingTree, setMappingTree, refreshMappingTree, deleteSourceParameter } = useDataMapper();
-  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
@@ -26,7 +24,6 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
     setMappingTree(cleaned);
     deleteSourceParameter(parameterName);
     refreshMappingTree();
-    refreshConnectionPorts();
     closeModal();
   }, [
     closeModal,
@@ -35,7 +32,6 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
     parameterName,
     parameterReferenceId,
     refreshMappingTree,
-    refreshConnectionPorts,
     setMappingTree,
   ]);
 

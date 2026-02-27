@@ -1,6 +1,6 @@
 import './SourcePanel.scss';
 
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -41,7 +41,8 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[sourceBodyNodeData.id] || {});
-  const onScroll = useDocumentScroll(sourceBodyNodeData.id);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const onScroll = useDocumentScroll(sourceBodyNodeData.id, contentRef);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -65,6 +66,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           defaultExpanded={hasSchema}
           defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
           minHeight={PANEL_MIN_HEIGHT}
+          ref={contentRef}
           summary={
             <DocumentHeader
               header={<span className="panel-header-text">Body</span>}
@@ -75,6 +77,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               additionalActions={[]}
             />
           }
+          onScroll={onScroll}
           onLayoutChange={onScroll}
         >
           {/* Only render children if body has schema */}

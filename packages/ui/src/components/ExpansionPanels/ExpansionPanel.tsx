@@ -27,6 +27,8 @@ interface ExpansionPanelProps {
   onLayoutChange?: (id: string) => void;
   /** Called when the expanded state changes */
   onExpandedChange?: (isExpanded: boolean) => void;
+  /** Ref to the content div for external access (e.g., MutationObserver) */
+  ref?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelProps>> = ({
@@ -40,6 +42,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   onScroll,
   onLayoutChange,
   onExpandedChange,
+  ref,
 }) => {
   const generatedId = useId();
   const id = providedId ?? generatedId;
@@ -207,7 +210,7 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
         {summary}
       </div>
 
-      <div className="expansion-panel__content" onScroll={onScroll}>
+      <div className="expansion-panel__content" ref={ref} onScroll={onScroll}>
         {children}
       </div>
 

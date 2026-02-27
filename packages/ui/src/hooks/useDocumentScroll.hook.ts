@@ -1,10 +1,11 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { TreeConnectionPorts, useDocumentTreeStore } from '../store/document-tree.store';
 
-export const useDocumentScroll = (documentId: string) => {
+export const useDocumentScroll = (documentId: string, contentRef: React.RefObject<HTMLDivElement | null>) => {
   const setNodesConnectionPorts = useDocumentTreeStore((state) => state.setNodesConnectionPorts);
   const rafId = useRef<number | null>(null);
+  const observerRef = useRef<MutationObserver | null>(null);
 
   /**
    * Checks if an element is actually visible within its scroll container
@@ -35,8 +36,9 @@ export const useDocumentScroll = (documentId: string) => {
     rafId.current = requestAnimationFrame(() => {
       rafId.current = null;
 
+      /* Query document-specific ports and shared EDGE elements in a single selector */
       const documentPortElements = document.querySelectorAll<HTMLElement>(
-        `[data-connection-port="true"][data-document-id="${documentId}"]`,
+        `[data-connection-port="true"][data-document-id="${documentId}"], [data-connection-port="true"][data-node-path^="EDGE:"]`,
       );
 
       const documentVisiblePorts: TreeConnectionPorts = {};
@@ -45,8 +47,9 @@ export const useDocumentScroll = (documentId: string) => {
         const nodePath = element.dataset.nodePath;
         if (!nodePath) return;
 
-        /* Only include if actually visible (not in overscan) */
-        if (isElementVisibleInContainer(element)) {
+        /* EDGE elements are always visible, document elements need visibility check */
+        const isEdgeElement = nodePath.startsWith('EDGE:');
+        if (isEdgeElement || isElementVisibleInContainer(element)) {
           const rect = element.getBoundingClientRect();
           const position: [number, number] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
           documentVisiblePorts[nodePath] = position;
@@ -56,6 +59,31 @@ export const useDocumentScroll = (documentId: string) => {
       setNodesConnectionPorts(documentId, documentVisiblePorts);
     });
   }, [documentId, setNodesConnectionPorts]);
+
+  // Set up MutationObserver to watch for DOM changes in the expansion panel content
+  useEffect(() => {
+    const contentElement = contentRef?.current;
+    if (!contentElement) return;
+
+    // Create observer that watches for child node additions/removals
+    observerRef.current = new MutationObserver(() => {
+      // Trigger connection port update when DOM changes
+      documentScroll();
+    });
+
+    // Start observing the content element for child list changes and subtree modifications
+    observerRef.current.observe(contentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    };
+  }, [contentRef, documentScroll]);
 
   return documentScroll;
 };

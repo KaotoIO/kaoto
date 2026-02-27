@@ -17,7 +17,6 @@ interface SourceTargetViewProps {
 export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   uiScaleFactor: initialScaleFactor = 1,
 }) => {
-  const refreshConnectionPorts = useDocumentTreeStore((state) => state.refreshConnectionPorts);
   const { mappingLinkCanvasRef } = useMappingLinks();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scaleFactor, setScaleFactor] = useState(initialScaleFactor);
@@ -65,7 +64,7 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   } as CSSProperties;
 
   return (
-    <Split className="source-target-view" onScroll={refreshConnectionPorts} style={customStyles} ref={containerRef}>
+    <Split className="source-target-view" style={customStyles} ref={containerRef}>
       <SplitItem className="source-target-view__source-split" isFilled>
         <SourcePanel actionItems={datamapperActionItems} />
       </SplitItem>

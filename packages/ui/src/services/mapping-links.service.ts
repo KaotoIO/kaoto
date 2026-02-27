@@ -1,5 +1,6 @@
 import {
   BODY_DOCUMENT_ID,
+  DocumentType,
   ExpressionItem,
   FieldItem,
   IDocument,
@@ -92,7 +93,10 @@ export class MappingLinksService {
 
       if (sourceNodePath) {
         const sourceNodePathString = sourceNodePath.toString();
-        const sourceDocumentId = document?.documentId ?? BODY_DOCUMENT_ID;
+        const sourceDocumentId = document
+          ? `doc-${document.documentType}-${document.documentId}`
+          : `doc-${DocumentType.SOURCE_BODY}-${BODY_DOCUMENT_ID}`;
+        const targetDocumentId = `doc-${DocumentType.TARGET_BODY}-${BODY_DOCUMENT_ID}`;
         const isSelected = MappingLinksService.isLinkSelected(
           sourceNodePathString,
           targetNodePath,
@@ -103,7 +107,7 @@ export class MappingLinksService {
           sourceNodePath: sourceNodePathString,
           targetNodePath: targetNodePath,
           sourceDocumentId,
-          targetDocumentId: BODY_DOCUMENT_ID,
+          targetDocumentId,
           isSelected,
         });
       }
