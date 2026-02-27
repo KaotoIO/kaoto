@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
+import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../../providers/datamapper-canvas.provider';
 import { BrowserFilePickerMetadataProvider } from '../../../../stubs/BrowserFilePickerMetadataProvider';
 import { AttachSchemaButton } from './AttachSchemaButton';
 
@@ -11,13 +11,13 @@ describe('AttachSchemaButton', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
             />
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -38,14 +38,14 @@ describe('AttachSchemaButton', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               hasSchema={true}
               documentReferenceId={BODY_DOCUMENT_ID}
             />
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -68,14 +68,14 @@ describe('AttachSchemaButton', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               hasSchema={true}
               documentReferenceId={BODY_DOCUMENT_ID}
             />
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -111,14 +111,14 @@ describe('AttachSchemaButton', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <AttachSchemaButton
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               hasSchema={true}
               documentReferenceId={BODY_DOCUMENT_ID}
             />
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );

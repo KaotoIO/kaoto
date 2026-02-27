@@ -1,7 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren, useEffect, useState } from 'react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -12,18 +10,18 @@ import {
 import { MappingTree } from '../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { TreeUIService } from '../../services/tree-ui.service';
+import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentContent, DocumentHeader } from './BaseDocument';
 import { TargetDocumentNode } from './TargetDocumentNode';
 
 describe('DocumentHeader', () => {
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <DataMapperProvider>
-      <DataMapperCanvasProvider>{children}</DataMapperCanvasProvider>
-    </DataMapperProvider>
-  );
+  afterEach(() => {
+    act(() => {
+      useDocumentTreeStore.getState().clearSelection();
+    });
+  });
 
   it('should render with enableDnD=false (default)', () => {
     const document = new PrimitiveDocument(
@@ -31,17 +29,17 @@ describe('DocumentHeader', () => {
     );
 
     render(
-      <DocumentHeader
-        header={<div>Test Header</div>}
-        document={document}
-        documentType={DocumentType.TARGET_BODY}
-        isReadOnly={false}
-      />,
-      { wrapper },
+      <DataMapperProvider>
+        <DocumentHeader
+          header={<div>Test Header</div>}
+          document={document}
+          documentType={DocumentType.TARGET_BODY}
+          isReadOnly={false}
+        />
+      </DataMapperProvider>,
     );
 
     expect(screen.getByText('Test Header')).toBeInTheDocument();
-    // Should not have drag handler when enableDnD is false
     expect(screen.queryByTestId('drag-handler')).not.toBeInTheDocument();
   });
 
@@ -51,18 +49,18 @@ describe('DocumentHeader', () => {
     );
 
     const { container } = render(
-      <DocumentHeader
-        header={<div>Test Header</div>}
-        document={document}
-        documentType={DocumentType.TARGET_BODY}
-        isReadOnly={false}
-        enableDnD={true}
-      />,
-      { wrapper },
+      <DataMapperProvider>
+        <DocumentHeader
+          header={<div>Test Header</div>}
+          document={document}
+          documentType={DocumentType.TARGET_BODY}
+          isReadOnly={false}
+          enableDnD={true}
+        />
+      </DataMapperProvider>,
     );
 
     expect(screen.getByText('Test Header')).toBeInTheDocument();
-    // Should have drag handler when enableDnD is true
     const dragHandler = container.querySelector('[data-drag-handler]');
     expect(dragHandler).toBeInTheDocument();
   });
@@ -73,58 +71,43 @@ describe('DocumentHeader', () => {
     );
 
     render(
-      <DocumentHeader
-        header={<div>Test Header</div>}
-        document={document}
-        documentType={DocumentType.TARGET_BODY}
-        isReadOnly={false}
-      />,
-      { wrapper },
+      <DataMapperProvider>
+        <DocumentHeader
+          header={<div>Test Header</div>}
+          document={document}
+          documentType={DocumentType.TARGET_BODY}
+          isReadOnly={false}
+        />
+      </DataMapperProvider>,
     );
 
     expect(screen.getByTestId(`attach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
     expect(screen.getByTestId(`detach-schema-targetBody-${BODY_DOCUMENT_ID}-button`)).toBeInTheDocument();
   });
 
-  it('should register node reference with accessible containerRef', () => {
+  it('should update store selection when clicking the header', () => {
     const document = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
     );
-    let capturedContainerRef: HTMLDivElement | null = null;
-
-    // Helper component to access canvas context
-    const NodeRefChecker: FunctionComponent = () => {
-      const { getNodeReference } = useCanvas();
-      const [checked, setChecked] = useState(false);
-
-      useEffect(() => {
-        if (!checked) {
-          const nodeRef = getNodeReference(`targetBody:${BODY_DOCUMENT_ID}://`);
-          if (nodeRef?.current) {
-            capturedContainerRef = nodeRef.current.containerRef;
-            setChecked(true);
-          }
-        }
-      }, [getNodeReference, checked]);
-
-      return null;
-    };
 
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
-          <DocumentHeader
-            header={<div>Test Header</div>}
-            document={document}
-            documentType={DocumentType.TARGET_BODY}
-            isReadOnly={false}
-          />
-          <NodeRefChecker />
-        </DataMapperCanvasProvider>
+        <DocumentHeader
+          header={<div>Test Header</div>}
+          document={document}
+          documentType={DocumentType.TARGET_BODY}
+          isReadOnly={false}
+        />
       </DataMapperProvider>,
     );
 
-    expect(capturedContainerRef).toBeInstanceOf(HTMLDivElement);
+    const headerContainer = screen.getByTestId(`document-doc-targetBody-${BODY_DOCUMENT_ID}`);
+    act(() => {
+      fireEvent.click(headerContainer);
+    });
+
+    const store = useDocumentTreeStore.getState();
+    expect(store.selectedNodePath).toBeTruthy();
   });
 });
 
@@ -133,23 +116,24 @@ describe('DocumentContent', () => {
     const document = TestUtil.createTargetOrderDoc();
     const mappingTree = new MappingTree(document.documentType, document.documentId, document.definitionType);
     const documentNodeData = new TargetDocumentNodeData(document, mappingTree);
-    const tree = TreeUIService.createTree(documentNodeData);
+
+    let tree: ReturnType<typeof TreeUIService.createTree>;
+    act(() => {
+      tree = TreeUIService.createTree(documentNodeData);
+    });
 
     const { container } = render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
-          <DocumentContent
-            treeNode={tree.root}
-            isReadOnly={false}
-            renderNodes={(childNode) => (
-              <TargetDocumentNode treeNode={childNode} documentId={documentNodeData.id} rank={1} />
-            )}
-          />
-        </DataMapperCanvasProvider>
+        <DocumentContent
+          treeNode={tree!.root}
+          isReadOnly={false}
+          renderNodes={(childNode) => (
+            <TargetDocumentNode treeNode={childNode} documentId={documentNodeData.id} rank={1} />
+          )}
+        />
       </DataMapperProvider>,
     );
 
-    // Should render child nodes
     const nodes = container.querySelectorAll('[data-testid^="node-target-"]');
     expect(nodes.length).toBeGreaterThan(0);
   });

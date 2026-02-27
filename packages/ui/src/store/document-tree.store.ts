@@ -1,33 +1,76 @@
-import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
+import { createWithEqualityFn } from 'zustand/traditional';
 
 import { DocumentTree } from '../models/datamapper/document-tree';
 import { processTreeNode } from '../utils';
 
 /** [NodePath]: expansion state */
 export type TreeExpansionState = Record<string, boolean>;
+export type TreeConnectionPorts = Record<string, [number, number]>;
 
 export interface DocumentTreeState {
-  /** Map of [document ID]: expansion state */
+  /** Map of [document ID]: {[nodePath]: expansion state} */
   expansionState: Record<string, TreeExpansionState>;
+  /** Array of [document ID]: [nodePath] */
+  expansionStateArray: Record<string, string[]>;
+
+  /** Map of [document ID]: {[nodePath]: connector circle position} */
+  nodesConnectionPorts: Record<string, TreeConnectionPorts>;
+  /** Array of [document ID]: [nodePath] */
+  nodesConnectionPortsArray: Record<string, string[]>;
+
+  /** Version counter to trigger connection port recalculation */
+  connectionPortVersion: number;
+
+  /** Currently selected node for mapping */
+  selectedNodePath: string | null;
+  selectedNodeIsSource: boolean;
+
+  /** Set the document's connection ports map with fresh data */
+  setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => void;
 
   /** Toggle expansion state of a node */
   toggleExpansion: (documentId: string, nodePath: string) => void;
-
-  /** Set expansion state of a node */
-  setTreeExpansion: (documentId: string, treeState: TreeExpansionState) => void;
 
   /** Update the expansionState from a DocumentTree keeping the matching entries */
   updateTreeExpansion: (documentTree: DocumentTree) => void;
 
   /** Get expansion state of a node */
   isExpanded: (documentId: string, nodePath: string) => boolean;
+
+  /** @deprecated No longer needed - connection ports are updated via useDocumentScroll hook */
+  refreshConnectionPorts: () => void;
+
+  /** Selection state management */
+  setSelectedNode: (nodePath: string | null, isSource: boolean) => void;
+  toggleSelectedNode: (nodePath: string, isSource: boolean) => void;
+  clearSelection: () => void;
+  isNodeSelected: (nodePath: string) => boolean;
 }
 
-export const useDocumentTreeStore = create<DocumentTreeState>()(
+export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
   devtools(
     (set, get) => ({
       expansionState: {},
+      nodesConnectionPorts: {},
+      connectionPortVersion: 0,
+      selectedNodePath: null,
+      selectedNodeIsSource: false,
+
+      setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => {
+        set((state) => ({
+          nodesConnectionPorts: {
+            ...state.nodesConnectionPorts,
+            [documentId]: ports,
+          },
+          nodesConnectionPortsArray: {
+            ...state.nodesConnectionPortsArray,
+            [documentId]: Object.keys(ports),
+          },
+          connectionPortVersion: state.connectionPortVersion + 1,
+        }));
+      },
 
       toggleExpansion: (documentId: string, nodePath: string) => {
         const isExpanded = get().isExpanded(documentId, nodePath);
@@ -40,10 +83,6 @@ export const useDocumentTreeStore = create<DocumentTreeState>()(
             },
           },
         }));
-      },
-
-      setTreeExpansion: (documentId: string, treeState: TreeExpansionState) => {
-        set((state) => ({ expansionState: { ...state.expansionState, [documentId]: treeState } }));
       },
 
       updateTreeExpansion: (documentTree: DocumentTree) => {
@@ -60,13 +99,44 @@ export const useDocumentTreeStore = create<DocumentTreeState>()(
             ...state.expansionState,
             [documentTree.documentId]: newExpansionState,
           },
+          expansionStateArray: {
+            ...state.expansionStateArray,
+            [documentTree.documentId]: Object.keys(newExpansionState),
+          },
         }));
       },
 
       isExpanded: (documentId: string, nodePath: string) => {
         return get().expansionState[documentId]?.[nodePath] ?? false;
       },
+
+      /** @deprecated Only increments version without updating positions - use useDocumentScroll instead */
+      refreshConnectionPorts: () => {
+        // This method is deprecated and does nothing useful
+        // Connection ports are now updated automatically via useDocumentScroll effects
+      },
+
+      setSelectedNode: (nodePath, isSource) => {
+        set({ selectedNodePath: nodePath, selectedNodeIsSource: isSource });
+      },
+
+      toggleSelectedNode: (nodePath, isSource) => {
+        const current = get().selectedNodePath;
+        set({
+          selectedNodePath: current === nodePath ? null : nodePath,
+          selectedNodeIsSource: current === nodePath ? false : isSource,
+        });
+      },
+
+      clearSelection: () => {
+        set({ selectedNodePath: null, selectedNodeIsSource: false });
+      },
+
+      isNodeSelected: (nodePath) => {
+        return get().selectedNodePath === nodePath;
+      },
     }),
     { name: 'Document Tree Store' },
   ),
+  shallow,
 );

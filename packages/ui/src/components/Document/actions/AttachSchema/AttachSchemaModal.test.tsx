@@ -12,7 +12,6 @@ import {
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../../providers/datamapper-canvas.provider';
 import { DocumentService } from '../../../../services/document.service';
 import { BrowserFilePickerMetadataProvider } from '../../../../stubs/BrowserFilePickerMetadataProvider';
 import {
@@ -41,17 +40,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -88,17 +85,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.TARGET_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Target"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.TARGET_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Target"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -135,17 +130,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -173,17 +166,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -213,17 +204,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -256,17 +245,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -301,17 +288,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.TARGET_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Target"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.TARGET_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Target"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -348,17 +333,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={onModalClose}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={onModalClose}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -380,17 +363,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.TARGET_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Target"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.TARGET_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Target"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -420,17 +401,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.SOURCE_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Source"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -445,17 +424,15 @@ describe('AttachSchemaModal', () => {
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
-            <AttachSchemaModal
-              isModalOpen={true}
-              onModalClose={jest.fn()}
-              documentType={DocumentType.TARGET_BODY}
-              documentId={BODY_DOCUMENT_ID}
-              documentReferenceId={BODY_DOCUMENT_ID}
-              actionName="Attach"
-              documentTypeLabel="Target"
-            />
-          </DataMapperCanvasProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.TARGET_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Target"
+          />
         </DataMapperProvider>
       </BrowserFilePickerMetadataProvider>,
     );
@@ -489,17 +466,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -547,17 +522,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -601,17 +574,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.TARGET_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Target"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Target"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -677,9 +648,7 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <TestComponent />
-            </DataMapperCanvasProvider>
+            <TestComponent />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -732,17 +701,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.TARGET_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Target"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Target"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -773,17 +740,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -848,17 +813,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -900,17 +863,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.TARGET_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Target"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Target"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -949,17 +910,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.TARGET_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Target"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.TARGET_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Target"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -1000,17 +959,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -1043,17 +1000,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -1092,17 +1047,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -1145,17 +1098,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.SOURCE_BODY}
-                documentId={BODY_DOCUMENT_ID}
-                documentReferenceId={BODY_DOCUMENT_ID}
-                actionName="Attach"
-                documentTypeLabel="Source"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );
@@ -1168,17 +1119,15 @@ describe('AttachSchemaModal', () => {
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
-            <DataMapperCanvasProvider>
-              <AttachSchemaModal
-                isModalOpen={true}
-                onModalClose={jest.fn()}
-                documentType={DocumentType.PARAM}
-                documentId="myParam"
-                documentReferenceId="myParam"
-                actionName="Attach"
-                documentTypeLabel="Parameter: myParam"
-              />
-            </DataMapperCanvasProvider>
+            <AttachSchemaModal
+              isModalOpen={true}
+              onModalClose={jest.fn()}
+              documentType={DocumentType.PARAM}
+              documentId="myParam"
+              documentReferenceId="myParam"
+              actionName="Attach"
+              documentTypeLabel="Parameter: myParam"
+            />
           </DataMapperProvider>
         </BrowserFilePickerMetadataProvider>,
       );

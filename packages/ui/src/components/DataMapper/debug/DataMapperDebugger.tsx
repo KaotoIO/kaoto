@@ -1,8 +1,10 @@
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useMemo } from 'react';
 
 import { DocumentDefinition, DocumentInitializationModel } from '../../../models/datamapper';
+import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
+import { DatamapperDndProvider } from '../../../providers/datamapper-dnd.provider';
+import { SourceTargetDnDHandler } from '../../../providers/dnd/SourceTargetDnDHandler';
 import { DebugLayout } from './DebugLayout';
 
 type DataMapperDebuggerProps = {
@@ -18,6 +20,8 @@ export const DataMapperDebugger: FunctionComponent<DataMapperDebuggerProps> = ({
   initialXsltFile,
   onUpdateMappings,
 }) => {
+  const dndHandler = useMemo(() => new SourceTargetDnDHandler(), []);
+
   return (
     <DataMapperProvider
       documentInitializationModel={documentInitializationModel}
@@ -25,9 +29,11 @@ export const DataMapperDebugger: FunctionComponent<DataMapperDebuggerProps> = ({
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
     >
-      <DataMapperCanvasProvider>
-        <DebugLayout />
-      </DataMapperCanvasProvider>
+      <DatamapperDndProvider handler={dndHandler}>
+        <MappingLinksProvider>
+          <DebugLayout />
+        </MappingLinksProvider>
+      </DatamapperDndProvider>
     </DataMapperProvider>
   );
 };

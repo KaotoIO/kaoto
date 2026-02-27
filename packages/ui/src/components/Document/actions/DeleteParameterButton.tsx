@@ -2,7 +2,6 @@ import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useCanvas } from '../../../hooks/useCanvas';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentType } from '../../../models/datamapper/document';
@@ -18,7 +17,6 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
   parameterReferenceId,
 }) => {
   const { mappingTree, setMappingTree, refreshMappingTree, deleteSourceParameter } = useDataMapper();
-  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
@@ -26,18 +24,14 @@ export const DeleteParameterButton: FunctionComponent<DeleteParameterProps> = ({
     setMappingTree(cleaned);
     deleteSourceParameter(parameterName);
     refreshMappingTree();
-    clearNodeReferencesForDocument(DocumentType.PARAM, parameterName);
-    reloadNodeReferences();
     closeModal();
   }, [
-    clearNodeReferencesForDocument,
     closeModal,
     deleteSourceParameter,
     mappingTree,
     parameterName,
     parameterReferenceId,
     refreshMappingTree,
-    reloadNodeReferences,
     setMappingTree,
   ]);
 

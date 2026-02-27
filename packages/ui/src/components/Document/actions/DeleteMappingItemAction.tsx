@@ -10,7 +10,6 @@ import {
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useCanvas } from '../../../hooks/useCanvas';
 import { useToggle } from '../../../hooks/useToggle';
 import { ConditionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
@@ -23,17 +22,12 @@ type DeleteItemProps = {
 
 export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ nodeData, onDelete }) => {
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
-  const { clearNodeReferencesForPath, reloadNodeReferences } = useCanvas();
 
   const onConfirmDelete = useCallback(() => {
-    if (nodeData.mapping && nodeData.mapping instanceof ConditionItem) {
-      clearNodeReferencesForPath(nodeData.mapping.nodePath.toString());
-      reloadNodeReferences();
-    }
     VisualizationService.deleteMappingItem(nodeData);
     onDelete();
     closeModal();
-  }, [clearNodeReferencesForPath, closeModal, nodeData, onDelete, reloadNodeReferences]);
+  }, [closeModal, nodeData, onDelete]);
   const title = `Delete ${nodeData.title} mapping`;
   let warningMessage = undefined;
   if (

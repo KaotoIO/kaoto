@@ -1,58 +1,90 @@
 import './MappingLinkContainer.scss';
 
-import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useRef as useReactRef } from 'react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
-import { MappingLinksService } from '../../services/mapping-links.service';
+import { useDocumentTreeStore } from '../../store';
+import { getNearestVisiblePort } from '../../utils';
 import { MappingLink } from './MappingLink';
 
+const deduplicateByCoords = () => {
+  const seen = new Set<string>();
+  return (line: LineProps | null): line is LineProps => {
+    if (line === null) return false;
+    const key = `${line.x1},${line.y1},${line.x2},${line.y2}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  };
+};
+
+const sortMappingLines = (a: LineProps, b: LineProps): 0 | 1 | -1 => {
+  // Selected lines should be drawn last (on top)
+  if (a.isSelected && !b.isSelected) return 1;
+  if (!a.isSelected && b.isSelected) return -1;
+  return 0;
+};
+
 export const MappingLinksContainer: FunctionComponent = () => {
-  const [lineCoordList, setLineCoordList] = useState<LineProps[]>([]);
-  const { getNodeReference, nodeReferenceVersion, reloadNodeReferences } = useCanvas();
+  const nodesConnectionPorts = useDocumentTreeStore((state) => state.nodesConnectionPorts);
+  const nodesConnectionPortsArray = useDocumentTreeStore((state) => state.nodesConnectionPortsArray);
+  const expansionState = useDocumentTreeStore((state) => state.expansionState);
+  const expansionStateArray = useDocumentTreeStore((state) => state.expansionStateArray);
+  const connectionPortVersion = useDocumentTreeStore((state) => state.connectionPortVersion);
+
   const { getMappingLinks } = useMappingLinks();
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const isInitialRenderRef = useRef(true);
+  const svgRef = useReactRef<SVGSVGElement | null>(null);
+  const mappingLinks = getMappingLinks();
 
-  const refreshLinks = useCallback(() => {
-    const links = getMappingLinks();
-    const answer = MappingLinksService.calculateMappingLinkCoordinates(links, svgRef, getNodeReference);
-    setLineCoordList(answer);
-  }, [getMappingLinks, getNodeReference]);
+  // Get SVG container offset to convert absolute coordinates to relative
+  // Force recalculation when connectionPortVersion changes
+  const svgRect = svgRef.current?.getBoundingClientRect();
+  const svgOffsetLeft = svgRect?.left ?? 0;
+  const svgOffsetTop = svgRect?.top ?? 0;
 
-  // Refresh when node references change (via version counter)
-  // Scroll events are throttled at canvas provider level
-  // Layout changes (expand/collapse/add/remove) update immediately
-  useEffect(() => {
-    // On initial render, wait for ExpansionPanels grid layout to settle (CSS transition + layout)
-    // This ensures mapping lines are clamped to correct container bounds
-    if (isInitialRenderRef.current) {
-      isInitialRenderRef.current = false;
-      // Wait for grid transition (150ms) + layout calculation with double RAF
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          refreshLinks();
-        });
+  const lineCoordList: LineProps[] = mappingLinks
+    .map(({ sourceNodePath, targetNodePath, sourceDocumentId, targetDocumentId, isSelected }) => {
+      const sourcePort = getNearestVisiblePort(sourceNodePath, {
+        nodesConnectionPorts: nodesConnectionPorts[sourceDocumentId],
+        nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentId],
+        expansionState: expansionState[sourceDocumentId],
+        expansionStateArray: expansionStateArray[sourceDocumentId],
       });
-    } else {
-      // Subsequent updates - calculate immediately (user-initiated actions and throttled scroll)
-      refreshLinks();
-    }
-  }, [refreshLinks, nodeReferenceVersion]);
+      const targetPort = getNearestVisiblePort(targetNodePath, {
+        nodesConnectionPorts: nodesConnectionPorts[targetDocumentId],
+        nodesConnectionPortsArray: nodesConnectionPortsArray[targetDocumentId],
+        expansionState: expansionState[targetDocumentId],
+        expansionStateArray: expansionStateArray[targetDocumentId],
+      });
+      const isPartial = sourcePort.connectionTarget !== 'node' || targetPort.connectionTarget !== 'node';
+      const isSourceEdge = sourcePort.connectionTarget === 'edge';
+      const isTargetEdge = targetPort.connectionTarget === 'edge';
 
-  // Refresh on window resize - triggers immediate layout update
-  useEffect(() => {
-    const handleResize = () => reloadNodeReferences();
-    window.addEventListener('resize', handleResize);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [reloadNodeReferences]);
+      /* Convert absolute screen coordinates to SVG-relative coordinates */
+      return {
+        x1: sourcePort.position[0] - svgOffsetLeft,
+        y1: sourcePort.position[1] - svgOffsetTop,
+        x2: targetPort.position[0] - svgOffsetLeft,
+        y2: targetPort.position[1] - svgOffsetTop,
+        sourceNodePath,
+        targetNodePath,
+        isSelected,
+        isPartial,
+        isSourceEdge,
+        isTargetEdge,
+      } as LineProps;
+    })
+    .filter(deduplicateByCoords())
+    .sort(sortMappingLines);
 
   return (
-    <svg className="mapping-links-container" ref={svgRef} data-testid="mapping-links">
+    <svg
+      className="mapping-links-container"
+      ref={svgRef}
+      data-testid="mapping-links"
+      data-connection-port-version={connectionPortVersion}
+    >
       <defs>
         <clipPath id="mapping-clip" clipPathUnits="objectBoundingBox">
           <rect x="0" y="0" width="1" height="1" />
@@ -62,7 +94,6 @@ export const MappingLinksContainer: FunctionComponent = () => {
         {lineCoordList.map((lineProps) => (
           <MappingLink
             key={`${lineProps.sourceNodePath}-${lineProps.targetNodePath}`}
-            svgRef={svgRef}
             x1={lineProps.x1}
             y1={lineProps.y1}
             x2={lineProps.x2}
@@ -70,6 +101,9 @@ export const MappingLinksContainer: FunctionComponent = () => {
             sourceNodePath={lineProps.sourceNodePath}
             targetNodePath={lineProps.targetNodePath}
             isSelected={lineProps.isSelected}
+            isPartial={lineProps.isPartial}
+            isSourceEdge={lineProps.isSourceEdge}
+            isTargetEdge={lineProps.isTargetEdge}
           />
         ))}
       </g>

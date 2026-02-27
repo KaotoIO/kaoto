@@ -2,14 +2,17 @@
 
 .node {
   &__row {
+    --rank-margin: calc(var(--node-rank, 0) * 0.85rem);
+
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
     height: var(--datamapper-node-row-height, 2rem);
     font-size: var(--datamapper-node-font-size, 0.875rem);
+    position: relative;
 
     // Rank-based indentation - expand icon + margins = ~1.5rem per level
-    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+    margin-left: var(--rank-margin);
 
     &[data-draggable='true'] {
       @include dnd.cursor-grab;
@@ -67,6 +70,21 @@
       display: block;
       width: calc(1rem * var(--datamapper-scale-factor, 1));
       height: calc(1rem * var(--datamapper-scale-factor, 1));
+    }
+  }
+
+  &__connection-port {
+    position: absolute;
+    pointer-events: none;
+    top: 50%;
+    transform: translateY(-50%);
+
+    &--source {
+      right: 10px;
+    }
+
+    &--target {
+      left: calc(var(--rank-margin) * -0.7);
     }
   }
 }

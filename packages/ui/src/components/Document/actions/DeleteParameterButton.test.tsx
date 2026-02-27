@@ -9,8 +9,8 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
+import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DeleteParameterButton } from './DeleteParameterButton';
 
 describe('DeleteParameterButton', () => {
@@ -34,11 +34,11 @@ describe('DeleteParameterButton', () => {
     };
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <ParamTest>
             <DeleteParameterButton parameterName="testparam1" parameterReferenceId="testparam1" />
           </ParamTest>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     const deleteBtn = await screen.findByTestId('delete-parameter-testparam1-button');

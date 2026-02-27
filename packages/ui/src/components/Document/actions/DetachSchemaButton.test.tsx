@@ -3,8 +3,8 @@ import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
+import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { DocumentService } from '../../../services/document.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DetachSchemaButton } from './DetachSchemaButton';
@@ -28,7 +28,7 @@ describe('DetachSchemaButton', () => {
     };
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachTest>
             <DetachSchemaButton
               documentId={BODY_DOCUMENT_ID}
@@ -36,7 +36,7 @@ describe('DetachSchemaButton', () => {
               documentReferenceId="ShipOrder.xsd"
             />
           </DetachTest>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
     const detachBtn = await screen.findByTestId('detach-schema-sourceBody-Body-button');
@@ -56,13 +56,13 @@ describe('DetachSchemaButton', () => {
   it('should open and close modal', async () => {
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachSchemaButton
             documentId={BODY_DOCUMENT_ID}
             documentType={DocumentType.SOURCE_BODY}
             documentReferenceId="test"
           />
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 
@@ -98,7 +98,7 @@ describe('DetachSchemaButton', () => {
 
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachTestParam>
             <DetachSchemaButton
               documentId="testParam"
@@ -106,7 +106,7 @@ describe('DetachSchemaButton', () => {
               documentReferenceId="testParam"
             />
           </DetachTestParam>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 
@@ -137,7 +137,7 @@ describe('DetachSchemaButton', () => {
 
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachTestTarget>
             <DetachSchemaButton
               documentId={BODY_DOCUMENT_ID}
@@ -145,7 +145,7 @@ describe('DetachSchemaButton', () => {
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DetachTestTarget>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 
@@ -181,7 +181,7 @@ describe('DetachSchemaButton', () => {
 
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachTestError>
             <DetachSchemaButton
               documentId={BODY_DOCUMENT_ID}
@@ -189,7 +189,7 @@ describe('DetachSchemaButton', () => {
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DetachTestError>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 
@@ -229,7 +229,7 @@ describe('DetachSchemaButton', () => {
 
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachTestWarning>
             <DetachSchemaButton
               documentId={BODY_DOCUMENT_ID}
@@ -237,7 +237,7 @@ describe('DetachSchemaButton', () => {
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DetachTestWarning>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 
@@ -278,7 +278,7 @@ describe('DetachSchemaButton', () => {
 
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
+        <MappingLinksProvider>
           <DetachTestMissing>
             <DetachSchemaButton
               documentId={BODY_DOCUMENT_ID}
@@ -286,7 +286,7 @@ describe('DetachSchemaButton', () => {
               documentReferenceId={BODY_DOCUMENT_ID}
             />
           </DetachTestMissing>
-        </DataMapperCanvasProvider>
+        </MappingLinksProvider>
       </DataMapperProvider>,
     );
 

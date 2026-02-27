@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { FunctionComponent, useCallback, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
 import { Loading } from '../../components/Loading';
@@ -26,8 +26,10 @@ import {
 } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, MetadataContext } from '../../providers';
+import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
+import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
+import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
 
@@ -43,6 +45,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const [documentInitializationModel, setDocumentInitializationModel] = useState<DocumentInitializationModel>();
   const [initialXsltFile, setInitialXsltFile] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const dndHandler = useMemo(() => new SourceTargetDnDHandler(), []);
 
   useEffect(() => {
     if (!metadataId) return;
@@ -142,9 +145,11 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       onUpdateMappings={onUpdateMappings}
       onUpdateNamespaceMap={onUpdateNamespaceMap}
     >
-      <DataMapperCanvasProvider>
-        <DataMapperControl />
-      </DataMapperCanvasProvider>
+      <DatamapperDndProvider handler={dndHandler}>
+        <MappingLinksProvider>
+          <DataMapperControl />
+        </MappingLinksProvider>
+      </DatamapperDndProvider>
     </DataMapperProvider>
   );
 };

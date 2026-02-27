@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import {
@@ -12,8 +12,8 @@ import {
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { ChoiceFieldNodeData, DocumentNodeData } from '../../models/datamapper/visualization';
+import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DocumentUtilService } from '../../services/document-util.service';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
@@ -25,7 +25,7 @@ import { SourceDocumentNode } from './SourceDocumentNode';
 describe('SourceDocumentNode', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <DataMapperProvider>
-      <DataMapperCanvasProvider>{children}</DataMapperCanvasProvider>
+      <MappingLinksProvider>{children}</MappingLinksProvider>
     </DataMapperProvider>
   );
 
@@ -42,7 +42,11 @@ describe('SourceDocumentNode', () => {
 
   beforeEach(() => {
     act(() => {
-      useDocumentTreeStore.setState({ expansionState: {} });
+      useDocumentTreeStore.setState({
+        expansionState: {},
+        selectedNodePath: null,
+        selectedNodeIsSource: false,
+      });
     });
   });
 
@@ -462,35 +466,33 @@ describe('SourceDocumentNode', () => {
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
 
-    it('should apply selected-container class when selected', () => {
+    it('should update data-selected attribute when selected', async () => {
       const document = new PrimitiveDocument(
         new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
       );
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      let result: ReturnType<typeof render>;
-      act(() => {
-        result = render(
-          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
-          {
-            wrapper,
-          },
-        );
+      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
+        wrapper,
       });
 
       const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+
+      // Initially not selected
+      expect(nodeContainer).toHaveAttribute('data-selected', 'false');
 
       act(() => {
         fireEvent.click(nodeContainer);
       });
 
-      // Check for selected-container class
-      const selectedContainer = result!.container.querySelector('.selected-container');
-      expect(selectedContainer).toBeInTheDocument();
+      // Wait for the component to re-render with selected state
+      await waitFor(() => {
+        expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+      });
     });
 
-    it('should call toggleSelectedNodeReference when clicking field', () => {
+    it('should call toggleSelectedNode when clicking field', () => {
       const document = new PrimitiveDocument(
         new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
       );
@@ -588,9 +590,9 @@ describe('SourceDocumentNode', () => {
 
       rerender(
         <DataMapperProvider>
-          <DataMapperCanvasProvider>
+          <MappingLinksProvider>
             <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />
-          </DataMapperCanvasProvider>
+          </MappingLinksProvider>
         </DataMapperProvider>,
       );
 
@@ -598,93 +600,11 @@ describe('SourceDocumentNode', () => {
     });
   });
 
-  describe('Children Rendering', () => {
-    it('should render children when expanded and hasChildren is true', () => {
-      const document = TestUtil.createSourceOrderDoc();
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-      TreeParsingService.parseTree(tree);
-
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: true,
-            },
-          },
-        });
-      });
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      expect(tree.root.children.length).toBeGreaterThan(0);
-      for (const child of tree.root.children) {
-        expect(screen.getByTestId(`node-source-${child.nodeData.id}`)).toBeInTheDocument();
-      }
-    });
-
-    it('should not render children when collapsed', () => {
-      expect.assertions(2);
-      const document = TestUtil.createSourceOrderDoc();
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-      TreeParsingService.parseTree(tree);
-
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: {
-              [tree.root.path]: false,
-            },
-          },
-        });
-      });
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      expect(tree.root.children.length).toBeGreaterThan(0);
-      for (const child of tree.root.children) {
-        expect(screen.queryByTestId(`node-source-${child.nodeData.id}`)).not.toBeInTheDocument();
-      }
-    });
-
-    it('should recursively render nested children', () => {
-      expect.assertions(5);
-      const document = TestUtil.createSourceOrderDoc();
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
-      TreeParsingService.parseTree(tree);
-
-      const grandchildren = tree.root.children.flatMap((c) => c.children);
-
-      act(() => {
-        useDocumentTreeStore.setState({
-          expansionState: {
-            [documentNodeData.id]: Object.fromEntries(
-              // Expand all nodes
-              [tree.root, ...tree.root.children, ...grandchildren].map((node) => [node.path, true]),
-            ),
-          },
-        });
-      });
-
-      render(<SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />, {
-        wrapper,
-      });
-
-      for (const child of tree.root.children) {
-        expect(screen.getByTestId(`node-source-${child.nodeData.id}`)).toBeInTheDocument();
-
-        for (const grandchild of child.children) {
-          expect(screen.getByTestId(`node-source-${grandchild.nodeData.id}`)).toBeInTheDocument();
-        }
-      }
-    });
-  });
+  // Note: Children rendering tests removed
+  // With virtual scrolling implementation, SourceDocumentNode no longer renders its children.
+  // Children are now rendered by the parent Virtuoso component in SourcePanel/Parameters,
+  // which flattens the tree and renders only visible nodes. See SourcePanel.test.tsx and
+  // Parameters.test.tsx for tests of the full virtualized rendering behavior.
 
   describe('Read-only Mode', () => {
     it('should still allow expansion/collapse in read-only mode', () => {

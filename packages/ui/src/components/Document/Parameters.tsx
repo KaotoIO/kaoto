@@ -1,15 +1,19 @@
-import './Parameters.scss';
 import './BaseDocument.scss';
+import './Parameters.scss';
 
 import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
+import { useDocumentTreeStore } from '../../store/document-tree.store';
+import { flattenTreeNodes } from '../../utils/flatten-tree-nodes';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import {
   PANEL_COLLAPSED_HEIGHT,
@@ -17,16 +21,29 @@ import {
   PANEL_INPUT_HEIGHT,
   PANEL_INPUT_MIN_HEIGHT,
   PANEL_MIN_HEIGHT,
+  VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
 import { DeleteParameterButton } from './actions/DeleteParameterButton';
 import { RenameParameterButton } from './actions/RenameParameterButton';
-import { DocumentContent, DocumentHeader } from './BaseDocument';
+import { DocumentHeader } from './BaseDocument';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNode } from './SourceDocumentNode';
 
+// Scroller component that wraps scroll handling for Virtuoso
+const createScrollerComponent = (onScrollCallback: () => void) => {
+  return forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, ref) => (
+    <div
+      {...props}
+      ref={ref}
+      onScroll={() => {
+        onScrollCallback();
+      }}
+    />
+  ));
+};
+
 type ParametersSectionProps = {
   isReadOnly: boolean;
-  onScroll: () => void;
   onLayoutChange?: () => void;
   actionItems?: React.ReactNode[];
 };
@@ -98,7 +115,6 @@ type ParameterPanelProps = {
   renamingParameter: string | null;
   onStartRename: (name: string) => void;
   onStopRename: () => void;
-  onScroll: () => void;
   onLayoutChange?: () => void;
 };
 
@@ -113,7 +129,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   renamingParameter,
   onStartRename,
   onStopRename,
-  onScroll,
   onLayoutChange,
 }) => {
   const { mappingTree } = useDataMapper();
@@ -124,31 +139,45 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
     setParameterTree(TreeUIService.createTree(parameterNodeData));
   }, [parameterNodeData]);
 
+  // Optimize: Select only the expansion state for this document
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[parameterNodeData.id] || {});
+  const onScroll = useDocumentScroll(parameterNodeData.id);
+
+  // Flatten tree based on expansion state
+  const flattenedNodes = useMemo(() => {
+    if (!parameterTree) return [];
+    return flattenTreeNodes(parameterTree.root, (path) => documentExpansionState[path] ?? false);
+  }, [parameterTree, documentExpansionState]);
+
   const hasSchema = !parameterNodeData.isPrimitive;
   const [isExpanded, setIsExpanded] = useState(hasSchema);
   const parameterName = document.documentId;
   const isRenaming = renamingParameter === parameterName;
   const documentReferenceId = document.getReferenceId(mappingTree.namespaceMap);
 
-  // Track hasSchema changes to trigger mapping line updates when schema is attached/detached
-  const prevHasSchemaRef = useRef(hasSchema);
-  const onLayoutChangeRef = useRef(onLayoutChange);
-  onLayoutChangeRef.current = onLayoutChange;
-
-  useEffect(() => {
-    // Only trigger layout change if hasSchema actually changed (not on initial mount)
-    if (prevHasSchemaRef.current !== hasSchema) {
-      prevHasSchemaRef.current = hasSchema;
-      // Wait for ExpansionPanel CSS grid animation (150ms) + child node mounting
-      // This ensures mapping lines are recalculated after the panel is fully expanded
-      setTimeout(() => {
-        onLayoutChangeRef.current?.();
-      }, 200);
-    }
-  }, [hasSchema]);
+  const edgeMarkers = useMemo(
+    () => [
+      <span
+        key="edge-top"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
+        data-connection-port="true"
+        data-document-id={parameterNodeData.id}
+        data-node-path={`${parameterName}:EDGE:top`}
+      />,
+      <span
+        key="edge-bottom"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
+        data-connection-port="true"
+        data-document-id={parameterNodeData.id}
+        data-node-path={`${parameterName}:EDGE:bottom`}
+      />,
+    ],
+    [parameterNodeData.id, parameterName],
+  );
 
   const parameterActions = useMemo(
     () => [
+      ...edgeMarkers,
       <RenameParameterButton
         key="rename"
         parameterName={parameterName}
@@ -156,7 +185,15 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
       />,
       <DeleteParameterButton key="delete" parameterName={parameterName} parameterReferenceId={documentReferenceId} />,
     ],
-    [parameterName, documentReferenceId, onStartRename],
+    [edgeMarkers, parameterName, documentReferenceId, onStartRename],
+  );
+
+  // Memoize the Virtuoso components object to prevent recreation on every render
+  const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(
+    () => ({
+      Scroller: createScrollerComponent(onScroll),
+    }),
+    [onScroll],
   );
 
   return (
@@ -186,23 +223,27 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           </div>
         )
       }
-      onScroll={onScroll}
-      onLayoutChange={onLayoutChange}
+      onLayoutChange={onScroll}
       onExpandedChange={setIsExpanded}
     >
       {/* Only render children if parameter has schema */}
       {hasSchema && parameterTree && (
-        <DocumentContent
-          treeNode={parameterTree.root}
-          isReadOnly={isReadOnly}
-          renderNodes={(childNode, readOnly) => (
-            <SourceDocumentNode
-              treeNode={childNode}
-              documentId={parameterTree.documentId}
-              isReadOnly={readOnly}
-              rank={1}
-            />
-          )}
+        <Virtuoso
+          totalCount={flattenedNodes.length}
+          components={virtuosoComponents}
+          itemContent={(index) => {
+            const flattenedNode = flattenedNodes[index];
+            return (
+              <SourceDocumentNode
+                key={flattenedNode.path}
+                treeNode={flattenedNode.treeNode}
+                documentId={parameterNodeData.id}
+                isReadOnly={isReadOnly}
+                rank={flattenedNode.depth + 1}
+              />
+            );
+          }}
+          overscan={VIRTUOSO_OVERSCAN}
         />
       )}
     </ExpansionPanel>
@@ -218,7 +259,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
  */
 export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
   isReadOnly,
-  onScroll,
   onLayoutChange,
   actionItems,
 }) => {
@@ -278,7 +318,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
         defaultExpanded={false}
         defaultHeight={PANEL_COLLAPSED_HEIGHT}
         minHeight={PANEL_MIN_HEIGHT}
-        onScroll={onScroll}
         onLayoutChange={onLayoutChange}
       >
         {/* NO CHILDREN - header only panel */}
@@ -295,7 +334,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
               defaultExpanded={false}
               defaultHeight={PANEL_INPUT_HEIGHT} // Fixed height to accommodate input + error messages
               minHeight={PANEL_INPUT_MIN_HEIGHT}
-              onScroll={onScroll}
               onLayoutChange={onLayoutChange}
             >
               {/* NO CHILDREN - input only */}
@@ -312,7 +350,6 @@ export const ParametersSection: FunctionComponent<ParametersSectionProps> = ({
               renamingParameter={renamingParameter}
               onStartRename={handleStartRename}
               onStopRename={handleStopRename}
-              onScroll={onScroll}
               onLayoutChange={onLayoutChange}
             />
           ))}

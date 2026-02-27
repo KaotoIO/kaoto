@@ -10,29 +10,29 @@ export const DataMapperDnDMonitor: FunctionComponent = () => {
   useDndMonitor({
     onDragStart(event) {
       const fromField = event.active.data.current as NodeData;
-      console.log(`onDragStart: [active: ${fromField?.path.toString()}, handler=${handler?.constructor.name}]`);
+      console.debug(`onDragStart: [active: ${fromField?.path?.toString()}, handler=${handler?.constructor.name}]`);
     },
 
     onDragOver(event: DragOverEvent) {
       const fromField = event.active?.data.current as NodeData;
       const toField = event.over?.data.current as NodeData;
-      console.log(
-        `onDragOver: [active: ${fromField?.path.toString()}, over:${toField?.path.toString()}, handler=${handler?.constructor.name}]`,
+      console.debug(
+        `onDragOver: [active: ${fromField?.path?.toString()}, over:${toField?.path?.toString()}, handler=${handler?.constructor.name}]`,
       );
     },
 
     onDragEnd(event) {
       const fromField = event.active?.data.current as NodeData;
       const toField = event.over?.data.current as NodeData;
-      console.log(
-        `onDragEnd: [active: ${fromField?.path.toString()}, over:${toField?.path.toString()}, handler=${handler?.constructor.name}]`,
+      console.debug(
+        `onDragEnd: [active: ${fromField?.path?.toString()}, over:${toField?.path?.toString()}, handler=${handler?.constructor.name}]`,
       );
     },
     onDragCancel(event) {
       const fromField = event.active?.data.current as NodeData;
       const toField = event.over?.data.current as NodeData;
-      console.log(
-        `onDragCancel: active: ${fromField?.path.toString()}, over:${toField?.path.toString()}, handler=${handler?.constructor.name}]`,
+      console.debug(
+        `onDragCancel: active: ${fromField?.path?.toString()}, over:${toField?.path?.toString()}, handler=${handler?.constructor.name}]`,
       );
     },
   });

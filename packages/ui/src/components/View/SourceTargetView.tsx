@@ -2,11 +2,10 @@ import './SourceTargetView.scss';
 
 import { Button, Split, SplitItem } from '@patternfly/react-core';
 import { SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
-import { CSSProperties, FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { CSSProperties, FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
-import { useCanvas } from '../../hooks/useCanvas';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
-import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
+import { useDocumentTreeStore } from '../../store';
 import { MappingLinksContainer } from './MappingLinkContainer';
 import { SourcePanel } from './SourcePanel';
 import { TargetPanel } from './TargetPanel';
@@ -18,14 +17,9 @@ interface SourceTargetViewProps {
 export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   uiScaleFactor: initialScaleFactor = 1,
 }) => {
-  const { reloadNodeReferences, setDefaultHandler } = useCanvas();
   const { mappingLinkCanvasRef } = useMappingLinks();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scaleFactor, setScaleFactor] = useState(initialScaleFactor);
-
-  useEffect(() => {
-    setDefaultHandler(new SourceTargetDnDHandler());
-  }, [setDefaultHandler]);
 
   const handleZoomIn = useCallback(() => {
     setScaleFactor((prev) => Math.min(prev + 0.1, 1.2)); // Max 1.2x zoom
@@ -64,30 +58,18 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
     [handleZoomIn, handleZoomOut],
   );
 
-  // Reload node references when scale factor changes to update mapping lines
-  useEffect(() => {
-    // Give the browser time to apply the CSS changes before recalculating positions
-    const timeoutId = setTimeout(() => {
-      reloadNodeReferences();
-    }, 50);
-
-    return () => clearTimeout(timeoutId);
-  }, [scaleFactor, reloadNodeReferences]);
-
   // Apply scale factor dynamically
   const customStyles: CSSProperties = {
     '--datamapper-scale-factor': scaleFactor,
   } as CSSProperties;
 
   return (
-    <Split className="source-target-view" onScroll={reloadNodeReferences} style={customStyles} ref={containerRef}>
+    <Split className="source-target-view" style={customStyles} ref={containerRef}>
       <SplitItem className="source-target-view__source-split" isFilled>
         <SourcePanel actionItems={datamapperActionItems} />
       </SplitItem>
 
-      <SplitItem className="source-target-view__line-blank">
-        <div ref={mappingLinkCanvasRef} />
-      </SplitItem>
+      <SplitItem ref={mappingLinkCanvasRef} className="source-target-view__line-blank" />
 
       <SplitItem className="source-target-view__target-split" isFilled>
         <TargetPanel />

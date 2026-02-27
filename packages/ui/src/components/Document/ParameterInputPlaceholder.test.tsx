@@ -3,7 +3,6 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { DocumentService } from '../../services/document.service';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 
@@ -30,11 +29,9 @@ describe('ParameterInputPlaceholder', () => {
   function renderAndSubmit() {
     render(
       <DataMapperProvider>
-        <DataMapperCanvasProvider>
-          <AlertCapture>
-            <ParameterInputPlaceholder onComplete={mockOnComplete} />
-          </AlertCapture>
-        </DataMapperCanvasProvider>
+        <AlertCapture>
+          <ParameterInputPlaceholder onComplete={mockOnComplete} />
+        </AlertCapture>
       </DataMapperProvider>,
     );
 
