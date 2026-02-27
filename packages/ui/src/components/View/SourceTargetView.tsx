@@ -69,10 +69,7 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
         <SourcePanel actionItems={datamapperActionItems} />
       </SplitItem>
 
-      <SplitItem ref={mappingLinkCanvasRef} className="source-target-view__line-blank">
-        <span data-connection-port="true" data-node-path="EDGE:top" data-connection-port-location="top" />
-        <span data-connection-port="true" data-node-path="EDGE:bottom" data-connection-port-location="bottom" />
-      </SplitItem>
+      <SplitItem ref={mappingLinkCanvasRef} className="source-target-view__line-blank" />
 
       <SplitItem className="source-target-view__target-split" isFilled>
         <TargetPanel />

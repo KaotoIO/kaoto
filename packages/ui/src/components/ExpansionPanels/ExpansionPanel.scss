@@ -48,6 +48,40 @@
     opacity: 0;
   }
 
+  // Edge markers for virtual scroll - positioned relative to expansion panel
+  // These markers are placed in the document header actions but positioned absolutely
+  // relative to the .expansion-panel container (which has position: relative)
+  /* stylelint-disable-next-line selector-class-pattern */
+  .expansion-panel__edge-marker {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    z-index: 10; // Ensure markers are accessible to DOM queries
+    visibility: visible; // Always visible for getBoundingClientRect()
+
+    &--top {
+      // Position at the bottom edge of the summary header (top of content area)
+      top: var(--datamapper-panel-header-height, 2rem);
+    }
+
+    &--bottom {
+      // Position at the center of the resize handle (4px tall, centered at 2px from bottom)
+      // This aligns with the visual resize handle for consistent UX
+      bottom: 2px;
+    }
+
+    // Source and parameter panels: connection ports on the right side
+    &--source {
+      right: 0;
+    }
+
+    // Target panels: connection ports on the left side
+    &--target {
+      left: 0;
+    }
+  }
+
   &__resize-handle {
     height: 4px;
     cursor: ns-resize;

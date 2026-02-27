@@ -8,6 +8,17 @@ import { useDocumentTreeStore } from '../../store';
 import { getNearestVisiblePort } from '../../utils';
 import { MappingLink } from './MappingLink';
 
+const deduplicateByCoords = () => {
+  const seen = new Set<string>();
+  return (line: LineProps | null): line is LineProps => {
+    if (line === null) return false;
+    const key = `${line.x1},${line.y1},${line.x2},${line.y2}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  };
+};
+
 const sortMappingLines = (a: LineProps, b: LineProps): 0 | 1 | -1 => {
   // Selected lines should be drawn last (on top)
   if (a.isSelected && !b.isSelected) return 1;
@@ -50,11 +61,6 @@ export const MappingLinksContainer: FunctionComponent = () => {
       const isSourceEdge = sourcePort.connectionTarget === 'edge';
       const isTargetEdge = targetPort.connectionTarget === 'edge';
 
-      /* Only create line if there's one 'node' or 'parent' involved. */
-      if (isSourceEdge && isTargetEdge) {
-        return null;
-      }
-
       /* Convert absolute screen coordinates to SVG-relative coordinates */
       return {
         x1: sourcePort.position[0] - svgOffsetLeft,
@@ -69,7 +75,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
         isTargetEdge,
       } as LineProps;
     })
-    .filter((line): line is LineProps => line !== null)
+    .filter(deduplicateByCoords())
     .sort(sortMappingLines);
 
   return (

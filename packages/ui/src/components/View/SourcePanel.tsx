@@ -73,6 +73,27 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     [onScroll],
   );
 
+  // Edge markers for virtual scroll connection ports
+  const edgeMarkers = useMemo(
+    () => [
+      <span
+        key="edge-top"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
+        data-connection-port="true"
+        data-document-id={sourceBodyNodeData.id}
+        data-node-path={`${sourceBodyDocument.documentId}:EDGE:top`}
+      />,
+      <span
+        key="edge-bottom"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
+        data-connection-port="true"
+        data-document-id={sourceBodyNodeData.id}
+        data-node-path={`${sourceBodyDocument.documentId}:EDGE:bottom`}
+      />,
+    ],
+    [sourceBodyNodeData.id, sourceBodyDocument.documentId],
+  );
+
   return (
     <div id="panel-source" className="source-panel">
       <ExpansionPanels firstPanelId="parameters-header" lastPanelId="source-body">
@@ -93,7 +114,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               documentType={DocumentType.SOURCE_BODY}
               isReadOnly={isReadOnly}
               enableDnD={false}
-              additionalActions={[]}
+              additionalActions={edgeMarkers}
             />
           }
           onLayoutChange={onScroll}

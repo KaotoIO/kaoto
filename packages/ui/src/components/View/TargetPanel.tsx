@@ -83,9 +83,30 @@ export const TargetPanel: FunctionComponent = () => {
     return VisualizationService.getExpressionItemForNode(targetBodyNodeData);
   }, [targetBodyNodeData]);
 
+  // Edge markers for virtual scroll connection ports
+  const edgeMarkers = useMemo(
+    () => [
+      <span
+        key="edge-top"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--target"
+        data-connection-port="true"
+        data-document-id={targetBodyNodeData.id}
+        data-node-path={`${targetBodyDocument.documentId}:EDGE:top`}
+      />,
+      <span
+        key="edge-bottom"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--target"
+        data-connection-port="true"
+        data-document-id={targetBodyNodeData.id}
+        data-node-path={`${targetBodyDocument.documentId}:EDGE:bottom`}
+      />,
+    ],
+    [targetBodyNodeData.id, targetBodyDocument.documentId],
+  );
+
   // Actions for target body document
   const documentActions = useMemo(() => {
-    const actions = [];
+    const actions = [...edgeMarkers];
 
     // XPath actions for primitive target body with mapping
     if (expressionItem) {
@@ -113,7 +134,7 @@ export const TargetPanel: FunctionComponent = () => {
     }
 
     return actions;
-  }, [expressionItem, targetBodyNodeData, handleUpdate]);
+  }, [edgeMarkers, expressionItem, targetBodyNodeData, handleUpdate]);
 
   return (
     <div id="panel-target" className="target-panel">

@@ -155,8 +155,29 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   const isRenaming = renamingParameter === parameterName;
   const documentReferenceId = document.getReferenceId(mappingTree.namespaceMap);
 
+  const edgeMarkers = useMemo(
+    () => [
+      <span
+        key="edge-top"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--top expansion-panel__edge-marker--source"
+        data-connection-port="true"
+        data-document-id={parameterNodeData.id}
+        data-node-path={`${parameterName}:EDGE:top`}
+      />,
+      <span
+        key="edge-bottom"
+        className="expansion-panel__edge-marker expansion-panel__edge-marker--bottom expansion-panel__edge-marker--source"
+        data-connection-port="true"
+        data-document-id={parameterNodeData.id}
+        data-node-path={`${parameterName}:EDGE:bottom`}
+      />,
+    ],
+    [parameterNodeData.id, parameterName],
+  );
+
   const parameterActions = useMemo(
     () => [
+      ...edgeMarkers,
       <RenameParameterButton
         key="rename"
         parameterName={parameterName}
@@ -164,7 +185,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
       />,
       <DeleteParameterButton key="delete" parameterName={parameterName} parameterReferenceId={documentReferenceId} />,
     ],
-    [parameterName, documentReferenceId, onStartRename],
+    [edgeMarkers, parameterName, documentReferenceId, onStartRename],
   );
 
   // Memoize the Virtuoso components object to prevent recreation on every render

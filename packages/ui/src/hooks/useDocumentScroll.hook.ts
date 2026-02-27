@@ -35,9 +35,9 @@ export const useDocumentScroll = (documentId: string) => {
     rafId.current = requestAnimationFrame(() => {
       rafId.current = null;
 
-      /* Query document-specific ports and shared EDGE elements in a single selector */
+      /* Query document-specific ports (includes both node ports and EDGE markers) */
       const documentPortElements = document.querySelectorAll<HTMLElement>(
-        `[data-connection-port="true"][data-document-id="${documentId}"], [data-connection-port="true"][data-node-path^="EDGE:"]`,
+        `[data-connection-port="true"][data-document-id="${documentId}"]`,
       );
 
       const documentVisiblePorts: TreeConnectionPorts = {};
@@ -47,7 +47,7 @@ export const useDocumentScroll = (documentId: string) => {
         if (!nodePath) return;
 
         /* EDGE elements are always visible, document elements need visibility check */
-        const isEdgeElement = nodePath.startsWith('EDGE:');
+        const isEdgeElement = nodePath.endsWith(':EDGE:top') || nodePath.endsWith(':EDGE:bottom');
         if (isEdgeElement || isElementVisibleInContainer(element)) {
           const rect = element.getBoundingClientRect();
           const position: [number, number] = [rect.x + rect.width / 2, rect.y + rect.height / 2];

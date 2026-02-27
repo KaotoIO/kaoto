@@ -22,8 +22,14 @@ export function getNearestVisiblePort(
 ): { connectionTarget: 'node' | 'edge' | 'parent'; position: [number, number] } {
   const { nodesConnectionPorts, nodesConnectionPortsArray, expansionState, expansionStateArray } = options;
 
+  // Extract document name from path (format: "documentType:documentName://path/to/node")
+  const nodePath = new NodePath(path);
+  const documentName = nodePath.documentId;
+  const edgeTopKey = `${documentName}:EDGE:top`;
+  const edgeBottomKey = `${documentName}:EDGE:bottom`;
+
   /* If the document's connection ports don't exist, return edge bottom fallback */
-  if (!nodesConnectionPorts?.['EDGE:bottom']) {
+  if (!nodesConnectionPorts?.[edgeBottomKey]) {
     return { connectionTarget: 'edge', position: [0, 0] };
   }
 
@@ -31,8 +37,6 @@ export function getNearestVisiblePort(
   if (nodesConnectionPorts[path]) {
     return { connectionTarget: 'node', position: nodesConnectionPorts[path] };
   }
-
-  const nodePath = new NodePath(path);
 
   while (nodePath.pathSegments.length > 0) {
     // Remove the last segment to get the parent path
@@ -49,12 +53,12 @@ export function getNearestVisiblePort(
   const pathIndex = expansionStateArray.indexOf(path);
 
   if (!firstVisiblePath || !lastVisiblePath || pathIndex < 0) {
-    return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:bottom'] };
+    return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeBottomKey] };
   }
 
   if (pathIndex < expansionStateArray.indexOf(firstVisiblePath)) {
-    return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:top'] };
+    return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeTopKey] };
   }
 
-  return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:bottom'] };
+  return { connectionTarget: 'edge', position: nodesConnectionPorts[edgeBottomKey] };
 }
