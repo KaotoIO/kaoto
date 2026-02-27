@@ -48,7 +48,7 @@ export function getNearestVisiblePort(
   const lastVisiblePath = nodesConnectionPortsArray.at(-1);
   const pathIndex = expansionStateArray.indexOf(path);
 
-  if (!firstVisiblePath || lastVisiblePath || pathIndex < 0) {
+  if (!firstVisiblePath || !lastVisiblePath || pathIndex < 0) {
     return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:bottom'] };
   }
 
