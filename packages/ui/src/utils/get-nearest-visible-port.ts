@@ -7,18 +7,23 @@ import { TreeExpansionState } from '../store/document-tree.store';
  * walks up the parent hierarchy to find the first ancestor with a registered port.
  *
  * @param path - The full path of the node (e.g., "SOURCE_BODY:customer://customer/address/zipcode")
- * @param connectionPortsMap - Map of registered connection ports
- * @param expansionStateMap - Map of document's nodes expansion state
+ * @param nodesConnectionPorts - Map of registered connection ports
+ * @param expansionState - Map of document's nodes expansion state
  * @returns The position of the nearest visible port, or null if none found
  */
 export function getNearestVisiblePort(
   path: string,
-  connectionPortsMap: Record<string, [number, number]>,
-  expansionStateMap: TreeExpansionState,
+  options: {
+    nodesConnectionPorts: Record<string, [number, number]>;
+    connectionPortsKeys: string[];
+    expansionState: TreeExpansionState;
+    expansionKeys: string[];
+  },
 ): { connectionTarget: 'node' | 'edge' | 'parent'; position: [number, number] } {
+  const { nodesConnectionPorts, connectionPortsKeys, expansionState, expansionKeys } = options;
   /* If the node is present in the connection port map, it's visible. (Not virtualized away nor collapsed) */
-  if (connectionPortsMap[path]) {
-    return { connectionTarget: 'node', position: connectionPortsMap[path] };
+  if (nodesConnectionPorts[path]) {
+    return { connectionTarget: 'node', position: nodesConnectionPorts[path] };
   }
 
   const nodePath = new NodePath(path);
@@ -28,10 +33,22 @@ export function getNearestVisiblePort(
     nodePath.pathSegments = nodePath.pathSegments.slice(0, -1);
     const parentPath = nodePath.toString();
 
-    if (connectionPortsMap[parentPath] && !expansionStateMap[parentPath]) {
-      return { connectionTarget: 'parent', position: connectionPortsMap[parentPath] };
+    if (nodesConnectionPorts[parentPath] && !expansionState[parentPath]) {
+      return { connectionTarget: 'parent', position: nodesConnectionPorts[parentPath] };
     }
   }
 
-  return { connectionTarget: 'edge', position: connectionPortsMap['EDGE:top'] };
+  const firstVisiblePath = connectionPortsKeys.at(0);
+  const lastVisiblePath = connectionPortsKeys.at(-1);
+  const pathIndex = expansionKeys.indexOf(path);
+
+  if (!firstVisiblePath || lastVisiblePath || pathIndex < 0) {
+    return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:bottom'] };
+  }
+
+  if (pathIndex < expansionKeys.indexOf(firstVisiblePath)) {
+    return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:top'] };
+  }
+
+  return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:bottom'] };
 }

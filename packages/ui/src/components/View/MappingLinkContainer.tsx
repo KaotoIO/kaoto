@@ -1,6 +1,6 @@
 import './MappingLinkContainer.scss';
 
-import { FunctionComponent, useRef as useReactRef } from 'react';
+import { FunctionComponent, useMemo, useRef as useReactRef } from 'react';
 
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { LineProps } from '../../models/datamapper';
@@ -17,7 +17,9 @@ const sortMappingLines = (a: LineProps, b: LineProps): 0 | 1 | -1 => {
 
 export const MappingLinksContainer: FunctionComponent = () => {
   const nodesConnectionPorts = useDocumentTreeStore((state) => state.nodesConnectionPorts);
+  const connectionPortsKeys = useMemo(() => Object.keys(nodesConnectionPorts), [nodesConnectionPorts]);
   const expansionState = useDocumentTreeStore((state) => state.expansionState);
+  const expansionKeys = useMemo(() => Object.keys(expansionState), [expansionState]);
   const connectionPortVersion = useDocumentTreeStore((state) => state.connectionPortVersion);
 
   const { getMappingLinks } = useMappingLinks();
@@ -32,8 +34,18 @@ export const MappingLinksContainer: FunctionComponent = () => {
 
   const lineCoordList: LineProps[] = mappingLinks
     .map(({ sourceNodePath, targetNodePath, isSelected }) => {
-      const sourcePort = getNearestVisiblePort(sourceNodePath, nodesConnectionPorts, expansionState);
-      const targetPort = getNearestVisiblePort(targetNodePath, nodesConnectionPorts, expansionState);
+      const sourcePort = getNearestVisiblePort(sourceNodePath, {
+        nodesConnectionPorts,
+        connectionPortsKeys,
+        expansionState,
+        expansionKeys,
+      });
+      const targetPort = getNearestVisiblePort(targetNodePath, {
+        nodesConnectionPorts,
+        connectionPortsKeys,
+        expansionState,
+        expansionKeys,
+      });
       const isPartial = sourcePort.connectionTarget !== 'node' || targetPort.connectionTarget !== 'node';
       const isSourceEdge = sourcePort.connectionTarget === 'edge';
       const isTargetEdge = targetPort.connectionTarget === 'edge';
