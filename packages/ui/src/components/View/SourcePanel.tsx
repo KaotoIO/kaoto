@@ -1,7 +1,7 @@
 import './SourcePanel.scss';
 
-import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import { forwardRef, FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
@@ -23,6 +23,19 @@ import {
   VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
 
+// Scroller component that wraps scroll handling for Virtuoso
+const createScrollerComponent = (onScrollCallback: () => void) => {
+  return forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, ref) => (
+    <div
+      {...props}
+      ref={ref}
+      onScroll={() => {
+        onScrollCallback();
+      }}
+    />
+  ));
+};
+
 type SourcePanelProps = {
   isReadOnly?: boolean;
   actionItems?: React.ReactNode[];
@@ -41,8 +54,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[sourceBodyNodeData.id] || {});
-  const contentRef = useRef<HTMLDivElement>(null);
-  const onScroll = useDocumentScroll(sourceBodyNodeData.id, contentRef);
+  const onScroll = useDocumentScroll(sourceBodyNodeData.id);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -52,6 +64,14 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
 
   // Check if body has schema (similar to parameter logic)
   const hasSchema = !sourceBodyNodeData.isPrimitive;
+
+  // Memoize the Virtuoso components object to prevent recreation on every render
+  const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(
+    () => ({
+      Scroller: createScrollerComponent(onScroll),
+    }),
+    [onScroll],
+  );
 
   return (
     <div id="panel-source" className="source-panel">
@@ -66,7 +86,6 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           defaultExpanded={hasSchema}
           defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
           minHeight={PANEL_MIN_HEIGHT}
-          ref={contentRef}
           summary={
             <DocumentHeader
               header={<span className="panel-header-text">Body</span>}
@@ -77,13 +96,13 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               additionalActions={[]}
             />
           }
-          onScroll={onScroll}
           onLayoutChange={onScroll}
         >
           {/* Only render children if body has schema */}
           {hasSchema && sourceBodyTree && (
             <Virtuoso
               totalCount={flattenedNodes.length}
+              components={virtuosoComponents}
               itemContent={(index) => {
                 const flattenedNode = flattenedNodes[index];
                 return (

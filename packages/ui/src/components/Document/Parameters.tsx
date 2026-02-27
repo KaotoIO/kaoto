@@ -3,8 +3,8 @@ import './Parameters.scss';
 
 import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import { forwardRef, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
@@ -28,6 +28,19 @@ import { RenameParameterButton } from './actions/RenameParameterButton';
 import { DocumentHeader } from './BaseDocument';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 import { SourceDocumentNode } from './SourceDocumentNode';
+
+// Scroller component that wraps scroll handling for Virtuoso
+const createScrollerComponent = (onScrollCallback: () => void) => {
+  return forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, ref) => (
+    <div
+      {...props}
+      ref={ref}
+      onScroll={() => {
+        onScrollCallback();
+      }}
+    />
+  ));
+};
 
 type ParametersSectionProps = {
   isReadOnly: boolean;
@@ -128,8 +141,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[parameterNodeData.id] || {});
-  const contentRef = useRef<HTMLDivElement>(null);
-  const onScroll = useDocumentScroll(parameterNodeData.id, contentRef);
+  const onScroll = useDocumentScroll(parameterNodeData.id);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -155,13 +167,20 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
     [parameterName, documentReferenceId, onStartRename],
   );
 
+  // Memoize the Virtuoso components object to prevent recreation on every render
+  const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(
+    () => ({
+      Scroller: createScrollerComponent(onScroll),
+    }),
+    [onScroll],
+  );
+
   return (
     <ExpansionPanel
       id={`parameter-${documentId}`}
       defaultExpanded={hasSchema}
       defaultHeight={hasSchema ? PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
       minHeight={PANEL_MIN_HEIGHT}
-      ref={contentRef}
       summary={
         isRenaming ? (
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
@@ -183,7 +202,6 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           </div>
         )
       }
-      onScroll={onScroll}
       onLayoutChange={onScroll}
       onExpandedChange={setIsExpanded}
     >
@@ -191,6 +209,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
       {hasSchema && parameterTree && (
         <Virtuoso
           totalCount={flattenedNodes.length}
+          components={virtuosoComponents}
           itemContent={(index) => {
             const flattenedNode = flattenedNodes[index];
             return (

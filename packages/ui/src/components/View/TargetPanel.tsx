@@ -1,7 +1,7 @@
 import './TargetPanel.scss';
 
-import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Virtuoso } from 'react-virtuoso';
+import { forwardRef, FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { Virtuoso, VirtuosoProps } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
@@ -26,6 +26,19 @@ import {
   VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
 
+// Scroller component that wraps scroll handling for Virtuoso
+const createScrollerComponent = (onScrollCallback: () => void) => {
+  return forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, ref) => (
+    <div
+      {...props}
+      ref={ref}
+      onScroll={() => {
+        onScrollCallback();
+      }}
+    />
+  ));
+};
+
 export const TargetPanel: FunctionComponent = () => {
   const { targetBodyDocument, mappingTree, refreshMappingTree } = useDataMapper();
 
@@ -42,8 +55,7 @@ export const TargetPanel: FunctionComponent = () => {
 
   // Optimize: Select only the expansion state for this document
   const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[targetBodyNodeData.id] || {});
-  const contentRef = useRef<HTMLDivElement>(null);
-  const onScroll = useDocumentScroll(targetBodyNodeData.id, contentRef);
+  const onScroll = useDocumentScroll(targetBodyNodeData.id);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -56,6 +68,14 @@ export const TargetPanel: FunctionComponent = () => {
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
   }, [refreshMappingTree]);
+
+  // Memoize the Virtuoso components object to prevent recreation on every render
+  const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(
+    () => ({
+      Scroller: createScrollerComponent(onScroll),
+    }),
+    [onScroll],
+  );
 
   // Get expression item for primitive target body (if it has a mapping)
   const expressionItem = useMemo(() => {
@@ -104,7 +124,6 @@ export const TargetPanel: FunctionComponent = () => {
           defaultHeight={TARGET_PANEL_DEFAULT_HEIGHT}
           minHeight={TARGET_PANEL_MIN_HEIGHT}
           collapsible={false}
-          ref={contentRef}
           summary={
             <DocumentHeader
               header={<span className="panel-header-text">Body</span>}
@@ -116,12 +135,12 @@ export const TargetPanel: FunctionComponent = () => {
               nodeData={targetBodyNodeData}
             />
           }
-          onScroll={onScroll}
           onLayoutChange={onScroll}
         >
           {hasSchema && targetBodyTree && (
             <Virtuoso
               totalCount={flattenedNodes.length}
+              components={virtuosoComponents}
               itemContent={(index) => {
                 const flattenedNode = flattenedNodes[index];
                 return (
