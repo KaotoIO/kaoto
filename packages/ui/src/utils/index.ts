@@ -21,4 +21,3 @@ export * from './process-tree-node';
 export * from './promise-timeout';
 export * from './set-value';
 export * from './update-kamelet-from-custom-schema';
-export * from './update-visible-port-positions';

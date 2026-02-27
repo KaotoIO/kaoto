@@ -1,5 +1,5 @@
 import { NodePath } from '../models/datamapper/nodepath';
-import { TreeExpansionState } from '../store/document-tree.store';
+import { TreeConnectionPorts, TreeExpansionState } from '../store/document-tree.store';
 
 /**
  * Finds the nearest visible connection port for a given node path.
@@ -14,13 +14,19 @@ import { TreeExpansionState } from '../store/document-tree.store';
 export function getNearestVisiblePort(
   path: string,
   options: {
-    nodesConnectionPorts: Record<string, [number, number]>;
-    connectionPortsKeys: string[];
+    nodesConnectionPorts: TreeConnectionPorts;
+    nodesConnectionPortsArray: string[];
     expansionState: TreeExpansionState;
-    expansionKeys: string[];
+    expansionStateArray: string[];
   },
 ): { connectionTarget: 'node' | 'edge' | 'parent'; position: [number, number] } {
-  const { nodesConnectionPorts, connectionPortsKeys, expansionState, expansionKeys } = options;
+  const { nodesConnectionPorts, nodesConnectionPortsArray, expansionState, expansionStateArray } = options;
+
+  /* If the document's connection ports don't exist, return edge bottom fallback */
+  if (!nodesConnectionPorts || !nodesConnectionPorts['EDGE:bottom']) {
+    return { connectionTarget: 'edge', position: [0, 0] };
+  }
+
   /* If the node is present in the connection port map, it's visible. (Not virtualized away nor collapsed) */
   if (nodesConnectionPorts[path]) {
     return { connectionTarget: 'node', position: nodesConnectionPorts[path] };
@@ -38,15 +44,15 @@ export function getNearestVisiblePort(
     }
   }
 
-  const firstVisiblePath = connectionPortsKeys.at(0);
-  const lastVisiblePath = connectionPortsKeys.at(-1);
-  const pathIndex = expansionKeys.indexOf(path);
+  const firstVisiblePath = nodesConnectionPortsArray.at(0);
+  const lastVisiblePath = nodesConnectionPortsArray.at(-1);
+  const pathIndex = expansionStateArray.indexOf(path);
 
   if (!firstVisiblePath || lastVisiblePath || pathIndex < 0) {
     return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:bottom'] };
   }
 
-  if (pathIndex < expansionKeys.indexOf(firstVisiblePath)) {
+  if (pathIndex < expansionStateArray.indexOf(firstVisiblePath)) {
     return { connectionTarget: 'edge', position: nodesConnectionPorts['EDGE:top'] };
   }
 

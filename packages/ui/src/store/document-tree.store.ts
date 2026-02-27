@@ -7,13 +7,18 @@ import { processTreeNode } from '../utils';
 
 /** [NodePath]: expansion state */
 export type TreeExpansionState = Record<string, boolean>;
+export type TreeConnectionPorts = Record<string, [number, number]>;
 
 export interface DocumentTreeState {
-  /** Map of [document ID]: expansion state */
-  expansionState: TreeExpansionState;
+  /** Map of [document ID]: {[nodePath]: expansion state} */
+  expansionState: Record<string, TreeExpansionState>;
+  /** Array of [document ID]: [nodePath] */
+  expansionStateArray: Record<string, string[]>;
 
-  /** Map of [nodePath]: connector circle position */
-  nodesConnectionPorts: Record<string, [number, number]>;
+  /** Map of [document ID]: {[nodePath]: connector circle position} */
+  nodesConnectionPorts: Record<string, TreeConnectionPorts>;
+  /** Array of [document ID]: [nodePath] */
+  nodesConnectionPortsArray: Record<string, string[]>;
 
   /** Version counter to trigger connection port recalculation */
   connectionPortVersion: number;
@@ -22,14 +27,17 @@ export interface DocumentTreeState {
   selectedNodePath: string | null;
   selectedNodeIsSource: boolean;
 
+  /** Set the document's connection ports map with fresh data */
+  setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => void;
+
   /** Toggle expansion state of a node */
-  toggleExpansion: (nodePath: string) => void;
+  toggleExpansion: (documentId: string, nodePath: string) => void;
 
   /** Update the expansionState from a DocumentTree keeping the matching entries */
   updateTreeExpansion: (documentTree: DocumentTree) => void;
 
   /** Get expansion state of a node */
-  isExpanded: (nodePath: string) => boolean;
+  isExpanded: (documentId: string, nodePath: string) => boolean;
 
   /** Trigger recalculation of all connection ports (e.g., on scroll) */
   refreshConnectionPorts: () => void;
@@ -50,18 +58,35 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
       selectedNodePath: null,
       selectedNodeIsSource: false,
 
-      toggleExpansion: (nodePath: string) => {
-        const isExpanded = get().isExpanded(nodePath);
+      setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => {
+        set((state) => ({
+          nodesConnectionPorts: {
+            ...state.nodesConnectionPorts,
+            [documentId]: ports,
+          },
+          nodesConnectionPortsArray: {
+            ...state.nodesConnectionPortsArray,
+            [documentId]: Object.keys(ports),
+          },
+          connectionPortVersion: state.connectionPortVersion + 1,
+        }));
+      },
+
+      toggleExpansion: (documentId: string, nodePath: string) => {
+        const isExpanded = get().isExpanded(documentId, nodePath);
         set((state) => ({
           expansionState: {
             ...state.expansionState,
-            [nodePath]: !isExpanded,
+            [documentId]: {
+              ...state.expansionState[documentId],
+              [nodePath]: !isExpanded,
+            },
           },
         }));
       },
 
       updateTreeExpansion: (documentTree: DocumentTree) => {
-        const currentExpansionState: TreeExpansionState = get().expansionState;
+        const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentId] ?? {};
         const newExpansionState: TreeExpansionState = {};
 
         processTreeNode(documentTree.root, (treeNode) => {
@@ -69,16 +94,20 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
           newExpansionState[treeNode.path] = isNodeParsed && (currentExpansionState[treeNode.path] ?? true);
         });
 
-        set(() => ({
+        set((state) => ({
           expansionState: {
-            ...currentExpansionState,
-            ...newExpansionState,
+            ...state.expansionState,
+            [documentTree.documentId]: newExpansionState,
+          },
+          expansionStateArray: {
+            ...state.expansionStateArray,
+            [documentTree.documentId]: Object.keys(newExpansionState),
           },
         }));
       },
 
-      isExpanded: (nodePath: string) => {
-        return get().expansionState[nodePath] ?? false;
+      isExpanded: (documentId: string, nodePath: string) => {
+        return get().expansionState[documentId]?.[nodePath] ?? false;
       },
 
       refreshConnectionPorts: () => {

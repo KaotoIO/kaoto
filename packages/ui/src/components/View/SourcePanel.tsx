@@ -1,16 +1,16 @@
 import './SourcePanel.scss';
 
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
 import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { flattenTreeNodes } from '../../utils/flatten-tree-nodes';
-import { updateVisiblePortPositions } from '../../utils/update-visible-port-positions';
-import { VirtuosoWithVisibility } from '../DataMapper/VirtuosoWithVisibility';
 import { DocumentHeader } from '../Document/BaseDocument';
 import { ParametersSection } from '../Document/Parameters';
 import { SourceDocumentNode } from '../Document/SourceDocumentNode';
@@ -40,7 +40,8 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
   }, [sourceBodyNodeData]);
 
   // Optimize: Select only the expansion state for this document
-  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState);
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[sourceBodyNodeData.id] || {});
+  const onScroll = useDocumentScroll(sourceBodyNodeData.id);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -55,11 +56,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     <div id="panel-source" className="source-panel">
       <ExpansionPanels firstPanelId="parameters-header" lastPanelId="source-body">
         {/* Parameters section - self-contained component that manages all parameter state */}
-        <ParametersSection
-          isReadOnly={isReadOnly}
-          onLayoutChange={updateVisiblePortPositions}
-          actionItems={actionItems}
-        />
+        <ParametersSection isReadOnly={isReadOnly} onLayoutChange={onScroll} actionItems={actionItems} />
 
         {/* Source Body - behaves like parameters: collapsed when no schema */}
         <ExpansionPanel
@@ -78,11 +75,11 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               additionalActions={[]}
             />
           }
-          onLayoutChange={updateVisiblePortPositions}
+          onLayoutChange={onScroll}
         >
           {/* Only render children if body has schema */}
           {hasSchema && sourceBodyTree && (
-            <VirtuosoWithVisibility
+            <Virtuoso
               totalCount={flattenedNodes.length}
               itemContent={(index) => {
                 const flattenedNode = flattenedNodes[index];

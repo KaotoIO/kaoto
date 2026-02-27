@@ -1,8 +1,10 @@
 import './TargetPanel.scss';
 
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
 import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
@@ -10,8 +12,6 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { flattenTreeNodes } from '../../utils/flatten-tree-nodes';
-import { updateVisiblePortPositions } from '../../utils/update-visible-port-positions';
-import { VirtuosoWithVisibility } from '../DataMapper/VirtuosoWithVisibility';
 import { ConditionMenuAction } from '../Document/actions/ConditionMenuAction';
 import { DeleteMappingItemAction } from '../Document/actions/DeleteMappingItemAction';
 import { XPathEditorAction } from '../Document/actions/XPathEditorAction';
@@ -41,7 +41,8 @@ export const TargetPanel: FunctionComponent = () => {
   }, [targetBodyNodeData]);
 
   // Optimize: Select only the expansion state for this document
-  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState);
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[targetBodyNodeData.id] || {});
+  const onScroll = useDocumentScroll(targetBodyNodeData.id);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -113,10 +114,10 @@ export const TargetPanel: FunctionComponent = () => {
               nodeData={targetBodyNodeData}
             />
           }
-          onLayoutChange={updateVisiblePortPositions}
+          onLayoutChange={onScroll}
         >
           {hasSchema && targetBodyTree && (
-            <VirtuosoWithVisibility
+            <Virtuoso
               totalCount={flattenedNodes.length}
               itemContent={(index) => {
                 const flattenedNode = flattenedNodes[index];

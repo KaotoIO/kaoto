@@ -39,6 +39,6 @@ export class TreeUIService {
       TreeParsingService.parseTreeNode(node);
     }
 
-    store.toggleExpansion(nodePath);
+    store.toggleExpansion(documentId, nodePath);
   }
 }

@@ -1,4 +1,5 @@
 import {
+  BODY_DOCUMENT_ID,
   ExpressionItem,
   FieldItem,
   IDocument,
@@ -91,13 +92,20 @@ export class MappingLinksService {
 
       if (sourceNodePath) {
         const sourceNodePathString = sourceNodePath.toString();
+        const sourceDocumentId = document?.documentId ?? BODY_DOCUMENT_ID;
         const isSelected = MappingLinksService.isLinkSelected(
           sourceNodePathString,
           targetNodePath,
           selectedNodePath,
           selectedNodeIsSource,
         );
-        acc.push({ sourceNodePath: sourceNodePathString, targetNodePath: targetNodePath, isSelected });
+        acc.push({
+          sourceNodePath: sourceNodePathString,
+          targetNodePath: targetNodePath,
+          sourceDocumentId,
+          targetDocumentId: BODY_DOCUMENT_ID,
+          isSelected,
+        });
       }
       return acc;
     }, [] as IMappingLink[]);

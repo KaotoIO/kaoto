@@ -24,7 +24,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo((
   const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
   // Select expansion state for this specific node
-  const isExpanded = useDocumentTreeStore((state) => state.isExpanded(treeNode.path));
+  const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
   const nodeData = treeNode.nodeData;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
@@ -81,6 +81,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo((
               rank={rank}
               isSelected={isSelected}
               nodePath={nodePathString}
+              documentId={documentId}
             />
           </NodeContainer>
         </div>

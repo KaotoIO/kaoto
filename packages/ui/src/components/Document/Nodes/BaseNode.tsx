@@ -38,6 +38,9 @@ interface BaseNodeProps extends IDataTestID {
 
   /** Node path for connection port identification */
   nodePath?: string;
+
+  /** Document ID for connection port identification */
+  documentId?: string;
 }
 
 export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
@@ -54,6 +57,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   isSelected,
   isSource = true,
   nodePath,
+  documentId,
   'data-testid': dataTestId,
   children,
 }) => {
@@ -70,6 +74,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         data-testid={`connection-port-${dataTestId}`}
         data-connection-port="true"
         data-node-path={nodePath}
+        data-document-id={documentId}
       />
 
       {isExpandable && (

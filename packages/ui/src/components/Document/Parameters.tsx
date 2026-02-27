@@ -4,15 +4,16 @@ import './Parameters.scss';
 import { ActionList, ActionListItem, Button, Divider, Icon } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon, EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Virtuoso } from 'react-virtuoso';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
+import { useDocumentScroll } from '../../hooks/useDocumentScroll.hook';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { flattenTreeNodes } from '../../utils/flatten-tree-nodes';
-import { VirtuosoWithVisibility } from '../DataMapper/VirtuosoWithVisibility';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import {
   PANEL_COLLAPSED_HEIGHT,
@@ -126,7 +127,8 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   }, [parameterNodeData]);
 
   // Optimize: Select only the expansion state for this document
-  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState);
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[parameterNodeData.id] || {});
+  const onScroll = useDocumentScroll(parameterNodeData.id);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {
@@ -196,12 +198,12 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           </div>
         )
       }
-      onLayoutChange={onLayoutChange}
+      onLayoutChange={onScroll}
       onExpandedChange={setIsExpanded}
     >
       {/* Only render children if parameter has schema */}
       {hasSchema && parameterTree && (
-        <VirtuosoWithVisibility
+        <Virtuoso
           totalCount={flattenedNodes.length}
           itemContent={(index) => {
             const flattenedNode = flattenedNodes[index];

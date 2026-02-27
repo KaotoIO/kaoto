@@ -178,6 +178,8 @@ export class FunctionNodeData implements NodeData {
 export interface IMappingLink {
   sourceNodePath: string;
   targetNodePath: string;
+  sourceDocumentId: string;
+  targetDocumentId: string;
   isSelected: boolean;
 }
 
