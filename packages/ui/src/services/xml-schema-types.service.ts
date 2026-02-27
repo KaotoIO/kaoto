@@ -1,6 +1,6 @@
 import { IField } from '../models/datamapper/document';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { IFieldTypeInfo, TypeDerivation, TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, IFieldTypeInfo, TypeDerivation, Types } from '../models/datamapper/types';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
   XmlSchemaCollection,
@@ -43,14 +43,14 @@ export class XmlSchemaTypesService {
    * @example
    * ```typescript
    * const result = XmlSchemaTypesService.parseTypeOverride('xs:int', namespaceMap, field);
-   * // result = { type: Types.Integer, typeQName: QName, variant: TypeOverrideVariant.SAFE }
+   * // result = { type: Types.Integer, typeQName: QName, variant: FieldOverrideVariant.SAFE }
    * ```
    */
   static parseTypeOverride(
     typeString: string,
     namespaceMap: Record<string, string>,
     field: IField,
-  ): { type: Types; typeQName: QName; variant: TypeOverrideVariant } {
+  ): { type: Types; typeQName: QName; variant: FieldOverrideVariant } {
     const parts = typeString.split(':');
     const prefix = parts.length > 1 ? parts[0] : '';
     const localPart = parts.length > 1 ? parts[1] : parts[0];
@@ -85,16 +85,16 @@ export class XmlSchemaTypesService {
     newType: Types,
     newTypeQName: QName,
     newNamespaceURI: string,
-  ): TypeOverrideVariant {
-    if (field.originalType === Types.AnyType) {
-      return TypeOverrideVariant.SAFE;
+  ): FieldOverrideVariant {
+    if ((field.originalField?.type ?? field.type) === Types.AnyType) {
+      return FieldOverrideVariant.SAFE;
     }
 
     if (XmlSchemaTypesService.isCompatibleContainerTypeOverride(field, newType, newTypeQName, newNamespaceURI)) {
-      return TypeOverrideVariant.SAFE;
+      return FieldOverrideVariant.SAFE;
     }
 
-    return TypeOverrideVariant.FORCE;
+    return FieldOverrideVariant.FORCE;
   }
 
   /**
@@ -116,8 +116,9 @@ export class XmlSchemaTypesService {
     newNamespaceURI: string,
   ): boolean {
     const isBuiltInType = newNamespaceURI === NS_XML_SCHEMA;
+    const origType = field.originalField?.type ?? field.type;
 
-    if (field.originalType !== Types.Container || newType !== Types.Container || isBuiltInType) {
+    if (origType !== Types.Container || newType !== Types.Container || isBuiltInType) {
       return false;
     }
 
@@ -128,8 +129,8 @@ export class XmlSchemaTypesService {
 
     const xmlDoc = ownerDoc as XmlSchemaDocument;
     const newSchemaType = xmlDoc.xmlSchemaCollection.getTypeByQName(newTypeQName);
-    const originalSchemaType =
-      field.originalTypeQName && xmlDoc.xmlSchemaCollection.getTypeByQName(field.originalTypeQName);
+    const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
+    const originalSchemaType = origTypeQName && xmlDoc.xmlSchemaCollection.getTypeByQName(origTypeQName);
 
     if (!newSchemaType || !originalSchemaType) {
       return false;
@@ -678,15 +679,16 @@ export class XmlSchemaTypesService {
    * ```
    */
   static getTypeOverrideCandidatesForField(
-    field: { originalTypeQName?: unknown },
+    field: IField,
     collection: XmlSchemaCollection,
     namespaceMap: Record<string, string>,
   ): Record<string, IFieldTypeInfo> {
-    if (!field.originalTypeQName) {
+    const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
+    if (!origTypeQName) {
       return {};
     }
 
-    const baseType = collection.getTypeByQName(field.originalTypeQName as QName);
+    const baseType = collection.getTypeByQName(origTypeQName);
     if (!baseType) {
       return {};
     }

@@ -1,5 +1,5 @@
 import { DocumentDefinitionType, RootElementOption } from './document';
-import { TypeOverrideVariant } from './types';
+import { FieldOverrideVariant } from './types';
 
 /**
  * Shared base for overrides and selections that are addressed by schema path.
@@ -23,12 +23,16 @@ export interface IBaseOverride {
  */
 export interface IFieldTypeOverride extends IBaseOverride {
   /**
-   * The new type to apply to the field.
+   * The new type to apply to the field, in `<prefix>:<localName>` form
+   * (e.g. `xs:string`, `ns0:MyType`). The prefix is resolved via
+   * {@link IDataMapperMetadata.namespaceMap}.
    */
   type: string;
 
   /**
-   * The original type of the field before the override.
+   * The original type of the field before the override, in `<prefix>:<localName>` form
+   * (e.g. `xs:string`, `ns0:MyType`). The prefix is resolved via
+   * {@link IDataMapperMetadata.namespaceMap}.
    */
   originalType: string;
 
@@ -37,7 +41,27 @@ export interface IFieldTypeOverride extends IBaseOverride {
    * - SAFE: The override is safe and compatible with the original type.
    * - FORCE: The override is forced and may not be compatible with the original type.
    */
-  variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE;
+  variant: FieldOverrideVariant.SAFE | FieldOverrideVariant.FORCE;
+}
+
+/**
+ * Represents an element substitution for a field in a document.
+ * Used to substitute an element with another element from the same substitution group.
+ */
+export interface IFieldSubstitution extends IBaseOverride {
+  /**
+   * The substitute element name in `<prefix>:<localName>` form
+   * (e.g. `ns0:AlrtMetaDtaReq`). The prefix is resolved via
+   * {@link IDataMapperMetadata.namespaceMap}.
+   */
+  name: string;
+
+  /**
+   * The original element name in `<prefix>:<localName>` form
+   * (e.g. `ns0:Message`). The prefix is resolved via
+   * {@link IDataMapperMetadata.namespaceMap}.
+   */
+  originalName: string;
 }
 
 /**
@@ -75,6 +99,12 @@ export interface IDocumentMetadata {
    * Persists which choice member is selected for each choice field.
    */
   choiceSelections?: IChoiceSelection[];
+
+  /**
+   * Array of element substitutions for fields in the document.
+   * Allows substituting an element with another from the same substitution group.
+   */
+  fieldSubstitutions?: IFieldSubstitution[];
 }
 
 /**
