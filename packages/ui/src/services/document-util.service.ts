@@ -1,6 +1,13 @@
-import { IDocument, IField, IParentType, ITypeFragment, PrimitiveDocument } from '../models/datamapper';
+import {
+  IDocument,
+  IField,
+  IOriginalFieldState,
+  IParentType,
+  ITypeFragment,
+  PrimitiveDocument,
+} from '../models/datamapper';
 import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
-import { TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { SchemaPathService } from './schema-path.service';
 
@@ -8,7 +15,7 @@ export type ParseTypeOverrideFn = (
   typeString: string,
   namespaceMap: Record<string, string>,
   field: IField,
-) => { type: Types; typeQName: QName; variant: TypeOverrideVariant };
+) => { type: Types; typeQName: QName; variant: FieldOverrideVariant };
 
 /**
  * The collection of utility functions shared among {@link DocumentService}, {@link XmlSchemaDocumentService}
@@ -38,13 +45,31 @@ export class DocumentUtilService {
    */
   static resolveTypeFragment(field: IField): IField {
     if (field.namedTypeFragmentRefs.length === 0) return field;
+    field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
     const doc = DocumentUtilService.getOwnerDocument(field);
-    field.namedTypeFragmentRefs.forEach((ref) => {
+    const unresolvedRefs: string[] = [];
+    for (const ref of field.namedTypeFragmentRefs) {
       const fragment = doc.namedTypeFragments[ref];
+      if (!fragment) {
+        unresolvedRefs.push(ref);
+        continue;
+      }
       DocumentUtilService.adoptTypeFragment(field, fragment);
-    });
-    field.namedTypeFragmentRefs = [];
+    }
+    field.namedTypeFragmentRefs = unresolvedRefs;
     return field;
+  }
+
+  private static captureOriginalFieldState(field: IField): IOriginalFieldState {
+    return {
+      name: field.name,
+      namespaceURI: field.namespaceURI,
+      namespacePrefix: field.namespacePrefix,
+      type: field.type,
+      typeQName: field.typeQName,
+      namedTypeFragmentRefs: [...field.namedTypeFragmentRefs],
+      fields: field.fields.length > 0 ? [...field.fields] : undefined,
+    };
   }
 
   /**
@@ -59,10 +84,11 @@ export class DocumentUtilService {
     if (fragment.minOccurs !== undefined) field.minOccurs = fragment.minOccurs;
     if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
     fragment.fields.forEach((f) => f.adopt(field));
-    fragment.namedTypeFragmentRefs.forEach((childRef) => {
+    for (const childRef of fragment.namedTypeFragmentRefs) {
       const childFragment = doc.namedTypeFragments[childRef];
+      if (!childFragment) continue;
       DocumentUtilService.adoptTypeFragment(field, childFragment);
-    });
+    }
   }
 
   /**
@@ -97,8 +123,8 @@ export class DocumentUtilService {
    * @example
    * ```typescript
    * const overrides = [
-   *   { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', type: 'xs:int', originalType: 'xs:string', variant: TypeOverrideVariant.FORCE },
-   *   { schemaPath: '/ns0:ShipOrder/ShipTo/City', type: 'xs:boolean', originalType: 'xs:string', variant: TypeOverrideVariant.FORCE }
+   *   { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+   *   { schemaPath: '/ns0:ShipOrder/ShipTo/City', type: 'xs:boolean', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE }
    * ];
    * DocumentUtilService.processTypeOverrides(
    *   document,
@@ -145,7 +171,7 @@ export class DocumentUtilService {
    *   schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
    *   type: 'xs:int',
    *   originalType: 'xs:string',
-   *   variant: TypeOverrideVariant.FORCE,
+   *   variant: FieldOverrideVariant.FORCE,
    * };
    * DocumentUtilService.processTypeOverride(
    *   document,
@@ -258,6 +284,8 @@ export class DocumentUtilService {
     namespaceMap: Record<string, string>,
     parseTypeOverride: ParseTypeOverrideFn,
   ): void {
+    field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
+
     const { type, typeQName, variant } = parseTypeOverride(typeString, namespaceMap, field);
 
     field.type = type;
@@ -282,13 +310,25 @@ export class DocumentUtilService {
    * @param field - The field to restore to its original type
    */
   private static restoreOriginalTypeToField(field: IField): void {
-    field.type = field.originalType;
-    field.typeQName = field.originalTypeQName;
-    field.typeOverride = TypeOverrideVariant.NONE;
-    field.fields = [];
+    const origType = field.originalField?.type ?? field.type;
+    const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
+    const origRefs = field.originalField?.namedTypeFragmentRefs;
+    const origFields = field.originalField?.fields;
 
-    if (field.originalType === Types.Container && field.originalTypeQName) {
-      field.namedTypeFragmentRefs = [field.originalTypeQName.toString()];
+    field.type = origType;
+    field.typeQName = origTypeQName;
+    if (field.originalField) {
+      field.namespaceURI = field.originalField.namespaceURI;
+      field.namespacePrefix = field.originalField.namespacePrefix;
+    }
+    field.typeOverride = FieldOverrideVariant.NONE;
+    field.originalField = undefined;
+
+    field.fields = origFields ?? [];
+    if (origRefs !== undefined) {
+      field.namedTypeFragmentRefs = [...origRefs];
+    } else if (!origFields && origType === Types.Container && origTypeQName) {
+      field.namedTypeFragmentRefs = [origTypeQName.toString()];
     } else {
       field.namedTypeFragmentRefs = [];
     }

@@ -30,10 +30,11 @@ export enum Types {
   Array = 'Array',
 }
 
-export enum TypeOverrideVariant {
+export enum FieldOverrideVariant {
   NONE = 'NONE',
   SAFE = 'SAFE',
   FORCE = 'FORCE',
+  SUBSTITUTION = 'SUBSTITUTION',
 }
 
 /**
