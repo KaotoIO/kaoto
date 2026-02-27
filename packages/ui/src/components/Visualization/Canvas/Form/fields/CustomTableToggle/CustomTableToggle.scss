@@ -1,0 +1,19 @@
+.custom-mode-toggle {
+  display: flex;
+  justify-content: flex-end;
+
+  span:has(svg) {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* stylelint-disable selector-class-pattern */
+.custom-table-tab .pf-v6-c-form__group-label {
+  display: none;
+}
+
+.custom-table-tab .pf-v6-c-card__header .pf-v6-c-card__actions {
+  align-self: center;
+}
+/* stylelint-enable selector-class-pattern */
