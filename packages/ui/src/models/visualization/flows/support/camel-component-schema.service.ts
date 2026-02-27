@@ -313,6 +313,19 @@ export class CamelComponentSchemaService {
   }
 
   /**
+   * Flatten multivalue parameters for display in PropertiesField
+   */
+  static flattenMultivalueParameters(
+    componentName: string,
+    parameters: Record<string, unknown> | undefined,
+  ): Record<string, unknown> {
+    if (!parameters) return {};
+    const fakeDefinition = { uri: componentName, parameters: cloneDeep(parameters) };
+    const serialized = this.getMultiValueSerializedDefinition('from', fakeDefinition);
+    return (serialized?.parameters ?? parameters) as Record<string, unknown>;
+  }
+
+  /**
    * Extract the component name from the endpoint uri
    * An URI is composed by a component name and query parameters, separated by a colon
    * For instance:
@@ -395,6 +408,7 @@ export class CamelComponentSchemaService {
         }
         schema.properties.parameters.properties = actualComponentProperties;
         schema.properties.parameters.required = componentSchema.required;
+        schema.properties.parameters['x-component-name'] = camelElementLookup.componentName;
       }
     }
 
@@ -521,6 +535,19 @@ export class CamelComponentSchemaService {
       });
       Object.assign(definition, { parameters: { ...filteredParameters, ...parameters } });
     }
+  }
+
+  /**
+   * Nest flat multivalue parameters for model storage
+   */
+  static nestMultivalueParameters(
+    componentName: string,
+    flatParameters: Record<string, unknown> | undefined,
+  ): Record<string, unknown> {
+    if (!flatParameters) return {};
+    const fakeDefinition = { parameters: cloneDeep(flatParameters) };
+    this.readMultiValue(componentName, fakeDefinition);
+    return fakeDefinition.parameters as Record<string, unknown>;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

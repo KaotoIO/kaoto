@@ -776,6 +776,56 @@ describe('CamelComponentSchemaService', () => {
     });
   });
 
+  describe('flattenMultivalueParameters', () => {
+    it('should return an empty object when parameters is undefined', () => {
+      const result = CamelComponentSchemaService.flattenMultivalueParameters('quartz', undefined);
+      expect(result).toEqual({});
+    });
+
+    it('should return parameters unchanged when component has no multivalue properties', () => {
+      const parameters = { message: 'Hello World', level: 'INFO' };
+      const result = CamelComponentSchemaService.flattenMultivalueParameters('log', parameters);
+      expect(result).toEqual(parameters);
+    });
+
+    it('should flatten nested multivalue parameters', () => {
+      const parameters = { jobParameters: { test: 'test' }, triggerParameters: { test: 'test' } };
+      const result = CamelComponentSchemaService.flattenMultivalueParameters('quartz', parameters);
+      expect(result).toEqual({ 'job.test': 'test', 'trigger.test': 'test' });
+    });
+
+    it('should preserve non-multivalue parameters alongside flattened ones', () => {
+      const parameters = { cron: '0/1 * * * * ?', jobParameters: { retries: '3' } };
+      const result = CamelComponentSchemaService.flattenMultivalueParameters('quartz', parameters);
+      expect(result).toEqual({ cron: '0/1 * * * * ?', 'job.retries': '3' });
+    });
+  });
+
+  describe('nestMultivalueParameters', () => {
+    it('should return an empty object when flatParameters is undefined', () => {
+      const result = CamelComponentSchemaService.nestMultivalueParameters('quartz', undefined);
+      expect(result).toEqual({});
+    });
+
+    it('should return parameters unchanged when component has no multivalue properties', () => {
+      const flatParameters = { message: 'Hello World', level: 'INFO' };
+      const result = CamelComponentSchemaService.nestMultivalueParameters('log', flatParameters);
+      expect(result).toEqual(flatParameters);
+    });
+
+    it('should nest flat multivalue parameters', () => {
+      const flatParameters = { 'job.test': 'test', 'trigger.test': 'test' };
+      const result = CamelComponentSchemaService.nestMultivalueParameters('quartz', flatParameters);
+      expect(result).toEqual({ jobParameters: { test: 'test' }, triggerParameters: { test: 'test' } });
+    });
+
+    it('should preserve non-multivalue parameters alongside nested ones', () => {
+      const flatParameters = { cron: '0/1 * * * * ?', 'job.retries': '3' };
+      const result = CamelComponentSchemaService.nestMultivalueParameters('quartz', flatParameters);
+      expect(result).toEqual({ cron: '0/1 * * * * ?', jobParameters: { retries: '3' }, triggerParameters: {} });
+    });
+  });
+
   describe('canBeDisabled', () => {
     it('should allow disabling DataMapper', () => {
       const result = CamelComponentSchemaService.canBeDisabled(DATAMAPPER_ID_PREFIX);

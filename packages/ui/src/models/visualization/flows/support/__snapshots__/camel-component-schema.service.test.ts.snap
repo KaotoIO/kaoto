@@ -95,6 +95,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
       ],
       "title": "Endpoint Properties",
       "type": "object",
+      "x-component-name": "kamelet:kafka-not-secured-sink",
     },
     "pattern": {
       "$comment": "group:advanced",
@@ -419,6 +420,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
       ],
       "title": "Endpoint Properties",
       "type": "object",
+      "x-component-name": "log",
     },
     "pattern": {
       "$comment": "group:advanced",
