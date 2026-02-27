@@ -11,6 +11,14 @@ import { VisibleFlowsContextResult } from '../../../../providers/visible-flows.p
 import { mockRandomValues, TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
 
+const mockController = {
+  fromModel: jest.fn(),
+};
+
+jest.mock('@patternfly/react-topology', () => ({
+  useVisualizationController: () => mockController,
+}));
+
 describe('FlowsList.tsx', () => {
   let camelResource: CamelRouteResource;
 
@@ -19,6 +27,7 @@ describe('FlowsList.tsx', () => {
   });
 
   beforeEach(() => {
+    jest.clearAllMocks();
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     camelResource.addNewEntity(EntityType.RouteConfiguration);
@@ -231,6 +240,34 @@ describe('FlowsList.tsx', () => {
     /** Eye slash icon */
     const flow2 = await wrapper.findByTestId('toggle-btn-routeConfiguration-1234-hidden');
     expect(flow2).toBeInTheDocument();
+  });
+
+  it('should call controller clear model when clicking the Eye slash icon', async () => {
+    const visibleFlowsContext: VisibleFlowsContextResult = {
+      allFlowsVisible: false,
+      visibleFlows: { ['route-1234']: false, ['routeConfiguration-1234']: true },
+      visualFlowsApi: new VisualFlowsApi(jest.fn),
+    };
+
+    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const wrapper = render(
+      <Provider>
+        <FlowsList />
+      </Provider>,
+    );
+
+    /** Eye slash icon */
+    const flow1 = await wrapper.findByTestId('toggle-btn-route-1234-hidden');
+    expect(flow1).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(flow1);
+    });
+
+    expect(mockController.fromModel).toHaveBeenCalledTimes(1);
+    expect(mockController.fromModel).toHaveBeenCalledWith({
+      nodes: [],
+      edges: [],
+    });
   });
 
   it('should rename a flow', async () => {

@@ -10,7 +10,7 @@ import { SourceSchemaType } from './source-schema-type';
 export interface CamelResource {
   getVisualEntities(): BaseVisualCamelEntity[];
   getEntities(): BaseCamelEntity[];
-  addNewEntity(entityType?: EntityType, entityTemplate?: unknown): string;
+  addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string;
   removeEntity(ids?: string[]): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;

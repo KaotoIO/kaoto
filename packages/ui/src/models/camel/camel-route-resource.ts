@@ -139,14 +139,13 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     this.serializer = serializer;
   }
 
-  addNewEntity(entityType?: EntityType, entityTemplate?: unknown): string {
+  addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string {
     if (entityType && entityType !== EntityType.Route) {
       const supportedEntity = CamelRouteResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
       if (supportedEntity) {
         const entity = new supportedEntity.Entity(entityTemplate);
 
-        // Find the correct insertion index based on XML schema order
-        const insertIndex = EntityOrderingService.findInsertionIndex(this.entities, entityType);
+        const insertIndex = this.getInsertionIndex(entityType, insertAfterEntityId);
         this.entities.splice(insertIndex, 0, entity);
 
         return entity.id;
@@ -162,11 +161,26 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     }
     const entity = new CamelRouteVisualEntity(route);
 
-    // Find the correct insertion index for Route entities
-    const insertIndex = EntityOrderingService.findInsertionIndex(this.entities, EntityType.Route);
+    const insertIndex = this.getInsertionIndex(EntityType.Route, insertAfterEntityId);
     this.entities.splice(insertIndex, 0, entity);
 
     return entity.id;
+  }
+
+  /**
+   * Gets the insertion index for a new entity.
+   * If `insertAfterEntityId` is provided, the new entity is placed right after the entity with that ID.
+   * Otherwise, falls back to XML schema ordering via EntityOrderingService.
+   */
+  private getInsertionIndex(entityType: EntityType, insertAfterEntityId?: string): number {
+    if (insertAfterEntityId) {
+      const afterIndex = this.entities.findIndex((e) => e.id === insertAfterEntityId);
+      if (afterIndex !== -1) {
+        return afterIndex + 1;
+      }
+    }
+
+    return EntityOrderingService.findInsertionIndex(this.entities, entityType);
   }
 
   getType(): SourceSchemaType {

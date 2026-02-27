@@ -10,6 +10,7 @@ import { AddStepMode, IVisualizationNode } from '../../../../models/visualizatio
 import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContext } from '../../../../providers/entities.provider';
+import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { updateIds } from '../../../../utils/update-ids';
 import {
   IInteractionType,
@@ -23,6 +24,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
+  const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const controller = useVisualizationController();
   let vizNodeContent = vizNode.getCopiedContent();
 
@@ -89,8 +91,16 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
     if (!updatedVizNodeContent) return;
 
     if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
-      entitiesContext.camelResource.addNewEntity(updatedVizNodeContent.name as EntityType, {
-        [updatedVizNodeContent.name]: updatedVizNodeContent.definition,
+      const originalEntityId = vizNode.getId();
+      const newId = entitiesContext.camelResource.addNewEntity(
+        updatedVizNodeContent.name as EntityType,
+        { [updatedVizNodeContent.name]: updatedVizNodeContent.definition },
+        originalEntityId,
+      );
+      visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
+      controller.fromModel({
+        nodes: [],
+        edges: [],
       });
     } else {
       /** Append the content of the current node on the current node */
@@ -119,7 +129,15 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
-  }, [controller, entitiesContext, nodeInteractionAddonContext, parentVizNode, vizNode, vizNodeContent]);
+  }, [
+    controller,
+    entitiesContext,
+    nodeInteractionAddonContext,
+    parentVizNode,
+    visibleFlowsContext.visualFlowsApi,
+    vizNode,
+    vizNodeContent,
+  ]);
 
   const value = useMemo(
     () => ({

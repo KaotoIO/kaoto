@@ -3,6 +3,7 @@ import './FlowsList.scss';
 import { Button, Icon, SearchInput } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { useVisualizationController } from '@patternfly/react-topology';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { ValidationResult } from '../../../../models';
@@ -25,6 +26,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, allFlowsVisible, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const deleteModalContext = useContext(ActionConfirmationModalContext);
+  const controller = useVisualizationController();
   const [searchString, setSearchString] = useState<string>('');
 
   const isListEmpty = visualEntities.length === 0;
@@ -183,6 +185,13 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                     variant="plain"
                     onClick={(event) => {
                       visualFlowsApi.toggleFlowVisible(flow.id);
+                      /** Clear the graph if the flow is being shown to re-arrange the flows order */
+                      if (!visibleFlows[flow.id]) {
+                        controller.fromModel({
+                          nodes: [],
+                          edges: [],
+                        });
+                      }
                       /** Required to avoid closing the Dropdown after clicking in the icon */
                       event.stopPropagation();
                     }}
