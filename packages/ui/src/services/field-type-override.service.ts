@@ -1,6 +1,6 @@
 import { DocumentDefinition, IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
 import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
-import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../models/datamapper/types';
 import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -29,7 +29,7 @@ import { XmlSchemaTypesService } from './xml-schema-types.service';
  *   field,
  *   selectedCandidate,
  *   namespaceMap,
- *   TypeOverrideVariant.FORCE
+ *   FieldOverrideVariant.FORCE
  * );
  *
  * // Remove a type override
@@ -67,7 +67,7 @@ export class FieldTypeOverrideService {
     field: IField,
     namespaceMap: Record<string, string>,
   ): Record<string, IFieldTypeInfo> {
-    if (field.originalType === Types.AnyType) {
+    if ((field.originalField?.type ?? field.type) === Types.AnyType) {
       return FieldTypeOverrideService.getAllOverrideCandidates(field.ownerDocument, namespaceMap);
     }
 
@@ -155,13 +155,13 @@ export class FieldTypeOverrideService {
    *   orderPersonField,
    *   candidate,
    *   namespaceMap,
-   *   TypeOverrideVariant.FORCE
+   *   FieldOverrideVariant.FORCE
    * );
    * // Returns: {
    * //   schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
    * //   type: 'xs:int',
    * //   originalType: 'xs:string',
-   * //   variant: TypeOverrideVariant.FORCE
+   * //   variant: FieldOverrideVariant.FORCE
    * // }
    *
    * // Apply the override
@@ -178,10 +178,20 @@ export class FieldTypeOverrideService {
     field: IField,
     candidate: IFieldTypeInfo,
     namespaceMap: Record<string, string>,
-    variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE,
+    variant: FieldOverrideVariant.SAFE | FieldOverrideVariant.FORCE,
   ): IFieldTypeOverride {
     const schemaPath = SchemaPathService.build(field, namespaceMap);
-    const originalTypeString = field.originalTypeQName?.toString() ?? field.originalType;
+    const origType = field.originalField?.type ?? field.type;
+    const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
+    const localPart = origTypeQName?.getLocalPart();
+    const namespaceURI = origTypeQName?.getNamespaceURI();
+    const prefix = namespaceURI ? Object.entries(namespaceMap).find(([, uri]) => uri === namespaceURI)?.[0] : undefined;
+    let originalTypeString: string;
+    if (localPart) {
+      originalTypeString = prefix ? `${prefix}:${localPart}` : localPart;
+    } else {
+      originalTypeString = origType;
+    }
     return {
       schemaPath,
       type: candidate.typeString,
@@ -223,7 +233,7 @@ export class FieldTypeOverrideService {
    *   field,
    *   candidate,
    *   namespaceMap,
-   *   TypeOverrideVariant.FORCE
+   *   FieldOverrideVariant.FORCE
    * );
    *
    * // Persist changes via provider
@@ -239,7 +249,7 @@ export class FieldTypeOverrideService {
     field: IField,
     candidate: IFieldTypeInfo,
     namespaceMap: Record<string, string>,
-    variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE,
+    variant: FieldOverrideVariant.SAFE | FieldOverrideVariant.FORCE,
   ): void {
     if (document instanceof PrimitiveDocument) {
       throw new TypeError('Field type override is not supported for primitive documents');
@@ -285,7 +295,7 @@ export class FieldTypeOverrideService {
    * @see applyFieldTypeOverride
    */
   static revertFieldTypeOverride(document: IDocument, field: IField, namespaceMap: Record<string, string>): void {
-    if (field.typeOverride === TypeOverrideVariant.NONE) return;
+    if (field.typeOverride === FieldOverrideVariant.NONE) return;
     const schemaPath = SchemaPathService.build(field, namespaceMap);
     const changed = DocumentUtilService.removeTypeOverride(document, schemaPath, namespaceMap);
     if (changed) {
@@ -368,9 +378,10 @@ export class FieldTypeOverrideService {
       document.definition.name,
       mergedDefinitionFiles,
       document.definition.rootElementChoice,
+      updatedNamespaceMap,
       document.definition.fieldTypeOverrides,
       document.definition.choiceSelections,
-      updatedNamespaceMap,
+      document.definition.fieldSubstitutions,
     );
   }
 

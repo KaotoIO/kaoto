@@ -8,7 +8,7 @@ import {
   Types,
 } from '../models/datamapper';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { TypeOverrideVariant } from '../models/datamapper/types';
+import { FieldOverrideVariant } from '../models/datamapper/types';
 import { getImportedTypesXsd, getNamedTypesXsd, getShipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { FieldTypeOverrideService } from './field-type-override.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
@@ -28,7 +28,7 @@ describe('FieldTypeOverrideService', () => {
     it('should return all types for xs:anyType fields', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const anyTypeField = doc.fields[0].fields[0];
-      anyTypeField.originalType = Types.AnyType;
+      anyTypeField.type = Types.AnyType;
 
       const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
       const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(anyTypeField, namespaceMap);
@@ -41,7 +41,7 @@ describe('FieldTypeOverrideService', () => {
     it('should return extensions and restrictions for Container types', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const containerField = doc.fields[0];
-      containerField.originalType = Types.Container;
+      containerField.type = Types.Container;
 
       const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
       const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(containerField, namespaceMap);
@@ -54,12 +54,62 @@ describe('FieldTypeOverrideService', () => {
       const stringField = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       if (!stringField) throw new Error('Field not found');
 
-      stringField.originalType = Types.String;
+      stringField.type = Types.String;
 
       const namespaceMap = { xs: NS_XML_SCHEMA };
       const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(stringField, namespaceMap);
 
       expect(typeof candidates).toBe('object');
+    });
+
+    it('should return all types when originalField.type is AnyType even if current type differs', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
+      if (!field) throw new Error('Field not found');
+
+      field.originalField = {
+        name: field.name,
+        namespaceURI: '',
+        namespacePrefix: '',
+        type: Types.AnyType,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+      field.type = Types.Integer;
+
+      const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
+      const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+
+      expect(Object.keys(candidates).length).toBeGreaterThan(0);
+      expect(Object.values(candidates).some((c) => c.displayName === 'xs:string')).toBe(true);
+    });
+
+    it('should return empty Record for JSON Schema fields without AnyType original', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        {
+          'test.json': JSON.stringify({
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          }),
+        },
+      );
+
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
+      const root = doc.fields[0];
+      const nameField = root.fields.find((f) => f.key === 'name');
+      if (!nameField) throw new Error('Field not found');
+
+      const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(nameField, {});
+
+      expect(typeof candidates).toBe('object');
+      expect(Object.keys(candidates).length).toBe(0);
     });
   });
 
@@ -145,8 +195,6 @@ describe('FieldTypeOverrideService', () => {
           'test-doc',
           { 'ShipOrder.xsd': getShipOrderXsd() },
           undefined,
-          undefined,
-          undefined,
           { ns0: 'io.kaoto.datamapper.poc.test' },
         );
 
@@ -171,8 +219,6 @@ describe('FieldTypeOverrideService', () => {
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
           { 'ShipOrder.xsd': getShipOrderXsd() },
-          undefined,
-          undefined,
           undefined,
           { ns0: 'io.kaoto.datamapper.poc.test', custom: 'http://example.com/custom' },
         );
@@ -241,8 +287,6 @@ describe('FieldTypeOverrideService', () => {
           'test-doc',
           { 'ShipOrder.xsd': getShipOrderXsd() },
           undefined,
-          undefined,
-          undefined,
           { ns0: 'io.kaoto.datamapper.poc.test' },
         );
 
@@ -276,12 +320,13 @@ describe('FieldTypeOverrideService', () => {
         stringField,
         candidate,
         namespaceMap,
-        TypeOverrideVariant.FORCE,
+        FieldOverrideVariant.FORCE,
       );
 
       expect(override.schemaPath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
       expect(override.type).toBe('xs:int');
-      expect(override.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(override.originalType).toBe('xs:string');
+      expect(override.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should create override with schema path through choice compositor', () => {
@@ -305,10 +350,52 @@ describe('FieldTypeOverrideService', () => {
         emailField,
         candidate,
         namespaceMap,
-        TypeOverrideVariant.FORCE,
+        FieldOverrideVariant.FORCE,
       );
 
       expect(override.schemaPath).toBe('/ns0:ShipOrder/{choice:0}/email');
+    });
+
+    it('should use originalField.type as originalType when field was already overridden', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const stringField = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
+      if (!stringField) throw new Error('Field not found');
+
+      const intCandidate = {
+        displayName: 'xs:int',
+        typeString: 'xs:int',
+        type: Types.Integer,
+        namespaceURI: NS_XML_SCHEMA,
+        isBuiltIn: true,
+      };
+      const boolCandidate = {
+        displayName: 'xs:boolean',
+        typeString: 'xs:boolean',
+        type: Types.Boolean,
+        namespaceURI: NS_XML_SCHEMA,
+        isBuiltIn: true,
+      };
+
+      const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
+      FieldTypeOverrideService.applyFieldTypeOverride(
+        doc,
+        stringField,
+        intCandidate,
+        namespaceMap,
+        FieldOverrideVariant.FORCE,
+      );
+
+      const firstOverrideOriginalType = doc.definition.fieldTypeOverrides![0].originalType;
+
+      const secondOverride = FieldTypeOverrideService.createFieldTypeOverride(
+        stringField,
+        boolCandidate,
+        namespaceMap,
+        FieldOverrideVariant.FORCE,
+      );
+
+      expect(secondOverride.originalType).toBe(firstOverrideOriginalType);
+      expect(secondOverride.originalType).not.toBe(intCandidate.typeString);
     });
   });
 
@@ -319,7 +406,7 @@ describe('FieldTypeOverrideService', () => {
       if (!stringField) throw new Error('Field not found');
 
       expect(stringField.type).toBe(Types.String);
-      expect(stringField.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(stringField.typeOverride).toBe(FieldOverrideVariant.NONE);
 
       const candidate = {
         displayName: 'xs:int',
@@ -335,11 +422,11 @@ describe('FieldTypeOverrideService', () => {
         stringField,
         candidate,
         namespaceMap,
-        TypeOverrideVariant.FORCE,
+        FieldOverrideVariant.FORCE,
       );
 
       expect(stringField.type).toBe(Types.Integer);
-      expect(stringField.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(stringField.typeOverride).toBe(FieldOverrideVariant.FORCE);
       expect(doc.definition.fieldTypeOverrides).toBeDefined();
       expect(doc.definition.fieldTypeOverrides![0].schemaPath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
     });
@@ -352,7 +439,7 @@ describe('FieldTypeOverrideService', () => {
           schemaPath: '/ns0:ShipOrder/ShipTo/City',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       doc.definition.choiceSelections = [{ schemaPath: '/ns0:ShipOrder/ShipTo/{choice:0}', selectedMemberIndex: 0 }];
@@ -374,7 +461,7 @@ describe('FieldTypeOverrideService', () => {
         shipToField,
         candidate,
         namespaceMap,
-        TypeOverrideVariant.FORCE,
+        FieldOverrideVariant.FORCE,
       );
 
       expect(doc.definition.fieldTypeOverrides?.some((o) => o.schemaPath === '/ns0:ShipOrder/ShipTo/City')).toBe(false);
@@ -414,10 +501,10 @@ describe('FieldTypeOverrideService', () => {
         isBuiltIn: true,
       };
 
-      FieldTypeOverrideService.applyFieldTypeOverride(doc, nameField, candidate, {}, TypeOverrideVariant.FORCE);
+      FieldTypeOverrideService.applyFieldTypeOverride(doc, nameField, candidate, {}, FieldOverrideVariant.FORCE);
 
       expect(nameField.type).toBe(Types.Numeric);
-      expect(nameField.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(nameField.typeOverride).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should throw TypeError for PrimitiveDocument', () => {
@@ -433,10 +520,10 @@ describe('FieldTypeOverrideService', () => {
       };
 
       expect(() => {
-        FieldTypeOverrideService.applyFieldTypeOverride(document, document, candidate, {}, TypeOverrideVariant.FORCE);
+        FieldTypeOverrideService.applyFieldTypeOverride(document, document, candidate, {}, FieldOverrideVariant.FORCE);
       }).toThrow(TypeError);
       expect(() => {
-        FieldTypeOverrideService.applyFieldTypeOverride(document, document, candidate, {}, TypeOverrideVariant.FORCE);
+        FieldTypeOverrideService.applyFieldTypeOverride(document, document, candidate, {}, FieldOverrideVariant.FORCE);
       }).toThrow('Field type override is not supported for primitive documents');
     });
 
@@ -463,7 +550,7 @@ describe('FieldTypeOverrideService', () => {
           mockDoc as unknown as IField,
           candidate,
           {},
-          TypeOverrideVariant.FORCE,
+          FieldOverrideVariant.FORCE,
         );
       }).toThrow(TypeError);
       expect(() => {
@@ -472,7 +559,7 @@ describe('FieldTypeOverrideService', () => {
           mockDoc as unknown as IField,
           candidate,
           {},
-          TypeOverrideVariant.FORCE,
+          FieldOverrideVariant.FORCE,
         );
       }).toThrow('Unsupported document type');
     });
@@ -500,16 +587,16 @@ describe('FieldTypeOverrideService', () => {
         stringField,
         candidate,
         namespaceMap,
-        TypeOverrideVariant.FORCE,
+        FieldOverrideVariant.FORCE,
       );
 
       expect(stringField.type).toBe(Types.Integer);
-      expect(stringField.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(stringField.typeOverride).toBe(FieldOverrideVariant.FORCE);
 
       FieldTypeOverrideService.revertFieldTypeOverride(doc, stringField, namespaceMap);
 
       expect(stringField.type).toBe(originalType);
-      expect(stringField.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(stringField.typeOverride).toBe(FieldOverrideVariant.NONE);
       expect(doc.definition.fieldTypeOverrides?.length).toBe(0);
     });
 
@@ -519,13 +606,13 @@ describe('FieldTypeOverrideService', () => {
       if (!stringField) throw new Error('Field not found');
 
       const originalType = stringField.type;
-      expect(stringField.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(stringField.typeOverride).toBe(FieldOverrideVariant.NONE);
 
       const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
       FieldTypeOverrideService.revertFieldTypeOverride(doc, stringField, namespaceMap);
 
       expect(stringField.type).toBe(originalType);
-      expect(stringField.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(stringField.typeOverride).toBe(FieldOverrideVariant.NONE);
     });
 
     it('should invalidate descendant overrides and selections after reverting type override', () => {
@@ -547,7 +634,7 @@ describe('FieldTypeOverrideService', () => {
         shipToField,
         candidate,
         namespaceMap,
-        TypeOverrideVariant.FORCE,
+        FieldOverrideVariant.FORCE,
       );
 
       doc.definition.fieldTypeOverrides = [
@@ -556,7 +643,7 @@ describe('FieldTypeOverrideService', () => {
           schemaPath: '/ns0:ShipOrder/ShipTo/City',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       doc.definition.choiceSelections = [
@@ -641,7 +728,7 @@ describe('FieldTypeOverrideService', () => {
           schemaPath: '/ns0:ShipOrder/{choice:0}/email/emailAddress',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       doc.definition.choiceSelections = [
@@ -742,7 +829,7 @@ describe('FieldTypeOverrideService', () => {
           schemaPath: '/ns0:ShipOrder/{choice:0}/email/emailAddress',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       doc.definition.choiceSelections!.push({
