@@ -220,6 +220,92 @@ describe('CamelRouteResource', () => {
       expect(resource.getVisualEntities()).toHaveLength(2);
       expect(resource.getVisualEntities()[0].id).toEqual(id);
     });
+
+    describe('insertAfterEntityId', () => {
+      it('should insert a duplicated route right after the original route', () => {
+        const resource = new CamelRouteResource([
+          { from: { uri: 'direct:route1', steps: [] } },
+          { from: { uri: 'direct:route2', steps: [] } },
+          { from: { uri: 'direct:route3', steps: [] } },
+        ]);
+
+        const entities = resource.getVisualEntities();
+        expect(entities).toHaveLength(3);
+
+        const route1Id = entities[0].id;
+
+        // Duplicate route1 - should be inserted right after route1
+        const newId = resource.addNewEntity(EntityType.Route, undefined, route1Id);
+
+        const updatedEntities = resource.getVisualEntities();
+        expect(updatedEntities).toHaveLength(4);
+        expect(updatedEntities[0].id).toBe(route1Id);
+        expect(updatedEntities[1].id).toBe(newId); // Duplicate placed right after route1
+      });
+
+      it('should insert a duplicated route after the last route when duplicating the last route', () => {
+        const resource = new CamelRouteResource([
+          { from: { uri: 'direct:route1', steps: [] } },
+          { from: { uri: 'direct:route2', steps: [] } },
+        ]);
+
+        const entities = resource.getVisualEntities();
+        const route2Id = entities[1].id;
+
+        const newId = resource.addNewEntity(EntityType.Route, undefined, route2Id);
+
+        const updatedEntities = resource.getVisualEntities();
+        expect(updatedEntities).toHaveLength(3);
+        expect(updatedEntities[1].id).toBe(route2Id);
+        expect(updatedEntities[2].id).toBe(newId); // Duplicate placed right after route2
+      });
+
+      it('should insert after the specified entity among mixed entity types', () => {
+        const resource = new CamelRouteResource([
+          { routeConfiguration: { id: 'config1' } },
+          { from: { uri: 'direct:route1', steps: [] } },
+          { from: { uri: 'direct:route2', steps: [] } },
+        ]);
+
+        const entities = resource.getVisualEntities();
+        const route1Id = entities.find((e) => e.type === EntityType.Route)!.id;
+
+        const newId = resource.addNewEntity(EntityType.Route, undefined, route1Id);
+
+        const updatedEntities = resource.getVisualEntities();
+        expect(updatedEntities).toHaveLength(4);
+
+        // Find the route entities in order
+        const routeEntities = updatedEntities.filter((e) => e.type === EntityType.Route);
+        expect(routeEntities).toHaveLength(3);
+        expect(routeEntities[0].id).toBe(route1Id);
+        expect(routeEntities[1].id).toBe(newId); // Duplicate right after route1
+      });
+
+      it('should fall back to default ordering when insertAfterEntityId is not found', () => {
+        const resource = new CamelRouteResource([
+          { from: { uri: 'direct:route1', steps: [] } },
+        ]);
+
+        const newId = resource.addNewEntity(EntityType.Route, undefined, 'non-existing-id');
+
+        const updatedEntities = resource.getVisualEntities();
+        expect(updatedEntities).toHaveLength(2);
+        expect(updatedEntities[1].id).toBe(newId); // Falls back to end
+      });
+
+      it('should fall back to default ordering when insertAfterEntityId is not provided', () => {
+        const resource = new CamelRouteResource([
+          { from: { uri: 'direct:route1', steps: [] } },
+        ]);
+
+        const newId = resource.addNewEntity(EntityType.Route);
+
+        const updatedEntities = resource.getVisualEntities();
+        expect(updatedEntities).toHaveLength(2);
+        expect(updatedEntities[1].id).toBe(newId);
+      });
+    });
   });
 
   it('should return the right type', () => {

@@ -188,16 +188,18 @@ describe('useDuplicateStep', () => {
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
     });
 
-    it('should call entitiesContext.camelResource.addNewEntity() and finally updateEntitiesFromCamelResource()', async () => {
+    it('should call entitiesContext.camelResource.addNewEntity() with original entity ID and finally updateEntitiesFromCamelResource()', async () => {
       const camelResourceAddNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
       const routeVizNodeContent = updateIds(routeVizNode.getCopiedContent()!);
       const { result } = renderHook(() => useDuplicateStep(routeVizNode), { wrapper });
       await result.current.onDuplicate();
 
       expect(camelResourceAddNewEntitySpy).toHaveBeenCalledTimes(1);
-      expect(camelResourceAddNewEntitySpy).toHaveBeenCalledWith(routeVizNodeContent.name as string, {
-        [routeVizNodeContent.name]: routeVizNodeContent.definition,
-      });
+      expect(camelResourceAddNewEntitySpy).toHaveBeenCalledWith(
+        routeVizNodeContent.name as string,
+        { [routeVizNodeContent.name]: routeVizNodeContent.definition },
+        routeVizNode.getId(),
+      );
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
     });
   });

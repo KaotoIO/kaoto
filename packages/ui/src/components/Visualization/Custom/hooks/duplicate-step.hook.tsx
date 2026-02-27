@@ -89,9 +89,12 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
     if (!updatedVizNodeContent) return;
 
     if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
-      entitiesContext.camelResource.addNewEntity(updatedVizNodeContent.name as EntityType, {
-        [updatedVizNodeContent.name]: updatedVizNodeContent.definition,
-      });
+      const originalEntityId = vizNode.getId();
+      entitiesContext.camelResource.addNewEntity(
+        updatedVizNodeContent.name as EntityType,
+        { [updatedVizNodeContent.name]: updatedVizNodeContent.definition },
+        originalEntityId,
+      );
     } else {
       /** Append the content of the current node on the current node */
       vizNode.pasteBaseEntityStep(updatedVizNodeContent, AddStepMode.AppendStep);
