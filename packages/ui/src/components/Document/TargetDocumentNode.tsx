@@ -26,7 +26,7 @@ type DocumentNodeProps = {
 export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ treeNode, documentId, rank }) => {
   const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
-  const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
+  const isExpanded = useDocumentTreeStore((state) => state.isExpanded(treeNode.path));
   const nodeData = treeNode.nodeData;
   const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
 

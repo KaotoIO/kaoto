@@ -193,6 +193,8 @@ export type LineProps = LineCoord & {
   targetNodePath: string;
   isSelected: boolean;
   isPartial: boolean;
+  isSourceEdge: boolean;
+  isTargetEdge: boolean;
 };
 
 export type SendAlertProps = Partial<AlertProps & { description: string }>;

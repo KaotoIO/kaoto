@@ -41,7 +41,7 @@ export const TargetPanel: FunctionComponent = () => {
   }, [targetBodyNodeData]);
 
   // Optimize: Select only the expansion state for this document
-  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[targetBodyNodeData.id] || {});
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {

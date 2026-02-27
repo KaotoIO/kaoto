@@ -40,7 +40,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
   }, [sourceBodyNodeData]);
 
   // Optimize: Select only the expansion state for this document
-  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState[sourceBodyNodeData.id] || {});
+  const documentExpansionState = useDocumentTreeStore((state) => state.expansionState);
 
   // Flatten tree based on expansion state
   const flattenedNodes = useMemo(() => {

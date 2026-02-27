@@ -14,7 +14,7 @@ import { TreeExpansionState } from '../store/document-tree.store';
 export function getNearestVisiblePort(
   path: string,
   connectionPortsMap: Record<string, [number, number]>,
-  expansionStateMap: Record<string, TreeExpansionState>,
+  expansionStateMap: TreeExpansionState,
 ): { connectionTarget: 'node' | 'edge' | 'parent'; position: [number, number] } {
   /* If the node is present in the connection port map, it's visible. (Not virtualized away nor collapsed) */
   if (connectionPortsMap[path]) {
@@ -22,14 +22,13 @@ export function getNearestVisiblePort(
   }
 
   const nodePath = new NodePath(path);
-  const documentId = `doc-${nodePath.documentType}-${nodePath.documentId}`;
 
   while (nodePath.pathSegments.length > 0) {
     // Remove the last segment to get the parent path
     nodePath.pathSegments = nodePath.pathSegments.slice(0, -1);
     const parentPath = nodePath.toString();
 
-    if (connectionPortsMap[parentPath] && !expansionStateMap[documentId][parentPath]) {
+    if (connectionPortsMap[parentPath] && !expansionStateMap[parentPath]) {
       return { connectionTarget: 'parent', position: connectionPortsMap[parentPath] };
     }
   }

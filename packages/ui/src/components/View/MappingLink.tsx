@@ -20,6 +20,8 @@ export const MappingLink: FunctionComponent<LineProps> = ({
   targetNodePath,
   isSelected,
   isPartial,
+  isSourceEdge,
+  isTargetEdge,
 }) => {
   const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
   const [isOver, setIsOver] = useState<boolean>(false);

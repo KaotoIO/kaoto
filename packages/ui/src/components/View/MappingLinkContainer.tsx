@@ -53,6 +53,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
         targetNodePath,
         isSelected,
         isPartial,
+        isSourceEdge,
+        isTargetEdge,
       } as LineProps;
     })
     .filter((line): line is LineProps => line !== null)
@@ -82,6 +84,8 @@ export const MappingLinksContainer: FunctionComponent = () => {
             targetNodePath={lineProps.targetNodePath}
             isSelected={lineProps.isSelected}
             isPartial={lineProps.isPartial}
+            isSourceEdge={lineProps.isSourceEdge}
+            isTargetEdge={lineProps.isTargetEdge}
           />
         ))}
       </g>
