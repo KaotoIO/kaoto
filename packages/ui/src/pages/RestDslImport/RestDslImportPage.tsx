@@ -9,7 +9,7 @@ export const RestDslImportPage: FunctionComponent = () => {
   const navigate = useNavigate();
 
   const handleClose = useCallback(() => {
-    navigate(Links.Home);
+    navigate(Links.Rest);
   }, [navigate]);
 
   const handleGoToDesigner = useCallback(() => {
