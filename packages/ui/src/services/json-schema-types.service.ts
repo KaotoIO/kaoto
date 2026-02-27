@@ -1,5 +1,5 @@
 import { IField } from '../models/datamapper/document';
-import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { JsonSchemaDocument } from './json-schema-document.model';
 
@@ -31,7 +31,7 @@ export class JsonSchemaTypesService {
    * @example
    * ```typescript
    * const result = JsonSchemaTypesService.parseTypeOverride('number', {}, field);
-   * // result = { type: Types.Numeric, typeQName: QName, variant: TypeOverrideVariant.SAFE }
+   * // result = { type: Types.Numeric, typeQName: QName, variant: FieldOverrideVariant.SAFE }
    *
    * const refResult = JsonSchemaTypesService.parseTypeOverride('#/definitions/Address', {}, field);
    * // result = { type: Types.Container, typeQName: QName, variant: ... }
@@ -41,7 +41,7 @@ export class JsonSchemaTypesService {
     typeString: string,
     _namespaceMap: Record<string, string>,
     field: IField,
-  ): { type: Types; typeQName: QName; variant: TypeOverrideVariant } {
+  ): { type: Types; typeQName: QName; variant: FieldOverrideVariant } {
     const type = typeString.startsWith('#/') ? Types.Container : JsonSchemaTypesService.mapTypeStringToEnum(typeString);
 
     const typeQName = new QName(null, typeString);
@@ -63,12 +63,12 @@ export class JsonSchemaTypesService {
    * @param _typeString - The type string (unused but kept for interface consistency)
    * @returns SAFE if original type is AnyType, FORCE otherwise
    */
-  static determineOverrideVariant(field: IField, _newType: Types, _typeString: string): TypeOverrideVariant {
-    if (field.originalType === Types.AnyType) {
-      return TypeOverrideVariant.SAFE;
+  static determineOverrideVariant(field: IField, _newType: Types, _typeString: string): FieldOverrideVariant {
+    if ((field.originalField?.type ?? field.type) === Types.AnyType) {
+      return FieldOverrideVariant.SAFE;
     }
 
-    return TypeOverrideVariant.FORCE;
+    return FieldOverrideVariant.FORCE;
   }
 
   /**
@@ -179,7 +179,7 @@ export class JsonSchemaTypesService {
    * // Always returns {}
    * ```
    */
-  static getTypeOverrideCandidatesForField(_field: { originalTypeQName?: unknown }): Record<string, IFieldTypeInfo> {
+  static getTypeOverrideCandidatesForField(_field: IField): Record<string, IFieldTypeInfo> {
     return {};
   }
 }

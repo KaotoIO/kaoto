@@ -1,6 +1,6 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
-import { TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import {
   JsonSchemaCollection,
@@ -245,7 +245,7 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.String);
       expect(result.typeQName).toEqual(new QName(null, 'string'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should parse number type override', () => {
@@ -258,7 +258,7 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Numeric);
       expect(result.typeQName).toEqual(new QName(null, 'number'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should parse boolean type override', () => {
@@ -271,7 +271,7 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Boolean);
       expect(result.typeQName).toEqual(new QName(null, 'boolean'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should parse array type override', () => {
@@ -284,7 +284,7 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Array);
       expect(result.typeQName).toEqual(new QName(null, 'array'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should parse object type override', () => {
@@ -297,7 +297,7 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Container);
       expect(result.typeQName).toEqual(new QName(null, 'object'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should parse type reference with #/ prefix as Container', () => {
@@ -310,7 +310,7 @@ describe('JsonSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Container);
       expect(result.typeQName).toEqual(new QName(null, '#/definitions/MyType'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should return FORCE variant when overriding non-AnyType field', () => {
@@ -322,7 +322,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       const result = JsonSchemaTypesService.parseTypeOverride('number', {}, field);
 
       expect(result.type).toBe(Types.Numeric);
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
   });
 

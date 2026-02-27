@@ -1,5 +1,5 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
-import { TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../models/datamapper/types';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { JsonSchemaTypesService } from './json-schema-types.service';
@@ -162,7 +162,7 @@ describe('JsonSchemaTypesService', () => {
 
       const parseResult = JsonSchemaTypesService.parseTypeOverride('string', {}, field);
 
-      expect(parseResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(parseResult.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should determine FORCE variant for non-AnyType field', () => {
@@ -179,7 +179,7 @@ describe('JsonSchemaTypesService', () => {
 
       const parseResult = JsonSchemaTypesService.parseTypeOverride('number', {}, field);
 
-      expect(parseResult.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(parseResult.variant).toBe(FieldOverrideVariant.FORCE);
     });
   });
 
