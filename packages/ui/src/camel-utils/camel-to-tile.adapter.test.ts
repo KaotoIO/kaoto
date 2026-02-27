@@ -1,5 +1,17 @@
-import { CatalogKind, ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
-import { camelComponentToTile, camelEntityToTile, camelProcessorToTile, kameletToTile } from './camel-to-tile.adapter';
+import {
+  CatalogKind,
+  ICamelComponentDefinition,
+  ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
+  IKameletDefinition,
+} from '../models';
+import {
+  camelComponentToTile,
+  camelEntityToTile,
+  camelProcessorToTile,
+  citrusComponentToTile,
+  kameletToTile,
+} from './camel-to-tile.adapter';
 
 describe('camelComponentToTile', () => {
   it('should return a tile with the correct type', () => {
@@ -159,6 +171,39 @@ describe('camelEntityToTile', () => {
     expect(tile.type).toEqual(CatalogKind.Entity);
     expect(tile.name).toEqual('my-entity');
     expect(tile.description).toEqual('My Entity Description');
+  });
+});
+
+describe('citrusComponentToTile', () => {
+  it('should return a tile with the correct type', () => {
+    const componentDef = {
+      kind: CatalogKind.TestAction,
+      name: 'my-action',
+      group: 'my-group',
+      title: 'My Action',
+      description: 'This is the description',
+    } as ICitrusComponentDefinition;
+
+    const tile = citrusComponentToTile(componentDef);
+
+    expect(tile.type).toEqual(CatalogKind.TestAction);
+    expect(tile.name).toEqual('my-action');
+    expect(tile.title).toEqual('My Action');
+    expect(tile.description).toEqual('This is the description');
+  });
+
+  it('should return a tile with defaults', () => {
+    const componentDef = {
+      kind: CatalogKind.TestContainer,
+      name: 'my-container',
+    } as ICitrusComponentDefinition;
+
+    const tile = citrusComponentToTile(componentDef);
+
+    expect(tile.type).toEqual(CatalogKind.TestContainer);
+    expect(tile.name).toEqual('my-container');
+    expect(tile.title).toEqual('my-container');
+    expect(tile.description).toBeUndefined();
   });
 });
 
