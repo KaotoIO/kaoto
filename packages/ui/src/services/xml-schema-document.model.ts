@@ -82,10 +82,9 @@ export class XmlSchemaField extends BaseField {
     const adopted = new XmlSchemaField(parent, this.name, this.isAttribute);
     adopted.type = this.type;
     adopted.typeQName = this.typeQName;
-    adopted.originalType = this.originalType;
-    adopted.originalTypeQName = this.originalTypeQName;
     adopted.typeOverride = this.typeOverride;
     adopted.nillable = this.nillable;
+    adopted.originalField = this.originalField;
     adopted.minOccurs = this.minOccurs;
     adopted.maxOccurs = this.maxOccurs;
     adopted.minOccursExplicit = this.minOccursExplicit;
