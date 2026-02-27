@@ -1,6 +1,6 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { TypeDerivation, TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, TypeDerivation, Types } from '../models/datamapper/types';
 import {
   getExtensionComplexXsd,
   getRestrictionComplexXsd,
@@ -44,24 +44,24 @@ describe('XmlSchemaTypesService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       if (!field) throw new Error('Field not found');
-      field.originalType = Types.AnyType;
+      field.type = Types.AnyType;
 
       const namespaceMap = { xs: NS_XML_SCHEMA };
       const result = XmlSchemaTypesService.parseTypeOverride('xs:string', namespaceMap, field);
 
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should determine FORCE variant for incompatible type change', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       if (!field) throw new Error('Field not found');
-      field.originalType = Types.String;
+      field.type = Types.String;
 
       const namespaceMap = { xs: NS_XML_SCHEMA };
       const result = XmlSchemaTypesService.parseTypeOverride('xs:int', namespaceMap, field);
 
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
   });
 
@@ -412,9 +412,8 @@ describe('XmlSchemaTypesService', () => {
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
       const messageQName = new QName('http://www.example.com/TEST', 'Message');
-      const field = {
-        originalTypeQName: messageQName,
-      };
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.typeQName = messageQName;
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
         field,
@@ -426,12 +425,13 @@ describe('XmlSchemaTypesService', () => {
       expect(Object.values(candidates).some((c) => c.displayName === 'BaseRequest')).toBe(true);
     });
 
-    it('should return empty when field has no originalTypeQName', () => {
+    it('should return empty when field has no typeQName', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const namespaceMap = { xs: NS_XML_SCHEMA };
+      const field = new XmlSchemaField(doc, 'emptyField', false);
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
-        {},
+        field,
         doc.xmlSchemaCollection,
         namespaceMap,
       );
@@ -439,12 +439,14 @@ describe('XmlSchemaTypesService', () => {
       expect(candidates).toEqual({});
     });
 
-    it('should return empty when originalTypeQName resolves to no type', () => {
+    it('should return empty when typeQName resolves to no type', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const namespaceMap = { xs: NS_XML_SCHEMA };
+      const field = new XmlSchemaField(doc, 'fakeField', false);
+      field.typeQName = new QName('http://nonexistent.com', 'Fake');
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
-        { originalTypeQName: new QName('http://nonexistent.com', 'Fake') },
+        field,
         doc.xmlSchemaCollection,
         namespaceMap,
       );
@@ -459,7 +461,7 @@ describe('XmlSchemaTypesService', () => {
         new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'json-doc'),
       );
       const field = new JsonSchemaField(jsonDoc, 'testField', Types.Container);
-      field.originalType = Types.Container;
+      field.type = Types.Container;
 
       const result = XmlSchemaTypesService.isCompatibleContainerTypeOverride(
         field,
@@ -484,8 +486,8 @@ describe('XmlSchemaTypesService', () => {
       const doc = result.document as XmlSchemaDocument;
 
       const field = new XmlSchemaField(doc, 'testField', false);
-      field.originalType = Types.Container;
-      field.originalTypeQName = new QName('http://www.example.com/TEST', 'Message');
+      field.type = Types.Container;
+      field.typeQName = new QName('http://www.example.com/TEST', 'Message');
 
       const isCompatible = XmlSchemaTypesService.isCompatibleContainerTypeOverride(
         field,
@@ -723,8 +725,8 @@ describe('XmlSchemaTypesService', () => {
       const baseRequestQName = new QName('http://www.example.com/TEST', 'BaseRequest');
 
       const field = new XmlSchemaField(doc, 'testField', false);
-      field.originalType = Types.Container;
-      field.originalTypeQName = messageQName;
+      field.type = Types.Container;
+      field.typeQName = messageQName;
 
       const variant = XmlSchemaTypesService.determineOverrideVariant(
         field,
@@ -733,7 +735,7 @@ describe('XmlSchemaTypesService', () => {
         'http://www.example.com/TEST',
       );
 
-      expect(variant).toBe(TypeOverrideVariant.SAFE);
+      expect(variant).toBe(FieldOverrideVariant.SAFE);
     });
   });
 });

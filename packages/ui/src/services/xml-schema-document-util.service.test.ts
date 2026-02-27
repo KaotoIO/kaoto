@@ -1,7 +1,7 @@
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import { BaseDocument } from '../models/datamapper/document';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { TypeOverrideVariant, Types } from '../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../models/datamapper/types';
 import {
   getAccountLcXsd,
   getAccountNs2Xsd,
@@ -251,7 +251,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.String);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'string'));
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should parse xs:int type override', () => {
@@ -263,7 +263,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Integer);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'int'));
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should parse xs:boolean type override', () => {
@@ -275,7 +275,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Boolean);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'boolean'));
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should parse xs:date type override', () => {
@@ -287,7 +287,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Date);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'date'));
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should parse xs:decimal type override', () => {
@@ -299,7 +299,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Decimal);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'decimal'));
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should parse custom type override with FORCE variant', () => {
@@ -311,7 +311,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.String);
       expect(result.typeQName).toEqual(new QName(NS_XML_SCHEMA, 'string'));
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should parse type without prefix', () => {
@@ -324,7 +324,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.type).toBe(Types.Container);
       expect(result.typeQName).toEqual(new QName(null, 'CustomType'));
-      expect(result.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(result.variant).toBe(FieldOverrideVariant.SAFE);
     });
 
     it('should handle schema with extension types', () => {
@@ -377,7 +377,7 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       const result = XmlSchemaTypesService.parseTypeOverride('ns0:UnrelatedType', namespaceMap, shipTo);
 
-      expect(result.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(result.variant).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should return SAFE variant when re-overriding with compatible extension type', () => {
@@ -395,12 +395,43 @@ describe('XmlSchemaDocumentUtilService', () => {
       const requestField = doc.fields.find((f) => f.name === 'Request');
       if (!requestField) throw new Error('Request field not found');
 
-      requestField.originalType = Types.Container;
-      requestField.originalTypeQName = new QName('http://www.example.com/TEST', 'Message');
+      requestField.type = Types.Container;
+      requestField.typeQName = new QName('http://www.example.com/TEST', 'Message');
 
       const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
 
-      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
+    });
+
+    it('should use originalField type/typeQName over field state when determining SAFE extension variant', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'extension.xsd': getExtensionComplexXsd() },
+      );
+      const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(extensionResult.validationStatus).toBe('success');
+      const doc = extensionResult.document!;
+      const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
+
+      const requestField = doc.fields.find((f) => f.name === 'Request');
+      if (!requestField) throw new Error('Request field not found');
+
+      requestField.type = Types.String;
+      requestField.originalField = {
+        name: requestField.name,
+        namespaceURI: requestField.namespaceURI,
+        namespacePrefix: requestField.namespacePrefix,
+        type: Types.Container,
+        typeQName: new QName('http://www.example.com/TEST', 'Message'),
+        namedTypeFragmentRefs: [],
+      };
+
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
+
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
     });
 
@@ -419,12 +450,43 @@ describe('XmlSchemaDocumentUtilService', () => {
       const addressField = doc.fields.find((f) => f.name === 'Address');
       if (!addressField) throw new Error('Address field not found');
 
-      addressField.originalType = Types.Container;
-      addressField.originalTypeQName = new QName('http://www.example.com/RESTRICT', 'BaseAddress');
+      addressField.type = Types.Container;
+      addressField.typeQName = new QName('http://www.example.com/RESTRICT', 'BaseAddress');
 
       const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:SimpleAddress', namespaceMap, addressField);
 
-      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
+    });
+
+    it('should use originalField type/typeQName over field state when determining SAFE restriction variant', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'restriction.xsd': getRestrictionComplexXsd() },
+      );
+      const restrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(restrictionResult.validationStatus).toBe('success');
+      const doc = restrictionResult.document!;
+      const namespaceMap = { ns0: 'http://www.example.com/RESTRICT', xs: NS_XML_SCHEMA };
+
+      const addressField = doc.fields.find((f) => f.name === 'Address');
+      if (!addressField) throw new Error('Address field not found');
+
+      addressField.type = Types.String;
+      addressField.originalField = {
+        name: addressField.name,
+        namespaceURI: addressField.namespaceURI,
+        namespacePrefix: addressField.namespacePrefix,
+        type: Types.Container,
+        typeQName: new QName('http://www.example.com/RESTRICT', 'BaseAddress'),
+        namedTypeFragmentRefs: [],
+      };
+
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:SimpleAddress', namespaceMap, addressField);
+
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
     });
 
@@ -443,12 +505,43 @@ describe('XmlSchemaDocumentUtilService', () => {
       const requestField = doc.fields.find((f) => f.name === 'Request');
       if (!requestField) throw new Error('Request field not found');
 
-      requestField.originalType = Types.Container;
-      requestField.originalTypeQName = new QName('http://www.example.com/TEST', 'UnrelatedType');
+      requestField.type = Types.Container;
+      requestField.typeQName = new QName('http://www.example.com/TEST', 'UnrelatedType');
 
       const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
 
-      expect(overrideResult.variant).toBe(TypeOverrideVariant.FORCE);
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.FORCE);
+      expect(overrideResult.type).toBe(Types.Container);
+    });
+
+    it('should use originalField type/typeQName over field state when determining FORCE incompatible variant', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'extension.xsd': getExtensionComplexXsd() },
+      );
+      const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(extensionResult.validationStatus).toBe('success');
+      const doc = extensionResult.document!;
+      const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
+
+      const requestField = doc.fields.find((f) => f.name === 'Request');
+      if (!requestField) throw new Error('Request field not found');
+
+      requestField.type = Types.String;
+      requestField.originalField = {
+        name: requestField.name,
+        namespaceURI: requestField.namespaceURI,
+        namespacePrefix: requestField.namespacePrefix,
+        type: Types.Container,
+        typeQName: new QName('http://www.example.com/TEST', 'UnrelatedType'),
+        namedTypeFragmentRefs: [],
+      };
+
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:BaseRequest', namespaceMap, requestField);
+
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.FORCE);
       expect(overrideResult.type).toBe(Types.Container);
     });
 
@@ -467,8 +560,8 @@ describe('XmlSchemaDocumentUtilService', () => {
       const extendedValueField = doc.fields.find((f) => f.name === 'ExtendedValue');
       if (!extendedValueField) throw new Error('ExtendedValue field not found');
 
-      extendedValueField.originalType = Types.Container;
-      extendedValueField.originalTypeQName = new QName('http://www.example.com/SIMPLEINHERIT', 'ExtendedValueType');
+      extendedValueField.type = Types.Container;
+      extendedValueField.typeQName = new QName('http://www.example.com/SIMPLEINHERIT', 'ExtendedValueType');
 
       const overrideResult = XmlSchemaTypesService.parseTypeOverride(
         'ns0:ComplexExtendingSimple',
@@ -476,7 +569,42 @@ describe('XmlSchemaDocumentUtilService', () => {
         extendedValueField,
       );
 
-      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
+    });
+
+    it('should use originalField type/typeQName over field state when determining SAFE derived simple type variant', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'simple.xsd': getSimpleTypeInheritanceXsd() },
+      );
+      const simpleInheritResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(simpleInheritResult.validationStatus).toBe('success');
+      const doc = simpleInheritResult.document!;
+      const namespaceMap = { ns0: 'http://www.example.com/SIMPLEINHERIT', xs: NS_XML_SCHEMA };
+
+      const extendedValueField = doc.fields.find((f) => f.name === 'ExtendedValue');
+      if (!extendedValueField) throw new Error('ExtendedValue field not found');
+
+      extendedValueField.type = Types.String;
+      extendedValueField.originalField = {
+        name: extendedValueField.name,
+        namespaceURI: extendedValueField.namespaceURI,
+        namespacePrefix: extendedValueField.namespacePrefix,
+        type: Types.Container,
+        typeQName: new QName('http://www.example.com/SIMPLEINHERIT', 'ExtendedValueType'),
+        namedTypeFragmentRefs: [],
+      };
+
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride(
+        'ns0:ComplexExtendingSimple',
+        namespaceMap,
+        extendedValueField,
+      );
+
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
     });
 
@@ -495,12 +623,43 @@ describe('XmlSchemaDocumentUtilService', () => {
       const ageField = doc.fields.find((f) => f.name === 'Age');
       if (!ageField) throw new Error('Age field not found');
 
-      ageField.originalType = Types.Container;
-      ageField.originalTypeQName = new QName('http://www.example.com/SIMPLETYPE', 'BaseInteger');
+      ageField.type = Types.Container;
+      ageField.typeQName = new QName('http://www.example.com/SIMPLETYPE', 'BaseInteger');
 
       const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:AgeType', namespaceMap, ageField);
 
-      expect(overrideResult.variant).toBe(TypeOverrideVariant.SAFE);
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
+      expect(overrideResult.type).toBe(Types.Container);
+    });
+
+    it('should use originalField type/typeQName over field state when determining SAFE simple restriction variant', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'simple.xsd': getSimpleTypeRestrictionXsd() },
+      );
+      const simpleRestrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(simpleRestrictionResult.validationStatus).toBe('success');
+      const doc = simpleRestrictionResult.document!;
+      const namespaceMap = { ns0: 'http://www.example.com/SIMPLETYPE', xs: NS_XML_SCHEMA };
+
+      const ageField = doc.fields.find((f) => f.name === 'Age');
+      if (!ageField) throw new Error('Age field not found');
+
+      ageField.type = Types.String;
+      ageField.originalField = {
+        name: ageField.name,
+        namespaceURI: ageField.namespaceURI,
+        namespacePrefix: ageField.namespacePrefix,
+        type: Types.Container,
+        typeQName: new QName('http://www.example.com/SIMPLETYPE', 'BaseInteger'),
+        namedTypeFragmentRefs: [],
+      };
+
+      const overrideResult = XmlSchemaTypesService.parseTypeOverride('ns0:AgeType', namespaceMap, ageField);
+
+      expect(overrideResult.variant).toBe(FieldOverrideVariant.SAFE);
       expect(overrideResult.type).toBe(Types.Container);
     });
   });

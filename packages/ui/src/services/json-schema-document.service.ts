@@ -173,6 +173,7 @@ export class JsonSchemaDocumentService {
       definition.rootElementChoice,
       definition.fieldTypeOverrides,
       definition.choiceSelections,
+      definition.fieldSubstitutions,
     );
 
     // Try to create the Document object. It could fail if the primary schema is the removed schema file.
@@ -186,6 +187,9 @@ export class JsonSchemaDocumentService {
 
     // Unset the primary schema and retry
     updatedDefinition.rootElementChoice = undefined;
+    updatedDefinition.fieldTypeOverrides = [];
+    updatedDefinition.choiceSelections = [];
+    updatedDefinition.fieldSubstitutions = [];
     return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
   }
 
@@ -526,7 +530,6 @@ export class JsonSchemaDocumentService {
   private assignRefTypeQName(field: JsonSchemaField, ref: string): void {
     const refQName = new QName(null, ref);
     field.typeQName = refQName;
-    field.originalTypeQName = refQName;
   }
 
   private assignTypeMetadata(field: JsonSchemaField, schema: JsonSchemaMetadata): void {
@@ -535,7 +538,6 @@ export class JsonSchemaDocumentService {
       const typeString = typeArray[0];
       const typeQName = new QName(null, typeString);
       field.typeQName = typeQName;
-      field.originalTypeQName = typeQName;
     }
 
     if (schema.required) {

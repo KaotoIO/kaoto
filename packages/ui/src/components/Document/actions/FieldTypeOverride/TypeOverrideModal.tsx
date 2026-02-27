@@ -22,7 +22,7 @@ import { FunctionComponent, MouseEvent, Ref, useCallback, useContext, useEffect,
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField, SCHEMA_FILE_NAME_PATTERN_XML } from '../../../../models/datamapper/document';
-import { IFieldTypeInfo, TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant, IFieldTypeInfo } from '../../../../models/datamapper/types';
 import { MetadataContext } from '../../../../providers';
 import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
 import { formatQNameWithPrefix } from '../../../../services/qname-util';
@@ -67,7 +67,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     setTypeCandidates(candidates);
 
     // If field has an existing override, pre-select it by matching namespace URI + local part
-    if (field.typeOverride !== TypeOverrideVariant.NONE && field.typeQName) {
+    if (field.typeOverride !== FieldOverrideVariant.NONE && field.typeQName) {
       const typeString = formatQNameWithPrefix(field.typeQName, namespaceMap);
       setSelectedType(candidates[typeString] || null);
     } else {
@@ -203,9 +203,10 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     [handleToggleSelect, isSelectOpen, selectedType?.displayName],
   );
 
-  const hasExistingOverride = field?.typeOverride !== TypeOverrideVariant.NONE;
+  const hasExistingOverride = field?.typeOverride !== FieldOverrideVariant.NONE;
 
-  const originalTypeDisplay = field?.originalTypeQName?.toString() || field?.originalType || field?.type || 'Unknown';
+  const originalTypeDisplay =
+    field?.originalField?.typeQName?.toString() || field?.originalField?.type || field?.type || 'Unknown';
   const fieldName = field?.displayName || field?.name || 'Field';
   const fieldPath = field?.path?.toString() || '';
   const modalTitle = (

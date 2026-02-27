@@ -2,7 +2,7 @@ import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
-import { IFieldTypeInfo, TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant, IFieldTypeInfo } from '../../../../models/datamapper/types';
 import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
 import { revertTypeOverride } from './revert-type-override';
 import { TypeOverrideModal } from './TypeOverrideModal';
@@ -54,7 +54,7 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
           field,
           selectedType,
           namespaceMap,
-          TypeOverrideVariant.SAFE,
+          FieldOverrideVariant.SAFE,
         );
       }
       updateDocument(document, document.definition, previousRefId);
