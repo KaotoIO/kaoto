@@ -57,10 +57,10 @@ describe('MetadataEditor.tsx', () => {
     );
     const addBeanBtn = screen.getAllByTestId('metadata-add-beans-btn')[0];
     fireEvent.click(addBeanBtn);
-    const beanNameInput = screen.getAllByRole('textbox').filter((input) => input.getAttribute('name') === '#.name')[0];
-    fireEvent.input(beanNameInput, { target: { value: 'bean1' } });
-    const beanTypeInput = screen.getAllByRole('textbox').filter((input) => input.getAttribute('name') === '#.type')[0];
-    fireEvent.input(beanTypeInput, { target: { value: 'io.kaoto.MyBean' } });
+    const beanNameInput = screen.getAllByRole('textbox').find((input) => input.getAttribute('name') === '#.name');
+    fireEvent.input(beanNameInput!, { target: { value: 'bean1' } });
+    const beanTypeInput = screen.getAllByRole('textbox').find((input) => input.getAttribute('name') === '#.type');
+    fireEvent.input(beanTypeInput!, { target: { value: 'io.kaoto.MyBean' } });
 
     expect(changed[0].name).toBe('bean1');
     expect(changed[0].type).toBe('io.kaoto.MyBean');
@@ -82,8 +82,8 @@ describe('MetadataEditor.tsx', () => {
     );
     const row = screen.getByTestId('metadata-row-0');
     fireEvent.click(row);
-    const nameInput = screen.getAllByRole('textbox').filter((input) => input.getAttribute('name') === '#.name')[0];
-    fireEvent.input(nameInput, { target: { value: 'beanNameModified' } });
+    const nameInput = screen.getAllByRole('textbox').find((input) => input.getAttribute('name') === '#.name');
+    fireEvent.input(nameInput!, { target: { value: 'beanNameModified' } });
     expect(changed[0].name).toBe('beanNameModified');
   });
 

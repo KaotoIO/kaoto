@@ -269,8 +269,8 @@ export class MappingLinksService {
   }
 
   static isInSelectedMapping(mappingLinks: IMappingLink[], ref: RefObject<NodeReference>): boolean {
-    return !!mappingLinks
+    return mappingLinks
       .filter((link) => link.isSelected)
-      .find((link) => MappingLinksService.isLinkSelected(link.sourceNodePath, link.targetNodePath, ref));
+      .some((link) => MappingLinksService.isLinkSelected(link.sourceNodePath, link.targetNodePath, ref));
   }
 }

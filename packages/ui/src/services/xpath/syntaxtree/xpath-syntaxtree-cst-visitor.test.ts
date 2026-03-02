@@ -107,7 +107,7 @@ describe('CstVisitor', () => {
       expect(pathExpr.steps[0].filterExpr?.primary.type).toBe(XPathNodeType.FunctionCall);
 
       const funcCall = pathExpr.steps[0].filterExpr?.primary;
-      if (funcCall && funcCall.type === XPathNodeType.FunctionCall) {
+      if (funcCall?.type === XPathNodeType.FunctionCall) {
         expect(funcCall.localName).toBe('concat');
         expect(funcCall.arguments.length).toBe(2);
       }
@@ -120,7 +120,7 @@ describe('CstVisitor', () => {
       const pathExpr = root.expressions[0] as PathExprNode;
       const literal = pathExpr.steps[0].filterExpr?.primary;
       expect(literal?.type).toBe(XPathNodeType.Literal);
-      if (literal && literal.type === XPathNodeType.Literal) {
+      if (literal?.type === XPathNodeType.Literal) {
         expect(literal.value).toBe('hello world');
         expect(literal.literalType).toBe('string');
       }
@@ -133,7 +133,7 @@ describe('CstVisitor', () => {
       const pathExpr = root.expressions[0] as PathExprNode;
       const literal = pathExpr.steps[0].filterExpr?.primary;
       expect(literal?.type).toBe(XPathNodeType.Literal);
-      if (literal && literal.type === XPathNodeType.Literal) {
+      if (literal?.type === XPathNodeType.Literal) {
         expect(literal.value).toBe(42);
         expect(literal.literalType).toBe('integer');
       }
@@ -146,7 +146,7 @@ describe('CstVisitor', () => {
       const pathExpr = root.expressions[0] as PathExprNode;
       const literal = pathExpr.steps[0].filterExpr?.primary;
       expect(literal?.type).toBe(XPathNodeType.Literal);
-      if (literal && literal.type === XPathNodeType.Literal) {
+      if (literal?.type === XPathNodeType.Literal) {
         expect(literal.value).toBe(3.14);
         expect(literal.literalType).toBe('decimal');
       }

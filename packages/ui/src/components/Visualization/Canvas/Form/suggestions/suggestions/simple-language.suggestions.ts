@@ -3,16 +3,16 @@ import { Suggestion, SuggestionProvider } from '@kaoto/forms';
 import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { IMetadataApi } from '../../../../../../providers';
 
-const SIMPLE_LANGUAGE_ACTIVATED_FIELDS = [
+const SIMPLE_LANGUAGE_ACTIVATED_FIELDS = new Set([
   '#.message', // This is a special case for the Log EIP
   'simple.expression',
-];
+]);
 
 // This provider suggests syntax from: https://camel.apache.org/components/next/languages/simple-language.html
 export const getSimpleLanguageSuggestionProvider = (metadata?: IMetadataApi['getSuggestions']): SuggestionProvider => {
   return {
     id: 'simple-language-suggestion-provider',
-    appliesTo: (propName, schema) => SIMPLE_LANGUAGE_ACTIVATED_FIELDS.includes(propName) && schema.type === 'string',
+    appliesTo: (propName, schema) => SIMPLE_LANGUAGE_ACTIVATED_FIELDS.has(propName) && schema.type === 'string',
     getSuggestions: async (word, context) => {
       const normalizedWord = word !== '' ? word : 'name';
       const normalizedWordLowercase = normalizedWord.toLowerCase();

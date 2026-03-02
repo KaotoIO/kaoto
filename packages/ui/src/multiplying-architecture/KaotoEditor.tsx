@@ -54,12 +54,12 @@ export const KaotoEditor = () => {
     }
 
     return {
-      design: SCHEMA_TABS[resource.getType()].indexOf(TabList.Design) >= 0,
-      beans: SCHEMA_TABS[resource.getType()].indexOf(TabList.Beans) >= 0,
-      metadata: SCHEMA_TABS[resource.getType()].indexOf(TabList.Metadata) >= 0,
-      errorHandler: SCHEMA_TABS[resource.getType()].indexOf(TabList.ErrorHandler) >= 0,
-      kaotoDataMapper: SCHEMA_TABS[resource.getType()].indexOf(TabList.KaotoDataMapper) >= 0,
-      about: SCHEMA_TABS[resource.getType()].indexOf(TabList.About) >= 0,
+      design: SCHEMA_TABS[resource.getType()].includes(TabList.Design),
+      beans: SCHEMA_TABS[resource.getType()].includes(TabList.Beans),
+      metadata: SCHEMA_TABS[resource.getType()].includes(TabList.Metadata),
+      errorHandler: SCHEMA_TABS[resource.getType()].includes(TabList.ErrorHandler),
+      kaotoDataMapper: SCHEMA_TABS[resource.getType()].includes(TabList.KaotoDataMapper),
+      about: SCHEMA_TABS[resource.getType()].includes(TabList.About),
     };
   }, [resource]);
 

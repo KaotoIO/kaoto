@@ -23,15 +23,15 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
 
   constructor(public kamelet: IKameletDefinition) {
     const spec: IKameletSpec = {
-      ...(kamelet.spec ?? {}),
+      ...kamelet.spec,
       template: {
-        ...(kamelet.spec?.template ?? {}),
+        ...kamelet.spec?.template,
         from: {
-          ...(kamelet.spec?.template?.from ?? {}),
+          ...kamelet.spec?.template?.from,
         },
       },
       definition: {
-        ...(kamelet.spec?.definition ?? {}),
+        ...kamelet.spec?.definition,
         title: kamelet.spec?.definition?.title,
         ...(kamelet.spec?.definition?.description ? { description: kamelet.spec?.definition?.description } : {}),
       },

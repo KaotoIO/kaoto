@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import fs from 'fs';
-import path from 'path';
 
 import { CamelCatalogService, CatalogKind } from '../../../models';
 import { restWithVerbsStup } from '../../../stubs/rest';

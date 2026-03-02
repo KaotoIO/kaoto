@@ -60,7 +60,7 @@ export class RestXmlSerializer {
   }
 
   private static containsMissingProperty(prop: string, element: Element): boolean {
-    return Array.from(element.children).filter((child) => child.tagName === prop).length > 0;
+    return Array.from(element.children).some((child) => child.tagName === prop);
   }
 
   private static handleSecurityDefinitions(element: Element, rest: Rest, doc: Document) {
