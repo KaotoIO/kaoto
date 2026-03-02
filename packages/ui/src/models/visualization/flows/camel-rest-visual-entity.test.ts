@@ -86,9 +86,9 @@ describe('CamelRestVisualEntity', () => {
     expect(superGetNodeLabelSpy).toHaveBeenCalled();
   });
 
-  it('should return "Add verb" for placeholder path', () => {
+  it('should return "verb" for placeholder path', () => {
     const entity = new CamelRestVisualEntity(restDef);
-    expect(entity.getNodeLabel('rest.placeholder')).toEqual('Add verb');
+    expect(entity.getNodeLabel('rest.placeholder')).toEqual('verb');
   });
 
   it('should delegate to super return node tooltip', () => {

@@ -12,6 +12,9 @@ export class CanvasDefaults {
   static readonly DEFAULT_NODE_WIDTH = 90;
   static readonly DEFAULT_NODE_HEIGHT = 75;
 
+  static readonly DEFAULT_PLACEHOLDER_NODE_WIDTH = 60;
+  static readonly DEFAULT_PLACEHOLDER_NODE_HEIGHT = 55;
+
   static readonly ADD_STEP_ICON_SIZE = 40;
   static readonly EDGE_TERMINAL_SIZE = 6;
 

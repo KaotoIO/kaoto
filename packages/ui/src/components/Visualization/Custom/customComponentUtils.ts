@@ -2,8 +2,6 @@ import { Edge, EdgeModel } from '@patternfly/react-topology';
 
 import { CatalogModalContextValue } from '../../../dynamic-catalog/catalog-modal.provider';
 import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
-import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
-import { CamelRouteVisualEntityData } from '../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContextResult } from '../../../providers';
 
 const NODE_DRAG_TYPE = '#node#';
@@ -58,14 +56,7 @@ const canDragGroup = (groupVizNode?: IVisualizationNode): boolean => {
     return false;
   }
 
-  const stepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
-    (groupVizNode?.getParentNode()?.data as CamelRouteVisualEntityData)?.processorName,
-  );
-
-  const groupStepProperty = stepsProperties.find(
-    (property) => property.name === groupVizNode.data.name && property.type === 'single-clause',
-  );
-  return !groupStepProperty;
+  return true;
 };
 
 export { canDragGroup, canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE };

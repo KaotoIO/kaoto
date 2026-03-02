@@ -139,6 +139,11 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
             },
           );
         },
+        drop: (_item, monitor, _props) => {
+          if (monitor.isOver({ shallow: true })) {
+            return element;
+          }
+        },
         collect: (monitor) => ({
           droppable: monitor.isDragging(),
           hover: monitor.isOver({ shallow: true }),

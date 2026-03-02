@@ -59,16 +59,27 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeTitle(this.data.path) ?? this.id;
   }
 
-  addBaseEntityStep(definition: DefinedComponent, mode: AddStepMode): void {
-    this.getBaseEntity()?.addStep({ definedComponent: definition, mode, data: this.data });
+  addBaseEntityStep(
+    definition: DefinedComponent,
+    mode: AddStepMode,
+    targetProperty?: string,
+    insertAtStart?: boolean,
+  ): void {
+    this.getBaseEntity()?.addStep({
+      definedComponent: definition,
+      mode,
+      data: this.data,
+      targetProperty,
+      insertAtStart,
+    });
   }
 
   getCopiedContent(): IClipboardCopyObject | undefined {
     return this.getBaseEntity()?.getCopiedContent(this.data.path);
   }
 
-  pasteBaseEntityStep(definition: IClipboardCopyObject, mode: AddStepMode): void {
-    this.getBaseEntity()?.pasteStep({ clipboardContent: definition, mode, data: this.data });
+  pasteBaseEntityStep(definition: IClipboardCopyObject, mode: AddStepMode, insertAtStart?: boolean): void {
+    this.getBaseEntity()?.pasteStep({ clipboardContent: definition, mode, data: this.data, insertAtStart });
   }
 
   canDragNode(): boolean {

@@ -31,7 +31,7 @@ describe('RouteConfigurationNodeMapper', () => {
     expect(vizNode.data.isGroup).toEqual(true);
   });
 
-  it('should return placeholder when routeConfiguration is empty', () => {
+  it('should return one placeholder per branch type when routeConfiguration is empty', () => {
     const entityDef = { routeConfiguration: {} };
     const vizNode = mapper.getVizNodeFromProcessor(
       path,
@@ -40,9 +40,10 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    expect(children).toHaveLength(1);
-    expect(children?.[0].data.isPlaceholder).toBe(true);
-    expect(children?.[0].data.name).toBe('placeholder-special-child');
+    expect(children).toHaveLength(5);
+    children?.forEach((c) => {
+      expect(c.data.isPlaceholder).toBe(true);
+    });
   });
 
   it('should return children when routeConfiguration has config items', () => {
@@ -59,9 +60,10 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    // Should have intercept child, no placeholder
-    expect(children?.length).toBeGreaterThan(0);
-    expect(children?.some((c) => c.data.isPlaceholder)).toBe(false);
+    // One placeholder + one intercept node for intercept branch, plus 4 placeholders for other branches
+    expect(children).toHaveLength(6);
+    expect(children?.some((c) => c.data.isPlaceholder)).toBe(true);
+    expect(children?.some((c) => !c.data.isPlaceholder)).toBe(true);
   });
 
   it('should split multiple branches of the same type', () => {
@@ -78,7 +80,8 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    expect(children).toHaveLength(2);
+    // One placeholder + 2 intercept nodes for intercept branch, plus 4 placeholders for other branches
+    expect(children).toHaveLength(7);
 
     expect(children?.[0].getPreviousNode()).toBeUndefined();
     expect(children?.[0].getNextNode()).toBeUndefined();
@@ -102,7 +105,8 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    expect(children).toHaveLength(3);
+    // intercept: 2, onException: 2, onCompletion: 2, interceptFrom: 1, interceptSendToEndpoint: 1
+    expect(children).toHaveLength(8);
 
     children?.forEach((child) => {
       expect(child.getPreviousNode()).toBeUndefined();
@@ -124,8 +128,9 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    expect(children?.length).toBeGreaterThan(0);
-    expect(children?.some((c) => c.data.isPlaceholder)).toBe(false);
+    expect(children).toHaveLength(6);
+    expect(children?.some((c) => c.data.isPlaceholder)).toBe(true);
+    expect(children?.some((c) => !c.data.isPlaceholder)).toBe(true);
   });
 
   it('should handle interceptSendToEndpoint branch type', () => {
@@ -142,11 +147,12 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    expect(children?.length).toBeGreaterThan(0);
-    expect(children?.some((c) => c.data.isPlaceholder)).toBe(false);
+    expect(children).toHaveLength(6);
+    expect(children?.some((c) => c.data.isPlaceholder)).toBe(true);
+    expect(children?.some((c) => !c.data.isPlaceholder)).toBe(true);
   });
 
-  it('should filter out placeholder nodes from branches', () => {
+  it('should include placeholder nodes for empty branches', () => {
     const entityDef: { routeConfiguration: RouteConfigurationDefinition } = {
       routeConfiguration: {
         intercept: [{ intercept: { id: 'intercept-1' } }],
@@ -160,9 +166,8 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    // Verify no placeholder nodes exist in children (they should be filtered out)
-    const hasPlaceholderPath = children?.some((c) => c.data.path?.endsWith('placeholder'));
-    expect(hasPlaceholderPath).toBe(false);
+    expect(children?.some((c) => c.data.isPlaceholder)).toBe(true);
+    expect(children?.find((c) => !c.data.isPlaceholder)?.getChildren()?.[0].data.isPlaceholder).toBe(true);
   });
 
   it('should handle all routeConfiguration branch types together', () => {
@@ -183,12 +188,12 @@ describe('RouteConfigurationNodeMapper', () => {
     );
 
     const children = vizNode.getChildren();
-    expect(children).toHaveLength(5);
+    // One placeholder + one node per branch type = 2*5 = 10
+    expect(children).toHaveLength(10);
 
     children?.forEach((child) => {
       expect(child.getPreviousNode()).toBeUndefined();
       expect(child.getNextNode()).toBeUndefined();
-      expect(child.data.isPlaceholder).toBeFalsy();
     });
   });
 });
