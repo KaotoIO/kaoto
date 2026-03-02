@@ -7,7 +7,7 @@ export const sqlSyntaxSuggestionProvider: SuggestionProvider = {
   id: 'sql-syntax-suggestion-provider',
   appliesTo: (propName, schema) => propName === '#.parameters.query' && schema.type === 'string',
   getSuggestions: async (word, _context) => {
-    const suggestionWord = word !== '' ? word : 'foo';
+    const suggestionWord = word === '' ? 'foo' : word;
 
     return [
       {

@@ -7,7 +7,7 @@ export const getPropertiesSuggestionProvider = (metadata?: IMetadataApi['getSugg
     id: 'properties-suggestion-provider',
     appliesTo: (_propName, schema) => schema.type === 'string',
     getSuggestions: async (word, context) => {
-      const normalizedWord = word !== '' ? word : 'foo';
+      const normalizedWord = word === '' ? 'foo' : word;
 
       const suggestions: Suggestion[] = [
         // https://camel.apache.org/manual/using-propertyplaceholder.html

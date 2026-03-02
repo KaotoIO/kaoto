@@ -522,7 +522,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
    * XPath reserved words.
    * @private
    */
-  private Identifier = this.RULE('Identifier', () => {
+  private readonly Identifier = this.RULE('Identifier', () => {
     this.OR([
       { ALT: () => this.CONSUME(NCName) },
       { ALT: () => this.CONSUME(Return) },
@@ -641,7 +641,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE(this.VarName);
   });
 
-  private VarName = this.RULE('VarName', () => {
+  private readonly VarName = this.RULE('VarName', () => {
     this.OPTION(() => {
       this.SUBRULE(this.Identifier);
       this.CONSUME(Colon);

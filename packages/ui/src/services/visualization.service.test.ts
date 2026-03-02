@@ -1038,7 +1038,7 @@ describe('VisualizationService', () => {
 
   it('should generate for multiple indexed collection mappings on a same collection target field', () => {
     jest
-      .spyOn(global, 'crypto', 'get')
+      .spyOn(globalThis, 'crypto', 'get')
       .mockImplementation(() => ({ getRandomValues: () => [Math.random() * 10000] }) as unknown as Crypto);
 
     MappingSerializerService.deserialize(shipOrderToShipOrderCollectionIndexXslt, targetDoc, tree, paramsMap);

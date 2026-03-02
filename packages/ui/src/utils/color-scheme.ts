@@ -19,8 +19,8 @@ export const setColorScheme = (scheme: ColorScheme): void => {
 };
 
 const getSystemColorScheme = (): ColorScheme.Dark | ColorScheme.Light => {
-  if (!window.matchMedia) return ColorScheme.Light;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? ColorScheme.Dark : ColorScheme.Light;
+  if (!globalThis.matchMedia) return ColorScheme.Light;
+  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? ColorScheme.Dark : ColorScheme.Light;
 };
 
 export const isDarkModeEnabled = (): boolean => {

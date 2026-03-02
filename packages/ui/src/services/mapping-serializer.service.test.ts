@@ -242,7 +242,7 @@ describe('MappingSerializerService', () => {
 
     it('should deserialize multiple indexed collection mappings on a same target collection', () => {
       const mockCrypto = { getRandomValues: () => [Math.random() * 10000] };
-      jest.spyOn(global, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
+      jest.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
         shipOrderToShipOrderCollectionIndexXslt,
@@ -377,7 +377,7 @@ describe('MappingSerializerService', () => {
         sourceParameterMap,
       );
       const shipOrderItem = mappingTree.children[0];
-      shipOrderItem.children = shipOrderItem.children.reverse();
+      shipOrderItem.children.reverse();
       const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
       const shipOrderSelect = xsltDocument.evaluate(
@@ -387,14 +387,14 @@ describe('MappingSerializerService', () => {
         XPathResult.ORDERED_NODE_ITERATOR_TYPE,
       );
       const xslAttribute = shipOrderSelect.iterateNext() as Element;
-      expect(xslAttribute!.nodeName).toEqual('xsl:attribute');
+      expect(xslAttribute.nodeName).toEqual('xsl:attribute');
       const xslIf = shipOrderSelect.iterateNext() as Element;
-      expect(xslIf!.nodeName).toEqual('xsl:if');
-      expect(xslIf!.getAttribute('test')).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
+      expect(xslIf.nodeName).toEqual('xsl:if');
+      expect(xslIf.getAttribute('test')).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
       const shipTo = shipOrderSelect.iterateNext() as Element;
-      expect(shipTo!.nodeName).toEqual('ShipTo');
+      expect(shipTo.nodeName).toEqual('ShipTo');
       const xslForEach = shipOrderSelect.iterateNext() as Element;
-      expect(xslForEach!.nodeName).toEqual('xsl:for-each');
+      expect(xslForEach.nodeName).toEqual('xsl:for-each');
       expect(xslForEach.getAttribute('select')).toEqual('/ns0:ShipOrder/Item');
     });
   });

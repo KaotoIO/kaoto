@@ -41,18 +41,18 @@ export class ExpressionXmlSerializer {
     const expressionDefinition = expressionObject[expressionType] as Expression;
 
     let expression: Element;
-    //for cases like correlationExpression etc...
-    if (key !== 'expression') {
-      expression = doc.createElement(key);
-      expression.append(
-        ExpressionXmlSerializer.createExpressionElement(expressionType, expressionDefinition, doc, routeParent),
-      );
-    } else {
+    if (key === 'expression') {
       expression = ExpressionXmlSerializer.createExpressionElement(
         expressionType,
         expressionDefinition,
         doc,
         routeParent,
+      );
+    } else {
+      //for cases like correlationExpression etc...
+      expression = doc.createElement(key);
+      expression.append(
+        ExpressionXmlSerializer.createExpressionElement(expressionType, expressionDefinition, doc, routeParent),
       );
     }
 
@@ -87,6 +87,6 @@ export class ExpressionXmlSerializer {
   static extractExpressionObject(key: string, expressionStep: { [key: string]: unknown }): { [key: string]: unknown } {
     if (expressionStep['expression']) return expressionStep['expression'] as { [key: string]: unknown };
 
-    return key !== 'expression' ? (expressionStep[key] as { [key: string]: unknown }) : expressionStep;
+    return key === 'expression' ? expressionStep : (expressionStep[key] as { [key: string]: unknown });
   }
 }

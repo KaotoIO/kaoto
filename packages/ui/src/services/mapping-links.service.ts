@@ -151,7 +151,7 @@ export class MappingLinksService {
       lastSeparatorIndex !== -1 && path.charAt(lastSeparatorIndex - 1) === '/'
         ? lastSeparatorIndex + 1
         : lastSeparatorIndex;
-    return endIndex !== -1 ? path.substring(0, endIndex) : null;
+    return endIndex === -1 ? null : path.substring(0, endIndex);
   }
 
   private static getCoordFromFieldRef(
