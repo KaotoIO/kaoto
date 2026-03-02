@@ -30,6 +30,9 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   // Track pending layout change callbacks - executed after CSS transition completes
   const layoutChangeQueueRef = useRef<Array<() => void>>([]);
 
+  // Track registered layout callbacks per panel - used to broadcast updates to all panels
+  const panelCallbacksRef = useRef<Map<string, () => void>>(new Map());
+
   /**
    * Update panel orders based on actual DOM order
    * This ensures grid template matches visual panel positions,
@@ -59,6 +62,16 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     });
   }, [firstPanelId, lastPanelId]); // Only depends on panel ID props (stable)
 
+  /**
+   * Queue all registered panel callbacks
+   * Called whenever grid layout changes to notify all panels to update their connection ports
+   */
+  const queueAllLayoutCallbacks = useCallback(() => {
+    panelCallbacksRef.current.forEach((callback) => {
+      layoutChangeQueueRef.current.push(callback);
+    });
+  }, []);
+
   const updateGridTemplate = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -77,7 +90,11 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
 
     const template = templateParts.join(' ');
     container.style.setProperty('--grid-template', template);
-  }, []);
+
+    // Queue all panel callbacks so every panel can update its connection ports
+    // This is critical for virtual scroll scenarios where grid changes affect all panels
+    queueAllLayoutCallbacks();
+  }, [queueAllLayoutCallbacks]);
 
   /**
    * Fit panels to container height using proportional resize
@@ -371,9 +388,32 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
     layoutChangeQueueRef.current.push(callback);
   }, []);
 
+  /**
+   * Register a panel's layout callback
+   * The callback will be invoked whenever any panel's layout changes
+   */
+  const registerLayoutCallback = useCallback((id: string, callback: () => void) => {
+    panelCallbacksRef.current.set(id, callback);
+  }, []);
+
+  /**
+   * Unregister a panel's layout callback
+   */
+  const unregisterLayoutCallback = useCallback((id: string) => {
+    panelCallbacksRef.current.delete(id);
+  }, []);
+
   const value = useMemo(
-    () => ({ register, unregister, resize, setExpanded, queueLayoutChange }),
-    [register, unregister, resize, setExpanded, queueLayoutChange],
+    () => ({
+      register,
+      unregister,
+      resize,
+      setExpanded,
+      queueLayoutChange,
+      registerLayoutCallback,
+      unregisterLayoutCallback,
+    }),
+    [register, unregister, resize, setExpanded, queueLayoutChange, registerLayoutCallback, unregisterLayoutCallback],
   );
 
   // Update panel orders whenever children change

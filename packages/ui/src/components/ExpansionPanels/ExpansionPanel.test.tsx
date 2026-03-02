@@ -9,6 +9,8 @@ describe('ExpansionPanel', () => {
   let mockResize: jest.Mock;
   let mockSetExpanded: jest.Mock;
   let mockQueueLayoutChange: jest.Mock;
+  let mockRegisterLayoutCallback: jest.Mock;
+  let mockUnregisterLayoutCallback: jest.Mock;
 
   beforeEach(() => {
     mockRegister = jest.fn();
@@ -16,6 +18,8 @@ describe('ExpansionPanel', () => {
     mockResize = jest.fn();
     mockSetExpanded = jest.fn();
     mockQueueLayoutChange = jest.fn();
+    mockRegisterLayoutCallback = jest.fn();
+    mockUnregisterLayoutCallback = jest.fn();
   });
 
   const renderPanel = (props: Partial<React.ComponentProps<typeof ExpansionPanel>> = {}) => {
@@ -33,6 +37,8 @@ describe('ExpansionPanel', () => {
           resize: mockResize,
           setExpanded: mockSetExpanded,
           queueLayoutChange: mockQueueLayoutChange,
+          registerLayoutCallback: mockRegisterLayoutCallback,
+          unregisterLayoutCallback: mockUnregisterLayoutCallback,
         }}
       >
         <ExpansionPanel {...defaultProps} {...props} />
@@ -70,6 +76,8 @@ describe('ExpansionPanel', () => {
         resize: mockResize,
         setExpanded: mockSetExpanded,
         queueLayoutChange: mockQueueLayoutChange,
+        registerLayoutCallback: mockRegisterLayoutCallback,
+        unregisterLayoutCallback: mockUnregisterLayoutCallback,
       };
 
       const { rerender } = render(
@@ -207,6 +215,8 @@ describe('ExpansionPanel', () => {
             resize: mockResize,
             setExpanded: mockSetExpanded,
             queueLayoutChange: mockQueueLayoutChange,
+            registerLayoutCallback: mockRegisterLayoutCallback,
+            unregisterLayoutCallback: mockUnregisterLayoutCallback,
           }}
         >
           <ExpansionPanel id="test-panel" summary={<div>Test Summary</div>} defaultExpanded={true}>
@@ -423,6 +433,33 @@ describe('ExpansionPanel', () => {
       expect(panel).toHaveClass('expansion-panel');
       expect(panel).toHaveAttribute('data-expanded', 'true');
       expect(panel).toHaveAttribute('data-resizing', 'false');
+    });
+  });
+
+  describe('Layout Callback Registration', () => {
+    it('should register layout callback when onLayoutChange is provided', () => {
+      const onLayoutChange = jest.fn();
+      renderPanel({ id: 'test-panel', onLayoutChange });
+
+      // Should register the callback
+      expect(mockRegisterLayoutCallback).toHaveBeenCalledWith('test-panel', expect.any(Function));
+    });
+
+    it('should unregister layout callback on unmount when onLayoutChange was provided', () => {
+      const onLayoutChange = jest.fn();
+      const { unmount } = renderPanel({ id: 'test-panel', onLayoutChange });
+
+      unmount();
+
+      // Should unregister the callback
+      expect(mockUnregisterLayoutCallback).toHaveBeenCalledWith('test-panel');
+    });
+
+    it('should NOT register layout callback when onLayoutChange is not provided', () => {
+      renderPanel({ id: 'test-panel' });
+
+      // Should not register callback when no onLayoutChange provided
+      expect(mockRegisterLayoutCallback).not.toHaveBeenCalled();
     });
   });
 });

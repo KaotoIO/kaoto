@@ -192,6 +192,19 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
   // CRITICAL: Only id and context in deps - minHeight, defaultHeight, defaultExpanded excluded
   // to prevent infinite unregister/register loops that reset panel state
 
+  // Register layout callback to receive broadcasts when any panel's layout changes
+  useEffect(() => {
+    if (onLayoutChange) {
+      context.registerLayoutCallback(id, () => onLayoutChange(id));
+    }
+
+    return () => {
+      if (onLayoutChange) {
+        context.unregisterLayoutCallback(id);
+      }
+    };
+  }, [id, context, onLayoutChange]);
+
   useEffect(() => {
     return () => {
       document.removeEventListener('mousemove', stableMouseMoveHandler);
