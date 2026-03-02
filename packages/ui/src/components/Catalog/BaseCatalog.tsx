@@ -28,7 +28,7 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
     [props],
   );
 
-  const startIndex = (page - 1) * perPage < 0 ? 0 : (page - 1) * perPage;
+  const startIndex = Math.max(0, (page - 1) * perPage);
   const endIndex = page * perPage;
   useEffect(() => {
     // Handling the scenario where the item count is less the page selected.

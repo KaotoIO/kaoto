@@ -6,7 +6,7 @@ import { datamapperActivationFn } from './datamapper.activationfn';
 
 describe('datamapperActivationFn', () => {
   it('should return false if vizNode is `undefined`', () => {
-    const result = datamapperActivationFn(undefined);
+    const result = datamapperActivationFn();
 
     expect(result).toBe(false);
   });

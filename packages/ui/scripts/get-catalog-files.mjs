@@ -23,7 +23,7 @@ export const getCatalogFiles = () => {
 
   try {
     if (readdirSync(camelCatalogPath).length === 0) {
-      throw new Error();
+      throw new Error('Camel Catalog directory is empty');
     }
   } catch (error) {
     const message = [
@@ -77,6 +77,7 @@ function getCitrusCatalogFiles() {
     ];
 
     console.warn(message.join('\n\n'));
+    return [];
   }
 
   console.info(`Found Citrus in '@kaoto/camel-catalog' using ${citrusCatalogPath}`, '\n');

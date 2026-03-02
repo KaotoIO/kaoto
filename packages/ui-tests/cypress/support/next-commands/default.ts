@@ -254,7 +254,7 @@ Cypress.Commands.add('allowClipboardAccess', () => {
         permissions: ['clipboardReadWrite', 'clipboardSanitizedWrite'],
         // make the permission tighter by allowing the current origin only
         // like "http://localhost:56978"
-        origin: window.location.origin,
+        origin: globalThis.location.origin,
       },
     }),
   );

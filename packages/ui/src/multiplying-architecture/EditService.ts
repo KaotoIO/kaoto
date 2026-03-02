@@ -3,10 +3,7 @@ export class EditService {
   protected hashes: string[] = [];
 
   static getInstance(): EditService {
-    if (!this.instance) {
-      this.instance = new EditService();
-    }
-
+    this.instance ??= new EditService();
     return this.instance;
   }
 
