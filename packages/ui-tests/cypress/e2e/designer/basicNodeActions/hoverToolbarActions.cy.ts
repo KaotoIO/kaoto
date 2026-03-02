@@ -71,7 +71,7 @@ describe('Test toolbar on hover actions', () => {
     cy.get('[data-testid="choice|step-toolbar-button-add-special"]').click();
 
     cy.chooseFromCatalog('processor', 'when');
-    cy.checkNodeExist('when', 4);
+    cy.checkNodeExist('when', 6);
     cy.checkNodeExist('log', 2);
   });
 
@@ -87,8 +87,8 @@ describe('Test toolbar on hover actions', () => {
     cy.checkNodeExist('log', 0);
 
     cy.get(`[data-testid="choice|step-toolbar-button-collapse"]`).click({ force: true });
-    cy.checkNodeExist('when', 3);
-    cy.checkNodeExist('otherwise', 1);
+    cy.checkNodeExist('when', 5);
+    cy.checkNodeExist('otherwise', 2);
     cy.checkNodeExist('log', 1);
   });
 

@@ -26,6 +26,7 @@ export class RestDslNodeMapper extends BaseNodeMapper {
     REST_DSL_VERBS.forEach((verb) => {
       const restVerbNodes = this.getChildrenFromArrayClause(`${path}.${verb}`, entityDefinition);
       restVerbNodes.forEach((node) => {
+        if (node.data.isPlaceholder) return;
         vizNode.addChild(node);
       });
     });

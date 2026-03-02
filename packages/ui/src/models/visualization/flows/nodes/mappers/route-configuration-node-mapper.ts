@@ -25,35 +25,12 @@ export class RouteConfigurationNodeMapper extends BaseNodeMapper {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const routeConfigurationProperties = SPECIAL_PROCESSORS_PARENTS_MAP.routeConfiguration;
-    routeConfigurationProperties.forEach((property) => {
-      const configNodes = this.getChildrenFromBranch(`${path}.${property}`, entityDefinition);
-      configNodes.forEach((node, index, nodesArray) => {
-        /* routeConfiguration branches needs to be split from each other, as they work in parallel */
-        node.setPreviousNode(undefined);
-        const previousNode = nodesArray[index - 1];
-        previousNode?.setNextNode(undefined);
-
-        /* Remove placeholders from the routeConfiguration since it creates one per branch */
-        if (node.data.path?.endsWith('placeholder')) return;
-
+    SPECIAL_PROCESSORS_PARENTS_MAP.routeConfiguration.forEach((property) => {
+      const configNodes = this.getChildrenFromArrayClause(`${path}.${property}`, entityDefinition);
+      configNodes.forEach((node) => {
         vizNode.addChild(node);
       });
     });
-
-    const isEmptyRouteConfiguration = (vizNode.getChildren() ?? []).length === 0;
-
-    if (isEmptyRouteConfiguration) {
-      /* set a single placeholder if needed */
-      const placeholderNode = createVisualizationNode(`${path}.placeholder`, {
-        catalogKind: CatalogKind.Pattern,
-        name: 'placeholder-special-child',
-        isPlaceholder: true,
-        processorName: 'routeConfiguration',
-        path: 'routeConfiguration.placeholder',
-      });
-      vizNode.addChild(placeholderNode);
-    }
 
     return vizNode;
   }

@@ -57,6 +57,7 @@ declare global {
       allowClipboardAccess(): Chainable<JQuery<Element>>;
       addValueToClipboard(value: object): Chainable<JQuery<Element>>;
       assertValueCopiedToClipboard(expectedValue: object): Chainable<JQuery<Element>>;
+      resetViewInCanvas(): Chainable<JQuery<Element>>;
       // design
       openGroupConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;
       openStepConfigurationTab(step: string, stepIndex?: number): Chainable<JQuery<Element>>;

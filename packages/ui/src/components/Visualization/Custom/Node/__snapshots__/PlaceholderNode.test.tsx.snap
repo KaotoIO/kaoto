@@ -21,7 +21,7 @@ exports[`PlaceholderNode isSpecialChildPlaceholder should render CodeBranchIcon 
         >
           <div
             class="placeholder-node__container__image"
-            title="Click to add a step"
+            title="Click to add placeholder-special-child branch"
           >
             <span
               class="pf-v6-c-icon pf-m-lg"
@@ -58,9 +58,9 @@ exports[`PlaceholderNode isSpecialChildPlaceholder should render CodeBranchIcon 
           class="placeholder-node__label__text"
         >
           <span
-            title="test-placeholder"
+            title="Add test-placeholder"
           >
-            test-placeholder
+            Add test-placeholder
           </span>
         </div>
       </foreignobject>
@@ -127,9 +127,9 @@ exports[`PlaceholderNode isSpecialChildPlaceholder should render PlusCircleIcon 
           class="placeholder-node__label__text"
         >
           <span
-            title="test-placeholder"
+            title="Add test-placeholder"
           >
-            test-placeholder
+            Add test-placeholder
           </span>
         </div>
       </foreignobject>

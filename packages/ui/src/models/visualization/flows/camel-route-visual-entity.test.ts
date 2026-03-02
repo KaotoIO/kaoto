@@ -348,10 +348,9 @@ describe('Camel Route', () => {
       expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBe(fromNode);
       expect(choiceNode.getNextNode()?.data.isPlaceholder).toBe(true);
-      expect(choiceNode.getChildren()).toHaveLength(1);
-
-      /** choice.when */
-      const whenNode = choiceNode.getChildren()?.[0];
+      expect(choiceNode.getChildren()).toHaveLength(3); // when placeholder, when, otherwise placeholder
+      /** choice.when (index 0 is when placeholder, index 1 is the actual when) */
+      const whenNode = choiceNode.getChildren()?.[1];
       expect(whenNode).toBeDefined();
       expect(whenNode!.data.path).toEqual('route.from.steps.0.choice.when.0');
       expect(whenNode!.getNodeLabel()).toEqual('when');
@@ -406,7 +405,7 @@ describe('Camel Route', () => {
       expect(choiceNode.getNodeLabel()).toEqual('choice');
       expect(choiceNode.getPreviousNode()).toBe(setHeaderNode);
       expect(choiceNode.getNextNode()).toBeDefined();
-      expect(choiceNode.getChildren()).toHaveLength(2);
+      expect(choiceNode.getChildren()).toHaveLength(3); // when placeholder, when, otherwise
 
       /** toDirect */
       const toDirectNode = choiceNode.getNextNode()!;
@@ -415,8 +414,8 @@ describe('Camel Route', () => {
       expect(toDirectNode.getPreviousNode()).toBe(choiceNode);
       expect(toDirectNode.getNextNode()?.data.isPlaceholder).toBe(true);
 
-      /** choice.when */
-      const whenNode = choiceNode.getChildren()?.[0];
+      /** choice.when (index 0 is when placeholder, index 1 is the actual when) */
+      const whenNode = choiceNode.getChildren()?.[1];
       expect(whenNode).toBeDefined();
       expect(whenNode!.data.path).toEqual('route.from.steps.1.choice.when.0');
       expect(whenNode!.getNodeLabel()).toEqual('when');
@@ -437,8 +436,8 @@ describe('Camel Route', () => {
       expect(logWhenNode!.getParentNode()).toBe(whenNode);
       expect(logWhenNode!.getChildren()).toBeUndefined();
 
-      /** choice.otherwise */
-      const otherwiseNode = choiceNode.getChildren()?.[1];
+      /** choice.otherwise (index 2: when placeholder, when, otherwise) */
+      const otherwiseNode = choiceNode.getChildren()?.[2];
       expect(otherwiseNode).toBeDefined();
       expect(otherwiseNode!.data.path).toEqual('route.from.steps.1.choice.otherwise');
       expect(otherwiseNode!.getNodeLabel()).toEqual('otherwise');

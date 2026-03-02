@@ -193,5 +193,25 @@ describe('PlaceholderNode', () => {
       expect(mockOnReplaceNode).toHaveBeenCalledTimes(1);
       expect(mockOnInsertStep).not.toHaveBeenCalled();
     });
+
+    it('should call onInsertStep when clicking on otherwise placeholder', () => {
+      setupWithVizNode({ name: 'otherwise', isPlaceholder: true });
+
+      const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
+      fireEvent.click(placeholderNode);
+
+      expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
+      expect(mockOnReplaceNode).not.toHaveBeenCalled();
+    });
+
+    it('should call onInsertStep when clicking on when placeholder', () => {
+      setupWithVizNode({ name: 'when', isPlaceholder: true });
+
+      const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
+      fireEvent.click(placeholderNode);
+
+      expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
+      expect(mockOnReplaceNode).not.toHaveBeenCalled();
+    });
   });
 });
