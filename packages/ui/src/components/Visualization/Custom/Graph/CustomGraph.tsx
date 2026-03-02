@@ -36,8 +36,8 @@ export const GraphContextMenuFn = ({
   const entities = entityContextMenuFn();
 
   if (entities.length > 0) {
-    items.push(<Divider key="new-entity-divider" />);
     items.push(
+      <Divider key="new-entity-divider" />,
       <ContextSubMenuItem
         key="new-entity"
         data-testid="context-menu-item-new-entity"

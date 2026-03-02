@@ -29,9 +29,11 @@ export class PipeParser {
       records.push([stepType, 'URI', '', model.uri as string]);
     } else if (model.ref) {
       const ref = model.ref as Record<string, unknown>;
-      records.push([stepType, 'REF Kind', '', ref.kind as string]);
-      records.push(['', 'REF API Version', '', ref.apiVersion as string]);
-      records.push(['', 'REF Name', '', ref.name as string]);
+      records.push(
+        [stepType, 'REF Kind', '', ref.kind as string],
+        ['', 'REF API Version', '', ref.apiVersion as string],
+        ['', 'REF Name', '', ref.name as string],
+      );
     }
     if (model.properties) {
       const parsedProperties = CommonParser.parseParameters(model.properties as Record<string, unknown>);
@@ -82,9 +84,11 @@ export class PipeParser {
           parsedTable.data.push([keys[0], 'URI', '', model.uri as string]);
         } else if (model.ref) {
           const ref = model.ref as Record<string, unknown>;
-          parsedTable.data.push([keys[0], 'REF Kind', '', ref.kind as string]);
-          parsedTable.data.push(['', 'REF API Version', '', ref.apiVersion as string]);
-          parsedTable.data.push(['', 'REF Name', '', ref.name as string]);
+          parsedTable.data.push(
+            [keys[0], 'REF Kind', '', ref.kind as string],
+            ['', 'REF API Version', '', ref.apiVersion as string],
+            ['', 'REF Name', '', ref.name as string],
+          );
         }
         if (model.properties) {
           const parsedProperties = CommonParser.parseParameters(model.properties as Record<string, unknown>);

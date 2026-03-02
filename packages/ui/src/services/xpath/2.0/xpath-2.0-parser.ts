@@ -136,9 +136,7 @@ const IntegerLiteral = createToken({
 });
 
 /** DO NOT CHANGE @see {@link NCName}, {@link DecimalLiteral} */
-allTokens.push(NCName);
-allTokens.push(DecimalLiteral);
-allTokens.push(DoubleLiteral);
+allTokens.push(NCName, DecimalLiteral, DoubleLiteral);
 
 /**
  * XPath 2.0 Parser which implements the EBNF defined in the W3C specification

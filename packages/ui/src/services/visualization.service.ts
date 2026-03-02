@@ -218,7 +218,7 @@ export class VisualizationService {
     if (nodeData instanceof FieldItemNodeData)
       return (
         DocumentService.hasChildren(nodeData.field) ||
-        nodeData.mapping.children.filter((m) => !(m instanceof ValueSelector)).length > 0
+        nodeData.mapping.children.some((m) => !(m instanceof ValueSelector))
       );
     if (nodeData instanceof MappingNodeData) return nodeData.mapping.children.length > 0;
     return false;

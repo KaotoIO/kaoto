@@ -16,7 +16,7 @@ export const PROCESSOR_NAMES: Map<string, string> = new Map([
 ]);
 export const ARRAY_TYPE_NAMES: Map<string, string> = new Map([['allowableValues', 'value']]);
 
-const DEFAULT_XMLNS = ['http://camel.apache.org/schema/spring', 'http://www.w3.org/2001/XMLSchema-instance'];
+const DEFAULT_XMLNS = new Set(['http://camel.apache.org/schema/spring', 'http://www.w3.org/2001/XMLSchema-instance']);
 
 export function extractAttributesFromXmlElement(
   element: Element,
@@ -40,7 +40,7 @@ export function collectNamespaces(element: Element): { key: string; value: strin
     if (attr.name.startsWith('xmlns')) {
       const ns = attr.name.split(':');
       // don't add camel default NS
-      if (!DEFAULT_XMLNS.includes(attr.value)) namespaces.push({ key: ns[1], value: attr.value });
+      if (!DEFAULT_XMLNS.has(attr.value)) namespaces.push({ key: ns[1], value: attr.value });
     }
   });
 

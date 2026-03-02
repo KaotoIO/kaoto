@@ -132,7 +132,7 @@ export class StepParser {
     name: string,
   ): Element | undefined {
     if (properties.oneOf) {
-      return properties.oneOf.map((tag) => element.getElementsByTagName(tag)[0]).find((el) => el);
+      return properties.oneOf.map((tag) => element.getElementsByTagName(tag)[0]).find(Boolean);
     }
     return element.getElementsByTagName(name)[0];
   }

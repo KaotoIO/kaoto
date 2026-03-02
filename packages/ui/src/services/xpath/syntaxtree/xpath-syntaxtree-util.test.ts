@@ -39,7 +39,7 @@ describe('XPathUtil', () => {
 
       const node = XPathUtil.findNodeAtPosition(ast, 7);
       expect(node).toBeDefined();
-      if (node && node.type === XPathNodeType.NameTest) {
+      if (node?.type === XPathNodeType.NameTest) {
         expect((node as NameTestNode).localName).toBe('child');
       }
     });
