@@ -19,34 +19,19 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${env.name}",
   },
   {
+    "description": "Converts the message body (or expression) to a long number and return the absolute value.",
+    "group": "Simple Language",
+    "value": "\${abs(exp)}",
+  },
+  {
+    "description": "Evaluates the expression and throws an exception with the message if the condition is false",
+    "group": "Simple Language",
+    "value": "\${assert(exp,msg)}",
+  },
+  {
     "description": "The DataHandler for the given attachment.",
     "group": "Simple Language",
-    "value": "\${attachment(key)}",
-  },
-  {
-    "description": "The content of the attachment",
-    "group": "Simple Language",
-    "value": "\${attachmentContent}",
-  },
-  {
-    "description": "The content of the attachment, converted to the given type.",
-    "group": "Simple Language",
-    "value": "\${attachmentContentAs(type)}",
-  },
-  {
-    "description": "The content of the attachment as text (ie String).",
-    "group": "Simple Language",
-    "value": "\${attachmentContentAsText}",
-  },
-  {
-    "description": "The attachment header with the given name.",
-    "group": "Simple Language",
-    "value": "\${attachmentHeader(key,name)}",
-  },
-  {
-    "description": "The attachment header with the given name, converted to the given type.",
-    "group": "Simple Language",
-    "value": "\${attachmentHeader(key,name,type)}",
+    "value": "\${attachment.name}",
   },
   {
     "description": "All the attachments as a Map<String,DataHandler.",
@@ -54,9 +39,54 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${attachments}",
   },
   {
+    "description": "The content of the attachment",
+    "group": "Simple Language",
+    "value": "\${attachmentsContent.name}",
+  },
+  {
+    "description": "The content of the attachment, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentsContentAs(name,type)}",
+  },
+  {
+    "description": "The content of the attachment as text (ie String).",
+    "group": "Simple Language",
+    "value": "\${attachmentsContentAsText.name}",
+  },
+  {
+    "description": "The attachment header with the given name.",
+    "group": "Simple Language",
+    "value": "\${attachmentsHeader(key,name)}",
+  },
+  {
+    "description": "The attachment header with the given name, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentsHeaderAs(key,name,type)}",
+  },
+  {
+    "description": "All the attachment keys (filenames)",
+    "group": "Simple Language",
+    "value": "\${attachmentsKeys}",
+  },
+  {
     "description": "The number of attachments. Is 0 if there are no attachments.",
     "group": "Simple Language",
-    "value": "\${attachments.size}",
+    "value": "\${attachmentsSize}",
+  },
+  {
+    "description": "Returns the average number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${average(val...)}",
+  },
+  {
+    "description": "Base64 decodes the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${base64Decode(exp)}",
+  },
+  {
+    "description": "Base64 encodes the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${base64Encode(exp)}",
   },
   {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
@@ -74,6 +104,11 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${bodyOneLine}",
   },
   {
+    "description": "The message body class type",
+    "group": "Simple Language",
+    "value": "\${bodyType}",
+  },
+  {
     "description": "The Camel Context",
     "group": "Simple Language",
     "value": "\${camelContext}",
@@ -84,12 +119,42 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${camelId}",
   },
   {
+    "description": "Capitalizes the message body/expression as a String value (upper case every words)",
+    "group": "Simple Language",
+    "value": "\${capitalize(exp)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to a floating number and return the ceil value (rounded up to nearest integer).",
+    "group": "Simple Language",
+    "value": "\${ceil(exp)}",
+  },
+  {
+    "description": "Removes all existing attachments on the message.",
+    "group": "Simple Language",
+    "value": "\${clearAttachments}",
+  },
+  {
     "description": "The collate function iterates the message body and groups the data into sub lists of specified size. This can be used with the Splitter EIP to split a message body and group/batch the split sub message into a group of N sub lists.",
     "group": "Simple Language",
     "value": "\${collate(num)}",
   },
   {
-    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "description": "Performs a string concat using two expressions (message body as default) with optional separator",
+    "group": "Simple Language",
+    "value": "\${concat(exp,exp,separator)}",
+  },
+  {
+    "description": "Returns true if the message body (or expression) contains part of the text (ignore case)",
+    "group": "Simple Language",
+    "value": "\${contains(exp,text)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to the specified type.",
+    "group": "Simple Language",
+    "value": "\${convertTo(exp,type)}",
+  },
+  {
+    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`millis\` for current timestamp in millis (unix epoch), \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
     "group": "Simple Language",
     "value": "\${date(command)}",
   },
@@ -99,7 +164,12 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${date-with-timezone(command:timezone:pattern)}",
   },
   {
-    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`.",
+    "description": "Returns a set of all the values with duplicates removed",
+    "group": "Simple Language",
+    "value": "\${distinct(val...)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`. Use \`set\` to create an empty \`java.util.LinkedHashSet\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
   },
@@ -134,9 +204,29 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${exchangeProperty.name}",
   },
   {
+    "description": "Returns a List containing the values that satisfy the predicate function (returning true)",
+    "group": "Simple Language",
+    "value": "\${filter(exp,fun)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to a floating number and return the floor value (rounded down to nearest integer).",
+    "group": "Simple Language",
+    "value": "\${floor(exp)}",
+  },
+  {
+    "description": "Returns a List containing the values returned by the function when applied to each value from the input expression",
+    "group": "Simple Language",
+    "value": "\${forEach(exp,fun)}",
+  },
+  {
     "description": "The original route id where this exchange was created.",
     "group": "Simple Language",
     "value": "\${fromRouteId}",
+  },
+  {
+    "description": "Invokes a custom function with the given name using the message body (or expression) as input parameter.",
+    "group": "Simple Language",
+    "value": "\${function(name,exp)}",
   },
   {
     "description": "Returns a hashed value (string in hex decimal) of the message body/expression using JDK MessageDigest. The algorithm can be SHA-256 (default) or SHA3-256.",
@@ -169,6 +259,26 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${iif(predicate,trueExp,falseExp)}",
   },
   {
+    "description": "Whether the message body (or expression) is alphabetic value (A..Z). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isAlpha(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is alphanumeric value (A..Z0-9). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isAlphaNumeric(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is null or empty (list/map types are tested if they have 0 elements).",
+    "group": "Simple Language",
+    "value": "\${isEmpty(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is numeric value (0..9). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isNumeric(exp)}",
+  },
+  {
     "description": "The join function iterates the message body/expression and joins the data into a string. The separator is by default a comma. The prefix is optional. The join uses the message body as source by default. It is possible to refer to another source (simple language) such as a header via the exp parameter. For example \`join('&','id=','$\\{header.ids}')\`.",
     "group": "Simple Language",
     "value": "\${join(separator,prefix,exp)}",
@@ -184,9 +294,29 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${jsonpath(input,exp)}",
   },
   {
+    "description": "What kind of type is the value (null,number,string,boolean,array,object)",
+    "group": "Simple Language",
+    "value": "\${kindOfType(exp)}",
+  },
+  {
+    "description": "The payload length (number of bytes) of the message body (or expression).",
+    "group": "Simple Language",
+    "value": "\${length(exp)}",
+  },
+  {
     "description": "The list function creates an ArrayList with the given set of values.",
     "group": "Simple Language",
     "value": "\${list(val...)}",
+  },
+  {
+    "description": "Loads the content of the resource from classpath (cannot load from file-system to avoid dangerous situations).",
+    "group": "Simple Language",
+    "value": "\${load(file)}",
+  },
+  {
+    "description": "Lowercases the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${lowercase(exp)}",
   },
   {
     "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
@@ -197,6 +327,11 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "The map function creates a LinkedHashMap with the given set of pairs.",
     "group": "Simple Language",
     "value": "\${map(key1,value1,...)}",
+  },
+  {
+    "description": "Returns the maximum number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${max(val...)}",
   },
   {
     "description": "Converts the message to the given type (classname).",
@@ -214,7 +349,27 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${messageTimestamp}",
   },
   {
-    "description": "Represents a null value",
+    "description": "Returns the minimum number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${min(val...)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`. Use \`set\` to create an empty \`java.util.LinkedHashSet\`.",
+    "group": "Simple Language",
+    "value": "\${newEmpty(type)}",
+  },
+  {
+    "description": "Normalizes the whitespace in the message body (or expression) by cleaning up excess whitespaces.",
+    "group": "Simple Language",
+    "value": "\${normalizeWhitespace(exp)}",
+  },
+  {
+    "description": "Evaluates the predicate and returns the opposite.",
+    "group": "Simple Language",
+    "value": "\${not}",
+  },
+  {
+    "description": "Returns a null value",
     "group": "Simple Language",
     "value": "\${null}",
   },
@@ -222,6 +377,11 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "The original incoming body (only available if allowUseOriginalMessage=true).",
     "group": "Simple Language",
     "value": "\${originalBody}",
+  },
+  {
+    "description": "Pads the expression with extra padding if necessary, according the the total width. The separator is by default a space. If the width is negative then padding to the right, otherwise to the left.",
+    "group": "Simple Language",
+    "value": "\${pad(exp,width,separator)}",
   },
   {
     "description": "Converts the expression to a String, and attempts to pretty print if JSon or XML, otherwise the expression is returned as the String value.",
@@ -244,9 +404,19 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${propertiesExist:key}",
   },
   {
-    "description": "Returns a random number between min (included) and max (excluded).",
+    "description": "Returns the message body (or expression) as a double quoted string",
+    "group": "Simple Language",
+    "value": "\${quote(exp)}",
+  },
+  {
+    "description": "Returns a random number between min and max (exclusive)",
     "group": "Simple Language",
     "value": "\${random(min,max)}",
+  },
+  {
+    "description": "Returns a list of increasing integers between the given interval (exclusive)",
+    "group": "Simple Language",
+    "value": "\${range(min,max)}",
   },
   {
     "description": "To look up a bean from the Registry with the given name.",
@@ -259,7 +429,12 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${replace(from,to,exp)}",
   },
   {
-    "description": "Returns the route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
+    "description": "Returns a list of all the values, but in reverse order",
+    "group": "Simple Language",
+    "value": "\${reverse(val...)}",
+  },
+  {
+    "description": "The route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
     "group": "Simple Language",
     "value": "\${routeGroup}",
   },
@@ -269,9 +444,44 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${routeId}",
   },
   {
+    "description": "Returns the message body (or expression) safely quoted if needed",
+    "group": "Simple Language",
+    "value": "\${safeQuote(exp)}",
+  },
+  {
+    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setHeader(name,type,exp)}",
+  },
+  {
+    "description": "Sets an attachment with payload from the message body/expression.",
+    "group": "Simple Language",
+    "value": "\${setVariable(key,exp)}",
+  },
+  {
+    "description": "Sets a variable with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setVariable(name,type,exp)}",
+  },
+  {
+    "description": "Returns a list of all the values shuffled in random order",
+    "group": "Simple Language",
+    "value": "\${shuffle(val...)}",
+  },
+  {
+    "description": "Returns the number of elements in collection or array based payloads. If the value is null then 0 is returned, otherwise 1.",
+    "group": "Simple Language",
+    "value": "\${size(exp)}",
+  },
+  {
     "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
     "group": "Simple Language",
     "value": "\${skip(num)}",
+  },
+  {
+    "description": "Splits the message body/expression as a String value using the separator into a String array",
+    "group": "Simple Language",
+    "value": "\${split(exp,separator)}",
   },
   {
     "description": "Returns the id of the current step the Exchange is being routed.",
@@ -282,6 +492,26 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
     "group": "Simple Language",
     "value": "\${substring(head,tail)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that comes after. Returns null if nothing comes after.",
+    "group": "Simple Language",
+    "value": "\${substringAfter(exp,before)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that comes before. Returns null if nothing comes before.",
+    "group": "Simple Language",
+    "value": "\${substringBefore(exp,before)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that are between after and before. Returns null if nothing comes between.",
+    "group": "Simple Language",
+    "value": "\${substringBetween(exp,after,before)}",
+  },
+  {
+    "description": "Sums together all the values as integral numbers. This function can also be used to subtract by using negative numbers.",
+    "group": "Simple Language",
+    "value": "\${sum(val...)}",
   },
   {
     "description": "The JVM system property with the given name",
@@ -299,12 +529,32 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${threadName}",
   },
   {
+    "description": "Deliberately throws an error. Uses IllegalArgumentException by default if no type is specified (use fully qualified classname).",
+    "group": "Simple Language",
+    "value": "\${throwException(type,msg)}",
+  },
+  {
+    "description": "The trim function trims the message body (or expression) by removing all leading and trailing white spaces.",
+    "group": "Simple Language",
+    "value": "\${trim(exp)}",
+  },
+  {
     "description": "To refer to a type or field by its classname. To refer to a field, you can append .FIELD_NAME. For example, you can refer to the constant field from Exchange as: \`org.apache.camel.Exchange.FILE_NAME\`",
     "group": "Simple Language",
     "value": "\${type:name.field}",
   },
   {
-    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the xref:manual::registry.adoc[Registry] with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "description": "Returns the message body (or expression) with any leading/ending quotes removed",
+    "group": "Simple Language",
+    "value": "\${unquote(exp)}",
+  },
+  {
+    "description": "Uppercases the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${uppercase(exp)}",
+  },
+  {
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
   },
@@ -345,34 +595,19 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${env.name}",
   },
   {
+    "description": "Converts the message body (or expression) to a long number and return the absolute value.",
+    "group": "Simple Language",
+    "value": "\${abs(exp)}",
+  },
+  {
+    "description": "Evaluates the expression and throws an exception with the message if the condition is false",
+    "group": "Simple Language",
+    "value": "\${assert(exp,msg)}",
+  },
+  {
     "description": "The DataHandler for the given attachment.",
     "group": "Simple Language",
-    "value": "\${attachment(key)}",
-  },
-  {
-    "description": "The content of the attachment",
-    "group": "Simple Language",
-    "value": "\${attachmentContent}",
-  },
-  {
-    "description": "The content of the attachment, converted to the given type.",
-    "group": "Simple Language",
-    "value": "\${attachmentContentAs(type)}",
-  },
-  {
-    "description": "The content of the attachment as text (ie String).",
-    "group": "Simple Language",
-    "value": "\${attachmentContentAsText}",
-  },
-  {
-    "description": "The attachment header with the given name.",
-    "group": "Simple Language",
-    "value": "\${attachmentHeader(key,name)}",
-  },
-  {
-    "description": "The attachment header with the given name, converted to the given type.",
-    "group": "Simple Language",
-    "value": "\${attachmentHeader(key,name,type)}",
+    "value": "\${attachment.name}",
   },
   {
     "description": "All the attachments as a Map<String,DataHandler.",
@@ -380,9 +615,54 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${attachments}",
   },
   {
+    "description": "The content of the attachment",
+    "group": "Simple Language",
+    "value": "\${attachmentsContent.name}",
+  },
+  {
+    "description": "The content of the attachment, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentsContentAs(name,type)}",
+  },
+  {
+    "description": "The content of the attachment as text (ie String).",
+    "group": "Simple Language",
+    "value": "\${attachmentsContentAsText.name}",
+  },
+  {
+    "description": "The attachment header with the given name.",
+    "group": "Simple Language",
+    "value": "\${attachmentsHeader(key,name)}",
+  },
+  {
+    "description": "The attachment header with the given name, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentsHeaderAs(key,name,type)}",
+  },
+  {
+    "description": "All the attachment keys (filenames)",
+    "group": "Simple Language",
+    "value": "\${attachmentsKeys}",
+  },
+  {
     "description": "The number of attachments. Is 0 if there are no attachments.",
     "group": "Simple Language",
-    "value": "\${attachments.size}",
+    "value": "\${attachmentsSize}",
+  },
+  {
+    "description": "Returns the average number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${average(val...)}",
+  },
+  {
+    "description": "Base64 decodes the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${base64Decode(exp)}",
+  },
+  {
+    "description": "Base64 encodes the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${base64Encode(exp)}",
   },
   {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
@@ -400,6 +680,11 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${bodyOneLine}",
   },
   {
+    "description": "The message body class type",
+    "group": "Simple Language",
+    "value": "\${bodyType}",
+  },
+  {
     "description": "The Camel Context",
     "group": "Simple Language",
     "value": "\${camelContext}",
@@ -410,12 +695,42 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${camelId}",
   },
   {
+    "description": "Capitalizes the message body/expression as a String value (upper case every words)",
+    "group": "Simple Language",
+    "value": "\${capitalize(exp)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to a floating number and return the ceil value (rounded up to nearest integer).",
+    "group": "Simple Language",
+    "value": "\${ceil(exp)}",
+  },
+  {
+    "description": "Removes all existing attachments on the message.",
+    "group": "Simple Language",
+    "value": "\${clearAttachments}",
+  },
+  {
     "description": "The collate function iterates the message body and groups the data into sub lists of specified size. This can be used with the Splitter EIP to split a message body and group/batch the split sub message into a group of N sub lists.",
     "group": "Simple Language",
     "value": "\${collate(num)}",
   },
   {
-    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "description": "Performs a string concat using two expressions (message body as default) with optional separator",
+    "group": "Simple Language",
+    "value": "\${concat(exp,exp,separator)}",
+  },
+  {
+    "description": "Returns true if the message body (or expression) contains part of the text (ignore case)",
+    "group": "Simple Language",
+    "value": "\${contains(exp,text)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to the specified type.",
+    "group": "Simple Language",
+    "value": "\${convertTo(exp,type)}",
+  },
+  {
+    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`millis\` for current timestamp in millis (unix epoch), \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
     "group": "Simple Language",
     "value": "\${date(command)}",
   },
@@ -425,7 +740,12 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${date-with-timezone(command:timezone:pattern)}",
   },
   {
-    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`.",
+    "description": "Returns a set of all the values with duplicates removed",
+    "group": "Simple Language",
+    "value": "\${distinct(val...)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`. Use \`set\` to create an empty \`java.util.LinkedHashSet\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
   },
@@ -460,9 +780,29 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${exchangeProperty.name}",
   },
   {
+    "description": "Returns a List containing the values that satisfy the predicate function (returning true)",
+    "group": "Simple Language",
+    "value": "\${filter(exp,fun)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to a floating number and return the floor value (rounded down to nearest integer).",
+    "group": "Simple Language",
+    "value": "\${floor(exp)}",
+  },
+  {
+    "description": "Returns a List containing the values returned by the function when applied to each value from the input expression",
+    "group": "Simple Language",
+    "value": "\${forEach(exp,fun)}",
+  },
+  {
     "description": "The original route id where this exchange was created.",
     "group": "Simple Language",
     "value": "\${fromRouteId}",
+  },
+  {
+    "description": "Invokes a custom function with the given name using the message body (or expression) as input parameter.",
+    "group": "Simple Language",
+    "value": "\${function(name,exp)}",
   },
   {
     "description": "Returns a hashed value (string in hex decimal) of the message body/expression using JDK MessageDigest. The algorithm can be SHA-256 (default) or SHA3-256.",
@@ -495,6 +835,26 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${iif(predicate,trueExp,falseExp)}",
   },
   {
+    "description": "Whether the message body (or expression) is alphabetic value (A..Z). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isAlpha(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is alphanumeric value (A..Z0-9). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isAlphaNumeric(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is null or empty (list/map types are tested if they have 0 elements).",
+    "group": "Simple Language",
+    "value": "\${isEmpty(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is numeric value (0..9). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isNumeric(exp)}",
+  },
+  {
     "description": "The join function iterates the message body/expression and joins the data into a string. The separator is by default a comma. The prefix is optional. The join uses the message body as source by default. It is possible to refer to another source (simple language) such as a header via the exp parameter. For example \`join('&','id=','$\\{header.ids}')\`.",
     "group": "Simple Language",
     "value": "\${join(separator,prefix,exp)}",
@@ -510,9 +870,29 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${jsonpath(input,exp)}",
   },
   {
+    "description": "What kind of type is the value (null,number,string,boolean,array,object)",
+    "group": "Simple Language",
+    "value": "\${kindOfType(exp)}",
+  },
+  {
+    "description": "The payload length (number of bytes) of the message body (or expression).",
+    "group": "Simple Language",
+    "value": "\${length(exp)}",
+  },
+  {
     "description": "The list function creates an ArrayList with the given set of values.",
     "group": "Simple Language",
     "value": "\${list(val...)}",
+  },
+  {
+    "description": "Loads the content of the resource from classpath (cannot load from file-system to avoid dangerous situations).",
+    "group": "Simple Language",
+    "value": "\${load(file)}",
+  },
+  {
+    "description": "Lowercases the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${lowercase(exp)}",
   },
   {
     "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
@@ -523,6 +903,11 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "description": "The map function creates a LinkedHashMap with the given set of pairs.",
     "group": "Simple Language",
     "value": "\${map(key1,value1,...)}",
+  },
+  {
+    "description": "Returns the maximum number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${max(val...)}",
   },
   {
     "description": "Converts the message to the given type (classname).",
@@ -540,7 +925,27 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${messageTimestamp}",
   },
   {
-    "description": "Represents a null value",
+    "description": "Returns the minimum number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${min(val...)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`. Use \`set\` to create an empty \`java.util.LinkedHashSet\`.",
+    "group": "Simple Language",
+    "value": "\${newEmpty(type)}",
+  },
+  {
+    "description": "Normalizes the whitespace in the message body (or expression) by cleaning up excess whitespaces.",
+    "group": "Simple Language",
+    "value": "\${normalizeWhitespace(exp)}",
+  },
+  {
+    "description": "Evaluates the predicate and returns the opposite.",
+    "group": "Simple Language",
+    "value": "\${not}",
+  },
+  {
+    "description": "Returns a null value",
     "group": "Simple Language",
     "value": "\${null}",
   },
@@ -548,6 +953,11 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "description": "The original incoming body (only available if allowUseOriginalMessage=true).",
     "group": "Simple Language",
     "value": "\${originalBody}",
+  },
+  {
+    "description": "Pads the expression with extra padding if necessary, according the the total width. The separator is by default a space. If the width is negative then padding to the right, otherwise to the left.",
+    "group": "Simple Language",
+    "value": "\${pad(exp,width,separator)}",
   },
   {
     "description": "Converts the expression to a String, and attempts to pretty print if JSon or XML, otherwise the expression is returned as the String value.",
@@ -570,9 +980,19 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${propertiesExist:key}",
   },
   {
-    "description": "Returns a random number between min (included) and max (excluded).",
+    "description": "Returns the message body (or expression) as a double quoted string",
+    "group": "Simple Language",
+    "value": "\${quote(exp)}",
+  },
+  {
+    "description": "Returns a random number between min and max (exclusive)",
     "group": "Simple Language",
     "value": "\${random(min,max)}",
+  },
+  {
+    "description": "Returns a list of increasing integers between the given interval (exclusive)",
+    "group": "Simple Language",
+    "value": "\${range(min,max)}",
   },
   {
     "description": "To look up a bean from the Registry with the given name.",
@@ -585,7 +1005,12 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${replace(from,to,exp)}",
   },
   {
-    "description": "Returns the route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
+    "description": "Returns a list of all the values, but in reverse order",
+    "group": "Simple Language",
+    "value": "\${reverse(val...)}",
+  },
+  {
+    "description": "The route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
     "group": "Simple Language",
     "value": "\${routeGroup}",
   },
@@ -595,9 +1020,44 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${routeId}",
   },
   {
+    "description": "Returns the message body (or expression) safely quoted if needed",
+    "group": "Simple Language",
+    "value": "\${safeQuote(exp)}",
+  },
+  {
+    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setHeader(name,type,exp)}",
+  },
+  {
+    "description": "Sets an attachment with payload from the message body/expression.",
+    "group": "Simple Language",
+    "value": "\${setVariable(key,exp)}",
+  },
+  {
+    "description": "Sets a variable with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setVariable(name,type,exp)}",
+  },
+  {
+    "description": "Returns a list of all the values shuffled in random order",
+    "group": "Simple Language",
+    "value": "\${shuffle(val...)}",
+  },
+  {
+    "description": "Returns the number of elements in collection or array based payloads. If the value is null then 0 is returned, otherwise 1.",
+    "group": "Simple Language",
+    "value": "\${size(exp)}",
+  },
+  {
     "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
     "group": "Simple Language",
     "value": "\${skip(num)}",
+  },
+  {
+    "description": "Splits the message body/expression as a String value using the separator into a String array",
+    "group": "Simple Language",
+    "value": "\${split(exp,separator)}",
   },
   {
     "description": "Returns the id of the current step the Exchange is being routed.",
@@ -608,6 +1068,26 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
     "group": "Simple Language",
     "value": "\${substring(head,tail)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that comes after. Returns null if nothing comes after.",
+    "group": "Simple Language",
+    "value": "\${substringAfter(exp,before)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that comes before. Returns null if nothing comes before.",
+    "group": "Simple Language",
+    "value": "\${substringBefore(exp,before)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that are between after and before. Returns null if nothing comes between.",
+    "group": "Simple Language",
+    "value": "\${substringBetween(exp,after,before)}",
+  },
+  {
+    "description": "Sums together all the values as integral numbers. This function can also be used to subtract by using negative numbers.",
+    "group": "Simple Language",
+    "value": "\${sum(val...)}",
   },
   {
     "description": "The JVM system property with the given name",
@@ -625,12 +1105,32 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${threadName}",
   },
   {
+    "description": "Deliberately throws an error. Uses IllegalArgumentException by default if no type is specified (use fully qualified classname).",
+    "group": "Simple Language",
+    "value": "\${throwException(type,msg)}",
+  },
+  {
+    "description": "The trim function trims the message body (or expression) by removing all leading and trailing white spaces.",
+    "group": "Simple Language",
+    "value": "\${trim(exp)}",
+  },
+  {
     "description": "To refer to a type or field by its classname. To refer to a field, you can append .FIELD_NAME. For example, you can refer to the constant field from Exchange as: \`org.apache.camel.Exchange.FILE_NAME\`",
     "group": "Simple Language",
     "value": "\${type:name.field}",
   },
   {
-    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the xref:manual::registry.adoc[Registry] with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "description": "Returns the message body (or expression) with any leading/ending quotes removed",
+    "group": "Simple Language",
+    "value": "\${unquote(exp)}",
+  },
+  {
+    "description": "Uppercases the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${uppercase(exp)}",
+  },
+  {
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
   },
@@ -693,34 +1193,19 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${env.name}",
   },
   {
+    "description": "Converts the message body (or expression) to a long number and return the absolute value.",
+    "group": "Simple Language",
+    "value": "\${abs(exp)}",
+  },
+  {
+    "description": "Evaluates the expression and throws an exception with the message if the condition is false",
+    "group": "Simple Language",
+    "value": "\${assert(exp,msg)}",
+  },
+  {
     "description": "The DataHandler for the given attachment.",
     "group": "Simple Language",
-    "value": "\${attachment(key)}",
-  },
-  {
-    "description": "The content of the attachment",
-    "group": "Simple Language",
-    "value": "\${attachmentContent}",
-  },
-  {
-    "description": "The content of the attachment, converted to the given type.",
-    "group": "Simple Language",
-    "value": "\${attachmentContentAs(type)}",
-  },
-  {
-    "description": "The content of the attachment as text (ie String).",
-    "group": "Simple Language",
-    "value": "\${attachmentContentAsText}",
-  },
-  {
-    "description": "The attachment header with the given name.",
-    "group": "Simple Language",
-    "value": "\${attachmentHeader(key,name)}",
-  },
-  {
-    "description": "The attachment header with the given name, converted to the given type.",
-    "group": "Simple Language",
-    "value": "\${attachmentHeader(key,name,type)}",
+    "value": "\${attachment.name}",
   },
   {
     "description": "All the attachments as a Map<String,DataHandler.",
@@ -728,9 +1213,54 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${attachments}",
   },
   {
+    "description": "The content of the attachment",
+    "group": "Simple Language",
+    "value": "\${attachmentsContent.name}",
+  },
+  {
+    "description": "The content of the attachment, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentsContentAs(name,type)}",
+  },
+  {
+    "description": "The content of the attachment as text (ie String).",
+    "group": "Simple Language",
+    "value": "\${attachmentsContentAsText.name}",
+  },
+  {
+    "description": "The attachment header with the given name.",
+    "group": "Simple Language",
+    "value": "\${attachmentsHeader(key,name)}",
+  },
+  {
+    "description": "The attachment header with the given name, converted to the given type.",
+    "group": "Simple Language",
+    "value": "\${attachmentsHeaderAs(key,name,type)}",
+  },
+  {
+    "description": "All the attachment keys (filenames)",
+    "group": "Simple Language",
+    "value": "\${attachmentsKeys}",
+  },
+  {
     "description": "The number of attachments. Is 0 if there are no attachments.",
     "group": "Simple Language",
-    "value": "\${attachments.size}",
+    "value": "\${attachmentsSize}",
+  },
+  {
+    "description": "Returns the average number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${average(val...)}",
+  },
+  {
+    "description": "Base64 decodes the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${base64Decode(exp)}",
+  },
+  {
+    "description": "Base64 encodes the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${base64Encode(exp)}",
   },
   {
     "description": "Calls a Java bean. The name of the bean can also refer to a class name using type prefix as follows \`bean:type:com.foo.MyClass\`. If no method name is given then Camel will automatic attempt to find the best method to use.",
@@ -748,6 +1278,11 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${bodyOneLine}",
   },
   {
+    "description": "The message body class type",
+    "group": "Simple Language",
+    "value": "\${bodyType}",
+  },
+  {
     "description": "The Camel Context",
     "group": "Simple Language",
     "value": "\${camelContext}",
@@ -758,12 +1293,42 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${camelId}",
   },
   {
+    "description": "Capitalizes the message body/expression as a String value (upper case every words)",
+    "group": "Simple Language",
+    "value": "\${capitalize(exp)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to a floating number and return the ceil value (rounded up to nearest integer).",
+    "group": "Simple Language",
+    "value": "\${ceil(exp)}",
+  },
+  {
+    "description": "Removes all existing attachments on the message.",
+    "group": "Simple Language",
+    "value": "\${clearAttachments}",
+  },
+  {
     "description": "The collate function iterates the message body and groups the data into sub lists of specified size. This can be used with the Splitter EIP to split a message body and group/batch the split sub message into a group of N sub lists.",
     "group": "Simple Language",
     "value": "\${collate(num)}",
   },
   {
-    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
+    "description": "Performs a string concat using two expressions (message body as default) with optional separator",
+    "group": "Simple Language",
+    "value": "\${concat(exp,exp,separator)}",
+  },
+  {
+    "description": "Returns true if the message body (or expression) contains part of the text (ignore case)",
+    "group": "Simple Language",
+    "value": "\${contains(exp,text)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to the specified type.",
+    "group": "Simple Language",
+    "value": "\${convertTo(exp,type)}",
+  },
+  {
+    "description": "Evaluates to a java.util.Date object. Supported commands are: \`now\` for current timestamp, \`millis\` for current timestamp in millis (unix epoch), \`exchangeCreated\` for the timestamp when the current exchange was created, \`header.xxx\` to use the Long/Date object in the header with the key xxx. \`variable.xxx\` to use the Long/Date in the variable with the key xxx. \`exchangeProperty.xxx\` to use the Long/Date object in the exchange property with the key xxx. \`file\` for the last modified timestamp of the file (available with a File consumer). Command accepts offsets such as: \`now-24h\` or \`header.xxx+1h\` or even \`now+1h30m-100\`.",
     "group": "Simple Language",
     "value": "\${date(command)}",
   },
@@ -773,7 +1338,12 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${date-with-timezone(command:timezone:pattern)}",
   },
   {
-    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`.",
+    "description": "Returns a set of all the values with duplicates removed",
+    "group": "Simple Language",
+    "value": "\${distinct(val...)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`. Use \`set\` to create an empty \`java.util.LinkedHashSet\`.",
     "group": "Simple Language",
     "value": "\${empty(type)}",
   },
@@ -808,9 +1378,29 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${exchangeProperty.name}",
   },
   {
+    "description": "Returns a List containing the values that satisfy the predicate function (returning true)",
+    "group": "Simple Language",
+    "value": "\${filter(exp,fun)}",
+  },
+  {
+    "description": "Converts the message body (or expression) to a floating number and return the floor value (rounded down to nearest integer).",
+    "group": "Simple Language",
+    "value": "\${floor(exp)}",
+  },
+  {
+    "description": "Returns a List containing the values returned by the function when applied to each value from the input expression",
+    "group": "Simple Language",
+    "value": "\${forEach(exp,fun)}",
+  },
+  {
     "description": "The original route id where this exchange was created.",
     "group": "Simple Language",
     "value": "\${fromRouteId}",
+  },
+  {
+    "description": "Invokes a custom function with the given name using the message body (or expression) as input parameter.",
+    "group": "Simple Language",
+    "value": "\${function(name,exp)}",
   },
   {
     "description": "Returns a hashed value (string in hex decimal) of the message body/expression using JDK MessageDigest. The algorithm can be SHA-256 (default) or SHA3-256.",
@@ -843,6 +1433,26 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${iif(predicate,trueExp,falseExp)}",
   },
   {
+    "description": "Whether the message body (or expression) is alphabetic value (A..Z). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isAlpha(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is alphanumeric value (A..Z0-9). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isAlphaNumeric(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is null or empty (list/map types are tested if they have 0 elements).",
+    "group": "Simple Language",
+    "value": "\${isEmpty(exp)}",
+  },
+  {
+    "description": "Whether the message body (or expression) is numeric value (0..9). For more advanced checks use the \`regex\` operator.",
+    "group": "Simple Language",
+    "value": "\${isNumeric(exp)}",
+  },
+  {
     "description": "The join function iterates the message body/expression and joins the data into a string. The separator is by default a comma. The prefix is optional. The join uses the message body as source by default. It is possible to refer to another source (simple language) such as a header via the exp parameter. For example \`join('&','id=','$\\{header.ids}')\`.",
     "group": "Simple Language",
     "value": "\${join(separator,prefix,exp)}",
@@ -858,9 +1468,29 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${jsonpath(input,exp)}",
   },
   {
+    "description": "What kind of type is the value (null,number,string,boolean,array,object)",
+    "group": "Simple Language",
+    "value": "\${kindOfType(exp)}",
+  },
+  {
+    "description": "The payload length (number of bytes) of the message body (or expression).",
+    "group": "Simple Language",
+    "value": "\${length(exp)}",
+  },
+  {
     "description": "The list function creates an ArrayList with the given set of values.",
     "group": "Simple Language",
     "value": "\${list(val...)}",
+  },
+  {
+    "description": "Loads the content of the resource from classpath (cannot load from file-system to avoid dangerous situations).",
+    "group": "Simple Language",
+    "value": "\${load(file)}",
+  },
+  {
+    "description": "Lowercases the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${lowercase(exp)}",
   },
   {
     "description": "Converts the message body to the given type (classname). If the body is null then the function will fail with an exception",
@@ -871,6 +1501,11 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "description": "The map function creates a LinkedHashMap with the given set of pairs.",
     "group": "Simple Language",
     "value": "\${map(key1,value1,...)}",
+  },
+  {
+    "description": "Returns the maximum number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${max(val...)}",
   },
   {
     "description": "Converts the message to the given type (classname).",
@@ -888,7 +1523,27 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${messageTimestamp}",
   },
   {
-    "description": "Represents a null value",
+    "description": "Returns the minimum number from all the values (integral numbers only).",
+    "group": "Simple Language",
+    "value": "\${min(val...)}",
+  },
+  {
+    "description": "Creates a new empty object (decided by type). Use \`string\` to create an empty String. Use \`list\` to create an empty \`java.util.ArrayList\`. Use \`map\` to create an empty \`java.util.LinkedHashMap\`. Use \`set\` to create an empty \`java.util.LinkedHashSet\`.",
+    "group": "Simple Language",
+    "value": "\${newEmpty(type)}",
+  },
+  {
+    "description": "Normalizes the whitespace in the message body (or expression) by cleaning up excess whitespaces.",
+    "group": "Simple Language",
+    "value": "\${normalizeWhitespace(exp)}",
+  },
+  {
+    "description": "Evaluates the predicate and returns the opposite.",
+    "group": "Simple Language",
+    "value": "\${not}",
+  },
+  {
+    "description": "Returns a null value",
     "group": "Simple Language",
     "value": "\${null}",
   },
@@ -896,6 +1551,11 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "description": "The original incoming body (only available if allowUseOriginalMessage=true).",
     "group": "Simple Language",
     "value": "\${originalBody}",
+  },
+  {
+    "description": "Pads the expression with extra padding if necessary, according the the total width. The separator is by default a space. If the width is negative then padding to the right, otherwise to the left.",
+    "group": "Simple Language",
+    "value": "\${pad(exp,width,separator)}",
   },
   {
     "description": "Converts the expression to a String, and attempts to pretty print if JSon or XML, otherwise the expression is returned as the String value.",
@@ -918,9 +1578,19 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${propertiesExist:key}",
   },
   {
-    "description": "Returns a random number between min (included) and max (excluded).",
+    "description": "Returns the message body (or expression) as a double quoted string",
+    "group": "Simple Language",
+    "value": "\${quote(exp)}",
+  },
+  {
+    "description": "Returns a random number between min and max (exclusive)",
     "group": "Simple Language",
     "value": "\${random(min,max)}",
+  },
+  {
+    "description": "Returns a list of increasing integers between the given interval (exclusive)",
+    "group": "Simple Language",
+    "value": "\${range(min,max)}",
   },
   {
     "description": "To look up a bean from the Registry with the given name.",
@@ -933,7 +1603,12 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${replace(from,to,exp)}",
   },
   {
-    "description": "Returns the route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
+    "description": "Returns a list of all the values, but in reverse order",
+    "group": "Simple Language",
+    "value": "\${reverse(val...)}",
+  },
+  {
+    "description": "The route group of the current route the Exchange is being routed. Not all routes have a group assigned, so this may be null.",
     "group": "Simple Language",
     "value": "\${routeGroup}",
   },
@@ -943,9 +1618,44 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${routeId}",
   },
   {
+    "description": "Returns the message body (or expression) safely quoted if needed",
+    "group": "Simple Language",
+    "value": "\${safeQuote(exp)}",
+  },
+  {
+    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setHeader(name,type,exp)}",
+  },
+  {
+    "description": "Sets an attachment with payload from the message body/expression.",
+    "group": "Simple Language",
+    "value": "\${setVariable(key,exp)}",
+  },
+  {
+    "description": "Sets a variable with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setVariable(name,type,exp)}",
+  },
+  {
+    "description": "Returns a list of all the values shuffled in random order",
+    "group": "Simple Language",
+    "value": "\${shuffle(val...)}",
+  },
+  {
+    "description": "Returns the number of elements in collection or array based payloads. If the value is null then 0 is returned, otherwise 1.",
+    "group": "Simple Language",
+    "value": "\${size(exp)}",
+  },
+  {
     "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
     "group": "Simple Language",
     "value": "\${skip(num)}",
+  },
+  {
+    "description": "Splits the message body/expression as a String value using the separator into a String array",
+    "group": "Simple Language",
+    "value": "\${split(exp,separator)}",
   },
   {
     "description": "Returns the id of the current step the Exchange is being routed.",
@@ -956,6 +1666,26 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
     "group": "Simple Language",
     "value": "\${substring(head,tail)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that comes after. Returns null if nothing comes after.",
+    "group": "Simple Language",
+    "value": "\${substringAfter(exp,before)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that comes before. Returns null if nothing comes before.",
+    "group": "Simple Language",
+    "value": "\${substringBefore(exp,before)}",
+  },
+  {
+    "description": "Returns a substring of the message body/expression that are between after and before. Returns null if nothing comes between.",
+    "group": "Simple Language",
+    "value": "\${substringBetween(exp,after,before)}",
+  },
+  {
+    "description": "Sums together all the values as integral numbers. This function can also be used to subtract by using negative numbers.",
+    "group": "Simple Language",
+    "value": "\${sum(val...)}",
   },
   {
     "description": "The JVM system property with the given name",
@@ -973,12 +1703,32 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${threadName}",
   },
   {
+    "description": "Deliberately throws an error. Uses IllegalArgumentException by default if no type is specified (use fully qualified classname).",
+    "group": "Simple Language",
+    "value": "\${throwException(type,msg)}",
+  },
+  {
+    "description": "The trim function trims the message body (or expression) by removing all leading and trailing white spaces.",
+    "group": "Simple Language",
+    "value": "\${trim(exp)}",
+  },
+  {
     "description": "To refer to a type or field by its classname. To refer to a field, you can append .FIELD_NAME. For example, you can refer to the constant field from Exchange as: \`org.apache.camel.Exchange.FILE_NAME\`",
     "group": "Simple Language",
     "value": "\${type:name.field}",
   },
   {
-    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the xref:manual::registry.adoc[Registry] with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "description": "Returns the message body (or expression) with any leading/ending quotes removed",
+    "group": "Simple Language",
+    "value": "\${unquote(exp)}",
+  },
+  {
+    "description": "Uppercases the message body (or expression)",
+    "group": "Simple Language",
+    "value": "\${uppercase(exp)}",
+  },
+  {
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
   },

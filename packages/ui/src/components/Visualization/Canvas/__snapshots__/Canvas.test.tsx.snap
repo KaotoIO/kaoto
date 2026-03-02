@@ -82,6 +82,10 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                     class="custom-group__container__text"
                                     title="route"
                                   >
+                                    <img
+                                      alt="route"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -144,6 +148,10 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
+                                    <img
+                                      alt="choice"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="choice"
                                     >
@@ -1015,6 +1023,10 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                     class="custom-group__container__text"
                                     title="route"
                                   >
+                                    <img
+                                      alt="route"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -1077,6 +1089,10 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
+                                    <img
+                                      alt="choice"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="choice"
                                     >
@@ -2835,6 +2851,10 @@ exports[`Canvas should render correctly 1`] = `
                                     class="custom-group__container__text"
                                     title="route"
                                   >
+                                    <img
+                                      alt="route"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -2897,6 +2917,10 @@ exports[`Canvas should render correctly 1`] = `
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
+                                    <img
+                                      alt="choice"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="choice"
                                     >
@@ -3768,6 +3792,10 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                     class="custom-group__container__text"
                                     title="route"
                                   >
+                                    <img
+                                      alt="route"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="route-8888"
                                     >
@@ -3830,6 +3858,10 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                     class="custom-group__container__text"
                                     title="choice"
                                   >
+                                    <img
+                                      alt="choice"
+                                      src="file-mock-data"
+                                    />
                                     <span
                                       title="choice"
                                     >
