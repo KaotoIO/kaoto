@@ -18,7 +18,7 @@ Object.assign(navigator, {
 
 // Mock the ClipboardItem
 // Mocking ClipboardItem.supports
-Object.defineProperty(window, 'ClipboardItem', {
+Object.defineProperty(globalThis, 'ClipboardItem', {
   writable: true,
   value: class {
     static supports: jest.Mock = jest.fn();

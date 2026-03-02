@@ -144,12 +144,12 @@ export class StepXmlSerializer {
     });
 
     //  Append children based on naming convention
-    if (childName !== key) {
+    if (childName === key) {
+      element.append(...children);
+    } else {
       const arrayElement = doc.createElement(key);
       arrayElement.append(...children);
       element.appendChild(arrayElement);
-    } else {
-      element.append(...children);
     }
   }
 

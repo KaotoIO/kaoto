@@ -7,7 +7,7 @@ import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.prov
 import { XPathEditorLayout } from './XPathEditorLayout';
 
 describe('XPathEditorLayout - Search Field', () => {
-  window.ResizeObserver = jest.fn().mockImplementation(() => ({
+  globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),

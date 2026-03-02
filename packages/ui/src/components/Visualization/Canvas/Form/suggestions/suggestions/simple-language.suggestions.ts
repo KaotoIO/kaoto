@@ -14,7 +14,7 @@ export const getSimpleLanguageSuggestionProvider = (metadata?: IMetadataApi['get
     id: 'simple-language-suggestion-provider',
     appliesTo: (propName, schema) => SIMPLE_LANGUAGE_ACTIVATED_FIELDS.has(propName) && schema.type === 'string',
     getSuggestions: async (word, context) => {
-      const normalizedWord = word !== '' ? word : 'name';
+      const normalizedWord = word === '' ? 'name' : word;
       const normalizedWordLowercase = normalizedWord.toLowerCase();
 
       const simpleLangFunctions = CamelCatalogService.getComponent(CatalogKind.Function, 'simple') ?? {};

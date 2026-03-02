@@ -115,6 +115,6 @@ describe('BeanXmlParser', () => {
  </properties>`;
 
     expect(result).toBeDefined();
-    testSerializer(expected, result!);
+    testSerializer(expected, result);
   });
 });

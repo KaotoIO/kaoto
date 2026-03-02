@@ -32,7 +32,7 @@ describe('color-scheme utilities', () => {
       const mockMatchMedia = jest.fn().mockImplementation((query) => ({
         matches: query === '(prefers-color-scheme: dark)',
       }));
-      window.matchMedia = mockMatchMedia;
+      globalThis.matchMedia = mockMatchMedia;
 
       setColorScheme(ColorScheme.Auto);
 
