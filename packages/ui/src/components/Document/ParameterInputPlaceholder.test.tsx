@@ -53,7 +53,7 @@ describe('ParameterInputPlaceholder', () => {
     mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'error',
-      errors: ['Failed to create primitive document'],
+      errors: [{ message: 'Failed to create primitive document' }],
     });
 
     renderAndSubmit();
@@ -69,7 +69,7 @@ describe('ParameterInputPlaceholder', () => {
     mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'warning',
-      warnings: ['Warning during document creation'],
+      warnings: [{ message: 'Warning during document creation' }],
     });
 
     renderAndSubmit();

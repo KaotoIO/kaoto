@@ -126,6 +126,7 @@ export class MappingService {
     } catch (error: any) {
       // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
       // on xpath input field, just ignoring here.
+      console.debug('XPath field path extraction failed:', error);
     }
     return !!stalePath;
   }
@@ -194,6 +195,7 @@ export class MappingService {
     } catch (error: any) {
       // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
       // on xpath input field, just ignoring here.
+      console.debug('XPath field path extraction failed:', error);
       return false;
     }
 
@@ -236,7 +238,10 @@ export class MappingService {
       MappingService.renameParameterInMappings(child, oldDocumentId, newDocumentId);
       // Update XPath expressions in the item
       if (child instanceof ExpressionItem) {
-        child.expression = child.expression.replace(new RegExp(`\\$${oldDocumentId}\\b`, 'g'), `$${newDocumentId}`);
+        child.expression = child.expression.replace(
+          new RegExp(String.raw`\$${oldDocumentId}\b`, 'g'),
+          `$${newDocumentId}`,
+        );
       }
     }
   }
@@ -265,7 +270,7 @@ export class MappingService {
   static addIf(parent: MappingParentType, mapping?: MappingItem) {
     const ifItem = new IfItem(parent);
     parent.children.push(ifItem);
-    ifItem.children.push(mapping ? mapping : MappingService.createValueSelector(ifItem));
+    ifItem.children.push(mapping ?? MappingService.createValueSelector(ifItem));
   }
 
   static addChooseWhenOtherwise(parent: MappingParentType, mapping?: MappingItem) {
@@ -283,12 +288,10 @@ export class MappingService {
 
     if (mapping) {
       whenItem.children.push(mapping);
+    } else if (field) {
+      MappingService.createFieldItem(whenItem, field);
     } else {
-      if (field) {
-        MappingService.createFieldItem(whenItem, field);
-      } else {
-        whenItem.children.push(MappingService.createValueSelector(whenItem));
-      }
+      whenItem.children.push(MappingService.createValueSelector(whenItem));
     }
     chooseItem.children.push(whenItem);
     return whenItem;
@@ -299,12 +302,10 @@ export class MappingService {
     const otherwiseItem = new OtherwiseItem(chooseItem);
     if (mapping) {
       otherwiseItem.children.push(mapping);
+    } else if (field) {
+      MappingService.createFieldItem(otherwiseItem, field);
     } else {
-      if (field) {
-        MappingService.createFieldItem(otherwiseItem, field);
-      } else {
-        otherwiseItem.children.push(MappingService.createValueSelector(otherwiseItem));
-      }
+      otherwiseItem.children.push(MappingService.createValueSelector(otherwiseItem));
     }
     newChildren.push(otherwiseItem);
     chooseItem.children = newChildren;

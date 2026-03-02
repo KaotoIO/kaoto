@@ -131,7 +131,8 @@ export class CamelUriHelper {
       const valueOrUndefined = parameters[key] === '' ? undefined : parameters[key];
       const value = valueOrUndefined ?? defaultValues[key] ?? '';
       const isRequired = requiredParameters.includes(key);
-      const previousDelimiter = keys.indexOf(key) > 0 ? delimiters[keys.indexOf(key) - 1] : ':';
+      const keyIndex = keys.indexOf(key);
+      const previousDelimiter = keyIndex > 0 ? delimiters[keyIndex - 1] : ':';
 
       return { key, value, isRequired, previousDelimiter };
     });

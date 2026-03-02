@@ -16,20 +16,18 @@ export class NoBendpointsEdge extends BaseEdge {
       let x, y;
       if (isHorizontal) {
         if (parent.getType() === 'group') {
-          x = parentPos.x + parentSize.width / 2.0;
+          x = parentPos.x + parentSize.width / 2;
           y = parentPos.y;
         } else {
           x = parentPos.x + parentSize.width;
-          y = parentPos.y + parentSize.height / 2.0;
+          y = parentPos.y + parentSize.height / 2;
         }
+      } else if (parent.getType() === 'group') {
+        x = parentPos.x;
+        y = parentPos.y + parentSize.height / 2;
       } else {
-        if (parent.getType() === 'group') {
-          x = parentPos.x;
-          y = parentPos.y + parentSize.height / 2.0;
-        } else {
-          x = parentPos.x + parentSize.width / 2.0;
-          y = parentPos.y + parentSize.height;
-        }
+        x = parentPos.x + parentSize.width / 2;
+        y = parentPos.y + parentSize.height;
       }
       return new Point(x, y);
     }
@@ -46,20 +44,18 @@ export class NoBendpointsEdge extends BaseEdge {
       let x, y;
       if (isHorizontal) {
         if (parent.getType() === 'group') {
-          x = parentPos.x + parentSize.width / 2.0 + 15;
+          x = parentPos.x + parentSize.width / 2 + 15;
           y = parentPos.y;
         } else {
-          x = parentPos.x + parentSize.width / 2.0 + 55;
-          y = parentPos.y + parentSize.height / 2.0;
+          x = parentPos.x + parentSize.width / 2 + 55;
+          y = parentPos.y + parentSize.height / 2;
         }
+      } else if (parent.getType() === 'group') {
+        x = parentPos.x;
+        y = parentPos.y + parentSize.height / 2 + 15;
       } else {
-        if (parent.getType() === 'group') {
-          x = parentPos.x;
-          y = parentPos.y + parentSize.height / 2.0 + 15;
-        } else {
-          x = parentPos.x + parentSize.width / 2.0;
-          y = parentPos.y + parentSize.height / 2.0 + 85;
-        }
+        x = parentPos.x + parentSize.width / 2;
+        y = parentPos.y + parentSize.height / 2 + 85;
       }
       return new Point(x, y);
     }

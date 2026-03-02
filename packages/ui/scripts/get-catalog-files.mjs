@@ -23,7 +23,7 @@ export const getCatalogFiles = () => {
 
   try {
     if (readdirSync(camelCatalogPath).length === 0) {
-      throw new Error();
+      throw new Error('Camel Catalog directory is empty');
     }
   } catch (error) {
     const message = [
@@ -33,6 +33,7 @@ export const getCatalogFiles = () => {
       'or run `yarn add @kaoto/camel-catalog` to install it',
     ];
 
+    console.error(error);
     throw new Error(message.join('\n\n'));
   }
 
@@ -76,6 +77,7 @@ function getCitrusCatalogFiles() {
       'or run `yarn add @kaoto/camel-catalog` to install it',
     ];
 
+    console.error(error);
     console.warn(message.join('\n\n'));
   }
 
