@@ -63,8 +63,10 @@ describe('CircuitBreakerNodeMapper', () => {
 
     const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'circuitBreaker' }, routeDefinition);
 
-    expect(vizNode.getChildren()).toHaveLength(2);
+    expect(vizNode.getChildren()).toHaveLength(3);
     expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.circuitBreaker.steps.0.log');
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
+    expect(vizNode.getChildren()?.[2].data.path).toBe('from.steps.0.circuitBreaker.onFallback');
+    expect(vizNode.getChildren()?.[2].data.isPlaceholder).toBe(true);
   });
 });

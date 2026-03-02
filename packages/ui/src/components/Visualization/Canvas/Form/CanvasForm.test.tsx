@@ -53,7 +53,7 @@ describe('CanvasForm', () => {
   beforeEach(() => {
     camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
     const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[2]; // choice
+    selectedNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!; // choice
   });
 
   afterEach(() => {

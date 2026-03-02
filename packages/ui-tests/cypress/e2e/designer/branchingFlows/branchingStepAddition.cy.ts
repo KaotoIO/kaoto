@@ -7,29 +7,29 @@ describe('Test for Branching actions from the canvas', () => {
     cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
-    cy.checkNodeExist('when', 3);
+    cy.checkNodeExist('when', 5);
     cy.selectInsertSpecialNode('choice');
 
     cy.get('#otherwise').should('not.exist');
     cy.get('#when').should('be.visible').click();
     // wait for the canvas rerender
     cy.wait(1000);
-    cy.checkNodeExist('when', 4);
+    cy.checkNodeExist('when', 6);
   });
 
   it('User deletes a branch from the canvas', () => {
     cy.uploadFixture('flows/kamelet/complex.yaml');
     cy.openDesignPage();
 
-    cy.checkNodeExist('when', 3);
+    cy.checkNodeExist('when', 5);
     cy.removeNodeByName('when', 0);
     // wait for the canvas rerender
     cy.wait(1000);
-    cy.checkNodeExist('otherwise', 1);
+    cy.checkNodeExist('otherwise', 2);
     cy.removeNodeByName('otherwise');
     // wait for the canvas rerender
     cy.wait(1000);
-    cy.checkNodeExist('otherwise', 0);
+    cy.checkNodeExist('otherwise', 2);
     // once there are is no "otherwise" node in the canvas - it shuld be again selectable in the special node insert
     cy.selectInsertSpecialNode('choice');
     cy.get('#otherwise').should('exist');
@@ -43,7 +43,7 @@ describe('Test for Branching actions from the canvas', () => {
     cy.chooseFromCatalog('processor', 'choice');
 
     cy.checkNodeExist('choice', 1);
-    cy.checkNodeExist('when', 1);
+    cy.checkNodeExist('when', 2);
     cy.checkNodeExist('otherwise', 1);
 
     cy.openSourceCode();

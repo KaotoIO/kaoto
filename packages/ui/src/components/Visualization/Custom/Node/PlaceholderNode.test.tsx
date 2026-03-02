@@ -157,10 +157,9 @@ describe('PlaceholderNode', () => {
       );
     };
 
-    it('should render CodeBranchIcon for special child placeholder', () => {
+    it('should render PlusCircleIcon for special child placeholder', () => {
       const wrapper = setupWithVizNode({ name: 'placeholder-special-child' });
 
-      // CodeBranchIcon has a specific path, check for its presence via SVG content
       const svgIcon = wrapper.container.querySelector('svg');
       expect(svgIcon).toBeInTheDocument();
       expect(wrapper.asFragment()).toMatchSnapshot();
@@ -168,6 +167,14 @@ describe('PlaceholderNode', () => {
 
     it('should render PlusCircleIcon for regular placeholder', () => {
       const wrapper = setupWithVizNode({ name: 'placeholder' });
+
+      const svgIcon = wrapper.container.querySelector('svg');
+      expect(svgIcon).toBeInTheDocument();
+      expect(wrapper.asFragment()).toMatchSnapshot();
+    });
+
+    it('should render CodeBranchIcon for other placeholders', () => {
+      const wrapper = setupWithVizNode({ name: 'when' });
 
       const svgIcon = wrapper.container.querySelector('svg');
       expect(svgIcon).toBeInTheDocument();
@@ -192,6 +199,26 @@ describe('PlaceholderNode', () => {
 
       expect(mockOnReplaceNode).toHaveBeenCalledTimes(1);
       expect(mockOnInsertStep).not.toHaveBeenCalled();
+    });
+
+    it('should call onInsertStep when clicking on otherwise placeholder', () => {
+      setupWithVizNode({ name: 'otherwise', isPlaceholder: true });
+
+      const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
+      fireEvent.click(placeholderNode);
+
+      expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
+      expect(mockOnReplaceNode).not.toHaveBeenCalled();
+    });
+
+    it('should call onInsertStep when clicking on when placeholder', () => {
+      setupWithVizNode({ name: 'when', isPlaceholder: true });
+
+      const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
+      fireEvent.click(placeholderNode);
+
+      expect(mockOnInsertStep).toHaveBeenCalledTimes(1);
+      expect(mockOnReplaceNode).not.toHaveBeenCalled();
     });
   });
 });

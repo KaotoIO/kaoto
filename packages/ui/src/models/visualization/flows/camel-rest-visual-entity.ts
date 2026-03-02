@@ -43,7 +43,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
 
   getNodeLabel(path?: string, labelType?: NodeLabelType): string {
     if (path === 'rest.placeholder') {
-      return 'Add verb';
+      return 'verb';
     }
 
     return super.getNodeLabel(path, labelType);

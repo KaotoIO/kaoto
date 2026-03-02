@@ -17,7 +17,7 @@
         border: 2px dashed var(--custom-node-BorderColor);
         border-radius: var(--custom-node-BorderRadius);
         background-color: var(--custom-node-BackgroundColor);
-        padding: var(--pf-t--global--spacer--md);
+        padding: var(--pf-t--global--spacer--sm);
         color: var(--pf-topology__edge--Stroke);
 
         &__possibleDropTargets {

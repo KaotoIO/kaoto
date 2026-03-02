@@ -2,6 +2,7 @@ import { isDefined } from '@kaoto/forms';
 import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
@@ -69,31 +70,33 @@ export const handleValidNodeDrop = (
 
   if (!isDefined(draggedNodeContent)) return;
 
-  /** Handle the drag and drop operation based on the direction differently:
+  // Drop onto special placeholder
+  const isSpecialChildPlaceholder =
+    droppedVizNode.data?.isPlaceholder &&
+    droppedVizNode.data?.name !== 'placeholder' &&
+    droppedVizNode.getParentNode()?.getNodeInteraction().canHaveSpecialChildren;
+  if (isSpecialChildPlaceholder) {
+    const parentVizNode = droppedVizNode.getParentNode();
+    if (!parentVizNode) return;
+
+    parentVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.InsertSpecialChildStep, true);
+    draggedVizNode.removeChild();
+  } else {
+    /** Handle the drag and drop operation based on the direction differently:
         for forward direction we append the step to the dropped node, then remove the dragged node
         for backward direction we remove the dragged node first, then prepend the step to the dropped node
     */
-  switch (getNodeDragAndDropDirection(draggedVizNode, droppedVizNode, droppedIntoEdge)) {
-    case 'forward': {
-      droppedVizNode.pasteBaseEntityStep(
-        draggedNodeContent,
-        droppedIntoEdge ? AddStepMode.PrependStep : AddStepMode.AppendStep,
-      );
-      const draggedVizNodeinteraction = draggedVizNode.getNodeInteraction();
-      if (draggedVizNodeinteraction.canRemoveStep) {
-        draggedVizNode.removeChild();
-      } else if (draggedVizNodeinteraction.canRemoveFlow) {
-        const flowId = draggedVizNode?.getId();
-        entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
+    switch (getNodeDragAndDropDirection(draggedVizNode, droppedVizNode, droppedIntoEdge)) {
+      case 'forward': {
+        performForwardDrop(droppedVizNode, draggedVizNode, draggedNodeContent, droppedIntoEdge, entitiesContext);
+        break;
       }
-      break;
+      case 'backward':
+        draggedVizNode.removeChild();
+        droppedVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.PrependStep);
+        break;
     }
-    case 'backward':
-      draggedVizNode.removeChild();
-      droppedVizNode.pasteBaseEntityStep(draggedNodeContent, AddStepMode.PrependStep);
-      break;
   }
-
   // Set an empty model to clear the graph
   draggedElement.getController().fromModel({
     nodes: [],
@@ -113,8 +116,25 @@ export const checkNodeDropCompatibility = (
   const targetVizNodeContent = droppedVizNode.getCopiedContent();
   if (!isDefined(droppedVizNodeContent) || !isDefined(targetVizNodeContent)) return false;
 
-  if (droppedVizNode.data.isPlaceholder && droppedVizNode.getPreviousNode() !== draggedVizNode) {
-    return validate(AddStepMode.ReplaceStep, droppedVizNode, droppedVizNodeContent.name);
+  // validation for placeholder nodes
+  if (droppedVizNode.data.isPlaceholder) {
+    if (droppedVizNode.data.name === draggedVizNode?.data.name) {
+      const draggedParent = draggedVizNode.getParentNode();
+      const droppedParent = droppedVizNode.getParentNode();
+      return !(draggedParent?.id === droppedParent?.id && draggedParent?.getId() === droppedParent?.getId());
+    }
+
+    if (droppedVizNode.data.name === 'placeholder' && droppedVizNode.getPreviousNode() !== draggedVizNode) {
+      if (
+        droppedVizNode.data.path?.includes(draggedVizNode.data.path ?? '') &&
+        droppedVizNode.getId() === draggedVizNode.getId()
+      )
+        return false;
+
+      return validate(AddStepMode.ReplaceStep, droppedVizNode, droppedVizNodeContent.name);
+    }
+
+    return false;
   }
 
   // validation for special children nodes in case of Route Entity
@@ -125,4 +145,24 @@ export const checkNodeDropCompatibility = (
   }
 
   return false;
+};
+
+const performForwardDrop = (
+  droppedVizNode: IVisualizationNode,
+  draggedVizNode: IVisualizationNode,
+  draggedNodeContent: IClipboardCopyObject,
+  droppedIntoEdge: boolean,
+  entitiesContext: EntitiesContextResult,
+) => {
+  droppedVizNode.pasteBaseEntityStep(
+    draggedNodeContent,
+    droppedIntoEdge ? AddStepMode.PrependStep : AddStepMode.AppendStep,
+  );
+  const draggedVizNodeinteraction = draggedVizNode.getNodeInteraction();
+  if (draggedVizNodeinteraction.canRemoveStep) {
+    draggedVizNode.removeChild();
+  } else if (draggedVizNodeinteraction.canRemoveFlow) {
+    const flowId = draggedVizNode?.getId();
+    entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
+  }
 };
