@@ -57,9 +57,9 @@ export const DataMapperCanvasProvider: FunctionComponent<PropsWithChildren> = (p
   );
 
   const reloadNodeReferences = useCallback(() => {
-    setNodeReferenceMap(new Map(nodeReferenceMap));
+    setNodeReferenceMap((prevMap) => new Map(prevMap));
     setNodeReferenceVersion((v) => v + 1);
-  }, [nodeReferenceMap]);
+  }, []);
 
   useEffect(() => {
     if (mappingTree) reloadNodeReferences();
