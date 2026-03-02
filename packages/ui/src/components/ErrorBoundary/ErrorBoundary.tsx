@@ -26,7 +26,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   onToggle(_event: unknown, _isExpanded: boolean): void {
-    this.setState({ isExpanded: !this.state.isExpanded });
+    this.setState((prev) => ({ isExpanded: !prev.isExpanded }));
   }
 
   componentDidCatch(_error: any, _info: any): void {

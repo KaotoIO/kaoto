@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, useCallback, useRef } from 'react';
+import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useRef } from 'react';
 
 import { useCanvas } from '../../hooks/useCanvas';
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -18,6 +18,7 @@ import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
+import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle';
@@ -88,12 +89,20 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
     [toggleSelectedNodeReference],
   );
 
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNodeReference(nodeReference)),
+    [toggleSelectedNodeReference],
+  );
+
   return (
     <div
       data-testid={`node-target-${nodeData.id}`}
       data-selected={isSelected}
       className="node__container"
+      role="button"
+      tabIndex={0}
       onClick={handleClickField}
+      onKeyDown={handleKeyDown}
     >
       <NodeContainer ref={containerRef} nodeData={nodeData}>
         <div className="node__header">

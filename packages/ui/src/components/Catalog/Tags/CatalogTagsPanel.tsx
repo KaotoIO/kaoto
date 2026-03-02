@@ -18,17 +18,18 @@ export const CatalogTagsPanel: FunctionComponent<ICatalogTagsPanelProps> = (prop
           key={tag}
           color={getTagColor(tag)}
           render={({ className, content }) => (
-            // to force PF to render label as button with animation
-            <a
+            <button
+              type="button"
               className={className}
               data-testid={'tag-' + tag}
+              onMouseDown={(ev) => ev.preventDefault()}
               onClick={(ev) => {
                 ev.stopPropagation(); // ignore root click, e.g. click on tile
                 props.onTagClick(ev, tag);
               }}
             >
               {content}
-            </a>
+            </button>
           )}
         >
           {tag}

@@ -325,16 +325,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -424,16 +425,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -523,16 +525,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -622,16 +625,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-database"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         database
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -721,16 +725,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-file"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         file
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -820,16 +825,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-http"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         http
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -919,16 +925,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1018,16 +1025,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1117,16 +1125,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1216,16 +1225,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1315,16 +1325,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1414,16 +1425,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1513,16 +1525,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1612,16 +1625,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1711,16 +1725,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1810,16 +1825,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -1909,16 +1925,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2008,16 +2025,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-sink"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         sink
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2107,16 +2125,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2206,16 +2225,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2305,16 +2325,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2404,16 +2425,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2503,16 +2525,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2602,16 +2625,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2701,16 +2725,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2800,16 +2825,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2899,16 +2925,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -2998,16 +3025,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3097,16 +3125,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-sink"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         sink
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3196,16 +3225,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3295,16 +3325,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3394,16 +3425,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3493,16 +3525,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3592,16 +3625,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-database"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         database
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3691,16 +3725,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-file"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         file
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3790,16 +3825,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-http"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         http
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3889,16 +3925,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-messaging"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         messaging
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -3988,16 +4025,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4087,16 +4125,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4186,16 +4225,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4285,16 +4325,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4384,16 +4425,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4483,16 +4525,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4582,16 +4625,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4681,16 +4725,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4780,16 +4825,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4879,16 +4925,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-eip"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         eip
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -4978,16 +5025,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-sink"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         sink
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -5077,16 +5125,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -5176,16 +5225,17 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
                   <span
                     class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                   >
-                    <a
+                    <button
                       class="pf-v6-c-label__content"
                       data-testid="tag-source"
+                      type="button"
                     >
                       <span
                         class="pf-v6-c-label__text"
                       >
                         source
                       </span>
-                    </a>
+                    </button>
                   </span>
                 </li>
               </ul>
@@ -5504,16 +5554,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -5603,16 +5654,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -5702,16 +5754,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -5801,16 +5854,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-database"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   database
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -5900,16 +5954,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-file"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   file
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -5999,16 +6054,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-http"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   http
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6098,16 +6154,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6197,16 +6254,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6296,16 +6354,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6395,16 +6454,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6494,16 +6554,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6593,16 +6654,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6692,16 +6754,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6791,16 +6854,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6890,16 +6954,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -6989,16 +7054,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7088,16 +7154,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7187,16 +7254,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-sink"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   sink
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7286,16 +7354,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7385,16 +7454,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7484,16 +7554,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7583,16 +7654,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7682,16 +7754,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7781,16 +7854,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7880,16 +7954,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -7979,16 +8054,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8078,16 +8154,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8177,16 +8254,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8276,16 +8354,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-sink"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   sink
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8375,16 +8454,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8474,16 +8554,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8573,16 +8654,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8672,16 +8754,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8771,16 +8854,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-database"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   database
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8870,16 +8954,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-file"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   file
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -8969,16 +9054,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-http"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   http
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9068,16 +9154,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-messaging"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   messaging
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9167,16 +9254,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9266,16 +9354,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9365,16 +9454,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9464,16 +9554,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9563,16 +9654,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9662,16 +9754,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9761,16 +9854,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9860,16 +9954,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -9959,16 +10054,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -10058,16 +10154,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-eip"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   eip
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -10157,16 +10254,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-sink"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   sink
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -10256,16 +10354,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>
@@ -10355,16 +10454,17 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                             <span
                               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
                             >
-                              <a
+                              <button
                                 class="pf-v6-c-label__content"
                                 data-testid="tag-source"
+                                type="button"
                               >
                                 <span
                                   class="pf-v6-c-label__text"
                                 >
                                   source
                                 </span>
-                              </a>
+                              </button>
                             </span>
                           </li>
                         </ul>

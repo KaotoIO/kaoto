@@ -17,8 +17,8 @@ export interface IPropertiesTableFilter<T> {
   filterValue: T[keyof T];
 }
 
-const simpleClassNameRegex = RegExp('^[A-Za-z0-9]+$');
-const fullyQualifiedClassNameRegex = RegExp('^([a-z0-9A-Z._]+)\\.([A-Z][a-zA-Z0-9]+)(<)?.*$');
+const simpleClassNameRegex = /^[A-Za-z0-9]+$/;
+const fullyQualifiedClassNameRegex = /^([a-z0-9A-Z._]+)\.([A-Z][a-zA-Z0-9]+)(<)?.*$/;
 
 /**
  * Get class name from fully qualified name

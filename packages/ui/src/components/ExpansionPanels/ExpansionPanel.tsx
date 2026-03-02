@@ -108,6 +108,19 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
     }
   };
 
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleExpanded();
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [isExpanded, children, collapsible],
+  );
+
   // Use refs for stable event handlers that don't change during resize
   const mouseMoveHandlerRef = useRef<(e: MouseEvent) => void>(() => {});
   const mouseUpHandlerRef = useRef<() => void>(() => {});
@@ -216,7 +229,13 @@ export const ExpansionPanel: FunctionComponent<PropsWithChildren<ExpansionPanelP
 
   return (
     <div className="expansion-panel" data-expanded={isExpanded} data-resizing={isResizing} ref={panelRef}>
-      <div className="pf-v6-u-box-shadow-sm expansion-panel__summary" onClick={toggleExpanded}>
+      <div
+        className="pf-v6-u-box-shadow-sm expansion-panel__summary"
+        role="button"
+        tabIndex={0}
+        onClick={toggleExpanded}
+        onKeyDown={handleKeyDown}
+      >
         {summary}
       </div>
 

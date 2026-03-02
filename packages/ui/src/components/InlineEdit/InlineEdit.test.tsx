@@ -269,6 +269,40 @@ describe('InlineEdit', () => {
     });
   });
 
+  describe('Keyboard activation', () => {
+    it('should trigger onClick when Enter is pressed on the span', () => {
+      const onClick = jest.fn();
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} onClick={onClick} />);
+
+      act(() => {
+        fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: 'Enter' });
+      });
+
+      expect(onClick).toHaveBeenCalled();
+    });
+
+    it('should trigger onClick when Space is pressed on the span', () => {
+      const onClick = jest.fn();
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} onClick={onClick} />);
+
+      act(() => {
+        fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: ' ' });
+      });
+
+      expect(onClick).toHaveBeenCalled();
+    });
+
+    it('should not throw when Enter is pressed and onClick is not provided', () => {
+      const wrapper = render(<InlineEdit data-testid={DATA_TESTID} />);
+
+      expect(() => {
+        act(() => {
+          fireEvent.keyDown(wrapper.getByTestId(DATA_TESTID), { key: 'Enter' });
+        });
+      }).not.toThrow();
+    });
+  });
+
   describe('Placeholder', () => {
     it('should display placeholder text when value is empty and placeholder is provided', () => {
       const wrapper = render(<InlineEdit data-testid={DATA_TESTID} placeholder="Enter value" />);

@@ -686,6 +686,54 @@ describe('SourceDocumentNode', () => {
     });
   });
 
+  describe('Keyboard Selection', () => {
+    it('should toggle selection on Enter key', () => {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      act(() => {
+        render(
+          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+          { wrapper },
+        );
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+
+      act(() => {
+        fireEvent.keyDown(nodeContainer, { key: 'Enter' });
+      });
+
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+    });
+
+    it('should toggle selection on Space key', () => {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      act(() => {
+        render(
+          <SourceDocumentNode treeNode={tree.root} documentId={documentNodeData.id} isReadOnly={false} rank={0} />,
+          { wrapper },
+        );
+      });
+
+      const nodeContainer = screen.getByTestId(`node-source-${documentNodeData.id}`);
+
+      act(() => {
+        fireEvent.keyDown(nodeContainer, { key: ' ' });
+      });
+
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+    });
+  });
+
   describe('Read-only Mode', () => {
     it('should still allow expansion/collapse in read-only mode', () => {
       const document = TestUtil.createSourceOrderDoc();
