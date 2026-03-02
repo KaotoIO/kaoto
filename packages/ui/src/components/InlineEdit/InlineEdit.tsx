@@ -11,7 +11,14 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { CheckIcon, ExclamationCircleIcon, PencilAltIcon, TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, KeyboardEventHandler, MouseEventHandler, useCallback, useState } from 'react';
+import {
+  FunctionComponent,
+  KeyboardEvent,
+  KeyboardEventHandler,
+  MouseEventHandler,
+  useCallback,
+  useState,
+} from 'react';
 
 import { IDataTestID, ValidationResult, ValidationStatus } from '../../models';
 
@@ -105,6 +112,17 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
     [cancelValue],
   );
 
+  const onSpanKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLSpanElement>) => {
+      if (typeof props.onClick === 'function' && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        event.stopPropagation();
+        props.onClick();
+      }
+    },
+    [props],
+  );
+
   return (
     <>
       {isReadOnly ? (
@@ -114,7 +132,10 @@ export const InlineEdit: FunctionComponent<IInlineEdit> = (props) => {
             aria-label={props.textTitle}
             data-clickable={typeof props.onClick === 'function'}
             data-testid={props['data-testid']}
+            role={typeof props.onClick === 'function' ? 'button' : undefined}
+            tabIndex={typeof props.onClick === 'function' ? 0 : undefined}
             onClick={props.onClick}
+            onKeyDown={onSpanKeyDown}
             className={props.className ? props.className : undefined}
           >
             {props.value || props.placeholder}

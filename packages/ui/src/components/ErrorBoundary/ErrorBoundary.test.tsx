@@ -46,4 +46,25 @@ describe('ErrorBoundary', () => {
 
     expect(wrapper.getByText('fallback')).toBeDefined();
   });
+
+  it('should toggle the expandable section when the toggle button is clicked', () => {
+    const wrapper = render(
+      <ErrorBoundary fallback={<div>fallback</div>}>
+        <MockComponent />
+      </ErrorBoundary>,
+    );
+
+    act(() => {
+      fireEvent.click(wrapper.getByRole('button', { name: /Click to boom the app/ }));
+    });
+
+    const toggleButton = wrapper.getByRole('button', { name: /Show more/ });
+    expect(toggleButton).toBeInTheDocument();
+
+    act(() => {
+      fireEvent.click(toggleButton);
+    });
+
+    expect(wrapper.getByRole('button', { name: /Show less/ })).toBeInTheDocument();
+  });
 });

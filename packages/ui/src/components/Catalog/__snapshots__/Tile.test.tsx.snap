@@ -133,16 +133,17 @@ exports[`Tile renders correctly 1`] = `
             <span
               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
             >
-              <a
+              <button
                 class="pf-v6-c-label__content"
                 data-testid="tag-tag1"
+                type="button"
               >
                 <span
                   class="pf-v6-c-label__text"
                 >
                   tag1
                 </span>
-              </a>
+              </button>
             </span>
           </li>
           <li
@@ -151,16 +152,17 @@ exports[`Tile renders correctly 1`] = `
             <span
               class="pf-v6-c-label pf-m-filled pf-m-compact pf-m-clickable"
             >
-              <a
+              <button
                 class="pf-v6-c-label__content"
                 data-testid="tag-tag2"
+                type="button"
               >
                 <span
                   class="pf-v6-c-label__text"
                 >
                   tag2
                 </span>
-              </a>
+              </button>
             </span>
           </li>
         </ul>

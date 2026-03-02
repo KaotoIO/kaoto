@@ -828,6 +828,48 @@ describe('TargetDocumentNode', () => {
     });
   });
 
+  describe('Keyboard Selection', () => {
+    it('should toggle selection on Enter key', () => {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      });
+
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
+
+      act(() => {
+        fireEvent.keyDown(nodeContainer, { key: 'Enter' });
+      });
+
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+    });
+
+    it('should toggle selection on Space key', () => {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      });
+
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
+
+      act(() => {
+        fireEvent.keyDown(nodeContainer, { key: ' ' });
+      });
+
+      expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+    });
+  });
+
   describe('Document Actions', () => {
     it('should render DocumentActions for document nodes', () => {
       const document = TestUtil.createTargetOrderDoc();

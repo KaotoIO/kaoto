@@ -1,19 +1,29 @@
 import version from './version.json';
 
-let GIT_HASH = version.GIT_HASH;
-let GIT_DATE = version.GIT_DATE;
-let KAOTO_VERSION = version.KAOTO_VERSION;
+/**
+ * The ones start with `__` are the values defined during the web application build time
+ * @see vite.config.js
+ */
+export const GIT_HASH = (() => {
+  try {
+    return __GIT_HASH;
+  } catch {
+    return version.GIT_HASH;
+  }
+})();
 
-try {
-  /**
-   * Values defined during the web application build time
-   * @see vite.config.js
-   */
-  GIT_HASH = __GIT_HASH;
-  GIT_DATE = __GIT_DATE;
-  KAOTO_VERSION = __KAOTO_VERSION;
-} catch (error) {
-  // Ignore
-}
+export const GIT_DATE = (() => {
+  try {
+    return __GIT_DATE;
+  } catch {
+    return version.GIT_DATE;
+  }
+})();
 
-export { GIT_DATE, GIT_HASH, KAOTO_VERSION };
+export const KAOTO_VERSION = (() => {
+  try {
+    return __KAOTO_VERSION;
+  } catch {
+    return version.KAOTO_VERSION;
+  }
+})();

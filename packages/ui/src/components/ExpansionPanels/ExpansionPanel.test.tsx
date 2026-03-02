@@ -436,6 +436,44 @@ describe('ExpansionPanel', () => {
     });
   });
 
+  describe('Keyboard Behavior', () => {
+    it('should toggle expansion on Enter key', () => {
+      renderPanel({ defaultExpanded: true });
+
+      const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
+
+      act(() => {
+        fireEvent.keyDown(summary, { key: 'Enter' });
+      });
+
+      expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
+    });
+
+    it('should toggle expansion on Space key', () => {
+      renderPanel({ defaultExpanded: true });
+
+      const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
+
+      act(() => {
+        fireEvent.keyDown(summary, { key: ' ' });
+      });
+
+      expect(mockSetExpanded).toHaveBeenCalledWith('test-panel', false);
+    });
+
+    it('should NOT toggle when a modifier key is held', () => {
+      renderPanel({ defaultExpanded: true });
+
+      const summary = screen.getByText('Test Summary').closest('.expansion-panel__summary') as HTMLElement;
+
+      act(() => {
+        fireEvent.keyDown(summary, { key: 'Enter', ctrlKey: true });
+      });
+
+      expect(mockSetExpanded).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Layout Callback Registration', () => {
     it('should register layout callback when onLayoutChange is provided', () => {
       const onLayoutChange = jest.fn();
