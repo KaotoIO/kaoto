@@ -24,6 +24,11 @@ exports[`DataListItem renders correctly 1`] = `
             <div
               class="catalog-data-list-item__title-div-left"
             >
+              <img
+                alt="component icon"
+                class="catalog-data-list-item__title-div-left__icon"
+                src="file-mock-data"
+              />
               <span
                 class="catalog-data-list-item__title-div-left__title"
                 id="clickable-action-item1"

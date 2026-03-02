@@ -52,6 +52,11 @@ export const RuntimeSelector: FunctionComponent = () => {
   const groupedRuntimes =
     runtimeContext.catalogLibrary?.definitions.reduce(
       (acc, catalog) => {
+        /** Temporary Citrus filter */
+        if (catalog.runtime.includes('Citrus')) {
+          return acc;
+        }
+
         if (acc[catalog.runtime]) {
           acc[catalog.runtime].push(catalog.name);
         } else {

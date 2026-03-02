@@ -19,10 +19,10 @@ describe('Tests for Design page', () => {
     cy.selectFormTab('All');
     cy.interactWithConfigInputObject('topic', 'topicname');
     cy.interactWithConfigInputObject('bootstrapServers', 'bootstrap');
-    cy.interactWithConfigInputObject('securityProtocol', 'security');
-    cy.interactWithConfigInputObject('saslMechanism', 'sasl');
-    cy.interactWithConfigInputObject('user', 'user');
-    cy.interactWithConfigInputObject('password', 'password');
+    cy.interactWithConfigInputObject('oauthClientId', 'clientId');
+    cy.interactWithConfigInputObject('oauthClientSecret', 'sasl');
+    cy.interactWithConfigInputObject('saslUsername', 'user');
+    cy.interactWithConfigInputObject('saslPassword', 'password');
 
     // CHECK they are reflected in the code editor
     cy.openSourceCode();
@@ -30,9 +30,9 @@ describe('Tests for Design page', () => {
     cy.checkCodeSpanLine('message: ""', 0);
     cy.checkCodeSpanLine('topic: topicname');
     cy.checkCodeSpanLine('bootstrapServers: bootstrap');
-    cy.checkCodeSpanLine('securityProtocol: security');
-    cy.checkCodeSpanLine('saslMechanism: sasl');
-    cy.checkCodeSpanLine('user: user');
-    cy.checkCodeSpanLine('password: password');
+    cy.checkCodeSpanLine('oauthClientId: clientId');
+    cy.checkCodeSpanLine('oauthClientSecret: sasl');
+    cy.checkCodeSpanLine('saslUsername: user');
+    cy.checkCodeSpanLine('saslPassword: password');
   });
 });

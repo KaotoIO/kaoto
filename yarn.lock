@@ -3173,10 +3173,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog@npm:^0.3.1":
-  version: 0.3.5
-  resolution: "@kaoto/camel-catalog@npm:0.3.5"
-  checksum: 10/149c2f412fa1f726b37ba1e61e0396ba659587fcb884b4335daec5c38a80d8d8f2fb583922212a9132f6324946e868eb3673a83ab7447cfe56e4d9a4a5aeef1e
+"@kaoto/camel-catalog@npm:^0.4.0":
+  version: 0.4.0
+  resolution: "@kaoto/camel-catalog@npm:0.4.0"
+  checksum: 10/ded19bf56618c8ff3edc16f4193d72ff2dcd17db73c5dd020eee1e252f28b73bd09631bd68a918a73668874a1bbb36747a42bff6517bb60f7816b1af031ab330
   languageName: node
   linkType: hard
 
@@ -3204,7 +3204,7 @@ __metadata:
   dependencies:
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.3.1"
+    "@kaoto/camel-catalog": "npm:^0.4.0"
     "@kaoto/forms": "npm:^1.6.0"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.4.0"
@@ -3264,7 +3264,7 @@ __metadata:
     "@carbon/icons-react": "npm:^11.67.0"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.3.1"
+    "@kaoto/camel-catalog": "npm:^0.4.0"
     "@kaoto/forms": "npm:^1.6.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
@@ -3345,7 +3345,7 @@ __metadata:
     zundo: "npm:^2.3.0"
     zustand: "npm:^4.3.9"
   peerDependencies:
-    "@kaoto/camel-catalog": ^0.2.2 || ^0.3.0
+    "@kaoto/camel-catalog": ^0.4.0
     "@patternfly/patternfly": ^6.4.0
     "@patternfly/react-code-editor": ^6.4.0
     "@patternfly/react-core": ^6.4.0
