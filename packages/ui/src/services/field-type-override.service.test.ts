@@ -9,7 +9,7 @@ import {
 } from '../models/datamapper';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant } from '../models/datamapper/types';
-import { importedTypesXsd, namedTypesXsd, shipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { getImportedTypesXsd, getNamedTypesXsd, getShipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { FieldTypeOverrideService } from './field-type-override.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -69,7 +69,7 @@ describe('FieldTypeOverrideService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'NamedTypes.xsd': namedTypesXsd },
+        { 'NamedTypes.xsd': getNamedTypesXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -143,7 +143,7 @@ describe('FieldTypeOverrideService', () => {
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
-          { 'ShipOrder.xsd': shipOrderXsd },
+          { 'ShipOrder.xsd': getShipOrderXsd() },
           undefined,
           undefined,
           undefined,
@@ -154,7 +154,7 @@ describe('FieldTypeOverrideService', () => {
         const document = result.document as XmlSchemaDocument;
 
         const updatedDef = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
-          'ImportedTypes.xsd': importedTypesXsd,
+          'ImportedTypes.xsd': getImportedTypesXsd(),
         });
 
         expect(Object.keys(updatedDef.definitionFiles || {})).toContain('ShipOrder.xsd');
@@ -170,7 +170,7 @@ describe('FieldTypeOverrideService', () => {
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
-          { 'ShipOrder.xsd': shipOrderXsd },
+          { 'ShipOrder.xsd': getShipOrderXsd() },
           undefined,
           undefined,
           undefined,
@@ -181,7 +181,7 @@ describe('FieldTypeOverrideService', () => {
         const document = result.document as XmlSchemaDocument;
 
         const updatedDef = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
-          'ImportedTypes.xsd': importedTypesXsd,
+          'ImportedTypes.xsd': getImportedTypesXsd(),
         });
 
         const namespaceMap = updatedDef.namespaceMap || {};
@@ -239,7 +239,7 @@ describe('FieldTypeOverrideService', () => {
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
-          { 'ShipOrder.xsd': shipOrderXsd },
+          { 'ShipOrder.xsd': getShipOrderXsd() },
           undefined,
           undefined,
           undefined,

@@ -16,10 +16,10 @@ import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document.service';
 import { MappingService } from '../services/mapping.service';
 import {
-  accountJsonSchema,
-  cartJsonSchema,
-  shipOrderJsonSchema,
-  shipOrderJsonXslt,
+  getAccountJsonSchema,
+  getCartJsonSchema,
+  getShipOrderJsonSchema,
+  getShipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
 import { DataMapperContext, DataMapperProvider } from './datamapper.provider';
 
@@ -168,7 +168,7 @@ describe('DataMapperProvider', () => {
       DocumentType.TARGET_BODY,
       DocumentDefinitionType.JSON_SCHEMA,
       'ShipOrderJson',
-      { ShipOrderJson: shipOrderJsonSchema },
+      { ShipOrderJson: getShipOrderJsonSchema() },
     );
 
     // Create a mock document - in practice this would come from DocumentService
@@ -460,14 +460,14 @@ describe('DataMapperProvider', () => {
   it('should initialize JSON mappings with DocumentInitializationModel and initialXsltFile', async () => {
     const sourceDocDef = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'Body', {});
     const targetDocDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, 'Body', {
-      ShipOrder: shipOrderJsonSchema,
+      ShipOrder: getShipOrderJsonSchema(),
     });
     const parameters = {
       Account: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
-        Account: accountJsonSchema,
+        Account: getAccountJsonSchema(),
       }),
       Cart: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
-        Cart: cartJsonSchema,
+        Cart: getCartJsonSchema(),
       }),
       OrderSequence: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'OrderSequence', {}),
     };
@@ -477,7 +477,7 @@ describe('DataMapperProvider', () => {
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider
         documentInitializationModel={documentInitializationModel}
-        initialXsltFile={shipOrderJsonXslt}
+        initialXsltFile={getShipOrderJsonXslt()}
         onUpdateMappings={(xslt) => (latestXslt = xslt)}
       >
         {children}
@@ -737,7 +737,7 @@ describe('DataMapperProvider', () => {
       const { result } = renderHook(() => useDataMapper(), { wrapper });
 
       const docDef = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
-        Account: accountJsonSchema,
+        Account: getAccountJsonSchema(),
       });
 
       const mockDocument = {
@@ -785,7 +785,7 @@ describe('DataMapperProvider', () => {
         DocumentDefinitionType.JSON_SCHEMA,
         'Body',
         {
-          ShipOrder: shipOrderJsonSchema,
+          ShipOrder: getShipOrderJsonSchema(),
         },
       );
       const documentInitializationModel = new DocumentInitializationModel({}, sourceDocDef, targetDocDef);
@@ -804,7 +804,7 @@ describe('DataMapperProvider', () => {
 
     it('should initialize with only initialXsltFile', async () => {
       const wrapper = ({ children }: { children: React.ReactNode }) => (
-        <DataMapperProvider initialXsltFile={shipOrderJsonXslt}>{children}</DataMapperProvider>
+        <DataMapperProvider initialXsltFile={getShipOrderJsonXslt()}>{children}</DataMapperProvider>
       );
 
       const { result } = renderHook(() => useContext(DataMapperContext), { wrapper });

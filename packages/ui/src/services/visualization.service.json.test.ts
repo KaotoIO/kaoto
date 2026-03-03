@@ -18,11 +18,11 @@ import {
   ValueSelector,
 } from '../models/datamapper';
 import {
-  accountJsonSchema,
-  camelYamlDslJsonSchema,
-  cartJsonSchema,
-  shipOrderJsonSchema,
-  shipOrderJsonXslt,
+  getAccountJsonSchema,
+  getCamelYamlDslJsonSchema,
+  getCartJsonSchema,
+  getShipOrderJsonSchema,
+  getShipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
@@ -30,13 +30,13 @@ import { VisualizationService } from './visualization.service';
 
 describe('VisualizationService / JSON', () => {
   const accountDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
-    'Account.json': accountJsonSchema,
+    'Account.json': getAccountJsonSchema(),
   });
   const accountResult = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
   expect(accountResult.validationStatus).toBe('success');
   const accountDoc = accountResult.document!;
   const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
-    'Cart.json': cartJsonSchema,
+    'Cart.json': getCartJsonSchema(),
   });
   const cartResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
   expect(cartResult.validationStatus).toBe('success');
@@ -48,7 +48,7 @@ describe('VisualizationService / JSON', () => {
     DocumentType.TARGET_BODY,
     DocumentDefinitionType.JSON_SCHEMA,
     BODY_DOCUMENT_ID,
-    { 'ShipOrder.json': shipOrderJsonSchema },
+    { 'ShipOrder.json': getShipOrderJsonSchema() },
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
   expect(result.validationStatus).toBe('success');
@@ -147,7 +147,12 @@ describe('VisualizationService / JSON', () => {
 
   it('should render deserialized mappings', () => {
     let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-    mappingTree = MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, sourceParameterMap);
+    mappingTree = MappingSerializerService.deserialize(
+      getShipOrderJsonXslt(),
+      targetDoc,
+      mappingTree,
+      sourceParameterMap,
+    );
     expect(mappingTree.children.length).toEqual(1);
 
     targetDocNode = new TargetDocumentNodeData(targetDoc, mappingTree);
@@ -201,7 +206,7 @@ describe('VisualizationService / JSON', () => {
       DocumentType.TARGET_BODY,
       DocumentDefinitionType.JSON_SCHEMA,
       BODY_DOCUMENT_ID,
-      { 'CamelYamlDsl.json': camelYamlDslJsonSchema },
+      { 'CamelYamlDsl.json': getCamelYamlDslJsonSchema() },
     );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(camelYamlDefinition);
     expect(result.validationStatus).toBe('success');

@@ -6,7 +6,7 @@ import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamap
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { MappingSerializerService } from '../../../services/mapping-serializer.service';
-import { conditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { getConditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 
 describe('DeleteMappingItemAction', () => {
@@ -46,7 +46,7 @@ describe('DeleteMappingItemAction', () => {
     const targetDoc = TestUtil.createTargetOrderDoc();
     const paramsMap = TestUtil.createParameterMap();
     const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-    MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+    MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
     const docData = new TargetDocumentNodeData(targetDoc, tree);
     const nodeData = new MappingNodeData(docData, tree.children[0].children[0] as ForEachItem);

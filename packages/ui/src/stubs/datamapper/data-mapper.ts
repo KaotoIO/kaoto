@@ -44,137 +44,215 @@ export const twoDataMapperRouteDefinitionStub = parse(`
             - to:
                 uri: ${XSLT_COMPONENT_NAME}:transform-2.xsl`);
 
-export const shipOrderXsd = fs.readFileSync(path.resolve(__dirname, './xml/ShipOrder.xsd')).toString();
-export const cartXsd = fs.readFileSync(path.resolve(__dirname, './xml/Cart.xsd')).toString();
-export const crossSchemaBaseTypesXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/CrossSchemaBaseTypes.xsd'))
-  .toString();
-export const crossSchemaDerivedTypesXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/CrossSchemaDerivedTypes.xsd'))
-  .toString();
+const fileCache = new Map<string, string>();
+function readStubFile(relativePath: string): string {
+  if (!fileCache.has(relativePath)) {
+    fileCache.set(relativePath, fs.readFileSync(path.resolve(__dirname, relativePath)).toString());
+  }
+  return fileCache.get(relativePath)!;
+}
 
-export const testDocumentXsd = fs.readFileSync(path.resolve(__dirname, './xml/TestDocument.xsd')).toString();
-export const noTopElementXsd = fs.readFileSync(path.resolve(__dirname, './xml/NoTopElement.xsd')).toString();
-export const namedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/NamedTypes.xsd')).toString();
-export const camelSpringXsd = fs.readFileSync(path.resolve(__dirname, './xml/camel-spring.xsd')).toString();
-export const multipleElementsXsd = fs.readFileSync(path.resolve(__dirname, './xml/MultipleElements.xsd')).toString();
-export const cartToShipOrderXslt = fs.readFileSync(path.resolve(__dirname, './xml/CartToShipOrder.xsl')).toString();
-export const shipOrderToShipOrderXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrder.xsl'))
-  .toString();
-export const conditionalMappingsToShipOrderXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/ConditionalMappingsToShipOrder.xsl'))
-  .toString();
-export const shipOrderToShipOrderInvalidForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderInvalidForEach.xsl'))
-  .toString();
-export const shipOrderEmptyFirstLineXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/ShipOrderEmptyFirstLine.xsd'))
-  .toString();
-export const shipOrderToShipOrderMultipleForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderMultipleForEach.xsl'))
-  .toString();
-export const shipOrderToShipOrderCollectionIndexXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/ShipOrderToShipOrderCollectionIndex.xsl'))
-  .toString();
-export const nestedConditionalsToShipOrderXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/NestedConditionalsToShipOrder.xsl'))
-  .toString();
-export const shipOrderWithCurrentXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/ShipOrderWithCurrent.xsl'))
-  .toString();
-
-export const x12837PDfdlXsd = fs.readFileSync(path.resolve(__dirname, './xml/X12-837P.dfdl.xsd')).toString();
-export const message837Xsd = fs.readFileSync(path.resolve(__dirname, './xml/Message837.xsd')).toString();
-export const x12837PXslt = fs.readFileSync(path.resolve(__dirname, './xml/X12-837.xsl')).toString();
-
-export const x12850DfdlXsd = fs.readFileSync(path.resolve(__dirname, './xml/X12-850.dfdl.xsd')).toString();
-export const invoice850Xsd = fs.readFileSync(path.resolve(__dirname, './xml/Invoice850.xsd')).toString();
-export const x12850ForEachXslt = fs
-  .readFileSync(path.resolve(__dirname, './xml/X12-850-Invoice-for-each.xsl'))
-  .toString();
-
-export const camelYamlDslJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/camelYamlDsl.json')).toString();
-
-export const cartJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Cart.schema.json')).toString();
-export const accountJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Account.schema.json')).toString();
-export const shipOrderJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/ShipOrder.schema.json')).toString();
-export const shipOrderJsonXslt = fs.readFileSync(path.resolve(__dirname, './json/ShipOrderJson.xsl')).toString();
-export const cartToShipOrderJsonXslt = fs
-  .readFileSync(path.resolve(__dirname, './json/CartToShipOrderJson.xsl'))
-  .toString();
-export const conditionalMappingsToShipOrderJsonXslt = fs
-  .readFileSync(path.resolve(__dirname, './json/ConditionalMappingsToShipOrderJson.xsl'))
-  .toString();
-export const multipleForEachJsonXslt = fs
-  .readFileSync(path.resolve(__dirname, './json/MultipleForEach.xsl'))
-  .toString();
-
-export const commonTypesJsonSchema = fs
-  .readFileSync(path.resolve(__dirname, './json/CommonTypes.schema.json'))
-  .toString();
-export const customerJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Customer.schema.json')).toString();
-export const orderJsonSchema = fs.readFileSync(path.resolve(__dirname, './json/Order.schema.json')).toString();
-export const mainWithRefJsonSchema = fs
-  .readFileSync(path.resolve(__dirname, './json/MainWithRef.schema.json'))
-  .toString();
-export const productJsonSchema = fs
-  .readFileSync(path.resolve(__dirname, './json/nested/Product.schema.json'))
-  .toString();
-
-export const orgXsd = fs.readFileSync(path.resolve(__dirname, './xml/Org.xsd')).toString();
-export const contactsXsd = fs.readFileSync(path.resolve(__dirname, './xml/Contacts.xsd')).toString();
-export const orgToContactsXslt = fs.readFileSync(path.resolve(__dirname, './xml/OrgToContacts.xsl')).toString();
-export const extensionSimpleXsd = fs.readFileSync(path.resolve(__dirname, './xml/ExtensionSimple.xsd')).toString();
-export const extensionComplexXsd = fs.readFileSync(path.resolve(__dirname, './xml/ExtensionComplex.xsd')).toString();
-export const schemaTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/SchemaTest.xsd')).toString();
-export const restrictionComplexXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/RestrictionComplex.xsd'))
-  .toString();
-export const restrictionSimpleXsd = fs.readFileSync(path.resolve(__dirname, './xml/RestrictionSimple.xsd')).toString();
-export const restrictionInheritanceXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/RestrictionInheritance.xsd'))
-  .toString();
-export const multiLevelExtensionXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/MultiLevelExtension.xsd'))
-  .toString();
-export const multiLevelRestrictionXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/MultiLevelRestriction.xsd'))
-  .toString();
-export const invalidComplexExtensionXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/InvalidComplexExtension.xsd'))
-  .toString();
-export const simpleTypeInheritanceXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/SimpleTypeInheritance.xsd'))
-  .toString();
-export const simpleTypeRestrictionXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/SimpleTypeRestriction.xsd'))
-  .toString();
-export const lazyLoadingTestXsd = fs.readFileSync(path.resolve(__dirname, './xml/LazyLoadingTest.xsd')).toString();
-export const adtInXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_IN.xsd')).toString();
-export const adtOutXsd = fs.readFileSync(path.resolve(__dirname, './xml/ADT_OUT.xsd')).toString();
-export const elementRefXsd = fs.readFileSync(path.resolve(__dirname, './xml/element-ref.xsd')).toString();
-export const accountLcXsd = fs.readFileSync(path.resolve(__dirname, './xml/account-lc.xsd')).toString();
-export const accountNsXsd = fs.readFileSync(path.resolve(__dirname, './xml/account-ns.xsd')).toString();
-export const accountNs2Xsd = fs.readFileSync(path.resolve(__dirname, './xml/account-ns2.xsd')).toString();
-export const mainWithIncludeXsd = fs.readFileSync(path.resolve(__dirname, './xml/MainWithInclude.xsd')).toString();
-export const commonTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/CommonTypes.xsd')).toString();
-export const mainWithImportXsd = fs.readFileSync(path.resolve(__dirname, './xml/MainWithImport.xsd')).toString();
-export const importedTypesXsd = fs.readFileSync(path.resolve(__dirname, './xml/ImportedTypes.xsd')).toString();
-export const multiIncludeMainXsd = fs.readFileSync(path.resolve(__dirname, './xml/MultiIncludeMain.xsd')).toString();
-export const multiIncludeComponentAXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/MultiIncludeComponentA.xsd'))
-  .toString();
-export const multiIncludeComponentBXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/MultiIncludeComponentB.xsd'))
-  .toString();
-
-export const inlineAttrSimpleTypeXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/InlineAttrSimpleType.xsd'))
-  .toString();
-export const anonymousGlobalElementRefLargeXsd = fs
-  .readFileSync(path.resolve(__dirname, './xml/AnonymousGlobalElementRefLarge.xsd'))
-  .toString();
+export function getShipOrderXsd(): string {
+  return readStubFile('./xml/ShipOrder.xsd');
+}
+export function getCartXsd(): string {
+  return readStubFile('./xml/Cart.xsd');
+}
+export function getCrossSchemaBaseTypesXsd(): string {
+  return readStubFile('./xml/CrossSchemaBaseTypes.xsd');
+}
+export function getCrossSchemaDerivedTypesXsd(): string {
+  return readStubFile('./xml/CrossSchemaDerivedTypes.xsd');
+}
+export function getTestDocumentXsd(): string {
+  return readStubFile('./xml/TestDocument.xsd');
+}
+export function getNoTopElementXsd(): string {
+  return readStubFile('./xml/NoTopElement.xsd');
+}
+export function getNamedTypesXsd(): string {
+  return readStubFile('./xml/NamedTypes.xsd');
+}
+export function getCamelSpringXsd(): string {
+  return readStubFile('./xml/camel-spring.xsd');
+}
+export function getMultipleElementsXsd(): string {
+  return readStubFile('./xml/MultipleElements.xsd');
+}
+export function getCartToShipOrderXslt(): string {
+  return readStubFile('./xml/CartToShipOrder.xsl');
+}
+export function getShipOrderToShipOrderXslt(): string {
+  return readStubFile('./xml/ShipOrderToShipOrder.xsl');
+}
+export function getConditionalMappingsToShipOrderXslt(): string {
+  return readStubFile('./xml/ConditionalMappingsToShipOrder.xsl');
+}
+export function getShipOrderToShipOrderInvalidForEachXslt(): string {
+  return readStubFile('./xml/ShipOrderToShipOrderInvalidForEach.xsl');
+}
+export function getShipOrderEmptyFirstLineXsd(): string {
+  return readStubFile('./xml/ShipOrderEmptyFirstLine.xsd');
+}
+export function getShipOrderToShipOrderMultipleForEachXslt(): string {
+  return readStubFile('./xml/ShipOrderToShipOrderMultipleForEach.xsl');
+}
+export function getShipOrderToShipOrderCollectionIndexXslt(): string {
+  return readStubFile('./xml/ShipOrderToShipOrderCollectionIndex.xsl');
+}
+export function getNestedConditionalsToShipOrderXslt(): string {
+  return readStubFile('./xml/NestedConditionalsToShipOrder.xsl');
+}
+export function getShipOrderWithCurrentXslt(): string {
+  return readStubFile('./xml/ShipOrderWithCurrent.xsl');
+}
+export function getX12837PDfdlXsd(): string {
+  return readStubFile('./xml/X12-837P.dfdl.xsd');
+}
+export function getMessage837Xsd(): string {
+  return readStubFile('./xml/Message837.xsd');
+}
+export function getX12837PXslt(): string {
+  return readStubFile('./xml/X12-837.xsl');
+}
+export function getX12850DfdlXsd(): string {
+  return readStubFile('./xml/X12-850.dfdl.xsd');
+}
+export function getInvoice850Xsd(): string {
+  return readStubFile('./xml/Invoice850.xsd');
+}
+export function getX12850ForEachXslt(): string {
+  return readStubFile('./xml/X12-850-Invoice-for-each.xsl');
+}
+export function getCamelYamlDslJsonSchema(): string {
+  return readStubFile('./json/camelYamlDsl.json');
+}
+export function getCartJsonSchema(): string {
+  return readStubFile('./json/Cart.schema.json');
+}
+export function getAccountJsonSchema(): string {
+  return readStubFile('./json/Account.schema.json');
+}
+export function getShipOrderJsonSchema(): string {
+  return readStubFile('./json/ShipOrder.schema.json');
+}
+export function getShipOrderJsonXslt(): string {
+  return readStubFile('./json/ShipOrderJson.xsl');
+}
+export function getCartToShipOrderJsonXslt(): string {
+  return readStubFile('./json/CartToShipOrderJson.xsl');
+}
+export function getConditionalMappingsToShipOrderJsonXslt(): string {
+  return readStubFile('./json/ConditionalMappingsToShipOrderJson.xsl');
+}
+export function getMultipleForEachJsonXslt(): string {
+  return readStubFile('./json/MultipleForEach.xsl');
+}
+export function getCommonTypesJsonSchema(): string {
+  return readStubFile('./json/CommonTypes.schema.json');
+}
+export function getCustomerJsonSchema(): string {
+  return readStubFile('./json/Customer.schema.json');
+}
+export function getOrderJsonSchema(): string {
+  return readStubFile('./json/Order.schema.json');
+}
+export function getMainWithRefJsonSchema(): string {
+  return readStubFile('./json/MainWithRef.schema.json');
+}
+export function getProductJsonSchema(): string {
+  return readStubFile('./json/nested/Product.schema.json');
+}
+export function getOrgXsd(): string {
+  return readStubFile('./xml/Org.xsd');
+}
+export function getContactsXsd(): string {
+  return readStubFile('./xml/Contacts.xsd');
+}
+export function getOrgToContactsXslt(): string {
+  return readStubFile('./xml/OrgToContacts.xsl');
+}
+export function getExtensionSimpleXsd(): string {
+  return readStubFile('./xml/ExtensionSimple.xsd');
+}
+export function getExtensionComplexXsd(): string {
+  return readStubFile('./xml/ExtensionComplex.xsd');
+}
+export function getSchemaTestXsd(): string {
+  return readStubFile('./xml/SchemaTest.xsd');
+}
+export function getRestrictionComplexXsd(): string {
+  return readStubFile('./xml/RestrictionComplex.xsd');
+}
+export function getRestrictionSimpleXsd(): string {
+  return readStubFile('./xml/RestrictionSimple.xsd');
+}
+export function getRestrictionInheritanceXsd(): string {
+  return readStubFile('./xml/RestrictionInheritance.xsd');
+}
+export function getMultiLevelExtensionXsd(): string {
+  return readStubFile('./xml/MultiLevelExtension.xsd');
+}
+export function getMultiLevelRestrictionXsd(): string {
+  return readStubFile('./xml/MultiLevelRestriction.xsd');
+}
+export function getInvalidComplexExtensionXsd(): string {
+  return readStubFile('./xml/InvalidComplexExtension.xsd');
+}
+export function getSimpleTypeInheritanceXsd(): string {
+  return readStubFile('./xml/SimpleTypeInheritance.xsd');
+}
+export function getSimpleTypeRestrictionXsd(): string {
+  return readStubFile('./xml/SimpleTypeRestriction.xsd');
+}
+export function getLazyLoadingTestXsd(): string {
+  return readStubFile('./xml/LazyLoadingTest.xsd');
+}
+export function getAdtInXsd(): string {
+  return readStubFile('./xml/ADT_IN.xsd');
+}
+export function getAdtOutXsd(): string {
+  return readStubFile('./xml/ADT_OUT.xsd');
+}
+export function getElementRefXsd(): string {
+  return readStubFile('./xml/element-ref.xsd');
+}
+export function getAccountLcXsd(): string {
+  return readStubFile('./xml/account-lc.xsd');
+}
+export function getAccountNsXsd(): string {
+  return readStubFile('./xml/account-ns.xsd');
+}
+export function getAccountNs2Xsd(): string {
+  return readStubFile('./xml/account-ns2.xsd');
+}
+export function getMainWithIncludeXsd(): string {
+  return readStubFile('./xml/MainWithInclude.xsd');
+}
+export function getCommonTypesXsd(): string {
+  return readStubFile('./xml/CommonTypes.xsd');
+}
+export function getMainWithImportXsd(): string {
+  return readStubFile('./xml/MainWithImport.xsd');
+}
+export function getImportedTypesXsd(): string {
+  return readStubFile('./xml/ImportedTypes.xsd');
+}
+export function getMultiIncludeMainXsd(): string {
+  return readStubFile('./xml/MultiIncludeMain.xsd');
+}
+export function getMultiIncludeComponentAXsd(): string {
+  return readStubFile('./xml/MultiIncludeComponentA.xsd');
+}
+export function getMultiIncludeComponentBXsd(): string {
+  return readStubFile('./xml/MultiIncludeComponentB.xsd');
+}
+export function getInlineAttrSimpleTypeXsd(): string {
+  return readStubFile('./xml/InlineAttrSimpleType.xsd');
+}
+export function getAnonymousGlobalElementRefLargeXsd(): string {
+  return readStubFile('./xml/AnonymousGlobalElementRefLarge.xsd');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {
@@ -183,7 +261,7 @@ export class TestUtil {
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'shipOrder.xsd': shipOrderXsd,
+        'shipOrder.xsd': getShipOrderXsd(),
       },
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -199,7 +277,7 @@ export class TestUtil {
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'camelSpring.xsd': camelSpringXsd,
+        'camelSpring.xsd': getCamelSpringXsd(),
       },
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -215,7 +293,7 @@ export class TestUtil {
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'shipOrder.xsd': shipOrderXsd,
+        'shipOrder.xsd': getShipOrderXsd(),
       },
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -231,7 +309,7 @@ export class TestUtil {
       DocumentDefinitionType.JSON_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'shipOrder.json': shipOrderJsonSchema,
+        'shipOrder.json': getShipOrderJsonSchema(),
       },
     );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
@@ -245,12 +323,12 @@ export class TestUtil {
     let answer: BaseDocument;
     if (schemaType === DocumentDefinitionType.JSON_SCHEMA) {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, name, {
-        [`${name}.json`]: content || cartJsonSchema,
+        [`${name}.json`]: content || getCartJsonSchema(),
       });
       answer = JsonSchemaDocumentService.createJsonSchemaDocument(definition).document!;
     } else {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.XML_SCHEMA, name, {
-        [`${name}.xsd`]: content || shipOrderXsd,
+        [`${name}.xsd`]: content || getShipOrderXsd(),
       });
       answer = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
     }
@@ -263,7 +341,7 @@ export class TestUtil {
     const sourcePrimitiveParamDoc = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'primitive'),
     );
-    const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.XML_SCHEMA, cartXsd);
+    const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.XML_SCHEMA, getCartXsd());
     return new Map<string, IDocument>([
       ['sourceParam1', sourceParamDoc],
       ['primitive', sourcePrimitiveParamDoc],
@@ -275,8 +353,12 @@ export class TestUtil {
     const sourcePrimitiveParamDoc = new PrimitiveDocument(
       new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'primitive'),
     );
-    const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
-    const cart2ParamDoc = TestUtil.createParamOrderDoc('cart2', DocumentDefinitionType.JSON_SCHEMA, cartJsonSchema);
+    const cartParamDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.JSON_SCHEMA, getCartJsonSchema());
+    const cart2ParamDoc = TestUtil.createParamOrderDoc(
+      'cart2',
+      DocumentDefinitionType.JSON_SCHEMA,
+      getCartJsonSchema(),
+    );
     return new Map<string, IDocument>([
       ['primitive', sourcePrimitiveParamDoc],
       ['cart', cartParamDoc],
@@ -290,7 +372,7 @@ export class TestUtil {
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'ADT_IN.xsd': adtInXsd,
+        'ADT_IN.xsd': getAdtInXsd(),
       },
     );
     return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -302,7 +384,7 @@ export class TestUtil {
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'ADT_OUT.xsd': adtOutXsd,
+        'ADT_OUT.xsd': getAdtOutXsd(),
       },
     );
     return XmlSchemaDocumentService.createXmlSchemaDocument(definition);

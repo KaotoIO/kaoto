@@ -1,7 +1,7 @@
 import { DocumentDefinitionType, FieldItem, MappingTree, NS_XSL, PrimitiveDocument, Types } from '../models/datamapper';
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentType } from '../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
-import { cartToShipOrderJsonXslt, shipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { getCartToShipOrderJsonXslt, getShipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { MappingSerializerService } from './mapping-serializer.service';
 import {
@@ -23,7 +23,7 @@ describe('mappingSerializerJsonAddon', () => {
 
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(
-        cartToShipOrderJsonXslt,
+        getCartToShipOrderJsonXslt(),
         TestUtil.createTargetOrderDoc(),
         mappings,
         TestUtil.createParameterMap(),
@@ -121,7 +121,7 @@ describe('mappingSerializerJsonAddon', () => {
     it('should populate a FieldItem', () => {
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(
-        cartToShipOrderJsonXslt,
+        getCartToShipOrderJsonXslt(),
         TestUtil.createTargetOrderDoc(),
         mappings,
         TestUtil.createParameterMap(),
@@ -186,7 +186,7 @@ describe('mappingSerializerJsonAddon', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'shipOrder.xsd': shipOrderXsd },
+        { 'shipOrder.xsd': getShipOrderXsd() },
       );
       const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
       const mappings = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.XML_SCHEMA);

@@ -3,14 +3,14 @@ import { BaseDocument } from '../models/datamapper/document';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant, Types } from '../models/datamapper/types';
 import {
-  accountLcXsd,
-  accountNs2Xsd,
-  accountNsXsd,
-  extensionComplexXsd,
-  multipleElementsXsd,
-  restrictionComplexXsd,
-  simpleTypeInheritanceXsd,
-  simpleTypeRestrictionXsd,
+  getAccountLcXsd,
+  getAccountNs2Xsd,
+  getAccountNsXsd,
+  getExtensionComplexXsd,
+  getMultipleElementsXsd,
+  getRestrictionComplexXsd,
+  getSimpleTypeInheritanceXsd,
+  getSimpleTypeRestrictionXsd,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { QName } from '../xml-schema-ts/QName';
@@ -332,7 +332,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
       const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(extensionResult.validationStatus).toBe('success');
@@ -353,7 +353,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'restriction.xsd': restrictionComplexXsd },
+        { 'restriction.xsd': getRestrictionComplexXsd() },
       );
       const restrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(restrictionResult.validationStatus).toBe('success');
@@ -385,7 +385,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
       const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(extensionResult.validationStatus).toBe('success');
@@ -409,7 +409,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'restriction.xsd': restrictionComplexXsd },
+        { 'restriction.xsd': getRestrictionComplexXsd() },
       );
       const restrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(restrictionResult.validationStatus).toBe('success');
@@ -433,7 +433,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
       const extensionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(extensionResult.validationStatus).toBe('success');
@@ -457,7 +457,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'simple.xsd': simpleTypeInheritanceXsd },
+        { 'simple.xsd': getSimpleTypeInheritanceXsd() },
       );
       const simpleInheritResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(simpleInheritResult.validationStatus).toBe('success');
@@ -485,7 +485,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'simple.xsd': simpleTypeRestrictionXsd },
+        { 'simple.xsd': getSimpleTypeRestrictionXsd() },
       );
       const simpleRestrictionResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(simpleRestrictionResult.validationStatus).toBe('success');
@@ -648,8 +648,8 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
         {
-          'account-ns.xsd': accountNsXsd,
-          'account-ns2.xsd': accountNs2Xsd,
+          'account-ns.xsd': getAccountNsXsd(),
+          'account-ns2.xsd': getAccountNs2Xsd(),
         },
       );
 
@@ -675,8 +675,8 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
         {
-          'account-lc.xsd': accountLcXsd,
-          'account-ns.xsd': accountNsXsd,
+          'account-lc.xsd': getAccountLcXsd(),
+          'account-ns.xsd': getAccountNsXsd(),
         },
       );
 
@@ -702,7 +702,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
         {
-          'MultipleElements.xsd': multipleElementsXsd,
+          'MultipleElements.xsd': getMultipleElementsXsd(),
         },
       );
 

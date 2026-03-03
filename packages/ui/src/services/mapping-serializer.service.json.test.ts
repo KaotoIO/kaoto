@@ -14,10 +14,10 @@ import {
 } from '../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
 import {
-  accountJsonSchema,
-  cartJsonSchema,
-  shipOrderJsonSchema,
-  shipOrderJsonXslt,
+  getAccountJsonSchema,
+  getCartJsonSchema,
+  getShipOrderJsonSchema,
+  getShipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -26,13 +26,13 @@ import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 describe('MappingSerializerService / JSON', () => {
   const accountDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Account', {
-    'Account.json': accountJsonSchema,
+    'Account.json': getAccountJsonSchema(),
   });
   const accountDocResult = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
   expect(accountDocResult.validationStatus).toBe('success');
   const accountParamDoc = accountDocResult.document!;
   const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
-    'Cart.json': cartJsonSchema,
+    'Cart.json': getCartJsonSchema(),
   });
   const cartDocResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
   expect(cartDocResult.validationStatus).toBe('success');
@@ -49,7 +49,7 @@ describe('MappingSerializerService / JSON', () => {
     DocumentType.TARGET_BODY,
     DocumentDefinitionType.JSON_SCHEMA,
     BODY_DOCUMENT_ID,
-    { 'ShipOrder.json': shipOrderJsonSchema },
+    { 'ShipOrder.json': getShipOrderJsonSchema() },
   );
   const result = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
   expect(result.validationStatus).toBe('success');
@@ -58,7 +58,12 @@ describe('MappingSerializerService / JSON', () => {
   describe('deserialize()', () => {
     it('should deserialize XSLT', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-      mappingTree = MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, sourceParameterMap);
+      mappingTree = MappingSerializerService.deserialize(
+        getShipOrderJsonXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
       expect(targetDoc.fields[0].fields[3].fields[0].fields.length).toEqual(3);
       const namespaces = mappingTree.namespaceMap;
       expect(mappingTree.children.length).toBe(1);
@@ -200,7 +205,12 @@ describe('MappingSerializerService / JSON', () => {
 
     it('should serialize JSON mappings', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-      mappingTree = MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, sourceParameterMap);
+      mappingTree = MappingSerializerService.deserialize(
+        getShipOrderJsonXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
       const xsltString = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       const xsltDocument = domParser.parseFromString(xsltString, 'text/xml');
 

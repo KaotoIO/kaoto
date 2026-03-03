@@ -16,14 +16,14 @@ import { DataMapperCanvasProvider } from '../../../../providers/datamapper-canva
 import { DocumentService } from '../../../../services/document.service';
 import { BrowserFilePickerMetadataProvider } from '../../../../stubs/BrowserFilePickerMetadataProvider';
 import {
-  multiIncludeComponentAXsd,
-  multiIncludeMainXsd,
-  multipleElementsXsd,
-  noTopElementXsd,
-  shipOrderEmptyFirstLineXsd,
-  shipOrderJsonSchema,
-  shipOrderJsonXslt,
-  shipOrderXsd,
+  getMultiIncludeComponentAXsd,
+  getMultiIncludeMainXsd,
+  getMultipleElementsXsd,
+  getNoTopElementXsd,
+  getShipOrderEmptyFirstLineXsd,
+  getShipOrderJsonSchema,
+  getShipOrderJsonXslt,
+  getShipOrderXsd,
 } from '../../../../stubs/datamapper/data-mapper';
 import { readFileAsString } from '../../../../stubs/read-file-as-string';
 import { AttachSchemaModal } from './AttachSchemaModal';
@@ -37,7 +37,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should import XML schema', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+    mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -62,7 +62,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+    const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
     act(() => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
@@ -84,7 +84,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should import JSON schema', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderJsonSchema);
+    mockReadFileAsString.mockResolvedValue(getShipOrderJsonSchema());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -109,7 +109,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderJsonSchema])], 'ShipOrder.json', { type: 'text/plain' });
+    const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
     act(() => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
@@ -131,7 +131,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should show inline error for invalid schema', async () => {
-    mockReadFileAsString.mockResolvedValue(noTopElementXsd);
+    mockReadFileAsString.mockResolvedValue(getNoTopElementXsd());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -156,7 +156,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([noTopElementXsd])], 'NoTopElement.xsd', { type: 'text/plain' });
+    const fileContent = new File([new Blob([getNoTopElementXsd()])], 'NoTopElement.xsd', { type: 'text/plain' });
     act(() => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
@@ -169,7 +169,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should show inline error for XML parse error', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderEmptyFirstLineXsd);
+    mockReadFileAsString.mockResolvedValue(getShipOrderEmptyFirstLineXsd());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -194,7 +194,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderEmptyFirstLineXsd])], 'ShipOrderEmptyFirstLine.xsd', {
+    const fileContent = new File([new Blob([getShipOrderEmptyFirstLineXsd()])], 'ShipOrderEmptyFirstLine.xsd', {
       type: 'text/plain',
     });
     act(() => {
@@ -209,7 +209,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should show inline error when attaching JSON schema on the source body', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderJsonSchema);
+    mockReadFileAsString.mockResolvedValue(getShipOrderJsonSchema());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -234,7 +234,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderJsonSchema])], 'ShipOrder.json', {
+    const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', {
       type: 'text/plain',
     });
     act(() => {
@@ -252,7 +252,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should show inline error when attaching unknown file to source body', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderJsonXslt);
+    mockReadFileAsString.mockResolvedValue(getShipOrderJsonXslt());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -277,7 +277,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderJsonXslt])], 'ShipOrderJson.xsl', {
+    const fileContent = new File([new Blob([getShipOrderJsonXslt()])], 'ShipOrderJson.xsl', {
       type: 'text/plain',
     });
     act(() => {
@@ -297,7 +297,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should show inline error when attaching unknown file to target body', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderJsonXslt);
+    mockReadFileAsString.mockResolvedValue(getShipOrderJsonXslt());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -322,7 +322,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderJsonXslt])], 'ShipOrderJson.xsl', {
+    const fileContent = new File([new Blob([getShipOrderJsonXslt()])], 'ShipOrderJson.xsl', {
       type: 'text/plain',
     });
     act(() => {
@@ -441,7 +441,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should disable radio buttons when files are selected', async () => {
-    mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+    mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -469,7 +469,7 @@ describe('AttachSchemaModal', () => {
     });
 
     const fileInput = await screen.findByTestId('attach-schema-file-input');
-    const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+    const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
     act(() => {
       fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
     });
@@ -485,7 +485,7 @@ describe('AttachSchemaModal', () => {
 
   describe('Root Element Selection', () => {
     it('should show root element selector when multiple elements are available', async () => {
-      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      mockReadFileAsString.mockResolvedValue(getMultipleElementsXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -510,7 +510,9 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', {
+        type: 'text/plain',
+      });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -543,7 +545,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should show root element selector for single element schemas with pre-selected option', async () => {
-      mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+      mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -568,7 +570,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -597,7 +599,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should allow user to select different root elements', async () => {
-      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      mockReadFileAsString.mockResolvedValue(getMultipleElementsXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -622,7 +624,9 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', {
+        type: 'text/plain',
+      });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -656,7 +660,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should commit schema with selected root element', async () => {
-      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      mockReadFileAsString.mockResolvedValue(getMultipleElementsXsd());
       let dataMapperContext: ReturnType<typeof useDataMapper>;
 
       const TestComponent = () => {
@@ -690,7 +694,9 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', {
+        type: 'text/plain',
+      });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -728,7 +734,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should not show root element selector for JSON schemas', async () => {
-      mockReadFileAsString.mockResolvedValue(shipOrderJsonSchema);
+      mockReadFileAsString.mockResolvedValue(getShipOrderJsonSchema());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -753,7 +759,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([shipOrderJsonSchema])], 'ShipOrder.json', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -768,7 +774,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should preserve root element selection when removing an unrelated file', async () => {
-      mockReadFileAsString.mockResolvedValue(multipleElementsXsd);
+      mockReadFileAsString.mockResolvedValue(getMultipleElementsXsd());
 
       render(
         <BrowserFilePickerMetadataProvider>
@@ -794,8 +800,8 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const file1 = new File([new Blob([multipleElementsXsd])], 'MultipleElements.xsd', { type: 'text/plain' });
-      const file2 = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const file1 = new File([new Blob([getMultipleElementsXsd()])], 'MultipleElements.xsd', { type: 'text/plain' });
+      const file2 = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, {
           target: { files: { item: (i: number) => [file1, file2][i], length: 2, 0: file1, 1: file2 } },
@@ -844,7 +850,9 @@ describe('AttachSchemaModal', () => {
 
   describe('File Management', () => {
     it('should remove a single file from the list', async () => {
-      mockReadFileAsString.mockResolvedValueOnce(multiIncludeMainXsd).mockResolvedValueOnce(multiIncludeComponentAXsd);
+      mockReadFileAsString
+        .mockResolvedValueOnce(getMultiIncludeMainXsd())
+        .mockResolvedValueOnce(getMultiIncludeComponentAXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -869,8 +877,8 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const file1 = new File([new Blob([multiIncludeMainXsd])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
-      const file2 = new File([new Blob([multiIncludeComponentAXsd])], 'MultiIncludeComponentA.xsd', {
+      const file1 = new File([new Blob([getMultiIncludeMainXsd()])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
+      const file2 = new File([new Blob([getMultiIncludeComponentAXsd()])], 'MultiIncludeComponentA.xsd', {
         type: 'text/plain',
       });
       act(() => {
@@ -896,7 +904,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should remove all files and reset state', async () => {
-      mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+      mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -921,7 +929,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -945,7 +953,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should show error when mixing XML and JSON schema files', async () => {
-      mockReadFileAsString.mockResolvedValueOnce(shipOrderXsd).mockResolvedValueOnce(shipOrderJsonSchema);
+      mockReadFileAsString.mockResolvedValueOnce(getShipOrderXsd()).mockResolvedValueOnce(getShipOrderJsonSchema());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -970,7 +978,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const xsdFile = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const xsdFile = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => xsdFile, length: 1, 0: xsdFile } } });
       });
@@ -983,7 +991,7 @@ describe('AttachSchemaModal', () => {
         fireEvent.click(importButton);
       });
 
-      const jsonFile = new File([new Blob([shipOrderJsonSchema])], 'ShipOrder.json', { type: 'text/plain' });
+      const jsonFile = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => jsonFile, length: 1, 0: jsonFile } } });
       });
@@ -996,7 +1004,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should show warning items from schema analysis with missing includes', async () => {
-      mockReadFileAsString.mockResolvedValue(multiIncludeMainXsd);
+      mockReadFileAsString.mockResolvedValue(getMultiIncludeMainXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -1021,7 +1029,9 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([multiIncludeMainXsd])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getMultiIncludeMainXsd()])], 'MultiIncludeMain.xsd', {
+        type: 'text/plain',
+      });
       act(() => {
         fireEvent.change(fileInput, {
           target: { files: { item: () => fileContent, length: 1, 0: fileContent } },
@@ -1039,7 +1049,7 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should remove the last file and reset state', async () => {
-      mockReadFileAsString.mockResolvedValue(shipOrderXsd);
+      mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -1064,7 +1074,7 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
       });
@@ -1088,7 +1098,9 @@ describe('AttachSchemaModal', () => {
     });
 
     it('should show filter toggles and allow toggling them', async () => {
-      mockReadFileAsString.mockResolvedValueOnce(multiIncludeMainXsd).mockResolvedValueOnce(multiIncludeComponentAXsd);
+      mockReadFileAsString
+        .mockResolvedValueOnce(getMultiIncludeMainXsd())
+        .mockResolvedValueOnce(getMultiIncludeComponentAXsd());
       render(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -1113,8 +1125,8 @@ describe('AttachSchemaModal', () => {
       });
 
       const fileInput = await screen.findByTestId('attach-schema-file-input');
-      const file1 = new File([new Blob([multiIncludeMainXsd])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
-      const file2 = new File([new Blob([multiIncludeComponentAXsd])], 'MultiIncludeComponentA.xsd', {
+      const file1 = new File([new Blob([getMultiIncludeMainXsd()])], 'MultiIncludeMain.xsd', { type: 'text/plain' });
+      const file2 = new File([new Blob([getMultiIncludeComponentAXsd()])], 'MultiIncludeComponentA.xsd', {
         type: 'text/plain',
       });
       act(() => {
