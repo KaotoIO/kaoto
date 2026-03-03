@@ -253,6 +253,12 @@ export function getInlineAttrSimpleTypeXsd(): string {
 export function getAnonymousGlobalElementRefLargeXsd(): string {
   return readStubFile('./xml/AnonymousGlobalElementRefLarge.xsd');
 }
+export function getDerivationMethodsXsd(): string {
+  return readStubFile('./xml/DerivationMethods.xsd');
+}
+export function getConstraintsXsd(): string {
+  return readStubFile('./xml/Constraints.xsd');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {

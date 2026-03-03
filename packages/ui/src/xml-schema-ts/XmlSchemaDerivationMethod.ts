@@ -9,33 +9,36 @@ export class XmlSchemaDerivationMethod {
   private union = false;
 
   static schemaValueOf(name: string): XmlSchemaDerivationMethod {
-    const tokens = name.split('\\s');
+    const tokens = name.trim().split(/\s+/);
     const method = new XmlSchemaDerivationMethod();
-    for (const t in tokens) {
-      if ('#all' === t.toLowerCase() || 'all' === t.toLowerCase()) {
-        if (method.notAll()) {
-          throw new Error('Derivation method cannot be #all and something else.');
-        } else {
-          method.setAll(true);
-        }
-      } else {
-        if (method.isAll()) {
-          throw new Error('Derivation method cannot be #all and something else.');
-        }
-        if ('extension' === t) {
-          method.setExtension(true);
-        } else if ('list' === t) {
-          method.setList(true);
-        } else if ('restriction' === t) {
-          method.setRestriction(true);
-        } else if ('substitution' === t) {
-          method.setSubstitution(true);
-        } else if ('union' === t) {
-          method.setUnion(true);
-        }
-      }
+    for (const t of tokens) {
+      XmlSchemaDerivationMethod.applyToken(method, t);
     }
     return method;
+  }
+
+  private static applyToken(method: XmlSchemaDerivationMethod, token: string): void {
+    if ('#all' === token.toLowerCase() || 'all' === token.toLowerCase()) {
+      if (method.notAll()) {
+        throw new Error('Derivation method cannot be #all and something else.');
+      }
+      method.setAll(true);
+    } else {
+      if (method.isAll()) {
+        throw new Error('Derivation method cannot be #all and something else.');
+      }
+      if ('extension' === token) {
+        method.setExtension(true);
+      } else if ('list' === token) {
+        method.setList(true);
+      } else if ('restriction' === token) {
+        method.setRestriction(true);
+      } else if ('substitution' === token) {
+        method.setSubstitution(true);
+      } else if ('union' === token) {
+        method.setUnion(true);
+      }
+    }
   }
 
   notAll(): boolean {

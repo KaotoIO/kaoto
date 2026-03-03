@@ -9,7 +9,7 @@ export class XDOMUtil {
   static getNextSiblingElement(node: Node): Element | null {
     // search for node
     let sibling = node.nextSibling;
-    while (sibling != null) {
+    while (sibling !== null) {
       if (sibling.nodeType == Node.ELEMENT_NODE) {
         return sibling as Element;
       }
@@ -25,12 +25,12 @@ export class XDOMUtil {
   static getFirstChildElementNS(parent: Node, uri: string, localpart?: string): Element | null {
     // search for node
     let child = parent.firstChild;
-    while (child != null) {
+    while (child !== null) {
       if (child.nodeType == Node.ELEMENT_NODE) {
         const childElement = child as Element;
         const childURI = childElement.namespaceURI;
-        if (childURI != null && childURI === uri) {
-          if (localpart == null || childElement.localName === localpart) {
+        if (childURI !== null && childURI === uri) {
+          if (localpart === undefined || childElement.localName === localpart) {
             return childElement;
           }
         }
@@ -47,12 +47,12 @@ export class XDOMUtil {
   static getNextSiblingElementByNamesNS(node: Node, elemNames: string[][]) {
     // search for node
     let sibling = node.nextSibling;
-    while (sibling != null) {
+    while (sibling !== null) {
       if (sibling.nodeType == Node.ELEMENT_NODE) {
         const siblingElement = sibling as Element;
         for (const elemName of elemNames) {
           const uri = siblingElement.namespaceURI;
-          if (uri != null && uri === elemName[0] && siblingElement.localName === elemName[1]) {
+          if (uri !== null && uri === elemName[0] && siblingElement.localName === elemName[1]) {
             return siblingElement;
           }
         }
@@ -69,11 +69,15 @@ export class XDOMUtil {
   static getNextSiblingElementNS(node: Node, uri: string, localpart?: string) {
     // search for node
     let sibling = node.nextSibling;
-    while (sibling != null) {
+    while (sibling !== null) {
       if (sibling.nodeType == Node.ELEMENT_NODE) {
         const siblingElement = sibling as Element;
         const siblingURI = siblingElement.namespaceURI;
-        if (siblingURI != null && siblingURI === uri && (localpart == null || siblingElement.localName === localpart)) {
+        if (
+          siblingURI !== null &&
+          siblingURI === uri &&
+          (localpart === undefined || siblingElement.localName === localpart)
+        ) {
           return siblingElement;
         }
       }

@@ -23,19 +23,19 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
   static readonly SCHEMA_NS = URI_2001_SCHEMA_XSD;
   static readonly UTF_8_ENCODING = 'UTF-8';
 
-  private items: XmlSchemaObject[] = [];
+  private readonly items: XmlSchemaObject[] = [];
   private parent: XmlSchemaCollection | null = null;
   private blockDefault = XmlSchemaDerivationMethod.NONE;
   private finalDefault = XmlSchemaDerivationMethod.NONE;
   private elementFormDefault = XmlSchemaForm.UNQUALIFIED;
   private attributeFormDefault = XmlSchemaForm.UNQUALIFIED;
-  private externals: XmlSchemaExternal[] = [];
-  private attributeGroups = new QNameMap<XmlSchemaAttributeGroup>();
-  private attributes = new QNameMap<XmlSchemaAttribute>();
-  private elements = new QNameMap<XmlSchemaElement>();
-  private groups = new QNameMap<XmlSchemaGroup>();
-  private notations = new QNameMap<XmlSchemaNotation>();
-  private schemaTypes = new QNameMap<XmlSchemaType>();
+  private readonly externals: XmlSchemaExternal[] = [];
+  private readonly attributeGroups = new QNameMap<XmlSchemaAttributeGroup>();
+  private readonly attributes = new QNameMap<XmlSchemaAttribute>();
+  private readonly elements = new QNameMap<XmlSchemaElement>();
+  private readonly groups = new QNameMap<XmlSchemaGroup>();
+  private readonly notations = new QNameMap<XmlSchemaNotation>();
+  private readonly schemaTypes = new QNameMap<XmlSchemaType>();
   private syntacticalTargetNamespace: string | null = null;
   private schemaNamespacePrefix: string | null = null;
   private logicalTargetNamespace: string | null = null;
@@ -46,7 +46,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
   constructor(namespace?: string, systemId?: string, parent?: XmlSchemaCollection) {
     super();
     if (namespace == null) return;
-    const systemIdToUse = systemId ? systemId : namespace;
+    const systemIdToUse = systemId ?? namespace;
     this.parent = parent || null;
     this.logicalTargetNamespace = namespace;
     this.syntacticalTargetNamespace = namespace;
@@ -82,33 +82,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    * @protected
    */
   getAttributeByQName(name: QName, deep: boolean = true, schemaStack?: XmlSchema[]): XmlSchemaAttribute | null {
-    if (schemaStack != null && schemaStack.includes(this)) {
-      // recursive schema - just return null
-      return null;
-    }
-    let attribute = this.attributes.get(name) as XmlSchemaAttribute | null;
-    if (deep) {
-      if (attribute == null) {
-        // search the imports
-        for (const item of this.externals) {
-          const schema = this.getSchema(item);
-
-          if (schema != null) {
-            if (schemaStack == null) {
-              schemaStack = [];
-            }
-            schemaStack.push(this);
-            attribute = schema.getAttributeByQName(name, deep, schemaStack);
-            if (attribute != null) {
-              return attribute;
-            }
-          }
-        }
-      } else {
-        return attribute;
-      }
-    }
-    return attribute;
+    return this.findByQName(name, this.attributes, deep, schemaStack, (s, n, d, st) => s.getAttributeByQName(n, d, st));
   }
 
   /**
@@ -142,37 +116,9 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
     deep: boolean = true,
     schemaStack?: XmlSchema[],
   ): XmlSchemaAttributeGroup | null {
-    if (schemaStack != null && schemaStack.includes(this)) {
-      // recursive schema - just return null
-      return null;
-    }
-
-    let group = this.attributeGroups.get(name) || null;
-    if (deep) {
-      if (group == null) {
-        // search the imports
-        for (const item of this.externals) {
-          const schema = this.getSchema(item);
-
-          if (schema != null) {
-            // create an empty stack - push the current parent in
-            // and
-            // use the protected method to process the schema
-            if (schemaStack == null) {
-              schemaStack = [];
-            }
-            schemaStack.push(this);
-            group = schema.getAttributeGroupByQName(name, deep, schemaStack);
-            if (group != null) {
-              return group;
-            }
-          }
-        }
-      } else {
-        return group;
-      }
-    }
-    return group;
+    return this.findByQName(name, this.attributeGroups, deep, schemaStack, (s, n, d, st) =>
+      s.getAttributeGroupByQName(n, d, st),
+    );
   }
 
   /**
@@ -221,37 +167,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    * @return the element.
    */
   getElementByQName(name: QName, deep: boolean = true, schemaStack?: XmlSchema[]): XmlSchemaElement | null {
-    if (schemaStack != null && schemaStack.includes(this)) {
-      // recursive schema - just return null
-      return null;
-    }
-
-    let element = this.elements.get(name) || null;
-    if (deep) {
-      if (element == null) {
-        // search the imports
-        for (const item of this.externals) {
-          const schema = this.getSchema(item);
-
-          if (schema != null) {
-            // create an empty stack - push the current parent in
-            // and
-            // use the protected method to process the schema
-            if (schemaStack == null) {
-              schemaStack = [];
-            }
-            schemaStack.push(this);
-            element = schema.getElementByQName(name, deep, schemaStack);
-            if (element != null) {
-              return element;
-            }
-          }
-        }
-      } else {
-        return element;
-      }
-    }
-    return element;
+    return this.findByQName(name, this.elements, deep, schemaStack, (s, n, d, st) => s.getElementByQName(n, d, st));
   }
 
   /**
@@ -314,36 +230,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    * @return
    */
   getGroupByQName(name: QName, deep: boolean = true, schemaStack?: XmlSchema[]): XmlSchemaGroup | null {
-    if (schemaStack != null && schemaStack.includes(this)) {
-      // recursive schema - just return null
-      return null;
-    }
-    let group = this.groups.get(name) || null;
-    if (deep) {
-      if (group == null) {
-        // search the imports
-        for (const item of this.externals) {
-          const schema = this.getSchema(item);
-
-          if (schema != null) {
-            // create an empty stack - push the current parent in
-            // and
-            // use the protected method to process the schema
-            if (schemaStack == null) {
-              schemaStack = [];
-            }
-            schemaStack.push(this);
-            group = schema.getGroupByQName(name, deep, schemaStack);
-            if (group != null) {
-              return group;
-            }
-          }
-        }
-      } else {
-        return group;
-      }
-    }
-    return group;
+    return this.findByQName(name, this.groups, deep, schemaStack, (s, n, d, st) => s.getGroupByQName(n, d, st));
   }
 
   /**
@@ -404,36 +291,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    * @return the notation
    */
   getNotationByQName(name: QName, deep: boolean = true, schemaStack?: XmlSchema[]): XmlSchemaNotation | null {
-    if (schemaStack != null && schemaStack.includes(this)) {
-      // recursive schema - just return null
-      return null;
-    }
-    let notation = this.notations.get(name) || null;
-    if (deep) {
-      if (notation == null) {
-        // search the imports
-        for (const item of this.externals) {
-          const schema = this.getSchema(item);
-
-          if (schema != null) {
-            // create an empty stack - push the current parent in
-            // and
-            // use the protected method to process the schema
-            if (schemaStack == null) {
-              schemaStack = [];
-            }
-            schemaStack.push(this);
-            notation = schema.getNotationByQName(name, deep, schemaStack);
-            if (notation != null) {
-              return notation;
-            }
-          }
-        }
-      } else {
-        return notation;
-      }
-    }
-    return notation;
+    return this.findByQName(name, this.notations, deep, schemaStack, (s, n, d, st) => s.getNotationByQName(n, d, st));
   }
 
   /**
@@ -509,36 +367,7 @@ export class XmlSchema extends XmlSchemaAnnotated implements NamespaceContextOwn
    * @return the type.
    */
   getTypeByQName(name: QName, deep: boolean = true, schemaStack?: XmlSchema[]): XmlSchemaType | null {
-    if (schemaStack != null && schemaStack.includes(this)) {
-      // recursive schema - just return null
-      return null;
-    }
-    let type = this.schemaTypes.get(name) || null;
-
-    if (deep) {
-      if (type == null) {
-        // search the imports
-        for (const item of this.externals) {
-          const schema = this.getSchema(item);
-
-          if (schema != null) {
-            // create an empty stack - push the current parent
-            // use the protected method to process the schema
-            if (schemaStack == null) {
-              schemaStack = [];
-            }
-            schemaStack.push(this);
-            type = schema.getTypeByQName(name, deep, schemaStack);
-            if (type != null) {
-              return type;
-            }
-          }
-        }
-      } else {
-        return type;
-      }
-    }
-    return type;
+    return this.findByQName(name, this.schemaTypes, deep, schemaStack, (s, n, d, st) => s.getTypeByQName(n, d, st));
   }
 
   /**
@@ -714,6 +543,33 @@ public void write(Writer writer, Map<String, String> options) {
     this.syntacticalTargetNamespace = syntacticalTargetNamespace;
   }
 
+  private findByQName<T>(
+    name: QName,
+    map: QNameMap<T>,
+    deep: boolean,
+    schemaStack: XmlSchema[] | undefined,
+    deepGetter: (schema: XmlSchema, name: QName, deep: boolean, stack: XmlSchema[] | undefined) => T | null,
+  ): T | null {
+    if (schemaStack?.includes(this)) {
+      return null;
+    }
+    const item = map.get(name) ?? null;
+    if (!deep || item !== null) {
+      return item;
+    }
+    for (const ext of this.externals) {
+      const schema = this.getSchema(ext);
+      if (schema !== null) {
+        const stack = [...(schemaStack ?? []), this];
+        const found = deepGetter(schema, name, deep, stack);
+        if (found !== null) {
+          return found;
+        }
+      }
+    }
+    return null;
+  }
+
   /**
    * Get a schema from an import
    *
@@ -722,10 +578,8 @@ public void write(Writer writer, Map<String, String> options) {
    */
   private getSchema(includeOrImport: object): XmlSchema | null {
     let schema: XmlSchema | null = null;
-    if (includeOrImport instanceof XmlSchemaImport) {
-      schema = (includeOrImport as XmlSchemaImport).getSchema();
-    } else if (includeOrImport instanceof XmlSchemaInclude) {
-      schema = (includeOrImport as XmlSchemaInclude).getSchema();
+    if (includeOrImport instanceof XmlSchemaImport || includeOrImport instanceof XmlSchemaInclude) {
+      schema = includeOrImport.getSchema();
     }
     return schema;
   }

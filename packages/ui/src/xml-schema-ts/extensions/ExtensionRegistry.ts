@@ -9,8 +9,8 @@ export class ExtensionRegistry {
   /**
    * Maps for the storage of extension serializers /deserializers
    */
-  private extensionSerializers = new Map<string, ExtensionSerializer>();
-  private extensionDeserializers = new Map<QName, ExtensionDeserializer>();
+  private readonly extensionSerializers = new Map<string, ExtensionSerializer>();
+  private readonly extensionDeserializers = new Map<QName, ExtensionDeserializer>();
 
   /**
    * Default serializer and serializer
@@ -47,8 +47,8 @@ export class ExtensionRegistry {
   /**
    * Register a serializer with a Class
    *
-   * @param classOfType - the class of the object that would be serialized
-   * @param serializer - an instance of the deserializer
+   * @param typeName
+   * @param serializer - an instance of the serializer
    */
   registerSerializer(typeName: string, serializer: ExtensionSerializer) {
     this.extensionSerializers.set(typeName, serializer);
@@ -57,7 +57,7 @@ export class ExtensionRegistry {
   /**
    * remove the registration for a serializer with a Class
    *
-   * @param classOfType - the Class of the element/attribute the serializer is associated with
+   * @param typeName
    */
   unregisterSerializer(typeName: string) {
     this.extensionSerializers.delete(typeName);
@@ -83,10 +83,10 @@ export class ExtensionRegistry {
    */
   serializeExtension(parentSchemaObject: XmlSchemaObject, typeName: string, node: Node) {
     const serializerObject = this.extensionSerializers.get(typeName);
-    if (serializerObject != null) {
-      serializerObject.serialize(parentSchemaObject, typeName, node);
-    } else if (this.defaultExtensionSerializer != null) {
+    if (serializerObject === undefined) {
       this.defaultExtensionSerializer.serialize(parentSchemaObject, typeName, node);
+    } else {
+      serializerObject.serialize(parentSchemaObject, typeName, node);
     }
   }
 
@@ -104,10 +104,10 @@ export class ExtensionRegistry {
    */
   deserializeExtension(parentSchemaObject: XmlSchemaObject, name: QName, rawNode: Node) {
     const deserializerObject = this.extensionDeserializers.get(name);
-    if (deserializerObject != null) {
-      deserializerObject.deserialize(parentSchemaObject, name, rawNode);
-    } else if (this.defaultExtensionDeserializer != null) {
+    if (deserializerObject === undefined) {
       this.defaultExtensionDeserializer.deserialize(parentSchemaObject, name, rawNode);
+    } else {
+      deserializerObject.deserialize(parentSchemaObject, name, rawNode);
     }
   }
 }

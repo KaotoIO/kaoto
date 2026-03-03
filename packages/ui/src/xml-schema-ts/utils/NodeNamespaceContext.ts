@@ -16,16 +16,13 @@ export class NodeNamespaceContext implements NamespacePrefixList {
   }
 
   getDeclaredPrefixes(): string[] {
-    if (this.prefixes == null) {
+    if (this.prefixes === undefined) {
       this.prefixes = Object.keys(this.declarations);
     }
     return this.prefixes;
   }
 
   getNamespaceURI(pPrefix: string): string {
-    if (pPrefix == null) {
-      throw new Error('Prefix cannot be null');
-    }
     if (XML_NS_PREFIX === pPrefix) {
       return XML_NS_URI;
     }
@@ -33,13 +30,10 @@ export class NodeNamespaceContext implements NamespacePrefixList {
       return XMLNS_ATTRIBUTE_NS_URI;
     }
     const uri = this.declarations[pPrefix];
-    return uri == null ? NULL_NS_URI : uri;
+    return uri ?? NULL_NS_URI;
   }
 
   getPrefix(pNamespaceURI: string): string {
-    if (pNamespaceURI == null) {
-      throw new Error('Namespace URI cannot be null');
-    }
     if (XML_NS_URI === pNamespaceURI) {
       return XML_NS_PREFIX;
     }
@@ -51,9 +45,6 @@ export class NodeNamespaceContext implements NamespacePrefixList {
   }
 
   getPrefixes(pNamespaceURI: string): string[] {
-    if (pNamespaceURI == null) {
-      throw new Error('Namespace URI cannot be null');
-    }
     if (XML_NS_URI === pNamespaceURI) {
       return [XML_NS_PREFIX];
     }
