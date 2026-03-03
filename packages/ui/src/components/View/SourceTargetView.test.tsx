@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
-import { camelYamlDslJsonSchema, shipOrderJsonSchema, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { getCamelYamlDslJsonSchema, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { SourceTargetView } from './SourceTargetView';
 
 // Mock ResizeObserver for ExpansionPanels
@@ -42,7 +42,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(importButton);
       });
 
-      const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.click(attachButton);
       });
@@ -115,7 +115,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(importButton);
       });
 
-      const fileContent = new File([new Blob([shipOrderXsd])], 'ShipOrder.xsd', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
       act(() => {
         fireEvent.click(attachButton);
       });
@@ -170,7 +170,7 @@ describe('SourceTargetView', () => {
         fireEvent.click(importButton);
       });
 
-      const fileContent = new File([new Blob([shipOrderJsonSchema])], 'ShipOrder.json', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getShipOrderJsonSchema()])], 'ShipOrder.json', { type: 'text/plain' });
       act(() => {
         fireEvent.click(attachButton);
       });
@@ -225,7 +225,9 @@ describe('SourceTargetView', () => {
         fireEvent.click(importButton);
       });
 
-      const fileContent = new File([new Blob([camelYamlDslJsonSchema])], 'CamelYamlDsl.json', { type: 'text/plain' });
+      const fileContent = new File([new Blob([getCamelYamlDslJsonSchema()])], 'CamelYamlDsl.json', {
+        type: 'text/plain',
+      });
       act(() => {
         fireEvent.click(attachButton);
       });

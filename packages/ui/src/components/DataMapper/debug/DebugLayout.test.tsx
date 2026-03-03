@@ -10,7 +10,7 @@ import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../../providers/datamapper-canvas.provider';
 import { MappingLinksService } from '../../../services/mapping-links.service';
 import { MappingSerializerService } from '../../../services/mapping-serializer.service';
-import { shipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { getShipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DebugLayout } from './DebugLayout';
 
 describe('DebugLayout', () => {
@@ -36,7 +36,7 @@ describe('DebugLayout', () => {
         setSourceBodyDocument(sourceDoc);
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
-        MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, mappingTree, sourceParameterMap);
+        MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
         setMappingTree(mappingTree);
         reloadNodeReferences();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,7 +80,7 @@ describe('DebugLayout', () => {
         setSourceBodyDocument(sourceDoc);
         const targetDoc = TestUtil.createTargetOrderDoc();
         setTargetBodyDocument(targetDoc);
-        MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, mappingTree, sourceParameterMap);
+        MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, mappingTree, sourceParameterMap);
         setMappingTree(mappingTree);
         reloadNodeReferences();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,7 +156,7 @@ describe('DebugLayout', () => {
       act(() => {
         fireEvent.click(importButton);
       });
-      const fileContent = new File([new Blob([shipOrderToShipOrderXslt])], 'ShipOrderToShipOrder.xsl', {
+      const fileContent = new File([new Blob([getShipOrderToShipOrderXslt()])], 'ShipOrderToShipOrder.xsl', {
         type: 'text/plain',
       });
       const fileInput = screen.getByTestId('dm-debug-import-mappings-file-input');
@@ -204,7 +204,12 @@ describe('DebugLayout', () => {
           setSourceBodyDocument(sourceDoc);
           const targetDoc = TestUtil.createTargetOrderDoc();
           setTargetBodyDocument(targetDoc);
-          MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, mappingTree, sourceParameterMap);
+          MappingSerializerService.deserialize(
+            getShipOrderToShipOrderXslt(),
+            targetDoc,
+            mappingTree,
+            sourceParameterMap,
+          );
           setMappingTree(mappingTree);
           reloadNodeReferences();
           // eslint-disable-next-line react-hooks/exhaustive-deps

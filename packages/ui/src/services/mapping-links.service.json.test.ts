@@ -13,10 +13,10 @@ import { MappingTree } from '../models/datamapper/mapping';
 import { NodeReference } from '../models/datamapper/visualization';
 import { mockRandomValues } from '../stubs';
 import {
-  accountJsonSchema,
-  cartJsonSchema,
-  shipOrderJsonSchema,
-  shipOrderJsonXslt,
+  getAccountJsonSchema,
+  getCartJsonSchema,
+  getShipOrderJsonSchema,
+  getShipOrderJsonXslt,
 } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -42,13 +42,13 @@ describe('MappingLinksService : JSON', () => {
       DocumentType.PARAM,
       DocumentDefinitionType.JSON_SCHEMA,
       'Account',
-      { 'Account.json': accountJsonSchema },
+      { 'Account.json': getAccountJsonSchema() },
     );
     const accountResult = JsonSchemaDocumentService.createJsonSchemaDocument(accountDefinition);
     expect(accountResult.validationStatus).toBe('success');
     accountParamDoc = accountResult.document as JsonSchemaDocument;
     const cartDefinition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'Cart', {
-      'Cart.json': cartJsonSchema,
+      'Cart.json': getCartJsonSchema(),
     });
     const cartResult = JsonSchemaDocumentService.createJsonSchemaDocument(cartDefinition);
     expect(cartResult.validationStatus).toBe('success');
@@ -65,13 +65,13 @@ describe('MappingLinksService : JSON', () => {
       DocumentType.TARGET_BODY,
       DocumentDefinitionType.JSON_SCHEMA,
       BODY_DOCUMENT_ID,
-      { 'ShipOrder.json': shipOrderJsonSchema },
+      { 'ShipOrder.json': getShipOrderJsonSchema() },
     );
     const targetResult = JsonSchemaDocumentService.createJsonSchemaDocument(targetDefinition);
     expect(targetResult.validationStatus).toBe('success');
     targetDoc = targetResult.document as JsonSchemaDocument;
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-    MappingSerializerService.deserialize(shipOrderJsonXslt, targetDoc, mappingTree, paramsMap);
+    MappingSerializerService.deserialize(getShipOrderJsonXslt(), targetDoc, mappingTree, paramsMap);
   });
 
   describe('extractMappingLinks()', () => {

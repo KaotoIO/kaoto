@@ -5,7 +5,7 @@ import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi, MetadataProvider } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
-import { shipOrderToShipOrderXslt, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { getShipOrderToShipOrderXslt, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
 describe('DataMapperPage', () => {
@@ -51,7 +51,7 @@ describe('DataMapperPage', () => {
   });
 
   it('should render initial XSLT mappings', async () => {
-    fileContents[metadata.xsltPath] = shipOrderToShipOrderXslt;
+    fileContents[metadata.xsltPath] = getShipOrderToShipOrderXslt();
     render(
       <MetadataProvider api={api}>
         <DataMapper vizNode={vizNode} />
@@ -62,7 +62,7 @@ describe('DataMapperPage', () => {
   });
 
   it('should render initial XSLT mappings with initial documents', async () => {
-    fileContents['ShipOrder.xsd'] = shipOrderXsd;
+    fileContents['ShipOrder.xsd'] = getShipOrderXsd();
     metadata.sourceBody = {
       filePath: ['ShipOrder.xsd'],
       type: DocumentDefinitionType.XML_SCHEMA,

@@ -1,11 +1,11 @@
 import { JSONSchema7 } from 'json-schema';
 
 import {
-  commonTypesJsonSchema,
-  customerJsonSchema,
-  mainWithRefJsonSchema,
-  orderJsonSchema,
-  productJsonSchema,
+  getCommonTypesJsonSchema,
+  getCustomerJsonSchema,
+  getMainWithRefJsonSchema,
+  getOrderJsonSchema,
+  getProductJsonSchema,
 } from '../stubs/datamapper/data-mapper';
 import { JsonSchemaAnalysisService } from './json-schema-analysis.service';
 import { JsonSchemaMetadata } from './json-schema-document.model';
@@ -219,7 +219,7 @@ describe('JsonSchemaAnalysisService', () => {
     });
 
     it('should extract refs from real Order schema', () => {
-      const schema = JSON.parse(orderJsonSchema) as JSONSchema7;
+      const schema = JSON.parse(getOrderJsonSchema()) as JSONSchema7;
 
       const refs = JsonSchemaAnalysisService.extractRefs(schema);
 
@@ -464,9 +464,9 @@ describe('JsonSchemaAnalysisService', () => {
 
     describe('real schemas', () => {
       it('should analyze Order -> Customer -> CommonTypes correctly', () => {
-        const order = parseMetadata('Order.schema.json', orderJsonSchema);
-        const customer = parseMetadata('Customer.schema.json', customerJsonSchema);
-        const common = parseMetadata('CommonTypes.schema.json', commonTypesJsonSchema);
+        const order = parseMetadata('Order.schema.json', getOrderJsonSchema());
+        const customer = parseMetadata('Customer.schema.json', getCustomerJsonSchema());
+        const common = parseMetadata('CommonTypes.schema.json', getCommonTypesJsonSchema());
 
         const result = JsonSchemaAnalysisService.analyze([order, customer, common]);
 
@@ -487,8 +487,8 @@ describe('JsonSchemaAnalysisService', () => {
       });
 
       it('should analyze MainWithRef -> CommonTypes correctly', () => {
-        const main = parseMetadata('MainWithRef.schema.json', mainWithRefJsonSchema);
-        const common = parseMetadata('CommonTypes.schema.json', commonTypesJsonSchema);
+        const main = parseMetadata('MainWithRef.schema.json', getMainWithRefJsonSchema());
+        const common = parseMetadata('CommonTypes.schema.json', getCommonTypesJsonSchema());
 
         const result = JsonSchemaAnalysisService.analyze([main, common]);
 
@@ -504,8 +504,8 @@ describe('JsonSchemaAnalysisService', () => {
       });
 
       it('should analyze nested/Product -> CommonTypes with ../ path', () => {
-        const product = parseMetadata('nested/Product.schema.json', productJsonSchema);
-        const common = parseMetadata('CommonTypes.schema.json', commonTypesJsonSchema);
+        const product = parseMetadata('nested/Product.schema.json', getProductJsonSchema());
+        const common = parseMetadata('CommonTypes.schema.json', getCommonTypesJsonSchema());
 
         const result = JsonSchemaAnalysisService.analyze([product, common]);
 
@@ -521,7 +521,7 @@ describe('JsonSchemaAnalysisService', () => {
       });
 
       it('should detect missing schema when CommonTypes is not provided', () => {
-        const main = parseMetadata('MainWithRef.schema.json', mainWithRefJsonSchema);
+        const main = parseMetadata('MainWithRef.schema.json', getMainWithRefJsonSchema());
 
         const result = JsonSchemaAnalysisService.analyze([main]);
 
@@ -742,8 +742,8 @@ describe('JsonSchemaAnalysisService', () => {
   describe('analyzeFromDefinitionFiles', () => {
     it('should parse and analyze definition files', () => {
       const definitionFiles = {
-        'MainWithRef.schema.json': mainWithRefJsonSchema,
-        'CommonTypes.schema.json': commonTypesJsonSchema,
+        'MainWithRef.schema.json': getMainWithRefJsonSchema(),
+        'CommonTypes.schema.json': getCommonTypesJsonSchema(),
       };
 
       const result = JsonSchemaAnalysisService.analyzeFromDefinitionFiles(definitionFiles);
@@ -765,9 +765,9 @@ describe('JsonSchemaAnalysisService', () => {
 
     it('should analyze multi-file scenario', () => {
       const definitionFiles = {
-        'Order.schema.json': orderJsonSchema,
-        'Customer.schema.json': customerJsonSchema,
-        'CommonTypes.schema.json': commonTypesJsonSchema,
+        'Order.schema.json': getOrderJsonSchema(),
+        'Customer.schema.json': getCustomerJsonSchema(),
+        'CommonTypes.schema.json': getCommonTypesJsonSchema(),
       };
 
       const result = JsonSchemaAnalysisService.analyzeFromDefinitionFiles(definitionFiles);

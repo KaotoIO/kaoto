@@ -7,7 +7,7 @@ import {
   IDocument,
 } from '../../models/datamapper/document';
 import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
-import { cartXsd, shipOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { getCartXsd, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../xml-schema-document.service';
 import { LiteralNode, XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
 import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
@@ -791,11 +791,11 @@ describe('XPathService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'shipOrder.xsd': shipOrderXsd },
+        { 'shipOrder.xsd': getShipOrderXsd() },
       );
       bodyDoc = XmlSchemaDocumentService.createXmlSchemaDocument(bodyDefinition).document!;
       const cart2Definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.XML_SCHEMA, 'Cart2', {
-        'cart.xsd': cartXsd,
+        'cart.xsd': getCartXsd(),
       });
       cart2Doc = XmlSchemaDocumentService.createXmlSchemaDocument(cart2Definition).document!;
     });

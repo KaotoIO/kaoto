@@ -2,7 +2,7 @@ import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentT
 import { IChoiceSelection, IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
-import { commonTypesJsonSchema, customerJsonSchema, orderJsonSchema } from '../stubs/datamapper/data-mapper';
+import { getCommonTypesJsonSchema, getCustomerJsonSchema, getOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { EMPTY_XSL } from './mapping-serializer.service';
@@ -237,9 +237,9 @@ describe('DataMapperMetadataService', () => {
       };
 
       mockApi.getResourceContent.mockImplementation((path) => {
-        if (path === 'Order.schema.json') return Promise.resolve(orderJsonSchema);
-        if (path === 'Customer.schema.json') return Promise.resolve(customerJsonSchema);
-        if (path === 'CommonTypes.schema.json') return Promise.resolve(commonTypesJsonSchema);
+        if (path === 'Order.schema.json') return Promise.resolve(getOrderJsonSchema());
+        if (path === 'Customer.schema.json') return Promise.resolve(getCustomerJsonSchema());
+        if (path === 'CommonTypes.schema.json') return Promise.resolve(getCommonTypesJsonSchema());
         return Promise.resolve(undefined);
       });
 
@@ -269,9 +269,9 @@ describe('DataMapperMetadataService', () => {
       };
 
       mockApi.getResourceContent.mockImplementation((path) => {
-        if (path === 'Order.schema.json') return Promise.resolve(orderJsonSchema);
-        if (path === 'Customer.schema.json') return Promise.resolve(customerJsonSchema);
-        if (path === 'CommonTypes.schema.json') return Promise.resolve(commonTypesJsonSchema);
+        if (path === 'Order.schema.json') return Promise.resolve(getOrderJsonSchema());
+        if (path === 'Customer.schema.json') return Promise.resolve(getCustomerJsonSchema());
+        if (path === 'CommonTypes.schema.json') return Promise.resolve(getCommonTypesJsonSchema());
         return Promise.resolve(undefined);
       });
 
@@ -445,9 +445,9 @@ describe('DataMapperMetadataService', () => {
         DocumentDefinitionType.JSON_SCHEMA,
         BODY_DOCUMENT_ID,
         {
-          'Order.schema.json': orderJsonSchema,
-          'Customer.schema.json': customerJsonSchema,
-          'CommonTypes.schema.json': commonTypesJsonSchema,
+          'Order.schema.json': getOrderJsonSchema(),
+          'Customer.schema.json': getCustomerJsonSchema(),
+          'CommonTypes.schema.json': getCommonTypesJsonSchema(),
         },
         { namespaceUri: '', name: 'Customer.schema.json' },
       );

@@ -17,13 +17,13 @@ import {
 import { NS_XSL } from '../models/datamapper/standard-namespaces';
 import { Types } from '../models/datamapper/types';
 import {
-  invoice850Xsd,
-  shipOrderToShipOrderCollectionIndexXslt,
-  shipOrderToShipOrderInvalidForEachXslt,
-  shipOrderToShipOrderMultipleForEachXslt,
-  shipOrderToShipOrderXslt,
+  getInvoice850Xsd,
+  getShipOrderToShipOrderCollectionIndexXslt,
+  getShipOrderToShipOrderInvalidForEachXslt,
+  getShipOrderToShipOrderMultipleForEachXslt,
+  getShipOrderToShipOrderXslt,
+  getX12850ForEachXslt,
   TestUtil,
-  x12850ForEachXslt,
 } from '../stubs/datamapper/data-mapper';
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
 import { XmlSchemaField } from './xml-schema-document.model';
@@ -59,7 +59,7 @@ describe('MappingSerializerService', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       expect(Object.keys(mappingTree.namespaceMap).length).toEqual(0);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderXslt,
+        getShipOrderToShipOrderXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
@@ -181,7 +181,7 @@ describe('MappingSerializerService', () => {
     it('should deserialize incomplete XSLT', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderInvalidForEachXslt,
+        getShipOrderToShipOrderInvalidForEachXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
@@ -197,14 +197,14 @@ describe('MappingSerializerService', () => {
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'Invoice',
-        { 'Invoice.xsd': invoice850Xsd },
+        { 'Invoice.xsd': getInvoice850Xsd() },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition850);
       expect(result.validationStatus).toBe('success');
       const targetDoc850 = result.document!;
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
-        x12850ForEachXslt,
+        getX12850ForEachXslt(),
         targetDoc850,
         mappingTree,
         sourceParameterMap,
@@ -222,7 +222,7 @@ describe('MappingSerializerService', () => {
     it('should deserialize multiple for-each mappings on a same target collection', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderMultipleForEachXslt,
+        getShipOrderToShipOrderMultipleForEachXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
@@ -245,7 +245,7 @@ describe('MappingSerializerService', () => {
       jest.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderCollectionIndexXslt,
+        getShipOrderToShipOrderCollectionIndexXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
@@ -277,7 +277,7 @@ describe('MappingSerializerService', () => {
     it('should serialize mappings', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderXslt,
+        getShipOrderToShipOrderXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
@@ -371,7 +371,7 @@ describe('MappingSerializerService', () => {
     it('should serialize mappings with respecting Document field order', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mappingTree = MappingSerializerService.deserialize(
-        shipOrderToShipOrderXslt,
+        getShipOrderToShipOrderXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,

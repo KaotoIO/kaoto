@@ -12,14 +12,14 @@ import {
 } from '../models/datamapper/mapping';
 import { mockRandomValues } from '../stubs';
 import {
-  cartToShipOrderJsonXslt,
-  cartToShipOrderXslt,
-  conditionalMappingsToShipOrderJsonXslt,
-  conditionalMappingsToShipOrderXslt,
-  multipleForEachJsonXslt,
-  nestedConditionalsToShipOrderXslt,
-  shipOrderToShipOrderMultipleForEachXslt,
-  shipOrderToShipOrderXslt,
+  getCartToShipOrderJsonXslt,
+  getCartToShipOrderXslt,
+  getConditionalMappingsToShipOrderJsonXslt,
+  getConditionalMappingsToShipOrderXslt,
+  getMultipleForEachJsonXslt,
+  getNestedConditionalsToShipOrderXslt,
+  getShipOrderToShipOrderMultipleForEachXslt,
+  getShipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
@@ -44,7 +44,7 @@ describe('MappingService', () => {
     targetDoc = TestUtil.createTargetOrderDoc();
     paramsMap = TestUtil.createParameterMap();
     tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-    MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, tree, paramsMap);
+    MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, tree, paramsMap);
   });
 
   describe('filterMappingsForField()', () => {
@@ -60,7 +60,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getNestedConditionalsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
       const shipOrderField = targetDoc.fields[0];
       const orderPersonField = targetDoc.fields[0].fields[1];
@@ -87,7 +87,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getNestedConditionalsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
       const shipToField = targetDoc.fields[0].fields[2];
       const shipToNameField = targetDoc.fields[0].fields[2].fields[0];
@@ -118,7 +118,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getNestedConditionalsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
       const itemField = targetDoc.fields[0].fields[3];
       const noteField = targetDoc.fields[0].fields[3].fields[1];
@@ -171,7 +171,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
       expect(tree.children.length).toEqual(1);
       MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'cart');
@@ -182,7 +182,7 @@ describe('MappingService', () => {
       const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
       paramsMap = TestUtil.createJSONParameterMap();
       tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
-      MappingSerializerService.deserialize(conditionalMappingsToShipOrderJsonXslt, targetJSONDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getConditionalMappingsToShipOrderJsonXslt(), targetJSONDoc, tree, paramsMap);
 
       expect(tree.children[0].children[0].children.length).toEqual(1);
       const forEach = tree.children[0].children[0].children[0] as ForEachItem;
@@ -196,7 +196,7 @@ describe('MappingService', () => {
       const targetJSONDoc = TestUtil.createJSONTargetOrderDoc();
       paramsMap = TestUtil.createJSONParameterMap();
       tree = new MappingTree(targetJSONDoc.documentType, targetJSONDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
-      MappingSerializerService.deserialize(multipleForEachJsonXslt, targetJSONDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getMultipleForEachJsonXslt(), targetJSONDoc, tree, paramsMap);
 
       expect(tree.children[0].children[0].children.length).toEqual(2);
       let forEach1 = tree.children[0].children[0].children[0] as ForEachItem;
@@ -214,7 +214,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
 
       const validateForEach = (forEachItem: ForEachItem) => {
         expect(forEachItem.children.length).toEqual(1);
@@ -249,7 +249,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
 
       const bodyForEach = tree.children[0].children[0] as ForEachItem;
       const paramForEach = tree.children[0].children[1] as ForEachItem;
@@ -266,7 +266,7 @@ describe('MappingService', () => {
       targetDoc = TestUtil.createTargetOrderDoc();
       paramsMap = TestUtil.createParameterMap();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
 
       const bodyForEach = tree.children[0].children[0] as ForEachItem;
       expect(bodyForEach.children[0].children.length).toEqual(4);
@@ -303,7 +303,7 @@ describe('MappingService', () => {
     };
 
     it('should rename simple mappings for XML document', () => {
-      MappingSerializerService.deserialize(cartToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getCartToShipOrderXslt(), targetDoc, tree, paramsMap);
       expect(tree.children.length).toEqual(1);
       const linksBefore = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       MappingService.renameParameterInMappings(tree, 'cart', 'newTargetParam');
@@ -319,7 +319,7 @@ describe('MappingService', () => {
     });
 
     it('should rename conditional mappings for XML document', () => {
-      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
       expect(tree.children.length).toEqual(1);
       const linksBefore = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
       MappingService.renameParameterInMappings(tree, 'cart', 'newTargetParam');
@@ -342,7 +342,7 @@ describe('MappingService', () => {
         targetJSONDoc.documentId,
         DocumentDefinitionType.JSON_SCHEMA,
       );
-      MappingSerializerService.deserialize(cartToShipOrderJsonXslt, targetJSONDoc, mappingTree, jsonParamsMap);
+      MappingSerializerService.deserialize(getCartToShipOrderJsonXslt(), targetJSONDoc, mappingTree, jsonParamsMap);
 
       expect(mappingTree.children.length).toEqual(1);
       const linksBefore = MappingLinksService.extractMappingLinks(mappingTree, jsonParamsMap, sourceDoc);
@@ -367,7 +367,7 @@ describe('MappingService', () => {
         DocumentDefinitionType.JSON_SCHEMA,
       );
       MappingSerializerService.deserialize(
-        conditionalMappingsToShipOrderJsonXslt,
+        getConditionalMappingsToShipOrderJsonXslt(),
         targetJSONDoc,
         mappingTree,
         jsonParamsMap,
@@ -653,7 +653,7 @@ describe('MappingService', () => {
     });
 
     it('should delete the empty root field item when it has no children', () => {
-      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
 
       expect(tree.children[0].children.length).toEqual(1);
       const forEachItem = tree.children[0].children[0] as ForEachItem;

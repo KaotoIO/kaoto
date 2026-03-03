@@ -9,7 +9,7 @@ import { IField } from '../models/datamapper/document';
 import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant } from '../models/datamapper/types';
-import { camelSpringXsd, lazyLoadingTestXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { getCamelSpringXsd, getLazyLoadingTestXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
 import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -71,7 +71,7 @@ describe('DocumentUtilService', () => {
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'camel-spring.xsd': camelSpringXsd },
+        { 'camel-spring.xsd': getCamelSpringXsd() },
         { namespaceUri: 'http://camel.apache.org/schema/spring', name: 'routes' },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -261,7 +261,7 @@ describe('DocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'lazy.xsd': lazyLoadingTestXsd },
+        { 'lazy.xsd': getLazyLoadingTestXsd() },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
@@ -296,7 +296,7 @@ describe('DocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'lazy.xsd': lazyLoadingTestXsd },
+        { 'lazy.xsd': getLazyLoadingTestXsd() },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
@@ -386,7 +386,7 @@ describe('DocumentUtilService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'lazy.xsd': lazyLoadingTestXsd },
+        { 'lazy.xsd': getLazyLoadingTestXsd() },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');

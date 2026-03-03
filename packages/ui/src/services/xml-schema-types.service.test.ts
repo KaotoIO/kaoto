@@ -2,9 +2,9 @@ import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../mod
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeDerivation, TypeOverrideVariant, Types } from '../models/datamapper/types';
 import {
-  extensionComplexXsd,
-  restrictionComplexXsd,
-  simpleTypeInheritanceXsd,
+  getExtensionComplexXsd,
+  getRestrictionComplexXsd,
+  getSimpleTypeInheritanceXsd,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { QName } from '../xml-schema-ts/QName';
@@ -108,7 +108,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -138,7 +138,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'restriction.xsd': restrictionComplexXsd },
+        { 'restriction.xsd': getRestrictionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -170,7 +170,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'simpleType.xsd': restrictionComplexXsd },
+        { 'simpleType.xsd': getRestrictionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -234,7 +234,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -286,7 +286,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -309,7 +309,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -374,7 +374,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -405,7 +405,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -478,7 +478,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -506,7 +506,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -527,7 +527,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -547,7 +547,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -568,7 +568,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -649,7 +649,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'simpleType.xsd': simpleTypeInheritanceXsd },
+        { 'simpleType.xsd': getSimpleTypeInheritanceXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -680,7 +680,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'simpleType.xsd': simpleTypeInheritanceXsd },
+        { 'simpleType.xsd': getSimpleTypeInheritanceXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -713,7 +713,7 @@ describe('XmlSchemaTypesService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
-        { 'extension.xsd': extensionComplexXsd },
+        { 'extension.xsd': getExtensionComplexXsd() },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);

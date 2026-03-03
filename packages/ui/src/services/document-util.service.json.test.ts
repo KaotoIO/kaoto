@@ -1,7 +1,7 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType, Types } from '../models/datamapper';
 import { IFieldTypeOverride } from '../models/datamapper/metadata';
 import { TypeOverrideVariant } from '../models/datamapper/types';
-import { accountJsonSchema } from '../stubs/datamapper/data-mapper';
+import { getAccountJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -126,7 +126,7 @@ describe('DocumentUtilService - JSON Schema', () => {
   describe('processTypeOverrides()', () => {
     it('should apply type override to top-level JSON field', () => {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'account', {
-        'account.json': accountJsonSchema,
+        'account.json': getAccountJsonSchema(),
       });
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
@@ -150,7 +150,7 @@ describe('DocumentUtilService - JSON Schema', () => {
 
     it('should apply type override to nested JSON field', () => {
       const definition = new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'account', {
-        'account.json': accountJsonSchema,
+        'account.json': getAccountJsonSchema(),
       });
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');

@@ -11,7 +11,7 @@ import {
 } from '../models/datamapper';
 import { TypeOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
-import { cartJsonSchema, multipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { getCartJsonSchema, getMultipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
@@ -48,7 +48,7 @@ describe('DocumentService', () => {
 
     it('should create XML schema document with multiple root elements', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -575,7 +575,7 @@ describe('DocumentService', () => {
 
     it('should return QName for XML schema document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -610,7 +610,7 @@ describe('DocumentService', () => {
 
     it('should create new document with different root element for XML schema documents', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -646,7 +646,7 @@ describe('DocumentService', () => {
 
     it('should clear fieldTypeOverrides and choiceSelections from the definition when root element changes', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -745,7 +745,7 @@ describe('DocumentService', () => {
 
     it('should rename a XML document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(multipleElementsXsd),
+        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -770,7 +770,7 @@ describe('DocumentService', () => {
 
     it('should rename a JSON document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(cartJsonSchema),
+        getResourceContent: jest.fn().mockResolvedValue(getCartJsonSchema()),
       };
 
       const result = await DocumentService.createDocument(

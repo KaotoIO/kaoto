@@ -31,17 +31,17 @@ import {
   TargetNodeData,
 } from '../models/datamapper/visualization';
 import {
-  conditionalMappingsToShipOrderXslt,
-  contactsXsd,
-  extensionComplexXsd,
-  extensionSimpleXsd,
-  nestedConditionalsToShipOrderXslt,
-  orgXsd,
-  schemaTestXsd,
-  shipOrderToShipOrderCollectionIndexXslt,
-  shipOrderToShipOrderInvalidForEachXslt,
-  shipOrderToShipOrderMultipleForEachXslt,
-  shipOrderToShipOrderXslt,
+  getConditionalMappingsToShipOrderXslt,
+  getContactsXsd,
+  getExtensionComplexXsd,
+  getExtensionSimpleXsd,
+  getNestedConditionalsToShipOrderXslt,
+  getOrgXsd,
+  getSchemaTestXsd,
+  getShipOrderToShipOrderCollectionIndexXslt,
+  getShipOrderToShipOrderInvalidForEachXslt,
+  getShipOrderToShipOrderMultipleForEachXslt,
+  getShipOrderToShipOrderXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
@@ -522,7 +522,7 @@ describe('VisualizationService', () => {
       });
 
       it('should not remove for-each targeted field item when selector is removed', () => {
-        MappingSerializerService.deserialize(shipOrderToShipOrderInvalidForEachXslt, targetDoc, tree, paramsMap);
+        MappingSerializerService.deserialize(getShipOrderToShipOrderInvalidForEachXslt(), targetDoc, tree, paramsMap);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -550,7 +550,7 @@ describe('VisualizationService', () => {
       });
 
       it('should not remove for-each targeted field item when descendent is removed', () => {
-        MappingSerializerService.deserialize(shipOrderToShipOrderInvalidForEachXslt, targetDoc, tree, paramsMap);
+        MappingSerializerService.deserialize(getShipOrderToShipOrderInvalidForEachXslt(), targetDoc, tree, paramsMap);
 
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -627,7 +627,7 @@ describe('VisualizationService', () => {
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           BODY_DOCUMENT_ID,
-          { 'ExtensionSimple.xsd': extensionSimpleXsd },
+          { 'ExtensionSimple.xsd': getExtensionSimpleXsd() },
         );
         const sourceDocResult = XmlSchemaDocumentService.createXmlSchemaDocument(extensionSimpleDef);
         const targetDocResult = XmlSchemaDocumentService.createXmlSchemaDocument(extensionSimpleDef);
@@ -661,7 +661,7 @@ describe('VisualizationService', () => {
     });
     it('should fill ContextItemExpr (.) and AbbrevReverseStep (..) in xpath when it maps under for-each', () => {
       const orgDefinition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'Org', {
-        'Org.xsd': orgXsd,
+        'Org.xsd': getOrgXsd(),
       });
       const orgResult = XmlSchemaDocumentService.createXmlSchemaDocument(orgDefinition);
       expect(orgResult.validationStatus).toBe('success');
@@ -670,7 +670,7 @@ describe('VisualizationService', () => {
         DocumentType.TARGET_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'Contacts.xsd': contactsXsd },
+        { 'Contacts.xsd': getContactsXsd() },
       );
       const contactsResult = XmlSchemaDocumentService.createXmlSchemaDocument(contactsDefinition);
       expect(contactsResult.validationStatus).toBe('success');
@@ -756,7 +756,7 @@ describe('VisualizationService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'extensionSimple.xsd': extensionSimpleXsd },
+        { 'extensionSimple.xsd': getExtensionSimpleXsd() },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
@@ -798,7 +798,7 @@ describe('VisualizationService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'extensionComplex.xsd': extensionComplexXsd },
+        { 'extensionComplex.xsd': getExtensionComplexXsd() },
         { namespaceUri: 'http://www.example.com/TEST', name: 'Request' },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -829,7 +829,7 @@ describe('VisualizationService', () => {
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
-        { 'schemaTest.xsd': schemaTestXsd },
+        { 'schemaTest.xsd': getSchemaTestXsd() },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
@@ -890,7 +890,7 @@ describe('VisualizationService', () => {
 
   describe('with pre-populated mappings', () => {
     beforeEach(() => {
-      MappingSerializerService.deserialize(shipOrderToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, tree, paramsMap);
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
     });
 
@@ -991,7 +991,7 @@ describe('VisualizationService', () => {
   });
 
   it('should generate for multiple for-each on a same collection target field', () => {
-    MappingSerializerService.deserialize(shipOrderToShipOrderMultipleForEachXslt, targetDoc, tree, paramsMap);
+    MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
     targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
 
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -1041,7 +1041,7 @@ describe('VisualizationService', () => {
       .spyOn(globalThis, 'crypto', 'get')
       .mockImplementation(() => ({ getRandomValues: () => [Math.random() * 10000] }) as unknown as Crypto);
 
-    MappingSerializerService.deserialize(shipOrderToShipOrderCollectionIndexXslt, targetDoc, tree, paramsMap);
+    MappingSerializerService.deserialize(getShipOrderToShipOrderCollectionIndexXslt(), targetDoc, tree, paramsMap);
     targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
 
     const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -1079,7 +1079,7 @@ describe('VisualizationService', () => {
 
   describe('isDeletableNode', () => {
     it('should identify deletable nodes', () => {
-      MappingSerializerService.deserialize(conditionalMappingsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getConditionalMappingsToShipOrderXslt(), targetDoc, tree, paramsMap);
       const docData = new TargetDocumentNodeData(targetDoc, tree);
 
       const fieldNodeData = new FieldItemNodeData(docData, tree.children[0] as FieldItem);
@@ -1098,7 +1098,7 @@ describe('VisualizationService', () => {
 
   describe('with nested conditional mappings', () => {
     beforeEach(() => {
-      MappingSerializerService.deserialize(nestedConditionalsToShipOrderXslt, targetDoc, tree, paramsMap);
+      MappingSerializerService.deserialize(getNestedConditionalsToShipOrderXslt(), targetDoc, tree, paramsMap);
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
     });
 

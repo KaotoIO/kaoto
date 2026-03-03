@@ -1,12 +1,12 @@
 import {
-  camelSpringXsd,
-  crossSchemaBaseTypesXsd,
-  crossSchemaDerivedTypesXsd,
-  namedTypesXsd,
-  restrictionInheritanceXsd,
-  shipOrderEmptyFirstLineXsd,
-  shipOrderXsd,
-  testDocumentXsd,
+  getCamelSpringXsd,
+  getCrossSchemaBaseTypesXsd,
+  getCrossSchemaDerivedTypesXsd,
+  getNamedTypesXsd,
+  getRestrictionInheritanceXsd,
+  getShipOrderEmptyFirstLineXsd,
+  getShipOrderXsd,
+  getTestDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
 import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
 import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
@@ -24,7 +24,7 @@ import { XmlSchemaUse } from './XmlSchemaUse';
 describe('XmlSchemaCollection', () => {
   it('should parse ShipOrder XML schema', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(shipOrderXsd, () => {});
+    const xmlSchema = collection.read(getShipOrderXsd(), () => {});
     const attributes = xmlSchema.getAttributes();
     expect(attributes.size).toEqual(0);
 
@@ -89,7 +89,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should parse TestDocument XML schema', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(testDocumentXsd, () => {});
+    const xmlSchema = collection.read(getTestDocumentXsd(), () => {});
     const attributes = xmlSchema.getAttributes();
     expect(attributes.size).toEqual(0);
     const elements = xmlSchema.getElements();
@@ -104,7 +104,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should parse NamedTypes XML schema', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(namedTypesXsd, () => {});
+    const xmlSchema = collection.read(getNamedTypesXsd(), () => {});
     const elements = xmlSchema.getElements();
     expect(elements.size).toEqual(1);
     const element1 = elements.get(new QName('io.kaoto.datamapper.poc.test', 'Element1'));
@@ -119,7 +119,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should parse camel-spring XML schema', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(camelSpringXsd, () => {});
+    const xmlSchema = collection.read(getCamelSpringXsd(), () => {});
     const aggregate = xmlSchema.getElements().get(new QName('http://camel.apache.org/schema/spring', 'aggregate'));
     const aggregateComplexType = aggregate!.getSchemaType() as XmlSchemaComplexType;
     expect(aggregateComplexType.getParticle()).toBeNull();
@@ -135,7 +135,7 @@ describe('XmlSchemaCollection', () => {
   it('should parse ShipOrderEmptyFirstLine.xsd', () => {
     const collection = new XmlSchemaCollection();
     try {
-      collection.read(shipOrderEmptyFirstLineXsd, () => {});
+      collection.read(getShipOrderEmptyFirstLineXsd(), () => {});
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect((error as any).message).toContain('an XML declaration must be at the start of the document');
@@ -146,7 +146,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should track explicit minOccurs/maxOccurs flags in ShipOrder elements', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(shipOrderXsd, () => {});
+    const xmlSchema = collection.read(getShipOrderXsd(), () => {});
 
     const shipOrderElement = xmlSchema.getElements().get(new QName('io.kaoto.datamapper.poc.test', 'ShipOrder'));
     expect(shipOrderElement).toBeDefined();
@@ -174,7 +174,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should correctly handle explicit flags in RestrictionInheritance.xsd', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(restrictionInheritanceXsd, () => {});
+    const xmlSchema = collection.read(getRestrictionInheritanceXsd(), () => {});
 
     const restrictedType = xmlSchema
       .getSchemaTypes()
@@ -208,7 +208,7 @@ describe('XmlSchemaCollection', () => {
 
   it('should handle explicit flags in sequence particles', () => {
     const collection = new XmlSchemaCollection();
-    const xmlSchema = collection.read(shipOrderXsd, () => {});
+    const xmlSchema = collection.read(getShipOrderXsd(), () => {});
 
     const shipOrderElement = xmlSchema.getElements().get(new QName('io.kaoto.datamapper.poc.test', 'ShipOrder'));
     const shipOrderComplexType = shipOrderElement!.getSchemaType() as XmlSchemaComplexType;
@@ -223,8 +223,8 @@ describe('XmlSchemaCollection', () => {
   describe('Cross-schema type resolution', () => {
     it('should load multiple schema files into the same collection', () => {
       const collection = new XmlSchemaCollection();
-      const baseSchema = collection.read(crossSchemaBaseTypesXsd, () => {});
-      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+      const baseSchema = collection.read(getCrossSchemaBaseTypesXsd(), () => {});
+      const derivedSchema = collection.read(getCrossSchemaDerivedTypesXsd(), () => {});
 
       expect(baseSchema).toBeTruthy();
       expect(derivedSchema).toBeTruthy();
@@ -234,8 +234,8 @@ describe('XmlSchemaCollection', () => {
 
     it('should resolve complex type extension across schema files', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(crossSchemaBaseTypesXsd, () => {});
-      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+      collection.read(getCrossSchemaBaseTypesXsd(), () => {});
+      const derivedSchema = collection.read(getCrossSchemaDerivedTypesXsd(), () => {});
 
       const employeeType = derivedSchema
         .getSchemaTypes()
@@ -260,8 +260,8 @@ describe('XmlSchemaCollection', () => {
 
     it('should resolve complex type restriction across schema files', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(crossSchemaBaseTypesXsd, () => {});
-      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+      collection.read(getCrossSchemaBaseTypesXsd(), () => {});
+      const derivedSchema = collection.read(getCrossSchemaDerivedTypesXsd(), () => {});
 
       const usAddressType = derivedSchema
         .getSchemaTypes()
@@ -286,8 +286,8 @@ describe('XmlSchemaCollection', () => {
 
     it('should resolve simple type restriction across schema files', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(crossSchemaBaseTypesXsd, () => {});
-      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+      collection.read(getCrossSchemaBaseTypesXsd(), () => {});
+      const derivedSchema = collection.read(getCrossSchemaDerivedTypesXsd(), () => {});
 
       const specialCodeType = derivedSchema
         .getSchemaTypes()
@@ -309,8 +309,8 @@ describe('XmlSchemaCollection', () => {
 
     it('should correctly populate fields when extension base is in another schema', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(crossSchemaBaseTypesXsd, () => {});
-      const derivedSchema = collection.read(crossSchemaDerivedTypesXsd, () => {});
+      collection.read(getCrossSchemaBaseTypesXsd(), () => {});
+      const derivedSchema = collection.read(getCrossSchemaDerivedTypesXsd(), () => {});
 
       const employeeElement = derivedSchema.getElements().get(new QName('http://www.example.com/DERIVED', 'Employee'));
 
@@ -338,7 +338,7 @@ describe('XmlSchemaCollection', () => {
   describe('getUserSchemas', () => {
     it('should return only user-defined schemas, excluding standard namespaces', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(camelSpringXsd, () => {});
+      collection.read(getCamelSpringXsd(), () => {});
 
       const userSchemas = collection.getUserSchemas();
       const allSchemas = collection.getXmlSchemas();
@@ -355,7 +355,7 @@ describe('XmlSchemaCollection', () => {
 
     it('should include camel-spring schema in user schemas', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(camelSpringXsd, () => {});
+      collection.read(getCamelSpringXsd(), () => {});
 
       const userSchemas = collection.getUserSchemas();
 
@@ -366,7 +366,7 @@ describe('XmlSchemaCollection', () => {
 
     it('should exclude built-in XSD schema from user schemas', () => {
       const collection = new XmlSchemaCollection();
-      collection.read(camelSpringXsd, () => {});
+      collection.read(getCamelSpringXsd(), () => {});
 
       const userSchemas = collection.getUserSchemas();
 
