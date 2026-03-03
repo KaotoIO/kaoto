@@ -20,18 +20,18 @@ import { XmlSchema } from './XmlSchema';
 import type { XmlSchemaType } from './XmlSchemaType';
 
 export class XmlSchemaCollection {
-  baseUri: string | null;
-  private stack: SchemaKey[];
-  private unresolvedTypes: QNameMap<TypeReceiver[]>;
-  private xsd: XmlSchema;
+  baseUri: string | null = null;
+  private readonly stack: SchemaKey[];
+  private readonly unresolvedTypes: QNameMap<TypeReceiver[]>;
+  private readonly xsd: XmlSchema;
   private extReg: ExtensionRegistry;
 
   private knownNamespaceMap: Record<string, XmlSchema>;
   private namespaceContext: NamespacePrefixList | null;
   private schemaResolver: DefaultURIResolver;
-  private schemas: SchemaKeyMap<XmlSchema>;
+  private readonly schemas: SchemaKeyMap<XmlSchema>;
+
   constructor() {
-    this.baseUri = null;
     this.stack = [];
     this.unresolvedTypes = new QNameMap();
     this.extReg = new ExtensionRegistry();
@@ -114,9 +114,7 @@ export class XmlSchemaCollection {
    * @return array of XmlSchema objects
    */
   getXmlSchema(systemId: string | null) {
-    if (systemId == null) {
-      systemId = '';
-    }
+    systemId ??= '';
     const result: XmlSchema[] = [];
     for (const entry of this.schemas.entries()) {
       if (entry[0].getSystemId() === systemId) {
@@ -276,7 +274,7 @@ export class XmlSchemaCollection {
 
     this.setDerivationByRestriction(xsd, Constants.XSD_INTEGER, Constants.XSD_DECIMAL, [
       new XmlSchemaFractionDigitsFacet(0, true),
-      new XmlSchemaPatternFacet('[\\-+]?[0-9]+', false),
+      new XmlSchemaPatternFacet(String.raw`[\-+]?[0-9]+`, false),
     ]);
     this.setDerivationByRestriction(xsd, Constants.XSD_NONPOSITIVEINTEGER, Constants.XSD_INTEGER, [
       new XmlSchemaMaxInclusiveFacet(0, false),
@@ -332,13 +330,13 @@ export class XmlSchemaCollection {
       new XmlSchemaPatternFacet('[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*', false),
     ]);
     this.setDerivationByRestriction(xsd, Constants.XSD_NMTOKEN, Constants.XSD_TOKEN, [
-      new XmlSchemaPatternFacet('\\c+', false),
+      new XmlSchemaPatternFacet(String.raw`\c+`, false),
     ]);
     this.setDerivationByRestriction(xsd, Constants.XSD_NAME, Constants.XSD_NMTOKEN, [
-      new XmlSchemaPatternFacet('\\i\\c*', false),
+      new XmlSchemaPatternFacet(String.raw`\i\c*`, false),
     ]);
     this.setDerivationByRestriction(xsd, Constants.XSD_NCNAME, Constants.XSD_TOKEN, [
-      new XmlSchemaPatternFacet('[\\i-[:]][\\c-[:]]*', false),
+      new XmlSchemaPatternFacet(String.raw`[\i-[:]][\c-[:]]*`, false),
     ]);
     this.setDerivationByRestriction(xsd, Constants.XSD_ID, Constants.XSD_NCNAME);
     this.setDerivationByRestriction(xsd, Constants.XSD_IDREF, Constants.XSD_NCNAME);

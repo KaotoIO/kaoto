@@ -65,7 +65,7 @@ export class XmlSchemaNamedWithFormImpl extends XmlSchemaNamedImpl implements Xm
   getWireName() {
     // If this is a ref= case, then we take the name from the ref=, not from the QName.
     // what about ref='foo' form='unqualified'? Is that possible?
-    if (this.refTwin != null && this.refTwin.getTargetQName() != null) {
+    if (this.refTwin !== undefined && this.refTwin.getTargetQName() !== null) {
       return this.refTwin.getTargetQName();
     } else {
       return this.wireName;

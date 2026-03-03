@@ -1,10 +1,10 @@
 export class SchemaKey {
-  private namespace: string;
-  private systemId: string;
+  private readonly namespace: string;
+  private readonly systemId: string;
 
   constructor(namespace?: string | null, systemId?: string | null) {
-    this.namespace = namespace != null ? namespace : '';
-    this.systemId = systemId != null ? systemId : '';
+    this.namespace = namespace ?? '';
+    this.systemId = systemId ?? '';
   }
 
   toString() {
