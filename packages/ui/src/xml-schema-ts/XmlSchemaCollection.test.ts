@@ -1,24 +1,34 @@
 import {
   getCamelSpringXsd,
+  getConstraintsXsd,
   getCrossSchemaBaseTypesXsd,
   getCrossSchemaDerivedTypesXsd,
+  getDerivationMethodsXsd,
+  getExtensionComplexXsd,
   getNamedTypesXsd,
   getRestrictionInheritanceXsd,
+  getSchemaTestXsd,
   getShipOrderEmptyFirstLineXsd,
   getShipOrderXsd,
   getTestDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
 import { XmlSchemaAttribute } from './attribute/XmlSchemaAttribute';
+import { XmlSchemaAttributeGroup } from './attribute/XmlSchemaAttributeGroup';
 import { XmlSchemaAttributeGroupRef } from './attribute/XmlSchemaAttributeGroupRef';
 import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
 import { XmlSchemaComplexContentRestriction } from './complex/XmlSchemaComplexContentRestriction';
 import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
+import { XmlSchemaKey } from './constraint/XmlSchemaKey';
+import { XmlSchemaKeyref } from './constraint/XmlSchemaKeyref';
+import { XmlSchemaUnique } from './constraint/XmlSchemaUnique';
 import { XmlSchemaElement } from './particle/XmlSchemaElement';
+import { XmlSchemaGroupRef } from './particle/XmlSchemaGroupRef';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { QName } from './QName';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 import { XmlSchemaSimpleTypeRestriction } from './simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchemaCollection } from './XmlSchemaCollection';
+import { XmlSchemaGroup } from './XmlSchemaGroup';
 import { XmlSchemaUse } from './XmlSchemaUse';
 
 describe('XmlSchemaCollection', () => {
@@ -385,6 +395,185 @@ describe('XmlSchemaCollection', () => {
 
       expect(collection.baseUri).toBe(testUri);
       expect(collection.getSchemaResolver().getCollectionBaseURI()).toBe(testUri);
+    });
+  });
+
+  describe('Derivation method parsing', () => {
+    it('should parse final="extension restriction" on complexType in camel-spring', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getCamelSpringXsd(), () => {});
+      const constantsType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://camel.apache.org/schema/spring', 'constants')) as XmlSchemaComplexType;
+      expect(constantsType).toBeTruthy();
+      const finalMethod = constantsType.getFinal();
+      expect(finalMethod.isExtension()).toBe(true);
+      expect(finalMethod.isRestriction()).toBe(true);
+      expect(finalMethod.isAll()).toBe(false);
+    });
+
+    it('should parse abstract="true" on complexType in ExtensionComplex schema', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getExtensionComplexXsd(), () => {});
+      const baseRequestType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/TEST', 'BaseRequest')) as XmlSchemaComplexType;
+      expect(baseRequestType).toBeTruthy();
+      expect(baseRequestType.isAbstract()).toBe(true);
+    });
+
+    it('should parse final="#all" as all derivation methods on complexType', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getDerivationMethodsXsd(), () => {});
+      const finalAllType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/DERIVATION', 'FinalAllType')) as XmlSchemaComplexType;
+      expect(finalAllType).toBeTruthy();
+      expect(finalAllType.getFinal().isAll()).toBe(true);
+    });
+
+    it('should parse block="extension restriction" on complexType', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getDerivationMethodsXsd(), () => {});
+      const blockType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/DERIVATION', 'BlockExtensionRestrictionType')) as XmlSchemaComplexType;
+      expect(blockType).toBeTruthy();
+      const blockMethod = blockType.getBlock();
+      expect(blockMethod.isExtension()).toBe(true);
+      expect(blockMethod.isRestriction()).toBe(true);
+      expect(blockMethod.isAll()).toBe(false);
+    });
+  });
+
+  describe('XmlSchema QName lookup methods', () => {
+    it('should find element by QName using getElementByQName', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getShipOrderXsd(), () => {});
+      const ns = xmlSchema.getTargetNamespace();
+      const el = xmlSchema.getElementByQName(new QName(ns, 'ShipOrder'));
+      expect(el).toBeInstanceOf(XmlSchemaElement);
+    });
+
+    it('should return null for unknown element QName', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getShipOrderXsd(), () => {});
+      const el = xmlSchema.getElementByQName(new QName('http://unknown', 'nope'));
+      expect(el).toBeNull();
+    });
+
+    it('should find type by QName using getTypeByQName', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getNamedTypesXsd(), () => {});
+      const ns = xmlSchema.getTargetNamespace();
+      const type = xmlSchema.getTypeByQName(new QName(ns, 'complexType1'));
+      expect(type).toBeInstanceOf(XmlSchemaComplexType);
+    });
+
+    it('should return null for attribute QName not in schema using getAttributeByQName', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+      const attr = xmlSchema.getAttributeByQName(new QName('http://www.example.com/CONSTRAINTS', 'nope'));
+      expect(attr).toBeNull();
+    });
+
+    it('should find group by QName using getGroupByQName', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+      const group = xmlSchema.getGroupByQName(new QName('http://www.example.com/CONSTRAINTS', 'AddressGroup'));
+      expect(group).not.toBeNull();
+      expect(group).toBeInstanceOf(XmlSchemaGroup);
+    });
+
+    it('should find attribute group by QName using getAttributeGroupByQName', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getSchemaTestXsd(), () => {});
+      const attrGroup = xmlSchema.getAttributeGroupByQName(
+        new QName('http://www.example.com/test', 'ExtendedAttributes'),
+      );
+      expect(attrGroup).not.toBeNull();
+      expect(attrGroup).toBeInstanceOf(XmlSchemaAttributeGroup);
+    });
+  });
+
+  describe('Constraints XSD parsing', () => {
+    it('should parse xs:group ref as direct particle of complexType', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+
+      const addressType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/CONSTRAINTS', 'AddressType')) as XmlSchemaComplexType;
+      expect(addressType).toBeTruthy();
+      expect(addressType.getParticle()).toBeInstanceOf(XmlSchemaGroupRef);
+    });
+
+    it('should parse xs:key constraint on element', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+
+      const catalogEl = xmlSchema
+        .getElements()
+        .get(new QName('http://www.example.com/CONSTRAINTS', 'Catalog')) as XmlSchemaElement;
+      expect(catalogEl).toBeTruthy();
+      const constraints = catalogEl.getConstraints();
+      const key = constraints.find((c) => c instanceof XmlSchemaKey);
+      expect(key).toBeTruthy();
+      expect((key as XmlSchemaKey).getName()).toBe('PersonKey');
+    });
+
+    it('should parse xs:unique constraint on element', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+
+      const catalogEl = xmlSchema
+        .getElements()
+        .get(new QName('http://www.example.com/CONSTRAINTS', 'Catalog')) as XmlSchemaElement;
+      const constraints = catalogEl.getConstraints();
+      const unique = constraints.find((c) => c instanceof XmlSchemaUnique);
+      expect(unique).toBeTruthy();
+      expect((unique as XmlSchemaUnique).getName()).toBe('PersonNameUnique');
+    });
+
+    it('should parse xs:keyref constraint on element', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+
+      const orderEl = xmlSchema
+        .getElements()
+        .get(new QName('http://www.example.com/CONSTRAINTS', 'Order')) as XmlSchemaElement;
+      expect(orderEl).toBeTruthy();
+      const constraints = orderEl.getConstraints();
+      const keyref = constraints.find((c) => c instanceof XmlSchemaKeyref);
+      expect(keyref).toBeTruthy();
+      expect((keyref as XmlSchemaKeyref).getName()).toBe('OrderPersonRef');
+    });
+
+    it('should parse mixed="true" on complexType', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+
+      const personType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/CONSTRAINTS', 'PersonType')) as XmlSchemaComplexType;
+      expect(personType).toBeTruthy();
+      expect(personType.isMixed()).toBe(true);
+    });
+
+    it('should collect non-reserved extension attributes on xs:attribute', () => {
+      const collection = new XmlSchemaCollection();
+      const xmlSchema = collection.read(getConstraintsXsd(), () => {});
+
+      const personType = xmlSchema
+        .getSchemaTypes()
+        .get(new QName('http://www.example.com/CONSTRAINTS', 'PersonType')) as XmlSchemaComplexType;
+      expect(personType).toBeTruthy();
+      const roleAttr = personType
+        .getAttributes()
+        .find((a) => a instanceof XmlSchemaAttribute && a.getName() === 'role') as XmlSchemaAttribute;
+      expect(roleAttr).toBeTruthy();
+      expect(roleAttr.getUnhandledAttributes()).not.toBeNull();
+      expect(roleAttr.getUnhandledAttributes()!.length).toBeGreaterThan(0);
     });
   });
 });

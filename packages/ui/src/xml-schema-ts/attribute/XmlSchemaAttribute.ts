@@ -107,16 +107,15 @@ export class XmlSchemaAttribute
     return this.namedDelegate.isTopLevel();
   }
 
-  setName(name: string) {
-    const fName = name;
-    if (this.isTopLevel() && this.getName() != null) {
+  setName(name: string | null) {
+    if (this.isTopLevel() && name === null) {
+      throw new Error('Top-level attributes may not be anonymous');
+    }
+    if (this.isTopLevel() && this.getName() !== null) {
       this.getParent().getAttributes().delete(this.getQName()!);
     }
-    this.namedDelegate.setName(fName);
+    this.namedDelegate.setName(name);
     if (this.isTopLevel()) {
-      if (fName == null) {
-        throw new Error('Top-level attributes may not be anonymous');
-      }
       this.getParent().getAttributes().set(this.getQName()!, this);
     }
   }
@@ -141,7 +140,7 @@ export class XmlSchemaAttribute
   }
 
   isRef() {
-    return this.ref.getTargetQName() != null;
+    return this.ref.getTargetQName() !== null;
   }
 
   getTargetQName() {

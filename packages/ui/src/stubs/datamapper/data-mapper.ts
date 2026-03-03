@@ -265,6 +265,12 @@ export function getUnknownApplyTemplateAfterFieldXslt(): string {
 export function getUnknownApplyTemplateBeforeFieldXslt(): string {
   return readStubFile('./xml/UnknownApplyTemplateBeforeField.xsl');
 }
+export function getDerivationMethodsXsd(): string {
+  return readStubFile('./xml/DerivationMethods.xsd');
+}
+export function getConstraintsXsd(): string {
+  return readStubFile('./xml/Constraints.xsd');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {
