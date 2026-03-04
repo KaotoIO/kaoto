@@ -34,9 +34,8 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
       const document = field.ownerDocument;
       const namespaceMap = mappingTree.namespaceMap;
       const previousRefId = document.getReferenceId(namespaceMap);
-      const definition = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, schemas);
-      document.definition = definition;
-      updateDocument(document, definition, previousRefId);
+      FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, schemas);
+      updateDocument(document, document.definition, previousRefId);
     },
     [field, mappingTree.namespaceMap, updateDocument],
   );
