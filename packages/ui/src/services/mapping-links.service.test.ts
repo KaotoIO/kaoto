@@ -14,6 +14,7 @@ import { mockRandomValues } from '../stubs';
 import {
   getContactsXsd,
   getInvoice850Xsd,
+  getJsonBodyToShipOrderXslt,
   getMessage837Xsd,
   getOrgToContactsXslt,
   getOrgXsd,
@@ -194,6 +195,18 @@ describe('MappingLinksService', () => {
       const jsonTargetDoc = JsonSchemaDocumentService.createJsonSchemaDocument(jsonTargetDefinition).document!;
       tree = new MappingTree(jsonTargetDoc.documentType, jsonTargetDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
       MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), jsonTargetDoc, tree, paramsMap);
+    });
+
+    it('should generate mapping links for JSON source body', () => {
+      const jsonSourceDoc = TestUtil.createJSONSourceBodyOrderDoc();
+      expect(jsonSourceDoc.getReferenceId({})).toEqual('');
+
+      const emptyParamsMap = new Map<string, IDocument>();
+      tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      MappingSerializerService.deserialize(getJsonBodyToShipOrderXslt(), targetDoc, tree, emptyParamsMap);
+      const links = MappingLinksService.extractMappingLinks(tree, emptyParamsMap, jsonSourceDoc);
+      expect(links.length).toBeGreaterThan(0);
+      expect(links.some((l) => l.sourceNodePath.includes('OrderPerson'))).toBe(true);
     });
 
     it('should generate mapping links for parent references', () => {

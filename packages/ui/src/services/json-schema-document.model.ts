@@ -425,12 +425,11 @@ export class JsonSchemaDocument extends BaseDocument {
 
   /**
    * @param _namespaceMap - Namespace map (not used for JSON schemas)
-   * @returns Reference ID string with JSON source suffix appended
+   * @returns Reference ID string with JSON source suffix appended for parameters. This will be an empty string ''
+   * for source body. JSON source body is delivered as a main document in XSLT and accessed from root `/`.
    */
   getReferenceId(_namespaceMap: { [prefix: string]: string }): string {
-    return this.documentType === DocumentType.PARAM
-      ? `${this.documentId}${FROM_JSON_SOURCE_SUFFIX}`
-      : `body${FROM_JSON_SOURCE_SUFFIX}`;
+    return this.documentType === DocumentType.PARAM ? `${this.documentId}${FROM_JSON_SOURCE_SUFFIX}` : '';
   }
 }
 

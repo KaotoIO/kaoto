@@ -1,3 +1,20 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+
+const MIN_VERSION_FOR_USE_JSON_BODY = '4.15.0';
+
+function compareVersions(a: string, b: string): number {
+  const pa = a.split('.').map(Number);
+  const pb = b.split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    if ((pa[i] ?? 0) !== (pb[i] ?? 0)) return (pa[i] ?? 0) - (pb[i] ?? 0);
+  }
+  return 0;
+}
+
+const latestMainCatalog = catalogLibrary.definitions
+  .filter((d) => d.runtime === 'Main')
+  .sort((a, b) => compareVersions(b.version, a.version))[0];
+
 describe('Test for DataMapper : JSON to JSON', () => {
   beforeEach(() => {
     cy.openHomePage();
@@ -170,6 +187,40 @@ describe('Test for DataMapper : JSON to JSON', () => {
 
     cy.detachParameterSchema('Account');
     cy.countMappingLines(0);
+  });
+
+  it('attach JSON source body schema, establish mappings by DnD, verify mapping lines drawn', () => {
+    if (!latestMainCatalog) {
+      throw new Error('No Camel Main catalog found');
+    }
+    if (compareVersions(latestMainCatalog.version, MIN_VERSION_FOR_USE_JSON_BODY) < 0) {
+      throw new Error(
+        `Camel Main ${latestMainCatalog.version} does not support useJsonBody (requires >= ${MIN_VERSION_FOR_USE_JSON_BODY})`,
+      );
+    }
+
+    const catalogLabel = `Camel Main ${latestMainCatalog.version}`;
+    cy.uploadFixture('flows/camelRoute/catalogConfig.yaml');
+    cy.openDesignPage();
+    cy.hoverOnRuntime('Main');
+    cy.get(`[data-testid^="runtime-selector-${catalogLabel}"] button.pf-v6-c-menu__item`)
+      .first()
+      .click({ force: true });
+    cy.get('body').then((body) => {
+      if (body.find('[data-testid="loading-schemas"]').length > 0) {
+        cy.waitSchemasLoading();
+      }
+    });
+    cy.openDataMapper();
+    cy.attachSourceBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+    cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
+
+    cy.engageMapping(
+      ['document-doc-sourceBody-Body', 'node-source-fj-string-OrderPerson'],
+      ['document-doc-targetBody-Body', 'node-target-fj-string-OrderPerson'],
+      "/fn:map/fn:string[@key='OrderPerson']",
+    );
+    cy.countMappingLines(1);
   });
 
   it('attach parameter schema, engage mappings, delete parameter', () => {

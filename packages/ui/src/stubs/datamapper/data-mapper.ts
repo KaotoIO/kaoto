@@ -148,6 +148,9 @@ export function getConditionalMappingsToShipOrderJsonXslt(): string {
 export function getMultipleForEachJsonXslt(): string {
   return readStubFile('./json/MultipleForEach.xsl');
 }
+export function getJsonBodyToShipOrderXslt(): string {
+  return readStubFile('./json/JsonBodyToShipOrder.xsl');
+}
 export function getCommonTypesJsonSchema(): string {
   return readStubFile('./json/CommonTypes.schema.json');
 }
@@ -297,6 +300,22 @@ export class TestUtil {
       },
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+    }
+    return result.document;
+  }
+
+  static createJSONSourceBodyOrderDoc() {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.JSON_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'shipOrder.json': getShipOrderJsonSchema(),
+      },
+    );
+    const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
       throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
     }
