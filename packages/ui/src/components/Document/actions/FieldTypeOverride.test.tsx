@@ -32,7 +32,7 @@ jest.mock('../../../services/field-type-override.service', () => ({
   FieldTypeOverrideService: {
     applyFieldTypeOverride: jest.fn(),
     revertFieldTypeOverride: jest.fn(),
-    addSchemaFilesForTypeOverride: jest.fn().mockReturnValue({}),
+    addSchemaFilesForTypeOverride: jest.fn(),
   },
 }));
 
