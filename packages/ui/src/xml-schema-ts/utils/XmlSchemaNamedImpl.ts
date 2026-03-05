@@ -34,7 +34,7 @@ export class XmlSchemaNamedImpl implements XmlSchemaNamed {
   }
 
   getName() {
-    if (this.qname == null) {
+    if (this.qname === null) {
       return null;
     } else {
       return this.qname.getLocalPart();
@@ -42,16 +42,16 @@ export class XmlSchemaNamedImpl implements XmlSchemaNamed {
   }
 
   isAnonymous() {
-    return this.qname == null;
+    return this.qname === null;
   }
 
   setName(name: string | null) {
-    if (name == null) {
+    if (name === null) {
       this.qname = null;
     } else if ('' === name) {
       throw new Error('Attempt to set empty name.');
     } else {
-      if (this.refTwin != null && this.refTwin.getTargetQName() != null) {
+      if (this.refTwin !== undefined && this.refTwin.getTargetQName() !== null) {
         throw new Error("Attempt to set name on object with ref='xxx'");
       }
       this.qname = new QName(this.parentSchema.getLogicalTargetNamespace(), name);

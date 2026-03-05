@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ext="http://www.example.com/ext"
+           xmlns:tns="http://www.example.com/CONSTRAINTS"
+           targetNamespace="http://www.example.com/CONSTRAINTS"
+           elementFormDefault="qualified">
+
+  <xs:group name="AddressGroup">
+    <xs:sequence>
+      <xs:element name="street" type="xs:string"/>
+      <xs:element name="city" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:complexType name="AddressType">
+    <xs:group ref="tns:AddressGroup"/>
+  </xs:complexType>
+
+  <xs:complexType name="PersonType" mixed="true">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string"/>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="role" type="xs:string" ext:label="ext:personRole"/>
+  </xs:complexType>
+
+  <xs:element name="Catalog">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Person" type="tns:PersonType" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:key name="PersonKey">
+      <xs:annotation><xs:documentation>Primary key for Person</xs:documentation></xs:annotation>
+      <xs:selector xpath="tns:Person">
+        <xs:annotation><xs:documentation>Selects Person elements</xs:documentation></xs:annotation>
+      </xs:selector>
+      <xs:field xpath="tns:id">
+        <xs:annotation><xs:documentation>Identifies the id field</xs:documentation></xs:annotation>
+      </xs:field>
+    </xs:key>
+    <xs:unique name="PersonNameUnique">
+      <xs:selector xpath="tns:Person"/>
+      <xs:field xpath="tns:name"/>
+    </xs:unique>
+  </xs:element>
+
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="personRef" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+    <xs:keyref name="OrderPersonRef" refer="tns:PersonKey">
+      <xs:selector xpath="tns:Order"/>
+      <xs:field xpath="tns:personRef"/>
+    </xs:keyref>
+  </xs:element>
+
+</xs:schema>
