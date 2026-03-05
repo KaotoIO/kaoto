@@ -1,6 +1,6 @@
 import { DataMapperDebugger } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 export default {
   title: 'DataMapper/Debugger',

@@ -8,7 +8,7 @@ import {
   SourceSchemaType,
 } from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
-import { reactRouterOutlet, reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
+import { reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
 export default {
   title: 'Navigation/Navigation',
@@ -24,9 +24,9 @@ export default {
   ],
   parameters: {
     reactRouter: reactRouterParameters({
-      routing: reactRouterOutlet({
+      routing: {
         path: '*',
-      }),
+      },
     }),
   },
   component: Navigation,
