@@ -276,8 +276,5 @@ Cypress.Commands.add('DnDOnNode', (sourceNodeName: string, targetNodeName: strin
 
 Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: string) => {
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
-  const targetEdge = cy.get(`[data-id="${targetEdgeName}"]`);
-
-  sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
-  targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
+  sourceNode.drag(`[data-id="${targetEdgeName}"]`, { force: true });
 });

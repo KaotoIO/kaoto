@@ -1,4 +1,5 @@
 import 'cypress-real-events';
+import '@4tw/cypress-drag-drop';
 
 describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' }, () => {
   beforeEach(() => {
