@@ -1,7 +1,10 @@
 import type { StorybookConfig } from '@storybook/react-vite';
-
+import { createRequire } from 'module';
 import { dirname, join } from 'path';
-import packageJson from '../../../package.json';
+
+import packageJson from '../../../package.json' with { type: 'json' };
+
+const require = createRequire(import.meta.url);
 
 /**
  * This function is used to resolve the absolute path of a package.
@@ -17,13 +20,7 @@ function getCatalogFilesPath(): string {
 
 const config: StorybookConfig = {
   stories: ['../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  addons: [
-    getAbsolutePath('@storybook/addon-links'),
-    getAbsolutePath('@storybook/addon-actions'),
-    getAbsolutePath('@storybook/addon-essentials'),
-    getAbsolutePath('@storybook/addon-interactions'),
-    getAbsolutePath('storybook-addon-remix-react-router'),
-  ],
+  addons: [getAbsolutePath('@storybook/addon-links'), 'storybook-addon-remix-react-router'],
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {},
@@ -59,10 +56,12 @@ const config: StorybookConfig = {
         },
       },
       resolve: {
+        ...config.resolve,
         alias: [
+          ...(Array.isArray(config.resolve?.alias) ? config.resolve.alias : []),
           {
             find: /^~.+/,
-            replacement: (val) => {
+            replacement: (val: string) => {
               return val.replace(/^~/, '');
             },
           },

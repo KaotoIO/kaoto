@@ -2,7 +2,7 @@ import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFor
 import { PipeErrorHandlerPage } from '@kaoto/kaoto';
 import { EntitiesContext, KaotoSchemaDefinition, PipeResource } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { fn } from 'storybook/test';
 
 import errorHandler from '../../cypress/fixtures/metadata/errorHandlerSchema.json';
 
