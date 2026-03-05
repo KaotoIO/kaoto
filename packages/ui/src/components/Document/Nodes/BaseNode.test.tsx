@@ -184,4 +184,43 @@ describe('BaseNode', () => {
       expect(screen.getByText('Title')).toBeInTheDocument();
     });
   });
+
+  describe('Connection Port', () => {
+    it('should always render connection port', () => {
+      render(<BaseNode title="Title" data-testid="test-node" />);
+      expect(screen.getByTestId('connection-port-test-node')).toBeInTheDocument();
+    });
+
+    it('should render source connection port by default', () => {
+      render(<BaseNode title="Title" data-testid="test-node" />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveClass('node__connection-port--source');
+    });
+
+    it('should render source connection port when isSource is true', () => {
+      render(<BaseNode title="Title" data-testid="test-node" isSource={true} />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveClass('node__connection-port--source');
+      expect(port).not.toHaveClass('node__connection-port--target');
+    });
+
+    it('should render target connection port when isSource is false', () => {
+      render(<BaseNode title="Title" data-testid="test-node" isSource={false} />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveClass('node__connection-port--target');
+      expect(port).not.toHaveClass('node__connection-port--source');
+    });
+
+    it('should set data-node-path attribute when nodePath is provided', () => {
+      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path/to/node" />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveAttribute('data-node-path', 'source://path/to/node');
+    });
+
+    it('should set data-document-id attribute when documentId is provided', () => {
+      render(<BaseNode title="Title" data-testid="test-node" documentId="doc-123" />);
+      const port = screen.getByTestId('connection-port-test-node');
+      expect(port).toHaveAttribute('data-document-id', 'doc-123');
+    });
+  });
 });
