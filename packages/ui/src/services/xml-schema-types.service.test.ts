@@ -3,6 +3,7 @@ import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant, TypeDerivation, Types } from '../models/datamapper/types';
 import {
   getExtensionComplexXsd,
+  getFieldSubstitutionXsd,
   getRestrictionComplexXsd,
   getSimpleTypeInheritanceXsd,
   TestUtil,
@@ -705,6 +706,148 @@ describe('XmlSchemaTypesService', () => {
       );
 
       expect(isExtension).toBe(true);
+    });
+  });
+
+  function createSubstitutionDoc() {
+    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+      'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
+    });
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    return result.document as XmlSchemaDocument;
+  }
+
+  describe('getSubstitutionGroupMembers()', () => {
+    it('should return Cat and Dog elements for AbstractAnimal head element', () => {
+      const doc = createSubstitutionDoc();
+      const headElement = doc.xmlSchemaCollection.getElementByQName(
+        new QName('http://www.example.com/SUBSTITUTION', 'AbstractAnimal'),
+      );
+      expect(headElement).toBeDefined();
+
+      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement!, doc.xmlSchemaCollection);
+
+      expect(members.length).toBe(2);
+      const names = members.map((el) => el.getName());
+      expect(names).toContain('Cat');
+      expect(names).toContain('Dog');
+    });
+
+    it('should return [] when element has no substitution group members', () => {
+      const doc = createSubstitutionDoc();
+      const catElement = doc.xmlSchemaCollection.getElementByQName(
+        new QName('http://www.example.com/SUBSTITUTION', 'Cat'),
+      );
+      expect(catElement).toBeDefined();
+
+      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(catElement!, doc.xmlSchemaCollection);
+
+      expect(members).toEqual([]);
+    });
+  });
+
+  describe('getFieldSubstitutionCandidates()', () => {
+    const SUBSTITUTION_NS = 'http://www.example.com/SUBSTITUTION';
+
+    it('should return Cat and Dog candidates for unsubstituted field', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: SUBSTITUTION_NS, xs: NS_XML_SCHEMA };
+
+      const field = new XmlSchemaField(doc, 'AbstractAnimal', false);
+      field.namespaceURI = SUBSTITUTION_NS;
+      field.typeOverride = FieldOverrideVariant.NONE;
+
+      const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+        field,
+        doc.xmlSchemaCollection,
+        namespaceMap,
+      );
+
+      expect(Object.keys(candidates).length).toBe(2);
+      expect(
+        Object.entries(candidates).some(
+          ([key, info]) =>
+            key === 'sub:Cat' && info.displayName === 'Cat' && info.type === Types.Container && !info.isBuiltIn,
+        ),
+      ).toBe(true);
+      expect(
+        Object.entries(candidates).some(
+          ([key, info]) =>
+            key === 'sub:Dog' && info.displayName === 'Dog' && info.type === Types.Container && !info.isBuiltIn,
+        ),
+      ).toBe(true);
+    });
+
+    it('should return Cat and Dog candidates for substituted field', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: SUBSTITUTION_NS, xs: NS_XML_SCHEMA };
+
+      const field = new XmlSchemaField(doc, 'Cat', false);
+      field.namespaceURI = SUBSTITUTION_NS;
+      field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+      field.originalField = {
+        name: 'AbstractAnimal',
+        namespaceURI: SUBSTITUTION_NS,
+        namespacePrefix: null,
+        type: Types.Container,
+        typeQName: new QName(SUBSTITUTION_NS, 'Animal_t'),
+        namedTypeFragmentRefs: [],
+      };
+
+      const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+        field,
+        doc.xmlSchemaCollection,
+        namespaceMap,
+      );
+
+      expect(Object.keys(candidates).length).toBe(2);
+      expect(
+        Object.entries(candidates).some(
+          ([key, info]) =>
+            key === 'sub:Cat' && info.displayName === 'Cat' && info.type === Types.Container && !info.isBuiltIn,
+        ),
+      ).toBe(true);
+      expect(
+        Object.entries(candidates).some(
+          ([key, info]) =>
+            key === 'sub:Dog' && info.displayName === 'Dog' && info.type === Types.Container && !info.isBuiltIn,
+        ),
+      ).toBe(true);
+    });
+
+    it('should return {} when element is not found in collection', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: SUBSTITUTION_NS, xs: NS_XML_SCHEMA };
+
+      const field = new XmlSchemaField(doc, 'UnknownElement', false);
+      field.namespaceURI = SUBSTITUTION_NS;
+      field.typeOverride = FieldOverrideVariant.NONE;
+
+      const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+        field,
+        doc.xmlSchemaCollection,
+        namespaceMap,
+      );
+
+      expect(candidates).toEqual({});
+    });
+
+    it('should return {} when element has no substitution group members', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: SUBSTITUTION_NS, xs: NS_XML_SCHEMA };
+
+      const field = new XmlSchemaField(doc, 'Cat', false);
+      field.namespaceURI = SUBSTITUTION_NS;
+      field.typeOverride = FieldOverrideVariant.NONE;
+
+      const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+        field,
+        doc.xmlSchemaCollection,
+        namespaceMap,
+      );
+
+      expect(candidates).toEqual({});
     });
   });
 
