@@ -3,6 +3,7 @@ import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant, TypeDerivation, Types } from '../models/datamapper/types';
 import {
   getExtensionComplexXsd,
+  getFieldSubstitutionNoNsXsd,
   getFieldSubstitutionXsd,
   getRestrictionComplexXsd,
   getSimpleTypeInheritanceXsd,
@@ -850,6 +851,28 @@ describe('XmlSchemaTypesService', () => {
 
       expect(candidates).toEqual({});
     });
+
+    it('should return substitution candidates for a blank-namespace head element', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        {
+          'FieldSubstitutionNoNs.xsd': getFieldSubstitutionNoNsXsd(),
+        },
+      );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+      const abstractAnimalField = doc.fields[0];
+
+      const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+        abstractAnimalField,
+        doc.xmlSchemaCollection,
+        {},
+      );
+
+      expect(Object.keys(candidates).includes('Cat')).toBe(true);
+      expect(Object.keys(candidates).includes('Dog')).toBe(true);
+    });
   });
 
   describe('determineOverrideVariant()', () => {
@@ -880,6 +903,114 @@ describe('XmlSchemaTypesService', () => {
       );
 
       expect(variant).toBe(FieldOverrideVariant.SAFE);
+    });
+  });
+
+  describe('resolveSubstitution()', () => {
+    const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+
+    it('should return undefined for non-XmlSchemaDocument', () => {
+      const jsonDoc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, 'test', {}),
+      );
+      const result = XmlSchemaTypesService.resolveSubstitution(
+        jsonDoc,
+        { schemaPath: '/x', name: 'Cat', originalName: 'x' },
+        {},
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when element is not found', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: NS_SUBSTITUTION };
+      const result = XmlSchemaTypesService.resolveSubstitution(
+        doc,
+        { schemaPath: '/sub:AbstractAnimal', name: 'sub:NonExistent', originalName: 'sub:AbstractAnimal' },
+        namespaceMap,
+      );
+      expect(result).toBeUndefined();
+    });
+
+    it('should resolve Cat substitute element with Container type', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: NS_SUBSTITUTION };
+      const result = XmlSchemaTypesService.resolveSubstitution(
+        doc,
+        { schemaPath: '/sub:AbstractAnimal', name: 'sub:Cat', originalName: 'sub:AbstractAnimal' },
+        namespaceMap,
+      );
+
+      expect(result).toBeDefined();
+      expect(result!.name).toBe('Cat');
+      expect(result!.namespaceURI).toBe(NS_SUBSTITUTION);
+      expect(result!.type).toBe(Types.Container);
+      expect(result!.namedTypeFragmentRefs.length).toBeGreaterThan(0);
+    });
+
+    it('should resolve Dog substitute element with Container type', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: NS_SUBSTITUTION };
+      const result = XmlSchemaTypesService.resolveSubstitution(
+        doc,
+        { schemaPath: '/sub:AbstractAnimal', name: 'sub:Dog', originalName: 'sub:AbstractAnimal' },
+        namespaceMap,
+      );
+
+      expect(result).toBeDefined();
+      expect(result!.name).toBe('Dog');
+      expect(result!.type).toBe(Types.Container);
+    });
+
+    describe('blank namespace', () => {
+      function createNoNsSubstitutionDoc() {
+        const definition = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'test-doc',
+          {
+            'FieldSubstitutionNoNs.xsd': getFieldSubstitutionNoNsXsd(),
+          },
+        );
+        return XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+      }
+
+      it('should resolve Cat with blank namespace', () => {
+        const doc = createNoNsSubstitutionDoc();
+        const result = XmlSchemaTypesService.resolveSubstitution(
+          doc,
+          { schemaPath: '/AbstractAnimal', name: 'Cat', originalName: 'AbstractAnimal' },
+          {},
+        );
+
+        expect(result).toBeDefined();
+        expect(result!.name).toBe('Cat');
+        expect(result!.namespaceURI).toBeFalsy();
+        expect(result!.type).toBe(Types.Container);
+      });
+
+      it('should resolve Dog with blank namespace', () => {
+        const doc = createNoNsSubstitutionDoc();
+        const result = XmlSchemaTypesService.resolveSubstitution(
+          doc,
+          { schemaPath: '/AbstractAnimal', name: 'Dog', originalName: 'AbstractAnimal' },
+          {},
+        );
+
+        expect(result).toBeDefined();
+        expect(result!.name).toBe('Dog');
+        expect(result!.type).toBe(Types.Container);
+      });
+
+      it('should return undefined for unknown element name with blank namespace', () => {
+        const doc = createNoNsSubstitutionDoc();
+        const result = XmlSchemaTypesService.resolveSubstitution(
+          doc,
+          { schemaPath: '/AbstractAnimal', name: 'Elephant', originalName: 'AbstractAnimal' },
+          {},
+        );
+        expect(result).toBeUndefined();
+      });
     });
   });
 });

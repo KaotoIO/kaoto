@@ -252,4 +252,34 @@ describe('SchemaPathService', () => {
       expect(result?.isChoice).toBe(true);
     });
   });
+
+  describe('buildOriginal()', () => {
+    it('should return same as build() when field has no originalField', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+
+      const normal = SchemaPathService.build(field, namespaceMap);
+      const original = SchemaPathService.buildOriginal(field, namespaceMap);
+
+      expect(original).toBe(normal);
+    });
+
+    it('should use originalField name and namespace for the terminal segment', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      field.originalField = {
+        name: 'AbstractAnimal',
+        namespaceURI: 'io.kaoto.datamapper.poc.test',
+        namespacePrefix: 'ns0',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+      field.name = 'Cat';
+
+      const original = SchemaPathService.buildOriginal(field, namespaceMap);
+
+      expect(original).toBe('/ns0:ShipOrder/ns0:AbstractAnimal');
+    });
+  });
 });

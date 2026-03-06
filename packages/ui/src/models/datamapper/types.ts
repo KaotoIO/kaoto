@@ -1,3 +1,5 @@
+import { QName } from '../../xml-schema-ts/QName';
+
 /**
  * The data types mapped from XML Schema +.
  */
@@ -43,6 +45,19 @@ export enum FieldOverrideVariant {
 export enum TypeDerivation {
   EXTENSION = 'extension',
   RESTRICTION = 'restriction',
+}
+
+/**
+ * Represents the resolved state of a substitute element used when applying a field substitution.
+ * Contains the wire name, namespace, and type information of the substitute element.
+ */
+export interface IFieldSubstituteInfo {
+  name: string;
+  namespaceURI: string | null;
+  namespacePrefix: string | null;
+  type: Types;
+  typeQName: QName | null;
+  namedTypeFragmentRefs: string[];
 }
 
 /**

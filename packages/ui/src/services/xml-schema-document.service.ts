@@ -134,8 +134,10 @@ export class XmlSchemaDocumentService {
       document,
       definition.fieldTypeOverrides ?? [],
       definition.choiceSelections ?? [],
+      definition.fieldSubstitutions ?? [],
       definition.namespaceMap || {},
       XmlSchemaTypesService.parseTypeOverride,
+      XmlSchemaTypesService.resolveSubstitution,
     );
 
     const rootElementOptions = XmlSchemaDocumentUtilService.collectRootElementOptions(collection);
@@ -440,7 +442,10 @@ export class XmlSchemaDocumentService {
     field: XmlSchemaField,
   ) {
     const wireName = element.getWireName()!;
-    const fragmentKey = `__elem:${wireName.getNamespaceURI() ?? ''}:${wireName.getLocalPart()}`;
+    const fragmentKey = XmlSchemaDocumentUtilService.buildElementFragmentKey(
+      wireName.getNamespaceURI(),
+      wireName.getLocalPart()!,
+    );
 
     if (!document.namedTypeFragments[fragmentKey]) {
       const fragmentFields: XmlSchemaField[] = [];

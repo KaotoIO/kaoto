@@ -106,8 +106,10 @@ export class JsonSchemaDocumentService {
       document,
       definition.fieldTypeOverrides ?? [],
       definition.choiceSelections ?? [],
+      [],
       definition.namespaceMap || {},
       JsonSchemaTypesService.parseTypeOverride,
+      () => undefined,
     );
 
     const validationWarnings = analysisResult.warnings;

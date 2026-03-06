@@ -1,6 +1,13 @@
-import { IField } from '../models/datamapper/document';
+import { IDocument, IField } from '../models/datamapper/document';
+import { IFieldSubstitution } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { FieldOverrideVariant, IFieldTypeInfo, TypeDerivation, Types } from '../models/datamapper/types';
+import {
+  FieldOverrideVariant,
+  IFieldSubstituteInfo,
+  IFieldTypeInfo,
+  TypeDerivation,
+  Types,
+} from '../models/datamapper/types';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
   XmlSchemaCollection,
@@ -17,13 +24,14 @@ import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaSimpleContent } from '../xml-schema-ts/simple/XmlSchemaSimpleContent';
 import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchemaDocument } from './xml-schema-document.model';
+import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 /**
  * Service for XML Schema type-related operations.
  *
- * Handles type parsing, validation, querying, and inheritance checking for XML Schema types.
- * Separated from document utilities to provide better separation of concerns between
- * type operations and document operations.
+ * Handles type parsing, validation, querying, inheritance checking, and element substitution
+ * resolution for XML Schema types. Separated from document utilities to provide better
+ * separation of concerns between type operations and document operations.
  *
  * @see XmlSchemaDocumentService
  * @see XmlSchemaDocumentUtilService
@@ -706,6 +714,71 @@ export class XmlSchemaTypesService {
     }
 
     return results;
+  }
+
+  /**
+   * Resolve the substitute element for a field substitution entry.
+   *
+   * Looks up the named element in the XML Schema collection and extracts its wire name,
+   * namespace, and type information so that {@link DocumentUtilService.applySubstitutionToField}
+   * can apply it directly to the live field.
+   *
+   * This is the XML-specific implementation of {@link ResolveSubstituteFn}.
+   *
+   * @param document - The document being modified (must be an XmlSchemaDocument)
+   * @param substitution - The substitution metadata containing the target element name
+   * @param namespaceMap - Namespace prefix to URI mapping for prefix resolution
+   * @returns Resolved substitute info, or undefined if the document or element is not found
+   */
+  static resolveSubstitution(
+    document: IDocument,
+    substitution: IFieldSubstitution,
+    namespaceMap: Record<string, string>,
+  ): IFieldSubstituteInfo | undefined {
+    if (!('xmlSchemaCollection' in document)) return undefined;
+    const xmlDoc = document as XmlSchemaDocument;
+
+    const parts = substitution.name.split(':');
+    const prefix = parts.length > 1 ? parts[0] : '';
+    const localPart = parts.length > 1 ? parts[1] : parts[0];
+    const nsURI = prefix ? (namespaceMap[prefix] ?? '') : '';
+    const qname = new QName(nsURI || null, localPart);
+
+    const element = xmlDoc.xmlSchemaCollection.getElementByQName(qname);
+    if (!element) return undefined;
+
+    const wireName = element.getWireName();
+    const elementNsURI = wireName?.getNamespaceURI() ?? null;
+    const elementNsPrefix = wireName?.getPrefix() ?? null;
+    const elementName = wireName?.getLocalPart() ?? localPart;
+
+    const schemaType = element.getSchemaType();
+    let type = Types.AnyType;
+    let typeQName: QName | null = null;
+    let namedTypeFragmentRefs: string[] = [];
+
+    if (schemaType instanceof XmlSchemaComplexType) {
+      type = Types.Container;
+      const tqname = schemaType.getQName();
+      if (tqname) {
+        typeQName = tqname;
+        namedTypeFragmentRefs = [tqname.toString()];
+      } else {
+        namedTypeFragmentRefs = [XmlSchemaDocumentUtilService.buildElementFragmentKey(elementNsURI, elementName)];
+      }
+    } else if (schemaType instanceof XmlSchemaSimpleType) {
+      type = XmlSchemaDocumentUtilService.getFieldTypeFromName(schemaType.getName());
+      typeQName = schemaType.getQName();
+    }
+
+    return {
+      name: elementName,
+      namespaceURI: elementNsURI,
+      namespacePrefix: elementNsPrefix,
+      type,
+      typeQName,
+      namedTypeFragmentRefs,
+    };
   }
 
   /**

@@ -7,9 +7,9 @@ import {
   Types,
 } from '../models/datamapper';
 import { IField } from '../models/datamapper/document';
-import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { FieldOverrideVariant } from '../models/datamapper/types';
+import { FieldOverrideVariant, IFieldSubstituteInfo } from '../models/datamapper/types';
 import { getCamelSpringXsd, getLazyLoadingTestXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
 import { XmlSchemaField } from './xml-schema-document.model';
@@ -824,8 +824,10 @@ describe('DocumentUtilService', () => {
         doc,
         typeOverrides,
         choiceSelections,
+        [],
         namespaceMap,
         XmlSchemaTypesService.parseTypeOverride,
+        () => undefined,
       );
 
       expect(choiceField.selectedMemberIndex).toBe(0);
@@ -863,8 +865,10 @@ describe('DocumentUtilService', () => {
         doc,
         typeOverrides,
         choiceSelections,
+        [],
         namespaceMap2,
         XmlSchemaTypesService.parseTypeOverride,
+        () => undefined,
       );
 
       expect(typeSpy).toHaveBeenCalled();
@@ -879,7 +883,15 @@ describe('DocumentUtilService', () => {
       const doc = TestUtil.createSourceOrderDoc();
 
       expect(() => {
-        DocumentUtilService.processOverrides(doc, [], [], namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+        DocumentUtilService.processOverrides(
+          doc,
+          [],
+          [],
+          [],
+          namespaceMap,
+          XmlSchemaTypesService.parseTypeOverride,
+          () => undefined,
+        );
       }).not.toThrow();
     });
   });
@@ -1216,6 +1228,171 @@ describe('DocumentUtilService', () => {
       const result = DocumentUtilService.removeChoiceSelection(doc, '/ns0:ShipOrder/{choice:0}', namespaceMap);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('applySubstitutionToField()', () => {
+    it('should apply substitute info to the field and capture original state', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const originalName = field.name;
+      const originalType = field.type;
+
+      const info: IFieldSubstituteInfo = {
+        name: 'Cat',
+        namespaceURI: 'http://www.example.com/SUBSTITUTION',
+        namespacePrefix: 'sub',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: ['someRef'],
+      };
+
+      DocumentUtilService.applySubstitutionToField(field, info);
+
+      expect(field.name).toBe('Cat');
+      expect(field.namespaceURI).toBe('http://www.example.com/SUBSTITUTION');
+      expect(field.type).toBe(Types.Container);
+      expect(field.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(field.namedTypeFragmentRefs).toEqual(['someRef']);
+      expect(field.fields).toHaveLength(0);
+      expect(field.originalField?.name).toBe(originalName);
+      expect(field.originalField?.type).toBe(originalType);
+    });
+
+    it('should not overwrite originalField if already captured', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      field.originalField = {
+        name: 'OriginalName',
+        namespaceURI: null,
+        namespacePrefix: null,
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      const info: IFieldSubstituteInfo = {
+        name: 'Cat',
+        namespaceURI: null,
+        namespacePrefix: null,
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+      DocumentUtilService.applySubstitutionToField(field, info);
+
+      expect(field.originalField.name).toBe('OriginalName');
+    });
+  });
+
+  describe('processFieldSubstitution()', () => {
+    it('should resolve and apply substitution when field and info are found', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        name: 'ns0:Cat',
+        originalName: 'ns0:OrderPerson',
+      };
+      const info: IFieldSubstituteInfo = {
+        name: 'Cat',
+        namespaceURI: null,
+        namespacePrefix: null,
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+      const resolveSubstituteFn = jest.fn().mockReturnValue(info);
+
+      DocumentUtilService.processFieldSubstitution(doc, substitution, namespaceMap, resolveSubstituteFn);
+
+      const field = doc.fields[0].fields.find((f) => f.name === 'Cat');
+      expect(field).toBeDefined();
+      expect(field?.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+    });
+
+    it('should do nothing when field is not found', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/ns0:ShipOrder/NonExistent',
+        name: 'Cat',
+        originalName: 'NonExistent',
+      };
+      const resolveSubstituteFn = jest.fn();
+
+      DocumentUtilService.processFieldSubstitution(doc, substitution, {}, resolveSubstituteFn);
+
+      expect(resolveSubstituteFn).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when resolveSubstituteFn returns undefined', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        name: 'Cat',
+        originalName: 'ns0:OrderPerson',
+      };
+      const resolveSubstituteFn = jest.fn().mockReturnValue(undefined);
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const originalType = field.type;
+
+      DocumentUtilService.processFieldSubstitution(doc, substitution, namespaceMap, resolveSubstituteFn);
+
+      expect(field.type).toBe(originalType);
+      expect(field.typeOverride).toBe(FieldOverrideVariant.NONE);
+    });
+  });
+
+  describe('processOverrides() with substitutions', () => {
+    const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
+
+    it('should apply substitutions before type overrides at same depth', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const substitutions: IFieldSubstitution[] = [
+        { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', name: 'ns0:Cat', originalName: 'ns0:OrderPerson' },
+      ];
+      const substitutionSpy = jest.spyOn(DocumentUtilService, 'processFieldSubstitution');
+      const typeSpy = jest.spyOn(DocumentUtilService, 'processTypeOverride');
+
+      DocumentUtilService.processOverrides(
+        doc,
+        [],
+        [],
+        substitutions,
+        namespaceMap,
+        XmlSchemaTypesService.parseTypeOverride,
+        () => undefined,
+      );
+
+      expect(substitutionSpy).toHaveBeenCalled();
+      expect(typeSpy).not.toHaveBeenCalled();
+      substitutionSpy.mockRestore();
+      typeSpy.mockRestore();
+    });
+  });
+
+  describe('invalidateDescendants() with fieldSubstitutions', () => {
+    it('should remove fieldSubstitutions that are descendants of the given path', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      doc.definition.fieldSubstitutions = [
+        { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', name: 'Cat', originalName: 'ns0:OrderPerson' },
+        { schemaPath: '/ns0:ShipOrder/ShipTo/Element', name: 'Dog', originalName: 'Element' },
+      ];
+
+      DocumentUtilService.invalidateDescendants(doc, '/ns0:ShipOrder/ShipTo');
+
+      expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+      expect(doc.definition.fieldSubstitutions[0].schemaPath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+    });
+
+    it('should handle undefined fieldSubstitutions without errors', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      delete doc.definition.fieldSubstitutions;
+
+      expect(() => {
+        DocumentUtilService.invalidateDescendants(doc, '/ns0:ShipOrder');
+      }).not.toThrow();
     });
   });
 
