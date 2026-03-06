@@ -284,11 +284,18 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
        */
       removeStaleMappings(document.documentType, document.documentId, document, previousDocumentReferenceId);
       setNewDocument(document.documentType, document.documentId, document);
+
+      // Sync document-level namespaces into mappingTree so that type override
+      // typeStrings always carry a prefix and can be resolved back to the correct namespace URI.
+      if (definition.namespaceMap) {
+        Object.assign(mappingTree.namespaceMap, definition.namespaceMap);
+      }
+
       setDocumentRevision((r) => r + 1);
       refreshMappingTree();
       onUpdateDocument?.(definition);
     },
-    [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
+    [mappingTree.namespaceMap, onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
   );
 
   const sendAlert = useCallback(
