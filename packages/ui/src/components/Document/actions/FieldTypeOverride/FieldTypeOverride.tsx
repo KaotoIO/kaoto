@@ -49,13 +49,7 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
       const previousRefId = document.getReferenceId(namespaceMap);
 
       if (selectedType) {
-        FieldTypeOverrideService.applyFieldTypeOverride(
-          document,
-          field,
-          selectedType,
-          namespaceMap,
-          FieldOverrideVariant.SAFE,
-        );
+        FieldTypeOverrideService.applyFieldTypeOverride(field, selectedType, namespaceMap, FieldOverrideVariant.SAFE);
       }
       updateDocument(document, document.definition, previousRefId);
       onComplete();

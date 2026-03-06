@@ -95,7 +95,6 @@ describe('FieldTypeOverride', () => {
     onSaveCallback(mockSelectedType);
 
     expect(FieldTypeOverrideService.applyFieldTypeOverride).toHaveBeenCalledWith(
-      field.ownerDocument,
       field,
       mockSelectedType,
       testMappingTree.namespaceMap,
@@ -150,11 +149,7 @@ describe('FieldTypeOverride', () => {
 
     onRemoveCallback();
 
-    expect(FieldTypeOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(
-      field.ownerDocument,
-      field,
-      testMappingTree.namespaceMap,
-    );
+    expect(FieldTypeOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, testMappingTree.namespaceMap);
     expect(mockUpdateDocument).toHaveBeenCalled();
     expect(mockOnComplete).toHaveBeenCalled();
     expect(mockOnClose).toHaveBeenCalled();
@@ -189,11 +184,7 @@ describe('revertTypeOverride', () => {
 
     revertTypeOverride(field, namespaceMap, mockUpdateDocument);
 
-    expect(FieldTypeOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(
-      field.ownerDocument,
-      field,
-      namespaceMap,
-    );
+    expect(FieldTypeOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, namespaceMap);
     expect(mockUpdateDocument).toHaveBeenCalledWith(
       field.ownerDocument,
       field.ownerDocument.definition,

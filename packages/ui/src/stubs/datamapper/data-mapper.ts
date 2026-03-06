@@ -277,6 +277,9 @@ export function getConstraintsXsd(): string {
 export function getFieldSubstitutionXsd(): string {
   return readStubFile('./xml/FieldSubstitution.xsd');
 }
+export function getFieldSubstitutionNoNsXsd(): string {
+  return readStubFile('./xml/FieldSubstitutionNoNs.xsd');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {

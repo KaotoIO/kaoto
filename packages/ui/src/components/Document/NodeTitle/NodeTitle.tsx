@@ -17,7 +17,7 @@ import {
   NodeData,
   UnknownMappingNodeData,
 } from '../../../models/datamapper/visualization';
-import { formatQNameWithPrefix } from '../../../services/qname-util';
+import { formatQNameWithPrefix } from '../../../services/namespace-util';
 import { UnknownMappingLabel } from './UnknownMappingLabel';
 
 interface INodeTitle {

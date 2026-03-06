@@ -1,6 +1,7 @@
 import { PathExpression, PathSegment } from '../models/datamapper';
 import { IDocument, IField } from '../models/datamapper/document';
 import { DocumentUtilService } from './document-util.service';
+import { getPrefixForNamespaceURI } from './namespace-util';
 import { XPathService } from './xpath/xpath.service';
 
 export type SchemaPathSegment = { kind: 'element'; segment: string } | { kind: 'choice'; index: number };
@@ -73,12 +74,47 @@ export class SchemaPathService {
   }
 
   private static buildElementSegment(field: IField, namespaceMap: Record<string, string>): string {
-    const nsEntry = Object.entries(namespaceMap).find(([, uri]) => field.namespaceURI === uri);
-    const nsPrefix = nsEntry ? nsEntry[0] : '';
+    const nsPrefix = getPrefixForNamespaceURI(field.namespaceURI, namespaceMap);
     const segment = new PathSegment(field.name, field.isAttribute, nsPrefix, field.predicates);
     const pathExpr = new PathExpression(undefined, true);
     pathExpr.pathSegments = [segment];
     return XPathService.toXPathString(pathExpr);
+  }
+
+  /**
+   * Builds a schema path string using the field's original (pre-substitution) name for the terminal segment.
+   * Falls back to {@link build} when the field has no `originalField`.
+   *
+   * @param field - The (possibly substituted) field to build the path for
+   * @param namespaceMap - Namespace prefix to URI mapping for segment generation
+   * @returns Schema path string using the original wire name for the terminal segment
+   */
+  static buildOriginal(field: IField, namespaceMap: Record<string, string>): string {
+    if (!field.originalField) {
+      return SchemaPathService.build(field, namespaceMap);
+    }
+    const fieldStack = DocumentUtilService.getFieldStack(field, true).reverse();
+    const segments: string[] = [];
+    const lastIndex = fieldStack.length - 1;
+    for (let i = 0; i <= lastIndex; i++) {
+      const f = fieldStack[i];
+      if (i === lastIndex) {
+        const origName = field.originalField.name;
+        const origNsURI = field.originalField.namespaceURI;
+        const nsPrefix = getPrefixForNamespaceURI(origNsURI, namespaceMap);
+        const segment = new PathSegment(origName, f.isAttribute, nsPrefix, f.predicates);
+        const pathExpr = new PathExpression(undefined, true);
+        pathExpr.pathSegments = [segment];
+        segments.push(XPathService.toXPathString(pathExpr));
+      } else {
+        segments.push(
+          f.isChoice
+            ? `{choice:${SchemaPathService.getChoiceSiblingIndex(f)}}`
+            : SchemaPathService.buildElementSegment(f, namespaceMap),
+        );
+      }
+    }
+    return '/' + segments.join('/');
   }
 
   /**

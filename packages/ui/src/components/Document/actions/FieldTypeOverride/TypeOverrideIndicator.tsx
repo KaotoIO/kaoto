@@ -4,7 +4,7 @@ import { FunctionComponent } from 'react';
 
 import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { formatQNameWithPrefix } from '../../../../services/qname-util';
+import { formatQNameWithPrefix } from '../../../../services/namespace-util';
 
 interface TypeOverrideIndicatorProps {
   field: IField | undefined;

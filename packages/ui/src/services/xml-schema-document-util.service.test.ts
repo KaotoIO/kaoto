@@ -422,6 +422,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       requestField.type = Types.String;
       requestField.originalField = {
         name: requestField.name,
+        displayName: requestField.displayName,
         namespaceURI: requestField.namespaceURI,
         namespacePrefix: requestField.namespacePrefix,
         type: Types.Container,
@@ -477,6 +478,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       addressField.type = Types.String;
       addressField.originalField = {
         name: addressField.name,
+        displayName: addressField.displayName,
         namespaceURI: addressField.namespaceURI,
         namespacePrefix: addressField.namespacePrefix,
         type: Types.Container,
@@ -532,6 +534,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       requestField.type = Types.String;
       requestField.originalField = {
         name: requestField.name,
+        displayName: requestField.displayName,
         namespaceURI: requestField.namespaceURI,
         namespacePrefix: requestField.namespacePrefix,
         type: Types.Container,
@@ -591,6 +594,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       extendedValueField.type = Types.String;
       extendedValueField.originalField = {
         name: extendedValueField.name,
+        displayName: extendedValueField.displayName,
         namespaceURI: extendedValueField.namespaceURI,
         namespacePrefix: extendedValueField.namespacePrefix,
         type: Types.Container,
@@ -650,6 +654,7 @@ describe('XmlSchemaDocumentUtilService', () => {
       ageField.type = Types.String;
       ageField.originalField = {
         name: ageField.name,
+        displayName: ageField.displayName,
         namespaceURI: ageField.namespaceURI,
         namespacePrefix: ageField.namespacePrefix,
         type: Types.Container,
