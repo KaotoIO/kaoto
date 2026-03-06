@@ -1,0 +1,130 @@
+.rest-dsl-nav-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rest-dsl-nav-panel-header {
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.rest-dsl-nav-panel-title {
+  margin: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.rest-dsl-nav-panel-body {
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rest-dsl-nav-section-title {
+  margin-top: 8px;
+  margin-bottom: 6px;
+  font-size: var(--pf-v6-global--FontSize--md) !important;
+  font-weight: 700 !important;
+  font-variation-settings: 'wght' 700;
+  font-synthesis: weight;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--pf-v6-global--Color--100);
+}
+
+.rest-dsl-nav-section-title * {
+  font-weight: 700 !important;
+  font-variation-settings: 'wght' 700;
+  font-synthesis: weight;
+}
+
+.rest-dsl-nav-section-title-text {
+  font-size: var(--pf-v6-global--FontSize--md) !important;
+  font-weight: 700 !important;
+  font-variation-settings: 'wght' 700;
+  font-synthesis: weight;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--pf-v6-global--Color--100);
+}
+
+.rest-dsl-nav-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rest-dsl-nav-section-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rest-dsl-nav-empty-text {
+  margin: 0;
+  color: var(--pf-v6-global--Color--200);
+  font-size: var(--pf-v6-global--FontSize--sm);
+}
+
+.rest-dsl-nav-rest-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rest-dsl-nav-rest-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.rest-dsl-nav-rest-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.rest-dsl-nav-list {
+  margin: 0;
+  padding-left: 0;
+}
+
+.rest-dsl-nav-list-nested {
+  padding-left: 16px;
+}
+
+.rest-dsl-nav-item {
+  border: none;
+  background: transparent;
+  padding: 4px 8px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rest-dsl-nav-item.pf-v6-c-button {
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.rest-dsl-nav-item:hover {
+  background: var(--pf-v6-global--BackgroundColor--200);
+}
+
+.rest-dsl-nav-item-selected {
+  background: var(--pf-v6-global--BackgroundColor--100);
+  font-weight: 600;
+}
