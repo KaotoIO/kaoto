@@ -60,6 +60,10 @@ export interface IDataMapperContext {
   resetMappingTree(): void;
   setMappingTree(mappings: MappingTree): void;
 
+  /** Monotonically increasing counter, bumped on every updateDocument call.
+   * Use as a React dependency to rebuild trees after in-place document mutations. */
+  documentRevision: number;
+
   alerts: SendAlertProps[];
   sendAlert: (alert: SendAlertProps) => void;
 
@@ -105,6 +109,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
     ),
   );
+  const [documentRevision, setDocumentRevision] = useState(0);
 
   /**
    * The namespace {@link NS_XPATH_FUNCTIONS} is required not only for JSON mapping,
@@ -279,10 +284,18 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
        */
       removeStaleMappings(document.documentType, document.documentId, document, previousDocumentReferenceId);
       setNewDocument(document.documentType, document.documentId, document);
+
+      // Sync document-level namespaces into mappingTree so that type override
+      // typeStrings always carry a prefix and can be resolved back to the correct namespace URI.
+      if (definition.namespaceMap) {
+        Object.assign(mappingTree.namespaceMap, definition.namespaceMap);
+      }
+
+      setDocumentRevision((r) => r + 1);
       refreshMappingTree();
       onUpdateDocument?.(definition);
     },
-    [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
+    [mappingTree.namespaceMap, onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
   );
 
   const sendAlert = useCallback(
@@ -326,6 +339,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       refreshMappingTree,
       resetMappingTree,
       setMappingTree,
+      documentRevision,
       alerts,
       sendAlert,
       debug,
@@ -344,6 +358,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setNewDocument,
     updateDocument,
     mappingTree,
+    documentRevision,
     refreshMappingTree,
     resetMappingTree,
     alerts,

@@ -5,6 +5,7 @@ import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.servic
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { JsonSchemaTypesService } from './json-schema-types.service';
+import { formatQNameWithPrefix } from './qname-util';
 import { SchemaPathService } from './schema-path.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -181,7 +182,7 @@ export class FieldTypeOverrideService {
     variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE,
   ): IFieldTypeOverride {
     const schemaPath = SchemaPathService.build(field, namespaceMap);
-    const originalTypeString = field.originalTypeQName?.toString() ?? field.originalType;
+    const originalTypeString = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
     return {
       schemaPath,
       type: candidate.typeString,
@@ -189,6 +190,13 @@ export class FieldTypeOverrideService {
       variant,
     };
   }
+
+  /**
+   * Format a QName as `prefix:localPart` using the namespace map.
+   * Falls back to the provided fallback string if the QName is null.
+   * @deprecated Use formatQNameWithPrefix from qname-util.ts instead
+   */
+  static readonly formatQNameWithPrefix = formatQNameWithPrefix;
 
   /**
    * Apply a field type override to a field in a document.
@@ -300,14 +308,12 @@ export class FieldTypeOverrideService {
    * 1. Adding files to the document's schema collection (via format-specific service)
    * 2. Updating DocumentDefinition.definitionFiles with new files
    * 3. Synchronizing namespace maps (for XML Schema documents)
-   * 4. Returning updated definition for re-visualization via provider
    *
-   * The returned DocumentDefinition should be passed to `dataMapperProvider.updateDocument()`
-   * to trigger full synchronization across all three namespace map levels and persist changes.
+   * The document is modified in place. After calling this method, use
+   * {@link DataMapperProvider.updateDocument()} to persist changes and trigger re-visualization.
    *
    * @param document - The document to enhance with additional schemas
    * @param additionalFiles - Map of file paths to file contents
-   * @returns Updated DocumentDefinition with merged files and synchronized namespace map
    * @throws Error if document is PrimitiveDocument or unsupported type
    * @throws Error if schema parsing fails (propagated from format-specific service)
    *
@@ -318,31 +324,17 @@ export class FieldTypeOverrideService {
    *   'CustomTypes.xsd': schemaContent,
    * };
    *
-   * // Create updated definition
-   * const updatedDefinition = FieldTypeOverrideService.addSchemaFilesForTypeOverride(
-   *   targetDocument,
-   *   additionalFiles
-   * );
+   * FieldTypeOverrideService.addSchemaFilesForTypeOverride(targetDocument, additionalFiles);
    *
    * // Apply via provider - triggers full namespace synchronization
    * dataMapperProvider.updateDocument(
    *   targetDocument,
-   *   updatedDefinition,
+   *   targetDocument.definition,
    *   previousReferenceId
    * );
-   *
-   * // Now custom types are available for field type overrides
-   * const candidates = FieldTypeOverrideService.getAllOverrideCandidates(
-   *   targetDocument,
-   *   updatedDefinition.namespaceMap || {}
-   * );
-   * // candidates now includes types from CustomTypes.xsd
    * ```
    */
-  static addSchemaFilesForTypeOverride(
-    document: IDocument,
-    additionalFiles: Record<string, string>,
-  ): DocumentDefinition {
+  static addSchemaFilesForTypeOverride(document: IDocument, additionalFiles: Record<string, string>): void {
     if (document instanceof PrimitiveDocument) {
       throw new TypeError('Cannot add schema files to primitive document');
     }
@@ -362,7 +354,7 @@ export class FieldTypeOverrideService {
       ...additionalFiles,
     };
 
-    return new DocumentDefinition(
+    document.definition = new DocumentDefinition(
       document.definition.documentType,
       document.definition.definitionType,
       document.definition.name,

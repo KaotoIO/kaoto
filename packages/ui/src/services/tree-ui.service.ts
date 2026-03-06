@@ -41,4 +41,22 @@ export class TreeUIService {
 
     store.toggleExpansion(documentId, nodePath);
   }
+
+  /**
+   * Invalidate a tree node and all its descendants.
+   * Used when a type override or choice selection changes the field structure.
+   * The node will be re-parsed on next expansion.
+   *
+   * @param documentId - The document ID containing the node
+   * @param nodePath - The path of the node to invalidate
+   */
+  static invalidateNode(documentId: string, nodePath: string): void {
+    const tree = this.trees.get(documentId);
+    if (!tree) return;
+
+    const node = tree.findNodeByPath(nodePath);
+    if (!node) return;
+
+    node.invalidateDescendants();
+  }
 }

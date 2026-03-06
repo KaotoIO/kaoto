@@ -41,7 +41,9 @@ export class DocumentUtilService {
     const doc = DocumentUtilService.getOwnerDocument(field);
     field.namedTypeFragmentRefs.forEach((ref) => {
       const fragment = doc.namedTypeFragments[ref];
-      DocumentUtilService.adoptTypeFragment(field, fragment);
+      if (fragment) {
+        DocumentUtilService.adoptTypeFragment(field, fragment);
+      }
     });
     field.namedTypeFragmentRefs = [];
     return field;
@@ -61,7 +63,9 @@ export class DocumentUtilService {
     fragment.fields.forEach((f) => f.adopt(field));
     fragment.namedTypeFragmentRefs.forEach((childRef) => {
       const childFragment = doc.namedTypeFragments[childRef];
-      DocumentUtilService.adoptTypeFragment(field, childFragment);
+      if (childFragment) {
+        DocumentUtilService.adoptTypeFragment(field, childFragment);
+      }
     });
   }
 
@@ -267,6 +271,8 @@ export class DocumentUtilService {
 
     if (type === Types.Container) {
       field.namedTypeFragmentRefs = [typeQName.toString()];
+      // Eagerly resolve type fragment so children are immediately available
+      DocumentUtilService.resolveTypeFragment(field);
     } else {
       field.namedTypeFragmentRefs = [];
     }
@@ -289,6 +295,8 @@ export class DocumentUtilService {
 
     if (field.originalType === Types.Container && field.originalTypeQName) {
       field.namedTypeFragmentRefs = [field.originalTypeQName.toString()];
+      // Eagerly resolve type fragment so children are immediately available
+      DocumentUtilService.resolveTypeFragment(field);
     } else {
       field.namedTypeFragmentRefs = [];
     }
