@@ -109,8 +109,10 @@ export class JsonSchemaDocumentService {
       document,
       definition.fieldTypeOverrides ?? [],
       definition.choiceSelections ?? [],
+      [],
       namespaceMap,
       JsonSchemaTypesService.parseTypeOverride,
+      () => undefined,
     );
 
     const validationWarnings = analysisResult.warnings;
@@ -180,16 +182,34 @@ export class JsonSchemaDocumentService {
     // In that case, we unset updatedDefinition.rootElementChoice and retry.
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
 
-    // If it succeeds or a primary schema not set, return as it is
-    if (result.document || !definition.rootElementChoice) {
+    if (!definition.rootElementChoice) {
+      // When there is no explicit primary schema, the implicit primary (schemas[0]) may have shifted
+      // because the removed file was first. Clear overrides to avoid stale metadata in that case.
+      const prevFirstKey = Object.keys(definition.definitionFiles ?? {})[0];
+      const newFirstKey = Object.keys(updatedFiles)[0];
+      if (prevFirstKey !== newFirstKey) {
+        updatedDefinition.fieldTypeOverrides = [];
+        updatedDefinition.choiceSelections = [];
+        updatedDefinition.fieldSubstitutions = [];
+        return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
+      }
       return result;
     }
 
-    // Unset the primary schema and retry
+    // If document was created successfully with explicit rootElementChoice, return it
+    if (result.document) {
+      return result;
+    }
+
+    // Unset the primary schema and retry.
+    // Only clear persisted overrides when the removed file was the primary schema itself;
+    // if a dependency was removed, preserve the user's metadata for later restoration.
     updatedDefinition.rootElementChoice = undefined;
-    updatedDefinition.fieldTypeOverrides = [];
-    updatedDefinition.choiceSelections = [];
-    updatedDefinition.fieldSubstitutions = [];
+    if (filePath === definition.rootElementChoice?.name) {
+      updatedDefinition.fieldTypeOverrides = [];
+      updatedDefinition.choiceSelections = [];
+      updatedDefinition.fieldSubstitutions = [];
+    }
     return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
   }
 

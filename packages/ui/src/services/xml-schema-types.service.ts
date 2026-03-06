@@ -1,6 +1,13 @@
-import { IField } from '../models/datamapper/document';
+import { IDocument, IField } from '../models/datamapper/document';
+import { IFieldSubstitution } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { FieldOverrideVariant, IFieldTypeInfo, TypeDerivation, Types } from '../models/datamapper/types';
+import {
+  FieldOverrideVariant,
+  IFieldSubstituteInfo,
+  IFieldTypeInfo,
+  TypeDerivation,
+  Types,
+} from '../models/datamapper/types';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
   XmlSchemaCollection,
@@ -16,15 +23,16 @@ import { XmlSchemaComplexContent } from '../xml-schema-ts/complex/XmlSchemaCompl
 import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaSimpleContent } from '../xml-schema-ts/simple/XmlSchemaSimpleContent';
 import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
-import { formatQNameWithPrefix } from './qname-util';
+import { ensureNamespaceRegistered, formatQNameWithPrefix, parseQNameString } from './namespace-util';
 import { XmlSchemaDocument } from './xml-schema-document.model';
+import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 /**
  * Service for XML Schema type-related operations.
  *
- * Handles type parsing, validation, querying, and inheritance checking for XML Schema types.
- * Separated from document utilities to provide better separation of concerns between
- * type operations and document operations.
+ * Handles type parsing, validation, querying, inheritance checking, and element substitution
+ * resolution for XML Schema types. Separated from document utilities to provide better
+ * separation of concerns between type operations and document operations.
  *
  * @see XmlSchemaDocumentService
  * @see XmlSchemaDocumentUtilService
@@ -53,12 +61,13 @@ export class XmlSchemaTypesService {
     namespaceMap: Record<string, string>,
     field: IField,
   ): { type: Types; typeQName: QName; variant: FieldOverrideVariant } {
-    const parts = typeString.split(':');
-    const prefix = parts.length > 1 ? parts[0] : '';
-    const localPart = parts.length > 1 ? parts[1] : parts[0];
+    const { prefix, localPart } = parseQNameString(typeString);
 
-    const namespaceURI = prefix ? namespaceMap[prefix] || '' : '';
-    const type = XmlSchemaTypesService.mapTypeStringToEnum(namespaceURI, localPart);
+    const namespaceURI = prefix ? namespaceMap[prefix] : '';
+    if (prefix && namespaceURI === undefined) {
+      throw new Error(`Unknown namespace prefix '${prefix}' in type override '${typeString}'`);
+    }
+    const type = XmlSchemaTypesService.mapTypeStringToEnum(namespaceURI || '', localPart);
 
     const typeQName = new QName(namespaceURI || null, localPart);
 
@@ -244,6 +253,37 @@ export class XmlSchemaTypesService {
       }
     }
     return undefined;
+  }
+
+  private static resolveSimpleTypeToEnum(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
+    const typeQName = schemaType.getQName();
+    if (!typeQName?.getLocalPart()) {
+      const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
+      if (resolved !== Types.Container) return resolved;
+      return XmlSchemaDocumentUtilService.getFieldTypeFromName(schemaType.getName());
+    }
+    const type = XmlSchemaTypesService.mapTypeStringToEnum(
+      typeQName.getNamespaceURI() || '',
+      typeQName.getLocalPart()!,
+    );
+    if (type !== Types.Container) return type;
+    return XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
+  }
+
+  private static followRestrictionChain(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
+    let current: XmlSchemaSimpleType = schemaType;
+    while (true) {
+      const baseInfo = XmlSchemaTypesService.doGetBaseTypeAndDerivationFromSimpleType(current);
+      if (!baseInfo) return Types.Container;
+      const baseType = XmlSchemaTypesService.mapTypeStringToEnum(
+        baseInfo.baseTypeName.getNamespaceURI() || '',
+        baseInfo.baseTypeName.getLocalPart() || '',
+      );
+      if (baseType !== Types.Container) return baseType;
+      const next = collection?.getTypeByQName(baseInfo.baseTypeName);
+      if (!(next instanceof XmlSchemaSimpleType)) return Types.Container;
+      current = next;
+    }
   }
 
   /**
@@ -680,11 +720,84 @@ export class XmlSchemaTypesService {
     for (const derivedType of derivedTypes) {
       const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(derivedType, true);
       if (typeInfo) {
+        ensureNamespaceRegistered(typeInfo.typeQName.getNamespaceURI() || null, namespaceMap);
         results[formatQNameWithPrefix(typeInfo.typeQName, namespaceMap)] = typeInfo;
       }
     }
 
     return results;
+  }
+
+  private static resolveElementTypeInfo(
+    element: XmlSchemaElement,
+    collection?: XmlSchemaCollection,
+  ): Omit<IFieldSubstituteInfo, 'qname' | 'displayName'> {
+    const schemaType = element.getSchemaType();
+    let type = Types.AnyType;
+    let typeQName: QName | null = null;
+    let namedTypeFragmentRefs: string[] = [];
+
+    if (schemaType instanceof XmlSchemaComplexType) {
+      type = Types.Container;
+      const tqname = schemaType.getQName();
+      if (tqname) {
+        typeQName = tqname;
+        namedTypeFragmentRefs = [tqname.toString()];
+      } else {
+        const wireName = element.getWireName()!;
+        namedTypeFragmentRefs = [
+          XmlSchemaDocumentUtilService.buildElementFragmentKey(
+            wireName.getNamespaceURI() || null,
+            wireName.getLocalPart()!,
+          ),
+        ];
+      }
+    } else if (schemaType instanceof XmlSchemaSimpleType) {
+      typeQName = schemaType.getQName();
+      type = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, collection);
+    }
+
+    return { type, typeQName, namedTypeFragmentRefs };
+  }
+
+  /**
+   * Resolve the substitute element for a field substitution entry.
+   *
+   * Looks up the named element in the XML Schema collection and extracts its wire name,
+   * namespace, and type information so that {@link DocumentUtilService.applySubstitutionToField}
+   * can apply it directly to the live field.
+   *
+   * This is the XML-specific implementation of {@link ResolveSubstituteFn}.
+   *
+   * @param document - The document being modified (must be an XmlSchemaDocument)
+   * @param substitution - The substitution metadata containing the target element name
+   * @param namespaceMap - Namespace prefix to URI mapping for prefix resolution
+   * @returns Resolved substitute info, or undefined if the document or element is not found
+   */
+  static resolveSubstitution(
+    document: IDocument,
+    substitution: IFieldSubstitution,
+    namespaceMap: Record<string, string>,
+  ): IFieldSubstituteInfo | undefined {
+    if (!('xmlSchemaCollection' in document)) return undefined;
+    const xmlDoc = document as XmlSchemaDocument;
+
+    const { prefix, localPart } = parseQNameString(substitution.name);
+    const nsURI = prefix ? namespaceMap[prefix] : '';
+    if (prefix && nsURI === undefined) return undefined;
+    const qname = new QName(nsURI || null, localPart);
+
+    const element = xmlDoc.xmlSchemaCollection.getElementByQName(qname);
+    if (!element) return undefined;
+
+    const wireName = element.getWireName();
+    if (!wireName?.getLocalPart()) return undefined;
+
+    return {
+      qname: wireName,
+      displayName: wireName.getLocalPart()!,
+      ...XmlSchemaTypesService.resolveElementTypeInfo(element, xmlDoc.xmlSchemaCollection),
+    };
   }
 
   /**
@@ -701,18 +814,36 @@ export class XmlSchemaTypesService {
     headElement: XmlSchemaElement,
     collection: XmlSchemaCollection,
   ): XmlSchemaElement[] {
-    const results: XmlSchemaElement[] = [];
     const headQNameString = headElement.getQName()?.toString();
-    if (!headQNameString) return results;
+    if (!headQNameString) return [];
 
-    for (const schema of collection.getUserSchemas()) {
-      for (const el of schema.getElements().values()) {
-        if (el.getSubstitutionGroup()?.toString() === headQNameString) {
-          results.push(el);
-        }
+    const allElements = XmlSchemaTypesService.collectAllElements(collection);
+    const frontier = new Set<string>([headQNameString]);
+    const results: XmlSchemaElement[] = [];
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const el of allElements) {
+        const subGroup = el.getSubstitutionGroup()?.toString();
+        if (!subGroup || !frontier.has(subGroup)) continue;
+        const elQName = el.getQName()?.toString();
+        if (!elQName || frontier.has(elQName)) continue;
+        frontier.add(elQName);
+        changed = true;
+        if (!el.isAbstract()) results.push(el);
       }
     }
     return results;
+  }
+
+  private static collectAllElements(collection: XmlSchemaCollection): XmlSchemaElement[] {
+    const allElements: XmlSchemaElement[] = [];
+    for (const schema of collection.getUserSchemas()) {
+      for (const el of schema.getElements().values()) {
+        allElements.push(el);
+      }
+    }
+    return allElements;
   }
 
   /**
@@ -735,8 +866,9 @@ export class XmlSchemaTypesService {
     field: IField,
     collection: XmlSchemaCollection,
     namespaceMap: Record<string, string>,
-  ): Record<string, IFieldTypeInfo> {
+  ): Record<string, IFieldSubstituteInfo> {
     const isSubstituted = field.typeOverride === FieldOverrideVariant.SUBSTITUTION;
+    if (isSubstituted && !field.originalField) return {};
     const headName = isSubstituted ? field.originalField!.name : field.name;
     const headNamespaceURI = isSubstituted ? (field.originalField!.namespaceURI ?? '') : (field.namespaceURI ?? '');
 
@@ -746,26 +878,16 @@ export class XmlSchemaTypesService {
     const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, collection);
     if (members.length === 0) return {};
 
-    const prefixMap = new Map<string, string>();
-    for (const [prefix, uri] of Object.entries(namespaceMap)) {
-      prefixMap.set(uri, prefix);
-    }
-
-    const results: Record<string, IFieldTypeInfo> = {};
+    const results: Record<string, IFieldSubstituteInfo> = {};
     for (const el of members) {
-      const qname = el.getQName();
-      if (!qname) continue;
-      const localPart = el.getName();
-      if (!localPart) continue;
-      const ns = qname.getNamespaceURI() || null;
-      const prefix = ns ? (prefixMap.get(ns) ?? '') : '';
-      const typeString = prefix ? `${prefix}:${localPart}` : localPart;
-      results[typeString] = {
-        displayName: localPart,
-        typeString,
-        type: Types.Container,
-        namespaceURI: ns,
-        isBuiltIn: false,
+      const wireName = el.getWireName();
+      if (!wireName?.getLocalPart()) continue;
+      ensureNamespaceRegistered(wireName.getNamespaceURI() || null, namespaceMap);
+      const key = formatQNameWithPrefix(wireName, namespaceMap);
+      results[key] = {
+        qname: wireName,
+        displayName: wireName.getLocalPart()!,
+        ...XmlSchemaTypesService.resolveElementTypeInfo(el, collection),
       };
     }
     return results;

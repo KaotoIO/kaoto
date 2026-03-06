@@ -1,19 +1,20 @@
 import { DocumentDefinition, IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
-import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
-import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../models/datamapper/types';
+import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { FieldOverrideVariant, IFieldSubstituteInfo, IFieldTypeInfo, Types } from '../models/datamapper/types';
 import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { JsonSchemaTypesService } from './json-schema-types.service';
-import { formatQNameWithPrefix } from './qname-util';
+import { ensureNamespaceRegistered, formatQNameWithPrefix, formatWithPrefix } from './namespace-util';
 import { SchemaPathService } from './schema-path.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 /**
- * Service for field type override operations.
- * Provides high-level orchestration for applying, removing, and managing type overrides.
+ * Service for field type override and element substitution operations.
+ * Provides high-level orchestration for applying, removing, and managing type overrides,
+ * choice selections, and element substitutions (apply/revert).
  *
  * This service consolidates all field type override functionality in one place, reducing
  * code duplication and improving maintainability by eliminating if-XML/if-JSON patterns
@@ -194,13 +195,6 @@ export class FieldTypeOverrideService {
     };
   }
 
-  private static ensureNamespaceRegistered(namespaceURI: string | null, namespaceMap: Record<string, string>): void {
-    if (!namespaceURI) return;
-    if (Object.values(namespaceMap).includes(namespaceURI)) return;
-    const prefix = DocumentUtilService.generateNamespacePrefix(namespaceMap);
-    namespaceMap[prefix] = namespaceURI;
-  }
-
   /**
    * Apply a field type override to a field in a document.
    *
@@ -265,7 +259,7 @@ export class FieldTypeOverrideService {
       throw new TypeError(`Unsupported document type: ${document.constructor.name}`);
     }
 
-    FieldTypeOverrideService.ensureNamespaceRegistered(candidate.typeQName.getNamespaceURI(), namespaceMap);
+    ensureNamespaceRegistered(candidate.typeQName.getNamespaceURI(), namespaceMap);
     const override = FieldTypeOverrideService.createFieldTypeOverride(field, candidate, namespaceMap, variant);
     const changed = DocumentUtilService.processTypeOverride(document, override, namespaceMap, parseTypeOverrideFn);
     if (changed) {
@@ -297,7 +291,9 @@ export class FieldTypeOverrideService {
    * @see applyFieldTypeOverride
    */
   static revertFieldTypeOverride(document: IDocument, field: IField, namespaceMap: Record<string, string>): void {
-    if (field.typeOverride === FieldOverrideVariant.NONE) return;
+    if (![FieldOverrideVariant.SAFE, FieldOverrideVariant.FORCE].includes(field.typeOverride)) {
+      return;
+    }
     const schemaPath = SchemaPathService.build(field, namespaceMap);
     const changed = DocumentUtilService.removeTypeOverride(document, schemaPath, namespaceMap);
     if (changed) {
@@ -435,6 +431,113 @@ export class FieldTypeOverrideService {
     const changed = DocumentUtilService.removeChoiceSelection(document, schemaPath, namespaceMap);
     if (changed) {
       DocumentUtilService.invalidateDescendants(document, schemaPath);
+    }
+  }
+
+  /**
+   * Get substitution group member candidates for a field.
+   *
+   * Delegates to {@link XmlSchemaTypesService.getFieldSubstitutionCandidates} for XML Schema documents.
+   * Returns empty Record for JSON Schema documents (substitution groups are XML-only).
+   *
+   * @param field - The field to get substitution candidates for
+   * @param namespaceMap - Namespace prefix to URI mapping for qualified name resolution
+   * @returns Record of substitution candidates, or `{}` when none found
+   */
+  static getFieldSubstitutionCandidates(
+    field: IField,
+    namespaceMap: Record<string, string>,
+  ): Record<string, IFieldSubstituteInfo> {
+    if (!(field.ownerDocument instanceof XmlSchemaDocument) || !field.ownerDocument.xmlSchemaCollection) return {};
+    return XmlSchemaTypesService.getFieldSubstitutionCandidates(
+      field,
+      field.ownerDocument.xmlSchemaCollection,
+      namespaceMap,
+    );
+  }
+
+  /**
+   * Apply an element substitution to a field in a document.
+   *
+   * Stores the substitution entry in the definition, applies it to the live field,
+   * and invalidates any stale descendant overrides.
+   *
+   * The document is modified in place. After calling this method, use
+   * `dataMapperProvider.updateDocument()` to persist changes and trigger re-visualization.
+   *
+   * @param document - The document containing the field (must be XmlSchemaDocument)
+   * @param field - The field to substitute
+   * @param substituteElementQName - The substitute element name in `prefix:localName` form
+   * @param namespaceMap - Namespace prefix to URI mapping
+   */
+  static applyFieldSubstitution(
+    document: IDocument,
+    field: IField,
+    substituteElementQName: string,
+    namespaceMap: Record<string, string>,
+  ): void {
+    if (!(document instanceof XmlSchemaDocument) || !document.xmlSchemaCollection) return;
+    const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+      field,
+      document.xmlSchemaCollection,
+      namespaceMap,
+    );
+    const candidate = candidates[substituteElementQName];
+    if (!candidate) return;
+    ensureNamespaceRegistered(candidate.qname.getNamespaceURI(), namespaceMap);
+    ensureNamespaceRegistered(candidate.typeQName?.getNamespaceURI() ?? null, namespaceMap);
+    const schemaPath = SchemaPathService.buildOriginal(field, namespaceMap);
+    const origName = field.originalField?.name ?? field.name;
+    const origNsURI = field.originalField?.namespaceURI ?? field.namespaceURI;
+    const originalName = formatWithPrefix(origNsURI, origName, namespaceMap);
+    const canonicalName = formatWithPrefix(
+      candidate.qname.getNamespaceURI() || null,
+      candidate.qname.getLocalPart()!,
+      namespaceMap,
+    );
+    const entry: IFieldSubstitution = { schemaPath, name: canonicalName, originalName };
+    document.definition.fieldSubstitutions ??= [];
+    const existingIndex = document.definition.fieldSubstitutions.findIndex((s) => s.schemaPath === schemaPath);
+    if (existingIndex >= 0) {
+      document.definition.fieldSubstitutions[existingIndex] = entry;
+    } else {
+      document.definition.fieldSubstitutions.push(entry);
+    }
+    const livePath = SchemaPathService.build(field, namespaceMap);
+    DocumentUtilService.applySubstitutionToField(field, candidate);
+    DocumentUtilService.invalidateDescendants(document, schemaPath);
+    if (livePath !== schemaPath) {
+      DocumentUtilService.invalidateDescendants(document, livePath);
+    }
+  }
+
+  /**
+   * Revert an element substitution from a field in a document.
+   * Restores the field to its original element name and type.
+   *
+   * The document is modified in place. After calling this method, use
+   * `dataMapperProvider.updateDocument()` to persist changes and trigger re-visualization.
+   *
+   * @param document - The document containing the field (must be XmlSchemaDocument)
+   * @param field - The substituted field to revert
+   * @param namespaceMap - Namespace prefix to URI mapping
+   */
+  static revertFieldSubstitution(document: IDocument, field: IField, namespaceMap: Record<string, string>): void {
+    if (!(document instanceof XmlSchemaDocument)) return;
+    const originalPath = SchemaPathService.buildOriginal(field, namespaceMap);
+    const livePath = SchemaPathService.build(field, namespaceMap);
+    if (!document.definition.fieldSubstitutions) return;
+    const entryIndex = document.definition.fieldSubstitutions.findIndex((s) => s.schemaPath === originalPath);
+    if (entryIndex < 0) return;
+    document.definition.fieldSubstitutions = document.definition.fieldSubstitutions.filter(
+      (s) => s.schemaPath !== originalPath,
+    );
+    if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
+      DocumentUtilService.restoreOriginalField(field);
+      DocumentUtilService.invalidateDescendants(document, originalPath);
+      if (livePath !== originalPath) {
+        DocumentUtilService.invalidateDescendants(document, livePath);
+      }
     }
   }
 }

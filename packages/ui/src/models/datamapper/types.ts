@@ -48,6 +48,18 @@ export enum TypeDerivation {
 }
 
 /**
+ * Represents the resolved state of a substitute element used when applying a field substitution.
+ * Contains the wire name, namespace, and type information of the substitute element.
+ */
+export interface IFieldSubstituteInfo {
+  qname: QName;
+  displayName: string;
+  type: Types;
+  typeQName: QName | null;
+  namedTypeFragmentRefs: string[];
+}
+
+/**
  * Represents metadata about a field type that can be used for type selection, documentation, and validation.
  * Includes type inheritance information for XML Schema types.
  */

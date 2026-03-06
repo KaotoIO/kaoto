@@ -6,8 +6,8 @@ import {
   ITypeFragment,
   PrimitiveDocument,
 } from '../models/datamapper';
-import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
-import { FieldOverrideVariant, Types } from '../models/datamapper/types';
+import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { FieldOverrideVariant, IFieldSubstituteInfo, Types } from '../models/datamapper/types';
 import { QName } from '../xml-schema-ts/QName';
 import { SchemaPathService } from './schema-path.service';
 
@@ -16,6 +16,17 @@ export type ParseTypeOverrideFn = (
   namespaceMap: Record<string, string>,
   field: IField,
 ) => { type: Types; typeQName: QName; variant: FieldOverrideVariant };
+
+export type ResolveSubstituteFn = (
+  document: IDocument,
+  substitution: IFieldSubstitution,
+  namespaceMap: Record<string, string>,
+) => IFieldSubstituteInfo | undefined;
+
+type OverrideItem =
+  | { kind: 'substitution'; item: IFieldSubstitution }
+  | { kind: 'typeOverride'; item: IFieldTypeOverride }
+  | { kind: 'choiceSelection'; item: IChoiceSelection };
 
 /**
  * The collection of utility functions shared among {@link DocumentService}, {@link XmlSchemaDocumentService}
@@ -54,15 +65,24 @@ export class DocumentUtilService {
         unresolvedRefs.push(ref);
         continue;
       }
-      DocumentUtilService.adoptTypeFragment(field, fragment);
+      unresolvedRefs.push(...DocumentUtilService.adoptTypeFragment(field, fragment));
     }
     field.namedTypeFragmentRefs = unresolvedRefs;
+    if (
+      field.typeOverride === FieldOverrideVariant.NONE &&
+      field.originalField.fields === undefined &&
+      field.fields.length > 0
+    ) {
+      field.originalField.fields = [...field.fields];
+      field.originalField.namedTypeFragmentRefs = unresolvedRefs;
+    }
     return field;
   }
 
   private static captureOriginalFieldState(field: IField): IOriginalFieldState {
     return {
       name: field.name,
+      displayName: field.displayName,
       namespaceURI: field.namespaceURI,
       namespacePrefix: field.namespacePrefix,
       type: field.type,
@@ -78,17 +98,22 @@ export class DocumentUtilService {
    * @param field - The field to adopt the fragment into
    * @param fragment - The type fragment whose properties and children will be merged into the field
    */
-  static adoptTypeFragment(field: IField, fragment: ITypeFragment) {
+  static adoptTypeFragment(field: IField, fragment: ITypeFragment): string[] {
     const doc = DocumentUtilService.getOwnerDocument(field);
+    const unresolved: string[] = [];
     if (fragment.type) field.type = fragment.type;
     if (fragment.minOccurs !== undefined) field.minOccurs = fragment.minOccurs;
     if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
-    fragment.fields.forEach((f) => f.adopt(field));
+    for (const f of fragment.fields) f.adopt(field);
     for (const childRef of fragment.namedTypeFragmentRefs) {
       const childFragment = doc.namedTypeFragments[childRef];
-      if (!childFragment) continue;
-      DocumentUtilService.adoptTypeFragment(field, childFragment);
+      if (!childFragment) {
+        unresolved.push(childRef);
+        continue;
+      }
+      unresolved.push(...DocumentUtilService.adoptTypeFragment(field, childFragment));
     }
+    return unresolved;
   }
 
   /**
@@ -105,6 +130,53 @@ export class DocumentUtilService {
       fieldStack.push(next);
     }
     return fieldStack;
+  }
+
+  /**
+   * Apply a substitution's resolved info to a field, overwriting its wire name, type, and fragment refs.
+   * Captures the original field state before the first modification.
+   *
+   * @param field - The field to apply the substitution to
+   * @param info - The resolved substitute element info
+   */
+  static applySubstitutionToField(field: IField, info: IFieldSubstituteInfo): void {
+    field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
+    field.name = info.qname.getLocalPart()!;
+    field.displayName = info.displayName;
+    field.namespaceURI = info.qname.getNamespaceURI() || null;
+    field.namespacePrefix = info.qname.getPrefix();
+    field.type = info.type;
+    field.typeQName = info.typeQName;
+    field.namedTypeFragmentRefs = [...info.namedTypeFragmentRefs];
+    field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+    field.fields = [];
+
+    if (info.type === Types.Container && field.namedTypeFragmentRefs.length > 0) {
+      DocumentUtilService.resolveTypeFragment(field);
+    }
+  }
+
+  /**
+   * Low level API to apply a single field substitution to a document.
+   * Navigates to the field via schema path, resolves the substitute element, and applies it.
+   *
+   * @param document - The document to apply the substitution to
+   * @param substitution - The substitution metadata
+   * @param namespaceMap - Namespace prefix to URI mapping for path resolution
+   * @param resolveSubstituteFn - Format-specific function to resolve the substitute element info
+   */
+  static processFieldSubstitution(
+    document: IDocument,
+    substitution: IFieldSubstitution,
+    namespaceMap: Record<string, string>,
+    resolveSubstituteFn: ResolveSubstituteFn,
+  ): void {
+    const field = SchemaPathService.navigateToField(document, substitution.schemaPath, namespaceMap);
+    if (!field) return;
+    const info = resolveSubstituteFn(document, substitution, namespaceMap);
+    if (info) {
+      DocumentUtilService.applySubstitutionToField(field, info);
+    }
   }
 
   /**
@@ -258,7 +330,7 @@ export class DocumentUtilService {
 
     const field = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
     if (field) {
-      DocumentUtilService.restoreOriginalTypeToField(field);
+      DocumentUtilService.restoreOriginalField(field);
     }
 
     document.definition.fieldTypeOverrides = document.definition.fieldTypeOverrides.filter(
@@ -303,15 +375,16 @@ export class DocumentUtilService {
   }
 
   /**
-   * Restore a field to its original type.
+   * Restore a field to its original state before any override or substitution.
    *
-   * Reverses a type override by restoring the field's type, typeQName, and
-   * typeOverride properties to their original values. Clears existing child
-   * fields and sets up namedTypeFragmentRefs for Container types.
+   * Reverses a type override or element substitution by restoring the field's
+   * name, namespace, type, and child fields to their captured original values.
+   * For Container types whose children were not captured, eagerly resolves
+   * type fragments so children are immediately available.
    *
-   * @param field - The field to restore to its original type
+   * @param field - The field to restore
    */
-  private static restoreOriginalTypeToField(field: IField): void {
+  static restoreOriginalField(field: IField): void {
     const origType = field.originalField?.type ?? field.type;
     const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
     const origRefs = field.originalField?.namedTypeFragmentRefs;
@@ -320,6 +393,8 @@ export class DocumentUtilService {
     field.type = origType;
     field.typeQName = origTypeQName;
     if (field.originalField) {
+      field.name = field.originalField.name;
+      field.displayName = field.originalField.displayName;
       field.namespaceURI = field.originalField.namespaceURI;
       field.namespacePrefix = field.originalField.namespacePrefix;
     }
@@ -335,6 +410,11 @@ export class DocumentUtilService {
       DocumentUtilService.resolveTypeFragment(field);
     } else {
       field.namedTypeFragmentRefs = [];
+    }
+    for (const child of field.fields) {
+      if (child.typeOverride !== FieldOverrideVariant.NONE) {
+        DocumentUtilService.restoreOriginalField(child);
+      }
     }
   }
 
@@ -431,45 +511,48 @@ export class DocumentUtilService {
   }
 
   /**
-   * Unified depth-ordered initialization of type overrides and choice selections.
+   * Unified depth-ordered initialization of substitutions, type overrides, and choice selections.
    *
-   * Combines type overrides and choice selections, sorts by schema path depth (shallower first),
-   * with type overrides applied before choice selections at the same depth, then applies each in order.
-   * This ordering ensures parent overrides are applied before descendant choice selections,
-   * preventing stale navigation when a type override collapses a subtree.
+   * Combines all three kinds, sorts by schema path depth (shallower first).
+   * At the same depth the priority order is: substitution < typeOverride < choiceSelection.
+   * This ordering ensures parent substitutions and overrides are applied before descendant
+   * choice selections, preventing stale navigation when a substitution or type override collapses a subtree.
    *
    * @param document - The document to apply overrides and selections to
    * @param typeOverrides - Array of field type overrides to apply
    * @param choiceSelections - Array of choice selections to apply
+   * @param fieldSubstitutions - Array of field substitutions to apply
    * @param namespaceMap - Namespace prefix to URI mapping for path resolution
    * @param parseTypeOverride - Function to parse type override strings
+   * @param resolveSubstituteFn - Format-specific function to resolve substitute element info
    */
   static processOverrides(
     document: IDocument,
     typeOverrides: IFieldTypeOverride[],
     choiceSelections: IChoiceSelection[],
+    fieldSubstitutions: IFieldSubstitution[],
     namespaceMap: Record<string, string>,
     parseTypeOverride: ParseTypeOverrideFn,
+    resolveSubstituteFn: ResolveSubstituteFn,
   ): void {
-    type TaggedItem =
-      | { kind: 'typeOverride'; item: IFieldTypeOverride }
-      | { kind: 'choiceSelection'; item: IChoiceSelection };
-
-    const items: TaggedItem[] = [
-      ...typeOverrides.map((item): TaggedItem => ({ kind: 'typeOverride', item })),
-      ...choiceSelections.map((item): TaggedItem => ({ kind: 'choiceSelection', item })),
+    const kindPriority: Record<string, number> = { substitution: 0, typeOverride: 1, choiceSelection: 2 };
+    const items: OverrideItem[] = [
+      ...fieldSubstitutions.map((item): OverrideItem => ({ kind: 'substitution', item })),
+      ...typeOverrides.map((item): OverrideItem => ({ kind: 'typeOverride', item })),
+      ...choiceSelections.map((item): OverrideItem => ({ kind: 'choiceSelection', item })),
     ];
 
     items.sort((a, b) => {
       const depthA = a.item.schemaPath.split('/').filter(Boolean).length;
       const depthB = b.item.schemaPath.split('/').filter(Boolean).length;
       if (depthA !== depthB) return depthA - depthB;
-      if (a.kind === b.kind) return 0;
-      return a.kind === 'typeOverride' ? -1 : 1;
+      return kindPriority[a.kind] - kindPriority[b.kind];
     });
 
     for (const tagged of items) {
-      if (tagged.kind === 'typeOverride') {
+      if (tagged.kind === 'substitution') {
+        DocumentUtilService.processFieldSubstitution(document, tagged.item, namespaceMap, resolveSubstituteFn);
+      } else if (tagged.kind === 'typeOverride') {
         DocumentUtilService.processTypeOverride(document, tagged.item, namespaceMap, parseTypeOverride);
       } else {
         DocumentUtilService.processChoiceSelection(document, tagged.item, namespaceMap);
@@ -500,24 +583,10 @@ export class DocumentUtilService {
         (s) => !s.schemaPath.startsWith(prefix),
       );
     }
-  }
-
-  /**
-   * Generates a unique namespace prefix following sequential pattern (ns0, ns1, ns2, ...).
-   * Starts from 'ns0' and increments until an available prefix is found.
-   *
-   * This method is shared across document services and mapping service to ensure
-   * consistent namespace prefix generation throughout the application.
-   *
-   * @param namespaceMap - Map of existing prefix -> namespace URI mappings to avoid conflicts
-   * @returns Generated prefix string
-   */
-  static generateNamespacePrefix(namespaceMap: Record<string, string>): string {
-    for (let index = 0; ; index++) {
-      const prefix = `ns${index}`;
-      if (!namespaceMap[prefix]) {
-        return prefix;
-      }
+    if (document.definition.fieldSubstitutions) {
+      document.definition.fieldSubstitutions = document.definition.fieldSubstitutions.filter(
+        (s) => !s.schemaPath.startsWith(prefix),
+      );
     }
   }
 

@@ -171,6 +171,7 @@ describe('withFieldOverrideContextMenu', () => {
     field.typeOverride = FieldOverrideVariant.SAFE;
     field.originalField = {
       name: field.name,
+      displayName: field.displayName,
       namespaceURI: field.namespaceURI,
       namespacePrefix: field.namespacePrefix,
       type: Types.String,
@@ -202,6 +203,7 @@ describe('withFieldOverrideContextMenu', () => {
     field.typeOverride = FieldOverrideVariant.SAFE;
     field.originalField = {
       name: field.name,
+      displayName: field.displayName,
       namespaceURI: field.namespaceURI,
       namespacePrefix: field.namespacePrefix,
       type: Types.String,
