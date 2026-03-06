@@ -1,17 +1,17 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IField } from '../../../models/datamapper/document';
-import { MappingTree } from '../../../models/datamapper/mapping';
-import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../../../models/datamapper/types';
-import { IMetadataApi, MetadataContext } from '../../../providers';
-import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
-import { FieldTypeOverrideService } from '../../../services/field-type-override.service';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
-import { QName } from '../../../xml-schema-ts/QName';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IField } from '../../../../models/datamapper/document';
+import { MappingTree } from '../../../../models/datamapper/mapping';
+import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../../../../models/datamapper/types';
+import { IMetadataApi, MetadataContext } from '../../../../providers';
+import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
+import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { QName } from '../../../../xml-schema-ts/QName';
 import { TypeOverrideModal } from './TypeOverrideModal';
 
 // Mock useDataMapper hook
-jest.mock('../../../hooks/useDataMapper', () => ({
+jest.mock('../../../../hooks/useDataMapper', () => ({
   useDataMapper: jest.fn(),
 }));
 
@@ -25,7 +25,7 @@ describe('TypeOverrideModal', () => {
   let testField: IField;
 
   beforeEach(() => {
-    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     useDataMapper.mockReturnValue({
       mappingTree: testMappingTree,
       updateDocument: jest.fn(),
@@ -155,9 +155,13 @@ describe('TypeOverrideModal', () => {
     });
 
     await waitFor(() => {
-      const toggleWithSelection = screen.queryByText('Select a new type...');
-      expect(toggleWithSelection === null || screen.getAllByText('string').length > 0).toBeTruthy();
+      // After selection, the toggle should show the selected type name
+      const toggle = screen.getByRole('button', { name: /string/i });
+      expect(toggle).toBeInTheDocument();
     });
+
+    // Verify the placeholder text is no longer visible
+    expect(screen.queryByText('Select a new type...')).not.toBeInTheDocument();
   });
 
   it('should enable Save button when a type is selected', async () => {
@@ -419,6 +423,7 @@ describe('TypeOverrideModal', () => {
   it('should pre-select current type when field has existing override', () => {
     const NS_XML_SCHEMA = 'http://www.w3.org/2001/XMLSchema';
     testMappingTree.namespaceMap = { xs: NS_XML_SCHEMA };
+    testField.ownerDocument.definition.namespaceMap = { xs: NS_XML_SCHEMA };
 
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
@@ -528,23 +533,18 @@ describe('TypeOverrideModal', () => {
 
       renderWithContext({ onAttach: onAttachMock });
 
-      // Upload the file
+      // Upload the file - it will immediately try to attach
       await act(async () => {
         fireEvent.click(screen.getByTestId('upload-schema-button'));
       });
 
-      await waitFor(() => {
-        expect(screen.getByTestId('uploaded-schema-item-bad.xsd')).toBeInTheDocument();
-      });
-
-      // Click attach
-      act(() => {
-        fireEvent.click(screen.getByTestId('attach-schema-button'));
-      });
-
+      // Error should appear immediately since attachment happens on upload
       await waitFor(() => {
         expect(screen.getByText(/Invalid schema: Parse error/)).toBeInTheDocument();
       });
+
+      // onAttach should have been called immediately
+      expect(onAttachMock).toHaveBeenCalledWith({ 'bad.xsd': '<not-a-schema>' });
     });
 
     it('should show existing document schema files', () => {
@@ -554,70 +554,7 @@ describe('TypeOverrideModal', () => {
       expect(screen.getByTestId('existing-schema-item-shipOrder.xsd')).toBeInTheDocument();
     });
 
-    it('should show uploaded schema as pending with remove button', async () => {
-      jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as jest.Mock).mockResolvedValue('<xs:schema/>');
-
-      renderWithContext();
-
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('existing-schema-item-shipOrder.xsd')).toBeInTheDocument();
-        expect(screen.getByTestId('uploaded-schema-item-types.xsd')).toBeInTheDocument();
-        expect(screen.getByTestId('remove-schema-item-types.xsd')).toBeInTheDocument();
-      });
-    });
-
-    it('should remove pending upload when remove button is clicked', async () => {
-      jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as jest.Mock).mockResolvedValue('<xs:schema/>');
-
-      renderWithContext();
-
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
-
-      await waitFor(() => {
-        expect(screen.getByTestId('uploaded-schema-item-types.xsd')).toBeInTheDocument();
-      });
-
-      act(() => {
-        fireEvent.click(screen.getByTestId('remove-schema-item-types.xsd'));
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByTestId('uploaded-schema-item-types.xsd')).not.toBeInTheDocument();
-      });
-    });
-
-    it('should disable attach button when no pending uploads', () => {
-      renderWithContext();
-
-      const attachButton = screen.getByTestId('attach-schema-button');
-      expect(attachButton).toBeDisabled();
-    });
-
-    it('should enable attach button when there are pending uploads', async () => {
-      jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
-      (mockApi.getResourceContent as jest.Mock).mockResolvedValue('<xs:schema/>');
-
-      renderWithContext();
-
-      await act(async () => {
-        fireEvent.click(screen.getByTestId('upload-schema-button'));
-      });
-
-      await waitFor(() => {
-        const attachButton = screen.getByTestId('attach-schema-button');
-        expect(attachButton).not.toBeDisabled();
-      });
-    });
-
-    it('should call onAttach with pending schemas when attach button is clicked', async () => {
+    it('should immediately attach uploaded schema and show in existing files', async () => {
       jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
       (mockApi.getResourceContent as jest.Mock).mockResolvedValue('<xs:schema/>');
 
@@ -628,22 +565,38 @@ describe('TypeOverrideModal', () => {
         fireEvent.click(screen.getByTestId('upload-schema-button'));
       });
 
+      // Schema should be immediately attached (no pending state)
       await waitFor(() => {
-        expect(screen.getByTestId('uploaded-schema-item-types.xsd')).toBeInTheDocument();
+        expect(onAttachMock).toHaveBeenCalledWith({ 'types.xsd': '<xs:schema/>' });
       });
 
-      act(() => {
-        fireEvent.click(screen.getByTestId('attach-schema-button'));
-      });
-
-      expect(onAttachMock).toHaveBeenCalledWith({ 'types.xsd': '<xs:schema/>' });
+      // Existing files should still be visible
+      expect(screen.getByTestId('existing-schema-item-shipOrder.xsd')).toBeInTheDocument();
     });
 
-    it('should not add duplicate schemas', async () => {
+    it('should call onAttach immediately when schema is uploaded', async () => {
       jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
       (mockApi.getResourceContent as jest.Mock).mockResolvedValue('<xs:schema/>');
 
-      renderWithContext();
+      const onAttachMock = jest.fn();
+      renderWithContext({ onAttach: onAttachMock });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('upload-schema-button'));
+      });
+
+      // onAttach should be called immediately with the schema content
+      await waitFor(() => {
+        expect(onAttachMock).toHaveBeenCalledWith({ 'types.xsd': '<xs:schema/>' });
+      });
+    });
+
+    it('should not add duplicate schemas on second upload', async () => {
+      jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
+      (mockApi.getResourceContent as jest.Mock).mockResolvedValue('<xs:schema/>');
+
+      const onAttachMock = jest.fn();
+      renderWithContext({ onAttach: onAttachMock });
 
       // First upload
       await act(async () => {
@@ -651,18 +604,20 @@ describe('TypeOverrideModal', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('uploaded-schema-item-types.xsd')).toBeInTheDocument();
+        expect(onAttachMock).toHaveBeenCalledTimes(1);
       });
+
+      // Reset mock to track second call
+      onAttachMock.mockClear();
 
       // Second upload of same file - should skip duplicate
       await act(async () => {
         fireEvent.click(screen.getByTestId('upload-schema-button'));
       });
 
-      // Should still only have one pending entry
+      // onAttach should not be called again for duplicate
       await waitFor(() => {
-        const items = screen.getAllByTestId('uploaded-schema-item-types.xsd');
-        expect(items).toHaveLength(1);
+        expect(onAttachMock).not.toHaveBeenCalled();
       });
     });
   });

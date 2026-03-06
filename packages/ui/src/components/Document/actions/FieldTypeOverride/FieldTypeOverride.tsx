@@ -2,10 +2,11 @@ import { Icon } from '@patternfly/react-core';
 import { WrenchIcon } from '@patternfly/react-icons';
 import { FunctionComponent, ReactNode, useCallback } from 'react';
 
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { DocumentDefinition, IDocument, IField } from '../../../models/datamapper/document';
-import { IFieldTypeInfo, TypeOverrideVariant } from '../../../models/datamapper/types';
-import { FieldTypeOverrideService } from '../../../services/field-type-override.service';
+import { useDataMapper } from '../../../../hooks/useDataMapper';
+import { DocumentDefinition, IDocument, IField } from '../../../../models/datamapper/document';
+import { IFieldTypeInfo, TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { formatQNameWithPrefix } from '../../../../services/qname-util';
 import { TypeOverrideModal } from './TypeOverrideModal';
 
 type FieldTypeOverrideProps = {
@@ -35,6 +36,9 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
       const namespaceMap = mappingTree.namespaceMap;
       const previousRefId = document.getReferenceId(namespaceMap);
       FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, schemas);
+      // Sync new namespaces from the attached schema into the mapping tree
+      // so that type candidates get proper namespace prefixes
+      Object.assign(mappingTree.namespaceMap, document.definition.namespaceMap);
       updateDocument(document, document.definition, previousRefId);
     },
     [field, mappingTree.namespaceMap, updateDocument],
@@ -101,16 +105,12 @@ export function renderTypeOverrideIndicator(
   namespaceMap: Record<string, string> = {},
 ): ReactNode {
   if (!field || field.typeOverride === TypeOverrideVariant.NONE) return null;
-  const originalDisplay = FieldTypeOverrideService.formatQNameWithPrefix(
-    field.originalTypeQName,
-    namespaceMap,
-    field.originalType,
-  );
-  const currentDisplay = FieldTypeOverrideService.formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
+  const originalDisplay = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
+  const currentDisplay = formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
   return (
     <Icon
-      className="node__spacer"
-      size="sm"
+      className="node__spacer node__type-override-indicator"
+      size="md"
       status="warning"
       isInline
       title={`Type overridden: ${originalDisplay} → ${currentDisplay}`}

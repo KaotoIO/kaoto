@@ -17,16 +17,16 @@ import {
   SelectList,
   SelectOption,
 } from '@patternfly/react-core';
-import { FileImportIcon, LinkIcon, WrenchIcon } from '@patternfly/react-icons';
+import { FileImportIcon, WrenchIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, Ref, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { IField, SCHEMA_FILE_NAME_PATTERN_XML } from '../../../models/datamapper/document';
-import { IFieldTypeInfo, TypeOverrideVariant } from '../../../models/datamapper/types';
-import { MetadataContext } from '../../../providers';
-import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
-import { FieldTypeOverrideService } from '../../../services/field-type-override.service';
-import { getFileExtension, getFileName, validateFileExtension, validateNoMixedTypes } from './AttachSchema/utils';
+import { useDataMapper } from '../../../../hooks/useDataMapper';
+import { IField, SCHEMA_FILE_NAME_PATTERN_XML } from '../../../../models/datamapper/document';
+import { IFieldTypeInfo, TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { MetadataContext } from '../../../../providers';
+import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { formatQNameWithPrefix } from '../../../../services/qname-util';
+import { getFileName, pickAndValidateSchemaFiles } from '../utils';
 import { SchemaFileList } from './SchemaFileList';
 
 export type TypeOverrideModalProps = {
@@ -51,16 +51,12 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
   const [selectedType, setSelectedType] = useState<IFieldTypeInfo | null>(null);
   const [typeCandidates, setTypeCandidates] = useState<Record<string, IFieldTypeInfo>>({});
   const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const [supplementarySchemas, setSupplementarySchemas] = useState<Record<string, string>>({});
+  const [uploadedSchemas, setUploadedSchemas] = useState<Record<string, string>>({});
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   const existingFiles = useMemo(
     () => Object.keys(field?.ownerDocument?.definition?.definitionFiles ?? {}),
     [field?.ownerDocument?.definition?.definitionFiles],
-  );
-  const pendingUploads = useMemo(
-    () => Object.keys(supplementarySchemas).filter((path) => !existingFiles.includes(path)),
-    [supplementarySchemas, existingFiles],
   );
 
   const loadTypeCandidates = useCallback(() => {
@@ -74,10 +70,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
 
     // If field has an existing override, pre-select it by matching namespace URI + local part
     if (field.typeOverride !== TypeOverrideVariant.NONE && field.typeQName) {
-      const nsURI = field.typeQName.getNamespaceURI();
-      const localPart = field.typeQName.getLocalPart();
-      const prefix = Object.entries(namespaceMap).find(([, uri]) => uri === nsURI)?.[0] || '';
-      const typeString = prefix ? `${prefix}:${localPart}` : String(localPart);
+      const typeString = formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
       setSelectedType(candidates[typeString] || null);
     } else {
       setSelectedType(null);
@@ -98,7 +91,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       setUploadError(null);
       setSelectedType(null);
       setIsSelectOpen(false);
-      setSupplementarySchemas({});
+      setUploadedSchemas({});
     };
   }, [isOpen]);
 
@@ -144,7 +137,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     async (paths: string[]): Promise<Record<string, string> | null> => {
       const newSchemas: Record<string, string> = {};
       for (const path of paths) {
-        if (supplementarySchemas[path] || existingFiles.includes(path)) continue;
+        if (uploadedSchemas[path] || existingFiles.includes(path)) continue;
 
         const content = await api.getResourceContent(path);
         if (!content) {
@@ -155,64 +148,46 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       }
       return newSchemas;
     },
-    [api, supplementarySchemas, existingFiles],
+    [api, uploadedSchemas, existingFiles],
   );
 
   const handleSchemaUpload = useCallback(async () => {
     setUploadError(null);
 
     try {
-      const paths = await DataMapperMetadataService.selectDocumentSchema(api, SCHEMA_FILE_NAME_PATTERN_XML);
-      if (!paths || (Array.isArray(paths) && paths.length === 0)) return;
+      const { paths: newPaths, error } = await pickAndValidateSchemaFiles(
+        api,
+        SCHEMA_FILE_NAME_PATTERN_XML,
+        field.ownerDocument.definition.documentType,
+        Object.keys(uploadedSchemas),
+      );
 
-      const newPaths = Array.isArray(paths) ? paths : [paths];
-
-      const firstExt = getFileExtension(newPaths[0]);
-      const extensionError = validateFileExtension(firstExt, field.ownerDocument.definition.documentType);
-      if (extensionError) {
-        setUploadError(extensionError);
+      if (error) {
+        setUploadError(error);
         return;
       }
 
-      const mixedTypeError = validateNoMixedTypes(firstExt, Object.keys(supplementarySchemas));
-      if (mixedTypeError) {
-        setUploadError(mixedTypeError);
-        return;
-      }
+      if (newPaths.length === 0) return;
 
       const newSchemas = await readSchemaFiles(newPaths);
       if (!newSchemas || Object.keys(newSchemas).length === 0) return;
 
-      setSupplementarySchemas((prev) => ({ ...prev, ...newSchemas }));
+      // Track uploaded schemas for duplicate detection
+      setUploadedSchemas((prev) => ({ ...prev, ...newSchemas }));
+
+      // Immediately attach schemas to document and reload types
+      try {
+        onAttach(newSchemas);
+        // Types will be reloaded automatically via useEffect when existingFiles changes
+      } catch (attachError: unknown) {
+        const message = attachError instanceof Error ? attachError.message : String(attachError);
+        setUploadError(`Invalid schema: ${message}`);
+      }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
       setUploadError(`Failed to upload: ${message}`);
     }
-  }, [api, supplementarySchemas, field, readSchemaFiles]);
-
-  const handleRemoveUpload = useCallback((filePath: string) => {
-    setSupplementarySchemas((prev) => {
-      const next = { ...prev };
-      delete next[filePath];
-      return next;
-    });
-    setUploadError(null);
-  }, []);
-
-  const handleAttach = useCallback(() => {
-    const pendingSchemas = Object.fromEntries(
-      Object.entries(supplementarySchemas).filter(([path]) => !existingFiles.includes(path)),
-    );
-    if (Object.keys(pendingSchemas).length === 0) return;
-
-    try {
-      onAttach(pendingSchemas);
-      loadTypeCandidates();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      setUploadError(`Invalid schema: ${message}`);
-    }
-  }, [supplementarySchemas, existingFiles, onAttach, loadTypeCandidates]);
+  }, [api, uploadedSchemas, field, readSchemaFiles, onAttach]);
 
   const handleSave = useCallback(() => {
     onSave(selectedType);
@@ -246,7 +221,13 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
   );
 
   return (
-    <Modal variant={ModalVariant.medium} isOpen={isOpen} onClose={onClose} appendTo={() => document.body}>
+    <Modal
+      variant={ModalVariant.medium}
+      isOpen={isOpen}
+      onClose={onClose}
+      appendTo={() => document.body}
+      className="type-override-modal"
+    >
       <ModalHeader title={modalTitle} />
       <ModalBody>
         <Form>
@@ -270,6 +251,10 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
               onSelect={handleTypeSelect}
               onOpenChange={(isOpen) => setIsSelectOpen(isOpen)}
               toggle={renderToggle}
+              maxMenuHeight="240px"
+              popperProps={{
+                preventOverflow: true,
+              }}
             >
               <SelectList>
                 {Object.entries(typeCandidates)
@@ -291,11 +276,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
           </FormGroup>
 
           <FormGroup label="Document Schema Files" fieldId="schema-upload">
-            <SchemaFileList
-              existingFiles={existingFiles}
-              pendingUploads={pendingUploads}
-              onRemove={handleRemoveUpload}
-            />
+            <SchemaFileList existingFiles={existingFiles} pendingUploads={[]} onRemove={() => {}} />
             <Button
               icon={<FileImportIcon />}
               onClick={handleSchemaUpload}
@@ -304,21 +285,11 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
               variant="secondary"
             >
               Upload Schema
-            </Button>{' '}
-            <Button
-              icon={<LinkIcon />}
-              onClick={handleAttach}
-              aria-label="Attach schemas to document"
-              data-testid="attach-schema-button"
-              variant="secondary"
-              isDisabled={pendingUploads.length === 0}
-            >
-              Attach to Document
             </Button>
             <FormHelperText>
               <HelperText>
                 <HelperTextItem variant={uploadError ? 'error' : undefined}>
-                  {uploadError || 'Upload schema files, then attach them to the document to make types available.'}
+                  {uploadError || 'Upload schema files to add types to the dropdown.'}
                 </HelperTextItem>
               </HelperText>
             </FormHelperText>

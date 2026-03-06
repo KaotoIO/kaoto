@@ -15,8 +15,8 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
-import { FieldOverrideContextMenu } from './actions/FieldOverrideContextMenu';
-import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride';
+import { FieldOverrideContextMenu } from './actions/FieldTypeOverride/FieldOverrideContextMenu';
+import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
@@ -125,7 +125,15 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
                   isCollectionField={isCollectionField}
                   isChoiceField={isChoiceField}
                   isAttributeField={isAttributeField}
-                  title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
+                  title={
+                    <NodeTitle
+                      className="node__spacer"
+                      nodeData={nodeData}
+                      isDocument={isDocument}
+                      rank={rank}
+                      namespaceMap={mappingTree.namespaceMap}
+                    />
+                  }
                   rank={rank}
                   isSelected={isSelected}
                 >
