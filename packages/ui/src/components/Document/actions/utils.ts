@@ -1,6 +1,8 @@
-import { CreateDocumentResult, DocumentType } from '../../../../models/datamapper/document';
-import { DataMapperStepService } from '../../../../services/datamapper-step.service';
-import { SchemaFileItem } from './SchemaFileDataList';
+import { CreateDocumentResult, DocumentType } from '../../../models/datamapper/document';
+import { IMetadataApi } from '../../../providers/metadata.provider';
+import { DataMapperMetadataService } from '../../../services/datamapper-metadata.service';
+import { DataMapperStepService } from '../../../services/datamapper-step.service';
+import { SchemaFileItem } from './AttachSchema/SchemaFileDataList';
 
 const VALID_XML_EXTENSIONS = ['.xml', '.xsd'];
 const VALID_JSON_EXTENSIONS = ['.json'];
@@ -92,4 +94,76 @@ export function createSchemaFileItems(
   items.sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status]);
 
   return items;
+}
+
+/**
+ * Result of picking and validating schema files.
+ */
+export type PickSchemaFilesResult = {
+  /** Selected file paths, or empty array if cancelled or validation failed */
+  paths: string[];
+  /** Validation error message, or null if no error */
+  error: string | null;
+};
+
+/**
+ * Prompts user to select schema files, normalizes the result to an array,
+ * and validates file extensions and type consistency.
+ *
+ * This consolidates the common pattern used in both TypeOverrideModal and AttachSchemaModal:
+ * - Call DataMapperMetadataService.selectDocumentSchema
+ * - Normalize result to array
+ * - Validate file extension
+ * - Validate no mixed types (XML vs JSON)
+ *
+ * @param api - Metadata API context
+ * @param pattern - File name pattern for file picker
+ * @param documentType - Document type for validation
+ * @param existingPaths - Existing file paths to check for type consistency
+ * @returns Promise resolving to paths and error (if any)
+ *
+ * @example
+ * ```ts
+ * const { paths, error } = await pickAndValidateSchemaFiles(
+ *   api,
+ *   SCHEMA_FILE_NAME_PATTERN_XML,
+ *   DocumentType.SOURCE_BODY,
+ *   existingSchemas
+ * );
+ * if (error) {
+ *   setUploadError(error);
+ *   return;
+ * }
+ * // Process paths...
+ * ```
+ */
+export async function pickAndValidateSchemaFiles(
+  api: IMetadataApi,
+  pattern: string,
+  documentType: DocumentType,
+  existingPaths: string[],
+): Promise<PickSchemaFilesResult> {
+  // Select files
+  const paths = await DataMapperMetadataService.selectDocumentSchema(api, pattern);
+  if (!paths || (Array.isArray(paths) && paths.length === 0)) {
+    return { paths: [], error: null };
+  }
+
+  // Normalize to array
+  const newPaths = Array.isArray(paths) ? paths : [paths];
+
+  // Validate file extension
+  const firstExt = getFileExtension(newPaths[0]);
+  const extensionError = validateFileExtension(firstExt, documentType);
+  if (extensionError) {
+    return { paths: [], error: extensionError };
+  }
+
+  // Validate no mixed types
+  const mixedTypeError = validateNoMixedTypes(firstExt, existingPaths);
+  if (mixedTypeError) {
+    return { paths: [], error: mixedTypeError };
+  }
+
+  return { paths: newPaths, error: null };
 }

@@ -5,6 +5,7 @@ import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.servic
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { JsonSchemaTypesService } from './json-schema-types.service';
+import { formatQNameWithPrefix } from './qname-util';
 import { SchemaPathService } from './schema-path.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -181,11 +182,7 @@ export class FieldTypeOverrideService {
     variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE,
   ): IFieldTypeOverride {
     const schemaPath = SchemaPathService.build(field, namespaceMap);
-    const originalTypeString = FieldTypeOverrideService.formatQNameWithPrefix(
-      field.originalTypeQName,
-      namespaceMap,
-      field.originalType,
-    );
+    const originalTypeString = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
     return {
       schemaPath,
       type: candidate.typeString,
@@ -197,19 +194,9 @@ export class FieldTypeOverrideService {
   /**
    * Format a QName as `prefix:localPart` using the namespace map.
    * Falls back to the provided fallback string if the QName is null.
+   * @deprecated Use formatQNameWithPrefix from qname-util.ts instead
    */
-  static formatQNameWithPrefix(
-    qName: { getNamespaceURI: () => string; getLocalPart: () => string | null } | null | undefined,
-    namespaceMap: Record<string, string>,
-    fallback: string,
-  ): string {
-    if (!qName) return fallback;
-    const nsURI = qName.getNamespaceURI();
-    const localPart = qName.getLocalPart();
-    if (!localPart) return fallback;
-    const prefix = Object.entries(namespaceMap).find(([, uri]) => uri === nsURI)?.[0] || '';
-    return prefix ? `${prefix}:${localPart}` : localPart;
-  }
+  static readonly formatQNameWithPrefix = formatQNameWithPrefix;
 
   /**
    * Apply a field type override to a field in a document.
@@ -347,10 +334,7 @@ export class FieldTypeOverrideService {
    * );
    * ```
    */
-  static addSchemaFilesForTypeOverride(
-    document: IDocument,
-    additionalFiles: Record<string, string>,
-  ): void {
+  static addSchemaFilesForTypeOverride(document: IDocument, additionalFiles: Record<string, string>): void {
     if (document instanceof PrimitiveDocument) {
       throw new TypeError('Cannot add schema files to primitive document');
     }
