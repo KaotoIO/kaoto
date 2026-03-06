@@ -14,12 +14,14 @@ import { Predicate } from './xpath';
 export type IParentType = IDocument | IField;
 
 /**
- * Immutable snapshot of a field's identity and structure taken **before** the first type override
- * or substitution is applied. Stored on {@link IField.originalField} and cleared on revert.
+ * Immutable snapshot of a field's identity and structure taken lazily on first expansion
+ * (e.g. when resolving children via `resolveTypeFragment`) or just before the first type override
+ * or substitution is applied. Stored on {@link IField.originalField} and cleared when the
+ * active override or substitution is reverted.
  *
  * ## Restoration strategy
  *
- * On revert, `restoreOriginalTypeToField` restores `fields` and `namedTypeFragmentRefs`
+ * On revert, `restoreOriginalField` restores `fields` and `namedTypeFragmentRefs`
  * independently to cover all schema variants:
  *
  * | Schema variant | Snapshot | Restored state |
@@ -43,6 +45,7 @@ export type IParentType = IDocument | IField;
  */
 export interface IOriginalFieldState {
   name: string;
+  displayName: string;
   namespaceURI: string | null;
   namespacePrefix: string | null;
   type: Types;

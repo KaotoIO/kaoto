@@ -12,6 +12,6 @@ export function revertTypeOverride(
 ): void {
   const document = field.ownerDocument;
   const previousRefId = document.getReferenceId(namespaceMap);
-  FieldTypeOverrideService.revertFieldTypeOverride(document, field, namespaceMap);
+  FieldTypeOverrideService.revertFieldTypeOverride(field, namespaceMap);
   updateDocument(document, document.definition, previousRefId);
 }

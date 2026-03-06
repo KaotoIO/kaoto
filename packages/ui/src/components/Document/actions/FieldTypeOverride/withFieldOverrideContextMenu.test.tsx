@@ -171,6 +171,7 @@ describe('withFieldOverrideContextMenu', () => {
     field.typeOverride = FieldOverrideVariant.SAFE;
     field.originalField = {
       name: field.name,
+      displayName: field.displayName,
       namespaceURI: field.namespaceURI,
       namespacePrefix: field.namespacePrefix,
       type: Types.String,
@@ -197,11 +198,12 @@ describe('withFieldOverrideContextMenu', () => {
   });
 
   it('should call revertFieldTypeOverride when clicking Reset Override', () => {
-    const { document, documentNodeData, fieldNode } = createFieldNode();
+    const { documentNodeData, fieldNode } = createFieldNode();
     const field = (fieldNode.nodeData as FieldNodeData).field;
     field.typeOverride = FieldOverrideVariant.SAFE;
     field.originalField = {
       name: field.name,
+      displayName: field.displayName,
       namespaceURI: field.namespaceURI,
       namespacePrefix: field.namespacePrefix,
       type: Types.String,
@@ -229,12 +231,12 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.click(screen.getByText('Reset Override'));
     });
 
-    expect(revertSpy).toHaveBeenCalledWith(document, field, expect.any(Object));
+    expect(revertSpy).toHaveBeenCalledWith(field, expect.any(Object));
     revertSpy.mockRestore();
   });
 
   it('should call applyFieldTypeOverride when saving type override', async () => {
-    const { document, documentNodeData, fieldNode } = createFieldNode();
+    const { documentNodeData, fieldNode } = createFieldNode();
 
     const applySpy = jest.spyOn(FieldTypeOverrideService, 'applyFieldTypeOverride');
     const mockCandidates = {
@@ -293,7 +295,6 @@ describe('withFieldOverrideContextMenu', () => {
 
     const field = (fieldNode.nodeData as FieldNodeData).field;
     expect(applySpy).toHaveBeenCalledWith(
-      document,
       field,
       mockCandidates['xs:int'],
       expect.any(Object),

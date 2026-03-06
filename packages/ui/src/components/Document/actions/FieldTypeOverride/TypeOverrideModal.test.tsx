@@ -34,6 +34,7 @@ describe('TypeOverrideModal', () => {
     testField.typeOverride = FieldOverrideVariant.NONE;
     testField.originalField = {
       name: testField.name,
+      displayName: testField.displayName,
       namespaceURI: testField.namespaceURI,
       namespacePrefix: testField.namespacePrefix,
       type: Types.String,
@@ -285,6 +286,7 @@ describe('TypeOverrideModal', () => {
     testField.typeOverride = FieldOverrideVariant.SAFE;
     testField.originalField = {
       name: testField.name,
+      displayName: testField.displayName,
       namespaceURI: testField.namespaceURI,
       namespacePrefix: testField.namespacePrefix,
       type: Types.String,

@@ -8,6 +8,7 @@ import {
   PredicateOperatorSymbol,
 } from '../../models/datamapper/xpath';
 import { DocumentUtilService } from '../document-util.service';
+import { getPrefixForNamespaceURI } from '../namespace-util';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { monacoXPathLanguageMetadata } from './monaco-language';
@@ -498,8 +499,12 @@ export class XPathService {
   }
 
   private static extractSegmentFromField(namespaceMap: { [p: string]: string }, field: IField): PathSegment {
-    const nsEntry = Object.entries(namespaceMap).find(([, uri]) => field.namespaceURI === uri);
-    return new PathSegment(field.name, field.isAttribute, nsEntry ? nsEntry[0] : '', field.predicates);
+    return new PathSegment(
+      field.name,
+      field.isAttribute,
+      getPrefixForNamespaceURI(field.namespaceURI, namespaceMap),
+      field.predicates,
+    );
   }
 
   /**
