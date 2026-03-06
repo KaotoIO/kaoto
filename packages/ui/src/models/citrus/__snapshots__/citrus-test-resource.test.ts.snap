@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CitrusTestResource toJSON should return JSON 1`] = `
+{
+  "actions": [
+    {
+      "print": {
+        "message": "Hello from Citrus!",
+      },
+    },
+  ],
+  "name": "sample-test",
+}
+`;
