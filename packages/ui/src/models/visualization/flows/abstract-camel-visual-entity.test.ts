@@ -37,7 +37,7 @@ describe('AbstractCamelVisualEntity', () => {
 
   describe('getNodeLabel', () => {
     it('should return an empty string if the path is `undefined`', () => {
-      const result = abstractVisualEntity.getNodeLabel(undefined);
+      const result = abstractVisualEntity.getNodeLabel();
 
       expect(result).toEqual('');
     });
