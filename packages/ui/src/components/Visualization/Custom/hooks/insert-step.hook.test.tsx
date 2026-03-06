@@ -140,6 +140,7 @@ describe('useInsertStep', () => {
       mockDefinedComponent,
       AddStepMode.InsertChildStep,
       'steps',
+      undefined,
     );
     expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
   });
@@ -160,6 +161,7 @@ describe('useInsertStep', () => {
     expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(
       mockDefinedComponent,
       AddStepMode.InsertSpecialChildStep,
+      undefined,
       undefined,
     );
     expect(getProcessorStepsPropertiesMock).toHaveBeenCalledWith(
@@ -284,5 +286,49 @@ describe('useInsertStep', () => {
     rerender({ vizNode: mockVizNode, mode: AddStepMode.InsertSpecialChildStep });
 
     expect(result.current).not.toBe(firstResult);
+  });
+
+  it('should skip catalog and call addBaseEntityStep with predefinedComponent when options.predefinedComponent is set', async () => {
+    const predefinedComponent = { name: 'otherwise', type: CatalogKind.Processor as const };
+    const { result } = renderHook(
+      () =>
+        useInsertStep(mockVizNode, AddStepMode.InsertSpecialChildStep, {
+          predefinedComponent,
+        }),
+      { wrapper },
+    );
+
+    await result.current.onInsertStep();
+
+    expect(mockCatalogModalContext.getNewComponent).not.toHaveBeenCalled();
+    expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledTimes(1);
+    expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(
+      predefinedComponent,
+      AddStepMode.InsertSpecialChildStep,
+      undefined,
+      undefined,
+    );
+  });
+
+  it('should pass insertAtStart to addBaseEntityStep when options.insertAtStart is true', async () => {
+    const predefinedComponent = { name: 'when', type: CatalogKind.Processor as const };
+    const { result } = renderHook(
+      () =>
+        useInsertStep(mockVizNode, AddStepMode.InsertSpecialChildStep, {
+          predefinedComponent,
+          insertAtStart: true,
+        }),
+      { wrapper },
+    );
+
+    await result.current.onInsertStep();
+
+    expect(mockCatalogModalContext.getNewComponent).not.toHaveBeenCalled();
+    expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(
+      predefinedComponent,
+      AddStepMode.InsertSpecialChildStep,
+      undefined,
+      true,
+    );
   });
 });

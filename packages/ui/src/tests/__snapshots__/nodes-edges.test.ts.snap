@@ -50,6 +50,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canRemoveStep": false,
                 "canReplaceStep": false,
               },
+              "children": undefined,
+              "data": {
+                "catalogKind": "entity",
+                "isGroup": false,
+                "isPlaceholder": true,
+                "name": "when",
+                "path": "route.from.steps.0.choice.when",
+              },
+              "id": "route.from.steps.0.choice.when",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
               "children": [
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -773,6 +798,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
                   "children": [
                     VisualizationNode {
                       "DISABLED_NODE_INTERACTION": {
@@ -1148,6 +1198,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
                     "children": [
                       VisualizationNode {
                         "DISABLED_NODE_INTERACTION": {
@@ -1463,6 +1538,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canReplaceStep": false,
                   },
                   "children": [
+                    VisualizationNode {
+                      "DISABLED_NODE_INTERACTION": {
+                        "canBeDisabled": false,
+                        "canHaveChildren": false,
+                        "canHaveNextStep": false,
+                        "canHavePreviousStep": false,
+                        "canHaveSpecialChildren": false,
+                        "canRemoveFlow": false,
+                        "canRemoveStep": false,
+                        "canReplaceStep": false,
+                      },
+                      "children": undefined,
+                      "data": {
+                        "catalogKind": "entity",
+                        "isGroup": false,
+                        "isPlaceholder": true,
+                        "name": "when",
+                        "path": "route.from.steps.0.choice.when",
+                      },
+                      "id": "route.from.steps.0.choice.when",
+                      "lastUpdate": 0,
+                      "nextNode": undefined,
+                      "parentNode": [Circular],
+                      "previousNode": undefined,
+                    },
                     VisualizationNode {
                       "DISABLED_NODE_INTERACTION": {
                         "canBeDisabled": false,
@@ -1830,6 +1930,1038 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         },
         "children": undefined,
         "data": {
+          "catalogKind": "entity",
+          "isGroup": false,
+          "isPlaceholder": true,
+          "name": "when",
+          "path": "route.from.steps.0.choice.when",
+        },
+        "id": "route.from.steps.0.choice.when",
+        "lastUpdate": 0,
+        "nextNode": undefined,
+        "parentNode": VisualizationNode {
+          "DISABLED_NODE_INTERACTION": {
+            "canBeDisabled": false,
+            "canHaveChildren": false,
+            "canHaveNextStep": false,
+            "canHavePreviousStep": false,
+            "canHaveSpecialChildren": false,
+            "canRemoveFlow": false,
+            "canRemoveStep": false,
+            "canReplaceStep": false,
+          },
+          "children": [
+            [Circular],
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "processor",
+                    "componentName": undefined,
+                    "isGroup": false,
+                    "name": "setHeader",
+                    "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
+                    "processorName": "setHeader",
+                  },
+                  "id": "route.from.steps.0.choice.when.0.steps.0.setHeader",
+                  "lastUpdate": 0,
+                  "nextNode": VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "placeholder",
+                      "path": "route.from.steps.0.choice.when.0.steps.1.placeholder",
+                    },
+                    "id": "route.from.steps.0.choice.when.0.steps.1.placeholder",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": [Circular],
+                  },
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "placeholder",
+                    "path": "route.from.steps.0.choice.when.0.steps.1.placeholder",
+                  },
+                  "id": "route.from.steps.0.choice.when.0.steps.1.placeholder",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "processor",
+                      "componentName": undefined,
+                      "isGroup": false,
+                      "name": "setHeader",
+                      "path": "route.from.steps.0.choice.when.0.steps.0.setHeader",
+                      "processorName": "setHeader",
+                    },
+                    "id": "route.from.steps.0.choice.when.0.steps.0.setHeader",
+                    "lastUpdate": 0,
+                    "nextNode": [Circular],
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                },
+              ],
+              "data": {
+                "catalogKind": "processor",
+                "isGroup": true,
+                "name": "when",
+                "path": "route.from.steps.0.choice.when.0",
+                "processorName": "when",
+              },
+              "id": "route.from.steps.0.choice.when.0",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "processor",
+                    "componentName": undefined,
+                    "isGroup": false,
+                    "name": "log",
+                    "path": "route.from.steps.0.choice.otherwise.steps.0.log",
+                    "processorName": "log",
+                  },
+                  "id": "route.from.steps.0.choice.otherwise.steps.0.log",
+                  "lastUpdate": 0,
+                  "nextNode": VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "placeholder",
+                      "path": "route.from.steps.0.choice.otherwise.steps.1.placeholder",
+                    },
+                    "id": "route.from.steps.0.choice.otherwise.steps.1.placeholder",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": [Circular],
+                  },
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "placeholder",
+                    "path": "route.from.steps.0.choice.otherwise.steps.1.placeholder",
+                  },
+                  "id": "route.from.steps.0.choice.otherwise.steps.1.placeholder",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "processor",
+                      "componentName": undefined,
+                      "isGroup": false,
+                      "name": "log",
+                      "path": "route.from.steps.0.choice.otherwise.steps.0.log",
+                      "processorName": "log",
+                    },
+                    "id": "route.from.steps.0.choice.otherwise.steps.0.log",
+                    "lastUpdate": 0,
+                    "nextNode": [Circular],
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                },
+              ],
+              "data": {
+                "catalogKind": "processor",
+                "isGroup": true,
+                "name": "otherwise",
+                "path": "route.from.steps.0.choice.otherwise",
+                "processorName": "otherwise",
+              },
+              "id": "route.from.steps.0.choice.otherwise",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
+          ],
+          "data": {
+            "catalogKind": "processor",
+            "isGroup": true,
+            "name": "choice",
+            "path": "route.from.steps.0.choice",
+            "processorName": "choice",
+          },
+          "id": "route.from.steps.0.choice",
+          "lastUpdate": 0,
+          "nextNode": VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "children": undefined,
+            "data": {
+              "catalogKind": "component",
+              "componentName": "sql",
+              "isGroup": false,
+              "name": "sql",
+              "path": "route.from.steps.1.to",
+              "processorName": "to",
+            },
+            "id": "route.from.steps.1.to",
+            "lastUpdate": 0,
+            "nextNode": VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": undefined,
+              "data": {
+                "catalogKind": "entity",
+                "isGroup": false,
+                "isPlaceholder": true,
+                "name": "placeholder",
+                "path": "route.from.steps.2.placeholder",
+              },
+              "id": "route.from.steps.2.placeholder",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": [],
+                    "data": {
+                      "catalogKind": "component",
+                      "componentName": "timer",
+                      "isGroup": false,
+                      "name": "timer",
+                      "path": "route.from",
+                      "processorName": "from",
+                    },
+                    "id": "route.from",
+                    "lastUpdate": 0,
+                    "nextNode": [Circular],
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                  [Circular],
+                  [Circular],
+                  [Circular],
+                ],
+                "data": {
+                  "catalogKind": "entity",
+                  "entity": {
+                    "route": {
+                      "from": {
+                        "id": "from-4014",
+                        "parameters": {
+                          "period": "1000",
+                          "timerName": "template",
+                        },
+                        "steps": [
+                          {
+                            "choice": {
+                              "id": "choice-3431",
+                              "otherwise": {
+                                "id": "otherwise-3653",
+                                "steps": [
+                                  {
+                                    "log": {
+                                      "id": "log-6808",
+                                      "message": "\${body}",
+                                    },
+                                  },
+                                ],
+                              },
+                              "when": [
+                                {
+                                  "expression": {
+                                    "simple": {
+                                      "expression": "\${header.foo} == 1",
+                                    },
+                                  },
+                                  "id": "when-4112",
+                                  "steps": [
+                                    {
+                                      "setHeader": {
+                                        "expression": {
+                                          "simple": {},
+                                        },
+                                        "id": "setHeader-6078",
+                                      },
+                                    },
+                                  ],
+                                },
+                              ],
+                            },
+                          },
+                          {
+                            "to": {
+                              "id": "to-3757",
+                              "parameters": {},
+                              "uri": "sql",
+                            },
+                          },
+                        ],
+                        "uri": "timer",
+                      },
+                      "id": "route-2768",
+                    },
+                  },
+                  "isGroup": true,
+                  "name": "route",
+                  "path": "route",
+                  "processorName": "route",
+                },
+                "id": "route",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": undefined,
+                "previousNode": undefined,
+              },
+              "previousNode": [Circular],
+            },
+            "parentNode": VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": [],
+                  "data": {
+                    "catalogKind": "component",
+                    "componentName": "timer",
+                    "isGroup": false,
+                    "name": "timer",
+                    "path": "route.from",
+                    "processorName": "from",
+                  },
+                  "id": "route.from",
+                  "lastUpdate": 0,
+                  "nextNode": [Circular],
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                [Circular],
+                [Circular],
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "placeholder",
+                    "path": "route.from.steps.2.placeholder",
+                  },
+                  "id": "route.from.steps.2.placeholder",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": [Circular],
+                },
+              ],
+              "data": {
+                "catalogKind": "entity",
+                "entity": {
+                  "route": {
+                    "from": {
+                      "id": "from-4014",
+                      "parameters": {
+                        "period": "1000",
+                        "timerName": "template",
+                      },
+                      "steps": [
+                        {
+                          "choice": {
+                            "id": "choice-3431",
+                            "otherwise": {
+                              "id": "otherwise-3653",
+                              "steps": [
+                                {
+                                  "log": {
+                                    "id": "log-6808",
+                                    "message": "\${body}",
+                                  },
+                                },
+                              ],
+                            },
+                            "when": [
+                              {
+                                "expression": {
+                                  "simple": {
+                                    "expression": "\${header.foo} == 1",
+                                  },
+                                },
+                                "id": "when-4112",
+                                "steps": [
+                                  {
+                                    "setHeader": {
+                                      "expression": {
+                                        "simple": {},
+                                      },
+                                      "id": "setHeader-6078",
+                                    },
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          "to": {
+                            "id": "to-3757",
+                            "parameters": {},
+                            "uri": "sql",
+                          },
+                        },
+                      ],
+                      "uri": "timer",
+                    },
+                    "id": "route-2768",
+                  },
+                },
+                "isGroup": true,
+                "name": "route",
+                "path": "route",
+                "processorName": "route",
+              },
+              "id": "route",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": undefined,
+              "previousNode": undefined,
+            },
+            "previousNode": [Circular],
+          },
+          "parentNode": VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": [],
+                "data": {
+                  "catalogKind": "component",
+                  "componentName": "timer",
+                  "isGroup": false,
+                  "name": "timer",
+                  "path": "route.from",
+                  "processorName": "from",
+                },
+                "id": "route.from",
+                "lastUpdate": 0,
+                "nextNode": [Circular],
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
+              [Circular],
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "component",
+                  "componentName": "sql",
+                  "isGroup": false,
+                  "name": "sql",
+                  "path": "route.from.steps.1.to",
+                  "processorName": "to",
+                },
+                "id": "route.from.steps.1.to",
+                "lastUpdate": 0,
+                "nextNode": VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "placeholder",
+                    "path": "route.from.steps.2.placeholder",
+                  },
+                  "id": "route.from.steps.2.placeholder",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": [Circular],
+                },
+                "parentNode": [Circular],
+                "previousNode": [Circular],
+              },
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "placeholder",
+                  "path": "route.from.steps.2.placeholder",
+                },
+                "id": "route.from.steps.2.placeholder",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "component",
+                    "componentName": "sql",
+                    "isGroup": false,
+                    "name": "sql",
+                    "path": "route.from.steps.1.to",
+                    "processorName": "to",
+                  },
+                  "id": "route.from.steps.1.to",
+                  "lastUpdate": 0,
+                  "nextNode": [Circular],
+                  "parentNode": [Circular],
+                  "previousNode": [Circular],
+                },
+              },
+            ],
+            "data": {
+              "catalogKind": "entity",
+              "entity": {
+                "route": {
+                  "from": {
+                    "id": "from-4014",
+                    "parameters": {
+                      "period": "1000",
+                      "timerName": "template",
+                    },
+                    "steps": [
+                      {
+                        "choice": {
+                          "id": "choice-3431",
+                          "otherwise": {
+                            "id": "otherwise-3653",
+                            "steps": [
+                              {
+                                "log": {
+                                  "id": "log-6808",
+                                  "message": "\${body}",
+                                },
+                              },
+                            ],
+                          },
+                          "when": [
+                            {
+                              "expression": {
+                                "simple": {
+                                  "expression": "\${header.foo} == 1",
+                                },
+                              },
+                              "id": "when-4112",
+                              "steps": [
+                                {
+                                  "setHeader": {
+                                    "expression": {
+                                      "simple": {},
+                                    },
+                                    "id": "setHeader-6078",
+                                  },
+                                },
+                              ],
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        "to": {
+                          "id": "to-3757",
+                          "parameters": {},
+                          "uri": "sql",
+                        },
+                      },
+                    ],
+                    "uri": "timer",
+                  },
+                  "id": "route-2768",
+                },
+              },
+              "isGroup": true,
+              "name": "route",
+              "path": "route",
+              "processorName": "route",
+            },
+            "id": "route",
+            "lastUpdate": 0,
+            "nextNode": undefined,
+            "parentNode": undefined,
+            "previousNode": undefined,
+          },
+          "previousNode": VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "children": [],
+            "data": {
+              "catalogKind": "component",
+              "componentName": "timer",
+              "isGroup": false,
+              "name": "timer",
+              "path": "route.from",
+              "processorName": "from",
+            },
+            "id": "route.from",
+            "lastUpdate": 0,
+            "nextNode": [Circular],
+            "parentNode": VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": [
+                [Circular],
+                [Circular],
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "component",
+                    "componentName": "sql",
+                    "isGroup": false,
+                    "name": "sql",
+                    "path": "route.from.steps.1.to",
+                    "processorName": "to",
+                  },
+                  "id": "route.from.steps.1.to",
+                  "lastUpdate": 0,
+                  "nextNode": VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "placeholder",
+                      "path": "route.from.steps.2.placeholder",
+                    },
+                    "id": "route.from.steps.2.placeholder",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": [Circular],
+                  },
+                  "parentNode": [Circular],
+                  "previousNode": [Circular],
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "placeholder",
+                    "path": "route.from.steps.2.placeholder",
+                  },
+                  "id": "route.from.steps.2.placeholder",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "component",
+                      "componentName": "sql",
+                      "isGroup": false,
+                      "name": "sql",
+                      "path": "route.from.steps.1.to",
+                      "processorName": "to",
+                    },
+                    "id": "route.from.steps.1.to",
+                    "lastUpdate": 0,
+                    "nextNode": [Circular],
+                    "parentNode": [Circular],
+                    "previousNode": [Circular],
+                  },
+                },
+              ],
+              "data": {
+                "catalogKind": "entity",
+                "entity": {
+                  "route": {
+                    "from": {
+                      "id": "from-4014",
+                      "parameters": {
+                        "period": "1000",
+                        "timerName": "template",
+                      },
+                      "steps": [
+                        {
+                          "choice": {
+                            "id": "choice-3431",
+                            "otherwise": {
+                              "id": "otherwise-3653",
+                              "steps": [
+                                {
+                                  "log": {
+                                    "id": "log-6808",
+                                    "message": "\${body}",
+                                  },
+                                },
+                              ],
+                            },
+                            "when": [
+                              {
+                                "expression": {
+                                  "simple": {
+                                    "expression": "\${header.foo} == 1",
+                                  },
+                                },
+                                "id": "when-4112",
+                                "steps": [
+                                  {
+                                    "setHeader": {
+                                      "expression": {
+                                        "simple": {},
+                                      },
+                                      "id": "setHeader-6078",
+                                    },
+                                  },
+                                ],
+                              },
+                            ],
+                          },
+                        },
+                        {
+                          "to": {
+                            "id": "to-3757",
+                            "parameters": {},
+                            "uri": "sql",
+                          },
+                        },
+                      ],
+                      "uri": "timer",
+                    },
+                    "id": "route-2768",
+                  },
+                },
+                "isGroup": true,
+                "name": "route",
+                "path": "route",
+                "processorName": "route",
+              },
+              "id": "route",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": undefined,
+              "previousNode": undefined,
+            },
+            "previousNode": undefined,
+          },
+        },
+        "previousNode": undefined,
+      },
+    },
+    "group": false,
+    "height": 55,
+    "id": "test|route.from.steps.0.choice.when",
+    "parentNode": "test|route.from.steps.0.choice",
+    "shape": "rect",
+    "type": "node-placeholder",
+    "width": 60,
+  },
+  {
+    "children": [],
+    "data": {
+      "vizNode": VisualizationNode {
+        "DISABLED_NODE_INTERACTION": {
+          "canBeDisabled": false,
+          "canHaveChildren": false,
+          "canHaveNextStep": false,
+          "canHavePreviousStep": false,
+          "canHaveSpecialChildren": false,
+          "canRemoveFlow": false,
+          "canRemoveStep": false,
+          "canReplaceStep": false,
+        },
+        "children": undefined,
+        "data": {
           "catalogKind": "processor",
           "componentName": undefined,
           "isGroup": false,
@@ -1898,6 +3030,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canReplaceStep": false,
               },
               "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
                 [Circular],
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -2821,6 +3978,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canReplaceStep": false,
             },
             "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "when",
+                  "path": "route.from.steps.0.choice.when",
+                },
+                "id": "route.from.steps.0.choice.when",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
               [Circular],
               VisualizationNode {
                 "DISABLED_NODE_INTERACTION": {
@@ -3779,6 +4961,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canReplaceStep": false,
             },
             "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "when",
+                  "path": "route.from.steps.0.choice.when",
+                },
+                "id": "route.from.steps.0.choice.when",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
               [Circular],
               VisualizationNode {
                 "DISABLED_NODE_INTERACTION": {
@@ -4699,6 +5906,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canReplaceStep": false,
               },
               "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
                 [Circular],
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
@@ -5564,12 +6796,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
       },
     },
     "group": false,
-    "height": 75,
+    "height": 55,
     "id": "test|route.from.steps.0.choice.when.0.steps.1.placeholder",
     "parentNode": "test|route.from.steps.0.choice.when.0",
     "shape": "rect",
     "type": "node-placeholder",
-    "width": 90,
+    "width": 60,
   },
   {
     "children": [
@@ -5712,6 +6944,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "canReplaceStep": false,
           },
           "children": [
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": undefined,
+              "data": {
+                "catalogKind": "entity",
+                "isGroup": false,
+                "isPlaceholder": true,
+                "name": "when",
+                "path": "route.from.steps.0.choice.when",
+              },
+              "id": "route.from.steps.0.choice.when",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
             [Circular],
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
@@ -6677,6 +7934,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
                   "children": [
                     VisualizationNode {
                       "DISABLED_NODE_INTERACTION": {
@@ -7589,6 +8871,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canReplaceStep": false,
             },
             "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "when",
+                  "path": "route.from.steps.0.choice.when",
+                },
+                "id": "route.from.steps.0.choice.when",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
               VisualizationNode {
                 "DISABLED_NODE_INTERACTION": {
                   "canBeDisabled": false,
@@ -8558,6 +9865,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canRemoveStep": false,
                   "canReplaceStep": false,
                 },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "when",
+                  "path": "route.from.steps.0.choice.when",
+                },
+                "id": "route.from.steps.0.choice.when",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
                 "children": [
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
@@ -9478,6 +10810,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
                   "children": [
                     VisualizationNode {
                       "DISABLED_NODE_INTERACTION": {
@@ -10332,12 +11689,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
       },
     },
     "group": false,
-    "height": 75,
+    "height": 55,
     "id": "test|route.from.steps.0.choice.otherwise.steps.1.placeholder",
     "parentNode": "test|route.from.steps.0.choice.otherwise",
     "shape": "rect",
     "type": "node-placeholder",
-    "width": 90,
+    "width": 60,
   },
   {
     "children": [
@@ -10480,6 +11837,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "canReplaceStep": false,
           },
           "children": [
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": undefined,
+              "data": {
+                "catalogKind": "entity",
+                "isGroup": false,
+                "isPlaceholder": true,
+                "name": "when",
+                "path": "route.from.steps.0.choice.when",
+              },
+              "id": "route.from.steps.0.choice.when",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
                 "canBeDisabled": false,
@@ -11352,6 +12734,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
   },
   {
     "children": [
+      "test|route.from.steps.0.choice.when",
       "test|route.from.steps.0.choice.when.0",
       "test|route.from.steps.0.choice.otherwise",
     ],
@@ -11368,6 +12751,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "canReplaceStep": false,
         },
         "children": [
+          VisualizationNode {
+            "DISABLED_NODE_INTERACTION": {
+              "canBeDisabled": false,
+              "canHaveChildren": false,
+              "canHaveNextStep": false,
+              "canHavePreviousStep": false,
+              "canHaveSpecialChildren": false,
+              "canRemoveFlow": false,
+              "canRemoveStep": false,
+              "canReplaceStep": false,
+            },
+            "children": undefined,
+            "data": {
+              "catalogKind": "entity",
+              "isGroup": false,
+              "isPlaceholder": true,
+              "name": "when",
+              "path": "route.from.steps.0.choice.when",
+            },
+            "id": "route.from.steps.0.choice.when",
+            "lastUpdate": 0,
+            "nextNode": undefined,
+            "parentNode": [Circular],
+            "previousNode": undefined,
+          },
           VisualizationNode {
             "DISABLED_NODE_INTERACTION": {
               "canBeDisabled": false,
@@ -12465,6 +13873,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
+                      "data": {
+                        "catalogKind": "entity",
+                        "isGroup": false,
+                        "isPlaceholder": true,
+                        "name": "when",
+                        "path": "route.from.steps.0.choice.when",
+                      },
+                      "id": "route.from.steps.0.choice.when",
+                      "lastUpdate": 0,
+                      "nextNode": undefined,
+                      "parentNode": [Circular],
+                      "previousNode": undefined,
+                    },
+                    VisualizationNode {
+                      "DISABLED_NODE_INTERACTION": {
+                        "canBeDisabled": false,
+                        "canHaveChildren": false,
+                        "canHaveNextStep": false,
+                        "canHavePreviousStep": false,
+                        "canHaveSpecialChildren": false,
+                        "canRemoveFlow": false,
+                        "canRemoveStep": false,
+                        "canReplaceStep": false,
+                      },
                       "children": [
                         VisualizationNode {
                           "DISABLED_NODE_INTERACTION": {
@@ -12735,6 +14168,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canReplaceStep": false,
                 },
                 "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
                       "canBeDisabled": false,
@@ -13159,6 +14617,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
                     "children": [
                       VisualizationNode {
                         "DISABLED_NODE_INTERACTION": {
@@ -13429,6 +14912,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canReplaceStep": false,
               },
               "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
                     "canBeDisabled": false,
@@ -13830,6 +15338,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "canReplaceStep": false,
           },
           "children": [
+            VisualizationNode {
+              "DISABLED_NODE_INTERACTION": {
+                "canBeDisabled": false,
+                "canHaveChildren": false,
+                "canHaveNextStep": false,
+                "canHavePreviousStep": false,
+                "canHaveSpecialChildren": false,
+                "canRemoveFlow": false,
+                "canRemoveStep": false,
+                "canReplaceStep": false,
+              },
+              "children": undefined,
+              "data": {
+                "catalogKind": "entity",
+                "isGroup": false,
+                "isPlaceholder": true,
+                "name": "when",
+                "path": "route.from.steps.0.choice.when",
+              },
+              "id": "route.from.steps.0.choice.when",
+              "lastUpdate": 0,
+              "nextNode": undefined,
+              "parentNode": [Circular],
+              "previousNode": undefined,
+            },
             VisualizationNode {
               "DISABLED_NODE_INTERACTION": {
                 "canBeDisabled": false,
@@ -14460,6 +15993,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "canRemoveStep": false,
                       "canReplaceStep": false,
                     },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
                     "children": [
                       VisualizationNode {
                         "DISABLED_NODE_INTERACTION": {
@@ -14755,6 +16313,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canReplaceStep": false,
               },
               "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
                     "canBeDisabled": false,
@@ -15107,6 +16690,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canReplaceStep": false,
                 },
                 "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
                       "canBeDisabled": false,
@@ -15552,6 +17160,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "canRemoveStep": false,
                         "canReplaceStep": false,
                       },
+                      "children": undefined,
+                      "data": {
+                        "catalogKind": "entity",
+                        "isGroup": false,
+                        "isPlaceholder": true,
+                        "name": "when",
+                        "path": "route.from.steps.0.choice.when",
+                      },
+                      "id": "route.from.steps.0.choice.when",
+                      "lastUpdate": 0,
+                      "nextNode": undefined,
+                      "parentNode": [Circular],
+                      "previousNode": undefined,
+                    },
+                    VisualizationNode {
+                      "DISABLED_NODE_INTERACTION": {
+                        "canBeDisabled": false,
+                        "canHaveChildren": false,
+                        "canHaveNextStep": false,
+                        "canHavePreviousStep": false,
+                        "canHaveSpecialChildren": false,
+                        "canRemoveFlow": false,
+                        "canRemoveStep": false,
+                        "canReplaceStep": false,
+                      },
                       "children": [
                         VisualizationNode {
                           "DISABLED_NODE_INTERACTION": {
@@ -15822,6 +17455,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canReplaceStep": false,
                 },
                 "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
                       "canBeDisabled": false,
@@ -16199,6 +17857,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canReplaceStep": false,
             },
             "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "when",
+                  "path": "route.from.steps.0.choice.when",
+                },
+                "id": "route.from.steps.0.choice.when",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
               VisualizationNode {
                 "DISABLED_NODE_INTERACTION": {
                   "canBeDisabled": false,
@@ -16693,12 +18376,12 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
       },
     },
     "group": false,
-    "height": 75,
+    "height": 55,
     "id": "test|route.from.steps.2.placeholder",
     "parentNode": "test|route",
     "shape": "rect",
     "type": "node-placeholder",
-    "width": 90,
+    "width": 60,
   },
   {
     "children": [
@@ -16754,6 +18437,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "canReplaceStep": false,
               },
               "children": [
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
                 VisualizationNode {
                   "DISABLED_NODE_INTERACTION": {
                     "canBeDisabled": false,
@@ -17084,6 +18792,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "canReplaceStep": false,
             },
             "children": [
+              VisualizationNode {
+                "DISABLED_NODE_INTERACTION": {
+                  "canBeDisabled": false,
+                  "canHaveChildren": false,
+                  "canHaveNextStep": false,
+                  "canHavePreviousStep": false,
+                  "canHaveSpecialChildren": false,
+                  "canRemoveFlow": false,
+                  "canRemoveStep": false,
+                  "canReplaceStep": false,
+                },
+                "children": undefined,
+                "data": {
+                  "catalogKind": "entity",
+                  "isGroup": false,
+                  "isPlaceholder": true,
+                  "name": "when",
+                  "path": "route.from.steps.0.choice.when",
+                },
+                "id": "route.from.steps.0.choice.when",
+                "lastUpdate": 0,
+                "nextNode": undefined,
+                "parentNode": [Circular],
+                "previousNode": undefined,
+              },
               VisualizationNode {
                 "DISABLED_NODE_INTERACTION": {
                   "canBeDisabled": false,
@@ -17495,6 +19228,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "canRemoveStep": false,
                     "canReplaceStep": false,
                   },
+                  "children": undefined,
+                  "data": {
+                    "catalogKind": "entity",
+                    "isGroup": false,
+                    "isPlaceholder": true,
+                    "name": "when",
+                    "path": "route.from.steps.0.choice.when",
+                  },
+                  "id": "route.from.steps.0.choice.when",
+                  "lastUpdate": 0,
+                  "nextNode": undefined,
+                  "parentNode": [Circular],
+                  "previousNode": undefined,
+                },
+                VisualizationNode {
+                  "DISABLED_NODE_INTERACTION": {
+                    "canBeDisabled": false,
+                    "canHaveChildren": false,
+                    "canHaveNextStep": false,
+                    "canHavePreviousStep": false,
+                    "canHaveSpecialChildren": false,
+                    "canRemoveFlow": false,
+                    "canRemoveStep": false,
+                    "canReplaceStep": false,
+                  },
                   "children": [
                     VisualizationNode {
                       "DISABLED_NODE_INTERACTION": {
@@ -17835,6 +19593,31 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "canReplaceStep": false,
                 },
                 "children": [
+                  VisualizationNode {
+                    "DISABLED_NODE_INTERACTION": {
+                      "canBeDisabled": false,
+                      "canHaveChildren": false,
+                      "canHaveNextStep": false,
+                      "canHavePreviousStep": false,
+                      "canHaveSpecialChildren": false,
+                      "canRemoveFlow": false,
+                      "canRemoveStep": false,
+                      "canReplaceStep": false,
+                    },
+                    "children": undefined,
+                    "data": {
+                      "catalogKind": "entity",
+                      "isGroup": false,
+                      "isPlaceholder": true,
+                      "name": "when",
+                      "path": "route.from.steps.0.choice.when",
+                    },
+                    "id": "route.from.steps.0.choice.when",
+                    "lastUpdate": 0,
+                    "nextNode": undefined,
+                    "parentNode": [Circular],
+                    "previousNode": undefined,
+                  },
                   VisualizationNode {
                     "DISABLED_NODE_INTERACTION": {
                       "canBeDisabled": false,

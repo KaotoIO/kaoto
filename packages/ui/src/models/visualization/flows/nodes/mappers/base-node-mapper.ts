@@ -2,6 +2,7 @@ import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types'
 
 import { getValue } from '../../../../../utils';
 import { CatalogKind } from '../../../../catalog-kind';
+import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../../../special-processors.constants';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelComponentSchemaService } from '../../support/camel-component-schema.service';
@@ -117,8 +118,8 @@ export class BaseNodeMapper implements INodeMapper {
   protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
     const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, entityDefinition);
 
-    /** If the single-clause property is not defined, we don't create a IVisualizationNode for it */
-    if (getValue(entityDefinition, path) === undefined) return [];
+    /** If the single-clause property is not defined, return a placeholder */
+    if (getValue(entityDefinition, path) === undefined) return [this.getPlaceHolderNodeForProcessor(path)];
 
     return [this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition)];
   }
@@ -126,12 +127,31 @@ export class BaseNodeMapper implements INodeMapper {
   protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
     const expressionList = getValue(entityDefinition, path, []) as When1[] | DoCatch[];
 
-    return expressionList.map((_step, index) => {
-      const childPath = `${path}.${index}`;
+    const children: IVisualizationNode[] = [this.getPlaceHolderNodeForProcessor(path)];
+    expressionList.forEach((_step, index) => {
+      let childPath = `${path}.${index}`;
       const processorName = path.split('.').pop() as keyof ProcessorDefinition;
-      const childComponentLookup = { processorName }; // when, doCatch
+      const childComponentLookup = { processorName };
 
-      return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      if (
+        SPECIAL_PROCESSORS_PARENTS_MAP['routeConfiguration'].includes(
+          processorName as (typeof SPECIAL_PROCESSORS_PARENTS_MAP)['routeConfiguration'][number],
+        )
+      ) {
+        childPath = `${path}.${index}.${processorName}`;
+      }
+      children.push(this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition));
+    });
+
+    return children;
+  }
+
+  protected getPlaceHolderNodeForProcessor(path: string): IVisualizationNode {
+    return createVisualizationNode(`${path}`, {
+      catalogKind: CatalogKind.Entity,
+      name: path.split('.').pop() as keyof ProcessorDefinition,
+      isPlaceholder: true,
+      path: `${path}`,
     });
   }
 }

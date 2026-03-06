@@ -51,6 +51,8 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
     mode: AddStepMode;
     data: IVisualizationNodeData;
     targetProperty?: string;
+    /** When true and target is an array-clause (e.g. when), insert at start instead of end */
+    insertAtStart?: boolean;
   }) => void;
 
   /** Given a path, get the content to be copied */
@@ -60,6 +62,8 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
     clipboardContent: IClipboardCopyObject;
     mode: AddStepMode;
     data: IVisualizationNodeData;
+    /** When true and target is an array-clause (e.g. when), insert at start instead of end */
+    insertAtStart?: boolean;
   }) => void;
 
   /** Check if the node is draggable */
@@ -113,12 +117,17 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** This method returns the title used by the CanvasForm component */
   getNodeTitle(): string;
 
-  addBaseEntityStep(definedComponent: DefinedComponent, mode: AddStepMode, targetProperty?: string): void;
+  addBaseEntityStep(
+    definedComponent: DefinedComponent,
+    mode: AddStepMode,
+    targetProperty?: string,
+    insertAtStart?: boolean,
+  ): void;
 
   /** This method return the content to be copied for the node */
   getCopiedContent(): IClipboardCopyObject | undefined;
 
-  pasteBaseEntityStep(definedComponent: IClipboardCopyObject, mode: AddStepMode): void;
+  pasteBaseEntityStep(definedComponent: IClipboardCopyObject, mode: AddStepMode, insertAtStart?: boolean): void;
 
   canDragNode(): boolean;
 

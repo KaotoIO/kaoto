@@ -79,6 +79,8 @@ export class FlowService {
 
     if (vizNodeParam.data.isPlaceholder) {
       canvasNode.type = 'node-placeholder';
+      canvasNode.width = CanvasDefaults.DEFAULT_PLACEHOLDER_NODE_WIDTH;
+      canvasNode.height = CanvasDefaults.DEFAULT_PLACEHOLDER_NODE_HEIGHT;
     }
 
     return canvasNode;

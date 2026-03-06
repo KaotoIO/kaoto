@@ -33,7 +33,7 @@ export class RestDslVerbsNodeMapper extends BaseNodeMapper {
 
     const [toDirectNode] = this.getChildrenFromSingleClause(`${path}.to`, entityDefinition);
 
-    if (isDefined(toDirectNode)) {
+    if (isDefined(toDirectNode) && !toDirectNode.data.isPlaceholder) {
       (toDirectNode.data as CamelRouteVisualEntityData).catalogKind = CatalogKind.Component;
       (toDirectNode.data as CamelRouteVisualEntityData).componentName = 'direct';
       (toDirectNode.data as CamelRouteVisualEntityData).name = 'direct';

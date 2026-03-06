@@ -11,7 +11,7 @@ describe('Tests for Design page', () => {
     cy.chooseFromCatalog('processor', 'doTry');
 
     cy.checkNodeExist('doTry', 1);
-    cy.checkNodeExist('doCatch', 1);
+    cy.checkNodeExist('doCatch', 2);
     cy.checkNodeExist('doFinally', 1);
     cy.selectDuplicateNode('doCatch');
 
@@ -22,12 +22,12 @@ describe('Tests for Design page', () => {
     cy.chooseFromCatalog('processor', 'choice');
 
     cy.checkNodeExist('choice', 1);
-    cy.checkNodeExist('when', 1);
+    cy.checkNodeExist('when', 2);
     cy.checkNodeExist('otherwise', 1);
     cy.checkNodeExist('setHeader', 0);
 
     cy.selectDuplicateNode('when');
-    cy.checkNodeExist('when', 2);
+    cy.checkNodeExist('when', 3);
 
     cy.openSourceCode();
     cy.getMonacoValue().then(({ sourceCode }) => {
@@ -56,13 +56,17 @@ describe('Tests for Design page', () => {
     cy.openDesignPage();
 
     cy.selectDuplicateNode('intercept');
-    cy.checkNodeExist('intercept', 2);
+    cy.checkNodeExist('intercept', 3);
+
+    cy.resetViewInCanvas();
 
     cy.selectDuplicateNode('interceptFrom');
-    cy.checkNodeExist('interceptFrom', 2);
+    cy.checkNodeExist('interceptFrom', 3);
+
+    cy.resetViewInCanvas();
 
     cy.selectDuplicateNode('interceptSendToEndpoint');
-    cy.checkNodeExist('interceptSendToEndpoint', 2);
+    cy.checkNodeExist('interceptSendToEndpoint', 3);
 
     cy.openSourceCode();
     cy.getMonacoValue().then(({ sourceCode }) => {

@@ -205,14 +205,10 @@ describe('canDragGroup', () => {
     expect(CamelComponentSchemaService.getProcessorStepsProperties).not.toHaveBeenCalled();
   });
 
-  it('should return false when group matches single-clause property', () => {
-    (CamelComponentSchemaService.getProcessorStepsProperties as jest.Mock).mockReturnValue([
-      { name: 'otherwise', type: 'single-clause' },
-      { name: 'when', type: 'array-clause' },
-    ]);
+  it('should return true when group is otherwise(single-clause)', () => {
     const groupVizNode = getMockGroupVizNode('route.from.steps.0.choice.otherwise', 'otherwise', 'choice');
 
-    expect(canDragGroup(groupVizNode)).toBe(false);
+    expect(canDragGroup(groupVizNode)).toBe(true);
   });
 
   it('should return true when group does not match single-clause property', () => {

@@ -306,3 +306,7 @@ Cypress.Commands.add('addValueToClipboard', (value) => {
     }
   });
 });
+
+Cypress.Commands.add('resetViewInCanvas', () => {
+  cy.get('button[id="reset-view"]').click();
+});
