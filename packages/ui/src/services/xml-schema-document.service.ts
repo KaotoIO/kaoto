@@ -69,14 +69,79 @@ export class XmlSchemaDocumentService {
 
     const analysis = XmlSchemaAnalysisService.analyze(definitionFiles);
     if (analysis.errors.length > 0) {
-      return {
-        validationStatus: 'error',
-        errors: analysis.errors,
-        warnings: analysis.warnings,
-        documentDefinition: definition,
-      };
+      return XmlSchemaDocumentService.createErrorResult(analysis.errors, analysis.warnings, definition);
     }
 
+    const loadResult = XmlSchemaDocumentService.loadSchemaFiles(collection, analysis, definitionFiles);
+    if (loadResult.error) {
+      return XmlSchemaDocumentService.createErrorResult(
+        [{ message: loadResult.error.message, filePath: loadResult.error.filePath }],
+        analysis.warnings,
+        definition,
+      );
+    }
+
+    const validationResult = XmlSchemaDocumentService.validateCollection(collection, definition);
+    if (validationResult) {
+      return validationResult;
+    }
+
+    const rootElement = XmlSchemaDocumentService.getRootElement(collection, definition);
+    if ('validationStatus' in rootElement) {
+      return rootElement;
+    }
+
+    XmlSchemaDocumentService.ensureNamespaceMap(definition, collection);
+
+    const document = new XmlSchemaDocument(definition, collection, rootElement);
+
+    XmlSchemaDocumentService.populateNamedTypeFragments(document);
+    XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
+
+    DocumentUtilService.processOverrides(
+      document,
+      definition.fieldTypeOverrides ?? [],
+      definition.choiceSelections ?? [],
+      definition.namespaceMap || {},
+      XmlSchemaTypesService.parseTypeOverride,
+    );
+
+    const rootElementOptions = XmlSchemaDocumentUtilService.collectRootElementOptions(collection);
+    const validationStatus = analysis.warnings.length > 0 ? 'warning' : 'success';
+
+    return {
+      validationStatus,
+      warnings: analysis.warnings.length > 0 ? analysis.warnings : undefined,
+      documentDefinition: definition,
+      document,
+      rootElementOptions,
+    } as CreateXmlSchemaDocumentResult;
+  }
+
+  /**
+   * Helper method to create an error result.
+   */
+  private static createErrorResult(
+    errors: Array<{ message: string; filePath?: string }>,
+    warnings: Array<{ message: string; filePath?: string }>,
+    definition: DocumentDefinition,
+  ): CreateXmlSchemaDocumentResult {
+    return {
+      validationStatus: 'error',
+      errors,
+      warnings,
+      documentDefinition: definition,
+    };
+  }
+
+  /**
+   * Helper method to load schema files into the collection.
+   */
+  private static loadSchemaFiles(
+    collection: XmlSchemaCollection,
+    analysis: { loadOrder: string[]; edges: Array<{ directive: { type: string }; to: string }> },
+    definitionFiles: Record<string, string>,
+  ): { error?: { message: string; filePath?: string } } {
     const includeTargets = new Set(analysis.edges.filter((e) => e.directive.type === 'include').map((e) => e.to));
 
     try {
@@ -84,18 +149,22 @@ export class XmlSchemaDocumentService {
         if (includeTargets.has(path)) continue;
         collection.read(definitionFiles[path], () => {}, path);
       }
+      return {};
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       const baseUriMatch = REGEX_BASE_URI.exec(errorMessage);
       const filePath = baseUriMatch?.[1];
-      return {
-        validationStatus: 'error',
-        errors: [{ message: errorMessage, filePath }],
-        warnings: analysis.warnings,
-        documentDefinition: definition,
-      };
+      return { error: { message: errorMessage, filePath } };
     }
+  }
 
+  /**
+   * Helper method to validate the schema collection.
+   */
+  private static validateCollection(
+    collection: XmlSchemaCollection,
+    definition: DocumentDefinition,
+  ): CreateXmlSchemaDocumentResult | null {
     if (collection.getXmlSchemas().length === 0) {
       return {
         validationStatus: 'error',
@@ -113,9 +182,18 @@ export class XmlSchemaDocumentService {
       };
     }
 
-    let rootElement: XmlSchemaElement;
+    return null;
+  }
+
+  /**
+   * Helper method to get the root element.
+   */
+  private static getRootElement(
+    collection: XmlSchemaCollection,
+    definition: DocumentDefinition,
+  ): XmlSchemaElement | CreateXmlSchemaDocumentResult {
     try {
-      rootElement = XmlSchemaDocumentUtilService.determineRootElement(collection, definition.rootElementChoice);
+      return XmlSchemaDocumentUtilService.determineRootElement(collection, definition.rootElementChoice);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
@@ -124,32 +202,18 @@ export class XmlSchemaDocumentService {
         documentDefinition: definition,
       };
     }
+  }
 
-    const document = new XmlSchemaDocument(definition, collection, rootElement);
-
-    XmlSchemaDocumentService.populateNamedTypeFragments(document);
-    XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
-
-    DocumentUtilService.processOverrides(
-      document,
-      definition.fieldTypeOverrides ?? [],
-      definition.choiceSelections ?? [],
-      definition.namespaceMap || {},
-      XmlSchemaTypesService.parseTypeOverride,
-    );
-
-    const rootElementOptions = XmlSchemaDocumentUtilService.collectRootElementOptions(collection);
-    const validationWarnings = analysis.warnings;
-
-    const validationStatus = validationWarnings.length > 0 ? 'warning' : 'success';
-
-    return {
-      validationStatus,
-      warnings: validationWarnings.length > 0 ? validationWarnings : undefined,
-      documentDefinition: definition,
-      document,
-      rootElementOptions,
-    } as CreateXmlSchemaDocumentResult;
+  /**
+   * Helper method to ensure namespace map is populated.
+   */
+  private static ensureNamespaceMap(definition: DocumentDefinition, collection: XmlSchemaCollection): void {
+    if (!definition.namespaceMap) {
+      const extractedNamespaces = XmlSchemaDocumentService.extractNamespacesFromCollection(collection, {});
+      if (Object.keys(extractedNamespaces).length > 0) {
+        definition.namespaceMap = extractedNamespaces;
+      }
+    }
   }
 
   /**
@@ -222,6 +286,34 @@ export class XmlSchemaDocumentService {
    * @param existingNamespaceMap - Existing namespace map to check for conflicts
    * @returns Map of generated prefix -> namespace URI
    */
+  /**
+   * Extracts namespace mappings from an already-parsed XmlSchemaCollection.
+   * Unlike extractNamespacesFromSchemas, this reuses an existing collection
+   * and avoids re-parsing schema files.
+   */
+  private static extractNamespacesFromCollection(
+    collection: XmlSchemaCollection,
+    existingNamespaceMap: Record<string, string>,
+  ): Record<string, string> {
+    const newNamespaces: Record<string, string> = {};
+
+    for (const schema of collection.getUserSchemas()) {
+      const targetNamespace = schema.getTargetNamespace();
+      if (!targetNamespace || XmlSchemaDocumentUtilService.isStandardXmlNamespace(targetNamespace)) continue;
+
+      const alreadyMapped =
+        Object.values(existingNamespaceMap).includes(targetNamespace) ||
+        Object.values(newNamespaces).includes(targetNamespace);
+      if (alreadyMapped) continue;
+
+      const combinedMap = { ...existingNamespaceMap, ...newNamespaces };
+      const prefix = DocumentUtilService.generateNamespacePrefix(combinedMap);
+      newNamespaces[prefix] = targetNamespace;
+    }
+
+    return newNamespaces;
+  }
+
   private static extractNamespacesFromSchemas(
     schemaFiles: Record<string, string>,
     existingNamespaceMap: Record<string, string>,
