@@ -256,6 +256,9 @@ export function getInlineAttrSimpleTypeXsd(): string {
 export function getAnonymousGlobalElementRefLargeXsd(): string {
   return readStubFile('./xml/AnonymousGlobalElementRefLarge.xsd');
 }
+export function getFieldSubstitutionXsd(): string {
+  return readStubFile('./xml/FieldSubstitution.xsd');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {
