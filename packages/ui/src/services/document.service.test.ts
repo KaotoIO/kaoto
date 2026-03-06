@@ -9,7 +9,8 @@ import {
   PrimitiveDocument,
   RootElementOption,
 } from '../models/datamapper';
-import { TypeOverrideVariant } from '../models/datamapper/types';
+import { IFieldSubstitution } from '../models/datamapper/metadata';
+import { FieldOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
 import { getCartJsonSchema, getMultipleElementsXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
@@ -665,10 +666,16 @@ describe('DocumentService', () => {
           schemaPath: '/old:Order/field',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
       originalDocument.definition.choiceSelections = [{ schemaPath: '/old:Order/{choice:0}', selectedMemberIndex: 1 }];
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/old:Order/field',
+        name: 'ns0:Sub',
+        originalName: 'ns0:Field',
+      };
+      originalDocument.definition.fieldSubstitutions = [substitution];
 
       const invoiceOption: RootElementOption = {
         name: 'Invoice',
@@ -679,6 +686,7 @@ describe('DocumentService', () => {
 
       expect(updatedDocument.definition.fieldTypeOverrides).toEqual([]);
       expect(updatedDocument.definition.choiceSelections).toEqual([]);
+      expect(updatedDocument.definition.fieldSubstitutions).toEqual([]);
     });
   });
 

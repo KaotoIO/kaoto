@@ -157,9 +157,10 @@ export class DataMapperMetadataService {
           name,
           definitionFiles,
           documentMetadata.rootElementChoice,
+          namespaceMap,
           documentMetadata.fieldTypeOverrides,
           documentMetadata.choiceSelections,
-          namespaceMap,
+          documentMetadata.fieldSubstitutions,
         );
         resolve(answer);
       });
@@ -204,6 +205,7 @@ export class DataMapperMetadataService {
       rootElementChoice: definition.rootElementChoice,
       fieldTypeOverrides: definition.fieldTypeOverrides,
       choiceSelections: definition.choiceSelections,
+      fieldSubstitutions: definition.fieldSubstitutions,
     };
     const filePromises =
       api.shouldSaveSchema && definition.definitionFiles
