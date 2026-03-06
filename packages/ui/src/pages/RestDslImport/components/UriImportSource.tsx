@@ -5,7 +5,7 @@ import { FunctionComponent, useCallback, useState } from 'react';
 import { SchemaLoadedResult } from '../RestDslImportTypes';
 
 type UriImportSourceProps = {
-  onSchemaLoaded: (result: SchemaLoadedResult) => void;
+  onSchemaLoaded: (result: SchemaLoadedResult) => { error?: string };
 };
 
 export const UriImportSource: FunctionComponent<UriImportSourceProps> = ({ onSchemaLoaded }) => {
@@ -16,10 +16,6 @@ export const UriImportSource: FunctionComponent<UriImportSourceProps> = ({ onSch
 
   const handleFetch = useCallback(async () => {
     const trimmed = uri.trim();
-    if (!trimmed) {
-      setError('Provide a specification URI to fetch.');
-      return;
-    }
 
     setIsLoading(true);
     setError('');
@@ -28,18 +24,23 @@ export const UriImportSource: FunctionComponent<UriImportSourceProps> = ({ onSch
     try {
       const response = await fetch(trimmed);
       if (!response.ok) {
-        throw new Error(`Failed to fetch specification (${response.status})`);
+        throw new Error(`Failed to fetch specification (HTTP ${response.status})`);
       }
       const specText = await response.text();
 
-      onSchemaLoaded({
+      const loadResult = onSchemaLoaded({
         schema: specText,
         source: 'uri',
         sourceIdentifier: trimmed,
       });
 
-      setIsLoaded(true);
-      setError('');
+      if (loadResult?.error) {
+        setError(loadResult.error);
+        setIsLoaded(false);
+      } else {
+        setIsLoaded(true);
+        setError('');
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to fetch the specification.';
       setError(message);

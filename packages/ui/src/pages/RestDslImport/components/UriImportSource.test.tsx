@@ -37,6 +37,7 @@ describe('UriImportSource', () => {
       ok: true,
       text: jest.fn().mockResolvedValue(specContent),
     } as unknown as Response);
+    mockOnSchemaLoaded.mockReturnValue({});
 
     render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
     const input = screen.getByRole('textbox');
@@ -58,6 +59,29 @@ describe('UriImportSource', () => {
     expect(screen.getByText('Loaded')).toBeInTheDocument();
   });
 
+  it('shows error and hides "Loaded" when onSchemaLoaded returns an error', async () => {
+    const specContent = '<html>Not Found</html>';
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      text: jest.fn().mockResolvedValue(specContent),
+    } as unknown as Response);
+    mockOnSchemaLoaded.mockReturnValue({ error: 'Invalid OpenAPI specification.' });
+
+    render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    const input = screen.getByRole('textbox');
+
+    fireEvent.change(input, { target: { value: 'http://example.com/spec.yaml' } });
+
+    const fetchButton = screen.getByRole('button', { name: /fetch/i });
+    fireEvent.click(fetchButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid OpenAPI specification.')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('Loaded')).not.toBeInTheDocument();
+  });
+
   it('shows error message when fetch fails', async () => {
     fetchSpy.mockResolvedValue({
       ok: false,
@@ -73,7 +97,7 @@ describe('UriImportSource', () => {
     fireEvent.click(fetchButton);
 
     await waitFor(() => {
-      expect(screen.getByText(/Failed to fetch specification \(404\)/)).toBeInTheDocument();
+      expect(screen.getByText(/Failed to fetch specification \(HTTP 404\)/)).toBeInTheDocument();
     });
   });
 
