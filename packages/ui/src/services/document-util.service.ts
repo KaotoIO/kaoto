@@ -271,6 +271,8 @@ export class DocumentUtilService {
 
     if (type === Types.Container) {
       field.namedTypeFragmentRefs = [typeQName.toString()];
+      // Eagerly resolve type fragment so children are immediately available
+      DocumentUtilService.resolveTypeFragment(field);
     } else {
       field.namedTypeFragmentRefs = [];
     }
@@ -293,6 +295,8 @@ export class DocumentUtilService {
 
     if (field.originalType === Types.Container && field.originalTypeQName) {
       field.namedTypeFragmentRefs = [field.originalTypeQName.toString()];
+      // Eagerly resolve type fragment so children are immediately available
+      DocumentUtilService.resolveTypeFragment(field);
     } else {
       field.namedTypeFragmentRefs = [];
     }

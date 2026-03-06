@@ -1,12 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { MappingTree } from '../../../models/datamapper/mapping';
-import { TypeOverrideVariant } from '../../../models/datamapper/types';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
+import { MappingTree } from '../../../../models/datamapper/mapping';
+import { TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { FieldOverrideContextMenu } from './FieldOverrideContextMenu';
 
-jest.mock('../../../hooks/useDataMapper', () => ({
+jest.mock('../../../../hooks/useDataMapper', () => ({
   useDataMapper: jest.fn(),
 }));
 
@@ -26,7 +26,7 @@ describe('FieldOverrideContextMenu', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     useDataMapper.mockReturnValue({
       mappingTree: testMappingTree,
       updateDocument: jest.fn(),
@@ -190,7 +190,7 @@ describe('FieldOverrideContextMenu', () => {
 
   it('should call revertTypeOverride and onUpdate when Reset Override is clicked', () => {
     const { revertTypeOverride } = jest.requireMock('./FieldTypeOverride');
-    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     const mockUpdateDocument = jest.fn();
     useDataMapper.mockReturnValue({
       mappingTree: testMappingTree,

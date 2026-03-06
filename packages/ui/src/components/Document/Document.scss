@@ -39,6 +39,16 @@
     margin: var(--pf-t--global--spacer--sm) 0 var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--sm);
   }
 
+  &__type-override-indicator {
+    padding: var(--pf-t--global--spacer--sm);
+    cursor: help;
+    min-width: 24px;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   &__target__actions {
     flex-grow: 1;
     justify-content: end;
