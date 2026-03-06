@@ -350,7 +350,10 @@ describe('DataMapperProvider', () => {
       result.current.renameSourceParameter('testParam', 'newTestParam');
     });
 
-    expect(renameDocSpy).toHaveBeenCalledWith(expect.objectContaining({ documentType: DocumentType.PARAM }), 'newTestParam');
+    expect(renameDocSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ documentType: DocumentType.PARAM }),
+      'newTestParam',
+    );
     expect(renameParameterInMappingsSpy).toHaveBeenCalledWith(result.current.mappingTree, 'testParam', 'newTestParam');
     expect(mockOnRenameParameter).toHaveBeenCalledWith('testParam', 'newTestParam');
   });
