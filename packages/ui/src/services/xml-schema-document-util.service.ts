@@ -163,6 +163,18 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
+   * Builds the key used to store an anonymous global element's type fragment in {@link IDocument.namedTypeFragments}.
+   * The `__elem:` prefix distinguishes element fragments from named type fragments.
+   *
+   * @param namespaceURI - Namespace URI of the element (null or empty for no-namespace elements)
+   * @param localPart - Local name of the element
+   * @returns Fragment key string in the form `__elem:<namespaceURI>:<localPart>`
+   */
+  static buildElementFragmentKey(namespaceURI: string | null, localPart: string): string {
+    return `__elem:${namespaceURI ?? ''}:${localPart}`;
+  }
+
+  /**
    * Checks if a namespace is a standard XML/XSD namespace that doesn't require
    * type fragment resolution.
    * @param namespace - The namespace URI to check
