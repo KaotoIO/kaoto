@@ -1,4 +1,11 @@
-import { canScrollPanel, scrollAwareCollision } from './datamapper-dnd.provider';
+import { DndContext, DragEndEvent } from '@dnd-kit/core';
+import { AlertVariant } from '@patternfly/react-core';
+import { act, render } from '@testing-library/react';
+import { ReactNode } from 'react';
+
+import { useDataMapper } from '../hooks/useDataMapper';
+import { MappingTree } from '../models/datamapper/mapping';
+import { canScrollPanel, DatamapperDndProvider, scrollAwareCollision } from './datamapper-dnd.provider';
 
 // Mock rectIntersection to control collision detection in tests
 jest.mock('@dnd-kit/core', () => {
@@ -13,8 +20,16 @@ jest.mock('@dnd-kit/core', () => {
       }));
     }),
     pointerWithin: jest.fn(() => []),
+    DndContext: jest.fn(),
+    DragOverlay: jest.fn(() => null),
+    useSensor: jest.fn(),
+    useSensors: jest.fn().mockReturnValue([]),
   };
 });
+
+jest.mock('../hooks/useDataMapper', () => ({
+  useDataMapper: jest.fn(),
+}));
 
 // Helper to create mock rect object
 const createMockRect = (top: number, bottom: number, left: number, right: number) => ({
@@ -334,5 +349,80 @@ describe('datamapper-dnd.provider', () => {
 
       expect(result).toBe(false);
     });
+  });
+});
+
+describe('DatamapperDndProvider', () => {
+  const mockSendAlert = jest.fn();
+  const mockRefreshMappingTree = jest.fn();
+  const mockMappingTree = {} as MappingTree;
+
+  const mockDragEndEvent = {
+    active: { id: 'a', data: { current: null } },
+    over: null,
+  } as unknown as DragEndEvent;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (DndContext as unknown as jest.Mock).mockImplementation(({ children }: { children: ReactNode }) => children);
+    (useDataMapper as jest.Mock).mockReturnValue({
+      mappingTree: mockMappingTree,
+      refreshMappingTree: mockRefreshMappingTree,
+      sendAlert: mockSendAlert,
+    });
+  });
+
+  const invokeOnDragEnd = async (event: DragEndEvent) => {
+    const onDragEnd = (DndContext as unknown as jest.Mock).mock.calls.at(-1)[0].onDragEnd as (e: DragEndEvent) => void;
+    await act(async () => {
+      onDragEnd(event);
+    });
+  };
+
+  it('should call sendAlert with danger variant when handler returns failure with error message', async () => {
+    const mockHandler = {
+      handleDragEnd: jest.fn().mockReturnValue({ success: false, errorMessage: 'error msg' }),
+      handleDragStart: jest.fn(),
+      handleDragOver: jest.fn(),
+    };
+
+    render(
+      <DatamapperDndProvider handler={mockHandler}>
+        <div />
+      </DatamapperDndProvider>,
+    );
+
+    await invokeOnDragEnd(mockDragEndEvent);
+
+    expect(mockSendAlert).toHaveBeenCalledWith({ variant: AlertVariant.danger, title: 'error msg' });
+  });
+
+  it('should not call sendAlert when handler returns success', async () => {
+    const mockHandler = {
+      handleDragEnd: jest.fn().mockReturnValue({ success: true }),
+      handleDragStart: jest.fn(),
+      handleDragOver: jest.fn(),
+    };
+
+    render(
+      <DatamapperDndProvider handler={mockHandler}>
+        <div />
+      </DatamapperDndProvider>,
+    );
+
+    await invokeOnDragEnd(mockDragEndEvent);
+
+    expect(mockSendAlert).not.toHaveBeenCalled();
+  });
+
+  it('should not crash when no handler is provided', async () => {
+    render(
+      <DatamapperDndProvider handler={undefined}>
+        <div />
+      </DatamapperDndProvider>,
+    );
+
+    await invokeOnDragEnd(mockDragEndEvent);
+    expect(mockSendAlert).not.toHaveBeenCalled();
   });
 });
