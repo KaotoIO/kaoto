@@ -16,6 +16,7 @@ import {
   NodeData,
   UnknownMappingNodeData,
 } from '../../../models/datamapper/visualization';
+import { formatQNameWithPrefix } from '../../../services/qname-util';
 import { UnknownMappingLabel } from './UnknownMappingLabel';
 
 interface INodeTitle {
@@ -23,9 +24,16 @@ interface INodeTitle {
   rank: number;
   nodeData: NodeData;
   isDocument: boolean;
+  namespaceMap?: Record<string, string>;
 }
 
-export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, nodeData, isDocument }) => {
+export const NodeTitle: FunctionComponent<INodeTitle> = ({
+  className,
+  rank,
+  nodeData,
+  isDocument,
+  namespaceMap = {},
+}) => {
   const title = nodeData.title;
   const content = (
     <span className={clsx('node-title__text', className)} data-rank={rank}>
@@ -56,6 +64,22 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
     const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
     const hasTypeOverride = nodeData.field.typeOverride !== TypeOverrideVariant.NONE;
 
+    // Format type names with namespace prefixes for display
+    const originalTypeDisplay = hasTypeOverride
+      ? formatQNameWithPrefix(
+          nodeData.field.originalTypeQName,
+          namespaceMap,
+          nodeData.field.originalTypeQName?.toString() || nodeData.field.originalType,
+        )
+      : '';
+    const overriddenTypeDisplay = hasTypeOverride
+      ? formatQNameWithPrefix(
+          nodeData.field.typeQName,
+          namespaceMap,
+          nodeData.field.typeQName?.toString() || nodeData.field.type,
+        )
+      : '';
+
     return (
       <Popover
         triggerAction="hover"
@@ -75,11 +99,11 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
               <>
                 <div className="popover__row">
                   <span className="popover__cell">Original type :&nbsp;</span>
-                  <span className="popover__cell">{nodeData.field.originalType}</span>
+                  <span className="popover__cell">{originalTypeDisplay}</span>
                 </div>
                 <div className="popover__row">
                   <span className="popover__cell">Overridden type :&nbsp;</span>
-                  <span className="popover__cell">{nodeData.field.type}</span>
+                  <span className="popover__cell">{overriddenTypeDisplay}</span>
                 </div>
               </>
             )}

@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { MappingTree } from '../../../models/datamapper/mapping';
-import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../../../models/datamapper/types';
-import { FieldTypeOverrideService } from '../../../services/field-type-override.service';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
+import { MappingTree } from '../../../../models/datamapper/mapping';
+import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../../../../models/datamapper/types';
+import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { FieldTypeOverride, revertTypeOverride } from './FieldTypeOverride';
 
 // Mock TypeOverrideModal to expose the onSave/onAttach/onRemove callbacks
@@ -28,7 +28,7 @@ jest.mock('./TypeOverrideModal', () => ({
 }));
 
 // Mock FieldTypeOverrideService
-jest.mock('../../../services/field-type-override.service', () => ({
+jest.mock('../../../../services/field-type-override.service', () => ({
   FieldTypeOverrideService: {
     applyFieldTypeOverride: jest.fn(),
     revertFieldTypeOverride: jest.fn(),
@@ -37,7 +37,7 @@ jest.mock('../../../services/field-type-override.service', () => ({
 }));
 
 // Mock useDataMapper hook
-jest.mock('../../../hooks/useDataMapper', () => ({
+jest.mock('../../../../hooks/useDataMapper', () => ({
   useDataMapper: jest.fn(),
 }));
 
@@ -62,7 +62,7 @@ describe('FieldTypeOverride', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    const { useDataMapper } = jest.requireMock('../../../hooks/useDataMapper');
+    const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     useDataMapper.mockReturnValue({
       mappingTree: testMappingTree,
       updateDocument: mockUpdateDocument,

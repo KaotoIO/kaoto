@@ -6,8 +6,8 @@ import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
-import { FieldOverrideContextMenu } from './actions/FieldOverrideContextMenu';
-import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride';
+import { FieldOverrideContextMenu } from './actions/FieldTypeOverride/FieldOverrideContextMenu';
+import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
@@ -104,7 +104,13 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
                     isChoiceField={isChoiceField}
                     isAttributeField={isAttributeField}
                     title={
-                      <NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />
+                      <NodeTitle
+                        className="node__spacer"
+                        nodeData={nodeData}
+                        isDocument={isDocument}
+                        rank={rank}
+                        namespaceMap={mappingTree.namespaceMap}
+                      />
                     }
                     rank={rank}
                     isSelected={isSelected}

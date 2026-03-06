@@ -1,9 +1,9 @@
 import { FunctionComponent, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { IField } from '../../../models/datamapper/document';
-import { TypeOverrideVariant } from '../../../models/datamapper/types';
-import { FieldContextMenu } from './FieldContextMenu';
+import { useDataMapper } from '../../../../hooks/useDataMapper';
+import { IField } from '../../../../models/datamapper/document';
+import { TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldContextMenu } from '../FieldContextMenu';
 import { FieldTypeOverride, revertTypeOverride } from './FieldTypeOverride';
 
 type FieldOverrideContextMenuProps = {
@@ -93,9 +93,6 @@ export const FieldOverrideContextMenu: FunctionComponent<FieldOverrideContextMen
             top: contextMenuPosition.y,
             zIndex: 1000,
           }}
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
         >
           <FieldContextMenu
             hasOverride={hasTypeOverride}

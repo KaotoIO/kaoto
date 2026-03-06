@@ -73,6 +73,16 @@
     }
   }
 
+  &__type-override-indicator {
+    padding: var(--pf-t--global--spacer--sm);
+    cursor: help;
+    min-width: 24px;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   &__connection-port {
     position: absolute;
     pointer-events: none;
