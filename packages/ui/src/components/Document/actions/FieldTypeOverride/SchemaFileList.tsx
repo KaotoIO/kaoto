@@ -1,3 +1,5 @@
+import './SchemaFileList.scss';
+
 import {
   Button,
   DataList,
@@ -10,7 +12,7 @@ import {
 import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, memo } from 'react';
 
-import { getFileName } from './AttachSchema/utils';
+import { getFileName } from '../utils';
 
 export interface SchemaFileListProps {
   existingFiles: string[];
@@ -25,7 +27,12 @@ export const SchemaFileList: FunctionComponent<SchemaFileListProps> = memo(
     }
 
     return (
-      <DataList aria-label="Document schema files" data-testid="uploaded-schema-list" isCompact>
+      <DataList
+        aria-label="Document schema files"
+        data-testid="uploaded-schema-list"
+        isCompact
+        className="schema-file-list"
+      >
         {existingFiles.map((filePath) => {
           const displayName = getFileName(filePath);
           return (

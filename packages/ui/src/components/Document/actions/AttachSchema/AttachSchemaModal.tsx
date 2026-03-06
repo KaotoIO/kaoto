@@ -25,18 +25,11 @@ import {
   SCHEMA_FILE_NAME_PATTERN_XML,
 } from '../../../../models/datamapper/document';
 import { MetadataContext } from '../../../../providers';
-import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { DocumentService } from '../../../../services/document.service';
+import { createSchemaFileItems, getFileExtension, isJsonExtension, pickAndValidateSchemaFiles } from '../utils';
 import { RootElementSelect } from './RootElementSelect';
 import { SchemaFileDataList } from './SchemaFileDataList';
-import {
-  createSchemaFileItems,
-  getFileExtension,
-  isJsonExtension,
-  validateFileExtension,
-  validateNoMixedTypes,
-} from './utils';
 
 type AttachSchemaModalProps = {
   isModalOpen: boolean;
@@ -99,28 +92,14 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   );
 
   const onFileUpload = useCallback(async () => {
-    const paths = await DataMapperMetadataService.selectDocumentSchema(api, fileNamePattern);
-    let newPaths: string[] = [];
-    if (Array.isArray(paths)) {
-      newPaths = paths;
-    } else if (paths) {
-      newPaths = [paths];
+    const { paths: newPaths, error } = await pickAndValidateSchemaFiles(api, fileNamePattern, documentType, filePaths);
+
+    if (error) {
+      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: error }] });
+      return;
     }
+
     if (newPaths.length === 0) return;
-
-    const firstNewExt = getFileExtension(newPaths[0]);
-
-    const extensionError = validateFileExtension(firstNewExt, documentType);
-    if (extensionError) {
-      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: extensionError }] });
-      return;
-    }
-
-    const mixedTypeError = validateNoMixedTypes(firstNewExt, filePaths);
-    if (mixedTypeError) {
-      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: mixedTypeError }] });
-      return;
-    }
 
     const combined = [...filePaths];
     for (const p of newPaths) {

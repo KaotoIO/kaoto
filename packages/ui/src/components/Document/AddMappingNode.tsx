@@ -15,7 +15,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
   nodeData,
   rank,
 }) => {
-  const { refreshMappingTree } = useDataMapper();
+  const { mappingTree, refreshMappingTree } = useDataMapper();
 
   const handleAddMapping = useCallback(() => {
     VisualizationService.addMapping(nodeData);
@@ -38,6 +38,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
               nodeData={nodeData}
               isDocument={false}
               rank={rank}
+              namespaceMap={mappingTree.namespaceMap}
             />
             <Icon className="node__spacer">
               <LayerGroupIcon className="node__add__mapping__icon" />
