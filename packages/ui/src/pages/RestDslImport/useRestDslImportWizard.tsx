@@ -93,6 +93,11 @@ export const useRestDslImportWizard = () => {
         const uri = routeEntity.entityDef?.route?.from?.uri ?? '';
         if (uri.startsWith('direct:')) {
           routeNames.add(uri.slice('direct:'.length).split('?')[0]);
+        } else if (uri === 'direct') {
+          const name = routeEntity.entityDef?.route?.from?.parameters?.['name'];
+          if (typeof name === 'string' && name) {
+            routeNames.add(name);
+          }
         }
       });
     }
@@ -172,7 +177,8 @@ export const useRestDslImportWizard = () => {
 
         routeEntity?.updateModel('route.id', `route-${operation.operationId}`);
         routeEntity?.updateModel('route.from.id', `direct-from-${operation.operationId}`);
-        routeEntity?.updateModel('route.from.uri', `direct:${operation.operationId}`);
+        routeEntity?.updateModel('route.from.uri', 'direct');
+        routeEntity?.updateModel('route.from.parameters', { name: operation.operationId });
         routeEntity?.updateModel('route.from.steps', [
           {
             setBody: {
