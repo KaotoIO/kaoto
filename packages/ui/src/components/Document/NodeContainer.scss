@@ -10,6 +10,16 @@
   box-sizing: border-box;
 }
 
+.droppable-invalid {
+  color: var(--pf-t--global--text--color--disabled);
+  border-style: dashed;
+  border-color: var(--pf-t--global--text--color--disabled);
+  border-width: 1px;
+  cursor: not-allowed;
+  border-radius: var(--pf-v6-c-droppable--m-dragging--after--BorderRadius);
+  box-sizing: border-box;
+}
+
 .draggable-container {
   font-weight: bold;
   color: var(--pf-t--global--icon--color--brand--default);
