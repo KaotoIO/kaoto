@@ -6,7 +6,7 @@ import { ApicurioArtifact, ApicurioArtifactSearchResult, SchemaLoadedResult } fr
 
 type ApicurioImportSourceProps = {
   registryUrl?: string;
-  onSchemaLoaded: (result: SchemaLoadedResult) => void;
+  onSchemaLoaded: (result: SchemaLoadedResult) => { error?: string };
 };
 
 export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> = ({ registryUrl, onSchemaLoaded }) => {
@@ -19,11 +19,6 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
   const [error, setError] = useState('');
 
   const fetchArtifacts = useCallback(async () => {
-    if (!registryUrl) {
-      setError('Apicurio Registry URL is missing.');
-      return;
-    }
-
     setIsLoading(true);
     setError('');
 
@@ -78,14 +73,19 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
         }
         const specText = await response.text();
 
-        onSchemaLoaded({
+        const loadResult = onSchemaLoaded({
           schema: specText,
           source: 'apicurio',
           sourceIdentifier: artifactUrl,
         });
 
-        setIsLoaded(true);
-        setError('');
+        if (loadResult?.error) {
+          setError(loadResult.error);
+          setIsLoaded(false);
+        } else {
+          setIsLoaded(true);
+          setError('');
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unable to download the selected artifact.';
         setError(message);

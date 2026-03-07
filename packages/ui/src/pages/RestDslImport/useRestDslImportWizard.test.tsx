@@ -49,14 +49,16 @@ describe('useRestDslImportWizard', () => {
         },
       });
 
+      let returnValue: { error?: string } | undefined;
       act(() => {
-        result.current.handleSchemaLoaded({
+        returnValue = result.current.handleSchemaLoaded({
           schema: validSpec,
           source: 'file',
           sourceIdentifier: 'openapi.json',
         });
       });
 
+      expect(returnValue).toEqual({});
       expect(result.current.isOpenApiParsed).toBe(true);
       expect(result.current.openApiLoadSource).toBe('file');
       expect(result.current.sourceIdentifier).toBe('openapi.json');
@@ -127,18 +129,20 @@ describe('useRestDslImportWizard', () => {
     it('handles invalid OpenAPI spec gracefully', () => {
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
 
+      let returnValue: { error?: string } | undefined;
       act(() => {
-        result.current.handleSchemaLoaded({
+        returnValue = result.current.handleSchemaLoaded({
           schema: 'invalid json {{{',
           source: 'file',
           sourceIdentifier: 'invalid.json',
         });
       });
 
+      expect(returnValue).toEqual({ error: expect.stringMatching(/Invalid OpenAPI specification/) });
       expect(result.current.isOpenApiParsed).toBe(false);
       expect(result.current.importStatus).toEqual({
         type: 'error',
-        message: expect.stringMatching(/Invalid spec/),
+        message: expect.stringMatching(/Invalid OpenAPI specification/),
       });
     });
 
@@ -151,14 +155,16 @@ describe('useRestDslImportWizard', () => {
         paths: {},
       });
 
+      let returnValue: { error?: string } | undefined;
       act(() => {
-        result.current.handleSchemaLoaded({
+        returnValue = result.current.handleSchemaLoaded({
           schema: noPaths,
           source: 'file',
           sourceIdentifier: 'empty.json',
         });
       });
 
+      expect(returnValue).toEqual({ error: 'No operations were found in the specification.' });
       expect(result.current.isOpenApiParsed).toBe(false);
       expect(result.current.importStatus).toEqual({
         type: 'error',

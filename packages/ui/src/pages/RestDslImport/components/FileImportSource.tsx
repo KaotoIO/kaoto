@@ -5,7 +5,7 @@ import { FunctionComponent, useCallback, useRef, useState } from 'react';
 import { SchemaLoadedResult } from '../RestDslImportTypes';
 
 type FileImportSourceProps = {
-  onSchemaLoaded: (result: SchemaLoadedResult) => void;
+  onSchemaLoaded: (result: SchemaLoadedResult) => { error?: string };
 };
 
 export const FileImportSource: FunctionComponent<FileImportSourceProps> = ({ onSchemaLoaded }) => {
@@ -33,13 +33,18 @@ export const FileImportSource: FunctionComponent<FileImportSourceProps> = ({ onS
       }
 
       try {
-        onSchemaLoaded({
+        const loadResult = onSchemaLoaded({
           schema: fileContent,
           source: 'file',
           sourceIdentifier: filenameRef.current || 'uploaded-file',
         });
-        setIsLoaded(true);
-        setError('');
+        if (loadResult?.error) {
+          setError(loadResult.error);
+          setIsLoaded(false);
+        } else {
+          setIsLoaded(true);
+          setError('');
+        }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unable to read the uploaded specification.';
         setError(message);

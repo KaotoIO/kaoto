@@ -9,6 +9,7 @@ describe('ApicurioImportSource', () => {
 
   afterEach(() => {
     fetchSpy.mockRestore();
+    mockOnSchemaLoaded.mockReset();
   });
 
   it('shows message when registry URL is not configured', () => {
@@ -87,6 +88,7 @@ describe('ApicurioImportSource', () => {
         ok: true,
         text: jest.fn().mockResolvedValue(artifactContent),
       } as unknown as Response);
+    mockOnSchemaLoaded.mockReturnValue({});
 
     render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
 
@@ -106,6 +108,38 @@ describe('ApicurioImportSource', () => {
     });
 
     expect(screen.getByText('Loaded')).toBeInTheDocument();
+  });
+
+  it('shows error and hides "Loaded" when onSchemaLoaded returns an error', async () => {
+    const mockArtifacts = {
+      artifacts: [{ id: 'artifact-1', name: 'API Spec', type: 'OPENAPI' }],
+    };
+
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValue(mockArtifacts),
+      } as unknown as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        text: jest.fn().mockResolvedValue('<html>error</html>'),
+      } as unknown as Response);
+    mockOnSchemaLoaded.mockReturnValue({ error: 'Invalid OpenAPI specification.' });
+
+    render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('API Spec')).toBeInTheDocument();
+    });
+
+    const radio = screen.getByLabelText(/API Spec/);
+    fireEvent.click(radio);
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid OpenAPI specification.')).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText('Loaded')).not.toBeInTheDocument();
   });
 
   it('shows error when artifact fetch fails', async () => {
@@ -177,6 +211,19 @@ describe('ApicurioImportSource', () => {
 
     await waitFor(() => {
       expect(screen.getByText('No OpenAPI artifacts found.')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error when initial artifact list fetch returns non-ok status', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: false,
+      status: 503,
+    } as unknown as Response);
+
+    render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Failed to fetch artifacts \(503\)/)).toBeInTheDocument();
     });
   });
 

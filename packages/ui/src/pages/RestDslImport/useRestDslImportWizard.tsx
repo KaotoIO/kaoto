@@ -45,11 +45,20 @@ export const useRestDslImportWizard = () => {
       return { success: false, error: 'Provide an OpenAPI specification to import.' };
     }
 
+    let spec: OpenApi;
     try {
-      const spec = parseYaml(specText) as OpenApi;
-      if (!spec || typeof spec !== 'object' || !('paths' in spec)) {
-        throw new Error('Invalid spec');
-      }
+      spec = parseYaml(specText) as OpenApi;
+    } catch {
+      setImportOperations([]);
+      setIsOpenApiParsed(false);
+      return { success: false, error: 'Invalid OpenAPI specification.' };
+    }
+
+    if (!spec || typeof spec !== 'object' || !('paths' in spec)) {
+      return { success: false, error: 'Invalid OpenAPI specification.' };
+    }
+
+    try {
       setOpenApiSpecText(JSON.stringify(spec, null, 2));
       const operations = OpenApiProcessingService.buildOperationsFromSpec(spec);
       if (operations.length === 0) {
@@ -71,15 +80,20 @@ export const useRestDslImportWizard = () => {
   }, []);
 
   const handleSchemaLoaded = useCallback(
-    (result: SchemaLoadedResult) => {
+    (result: SchemaLoadedResult): { error?: string } => {
       const parsed = parseOpenApiSpec(result.schema);
       if (parsed.success) {
         setOpenApiLoadSource(result.source);
         setSourceIdentifier(result.sourceIdentifier);
         setImportStatus(null);
+        return {};
       } else if (parsed.error) {
+        setOpenApiLoadSource(undefined);
+        setSourceIdentifier('');
         setImportStatus({ type: 'error', message: parsed.error });
+        return { error: parsed.error };
       }
+      return {};
     },
     [parseOpenApiSpec],
   );
