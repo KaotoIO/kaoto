@@ -423,7 +423,6 @@ describe('TypeOverrideModal', () => {
   it('should pre-select current type when field has existing override', () => {
     const NS_XML_SCHEMA = 'http://www.w3.org/2001/XMLSchema';
     testMappingTree.namespaceMap = { xs: NS_XML_SCHEMA };
-    testField.ownerDocument.definition.namespaceMap = { xs: NS_XML_SCHEMA };
 
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {

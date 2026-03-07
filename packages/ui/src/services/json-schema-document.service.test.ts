@@ -817,7 +817,7 @@ describe('JsonSchemaDocumentService', () => {
       expect(collection.getJsonSchema('http://example.com/schemas/customer.json')).toBeDefined();
     });
 
-    it('should return empty namespace map when adding JSON schemas', () => {
+    it('should add JSON schemas to the collection', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,
@@ -828,11 +828,11 @@ describe('JsonSchemaDocumentService', () => {
       const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
       const document = result.document as JsonSchemaDocument;
 
-      const updatedNamespaceMap = JsonSchemaDocumentService.addSchemaFiles(document, {
-        'additional.json': '{"type": "object", "properties": {"field": {"type": "string"}}}',
+      JsonSchemaDocumentService.addSchemaFiles(document, {
+        'additional.json': '{"$id": "http://example.com/additional", "type": "object"}',
       });
 
-      expect(updatedNamespaceMap).toEqual({});
+      expect(document.schemaCollection.getJsonSchema('http://example.com/additional')).toBeDefined();
     });
   });
 
