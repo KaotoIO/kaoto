@@ -124,7 +124,16 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
 
   useEffect(() => {
-    const documents = DocumentService.createInitialDocuments(documentInitializationModel);
+    const metadataNamespaceMap = documentInitializationModel?.namespaceMap;
+    const effectiveNamespaceMap = metadataNamespaceMap
+      ? { ...initialNamespaceMap, ...metadataNamespaceMap }
+      : { ...initialNamespaceMap };
+
+    if (metadataNamespaceMap) {
+      mappingTree.namespaceMap = effectiveNamespaceMap;
+    }
+
+    const documents = DocumentService.createInitialDocuments(documentInitializationModel, effectiveNamespaceMap);
     let latestSourceParameterMap = sourceParameterMap;
     let latestTargetBodyDocument = targetBodyDocument;
     if (documents) {
@@ -137,15 +146,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       }
     }
     mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
-
-    const metadataNamespaceMap = documentInitializationModel?.namespaceMap;
-
-    if (metadataNamespaceMap) {
-      mappingTree.namespaceMap = {
-        ...initialNamespaceMap,
-        ...metadataNamespaceMap,
-      };
-    }
 
     if (initialXsltFile) {
       const loaded = MappingSerializerService.deserialize(

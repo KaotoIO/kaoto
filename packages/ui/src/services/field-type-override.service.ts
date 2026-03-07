@@ -183,9 +183,14 @@ export class FieldTypeOverrideService {
   ): IFieldTypeOverride {
     const schemaPath = SchemaPathService.build(field, namespaceMap);
     const originalTypeString = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
+    const localPart = candidate.typeString.includes(':') ? candidate.typeString.split(':')[1] : candidate.typeString;
+    const typePrefix = candidate.namespaceURI
+      ? (Object.entries(namespaceMap).find(([, uri]) => uri === candidate.namespaceURI)?.[0] ?? '')
+      : '';
+    const typeString = typePrefix ? `${typePrefix}:${localPart}` : localPart;
     return {
       schemaPath,
-      type: candidate.typeString,
+      type: typeString,
       originalType: originalTypeString,
       variant,
     };
@@ -197,6 +202,13 @@ export class FieldTypeOverrideService {
    * @deprecated Use formatQNameWithPrefix from qname-util.ts instead
    */
   static readonly formatQNameWithPrefix = formatQNameWithPrefix;
+
+  private static ensureNamespaceRegistered(namespaceURI: string | null, namespaceMap: Record<string, string>): void {
+    if (!namespaceURI) return;
+    if (Object.values(namespaceMap).includes(namespaceURI)) return;
+    const prefix = DocumentUtilService.generateNamespacePrefix(namespaceMap);
+    namespaceMap[prefix] = namespaceURI;
+  }
 
   /**
    * Apply a field type override to a field in a document.
@@ -262,6 +274,7 @@ export class FieldTypeOverrideService {
       throw new TypeError(`Unsupported document type: ${document.constructor.name}`);
     }
 
+    FieldTypeOverrideService.ensureNamespaceRegistered(candidate.namespaceURI, namespaceMap);
     const override = FieldTypeOverrideService.createFieldTypeOverride(field, candidate, namespaceMap, variant);
     const changed = DocumentUtilService.processTypeOverride(document, override, namespaceMap, parseTypeOverrideFn);
     if (changed) {
@@ -339,30 +352,22 @@ export class FieldTypeOverrideService {
       throw new TypeError('Cannot add schema files to primitive document');
     }
 
-    let updatedNamespaceMap: Record<string, string>;
-
     if (document instanceof XmlSchemaDocument) {
-      updatedNamespaceMap = XmlSchemaDocumentService.addSchemaFiles(document, additionalFiles);
+      XmlSchemaDocumentService.addSchemaFiles(document, additionalFiles);
     } else if (document instanceof JsonSchemaDocument) {
-      updatedNamespaceMap = JsonSchemaDocumentService.addSchemaFiles(document, additionalFiles);
+      JsonSchemaDocumentService.addSchemaFiles(document, additionalFiles);
     } else {
       throw new TypeError(`Unsupported document type: ${document.constructor.name}`);
     }
-
-    const mergedDefinitionFiles = {
-      ...document.definition.definitionFiles,
-      ...additionalFiles,
-    };
 
     document.definition = new DocumentDefinition(
       document.definition.documentType,
       document.definition.definitionType,
       document.definition.name,
-      mergedDefinitionFiles,
+      { ...document.definition.definitionFiles, ...additionalFiles },
       document.definition.rootElementChoice,
       document.definition.fieldTypeOverrides,
       document.definition.choiceSelections,
-      updatedNamespaceMap,
     );
   }
 

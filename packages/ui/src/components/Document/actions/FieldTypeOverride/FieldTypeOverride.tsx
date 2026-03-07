@@ -36,9 +36,6 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
       const namespaceMap = mappingTree.namespaceMap;
       const previousRefId = document.getReferenceId(namespaceMap);
       FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, schemas);
-      // Sync new namespaces from the attached schema into the mapping tree
-      // so that type candidates get proper namespace prefixes
-      Object.assign(mappingTree.namespaceMap, document.definition.namespaceMap);
       updateDocument(document, document.definition, previousRefId);
     },
     [field, mappingTree.namespaceMap, updateDocument],
