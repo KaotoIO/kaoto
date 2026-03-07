@@ -129,7 +129,16 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const [alerts, setAlerts] = useState<SendAlertProps[]>([]);
 
   useEffect(() => {
-    const documents = DocumentService.createInitialDocuments(documentInitializationModel);
+    const metadataNamespaceMap = documentInitializationModel?.namespaceMap;
+    const effectiveNamespaceMap = metadataNamespaceMap
+      ? { ...initialNamespaceMap, ...metadataNamespaceMap }
+      : { ...initialNamespaceMap };
+
+    if (metadataNamespaceMap) {
+      mappingTree.namespaceMap = effectiveNamespaceMap;
+    }
+
+    const documents = DocumentService.createInitialDocuments(documentInitializationModel, effectiveNamespaceMap);
     let latestSourceParameterMap = sourceParameterMap;
     let latestTargetBodyDocument = targetBodyDocument;
     if (documents) {
@@ -142,15 +151,6 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       }
     }
     mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
-
-    const metadataNamespaceMap = documentInitializationModel?.namespaceMap;
-
-    if (metadataNamespaceMap) {
-      mappingTree.namespaceMap = {
-        ...initialNamespaceMap,
-        ...metadataNamespaceMap,
-      };
-    }
 
     if (initialXsltFile) {
       const loaded = MappingSerializerService.deserialize(
@@ -285,17 +285,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       removeStaleMappings(document.documentType, document.documentId, document, previousDocumentReferenceId);
       setNewDocument(document.documentType, document.documentId, document);
 
-      // Sync document-level namespaces into mappingTree so that type override
-      // typeStrings always carry a prefix and can be resolved back to the correct namespace URI.
-      if (definition.namespaceMap) {
-        Object.assign(mappingTree.namespaceMap, definition.namespaceMap);
-      }
-
       setDocumentRevision((r) => r + 1);
       refreshMappingTree();
       onUpdateDocument?.(definition);
     },
-    [mappingTree.namespaceMap, onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
+    [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
   );
 
   const sendAlert = useCallback(

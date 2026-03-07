@@ -1103,7 +1103,7 @@ describe('XmlSchemaDocumentService', () => {
       expect(importedType).toBeDefined();
     });
 
-    it('should return updated namespace map when adding schemas with new namespaces', () => {
+    it('should make added schemas available in the collection', () => {
       const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://example.com/main">
@@ -1115,10 +1115,6 @@ describe('XmlSchemaDocumentService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
         { 'main.xsd': mainSchema },
-        undefined,
-        undefined,
-        undefined,
-        { ns0: 'http://example.com/main' },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -1134,13 +1130,10 @@ describe('XmlSchemaDocumentService', () => {
   </xs:complexType>
 </xs:schema>`;
 
-      const updatedNamespaceMap = XmlSchemaDocumentService.addSchemaFiles(document, {
-        'types.xsd': additionalSchema,
-      });
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'types.xsd': additionalSchema });
 
-      expect(updatedNamespaceMap['ns0']).toBe('http://example.com/main');
-      expect(updatedNamespaceMap['ns1']).toBe('http://example.com/types');
-      expect(Object.keys(updatedNamespaceMap).length).toBe(2);
+      const customQName = new QName('http://example.com/types', 'CustomType');
+      expect(document.xmlSchemaCollection.getTypeByQName(customQName)).toBeDefined();
     });
 
     it('should generate prefixes following sequential pattern (ns0, ns1, ns2, ...)', () => {
@@ -1160,54 +1153,7 @@ describe('XmlSchemaDocumentService', () => {
       expect(prefix3).toBe('ns3');
     });
 
-    it('should filter out standard XML/XSD namespaces', () => {
-      const xsdSchema = `<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.w3.org/2001/XMLSchema">
-  <xs:element name="Test" type="xs:string"/>
-</xs:schema>`;
-
-      const customSchema = `<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://example.com/custom">
-  <xs:element name="Custom" type="xs:string"/>
-</xs:schema>`;
-
-      const namespaces = XmlSchemaDocumentService['extractNamespacesFromSchemas'](
-        {
-          'xsd.xsd': xsdSchema,
-          'custom.xsd': customSchema,
-        },
-        {},
-      );
-
-      expect(Object.values(namespaces)).not.toContain('http://www.w3.org/2001/XMLSchema');
-      expect(Object.values(namespaces)).toContain('http://example.com/custom');
-      expect(Object.keys(namespaces).length).toBe(1);
-    });
-
-    it('should not create duplicate entries for same namespace', () => {
-      const existingMap = { ns0: 'http://example.com/main' };
-
-      const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://example.com/main">
-  <xs:element name="Test" type="xs:string"/>
-</xs:schema>`;
-
-      const newNamespaces = XmlSchemaDocumentService['extractNamespacesFromSchemas'](
-        { 'duplicate.xsd': mainSchema },
-        existingMap,
-      );
-
-      expect(Object.keys(newNamespaces).length).toBe(0);
-
-      const merged = XmlSchemaDocumentService['mergeNamespaceMaps'](existingMap, newNamespaces);
-      expect(Object.keys(merged).length).toBe(1);
-      expect(merged['ns0']).toBe('http://example.com/main');
-    });
-
-    it('should maintain stable prefixes across multiple addSchemaFiles() calls', () => {
+    it('should support multiple sequential addSchemaFiles() calls', () => {
       const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://example.com/main">
@@ -1219,10 +1165,6 @@ describe('XmlSchemaDocumentService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         'test-doc',
         { 'main.xsd': mainSchema },
-        undefined,
-        undefined,
-        undefined,
-        { ns0: 'http://example.com/main' },
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
@@ -1238,15 +1180,7 @@ describe('XmlSchemaDocumentService', () => {
   </xs:complexType>
 </xs:schema>`;
 
-      const map1 = XmlSchemaDocumentService.addSchemaFiles(document, {
-        'types.xsd': schemaA,
-      });
-
-      expect(map1['ns0']).toBe('http://example.com/main');
-      expect(map1['ns1']).toBe('http://example.com/types');
-      expect(Object.keys(map1).length).toBe(2);
-
-      document.definition.namespaceMap = map1;
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'types.xsd': schemaA });
 
       const schemaB = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -1258,14 +1192,12 @@ describe('XmlSchemaDocumentService', () => {
   </xs:complexType>
 </xs:schema>`;
 
-      const map2 = XmlSchemaDocumentService.addSchemaFiles(document, {
-        'other.xsd': schemaB,
-      });
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'other.xsd': schemaB });
 
-      expect(map2['ns0']).toBe('http://example.com/main');
-      expect(map2['ns1']).toBe('http://example.com/types');
-      expect(map2['ns2']).toBe('http://example.com/other');
-      expect(Object.keys(map2).length).toBe(3);
+      const typeAQName = new QName('http://example.com/types', 'TypeA');
+      const typeBQName = new QName('http://example.com/other', 'TypeB');
+      expect(document.xmlSchemaCollection.getTypeByQName(typeAQName)).toBeDefined();
+      expect(document.xmlSchemaCollection.getTypeByQName(typeBQName)).toBeDefined();
     });
   });
 

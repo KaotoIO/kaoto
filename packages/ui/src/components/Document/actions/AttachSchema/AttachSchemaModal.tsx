@@ -52,7 +52,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   documentTypeLabel,
 }) => {
   const api = useContext(MetadataContext)!;
-  const { setIsLoading, updateDocument } = useDataMapper();
+  const { mappingTree, setIsLoading, updateDocument } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const [selectedSchemaType, setSelectedSchemaType] = useState<DocumentDefinitionType>(
     DocumentDefinitionType.XML_SCHEMA,
@@ -86,11 +86,18 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
         ? DocumentDefinitionType.JSON_SCHEMA
         : DocumentDefinitionType.XML_SCHEMA;
 
-      const result = await DocumentService.createDocument(api, documentType, schemaType, documentId, allPaths);
+      const result = await DocumentService.createDocument(
+        api,
+        documentType,
+        schemaType,
+        documentId,
+        allPaths,
+        mappingTree.namespaceMap,
+      );
       setCreateDocumentResult(result);
       setSelectedSchemaType(schemaType);
     },
-    [api, documentType, documentId],
+    [api, documentType, documentId, mappingTree.namespaceMap],
   );
 
   const onFileUpload = useCallback(async () => {
@@ -126,7 +133,11 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
       }
 
       if (createDocumentResult?.documentDefinition) {
-        const result = DocumentService.removeSchemaFile(createDocumentResult.documentDefinition, filePathToRemove);
+        const result = DocumentService.removeSchemaFile(
+          createDocumentResult.documentDefinition,
+          filePathToRemove,
+          mappingTree.namespaceMap,
+        );
         if (result.document) {
           setCreateDocumentResult(result);
           return;
@@ -134,7 +145,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
       }
       await validateAndCreateDocument(remaining);
     },
-    [filePaths, validateAndCreateDocument, createDocumentResult],
+    [filePaths, validateAndCreateDocument, createDocumentResult, mappingTree.namespaceMap],
   );
 
   const onRemoveAllFiles = useCallback(() => {
