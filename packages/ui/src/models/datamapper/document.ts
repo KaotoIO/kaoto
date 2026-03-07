@@ -333,7 +333,6 @@ export class DocumentDefinition {
     public rootElementChoice?: RootElementOption,
     public fieldTypeOverrides?: IFieldTypeOverride[],
     public choiceSelections?: IChoiceSelection[],
-    public namespaceMap?: Record<string, string>,
   ) {
     if (!definitionFiles) this.definitionFiles = {};
   }
