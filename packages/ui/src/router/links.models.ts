@@ -6,6 +6,7 @@ export const enum Links {
   Beans = '/beans',
   Rest = '/rest',
   RestImport = '/rest/import',
+  RestEditor = '/rest/editor',
   Metadata = '/metadata',
   PipeErrorHandler = '/pipe-error-handler',
   Catalog = '/catalog',

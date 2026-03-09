@@ -32,6 +32,11 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
             title: 'Import',
             to: Links.RestImport,
           },
+          {
+            title: 'Editor',
+            to: Links.RestEditor,
+            hidden: () => true,
+          },
         ],
       },
       {
