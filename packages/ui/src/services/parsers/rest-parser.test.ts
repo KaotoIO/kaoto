@@ -14,9 +14,10 @@ describe('RestParser', () => {
 
   describe('parseRestEntity()', () => {
     it('should parse rest', () => {
-      const restEntity = CamelResourceFactory.createCamelResource(
-        restOperationsYaml,
-      ).getVisualEntities()[0] as CamelRestVisualEntity;
+      const camelResource = CamelResourceFactory.createCamelResource(restOperationsYaml);
+      const restEntity = camelResource
+        .getEntities()
+        .find((e) => e instanceof CamelRestVisualEntity) as CamelRestVisualEntity;
       const parsed = RestParser.parseRestEntity(restEntity);
 
       expect(parsed.title).toEqual('rest-1234 [Path : /api/v3]');

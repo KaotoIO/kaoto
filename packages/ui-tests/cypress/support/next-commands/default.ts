@@ -76,6 +76,11 @@ Cypress.Commands.add('openBeans', () => {
   cy.get('.metadata-editor-modal-details-view').should('be.visible');
 });
 
+Cypress.Commands.add('openRestEditor', () => {
+  cy.get('[data-testid="Editor"]').click();
+  cy.get('.resizable-split-panels').should('be.visible');
+});
+
 Cypress.Commands.add('openMetadata', () => {
   cy.get('[data-testid="Metadata"]').click();
   cy.get('[data-testid="metadata-form"]').should('be.visible');

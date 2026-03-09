@@ -4,11 +4,11 @@ describe('Test for root on rest configuration container', () => {
   });
 
   it('Root rest configuration', { browser: '!firefox' }, () => {
-    cy.selectCamelRouteType('Rest', 'restConfiguration');
+    cy.openRestEditor();
 
-    cy.openStepConfigurationTab('restConfiguration');
+    cy.get('[data-testid="rest-tree-toolbar-menu"]').find('button').click();
+    cy.get('[data-testid="add-rest-configuration-btn"]').click();
 
-    cy.selectFormTab('All');
     cy.expandWrappedSection('#-Advanced');
     cy.expandWrappedSection('#-Producer (advanced)');
     cy.expandWrappedSection('#-Consumer (advanced)');

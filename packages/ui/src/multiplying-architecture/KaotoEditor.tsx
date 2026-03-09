@@ -1,5 +1,7 @@
+import '../styles/carbon-overrides.scss';
 import './KaotoEditor.scss';
 
+import { Http } from '@carbon/icons-react';
 import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
 import { CodeIcon, ExclamationCircleIcon, QuestionIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
@@ -16,6 +18,7 @@ import { Links } from '../router/links.models';
 const enum TabList {
   Design,
   Beans,
+  RestEditor,
   Metadata,
   ErrorHandler,
   KaotoDataMapper,
@@ -23,7 +26,7 @@ const enum TabList {
 }
 
 const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
-  [SourceSchemaType.Route]: [TabList.Design, TabList.Beans, TabList.KaotoDataMapper, TabList.About],
+  [SourceSchemaType.Route]: [TabList.Design, TabList.Beans, TabList.RestEditor, TabList.KaotoDataMapper, TabList.About],
   [SourceSchemaType.Kamelet]: [TabList.Design, TabList.Beans, TabList.Metadata, TabList.KaotoDataMapper, TabList.About],
   [SourceSchemaType.Integration]: [],
   [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
@@ -46,6 +49,7 @@ export const KaotoEditor = () => {
       return {
         design: false,
         beans: false,
+        restEditor: false,
         metadata: false,
         errorHandler: false,
         kaotoDataMapper: false,
@@ -56,6 +60,7 @@ export const KaotoEditor = () => {
     return {
       design: SCHEMA_TABS[resource.getType()].includes(TabList.Design),
       beans: SCHEMA_TABS[resource.getType()].includes(TabList.Beans),
+      restEditor: SCHEMA_TABS[resource.getType()].includes(TabList.RestEditor),
       metadata: SCHEMA_TABS[resource.getType()].includes(TabList.Metadata),
       errorHandler: SCHEMA_TABS[resource.getType()].includes(TabList.ErrorHandler),
       kaotoDataMapper: SCHEMA_TABS[resource.getType()].includes(TabList.KaotoDataMapper),
@@ -110,6 +115,24 @@ export const KaotoEditor = () => {
                 </>
               }
               aria-label="Beans editor"
+            />
+          </Link>
+        )}
+
+        {availableTabs.restEditor && (
+          <Link data-testid="rest-editor-tab" to={Links.RestEditor}>
+            <Tab
+              id="rest-editor-tab"
+              eventKey={Links.RestEditor}
+              title={
+                <>
+                  <TabTitleIcon>
+                    <Http />
+                  </TabTitleIcon>
+                  <TabTitleText>Rest</TabTitleText>
+                </>
+              }
+              aria-label="Rest editor"
             />
           </Link>
         )}

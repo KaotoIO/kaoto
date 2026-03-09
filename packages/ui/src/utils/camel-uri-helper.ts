@@ -243,10 +243,9 @@ export class CamelUriHelper {
   /**
    * Remove the scheme from the URI syntax:
    * 'avro:transport:host:port/messageName' => { schema: 'avro', syntax: 'transport:host:port/messageName' } */
-  private static getSyntaxWithoutSchema(uriSyntax: string): { schema: string; syntax: string } {
-    const splitIndex = uriSyntax.indexOf(':');
-    const schema = uriSyntax.substring(0, splitIndex === -1 ? uriSyntax.length : splitIndex);
-    const syntax = splitIndex === -1 ? '' : uriSyntax.substring(splitIndex + 1);
+  static getSyntaxWithoutSchema(uriSyntax: string): { schema: string; syntax: string } {
+    const [schema, ...rest] = uriSyntax.split(':');
+    const syntax = rest.join(':');
     return { schema, syntax };
   }
 
