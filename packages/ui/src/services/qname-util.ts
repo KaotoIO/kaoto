@@ -3,6 +3,23 @@
  */
 
 /**
+ * Format a prefixed name from a namespace URI and local part using the namespace map.
+ *
+ * @param namespaceURI - The namespace URI to look up
+ * @param localPart - The local part of the name
+ * @param namespaceMap - Map of namespace prefixes to URIs
+ * @returns Formatted string like "xs:string" or "ns0:EmployeeType"
+ */
+export function formatWithPrefix(
+  namespaceURI: string | null,
+  localPart: string,
+  namespaceMap: Record<string, string>,
+): string {
+  const prefix = namespaceURI ? Object.entries(namespaceMap).find(([, uri]) => uri === namespaceURI)?.[0] || '' : '';
+  return prefix ? `${prefix}:${localPart}` : localPart;
+}
+
+/**
  * Format a QName as `prefix:localPart` using the namespace map.
  * Falls back to the provided fallback string if the QName is null.
  *
@@ -10,13 +27,6 @@
  * @param namespaceMap - Map of namespace prefixes to URIs
  * @param fallback - Fallback string to return if QName is null or invalid
  * @returns Formatted string like "xs:string" or "ns0:EmployeeType"
- *
- * @example
- * ```ts
- * const qname = new QName('http://www.w3.org/2001/XMLSchema', 'string');
- * const namespaceMap = { 'xs': 'http://www.w3.org/2001/XMLSchema' };
- * formatQNameWithPrefix(qname, namespaceMap, 'string'); // Returns "xs:string"
- * ```
  */
 export function formatQNameWithPrefix(
   qName: { getNamespaceURI: () => string; getLocalPart: () => string | null } | null | undefined,
@@ -24,11 +34,7 @@ export function formatQNameWithPrefix(
   fallback: string,
 ): string {
   if (!qName) return fallback;
-  const nsURI = qName.getNamespaceURI();
   const localPart = qName.getLocalPart();
   if (!localPart) return fallback;
-  const prefix = Object.entries(namespaceMap).find(([, uri]) => uri === nsURI)?.[0] || '';
-  return prefix ? `${prefix}:${localPart}` : localPart;
+  return formatWithPrefix(qName.getNamespaceURI(), localPart, namespaceMap);
 }
-
-// Made with Bob
