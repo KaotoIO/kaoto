@@ -5,7 +5,7 @@ import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.servic
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { JsonSchemaTypesService } from './json-schema-types.service';
-import { formatQNameWithPrefix } from './qname-util';
+import { formatQNameWithPrefix, formatWithPrefix } from './qname-util';
 import { SchemaPathService } from './schema-path.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -184,10 +184,7 @@ export class FieldTypeOverrideService {
     const schemaPath = SchemaPathService.build(field, namespaceMap);
     const originalTypeString = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
     const localPart = candidate.typeString.includes(':') ? candidate.typeString.split(':')[1] : candidate.typeString;
-    const typePrefix = candidate.namespaceURI
-      ? (Object.entries(namespaceMap).find(([, uri]) => uri === candidate.namespaceURI)?.[0] ?? '')
-      : '';
-    const typeString = typePrefix ? `${typePrefix}:${localPart}` : localPart;
+    const typeString = formatWithPrefix(candidate.namespaceURI, localPart, namespaceMap);
     return {
       schemaPath,
       type: typeString,
@@ -195,13 +192,6 @@ export class FieldTypeOverrideService {
       variant,
     };
   }
-
-  /**
-   * Format a QName as `prefix:localPart` using the namespace map.
-   * Falls back to the provided fallback string if the QName is null.
-   * @deprecated Use formatQNameWithPrefix from qname-util.ts instead
-   */
-  static readonly formatQNameWithPrefix = formatQNameWithPrefix;
 
   private static ensureNamespaceRegistered(namespaceURI: string | null, namespaceMap: Record<string, string>): void {
     if (!namespaceURI) return;
