@@ -229,7 +229,6 @@ describe('NewEntity', () => {
 
       // Should see grouped entities
       expect(wrapper.queryByText('Configuration')).toBeInTheDocument();
-      expect(wrapper.queryByText('Rest')).toBeInTheDocument();
     });
 
     it('should allow selecting entities from submenus', async () => {

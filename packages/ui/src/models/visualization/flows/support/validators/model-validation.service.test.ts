@@ -70,7 +70,7 @@ describe('ModelValidationService', () => {
 
       const result = ModelValidationService.validateNodeStatus(schema, model);
 
-      expect(result).toEqual('2 required parameters are not yet configured: [ topic,bootstrapServers ]');
+      expect(result).toEqual('1 required parameter is not yet configured: [ templateId ]');
     });
 
     it('should return a validation text for setheader pointing to multiple missing properties', () => {

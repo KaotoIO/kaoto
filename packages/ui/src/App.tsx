@@ -1,3 +1,5 @@
+import './styles/carbon-overrides.scss';
+
 import { isDefined, SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { useLayoutEffect, useMemo } from 'react';

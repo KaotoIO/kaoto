@@ -52,28 +52,65 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     type: EntityType;
     group: string;
     Entity: BaseVisualCamelEntityConstructor;
+    isVisualEntity: boolean;
     isYamlOnly?: boolean;
   }[] = [
-    { type: EntityType.Route, group: '', Entity: CamelRouteVisualEntity },
-    { type: EntityType.RouteConfiguration, group: 'Configuration', Entity: CamelRouteConfigurationVisualEntity },
-    { type: EntityType.Intercept, group: 'Configuration', Entity: CamelInterceptVisualEntity, isYamlOnly: true },
+    { type: EntityType.Route, group: '', Entity: CamelRouteVisualEntity, isVisualEntity: true },
+    {
+      type: EntityType.RouteConfiguration,
+      group: 'Configuration',
+      Entity: CamelRouteConfigurationVisualEntity,
+      isVisualEntity: true,
+    },
+    {
+      type: EntityType.Intercept,
+      group: 'Configuration',
+      Entity: CamelInterceptVisualEntity,
+      isVisualEntity: true,
+      isYamlOnly: true,
+    },
     {
       type: EntityType.InterceptFrom,
       group: 'Configuration',
       Entity: CamelInterceptFromVisualEntity,
+      isVisualEntity: true,
       isYamlOnly: true,
     },
     {
       type: EntityType.InterceptSendToEndpoint,
       group: 'Configuration',
       Entity: CamelInterceptSendToEndpointVisualEntity,
+      isVisualEntity: true,
       isYamlOnly: true,
     },
-    { type: EntityType.OnCompletion, group: 'Configuration', Entity: CamelOnCompletionVisualEntity, isYamlOnly: true },
-    { type: EntityType.OnException, group: 'Error Handling', Entity: CamelOnExceptionVisualEntity, isYamlOnly: true },
-    { type: EntityType.ErrorHandler, group: 'Error Handling', Entity: CamelErrorHandlerVisualEntity, isYamlOnly: true },
-    { type: EntityType.RestConfiguration, group: 'Rest', Entity: CamelRestConfigurationVisualEntity },
-    { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity },
+    {
+      type: EntityType.OnCompletion,
+      group: 'Configuration',
+      Entity: CamelOnCompletionVisualEntity,
+      isVisualEntity: true,
+      isYamlOnly: true,
+    },
+    {
+      type: EntityType.OnException,
+      group: 'Error Handling',
+      Entity: CamelOnExceptionVisualEntity,
+      isVisualEntity: true,
+      isYamlOnly: true,
+    },
+    {
+      type: EntityType.ErrorHandler,
+      group: 'Error Handling',
+      Entity: CamelErrorHandlerVisualEntity,
+      isVisualEntity: true,
+      isYamlOnly: true,
+    },
+    {
+      type: EntityType.RestConfiguration,
+      group: 'Rest',
+      Entity: CamelRestConfigurationVisualEntity,
+      isVisualEntity: false,
+    },
+    { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity, isVisualEntity: false },
   ];
   private entities: BaseCamelEntity[] = [];
   private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
@@ -98,9 +135,10 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
 
   getCanvasEntityList(): BaseVisualCamelEntityDefinition {
     this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.filter(
-      ({ isYamlOnly }) =>
-        this.serializer.getType() === SerializerType.YAML ||
-        (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly),
+      ({ isVisualEntity, isYamlOnly }) =>
+        isVisualEntity &&
+        (this.serializer.getType() === SerializerType.YAML ||
+          (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly)),
     ).reduce(
       (acc, { type, group }) => {
         const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
@@ -192,15 +230,15 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   getVisualEntities(): CamelRouteVisualEntity[] {
-    return this.entities.filter(
-      (entity) =>
-        entity instanceof CamelRouteVisualEntity ||
-        CamelRouteResource.SUPPORTED_ENTITIES.some(({ Entity }) => entity instanceof Entity),
+    return this.entities.filter((entity) =>
+      CamelRouteResource.SUPPORTED_ENTITIES.some(
+        ({ Entity, isVisualEntity }) => entity instanceof Entity && isVisualEntity,
+      ),
     ) as CamelRouteVisualEntity[];
   }
 
   getEntities(): BaseCamelEntity[] {
-    return this.entities.filter((entity) => !(entity instanceof CamelRouteVisualEntity)) as BaseCamelEntity[];
+    return this.entities.filter((entity) => !(entity instanceof CamelRouteVisualEntity));
   }
 
   toJSON(): unknown {

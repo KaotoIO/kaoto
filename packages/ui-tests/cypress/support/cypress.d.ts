@@ -36,6 +36,7 @@ declare global {
       openDesignPage(): Chainable<JQuery<Element>>;
       openSourceCode(): Chainable<JQuery<Element>>;
       openBeans(): Chainable<JQuery<Element>>;
+      openRestEditor(): Chainable<JQuery<Element>>;
       openMetadata(): Chainable<JQuery<Element>>;
       openSettings(): Chainable<JQuery<Element>>;
       openPipeErrorHandler(): Chainable<JQuery<Element>>;

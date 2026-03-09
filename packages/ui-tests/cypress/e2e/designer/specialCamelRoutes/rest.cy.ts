@@ -4,12 +4,10 @@ describe('Test for root rest container', () => {
   });
 
   it('Root rest configuration', () => {
-    cy.selectCamelRouteType('Rest', 'rest');
+    cy.openRestEditor();
 
-    // Open rest configuration tab, using the first rest node
-    cy.get(`g[data-grouplabel^="rest-"]`).eq(0).click({ force: true });
-
-    cy.selectFormTab('All');
+    cy.get('[data-testid="rest-tree-toolbar-menu"]').find('button').click();
+    cy.get('[data-testid="add-rest-service-btn"]').click();
 
     cy.interactWithConfigInputObject('description', 'description Label');
     cy.interactWithConfigInputObject('path', 'testPath');
@@ -17,9 +15,16 @@ describe('Test for root rest container', () => {
     cy.selectMediaTypes('produces', ['application/json', 'application/xml']);
     cy.selectInTypeaheadField('bindingMode', 'json');
 
-    // Insert special node intercept to Route Configuration
-    cy.selectInsertSpecialNode('description Label');
-    cy.chooseFromCatalog('processor', 'get');
+    // Insert Rest operation (method)
+    cy.get('[data-testid="rest-tree-toolbar-menu"]').find('button').click();
+    cy.get('[data-testid="add-rest-operation-btn"]').click();
+
+    cy.get('[data-testid="#.method-typeahead-select-input"]').find('input').clear().type('get');
+    cy.get('[data-testid="add-method-modal"]').within(() => {
+      cy.interactWithConfigInputObject('path', 'testPath');
+      cy.interactWithConfigInputObject('id', 'testId');
+    });
+    cy.get('[data-testid="add-method-modal-add-btn"]').click();
 
     cy.openSourceCode();
 
@@ -30,33 +35,5 @@ describe('Test for root rest container', () => {
     cy.checkCodeSpanLine('produces: application/json, application/xml');
     cy.checkCodeSpanLine('bindingMode: json');
     cy.checkCodeSpanLine('get:');
-  });
-
-  it('Move rest methods', () => {
-    cy.uploadFixture('flows/camelRoute/restDsl.yaml');
-    cy.openDesignPage();
-
-    cy.selectMoveAfterNode('get', 0);
-    cy.selectMoveBeforeNode('get', 1);
-
-    cy.openSourceCode();
-    const rest = [
-      '- id: get-1871',
-      'to:',
-      'id: to-3216',
-      'uri: direct',
-      'parameters:',
-      'name: operation-get-right',
-      '- id: get-3806',
-      'to:',
-      'id: to-3916',
-      'uri: direct',
-      'parameters:',
-      'name: operation-get-left',
-    ];
-
-    cy.openSourceCode();
-
-    cy.checkMultiLineContent(rest);
   });
 });

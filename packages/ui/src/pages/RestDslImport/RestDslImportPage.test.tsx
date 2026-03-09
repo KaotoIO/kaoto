@@ -27,7 +27,7 @@ describe('RestDslImportPage', () => {
     render(
       <MemoryRouter initialEntries={[Links.RestImport]}>
         <Routes>
-          <Route path={Links.Home} element={<p>Home page</p>} />
+          <Route path={Links.RestEditor} element={<p>Rest Editor</p>} />
           <Route path={Links.RestImport} element={<RestDslImportPage />} />
         </Routes>
       </MemoryRouter>,
@@ -43,7 +43,7 @@ describe('RestDslImportPage', () => {
       fireEvent.click(goToRestEditorButton);
     });
 
-    expect(screen.getByText('Home page')).toBeInTheDocument();
+    expect(screen.getByText('Rest Editor')).toBeInTheDocument();
   });
 
   it('navigates back to the Home page when closing the wizard', async () => {

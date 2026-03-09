@@ -19,6 +19,10 @@ export const kaotoEditorRouter = createHashRouter([
         lazy: async () => import('../pages/Beans'),
       },
       {
+        path: Links.RestEditor,
+        lazy: async () => import('../pages/RestDslEditor'),
+      },
+      {
         path: Links.Metadata,
         lazy: async () => import('../pages/Metadata'),
       },

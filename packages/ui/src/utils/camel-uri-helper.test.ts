@@ -402,4 +402,15 @@ describe('CamelUriHelper', () => {
       expect(CamelUriHelper.getParametersFromQueryString(queryString)).toEqual(result);
     });
   });
+
+  it.each([
+    ['log', { schema: 'log', syntax: '' }],
+    ['log:loggerName', { schema: 'log', syntax: 'loggerName' }],
+    ['log:loggerName:another', { schema: 'log', syntax: 'loggerName:another' }],
+  ])(
+    'getSyntaxWithoutSchema: should return the schema and syntax without schema for %s',
+    (uri: string, expected: { schema: string; syntax: string }) => {
+      expect(CamelUriHelper.getSyntaxWithoutSchema(uri)).toEqual(expected);
+    },
+  );
 });
