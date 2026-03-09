@@ -1,0 +1,114 @@
+@use '@carbon/react' with (
+  $font-path: '@ibm/plex',
+  $font-display: 'block'
+);
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/themes';
+@use '@carbon/react/scss/colors' as *;
+
+@mixin light-brand {
+  --light: 'true';
+  --cs-brand: #{$blue-30};
+  --cs-brand-alt: #{$blue-20};
+  --cs-logo-filter: invert(100%);
+
+  background-color: $background;
+  color: $text-primary;
+}
+
+@mixin dark-brand {
+  --light: 'false';
+  --cs-brand: #{$blue-80};
+  --cs-brand-alt: #{$blue-90};
+  --cs-logo-filter: initial;
+
+  background: $background;
+  color: $text-primary;
+}
+
+/* Theme based on data-theme-setting attribute */
+
+// Base mixin to apply theme and brand styles
+@mixin apply-theme($theme: 'light') {
+  @if $theme == 'light' {
+    @include theme(themes.$g10);
+    @include light-brand;
+  } @else {
+    @include theme(themes.$g100);
+    @include dark-brand;
+  }
+}
+
+// Helper mixins to apply theme to root or content
+@mixin apply-root-theme($theme: 'light') {
+  @include apply-theme($theme);
+}
+
+@mixin apply-content-theme($theme: 'light') {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .cs--content {
+    @include apply-theme($theme);
+  }
+}
+
+// System theme (no explicit setting or explicit 'system' value)
+$system-selector: ':root:is(:not([data-theme-setting]), [data-theme-setting="system"])';
+
+// Default: dark header, light content (when header-inverse=true)
+#{$system-selector}[data-header-inverse='true'] {
+  @include apply-root-theme('dark');
+  @include apply-content-theme('light');
+}
+
+// Default: light everywhere (when header-inverse=false or not set)
+#{$system-selector}:not([data-header-inverse='true']) {
+  @include apply-root-theme('light');
+}
+
+// System theme with dark preference
+@media (prefers-color-scheme: dark) {
+  // Light header, dark content (when header-inverse=true)
+  #{$system-selector}[data-header-inverse='true'] {
+    @include apply-root-theme('light');
+    @include apply-content-theme('dark');
+  }
+
+  // Dark everywhere (when header-inverse=false or not set)
+  #{$system-selector}:not([data-header-inverse='true']) {
+    @include apply-root-theme('dark');
+  }
+}
+
+// Explicit light theme
+:root[data-theme-setting='light'] {
+  // Dark header, light content (when header-inverse=true)
+  &[data-header-inverse='true'] {
+    @include apply-root-theme('dark');
+    @include apply-content-theme('light');
+  }
+
+  // Light everywhere (when header-inverse=false or not set)
+  &:not([data-header-inverse='true']) {
+    @include apply-root-theme('light');
+  }
+}
+
+// Explicit dark theme
+:root[data-theme-setting='dark'] {
+  // Light header, dark content (when header-inverse=true)
+  &[data-header-inverse='true'] {
+    @include apply-root-theme('light');
+    @include apply-content-theme('dark');
+  }
+
+  // Dark everywhere (when header-inverse=false or not set)
+  &:not([data-header-inverse='true']) {
+    @include apply-root-theme('dark');
+  }
+}
+
+body {
+  background-color: $background;
+  block-size: calc(100% - #{$spacing-09});
+}

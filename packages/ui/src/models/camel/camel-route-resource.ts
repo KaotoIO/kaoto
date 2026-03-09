@@ -186,7 +186,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
   }
 
   getEntities(): BaseCamelEntity[] {
-    return this.entities.filter((entity) => !(entity instanceof CamelRouteVisualEntity)) as BaseCamelEntity[];
+    return this.entities.filter((entity) => !(entity instanceof CamelRouteVisualEntity));
   }
 
   toJSON(): unknown {
