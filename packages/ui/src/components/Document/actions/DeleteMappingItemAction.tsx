@@ -11,7 +11,7 @@ import { TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useToggle } from '../../../hooks/useToggle';
-import { ConditionItem } from '../../../models/datamapper/mapping';
+import { InstructionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
 
@@ -32,7 +32,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   let warningMessage = undefined;
   if (
     nodeData.mapping &&
-    nodeData.mapping instanceof ConditionItem &&
+    nodeData.mapping instanceof InstructionItem &&
     nodeData.mapping.children.length > 0 &&
     nodeData.mapping.children[0].children.length > 0
   ) {

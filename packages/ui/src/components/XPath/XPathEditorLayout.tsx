@@ -15,8 +15,7 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { EditorNodeData, FunctionNodeData } from '../../models/datamapper';
-import { ExpressionItem } from '../../models/datamapper/mapping';
+import { EditorNodeData, FunctionNodeData, IExpressionHolder, MappingItem } from '../../models/datamapper';
 import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
 import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
@@ -27,7 +26,7 @@ import { SourcePanel } from '../View/SourcePanel';
 import { XPathEditor } from './XPathEditor';
 
 type XPathEditorLayoutProps = {
-  mapping: ExpressionItem;
+  mapping: IExpressionHolder & MappingItem;
   onUpdate: () => void;
 };
 

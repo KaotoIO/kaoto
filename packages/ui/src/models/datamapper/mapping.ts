@@ -5,8 +5,14 @@ import { NodePath } from './nodepath';
 import { Types } from './types';
 import { PathExpression } from './xpath';
 
+/** Valid parent types for any node in the mapping tree. */
 export type MappingParentType = MappingTree | MappingItem;
 
+/**
+ * Root of the mapping tree for a single target document.
+ * Holds top-level {@link MappingItem} children and shared state such as
+ * the namespace map used when evaluating XPath expressions.
+ */
 export class MappingTree {
   constructor(
     documentType: DocumentType,
@@ -21,6 +27,11 @@ export class MappingTree {
   namespaceMap: { [prefix: string]: string } = {};
 }
 
+/**
+ * Abstract base for every node in the mapping tree.
+ * Subclasses represent either data mappings ({@link FieldItem}, {@link ValueSelector})
+ * or XSLT instruction elements ({@link InstructionItem} subtypes).
+ */
 export abstract class MappingItem {
   constructor(
     public parent: MappingParentType,
@@ -29,22 +40,33 @@ export abstract class MappingItem {
   ) {
     this.mappingTree = parent instanceof MappingTree ? parent : parent.mappingTree;
   }
+  /** The root {@link MappingTree} this item belongs to. */
   mappingTree: MappingTree;
   children: MappingItem[] = [];
   get nodePath(): NodePath {
     return NodePath.childOf(this.parent.nodePath, this.id);
   }
+  /** XPath context path inherited from the nearest enclosing {@link ForEachItem}, or undefined at root. */
   get contextPath(): PathExpression | undefined {
     return this.parent.contextPath;
   }
   protected abstract doClone(): MappingItem;
+  /** Returns a deep clone of this item, including all children. */
   clone(): MappingItem {
     const cloned = this.doClone();
-    cloned.children = this.children.map((c) => c.clone());
+    cloned.children = this.children.map((c) => {
+      const cc = c.clone();
+      cc.parent = cloned;
+      return cc;
+    });
     return cloned;
   }
 }
 
+/**
+ * Maps a target schema field. Corresponds to an output XML element or attribute
+ * in the generated XSLT template.
+ */
 export class FieldItem extends MappingItem {
   constructor(
     public parent: MappingParentType,
@@ -58,41 +80,59 @@ export class FieldItem extends MappingItem {
   }
 }
 
-export abstract class ConditionItem extends MappingItem {
+/**
+ * Implemented by any mapping item that carries an XPath expression,
+ * such as {@link IfItem}, {@link WhenItem}, {@link ForEachItem}, and {@link ValueSelector}.
+ */
+export interface IExpressionHolder {
+  expression: string;
+}
+
+/**
+ * Runtime type guard for {@link IExpressionHolder}.
+ * Use this instead of `instanceof` since interfaces are erased at runtime.
+ * The narrowed type includes {@link MappingItem} so callers can access
+ * both the expression and mapping tree properties without casting.
+ */
+export function isExpressionHolder(item: MappingItem): item is IExpressionHolder & MappingItem {
+  return 'expression' in item;
+}
+
+/**
+ * Abstract base for XSLT instruction elements (`xsl:if`, `xsl:choose`, `xsl:for-each`, etc.).
+ * Instruction items control the structure and flow of the generated XSLT template
+ * and are distinct from {@link FieldItem} (data) and {@link ValueSelector} (value expression).
+ */
+export abstract class InstructionItem extends MappingItem {
   constructor(
     public parent: MappingParentType,
     public name: string,
   ) {
     super(parent, name, getCamelRandomId(name, 4));
   }
-  readonly isCondition = true;
 }
 
-export abstract class ExpressionItem extends ConditionItem {
-  constructor(
-    public parent: MappingParentType,
-    public name: string,
-  ) {
-    super(parent, name);
+/** Represents an `xsl:if` instruction. Renders its children only when {@link expression} evaluates to true. */
+export class IfItem extends InstructionItem implements IExpressionHolder {
+  constructor(public parent: MappingParentType) {
+    super(parent, 'if');
   }
   expression = '';
+  doClone() {
+    return new IfItem(this.parent);
+  }
   clone() {
-    const cloned = super.clone() as ExpressionItem;
+    const cloned = super.clone() as IfItem;
     cloned.expression = this.expression;
     return cloned;
   }
 }
 
-export class IfItem extends ExpressionItem {
-  constructor(public parent: MappingParentType) {
-    super(parent, 'if');
-  }
-  doClone() {
-    return new IfItem(this.parent);
-  }
-}
-
-export class ChooseItem extends ConditionItem {
+/**
+ * Represents an `xsl:choose` instruction.
+ * Children are {@link WhenItem} branches and an optional {@link OtherwiseItem} fallback.
+ */
+export class ChooseItem extends InstructionItem {
   constructor(
     public parent: MappingParentType,
     public field?: IField,
@@ -102,24 +142,32 @@ export class ChooseItem extends ConditionItem {
   get when() {
     return this.children.filter((c) => c instanceof WhenItem) as WhenItem[];
   }
-  get otherwise() {
-    return this.children.find((c) => c instanceof OtherwiseItem) as OtherwiseItem;
+  get otherwise(): OtherwiseItem | undefined {
+    return this.children.find((c): c is OtherwiseItem => c instanceof OtherwiseItem);
   }
   doClone() {
     return new ChooseItem(this.parent, this.field);
   }
 }
 
-export class WhenItem extends ExpressionItem {
+/** Represents an `xsl:when` branch inside a {@link ChooseItem}. Active when {@link expression} evaluates to true. */
+export class WhenItem extends InstructionItem implements IExpressionHolder {
   constructor(public parent: MappingParentType) {
     super(parent, 'when');
   }
+  expression = '';
   doClone() {
     return new WhenItem(this.parent);
   }
+  clone() {
+    const cloned = super.clone() as WhenItem;
+    cloned.expression = this.expression;
+    return cloned;
+  }
 }
 
-export class OtherwiseItem extends ConditionItem {
+/** Represents the `xsl:otherwise` fallback branch inside a {@link ChooseItem}. */
+export class OtherwiseItem extends InstructionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'otherwise');
   }
@@ -128,10 +176,18 @@ export class OtherwiseItem extends ConditionItem {
   }
 }
 
-export class ForEachItem extends ExpressionItem {
+/**
+ * Represents an `xsl:for-each` instruction.
+ * {@link expression} selects the node-set to iterate over.
+ * Overrides {@link contextPath} so that descendant XPath expressions
+ * are evaluated relative to each iteration node.
+ */
+export class ForEachItem extends InstructionItem implements IExpressionHolder {
   constructor(public parent: MappingParentType) {
     super(parent, 'for-each');
   }
+
+  expression = '';
 
   get contextPath() {
     const answer = XPathService.extractFieldPaths(this.expression)[0];
@@ -154,28 +210,50 @@ export class ForEachItem extends ExpressionItem {
     });
     return cloned;
   }
+
+  clone() {
+    const cloned = super.clone() as ForEachItem;
+    cloned.expression = this.expression;
+    return cloned;
+  }
 }
 
+/** Sorting criteria for an `xsl:sort` element. Used by `xsl:for-each` and `xsl:for-each-group` instructions. */
 export class SortItem {
   expression: string = '';
   order: 'ascending' | 'descending' = 'ascending';
 }
 
+/** Distinguishes how a {@link ValueSelector} produces its output in the generated XSLT. */
 export enum ValueType {
+  /** Emits a text value via `xsl:value-of`. */
   VALUE = 'value',
+  /** Emits a structured element container. */
   CONTAINER = 'container',
+  /** Emits an XML attribute. */
   ATTRIBUTE = 'attribute',
 }
 
-export class ValueSelector extends ExpressionItem {
+/**
+ * Leaf node that supplies the value for a target {@link FieldItem}.
+ * Serializes as `xsl:value-of` for scalar values and attributes,
+ * or `xsl:copy-of` for container nodes, depending on {@link valueType}.
+ */
+export class ValueSelector extends MappingItem implements IExpressionHolder {
   constructor(
     public parent: MappingParentType,
     public valueType: ValueType = ValueType.VALUE,
   ) {
-    super(parent, 'value');
+    super(parent, 'value', getCamelRandomId('value', 4));
   }
+  expression = '';
   doClone() {
     return new ValueSelector(this.parent, this.valueType);
+  }
+  clone() {
+    const cloned = super.clone() as ValueSelector;
+    cloned.expression = this.expression;
+    return cloned;
   }
 }
 
@@ -191,6 +269,30 @@ export class UnknownMappingItem extends MappingItem {
   }
 }
 
+/**
+ * Represents an `xsl:variable` element.
+ * {@link name} is the variable name; {@link expression} is the XPath `select` attribute value.
+ * Can be a child of FieldItem, ForEachItem, IfItem, WhenItem, or OtherwiseItem.
+ */
+export class VariableItem extends MappingItem implements IExpressionHolder {
+  constructor(
+    public parent: MappingParentType,
+    public name: string,
+  ) {
+    super(parent, name, getCamelRandomId(name, 4));
+  }
+  expression = '';
+  doClone() {
+    return new VariableItem(this.parent, this.name);
+  }
+  clone() {
+    const cloned = super.clone() as VariableItem;
+    cloned.expression = this.expression;
+    return cloned;
+  }
+}
+
+/** Describes an XPath/XSLT function available in the expression editor. */
 export interface IFunctionDefinition {
   name: string;
   displayName: string;
@@ -200,6 +302,7 @@ export interface IFunctionDefinition {
   arguments: IFunctionArgumentDefinition[];
 }
 
+/** Describes a single argument of an {@link IFunctionDefinition}. */
 export interface IFunctionArgumentDefinition {
   name: string;
   type: Types;

@@ -3,10 +3,11 @@ import xmlFormat from 'xml-formatter';
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import {
   ChooseItem,
-  ExpressionItem,
   FieldItem,
   ForEachItem,
+  IExpressionHolder,
   IfItem,
+  isExpressionHolder,
   MappingItem,
   MappingTree,
   OtherwiseItem,
@@ -286,9 +287,9 @@ export class VisualizationService {
     return VisualizationService.getFieldValueSelector(nodeData) !== undefined;
   }
 
-  static getExpressionItemForNode(nodeData: TargetNodeData) {
+  static getExpressionItemForNode(nodeData: TargetNodeData): (IExpressionHolder & MappingItem) | undefined {
     if (!nodeData.mapping) return;
-    if (nodeData.mapping instanceof ExpressionItem) return nodeData.mapping as ExpressionItem;
+    if (nodeData.mapping instanceof MappingItem && isExpressionHolder(nodeData.mapping)) return nodeData.mapping;
     return VisualizationService.getFieldValueSelector(nodeData);
   }
 

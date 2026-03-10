@@ -2,8 +2,8 @@ import { AlertProps } from '@patternfly/react-core';
 
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import {
-  ExpressionItem,
   FieldItem,
+  IExpressionHolder,
   IFunctionDefinition,
   MappingItem,
   MappingParentType,
@@ -170,7 +170,7 @@ class SimpleNodePath extends NodePath {
   }
 }
 export class EditorNodeData implements NodeData {
-  constructor(public mapping: ExpressionItem) {}
+  constructor(public mapping: IExpressionHolder & MappingItem) {}
   id: string = 'editor';
   isPrimitive: boolean = false;
   isSource: boolean = false;

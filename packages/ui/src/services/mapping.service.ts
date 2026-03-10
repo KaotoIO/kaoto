@@ -1,12 +1,13 @@
 import { DocumentType, IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
 import {
   ChooseItem,
-  ConditionItem,
-  ExpressionItem,
   FieldItem,
   ForEachItem,
+  IExpressionHolder,
   IfItem,
   IFunctionDefinition,
+  InstructionItem,
+  isExpressionHolder,
   MappingItem,
   MappingParentType,
   MappingTree,
@@ -27,16 +28,18 @@ export class MappingService {
         return mapping.field === field;
       } else if (mapping instanceof ValueSelector) {
         return false;
+      } else if (mapping instanceof InstructionItem) {
+        return MappingService.getInstructionFields(mapping).includes(field);
       } else {
-        return MappingService.getConditionalFields(mapping as ConditionItem).includes(field);
+        return false;
       }
     });
   }
 
-  private static getConditionalFieldItems(mapping: ConditionItem): FieldItem[] {
+  private static getInstructionFieldItems(mapping: InstructionItem): FieldItem[] {
     if (mapping instanceof ChooseItem) {
       return [...mapping.when, mapping.otherwise].reduce((acc, branch) => {
-        branch && acc.push(...MappingService.getConditionalFieldItems(branch));
+        branch && acc.push(...MappingService.getInstructionFieldItems(branch));
         return acc;
       }, [] as FieldItem[]);
     } else if (
@@ -48,8 +51,8 @@ export class MappingService {
       return mapping.children.reduce((acc, child) => {
         if (child instanceof FieldItem) {
           acc.push(child);
-        } else if (child instanceof ConditionItem) {
-          acc.push(...MappingService.getConditionalFieldItems(child));
+        } else if (child instanceof InstructionItem) {
+          acc.push(...MappingService.getInstructionFieldItems(child));
         }
         return acc;
       }, [] as FieldItem[]);
@@ -57,8 +60,8 @@ export class MappingService {
     return [];
   }
 
-  static getConditionalFields(mapping: ConditionItem): IField[] {
-    return MappingService.getConditionalFieldItems(mapping).map((item) => item.field);
+  static getInstructionFields(mapping: InstructionItem): IField[] {
+    return MappingService.getInstructionFieldItems(mapping).map((item) => item.field);
   }
 
   /**
@@ -94,7 +97,7 @@ export class MappingService {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveAllMappingsForSourceDocument(child, documentType, documentReferenceId);
       if (
-        child instanceof ExpressionItem &&
+        isExpressionHolder(child) &&
         MappingService.hasStaleSourceDocument(child, documentType, documentReferenceId)
       ) {
         return acc;
@@ -106,7 +109,7 @@ export class MappingService {
   }
 
   private static hasStaleSourceDocument(
-    expressionItem: ExpressionItem,
+    expressionItem: IExpressionHolder & MappingItem,
     documentType: DocumentType,
     documentReferenceId?: string,
   ) {
@@ -150,9 +153,12 @@ export class MappingService {
           child = MappingService.updateFieldItemField(child, compatibleField);
         }
       }
-      if (compatibleField && child.children.length > 0) {
-        acc.push(child);
-      } else if (child.parent instanceof ConditionItem || child instanceof ConditionItem) {
+      if (
+        (compatibleField && child.children.length > 0) ||
+        child.parent instanceof InstructionItem ||
+        child instanceof InstructionItem ||
+        child instanceof ValueSelector
+      ) {
         acc.push(child);
       }
       return acc;
@@ -176,10 +182,10 @@ export class MappingService {
   private static doRemoveStaleMappingsForSourceDocument(item: MappingTree | MappingItem, document: IDocument) {
     item.children = item.children.reduce((acc, child) => {
       MappingService.doRemoveStaleMappingsForSourceDocument(child, document);
-      if (child instanceof ExpressionItem && MappingService.hasStaleSourceField(child, document)) {
+      if (isExpressionHolder(child) && MappingService.hasStaleSourceField(child, document)) {
         return acc;
       }
-      if (!(child.parent instanceof ConditionItem) && child instanceof FieldItem && child.children.length === 0) {
+      if (!(child.parent instanceof InstructionItem) && child instanceof FieldItem && child.children.length === 0) {
         return acc;
       }
       acc.push(child);
@@ -187,7 +193,7 @@ export class MappingService {
     }, [] as MappingItem[]);
   }
 
-  private static hasStaleSourceField(expressionItem: ExpressionItem, document: IDocument): boolean {
+  private static hasStaleSourceField(expressionItem: IExpressionHolder & MappingItem, document: IDocument): boolean {
     const namespaces = expressionItem.mappingTree.namespaceMap;
     let fieldPaths = [];
     try {
@@ -237,13 +243,13 @@ export class MappingService {
     for (const child of item.children) {
       MappingService.renameParameterInMappings(child, oldDocumentId, newDocumentId);
       // Update XPath expressions in the item
-      if (child instanceof ExpressionItem) {
+      if (isExpressionHolder(child)) {
         // Escape regex metacharacters in oldDocumentId to prevent regex injection
         const escapedOldDocumentId = oldDocumentId.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
         // Use function callback to ensure literal replacement (avoid $1, $$, etc. interpretation)
         child.expression = child.expression.replace(
           new RegExp(String.raw`\$${escapedOldDocumentId}\b`, 'g'),
-          () => `$${newDocumentId}`,
+          `$${newDocumentId}`,
         );
       }
     }
@@ -315,7 +321,7 @@ export class MappingService {
     return otherwiseItem;
   }
 
-  static wrapWithFunction(condition: ExpressionItem, func: IFunctionDefinition) {
+  static wrapWithFunction(condition: IExpressionHolder, func: IFunctionDefinition) {
     condition.expression = `${func.name}(${condition.expression})`;
   }
 
@@ -328,7 +334,7 @@ export class MappingService {
     );
     if (condition instanceof ForEachItem) {
       condition.expression = XPathService.toXPathString(pathExpression);
-    } else if (condition instanceof ExpressionItem) {
+    } else if (isExpressionHolder(condition)) {
       condition.expression = XPathService.addSource(condition.expression, pathExpression);
     }
   }
@@ -394,9 +400,9 @@ export class MappingService {
 
   static deleteMappingItem(item: MappingParentType) {
     item.children = item.children.filter((child) => !(child instanceof ValueSelector));
-    const isConditionItem = item instanceof ConditionItem;
+    const isInstructionItem = item instanceof InstructionItem;
     const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
-    if (isConditionItem || isParentFieldItem) {
+    if (isInstructionItem || isParentFieldItem) {
       MappingService.deleteFromParent(item);
     }
   }
