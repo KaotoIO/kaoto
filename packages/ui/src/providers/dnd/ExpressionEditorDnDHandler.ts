@@ -15,7 +15,7 @@ export class ExpressionEditorDnDHandler implements DnDHandler {
       !(toNode instanceof EditorNodeData)
     )
       return;
-    const editorNodeData = toNode as EditorNodeData;
+    const editorNodeData = toNode;
     if (fromNode instanceof FieldNodeData) {
       MappingService.mapToCondition(editorNodeData.mapping, fromNode.field);
     } else {
@@ -24,6 +24,10 @@ export class ExpressionEditorDnDHandler implements DnDHandler {
     onUpdate();
   }
 
-  handleDragOver(_event: DragOverEvent): void {}
-  handleDragStart(_event: DragStartEvent): void {}
+  handleDragOver(_event: DragOverEvent): void {
+    // no-op ATM
+  }
+  handleDragStart(_event: DragStartEvent): void {
+    // no-op ATM
+  }
 }
