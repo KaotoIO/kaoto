@@ -7,6 +7,7 @@ import { SourceSchemaType } from '../../camel/source-schema-type';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
 import {
   AddStepMode,
@@ -281,7 +282,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
 
     if (!this.getRootUri()) {
       fromNode.data.catalogKind = CatalogKind.Entity;
-      fromNode.data.name = 'placeholder';
+      fromNode.data.name = PlaceholderType.Placeholder;
     }
     routeGroupNode.addChild(fromNode);
 

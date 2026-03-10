@@ -2,6 +2,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { CatalogKind } from '../../../../catalog-kind';
+import { PlaceholderType } from '../../../../placeholder.constants';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
@@ -41,7 +42,7 @@ export class RestDslVerbsNodeMapper extends BaseNodeMapper {
     } else {
       const placeholderNode = createVisualizationNode(`${path}.to.placeholder`, {
         catalogKind: CatalogKind.Pattern,
-        name: 'placeholder',
+        name: PlaceholderType.Placeholder,
         path: `${path}.to.placeholder`,
         processorName: this.method as keyof ProcessorDefinition,
         isPlaceholder: true,

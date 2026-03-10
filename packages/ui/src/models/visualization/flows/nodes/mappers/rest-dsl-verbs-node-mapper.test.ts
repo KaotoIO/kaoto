@@ -1,6 +1,7 @@
 import { ProcessorDefinition, Rest } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
+import { PlaceholderType } from '../../../../placeholder.constants';
 import { RootNodeMapper } from '../root-node-mapper';
 import { RestDslVerbsNodeMapper } from './rest-dsl-verbs-node-mapper';
 import { noopNodeMapper } from './testing/noop-node-mapper';
@@ -64,7 +65,7 @@ describe('RestDslVerbsNodeMapper', () => {
     const child = vizNode.getChildren()?.[0];
     expect(child?.data.path).toBe('rest.get.0.to.placeholder');
     expect(child?.data.isPlaceholder).toBe(true);
-    expect(child?.data.name).toBe('placeholder');
+    expect(child?.data.name).toBe(PlaceholderType.Placeholder);
   });
 
   describe('different HTTP methods', () => {

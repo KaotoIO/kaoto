@@ -1,5 +1,6 @@
 import { waitFor } from '@testing-library/react';
 
+import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IOnCopyAddon } from '../../../registers/interactions/node-interaction-addon.model';
 import { NoBendpointsEdge } from '../NoBendingEdge';
@@ -114,7 +115,7 @@ describe('CustomNodeUtils', () => {
     it('should return true for compatible nodes in case of placeholder node', () => {
       const mockValidate = jest.fn().mockReturnValue(true);
       vizNode1.data.name = 'log';
-      placeholderNode.data.name = 'placeholder';
+      placeholderNode.data.name = PlaceholderType.Placeholder;
       const result = checkNodeDropCompatibility(vizNode1, placeholderNode, mockValidate);
       expect(result).toBe(true);
       expect(mockValidate).toHaveBeenCalled();
@@ -229,7 +230,11 @@ describe('CustomNodeUtils', () => {
       const choiceNode = getMockVizNode('route.from.steps.0.choice');
       (choiceNode.getId as jest.Mock).mockReturnValue('same-choice');
       const whenBranchPlaceholder = getMockVizNode('route.from.steps.0.choice.when.0.steps.0.placeholder');
-      whenBranchPlaceholder.data = { ...whenBranchPlaceholder.data, name: 'placeholder', isPlaceholder: true };
+      whenBranchPlaceholder.data = {
+        ...whenBranchPlaceholder.data,
+        name: PlaceholderType.Placeholder,
+        isPlaceholder: true,
+      };
       whenBranchPlaceholder.getPreviousNode = jest.fn().mockReturnValue(undefined);
       whenBranchPlaceholder.getId = jest.fn().mockReturnValue('same-choice');
 

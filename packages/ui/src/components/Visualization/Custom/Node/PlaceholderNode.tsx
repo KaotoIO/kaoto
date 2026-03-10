@@ -26,6 +26,7 @@ import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, CatalogKind, IVisualizationNode } from '../../../../models';
+import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { SettingsContext } from '../../../../providers/settings.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
@@ -112,7 +113,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   const entitiesContext = useEntityContext();
   const catalogModalContext = useContext(CatalogModalContext);
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
-  const updatedLabel = label === 'placeholder' ? 'Add step' : `Add ${label}`;
+  const updatedLabel = label === PlaceholderType.Placeholder ? 'Add step' : `Add ${label}`;
   const boxRef = useRef<Rect | null>(null);
   const boxXRef = useRef<number | null>(null);
   const boxYRef = useRef<number | null>(null);
@@ -125,8 +126,10 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
     return null;
   }
   const { onReplaceNode } = useReplaceStep(vizNode);
-  const isSpecialPlaceholder = vizNode.data.name !== 'placeholder' && vizNode.data.name !== 'placeholder-special-child';
-  const isSpecialChildPlaceholder = vizNode.data.name === 'placeholder-special-child';
+  const isSpecialPlaceholder =
+    vizNode.data.name !== PlaceholderType.Placeholder && vizNode.data.name !== PlaceholderType.PlaceholderSpecialChild;
+  const isSpecialChildPlaceholder = vizNode.data.name === PlaceholderType.PlaceholderSpecialChild;
+
   const parentVizNode = vizNode.getParentNode();
   const insertStepTargetNode = isSpecialPlaceholder ? (parentVizNode ?? vizNode) : vizNode;
   const insertStepOptions = isSpecialPlaceholder

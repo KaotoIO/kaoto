@@ -7,6 +7,7 @@ import { EntityType } from '../../camel/entities';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { PlaceholderType } from '../../placeholder.constants';
 import { REST_ELEMENT_NAME } from '../../special-processors.constants';
 import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
@@ -358,7 +359,7 @@ describe('CamelRestVisualEntity', () => {
         mode: AddStepMode.ReplaceStep,
         data: {
           catalogKind: CatalogKind.Pattern,
-          name: 'placeholder',
+          name: PlaceholderType.Placeholder,
           path: 'rest.get.0.to.placeholder',
           isPlaceholder: true,
         },
@@ -376,7 +377,7 @@ describe('CamelRestVisualEntity', () => {
       entity.addStep({
         definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
         mode: AddStepMode.ReplaceStep,
-        data: { catalogKind: CatalogKind.Pattern, name: 'placeholder', path: undefined },
+        data: { catalogKind: CatalogKind.Pattern, name: PlaceholderType.Placeholder, path: undefined },
       });
 
       // Should not throw and rest should remain unchanged
