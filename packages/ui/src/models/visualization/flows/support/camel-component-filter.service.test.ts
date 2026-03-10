@@ -22,6 +22,7 @@ import {
 } from '../../../../stubs';
 import { EntityType } from '../../../camel/entities';
 import { CatalogKind } from '../../../catalog-kind';
+import { PlaceholderType } from '../../../placeholder.constants';
 import { AddStepMode } from '../../base-visual-entity';
 import { CamelComponentFilterService } from './camel-component-filter.service';
 
@@ -206,7 +207,7 @@ describe('CamelComponentFilterService', () => {
       it('should only offer direct component when replacing REST verb placeholder', () => {
         const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
           catalogKind: CatalogKind.Pattern,
-          name: 'placeholder',
+          name: PlaceholderType.Placeholder,
           path: 'rest.get.0.to.placeholder',
           processorName: 'get' as keyof ProcessorDefinition,
           isPlaceholder: true,
@@ -220,7 +221,7 @@ describe('CamelComponentFilterService', () => {
         (verb) => {
           const filterFn = CamelComponentFilterService.getCamelCompatibleComponents(AddStepMode.ReplaceStep, {
             catalogKind: CatalogKind.Pattern,
-            name: 'placeholder',
+            name: PlaceholderType.Placeholder,
             path: `rest.${verb}.0.to.placeholder`,
             processorName: verb as keyof ProcessorDefinition,
             isPlaceholder: true,

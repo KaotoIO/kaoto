@@ -1,6 +1,7 @@
 import { isDefined } from '@kaoto/forms';
 import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 
+import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
@@ -73,7 +74,7 @@ export const handleValidNodeDrop = (
   // Drop onto special placeholder
   const isSpecialChildPlaceholder =
     droppedVizNode.data?.isPlaceholder &&
-    droppedVizNode.data?.name !== 'placeholder' &&
+    droppedVizNode.data?.name !== PlaceholderType.Placeholder &&
     droppedVizNode.getParentNode()?.getNodeInteraction().canHaveSpecialChildren;
   if (isSpecialChildPlaceholder) {
     const parentVizNode = droppedVizNode.getParentNode();
@@ -124,7 +125,10 @@ export const checkNodeDropCompatibility = (
       return !(draggedParent?.id === droppedParent?.id && draggedParent?.getId() === droppedParent?.getId());
     }
 
-    if (droppedVizNode.data.name === 'placeholder' && droppedVizNode.getPreviousNode() !== draggedVizNode) {
+    if (
+      droppedVizNode.data.name === PlaceholderType.Placeholder &&
+      droppedVizNode.getPreviousNode() !== draggedVizNode
+    ) {
       if (
         droppedVizNode.data.path?.includes(draggedVizNode.data.path ?? '') &&
         droppedVizNode.getId() === draggedVizNode.getId()

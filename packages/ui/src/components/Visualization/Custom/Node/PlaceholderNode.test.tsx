@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
+import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
 import { PlaceholderNode, PlaceholderNodeObserver } from './PlaceholderNode';
@@ -95,11 +96,11 @@ describe('PlaceholderNode', () => {
   it('should render placeholder container with data-testid when vizNode is provided', () => {
     const vizNode = createVisualizationNode('route.from.steps.1.placeholder', {
       catalogKind: CatalogKind.Processor,
-      name: 'placeholder',
+      name: PlaceholderType.Placeholder,
       path: 'route.from.steps.1.placeholder',
       isPlaceholder: true,
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('placeholder');
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue(PlaceholderType.Placeholder);
     jest.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
 
     const parentElement = new BaseGraph();
@@ -158,7 +159,7 @@ describe('PlaceholderNode', () => {
     };
 
     it('should render PlusCircleIcon for special child placeholder', () => {
-      const wrapper = setupWithVizNode({ name: 'placeholder-special-child' });
+      const wrapper = setupWithVizNode({ name: PlaceholderType.PlaceholderSpecialChild });
 
       const svgIcon = wrapper.container.querySelector('svg');
       expect(svgIcon).toBeInTheDocument();
@@ -166,7 +167,7 @@ describe('PlaceholderNode', () => {
     });
 
     it('should render PlusCircleIcon for regular placeholder', () => {
-      const wrapper = setupWithVizNode({ name: 'placeholder' });
+      const wrapper = setupWithVizNode({ name: PlaceholderType.Placeholder });
 
       const svgIcon = wrapper.container.querySelector('svg');
       expect(svgIcon).toBeInTheDocument();
@@ -182,7 +183,7 @@ describe('PlaceholderNode', () => {
     });
 
     it('should call onInsertStep when clicking on special child placeholder', () => {
-      setupWithVizNode({ name: 'placeholder-special-child' });
+      setupWithVizNode({ name: PlaceholderType.PlaceholderSpecialChild });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -192,7 +193,7 @@ describe('PlaceholderNode', () => {
     });
 
     it('should call onReplaceNode when clicking on regular placeholder', () => {
-      setupWithVizNode({ name: 'placeholder' });
+      setupWithVizNode({ name: PlaceholderType.Placeholder });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);

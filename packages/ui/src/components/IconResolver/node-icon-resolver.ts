@@ -241,6 +241,7 @@ import questionIcon from '../../assets/question-mark.svg';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog';
 import { EntityType } from '../../models/camel/entities';
 import { CatalogKind } from '../../models/catalog-kind';
+import { PlaceholderType } from '../../models/placeholder.constants';
 
 export class NodeIconResolver {
   static async getIcon(elementName: string | undefined, type: CatalogKind): Promise<string> {
@@ -1047,7 +1048,7 @@ export class NodeIconResolver {
         return icon_eip_route;
       case EntityType.OnException:
         return icon_eip_throwException;
-      case 'placeholder':
+      case PlaceholderType.Placeholder:
         return expandIcon;
       default:
         return undefined;

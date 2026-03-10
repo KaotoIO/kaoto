@@ -15,6 +15,7 @@ import { SourceSchemaType } from '../../camel/source-schema-type';
 import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
+import { PlaceholderType } from '../../placeholder.constants';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -299,7 +300,7 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
     const data: IVisualizationNodeData = {
       catalogKind: CatalogKind.Kamelet,
-      name: step?.ref?.name ?? 'placeholder',
+      name: step?.ref?.name ?? PlaceholderType.Placeholder,
       path,
       entity: isRoot ? this : undefined,
       isPlaceholder,

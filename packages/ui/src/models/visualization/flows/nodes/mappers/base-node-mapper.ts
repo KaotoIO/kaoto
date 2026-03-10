@@ -2,6 +2,7 @@ import { DoCatch, ProcessorDefinition, When1 } from '@kaoto/camel-catalog/types'
 
 import { getValue } from '../../../../../utils';
 import { CatalogKind } from '../../../../catalog-kind';
+import { PlaceholderType } from '../../../../placeholder.constants';
 import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../../../special-processors.constants';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
@@ -101,7 +102,7 @@ export class BaseNodeMapper implements INodeMapper {
     const previousNode = branchVizNodes[branchVizNodes.length - 1];
     const placeholderNode = createVisualizationNode(placeholderPath, {
       catalogKind: CatalogKind.Entity,
-      name: 'placeholder',
+      name: PlaceholderType.Placeholder,
       isPlaceholder: true,
       path: placeholderPath,
     });

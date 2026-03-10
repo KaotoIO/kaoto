@@ -8,6 +8,7 @@ import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
 import { NonStringEIP } from '../../camel/types';
 import { CatalogKind } from '../../catalog-kind';
+import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -315,7 +316,7 @@ describe('AbstractCamelVisualEntity', () => {
         mode: AddStepMode.ReplaceStep,
         data: {
           catalogKind: CatalogKind.Processor,
-          name: 'placeholder',
+          name: PlaceholderType.Placeholder,
           isPlaceholder: true,
           path: 'route.from.steps.1.multicast.steps.0.placeholder',
         },
