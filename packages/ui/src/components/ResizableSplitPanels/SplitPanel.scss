@@ -1,0 +1,13 @@
+.split-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+
+  > div {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+}

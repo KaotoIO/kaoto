@@ -1,6 +1,7 @@
 import { ColorScheme } from '../models';
 
 export const DARK_MODE_PATTERN_FLY_CLASS_NAME = 'pf-v6-theme-dark';
+export const DARK_MODE_CARBON_ATTR_NAME = 'data-theme-setting';
 
 export const setColorScheme = (scheme: ColorScheme): void => {
   const html = document.querySelector('html');
@@ -13,8 +14,10 @@ export const setColorScheme = (scheme: ColorScheme): void => {
 
   if (colorScheme === ColorScheme.Light) {
     html.classList.remove(DARK_MODE_PATTERN_FLY_CLASS_NAME);
+    html.setAttribute(DARK_MODE_CARBON_ATTR_NAME, 'light');
   } else {
     html.classList.add(DARK_MODE_PATTERN_FLY_CLASS_NAME);
+    html.setAttribute(DARK_MODE_CARBON_ATTR_NAME, 'dark');
   }
 };
 
