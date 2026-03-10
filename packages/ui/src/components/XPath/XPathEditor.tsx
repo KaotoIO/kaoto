@@ -3,12 +3,12 @@ import './XPathEditor.scss';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 
-import { ExpressionItem } from '../../models/datamapper';
+import { IExpressionHolder } from '../../models/datamapper';
 import { XPathService } from '../../services/xpath/xpath.service';
 import { xpathEditorConstrufctionOption, xpathEditorTheme } from './monaco-options';
 
 type XPathEditorProps = {
-  mapping: ExpressionItem;
+  mapping: IExpressionHolder;
   onChange: (expression: string | undefined) => void;
 };
 

@@ -15,12 +15,12 @@ import {
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ExpressionItem } from '../../../models/datamapper/mapping';
+import { IExpressionHolder } from '../../../models/datamapper/mapping';
 import { XPathService } from '../../../services/xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
 
 type XPathInputProps = {
-  mapping: ExpressionItem;
+  mapping: IExpressionHolder;
   onUpdate: () => void;
 };
 export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, onUpdate }) => {

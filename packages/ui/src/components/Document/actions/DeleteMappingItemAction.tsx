@@ -12,7 +12,7 @@ import { FunctionComponent, useCallback } from 'react';
 
 import { useCanvas } from '../../../hooks/useCanvas';
 import { useToggle } from '../../../hooks/useToggle';
-import { ConditionItem } from '../../../models/datamapper/mapping';
+import { InstructionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
 
@@ -26,7 +26,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   const { clearNodeReferencesForPath, reloadNodeReferences } = useCanvas();
 
   const onConfirmDelete = useCallback(() => {
-    if (nodeData.mapping && nodeData.mapping instanceof ConditionItem) {
+    if (nodeData.mapping && nodeData.mapping instanceof InstructionItem) {
       clearNodeReferencesForPath(nodeData.mapping.nodePath.toString());
       reloadNodeReferences();
     }
@@ -38,7 +38,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   let warningMessage = undefined;
   if (
     nodeData.mapping &&
-    nodeData.mapping instanceof ConditionItem &&
+    nodeData.mapping instanceof InstructionItem &&
     nodeData.mapping.children.length > 0 &&
     nodeData.mapping.children[0].children.length > 0
   ) {
