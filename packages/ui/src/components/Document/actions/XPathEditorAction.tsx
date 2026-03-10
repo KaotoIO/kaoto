@@ -2,13 +2,13 @@ import { FunctionMath } from '@carbon/icons-react';
 import { ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useState } from 'react';
 
-import { ExpressionItem } from '../../../models/datamapper/mapping';
+import { IExpressionHolder, MappingItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { XPathEditorModal } from '../../XPath/XPathEditorModal';
 
 type XPathEditorProps = {
   nodeData: TargetNodeData;
-  mapping: ExpressionItem;
+  mapping: IExpressionHolder & MappingItem;
   onUpdate: () => void;
 };
 export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeData, mapping, onUpdate }) => {

@@ -1,10 +1,11 @@
 import {
   BODY_DOCUMENT_ID,
   DocumentType,
-  ExpressionItem,
   FieldItem,
   IDocument,
+  IExpressionHolder,
   IMappingLink,
+  isExpressionHolder,
   MappingItem,
   MappingTree,
   PrimitiveDocument,
@@ -26,7 +27,7 @@ export class MappingLinksService {
   ): IMappingLink[] {
     const answer = [] as IMappingLink[];
     const targetNodePath = item.nodePath.toString();
-    if (item instanceof ExpressionItem) {
+    if (item instanceof MappingItem && isExpressionHolder(item)) {
       const links = MappingLinksService.doExtractMappingLinks(
         item,
         targetNodePath,
@@ -69,7 +70,7 @@ export class MappingLinksService {
   }
 
   private static doExtractMappingLinks(
-    sourceExpressionItem: ExpressionItem,
+    sourceExpressionItem: IExpressionHolder & MappingItem,
     targetNodePath: string,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
