@@ -5,6 +5,7 @@ import { MappingTree } from '../../../../models/datamapper/mapping';
 import { IFieldTypeInfo, TypeOverrideVariant, Types } from '../../../../models/datamapper/types';
 import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { QName } from '../../../../xml-schema-ts/QName';
 import { FieldTypeOverride, revertTypeOverride } from './FieldTypeOverride';
 
 // Mock TypeOverrideModal to expose the onSave/onAttach/onRemove callbacks
@@ -42,10 +43,9 @@ jest.mock('../../../../hooks/useDataMapper', () => ({
 }));
 
 const mockSelectedType: IFieldTypeInfo = {
-  typeString: 'xs:int',
+  typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
   displayName: 'int',
   type: Types.Integer,
-  namespaceURI: 'http://www.w3.org/2001/XMLSchema',
   isBuiltIn: true,
 };
 

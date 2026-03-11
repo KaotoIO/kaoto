@@ -31,7 +31,7 @@ export function formatWithPrefix(
 export function formatQNameWithPrefix(
   qName: { getNamespaceURI: () => string; getLocalPart: () => string | null } | null | undefined,
   namespaceMap: Record<string, string>,
-  fallback: string,
+  fallback: string = '',
 ): string {
   if (!qName) return fallback;
   const localPart = qName.getLocalPart();

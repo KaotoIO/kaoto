@@ -5,7 +5,7 @@ import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.servic
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { JsonSchemaTypesService } from './json-schema-types.service';
-import { formatQNameWithPrefix, formatWithPrefix } from './qname-util';
+import { formatQNameWithPrefix } from './qname-util';
 import { SchemaPathService } from './schema-path.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -182,9 +182,8 @@ export class FieldTypeOverrideService {
     variant: TypeOverrideVariant.SAFE | TypeOverrideVariant.FORCE,
   ): IFieldTypeOverride {
     const schemaPath = SchemaPathService.build(field, namespaceMap);
-    const originalTypeString = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
-    const localPart = candidate.typeString.includes(':') ? candidate.typeString.split(':')[1] : candidate.typeString;
-    const typeString = formatWithPrefix(candidate.namespaceURI, localPart, namespaceMap);
+    const originalTypeString = formatQNameWithPrefix(field.originalTypeQName, namespaceMap);
+    const typeString = formatQNameWithPrefix(candidate.typeQName, namespaceMap);
     return {
       schemaPath,
       type: typeString,
@@ -264,7 +263,7 @@ export class FieldTypeOverrideService {
       throw new TypeError(`Unsupported document type: ${document.constructor.name}`);
     }
 
-    FieldTypeOverrideService.ensureNamespaceRegistered(candidate.namespaceURI, namespaceMap);
+    FieldTypeOverrideService.ensureNamespaceRegistered(candidate.typeQName.getNamespaceURI(), namespaceMap);
     const override = FieldTypeOverrideService.createFieldTypeOverride(field, candidate, namespaceMap, variant);
     const changed = DocumentUtilService.processTypeOverride(document, override, namespaceMap, parseTypeOverrideFn);
     if (changed) {

@@ -66,18 +66,10 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
 
     // Format type names with namespace prefixes for display
     const originalTypeDisplay = hasTypeOverride
-      ? formatQNameWithPrefix(
-          nodeData.field.originalTypeQName,
-          namespaceMap,
-          nodeData.field.originalTypeQName?.toString() || nodeData.field.originalType,
-        )
+      ? formatQNameWithPrefix(nodeData.field.originalTypeQName, namespaceMap, nodeData.field.originalType)
       : '';
     const overriddenTypeDisplay = hasTypeOverride
-      ? formatQNameWithPrefix(
-          nodeData.field.typeQName,
-          namespaceMap,
-          nodeData.field.typeQName?.toString() || nodeData.field.type,
-        )
+      ? formatQNameWithPrefix(nodeData.field.typeQName, namespaceMap, nodeData.field.type)
       : '';
 
     return (
