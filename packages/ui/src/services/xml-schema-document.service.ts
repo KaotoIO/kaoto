@@ -194,9 +194,10 @@ export class XmlSchemaDocumentService {
       definition.name,
       updatedFiles,
       definition.rootElementChoice,
+      definition.namespaceMap,
       definition.fieldTypeOverrides,
       definition.choiceSelections,
-      definition.namespaceMap,
+      definition.fieldSubstitutions,
     );
 
     // Try to create the Document object. It could fail if the root element user chose was defined in the removed
@@ -210,6 +211,9 @@ export class XmlSchemaDocumentService {
 
     // Unset the root element and retry
     updatedDefinition.rootElementChoice = undefined;
+    updatedDefinition.fieldTypeOverrides = [];
+    updatedDefinition.choiceSelections = [];
+    updatedDefinition.fieldSubstitutions = [];
     return XmlSchemaDocumentService.createXmlSchemaDocument(updatedDefinition);
   }
 
@@ -298,6 +302,7 @@ export class XmlSchemaDocumentService {
 
     document.definition.fieldTypeOverrides = [];
     document.definition.choiceSelections = [];
+    document.definition.fieldSubstitutions = [];
 
     const newDocument = new XmlSchemaDocument(document.definition, document.xmlSchemaCollection, newRootElement);
 
@@ -451,7 +456,6 @@ export class XmlSchemaDocumentService {
     }
 
     field.type = Types.Container;
-    field.originalType = Types.Container;
     field.namedTypeFragmentRefs.push(fragmentKey);
   }
 
@@ -465,12 +469,10 @@ export class XmlSchemaDocumentService {
       const newType = XmlSchemaDocumentUtilService.getFieldTypeFromName(schemaType.getName());
       if (!field.type || field.type === Types.AnyType) {
         field.type = newType;
-        field.originalType = newType;
       }
       const simpleTypeQName = schemaType.getQName();
       if (simpleTypeQName) {
         field.typeQName = simpleTypeQName;
-        field.originalTypeQName = simpleTypeQName;
       }
       return;
     } else if (!(schemaType instanceof XmlSchemaComplexType)) {
@@ -478,11 +480,9 @@ export class XmlSchemaDocumentService {
     }
 
     field.type = Types.Container;
-    field.originalType = Types.Container;
     const typeQName = schemaType.getQName();
     if (typeQName) {
       field.typeQName = typeQName;
-      field.originalTypeQName = typeQName;
       const namespace = typeQName.getNamespaceURI();
       if (!XmlSchemaDocumentUtilService.isStandardXmlNamespace(namespace)) {
         if (!field.namedTypeFragmentRefs.includes(typeQName.toString())) {
@@ -536,7 +536,6 @@ export class XmlSchemaDocumentService {
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     const attrTypeName = attr.getSchemaTypeName()?.getLocalPart();
     field.type = (attrTypeName ? Types[capitalize(attrTypeName) as keyof typeof Types] : null) || Types.AnyType;
-    field.originalType = field.type;
     fields.push(field);
 
     ownerDoc.totalFieldCount++;
@@ -544,7 +543,6 @@ export class XmlSchemaDocumentService {
     const attrSchemaTypeQName = attr.getSchemaTypeName();
     if (attrSchemaTypeQName) {
       field.typeQName = attrSchemaTypeQName;
-      field.originalTypeQName = attrSchemaTypeQName;
     }
     const userDefinedAttrType =
       attrSchemaTypeQName &&
