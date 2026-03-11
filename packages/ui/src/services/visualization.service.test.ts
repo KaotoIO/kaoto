@@ -9,7 +9,6 @@ import {
 } from '../models/datamapper/document';
 import {
   ChooseItem,
-  ExpressionItem,
   FieldItem,
   ForEachItem,
   IfItem,
@@ -515,7 +514,7 @@ describe('VisualizationService', () => {
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach);
         VisualizationService.engageMapping(tree, sourceItem, forEachChildren[0] as TargetFieldNodeData);
 
-        expect((forEach.mapping as ExpressionItem).expression).toEqual('');
+        expect((forEach.mapping as ForEachItem).expression).toEqual('');
         expect(((forEachChildren[0] as FieldItemNodeData).mapping.children[0] as ValueSelector).expression).toEqual(
           '/ns0:ShipOrder/Item',
         );
