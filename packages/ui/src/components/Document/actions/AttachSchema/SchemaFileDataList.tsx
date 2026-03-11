@@ -18,7 +18,7 @@ import {
 import { CheckCircleIcon, ExclamationCircleIcon, ExclamationTriangleIcon, TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
-import { getFileName } from './utils';
+import { getFileName } from '../utils';
 
 export interface SchemaFileItem {
   filePath?: string;

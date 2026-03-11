@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/LAZYTEST"
+           xmlns:tns="http://www.example.com/LAZYTEST"
+           elementFormDefault="qualified">
+
+  <!-- Extension of AddressType: adds Country and PostalBox -->
+  <xs:complexType name="DetailedAddressType">
+    <xs:complexContent>
+      <xs:extension base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="Country" type="xs:string"/>
+          <xs:element name="PostalBox" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds EmployeeId and Department -->
+  <xs:complexType name="EmployeeType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="EmployeeId" type="xs:string"/>
+          <xs:element name="Department" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Restriction of AddressType: makes ZipCode required pattern -->
+  <xs:complexType name="USAddressType">
+    <xs:complexContent>
+      <xs:restriction base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="Street" type="xs:string"/>
+          <xs:element name="City" type="xs:string"/>
+          <xs:element name="ZipCode">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:pattern value="[0-9]{5}(-[0-9]{4})?"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Additional extensions to test dropdown overflow -->
+  
+  <!-- Extension of PersonType: adds Manager info -->
+  <xs:complexType name="ManagerType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="ManagerId" type="xs:string"/>
+          <xs:element name="TeamSize" type="xs:int"/>
+          <xs:element name="Budget" type="xs:decimal"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of EmployeeType: adds Contractor info -->
+  <xs:complexType name="ContractorType">
+    <xs:complexContent>
+      <xs:extension base="tns:EmployeeType">
+        <xs:sequence>
+          <xs:element name="ContractEndDate" type="xs:date"/>
+          <xs:element name="HourlyRate" type="xs:decimal"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Customer info -->
+  <xs:complexType name="CustomerType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="CustomerId" type="xs:string"/>
+          <xs:element name="LoyaltyPoints" type="xs:int"/>
+          <xs:element name="PreferredContact" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of AddressType: adds International address -->
+  <xs:complexType name="InternationalAddressType">
+    <xs:complexContent>
+      <xs:extension base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="Country" type="xs:string"/>
+          <xs:element name="Province" type="xs:string"/>
+          <xs:element name="InternationalPostalCode" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Student info -->
+  <xs:complexType name="StudentType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="StudentId" type="xs:string"/>
+          <xs:element name="Major" type="xs:string"/>
+          <xs:element name="GPA" type="xs:decimal"/>
+          <xs:element name="EnrollmentYear" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Vendor info -->
+  <xs:complexType name="VendorType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="VendorId" type="xs:string"/>
+          <xs:element name="CompanyName" type="xs:string"/>
+          <xs:element name="TaxId" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of EmployeeType: adds Executive info -->
+  <xs:complexType name="ExecutiveType">
+    <xs:complexContent>
+      <xs:extension base="tns:EmployeeType">
+        <xs:sequence>
+          <xs:element name="ExecutiveLevel" type="xs:string"/>
+          <xs:element name="StockOptions" type="xs:int"/>
+          <xs:element name="BoardMember" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Partner info -->
+  <xs:complexType name="PartnerType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="PartnerId" type="xs:string"/>
+          <xs:element name="PartnershipDate" type="xs:date"/>
+          <xs:element name="EquityPercentage" type="xs:decimal"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of AddressType: adds Business address -->
+  <xs:complexType name="BusinessAddressType">
+    <xs:complexContent>
+      <xs:extension base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="BuildingName" type="xs:string"/>
+          <xs:element name="Floor" type="xs:string"/>
+          <xs:element name="Suite" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Consultant info -->
+  <xs:complexType name="ConsultantType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="ConsultantId" type="xs:string"/>
+          <xs:element name="Specialization" type="xs:string"/>
+          <xs:element name="YearsExperience" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of EmployeeType: adds Intern info -->
+  <xs:complexType name="InternType">
+    <xs:complexContent>
+      <xs:extension base="tns:EmployeeType">
+        <xs:sequence>
+          <xs:element name="University" type="xs:string"/>
+          <xs:element name="InternshipDuration" type="xs:int"/>
+          <xs:element name="Mentor" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Supplier info -->
+  <xs:complexType name="SupplierType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="SupplierId" type="xs:string"/>
+          <xs:element name="ProductCategory" type="xs:string"/>
+          <xs:element name="PaymentTerms" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of AddressType: adds Residential address -->
+  <xs:complexType name="ResidentialAddressType">
+    <xs:complexContent>
+      <xs:extension base="tns:AddressType">
+        <xs:sequence>
+          <xs:element name="ApartmentNumber" type="xs:string"/>
+          <xs:element name="ResidenceType" type="xs:string"/>
+          <xs:element name="YearBuilt" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Freelancer info -->
+  <xs:complexType name="FreelancerType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="FreelancerId" type="xs:string"/>
+          <xs:element name="Skills" type="xs:string"/>
+          <xs:element name="PortfolioURL" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of EmployeeType: adds Trainee info -->
+  <xs:complexType name="TraineeType">
+    <xs:complexContent>
+      <xs:extension base="tns:EmployeeType">
+        <xs:sequence>
+          <xs:element name="TrainingProgram" type="xs:string"/>
+          <xs:element name="TrainingStartDate" type="xs:date"/>
+          <xs:element name="Supervisor" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Extension of PersonType: adds Agent info -->
+  <xs:complexType name="AgentType">
+    <xs:complexContent>
+      <xs:extension base="tns:PersonType">
+        <xs:sequence>
+          <xs:element name="AgentId" type="xs:string"/>
+          <xs:element name="CommissionRate" type="xs:decimal"/>
+          <xs:element name="Territory" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>

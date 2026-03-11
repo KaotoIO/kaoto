@@ -138,61 +138,46 @@ describe('FieldTypeOverrideService', () => {
 
   describe('addSchemaFilesForTypeOverride', () => {
     describe('XML Schema documents', () => {
-      it('should add schema files and return updated definition with namespace map', () => {
+      it('should add schema files and mutate document.definition.definitionFiles', () => {
         const definition = new DocumentDefinition(
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
           { 'ShipOrder.xsd': getShipOrderXsd() },
-          undefined,
-          undefined,
-          undefined,
-          { ns0: 'io.kaoto.datamapper.poc.test' },
         );
 
         const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
         const document = result.document as XmlSchemaDocument;
 
-        const updatedDef = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
+        FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
           'ImportedTypes.xsd': getImportedTypesXsd(),
         });
 
-        expect(Object.keys(updatedDef.definitionFiles || {})).toContain('ShipOrder.xsd');
-        expect(Object.keys(updatedDef.definitionFiles || {})).toContain('ImportedTypes.xsd');
-
-        const namespaceMap = updatedDef.namespaceMap || {};
-        expect(namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
-        expect(namespaceMap['ns1']).toBe('http://example.com/types');
+        expect(Object.keys(document.definition.definitionFiles || {})).toContain('ShipOrder.xsd');
+        expect(Object.keys(document.definition.definitionFiles || {})).toContain('ImportedTypes.xsd');
       });
 
-      it('should preserve existing namespaces when adding new ones', () => {
+      it('should make added schema types available in the collection', () => {
         const definition = new DocumentDefinition(
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
           { 'ShipOrder.xsd': getShipOrderXsd() },
-          undefined,
-          undefined,
-          undefined,
-          { ns0: 'io.kaoto.datamapper.poc.test', custom: 'http://example.com/custom' },
         );
 
         const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
         const document = result.document as XmlSchemaDocument;
 
-        const updatedDef = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
+        FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
           'ImportedTypes.xsd': getImportedTypesXsd(),
         });
 
-        const namespaceMap = updatedDef.namespaceMap || {};
-        expect(namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
-        expect(namespaceMap['custom']).toBe('http://example.com/custom');
-        expect(namespaceMap['ns1']).toBe('http://example.com/types');
+        expect(Object.keys(document.namedTypeFragments).some((k) => k.includes('ImportedType'))).toBe(true);
       });
     });
 
     describe('JSON Schema documents', () => {
-      it('should add schema files and return updated definition', () => {
+      it('should add schema files and mutate document.definition', () => {
         const mainSchema = { type: 'object', properties: { name: { type: 'string' } } };
         const definition = new DocumentDefinition(
           DocumentType.SOURCE_BODY,
@@ -210,13 +195,12 @@ describe('FieldTypeOverrideService', () => {
           },
         };
 
-        const updatedDef = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
+        FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {
           'types.json': JSON.stringify(additionalSchema),
         });
 
-        expect(Object.keys(updatedDef.definitionFiles || {})).toContain('main.json');
-        expect(Object.keys(updatedDef.definitionFiles || {})).toContain('types.json');
-        expect(updatedDef.namespaceMap).toEqual({});
+        expect(Object.keys(document.definition.definitionFiles || {})).toContain('main.json');
+        expect(Object.keys(document.definition.definitionFiles || {})).toContain('types.json');
       });
     });
 
@@ -234,25 +218,20 @@ describe('FieldTypeOverrideService', () => {
         }).toThrow('Cannot add schema files to primitive document');
       });
 
-      it('should handle empty additionalFiles', () => {
+      it('should handle empty additionalFiles and keep existing definition files', () => {
         const definition = new DocumentDefinition(
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
           'test-doc',
           { 'ShipOrder.xsd': getShipOrderXsd() },
-          undefined,
-          undefined,
-          undefined,
-          { ns0: 'io.kaoto.datamapper.poc.test' },
         );
 
         const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
         const document = result.document as XmlSchemaDocument;
 
-        const updatedDef = FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {});
+        FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, {});
 
-        expect(updatedDef.definitionFiles).toEqual(definition.definitionFiles);
-        expect(updatedDef.namespaceMap).toEqual(definition.namespaceMap);
+        expect(document.definition.definitionFiles).toEqual(definition.definitionFiles);
       });
     });
   });
@@ -418,6 +397,35 @@ describe('FieldTypeOverrideService', () => {
 
       expect(nameField.type).toBe(Types.Numeric);
       expect(nameField.typeOverride).toBe(TypeOverrideVariant.FORCE);
+    });
+
+    it('should register unknown namespaceURI in namespaceMap and store prefixed typeString', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const stringField = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
+      if (!stringField) throw new Error('Field not found');
+
+      const newNamespace = 'http://example.com/types';
+      const candidate = {
+        displayName: 'EmployeeType',
+        typeString: 'EmployeeType',
+        type: Types.Container,
+        namespaceURI: newNamespace,
+        isBuiltIn: false,
+      };
+
+      const namespaceMap: Record<string, string> = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
+      FieldTypeOverrideService.applyFieldTypeOverride(
+        doc,
+        stringField,
+        candidate,
+        namespaceMap,
+        TypeOverrideVariant.FORCE,
+      );
+
+      expect(Object.values(namespaceMap)).toContain(newNamespace);
+      const registeredPrefix = Object.keys(namespaceMap).find((k) => namespaceMap[k] === newNamespace);
+      expect(registeredPrefix).toBeDefined();
+      expect(doc.definition.fieldTypeOverrides![0].type).toBe(`${registeredPrefix}:EmployeeType`);
     });
 
     it('should throw TypeError for PrimitiveDocument', () => {

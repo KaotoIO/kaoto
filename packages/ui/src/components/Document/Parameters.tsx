@@ -116,8 +116,9 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
   onScroll,
   onLayoutChange,
 }) => {
-  const { mappingTree } = useDataMapper();
-  const parameterNodeData = useMemo(() => new DocumentNodeData(document), [document]);
+  const { mappingTree, documentRevision } = useDataMapper();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const parameterNodeData = useMemo(() => new DocumentNodeData(document), [document, documentRevision]);
   const [parameterTree, setParameterTree] = useState<DocumentTree | undefined>(undefined);
 
   useEffect(() => {

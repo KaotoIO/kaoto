@@ -53,6 +53,7 @@ export class DocumentService {
     schemaType: DocumentDefinitionType,
     documentId: string,
     schemaFilePaths: string[],
+    namespaceMap: Record<string, string> = {},
   ): Promise<CreateDocumentResult> {
     try {
       const docId = documentType === DocumentType.PARAM ? documentId : BODY_DOCUMENT_ID;
@@ -67,7 +68,7 @@ export class DocumentService {
         return { validationStatus: 'error', errors: [{ message: 'Could not read schema file(s)' }] };
       }
 
-      return DocumentService.doCreateDocumentFromDefinition(documentDefinition);
+      return DocumentService.doCreateDocumentFromDefinition(documentDefinition, namespaceMap);
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       const errorMessage = error?.message || 'Unknown validation error';
@@ -113,7 +114,10 @@ export class DocumentService {
     return new DocumentDefinition(documentType, definitionType, documentId, fileContents);
   }
 
-  private static doCreateDocumentFromDefinition(definition: DocumentDefinition): CreateDocumentResult {
+  private static doCreateDocumentFromDefinition(
+    definition: DocumentDefinition,
+    namespaceMap: Record<string, string> = {},
+  ): CreateDocumentResult {
     switch (definition.definitionType) {
       case DocumentDefinitionType.Primitive: {
         const document = new PrimitiveDocument(definition);
@@ -125,9 +129,9 @@ export class DocumentService {
         };
       }
       case DocumentDefinitionType.XML_SCHEMA:
-        return XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+        return XmlSchemaDocumentService.createXmlSchemaDocument(definition, namespaceMap);
       case DocumentDefinitionType.JSON_SCHEMA:
-        return JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+        return JsonSchemaDocumentService.createJsonSchemaDocument(definition, namespaceMap);
       default:
         return {
           validationStatus: 'error',
@@ -145,12 +149,16 @@ export class DocumentService {
    * @param filePath - The key of the schema file to remove from {@link DocumentDefinition.definitionFiles}
    * @returns A {@link CreateDocumentResult} with updated validation status, errors/warnings, and definition
    */
-  static removeSchemaFile(definition: DocumentDefinition, filePath: string): CreateDocumentResult {
+  static removeSchemaFile(
+    definition: DocumentDefinition,
+    filePath: string,
+    namespaceMap: Record<string, string> = {},
+  ): CreateDocumentResult {
     switch (definition.definitionType) {
       case DocumentDefinitionType.XML_SCHEMA:
-        return XmlSchemaDocumentService.removeSchemaFile(definition, filePath);
+        return XmlSchemaDocumentService.removeSchemaFile(definition, filePath, namespaceMap);
       case DocumentDefinitionType.JSON_SCHEMA:
-        return JsonSchemaDocumentService.removeSchemaFile(definition, filePath);
+        return JsonSchemaDocumentService.removeSchemaFile(definition, filePath, namespaceMap);
       default:
         return {
           validationStatus: 'error',
@@ -188,23 +196,26 @@ export class DocumentService {
    * @param initModel - The initialization model containing document definitions
    * @returns An object containing the source body document, source parameter map, and target body document; or null if no model is provided
    */
-  static createInitialDocuments(initModel?: DocumentInitializationModel): InitialDocumentsSet | null {
+  static createInitialDocuments(
+    initModel?: DocumentInitializationModel,
+    namespaceMap: Record<string, string> = {},
+  ): InitialDocumentsSet | null {
     if (!initModel) return null;
     const answer: InitialDocumentsSet = {
       sourceParameterMap: new Map<string, IDocument>(),
     };
     if (initModel.sourceBody) {
-      const result = DocumentService.doCreateDocumentFromDefinition(initModel.sourceBody);
+      const result = DocumentService.doCreateDocumentFromDefinition(initModel.sourceBody, namespaceMap);
       if (result.document) answer.sourceBodyDocument = result.document;
     }
     if (initModel.sourceParameters) {
-      Object.entries(initModel.sourceParameters).forEach(([key, value]) => {
-        const result = DocumentService.doCreateDocumentFromDefinition(value);
+      for (const [key, value] of Object.entries(initModel.sourceParameters)) {
+        const result = DocumentService.doCreateDocumentFromDefinition(value, namespaceMap);
         answer.sourceParameterMap.set(key, result.document ?? new PrimitiveDocument(value));
-      });
+      }
     }
     if (initModel.targetBody) {
-      const result = DocumentService.doCreateDocumentFromDefinition(initModel.targetBody);
+      const result = DocumentService.doCreateDocumentFromDefinition(initModel.targetBody, namespaceMap);
       if (result.document) answer.targetBodyDocument = result.document;
     }
     return answer;

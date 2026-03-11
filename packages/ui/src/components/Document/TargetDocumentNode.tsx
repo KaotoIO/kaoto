@@ -7,7 +7,6 @@ import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import {
   AddMappingNodeData,
-  FieldItemNodeData,
   NodeReference,
   TargetDocumentNodeData,
   TargetNodeData,
@@ -16,6 +15,8 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
+import { FieldOverrideContextMenu } from './actions/FieldTypeOverride/FieldOverrideContextMenu';
+import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
@@ -39,7 +40,8 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
 
   const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
   const nodeData = treeNode.nodeData;
-  const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
+  const field = VisualizationService.getField(nodeData);
+  const iconType = field?.type ?? nodeData.type;
 
   const isDocument = VisualizationService.isDocumentNode(nodeData);
   const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
@@ -75,10 +77,12 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
   getNodeReference(nodeRefId) !== nodeReference && setNodeReference(nodeRefId, nodeReference);
 
   const showNodeActions = (isDocument && isPrimitive) || !isDocument;
-  const { refreshMappingTree } = useDataMapper();
+  const { mappingTree, refreshMappingTree } = useDataMapper();
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
   }, [refreshMappingTree]);
+
+  const typeOverrideIndicator = renderTypeOverrideIndicator(field, mappingTree.namespaceMap);
 
   const isSelected = isInSelectedMapping(nodeReference);
   const handleClickField = useCallback(
@@ -95,64 +99,81 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
   );
 
   return (
-    <div
-      data-testid={`node-target-${nodeData.id}`}
-      data-selected={isSelected}
-      className="node__container"
-      role="button"
-      tabIndex={0}
-      onClick={handleClickField}
-      onKeyDown={handleKeyDown}
-    >
-      <NodeContainer ref={containerRef} nodeData={nodeData}>
-        <div className="node__header">
-          <NodeContainer nodeData={nodeData} ref={headerRef} className={clsx({ 'selected-container': isSelected })}>
-            <BaseNode
-              data-testid={nodeData.title}
-              isExpandable={hasChildren}
-              isExpanded={isExpanded}
-              onExpandChange={handleClickToggle}
-              isDraggable={isDraggable}
-              iconType={iconType}
-              isCollectionField={isCollectionField}
-              isChoiceField={isChoiceField}
-              isAttributeField={isAttributeField}
-              title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
-              rank={rank}
-              isSelected={isSelected}
-            >
-              {showNodeActions ? (
-                <TargetNodeActions
-                  className="node__target__actions"
-                  nodeData={nodeData as TargetNodeData}
-                  onUpdate={handleUpdate}
-                />
-              ) : (
-                <span className="node__target__actions" />
-              )}
+    <FieldOverrideContextMenu field={field} onUpdate={handleUpdate}>
+      {({ onContextMenu }) => (
+        <div
+          role="treeitem"
+          tabIndex={0}
+          aria-selected={isSelected}
+          data-testid={`node-target-${nodeData.id}`}
+          data-selected={isSelected}
+          className="node__container"
+          onClick={handleClickField}
+          onKeyDown={handleKeyDown}
+          onContextMenu={onContextMenu}
+        >
+          <NodeContainer ref={containerRef} nodeData={nodeData}>
+            <div className="node__header">
+              <NodeContainer nodeData={nodeData} ref={headerRef} className={clsx({ 'selected-container': isSelected })}>
+                <BaseNode
+                  data-testid={nodeData.title}
+                  isExpandable={hasChildren}
+                  isExpanded={isExpanded}
+                  onExpandChange={handleClickToggle}
+                  isDraggable={isDraggable}
+                  iconType={iconType}
+                  isCollectionField={isCollectionField}
+                  isChoiceField={isChoiceField}
+                  isAttributeField={isAttributeField}
+                  title={
+                    <NodeTitle
+                      className="node__spacer"
+                      nodeData={nodeData}
+                      isDocument={isDocument}
+                      rank={rank}
+                      namespaceMap={mappingTree.namespaceMap}
+                    />
+                  }
+                  rank={rank}
+                  isSelected={isSelected}
+                >
+                  {typeOverrideIndicator}
+                  {showNodeActions ? (
+                    <TargetNodeActions
+                      className="node__target__actions"
+                      nodeData={nodeData as TargetNodeData}
+                      onUpdate={handleUpdate}
+                    />
+                  ) : (
+                    <span className="node__target__actions" />
+                  )}
 
-              {isDocument && <DocumentActions nodeData={nodeData as TargetDocumentNodeData} onRenameClick={() => {}} />}
-            </BaseNode>
+                  {isDocument && (
+                    <DocumentActions nodeData={nodeData as TargetDocumentNodeData} onRenameClick={() => {}} />
+                  )}
+                </BaseNode>
+              </NodeContainer>
+            </div>
+
+            {hasChildren && isExpanded && (
+              <div className="node__children">
+                {treeNode.children.map((childTreeNode) =>
+                  childTreeNode.nodeData instanceof AddMappingNodeData ? (
+                    <AddMappingNode nodeData={childTreeNode.nodeData} key={childTreeNode.path} rank={rank} />
+                  ) : (
+                    <TargetDocumentNode
+                      treeNode={childTreeNode}
+                      documentId={documentId}
+                      key={childTreeNode.path}
+                      rank={rank + 1}
+                    />
+                  ),
+                )}
+              </div>
+            )}
           </NodeContainer>
         </div>
-
-        {hasChildren && isExpanded && (
-          <div className="node__children">
-            {treeNode.children.map((childTreeNode) =>
-              childTreeNode.nodeData instanceof AddMappingNodeData ? (
-                <AddMappingNode nodeData={childTreeNode.nodeData} key={childTreeNode.path} rank={rank} />
-              ) : (
-                <TargetDocumentNode
-                  treeNode={childTreeNode}
-                  documentId={documentId}
-                  key={childTreeNode.path}
-                  rank={rank + 1}
-                />
-              ),
-            )}
-          </div>
-        )}
-      </NodeContainer>
-    </div>
+      )}
+    </FieldOverrideContextMenu>
   );
 };

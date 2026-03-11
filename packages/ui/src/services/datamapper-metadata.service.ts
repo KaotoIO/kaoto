@@ -106,18 +106,16 @@ export class DataMapperMetadataService {
         DocumentType.SOURCE_BODY,
         BODY_DOCUMENT_ID,
         metadata.sourceBody,
-        namespaceMap,
       ).then((definition) => (answer.sourceBody = definition));
       const targetBodyPromise = DataMapperMetadataService.doLoadDocument(
         api,
         DocumentType.TARGET_BODY,
         BODY_DOCUMENT_ID,
         metadata.targetBody,
-        namespaceMap,
       ).then((definition) => (answer.targetBody = definition));
       const paramPromises = Object.entries(metadata.sourceParameters).reduce(
         (acc, [key, meta]) => {
-          acc[key] = DataMapperMetadataService.doLoadDocument(api, DocumentType.PARAM, key, meta, namespaceMap).then(
+          acc[key] = DataMapperMetadataService.doLoadDocument(api, DocumentType.PARAM, key, meta).then(
             (definition) => (answer.sourceParameters[key] = definition),
           );
           return acc;
@@ -135,7 +133,6 @@ export class DataMapperMetadataService {
     documentType: DocumentType,
     name: string,
     documentMetadata: IDocumentMetadata,
-    namespaceMap: Record<string, string>,
   ): Promise<DocumentDefinition> {
     return new Promise((resolve) => {
       const definitionType = documentMetadata.type ? documentMetadata.type : DocumentDefinitionType.Primitive;
@@ -159,7 +156,6 @@ export class DataMapperMetadataService {
           documentMetadata.rootElementChoice,
           documentMetadata.fieldTypeOverrides,
           documentMetadata.choiceSelections,
-          namespaceMap,
         );
         resolve(answer);
       });
