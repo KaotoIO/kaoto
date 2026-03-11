@@ -3,6 +3,7 @@ import './RestDslEditorPage.scss';
 import { CanvasFormTabsProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useState } from 'react';
 
+import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { customFieldsFactoryfactory } from '../../components/Visualization/Canvas/Form/fields/custom-fields-factory';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
@@ -90,8 +91,9 @@ export const RestDslEditorPage: FunctionComponent = () => {
   }, [selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
 
   return (
-    <div style={{ display: 'flex', gap: '16px', height: '100%' }}>
-      <div style={{ flex: '0 0 300px', borderRight: '1px solid #ccc', padding: '16px' }}>
+    <ResizableSplitPanels
+      defaultLeftWidth={30}
+      leftPanel={
         <RestTree entities={visualEntities} onSelect={setSelectedElement}>
           <RestTreeToolbar
             entities={visualEntities}
@@ -102,29 +104,29 @@ export const RestDslEditorPage: FunctionComponent = () => {
             onDelete={handleDelete}
           />
         </RestTree>
-      </div>
-
-      <div style={{ flex: 1, padding: '16px', overflow: 'auto' }}>
-        {!selectedElement?.entityId && <div>Select an entity from the list to edit its configuration</div>}
-
-        {selectedElement && (
-          <>
-            <h2>Edit {selectedElement.modelPath}</h2>
-            <CanvasFormTabsProvider tab="All">
-              <SuggestionRegistrar>
-                <KaotoForm
-                  key={`${selectedElement.entityId}__${selectedElement.modelPath}`}
-                  schema={schema}
-                  onChangeProp={handleOnChangeIndividualProp}
-                  model={model}
-                  omitFields={omitFields}
-                  customFieldsFactory={customFieldsFactoryfactory}
-                />
-              </SuggestionRegistrar>
-            </CanvasFormTabsProvider>
-          </>
-        )}
-      </div>
-    </div>
+      }
+      rightPanel={
+        <div>
+          {!selectedElement?.entityId && <div>Select an entity from the list to edit its configuration</div>}
+          {selectedElement && (
+            <>
+              <h2>Edit {selectedElement.modelPath}</h2>
+              <CanvasFormTabsProvider tab="All">
+                <SuggestionRegistrar>
+                  <KaotoForm
+                    key={`${selectedElement.entityId}__${selectedElement.modelPath}`}
+                    schema={schema}
+                    onChangeProp={handleOnChangeIndividualProp}
+                    model={model}
+                    omitFields={omitFields}
+                    customFieldsFactory={customFieldsFactoryfactory}
+                  />
+                </SuggestionRegistrar>
+              </CanvasFormTabsProvider>
+            </>
+          )}
+        </div>
+      }
+    />
   );
 };
