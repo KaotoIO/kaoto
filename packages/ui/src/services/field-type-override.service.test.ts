@@ -10,6 +10,7 @@ import {
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
 import { TypeOverrideVariant } from '../models/datamapper/types';
 import { getImportedTypesXsd, getNamedTypesXsd, getShipOrderXsd, TestUtil } from '../stubs/datamapper/data-mapper';
+import { QName } from '../xml-schema-ts/QName';
 import { FieldTypeOverrideService } from './field-type-override.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
@@ -244,9 +245,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -273,9 +273,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -302,9 +301,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -341,9 +339,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -387,9 +384,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'number',
-        typeString: 'number',
+        typeQName: new QName(null, 'number'),
         type: Types.Numeric,
-        namespaceURI: '',
         isBuiltIn: true,
       };
 
@@ -407,9 +403,8 @@ describe('FieldTypeOverrideService', () => {
       const newNamespace = 'http://example.com/types';
       const candidate = {
         displayName: 'EmployeeType',
-        typeString: 'EmployeeType',
+        typeQName: new QName(newNamespace, 'EmployeeType'),
         type: Types.Container,
-        namespaceURI: newNamespace,
         isBuiltIn: false,
       };
 
@@ -434,9 +429,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -459,9 +453,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -496,9 +489,8 @@ describe('FieldTypeOverrideService', () => {
 
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
 
@@ -545,9 +537,8 @@ describe('FieldTypeOverrideService', () => {
       const namespaceMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.datamapper.poc.test' };
       const candidate = {
         displayName: 'xs:int',
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
       FieldTypeOverrideService.applyFieldTypeOverride(

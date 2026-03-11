@@ -15,6 +15,7 @@ import { XmlSchemaComplexContent } from '../xml-schema-ts/complex/XmlSchemaCompl
 import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaSimpleContent } from '../xml-schema-ts/simple/XmlSchemaSimpleContent';
 import { XmlSchemaSimpleTypeRestriction } from '../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
+import { formatQNameWithPrefix } from './qname-util';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 
 /**
@@ -251,53 +252,33 @@ export class XmlSchemaTypesService {
    * @param includeBase - Whether to include base type information
    * @returns IFieldTypeInfo object
    */
-  private static createTypeInfoFromSchemaType(
-    type: XmlSchemaType,
-    namespaceMap: Record<string, string>,
-    includeBase = false,
-  ): IFieldTypeInfo | undefined {
-    const qName = type.getQName();
-    if (!qName) return undefined;
+  private static createTypeInfoFromSchemaType(type: XmlSchemaType, includeBase = false): IFieldTypeInfo | undefined {
+    const typeQName = type.getQName();
+    if (!typeQName) return undefined;
 
-    const namespaceURI = qName.getNamespaceURI();
-    const localPart = qName.getLocalPart();
+    const localPart = typeQName.getLocalPart();
     if (!localPart) return undefined;
 
-    const prefixMap = new Map<string, string>();
-    for (const [prefix, uri] of Object.entries(namespaceMap)) {
-      prefixMap.set(uri, prefix);
-    }
-
-    const prefix = prefixMap.get(namespaceURI || '') || '';
-    const typeString = prefix ? `${prefix}:${localPart}` : localPart;
-    const displayName = localPart;
-    const mappedType = XmlSchemaTypesService.mapTypeStringToEnum(namespaceURI || '', localPart);
+    const mappedType = XmlSchemaTypesService.mapTypeStringToEnum(typeQName.getNamespaceURI(), localPart);
     const description = XmlSchemaTypesService.extractDocumentationFromType(type);
 
-    let base: string | undefined;
+    let baseQName: QName | undefined;
     let derivation: TypeDerivation | undefined;
     if (includeBase) {
       const baseInfo = XmlSchemaTypesService.getBaseTypeAndDerivation(type);
       if (baseInfo) {
-        const baseQName = baseInfo.baseTypeName;
-        const baseNamespaceURI = baseQName.getNamespaceURI();
-        const baseLocalPart = baseQName.getLocalPart();
-        if (baseLocalPart) {
-          const basePrefix = prefixMap.get(baseNamespaceURI || '') || '';
-          base = basePrefix ? `${basePrefix}:${baseLocalPart}` : baseLocalPart;
-          derivation = baseInfo.derivation;
-        }
+        baseQName = baseInfo.baseTypeName;
+        derivation = baseInfo.derivation;
       }
     }
 
     return {
-      displayName,
-      typeString,
+      displayName: localPart,
+      typeQName,
       type: mappedType,
-      namespaceURI,
       description,
       isBuiltIn: false,
-      base,
+      baseQName,
       derivation,
     };
   }
@@ -555,9 +536,9 @@ export class XmlSchemaTypesService {
 
     for (const schema of collection.getUserSchemas()) {
       for (const type of schema.getSchemaTypes().values()) {
-        const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(type, namespaceMap, true);
+        const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(type, true);
         if (typeInfo) {
-          results[typeInfo.typeString] = typeInfo;
+          results[formatQNameWithPrefix(typeInfo.typeQName, namespaceMap)] = typeInfo;
         }
       }
     }
@@ -614,8 +595,6 @@ export class XmlSchemaTypesService {
    * ```
    */
   static getAllBuiltInTypes(namespaceMap: Record<string, string>): Record<string, IFieldTypeInfo> {
-    const xsPrefix = Object.entries(namespaceMap).find(([, uri]) => uri === NS_XML_SCHEMA)?.[0] || 'xs';
-
     const builtInTypes = [
       { localName: 'string', type: Types.String },
       { localName: 'boolean', type: Types.Boolean },
@@ -642,12 +621,12 @@ export class XmlSchemaTypesService {
     const results: Record<string, IFieldTypeInfo> = {};
 
     for (const bt of builtInTypes) {
-      const typeString = `${xsPrefix}:${bt.localName}`;
-      results[typeString] = {
-        displayName: typeString,
-        typeString,
+      const typeQName = new QName(NS_XML_SCHEMA, bt.localName);
+      const key = formatQNameWithPrefix(typeQName, namespaceMap);
+      results[key] = {
+        displayName: key,
+        typeQName,
         type: bt.type,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       };
     }
@@ -696,9 +675,9 @@ export class XmlSchemaTypesService {
     const results: Record<string, IFieldTypeInfo> = {};
 
     for (const derivedType of derivedTypes) {
-      const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(derivedType, namespaceMap, true);
+      const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(derivedType, true);
       if (typeInfo) {
-        results[typeInfo.typeString] = typeInfo;
+        results[formatQNameWithPrefix(typeInfo.typeQName, namespaceMap)] = typeInfo;
       }
     }
 

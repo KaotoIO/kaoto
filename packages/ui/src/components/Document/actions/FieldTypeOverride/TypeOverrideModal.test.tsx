@@ -110,19 +110,17 @@ describe('TypeOverrideModal', () => {
   it('should update selected type when a type is selected from dropdown', async () => {
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeString: 'xs:string',
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
         displayName: 'string',
         description: 'String type',
         type: Types.String,
-        namespaceURI: 'http://www.w3.org/2001/XMLSchema',
         isBuiltIn: true,
       },
       'xs:int': {
-        typeString: 'xs:int',
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
         displayName: 'int',
         description: 'Integer type',
         type: Types.Integer,
-        namespaceURI: 'http://www.w3.org/2001/XMLSchema',
         isBuiltIn: true,
       },
     };
@@ -167,11 +165,10 @@ describe('TypeOverrideModal', () => {
   it('should enable Save button when a type is selected', async () => {
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeString: 'xs:string',
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
         displayName: 'string',
         description: 'String type',
         type: Types.String,
-        namespaceURI: 'http://www.w3.org/2001/XMLSchema',
         isBuiltIn: true,
       },
     };
@@ -253,11 +250,10 @@ describe('TypeOverrideModal', () => {
 
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeString: 'xs:string',
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
         displayName: 'string',
         description: 'String type',
         type: Types.String,
-        namespaceURI: 'http://www.w3.org/2001/XMLSchema',
         isBuiltIn: true,
       },
     };
@@ -331,11 +327,10 @@ describe('TypeOverrideModal', () => {
   it('should load safe override candidates when available', () => {
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeString: 'xs:string',
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
         displayName: 'string',
         description: 'String type',
         type: Types.String,
-        namespaceURI: 'http://www.w3.org/2001/XMLSchema',
         isBuiltIn: true,
       },
     };
@@ -379,11 +374,10 @@ describe('TypeOverrideModal', () => {
   it('should display type description when available', async () => {
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeString: 'xs:string',
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
         displayName: 'string',
         description: 'A text string type',
         type: Types.String,
-        namespaceURI: 'http://www.w3.org/2001/XMLSchema',
         isBuiltIn: true,
       },
     };
@@ -426,17 +420,15 @@ describe('TypeOverrideModal', () => {
 
     const mockCandidates: Record<string, IFieldTypeInfo> = {
       'xs:string': {
-        typeString: 'xs:string',
+        typeQName: new QName(NS_XML_SCHEMA, 'string'),
         displayName: 'xs:string',
         type: Types.String,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       },
       'xs:int': {
-        typeString: 'xs:int',
+        typeQName: new QName(NS_XML_SCHEMA, 'int'),
         displayName: 'xs:int',
         type: Types.Integer,
-        namespaceURI: NS_XML_SCHEMA,
         isBuiltIn: true,
       },
     };

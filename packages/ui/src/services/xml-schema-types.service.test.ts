@@ -321,9 +321,7 @@ describe('XmlSchemaTypesService', () => {
       const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
 
       expect(Object.keys(userTypes).length).toBeGreaterThan(0);
-      expect(
-        Object.values(userTypes).every((t) => t.typeString.startsWith('myprefix:') || !t.typeString.includes(':')),
-      ).toBe(true);
+      expect(Object.keys(userTypes).every((k) => k.startsWith('myprefix:') || !k.includes(':'))).toBe(true);
     });
   });
 
@@ -350,13 +348,13 @@ describe('XmlSchemaTypesService', () => {
       expect(Object.values(builtInTypes).every((t) => t.displayName.startsWith('xsd:'))).toBe(true);
     });
 
-    it('should default to xs prefix when not found in namespace map', () => {
+    it('should use localPart without prefix when namespace not found in namespace map', () => {
       const namespaceMap = {};
 
       const builtInTypes = XmlSchemaTypesService.getAllBuiltInTypes(namespaceMap);
 
       expect(Object.keys(builtInTypes).length).toBeGreaterThan(0);
-      expect(Object.values(builtInTypes).every((t) => t.displayName.startsWith('xs:'))).toBe(true);
+      expect(Object.values(builtInTypes).every((t) => !t.displayName.includes(':'))).toBe(true);
     });
 
     it('should have namespaceURI set to NS_XML_SCHEMA', () => {
@@ -364,7 +362,7 @@ describe('XmlSchemaTypesService', () => {
 
       const builtInTypes = XmlSchemaTypesService.getAllBuiltInTypes(namespaceMap);
 
-      expect(Object.values(builtInTypes).every((t) => t.namespaceURI === NS_XML_SCHEMA)).toBe(true);
+      expect(Object.values(builtInTypes).every((t) => t.typeQName.getNamespaceURI() === NS_XML_SCHEMA)).toBe(true);
     });
   });
 
@@ -518,7 +516,7 @@ describe('XmlSchemaTypesService', () => {
 
       const baseRequest = Object.values(userTypes).find((t) => t.displayName === 'BaseRequest');
       expect(baseRequest).toBeDefined();
-      expect(baseRequest!.base).toContain('Message');
+      expect(baseRequest!.baseQName?.getLocalPart()).toContain('Message');
       expect(baseRequest!.derivation).toBe(TypeDerivation.EXTENSION);
     });
 
@@ -559,7 +557,7 @@ describe('XmlSchemaTypesService', () => {
 
       const message = Object.values(userTypes).find((t) => t.displayName === 'Message');
       expect(message).toBeDefined();
-      expect(message!.base).toBeUndefined();
+      expect(message!.baseQName).toBeUndefined();
       expect(message!.derivation).toBeUndefined();
     });
 
@@ -580,7 +578,8 @@ describe('XmlSchemaTypesService', () => {
 
       const shortString = Object.values(userTypes).find((t) => t.displayName === 'ShortString');
       expect(shortString).toBeDefined();
-      expect(shortString!.base).toBe('xs:string');
+      expect(shortString!.baseQName?.getLocalPart()).toBe('string');
+      expect(shortString!.baseQName?.getNamespaceURI()).toBe(NS_XML_SCHEMA);
       expect(shortString!.derivation).toBe(TypeDerivation.RESTRICTION);
     });
   });

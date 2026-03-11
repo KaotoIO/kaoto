@@ -70,7 +70,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
 
     // If field has an existing override, pre-select it by matching namespace URI + local part
     if (field.typeOverride !== TypeOverrideVariant.NONE && field.typeQName) {
-      const typeString = formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
+      const typeString = formatQNameWithPrefix(field.typeQName, namespaceMap);
       setSelectedType(candidates[typeString] || null);
     } else {
       setSelectedType(null);
@@ -247,7 +247,9 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
             <Select
               id="type-select"
               isOpen={isSelectOpen}
-              selected={selectedType?.typeString}
+              selected={
+                selectedType ? formatQNameWithPrefix(selectedType.typeQName, mappingTree.namespaceMap) : undefined
+              }
               onSelect={handleTypeSelect}
               onOpenChange={(isOpen) => setIsSelectOpen(isOpen)}
               toggle={renderToggle}

@@ -22,6 +22,7 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { QName } from '../../xml-schema-ts/QName';
 import { SourceDocumentNode } from './SourceDocumentNode';
 
 describe('SourceDocumentNode', () => {
@@ -991,11 +992,10 @@ describe('SourceDocumentNode', () => {
       const applySpy = jest.spyOn(FieldTypeOverrideService, 'applyFieldTypeOverride');
       const mockCandidates = {
         'xs:int': {
-          typeString: 'xs:int',
+          typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
           displayName: 'int',
           description: 'Integer type',
           type: Types.Integer,
-          namespaceURI: 'http://www.w3.org/2001/XMLSchema',
           isBuiltIn: true,
         },
       };

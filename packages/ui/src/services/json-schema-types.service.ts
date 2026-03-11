@@ -131,31 +131,31 @@ export class JsonSchemaTypesService {
     const results: Record<string, IFieldTypeInfo> = {};
 
     const builtInTypes = [
-      { typeString: 'string', type: Types.String },
-      { typeString: 'number', type: Types.Numeric },
-      { typeString: 'integer', type: Types.Integer },
-      { typeString: 'boolean', type: Types.Boolean },
-      { typeString: 'object', type: Types.Container },
-      { typeString: 'array', type: Types.Array },
+      { localName: 'string', type: Types.String },
+      { localName: 'number', type: Types.Numeric },
+      { localName: 'integer', type: Types.Integer },
+      { localName: 'boolean', type: Types.Boolean },
+      { localName: 'object', type: Types.Container },
+      { localName: 'array', type: Types.Array },
     ];
 
     for (const bt of builtInTypes) {
-      results[bt.typeString] = {
-        displayName: bt.typeString,
-        typeString: bt.typeString,
+      const typeQName = new QName(null, bt.localName);
+      results[typeQName.getLocalPart()!] = {
+        displayName: bt.localName,
+        typeQName,
         type: bt.type,
-        namespaceURI: null,
         isBuiltIn: true,
       };
     }
 
     const definitions = document.schemaCollection.getDefinitions();
     for (const [path, _definition] of definitions) {
-      results[path] = {
+      const typeQName = new QName(null, path);
+      results[typeQName.getLocalPart()!] = {
         displayName: path,
-        typeString: path,
+        typeQName,
         type: Types.Container,
-        namespaceURI: null,
         isBuiltIn: false,
       };
     }
