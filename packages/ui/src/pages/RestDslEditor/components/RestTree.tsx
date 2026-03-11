@@ -3,6 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
 import { restToTree } from '../rest-to-tree';
+import { MethodBadge } from './MethodBadge';
 
 export type IRestTreeSelection = { entityId: string; modelPath: string };
 export interface IRestTree extends PropsWithChildren {
@@ -22,7 +23,7 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, onSelect, chi
           <TreeNode
             isExpanded
             key={node.id}
-            label={node.label}
+            label={node.id}
             onSelect={() => {
               onSelect({ entityId: node.entityId, modelPath: node.modelPath });
             }}
@@ -30,8 +31,8 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, onSelect, chi
             {node.children?.map((child) => (
               <TreeNode
                 key={child.id}
-                label={child.label}
-                renderIcon={() => <Tag>{child.label}</Tag>}
+                label={child.id}
+                renderIcon={() => <MethodBadge type={child.type} />}
                 onSelect={() => {
                   onSelect({ entityId: child.entityId, modelPath: child.modelPath });
                 }}
