@@ -43,9 +43,8 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestConfigButton = screen.getByText('Add RestConfiguration');
+      const addRestConfigButton = screen.getByText('Add Configuration');
       expect(addRestConfigButton).toBeDisabled();
-      expect(addRestConfigButton).toHaveAttribute('title', 'RestConfiguration already exists');
     });
 
     it('should be enabled when no RestConfiguration exists', () => {
@@ -66,9 +65,8 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestConfigButton = screen.getByText('Add RestConfiguration');
+      const addRestConfigButton = screen.getByText('Add Configuration');
       expect(addRestConfigButton).not.toBeDisabled();
-      expect(addRestConfigButton).toHaveAttribute('title', 'Add RestConfiguration');
     });
 
     it('should fire callback when clicked', () => {
@@ -84,7 +82,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestConfigButton = screen.getByText('Add RestConfiguration');
+      const addRestConfigButton = screen.getByText('Add Configuration');
       fireEvent.click(addRestConfigButton);
       expect(mockOnAddRestConfiguration).toHaveBeenCalledTimes(1);
     });
@@ -104,7 +102,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      let addRestButton = screen.getByRole('button', { name: 'Add Rest' });
+      let addRestButton = screen.getByRole('button', { name: 'Add Service' });
       expect(addRestButton).not.toBeDisabled();
 
       // Test with entities present
@@ -127,7 +125,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      addRestButton = screen.getByRole('button', { name: 'Add Rest' });
+      addRestButton = screen.getByRole('button', { name: 'Add Service' });
       expect(addRestButton).not.toBeDisabled();
     });
 
@@ -144,7 +142,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestButton = screen.getByText('Add Rest');
+      const addRestButton = screen.getByText('Add Service');
       fireEvent.click(addRestButton);
       expect(mockOnAddRest).toHaveBeenCalledTimes(1);
     });
@@ -164,9 +162,8 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addMethodButton = screen.getByText('Add Method');
+      const addMethodButton = screen.getByText('Add Operation');
       expect(addMethodButton).toBeDisabled();
-      expect(addMethodButton).toHaveAttribute('title', 'Select a Rest entity to add a method');
     });
 
     it('should be disabled when RestConfiguration is selected', () => {
@@ -190,7 +187,7 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addMethodButton = screen.getByText('Add Method');
+      const addMethodButton = screen.getByText('Add Operation');
       expect(addMethodButton).toBeDisabled();
     });
 
@@ -218,9 +215,8 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addMethodButton = screen.getByText('Add Method');
+      const addMethodButton = screen.getByText('Add Operation');
       expect(addMethodButton).not.toBeDisabled();
-      expect(addMethodButton).toHaveAttribute('title', 'Add Method');
     });
   });
 
@@ -312,7 +308,7 @@ describe('RestTreeToolbar', () => {
         </TestWrapper>,
       );
 
-      const addMethodButton = screen.getByText('Add Method');
+      const addMethodButton = screen.getByText('Add Operation');
       fireEvent.click(addMethodButton);
 
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
@@ -341,7 +337,7 @@ describe('RestTreeToolbar', () => {
       );
 
       // Open modal
-      const addMethodButton = screen.getByText('Add Method');
+      const addMethodButton = screen.getByText('Add Operation');
       fireEvent.click(addMethodButton);
 
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
@@ -375,7 +371,7 @@ describe('RestTreeToolbar', () => {
       );
 
       // Open modal
-      const addMethodButton = screen.getByText('Add Method');
+      const addMethodButton = screen.getByText('Add Operation');
       fireEvent.click(addMethodButton);
 
       // Verify modal is rendered with the form

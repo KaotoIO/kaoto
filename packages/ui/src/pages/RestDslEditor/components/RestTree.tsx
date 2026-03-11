@@ -1,4 +1,4 @@
-import { Tag, TreeNode, TreeView } from '@carbon/react';
+import { TreeNode, TreeView } from '@carbon/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';

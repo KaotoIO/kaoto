@@ -64,13 +64,12 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
           iconDescription="Add RestConfiguration"
           onClick={onAddRestConfiguration}
           disabled={hasRestConfiguration}
-          title={hasRestConfiguration ? 'RestConfiguration already exists' : 'Add RestConfiguration'}
         >
-          Add RestConfiguration
+          Add Configuration
         </Button>
 
         <Button kind="tertiary" size="sm" renderIcon={Add} iconDescription="Add Rest" onClick={onAddRest}>
-          Add Rest
+          Add Service
         </Button>
 
         <Button
@@ -80,9 +79,8 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
           iconDescription="Add Method"
           onClick={openAddMethodModal}
           disabled={!selectedRestEntity}
-          title={selectedRestEntity ? 'Add Method' : 'Select a Rest entity to add a method'}
         >
-          Add Method
+          Add Operation
         </Button>
 
         <Button

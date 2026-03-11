@@ -43,21 +43,21 @@ describe('RestTree', () => {
     // Verify tree label
     expect(screen.getByText('Rest DSL Configuration')).toBeInTheDocument();
 
-    // Verify RestConfiguration node
-    expect(screen.getByText('Rest configuration')).toBeInTheDocument();
+    // Verify RestConfiguration node (displays ID, not label)
+    expect(screen.getByText(/restConfiguration-/)).toBeInTheDocument();
 
-    // Verify both Rest entities are displayed
-    const restNodes = screen.getAllByText('Rest');
-    expect(restNodes.length).toBe(2);
+    // Verify both Rest entities are displayed (by their IDs)
+    expect(screen.getByText('rest-1')).toBeInTheDocument();
+    expect(screen.getByText('rest-2')).toBeInTheDocument();
 
     // Verify parent nodes have tree structure
     const treeNodes = container.querySelectorAll('.cds--tree-node');
     expect(treeNodes.length).toBeGreaterThan(0);
 
-    // Verify method paths are displayed (child nodes visible = expanded by default)
-    expect(screen.getAllByText('/users').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('/orders').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('/items/{id}').length).toBeGreaterThan(0);
+    // Verify method IDs are displayed (child nodes visible = expanded by default)
+    expect(screen.getByText('get-1')).toBeInTheDocument();
+    expect(screen.getByText('post-1')).toBeInTheDocument();
+    expect(screen.getByText('delete-1')).toBeInTheDocument();
 
     // Verify methods are rendered as tags (Carbon Tag component)
     const tags = container.querySelectorAll('.cds--tag');
@@ -78,8 +78,8 @@ describe('RestTree', () => {
     const entities = camelResource.getVisualEntities();
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
 
-    // Click on the Rest parent node
-    const restNode = screen.getByText('Rest');
+    // Click on the Rest parent node (by its ID)
+    const restNode = screen.getByText('rest-1234');
     fireEvent.click(restNode);
 
     expect(mockOnSelect).toHaveBeenCalledWith({
@@ -90,9 +90,8 @@ describe('RestTree', () => {
     // Clear mock
     mockOnSelect.mockClear();
 
-    // Click on a method node (get first occurrence)
-    const methodNodes = screen.getAllByText('/test');
-    const methodNode = methodNodes[0];
+    // Click on a method node (by its ID)
+    const methodNode = screen.getByText('get-method-1');
     fireEvent.click(methodNode);
 
     expect(mockOnSelect).toHaveBeenCalledWith({
@@ -104,14 +103,14 @@ describe('RestTree', () => {
   it('should handle empty entities array gracefully', () => {
     const entities: BaseVisualCamelEntity[] = [];
 
-    render(<RestTree entities={entities} onSelect={mockOnSelect} />);
+    const { container } = render(<RestTree entities={entities} onSelect={mockOnSelect} />);
 
     // Tree should still render with label
     expect(screen.getByText('Rest DSL Configuration')).toBeInTheDocument();
 
     // No tree nodes should be present
-    expect(screen.queryByText('Rest')).not.toBeInTheDocument();
-    expect(screen.queryByText('Rest configuration')).not.toBeInTheDocument();
+    const treeNodes = container.querySelectorAll('.cds--tree-node');
+    expect(treeNodes.length).toBe(0);
   });
 
   it('should render children prop (toolbar area)', () => {
