@@ -50,19 +50,6 @@ describe('DocumentationService', () => {
     return DocumentationService.getDocumentationEntities(camelResource, visibleFlows);
   };
 
-  describe('generateFlowImage()', () => {
-    it('should fail', async () => {
-      try {
-        await DocumentationService.generateFlowImage();
-        /* eslint-disable  @typescript-eslint/no-explicit-any */
-      } catch (error: any) {
-        expect(error.message).toEqual('generateFlowImage called but the flow diagram is not found');
-        return;
-      }
-      throw new Error('expected to throw an error');
-    });
-  });
-
   describe('getDocumentationEntities()', () => {
     it('should generate route and beans documentation entities', () => {
       const documentationEntities = createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);

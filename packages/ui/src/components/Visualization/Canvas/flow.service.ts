@@ -9,12 +9,16 @@ export class FlowService {
   static edges: CanvasEdge[] = [];
   private static visitedNodes: string[] = [];
 
-  static getFlowDiagram(scope: string, vizNode: IVisualizationNode): CanvasNodesAndEdges {
+  static getFlowDiagram(
+    scope: string,
+    vizNode: IVisualizationNode,
+    options: { removePlaceholder?: boolean } = {},
+  ): CanvasNodesAndEdges {
     this.nodes = [];
     this.edges = [];
     this.visitedNodes = [];
 
-    this.appendNodesAndEdges(vizNode);
+    this.appendNodesAndEdges(vizNode, options);
 
     this.nodes.forEach((node) => {
       node.id = `${scope}|${node.id}`;
@@ -31,19 +35,25 @@ export class FlowService {
   }
 
   /** Method for iterating over all the IVisualizationNode and its children using a depth-first algorithm */
-  private static appendNodesAndEdges(vizNodeParam: IVisualizationNode): void {
-    if (this.visitedNodes.includes(vizNodeParam.id)) {
+  private static appendNodesAndEdges(
+    vizNodeParam: IVisualizationNode,
+    options: { removePlaceholder?: boolean } = {},
+  ): void {
+    const removePlaceholder = options.removePlaceholder ?? false;
+    if (this.visitedNodes.includes(vizNodeParam.id) || (removePlaceholder && vizNodeParam.data.isPlaceholder)) {
       return;
     }
-
     let node: CanvasNode;
 
-    const children = vizNodeParam.getChildren() ?? [];
+    let children = vizNodeParam.getChildren() ?? [];
+    if (removePlaceholder) {
+      children = children.filter((child) => !child.data.isPlaceholder);
+    }
     const hasRealChildren = children.length > 0;
 
     if (vizNodeParam.data.isGroup && hasRealChildren) {
       children.forEach((child) => {
-        this.appendNodesAndEdges(child);
+        this.appendNodesAndEdges(child, options);
       });
 
       node = this.getGroup(vizNodeParam.id, {
@@ -64,7 +74,7 @@ export class FlowService {
     this.visitedNodes.push(node.id);
 
     /** Add edges */
-    this.edges.push(...this.getEdgesFromVizNode(vizNodeParam));
+    this.edges.push(...this.getEdgesFromVizNode(vizNodeParam, options));
   }
 
   private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {
@@ -86,10 +96,18 @@ export class FlowService {
     return canvasNode;
   }
 
-  private static getEdgesFromVizNode(vizNodeParam: IVisualizationNode): CanvasEdge[] {
+  private static getEdgesFromVizNode(
+    vizNodeParam: IVisualizationNode,
+    options: { removePlaceholder?: boolean } = {},
+  ): CanvasEdge[] {
     const edges: CanvasEdge[] = [];
     const prev = vizNodeParam.getPreviousNode?.();
     const next = vizNodeParam.getNextNode?.();
+
+    const removePlaceholder = options.removePlaceholder ?? false;
+    if (removePlaceholder && next?.data.isPlaceholder) {
+      return edges;
+    }
 
     const isGroup = vizNodeParam.data?.isGroup === true;
     const hasChildren = (vizNodeParam.getChildren() ?? []).length > 0;

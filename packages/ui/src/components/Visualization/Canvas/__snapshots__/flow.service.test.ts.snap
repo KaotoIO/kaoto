@@ -1,5 +1,189 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`FlowService getFlowDiagram should remove placeholders 1`] = `
+[
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from",
+    "parentNode": "test|route",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from.steps.0.set-header",
+    "parentNode": "test|route",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from.steps.1.choice.when.0.steps.0.log",
+    "parentNode": "test|route.from.steps.1.choice.when.0",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [
+      "test|route.from.steps.1.choice.when.0.steps.0.log",
+    ],
+    "data": {},
+    "group": true,
+    "id": "test|route.from.steps.1.choice.when.0",
+    "label": "route.from.steps.1.choice.when.0",
+    "parentNode": "test|route.from.steps.1.choice",
+    "style": {
+      "padding": 40,
+    },
+    "type": "group",
+  },
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from.steps.1.choice.otherwise.steps.0.to",
+    "parentNode": "test|route.from.steps.1.choice.otherwise",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from.steps.1.choice.otherwise.steps.1.to",
+    "parentNode": "test|route.from.steps.1.choice.otherwise",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from.steps.1.choice.otherwise.steps.2.log",
+    "parentNode": "test|route.from.steps.1.choice.otherwise",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [
+      "test|route.from.steps.1.choice.otherwise.steps.0.to",
+      "test|route.from.steps.1.choice.otherwise.steps.1.to",
+      "test|route.from.steps.1.choice.otherwise.steps.2.log",
+    ],
+    "data": {},
+    "group": true,
+    "id": "test|route.from.steps.1.choice.otherwise",
+    "label": "route.from.steps.1.choice.otherwise",
+    "parentNode": "test|route.from.steps.1.choice",
+    "style": {
+      "padding": 40,
+    },
+    "type": "group",
+  },
+  {
+    "children": [
+      "test|route.from.steps.1.choice.when.0",
+      "test|route.from.steps.1.choice.otherwise",
+    ],
+    "data": {},
+    "group": true,
+    "id": "test|route.from.steps.1.choice",
+    "label": "route.from.steps.1.choice",
+    "parentNode": "test|route",
+    "style": {
+      "padding": 40,
+    },
+    "type": "group",
+  },
+  {
+    "children": [],
+    "data": {},
+    "group": false,
+    "height": 75,
+    "id": "test|route.from.steps.2.to",
+    "parentNode": "test|route",
+    "shape": "rect",
+    "type": "node",
+    "width": 90,
+  },
+  {
+    "children": [
+      "test|route.from",
+      "test|route.from.steps.0.set-header",
+      "test|route.from.steps.1.choice",
+      "test|route.from.steps.2.to",
+    ],
+    "data": {},
+    "group": true,
+    "id": "test|route",
+    "label": "route",
+    "parentNode": undefined,
+    "style": {
+      "padding": 40,
+    },
+    "type": "group",
+  },
+]
+`;
+
+exports[`FlowService getFlowDiagram should remove placeholders 2`] = `
+[
+  {
+    "edgeStyle": "solid",
+    "id": "test|route.from >>> route.from.steps.0.set-header",
+    "source": "test|route.from",
+    "target": "test|route.from.steps.0.set-header",
+    "type": "edge",
+  },
+  {
+    "edgeStyle": "solid",
+    "id": "test|route.from.steps.0.set-header >>> route.from.steps.1.choice",
+    "source": "test|route.from.steps.0.set-header",
+    "target": "test|route.from.steps.1.choice",
+    "type": "edge",
+  },
+  {
+    "edgeStyle": "solid",
+    "id": "test|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to",
+    "source": "test|route.from.steps.1.choice.otherwise.steps.0.to",
+    "target": "test|route.from.steps.1.choice.otherwise.steps.1.to",
+    "type": "edge",
+  },
+  {
+    "edgeStyle": "solid",
+    "id": "test|route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log",
+    "source": "test|route.from.steps.1.choice.otherwise.steps.1.to",
+    "target": "test|route.from.steps.1.choice.otherwise.steps.2.log",
+    "type": "edge",
+  },
+  {
+    "edgeStyle": "solid",
+    "id": "test|route.from.steps.1.choice >>> route.from.steps.2.to",
+    "source": "test|route.from.steps.1.choice",
+    "target": "test|route.from.steps.2.to",
+    "type": "edge",
+  },
+]
+`;
+
 exports[`FlowService getFlowDiagram should return nodes and edges for a group with children 1`] = `
 [
   {

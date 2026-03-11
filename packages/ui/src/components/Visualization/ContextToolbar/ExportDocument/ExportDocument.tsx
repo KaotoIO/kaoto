@@ -22,7 +22,13 @@ export const ExportDocument: FunctionComponent = () => {
         variant="control"
         data-testid="documentationPreviewButton"
       />
-      {isModalOpen && <ExportDocumentPreviewModal onClose={() => setIsModalOpen(false)} />}
+      {isModalOpen && (
+        <ExportDocumentPreviewModal
+          onClose={() => {
+            setIsModalOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };
