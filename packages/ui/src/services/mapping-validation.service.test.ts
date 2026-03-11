@@ -119,6 +119,20 @@ describe('MappingValidationService', () => {
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
+
+      it('should skip container check for choice source with container type mapped to terminal target', () => {
+        const source = createMockField({ isChoice: true, type: Types.Container });
+        const target = createMockField({ type: Types.String });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should allow source-choice to target-choice with selected member', () => {
+        const source = createMockField({ isChoice: true });
+        const target = createMockField({ isChoice: true, selectedMemberIndex: 0 });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
     });
   });
 
