@@ -15,36 +15,42 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
+import { useVisualizationController } from '@patternfly/react-topology';
 import { Element } from 'hast';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { DocumentationEntity } from '../../../../models/documentation';
-import { EntitiesContext, VisibleFlowsContext } from '../../../../providers';
+import { VisibleFlowsContext } from '../../../../providers';
 import { DocumentationService } from '../../../../services/documentation.service';
+import { LayoutType } from '../../Canvas/canvas.models';
+import { HiddenCanvas } from '../FlowExportImage/HiddenCanvas';
 import { EntitiesMenu } from './EntitiesMenu';
 import { markdownComponentMapping } from './MarkdownComponentMapping';
 
 type IExportDocumentPreviewModal = {
-  isOpen?: boolean;
   onClose: () => void;
 };
 
-export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPreviewModal> = ({
-  isOpen = true,
-  onClose,
-}) => {
-  const fileNameBase = 'route-export';
-  const { camelResource } = useContext(EntitiesContext)!;
+const FILENAME_BASE = 'route-export';
+
+export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPreviewModal> = ({ onClose }) => {
+  const { camelResource } = useEntityContext();
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
+  const controller = useVisualizationController();
+  const { visualEntities } = useEntityContext();
   const [markdownText, setMarkdownText] = useState<string>('');
   const [flowImageBlob, setFlowImageBlob] = useState<Blob>();
-  const [downloadFileName, setDownloadFileName] = useState<string>(fileNameBase + '.zip');
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(isOpen);
+  const [flowImageUrl, setFlowImageUrl] = useState<string>();
+  const [downloadFileName, setDownloadFileName] = useState<string>(`${FILENAME_BASE}.zip`);
   const initialDocEntities = DocumentationService.getDocumentationEntities(camelResource, visibleFlows);
   const [documentationEntities, setDocumentationEntities] = useState<DocumentationEntity[]>(initialDocEntities);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
+
+  const currentLayout = controller.getGraph().getLayout() as LayoutType | undefined;
 
   const onUpdateDocumentationEntities = (documentationEntities: DocumentationEntity[]) => {
     documentationEntities.forEach((docEntity) => {
@@ -60,54 +66,53 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
     setDocumentationEntities([...documentationEntities]);
   };
 
+  const handleBlobGenerated = (blob: Blob) => {
+    setFlowImageBlob(blob);
+    // Revoke previous object URL before creating a new one
+    if (flowImageUrl) {
+      URL.revokeObjectURL(flowImageUrl);
+    }
+    const imageUrl = URL.createObjectURL(blob);
+    setFlowImageUrl(imageUrl);
+    const md = DocumentationService.generateMarkdown(documentationEntities, imageUrl);
+    setMarkdownText(md);
+    setIsLoading(false);
+  };
+
+  const handleImageGenerationComplete = () => {
+    setIsGeneratingImage(false);
+  };
+
   useEffect(() => {
     setIsLoading(true);
-    const updatePreview = () => {
-      let imageUrl = '';
-      DocumentationService.generateFlowImage()
-        .then((imageBlob) => {
-          if (imageBlob) {
-            setFlowImageBlob(imageBlob);
-            imageUrl = window.URL.createObjectURL(imageBlob);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        })
-        .finally(() => {
-          const md = DocumentationService.generateMarkdown(documentationEntities, imageUrl);
-          setMarkdownText(md);
-          setIsLoading(false);
-        });
-    };
-
-    // A workaround for React 18 synchronous useEffect execution, which causes the flow image
-    // to be captured before the entity visibility reflects
-    // https://react.dev/reference/react/useEffect#caveats
-    const timeout = setTimeout(updatePreview);
-    return () => {
-      clearTimeout(timeout);
-    };
+    setIsGeneratingImage(true);
   }, [documentationEntities, visibleFlows]);
 
   const onDownload = async () => {
     if (!flowImageBlob) return;
 
-    const md = DocumentationService.generateMarkdown(documentationEntities, fileNameBase + '.png');
+    const md = DocumentationService.generateMarkdown(documentationEntities, FILENAME_BASE + '.png');
 
-    const zipBlob = await DocumentationService.generateDocumentationZip(flowImageBlob, md, fileNameBase);
-    const dataUrl = window.URL.createObjectURL(zipBlob);
-    if (!dataUrl) return;
+    const zipBlob = await DocumentationService.generateDocumentationZip(flowImageBlob, md, FILENAME_BASE);
+    const downloadUrl = URL.createObjectURL(zipBlob);
+    if (!downloadUrl) return;
     const link = document.createElement('a');
     link.download = downloadFileName;
-    link.href = dataUrl;
+    link.href = downloadUrl;
     link.click();
+    // Revoke the temporary download URL after a short timeout
+    setTimeout(() => {
+      URL.revokeObjectURL(downloadUrl);
+    }, 100);
   };
 
   const imageUrlTransform = (url: string, _key: string, _node: Readonly<Element>): string | null | undefined => url;
 
   const handleModalClose = () => {
-    setIsModalOpen(false);
+    // Revoke the object URL when modal closes
+    if (flowImageUrl) {
+      URL.revokeObjectURL(flowImageUrl);
+    }
     onClose();
   };
 
@@ -115,7 +120,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
     <Modal
       aria-label="Generate Route Documentation"
       variant={ModalVariant.large}
-      isOpen={isModalOpen}
+      isOpen
       data-testid="documentationPreviewModal"
       onClose={handleModalClose}
       className="export-document-preview-modal"
@@ -165,7 +170,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
       <ModalBody tabIndex={0} className="export-document-preview-body" data-testid="export-document-preview-body">
         {isLoading ? (
           <Bullseye>
-            <Spinner aria-label="Loading markdown preview" />
+            <Spinner aria-label="Loading markdown preview" data-testid="Loading markdown preview" />
           </Bullseye>
         ) : (
           <Markdown components={markdownComponentMapping} remarkPlugins={[remarkGfm]} urlTransform={imageUrlTransform}>
@@ -173,6 +178,15 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
           </Markdown>
         )}
       </ModalBody>
+
+      {isGeneratingImage && (
+        <HiddenCanvas
+          entities={visualEntities}
+          layout={currentLayout}
+          onComplete={handleImageGenerationComplete}
+          onBlobGenerated={handleBlobGenerated}
+        />
+      )}
     </Modal>
   );
 };
