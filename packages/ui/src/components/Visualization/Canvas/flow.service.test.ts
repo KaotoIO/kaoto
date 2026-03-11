@@ -1,6 +1,7 @@
 import { CatalogKind } from '../../../models';
 import { EntityType } from '../../../models/camel/entities';
 import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
+import { camelRouteJson } from '../../../stubs/camel-route';
 import { FlowService } from './flow.service';
 
 describe('FlowService', () => {
@@ -125,6 +126,18 @@ describe('FlowService', () => {
       const group = nodes[nodes.length - 1];
       expect(group.children).toEqual(['test|route.from', 'test|route.from.steps.0.placeholder']);
       expect(group.group).toBeTruthy();
+    });
+
+    it('should remove placeholders', () => {
+      const routeNode = new CamelRouteVisualEntity(camelRouteJson).toVizNode();
+
+      const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode, { removePlaceholder: true });
+      nodes.forEach((node) => {
+        delete node.data!.vizNode;
+      });
+
+      expect(nodes).toMatchSnapshot();
+      expect(edges).toMatchSnapshot();
     });
 
     it('should scope nodes & edges IDs', () => {

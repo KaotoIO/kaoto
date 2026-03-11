@@ -1,4 +1,3 @@
-import { toBlob } from 'html-to-image';
 import JSZip from 'jszip';
 import { MarkdownEntry, TableRow, tsMarkdown } from 'ts-markdown';
 
@@ -40,22 +39,6 @@ export class DocumentationService {
     jszip.file(imageFileName, flowImage);
     jszip.file(markdownFileName, markdownText);
     return jszip.generateAsync({ type: 'blob' });
-  }
-
-  static generateFlowImage(isDark?: boolean): Promise<Blob | null> {
-    const element = document.querySelector<HTMLElement>('.pf-topology-container') ?? undefined;
-    if (!element) {
-      return Promise.reject(new Error('generateFlowImage called but the flow diagram is not found'));
-    }
-
-    return toBlob(element, {
-      cacheBust: true,
-      backgroundColor: isDark ? '#0f1214' : '#f0f0f0',
-      filter: (element) => {
-        /**  Filter @patternfly/react-topology controls */
-        return !element?.classList?.contains('pf-v6-c-toolbar__group');
-      },
-    });
   }
 
   static generateMarkdown(documentationEntities: DocumentationEntity[], flowImageFileName: string) {

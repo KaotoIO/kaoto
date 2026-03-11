@@ -20,13 +20,17 @@ import { FlowService } from '../../Canvas/flow.service';
 interface HiddenCanvasProps {
   entities: BaseVisualCamelEntity[];
   layout?: LayoutType;
+  autoDownload?: boolean;
   onComplete: () => void;
+  onBlobGenerated?: (blob: Blob) => void;
 }
 
 export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   entities,
   layout = LayoutType.DagreHorizontal,
   onComplete,
+  onBlobGenerated,
+  autoDownload = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [layoutComplete, setLayoutComplete] = useState(false);
@@ -53,7 +57,9 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
 
     entities.forEach((entity) => {
       if (visibleFlows[entity.id]) {
-        const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.id, entity.toVizNode());
+        const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(entity.id, entity.toVizNode(), {
+          removePlaceholder: true,
+        });
         nodes.push(...childNodes);
         edges.push(...childEdges);
       }
@@ -134,14 +140,21 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
           return;
         }
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'kaoto-flow.png';
-        link.click();
+        onBlobGenerated?.(blob);
 
-        // Clean up the blob URL after a short delay to ensure download starts
-        setTimeout(() => URL.revokeObjectURL(url), 100);
+        // Only auto-download if enabled
+        if (autoDownload) {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'kaoto-flow.png';
+          link.click();
+
+          // Clean up the blob URL after a short delay to ensure download starts
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+          }, 100);
+        }
       } catch (err) {
         console.error('Export failed', err);
       } finally {
@@ -154,7 +167,7 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [layoutComplete]);
+  }, [layoutComplete, onBlobGenerated, autoDownload]);
 
   return (
     <div ref={containerRef} className="hidden-canvas">
