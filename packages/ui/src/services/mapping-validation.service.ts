@@ -102,6 +102,9 @@ export class MappingValidationService {
   }
 
   private static validateContainerRules(source: IField, target: IField): ValidationResult {
+    /** While choice node is also a container, it has its own rule in {@link validateChoiceRules()} */
+    if (source.isChoice) return { isValid: true };
+
     if (MappingValidationService.isContainer(source) !== MappingValidationService.isContainer(target)) {
       return {
         isValid: false,

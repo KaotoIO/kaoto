@@ -1506,5 +1506,94 @@ describe('VisualizationService', () => {
         expect(outerMembers[1].title).toEqual('regularField');
       });
     });
+
+    describe('engageMapping with choice source', () => {
+      let localTargetDocNode: TargetDocumentNodeData;
+
+      beforeEach(() => {
+        localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      });
+
+      it('should create ChooseItem with WhenItems and OtherwiseItem for choice source with 2 members', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+
+        VisualizationService.engageMapping(tree, choiceNode, targetFieldNode);
+
+        expect(tree.children.length).toEqual(1);
+        const targetFieldItem = tree.children[0];
+        expect(targetFieldItem).toBeInstanceOf(FieldItem);
+        expect(targetFieldItem.children.length).toEqual(1);
+
+        const chooseItem = targetFieldItem.children[0] as ChooseItem;
+        expect(chooseItem).toBeInstanceOf(ChooseItem);
+        expect(chooseItem.when.length).toEqual(2);
+        expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
+      });
+
+      it('each WhenItem expression should be the XPath of the corresponding choice member', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+
+        VisualizationService.engageMapping(tree, choiceNode, targetFieldNode);
+
+        const chooseItem = tree.children[0].children[0] as ChooseItem;
+        expect(chooseItem.when[0].expression).toEqual('/ns0:email');
+        expect(chooseItem.when[1].expression).toEqual('/ns0:phone');
+      });
+
+      it('each WhenItem ValueSelector expression should be the XPath of the corresponding choice member', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+
+        VisualizationService.engageMapping(tree, choiceNode, targetFieldNode);
+
+        const chooseItem = tree.children[0].children[0] as ChooseItem;
+        const emailSelector = chooseItem.when[0].children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        const phoneSelector = chooseItem.when[1].children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        expect(emailSelector.expression).toEqual('/ns0:email');
+        expect(phoneSelector.expression).toEqual('/ns0:phone');
+      });
+
+      it('should create ChooseItem when dropping choice source onto an existing FieldItemNodeData target', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(localTargetDocNode);
+        VisualizationService.engageMapping(
+          tree,
+          sourceDocChildren[0] as FieldNodeData,
+          targetDocChildren[0] as TargetNodeData,
+        );
+
+        const updatedTargetDocChildren = VisualizationService.generateStructuredDocumentChildren(localTargetDocNode);
+        const fieldItemNode = updatedTargetDocChildren[0] as FieldItemNodeData;
+        expect(fieldItemNode).toBeInstanceOf(FieldItemNodeData);
+
+        VisualizationService.engageMapping(tree, choiceNode, fieldItemNode);
+
+        const chooseItem = fieldItemNode.mapping.children.find((c) => c instanceof ChooseItem) as ChooseItem;
+        expect(chooseItem).toBeInstanceOf(ChooseItem);
+        expect(chooseItem.when.length).toEqual(2);
+        expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
+      });
+
+      it('should create ChooseItem with only OtherwiseItem for empty-member choice source', () => {
+        const choiceField = createMockChoiceField([]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+
+        VisualizationService.engageMapping(tree, choiceNode, targetFieldNode);
+
+        const chooseItem = tree.children[0].children[0] as ChooseItem;
+        expect(chooseItem).toBeInstanceOf(ChooseItem);
+        expect(chooseItem.when.length).toEqual(0);
+        expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
+      });
+    });
   });
 });
