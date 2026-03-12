@@ -3,9 +3,11 @@ import './NodeContainer.scss';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { isDefined } from '@kaoto/forms';
 import clsx from 'clsx';
-import { forwardRef, FunctionComponent, PropsWithChildren } from 'react';
+import { forwardRef, FunctionComponent, PropsWithChildren, useContext, useMemo } from 'react';
 
 import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
+import { DataMapperDndContext } from '../../providers/datamapper-dnd.provider';
+import { MappingValidationService } from '../../services/mapping-validation.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 type DnDContainerProps = PropsWithChildren & {
@@ -19,16 +21,35 @@ type BaseContainerProps = PropsWithChildren & {
 };
 
 export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ className, id, nodeData, children }) => {
+  const { activeNode } = useContext(DataMapperDndContext);
+
+  const isInvalidDrop = useMemo(() => {
+    if (!activeNode) return false;
+    if (activeNode.isSource === nodeData.isSource) return false;
+    return !MappingValidationService.validateMappingPair(activeNode, nodeData).isValid;
+  }, [activeNode, nodeData]);
+
+  // unlike `isInvalidDrop` which shows disabled hover effect and show an error toast if it's dropped,
+  // if it's same side (source<->source / target<->target), disable DnDKit to show no hover effect
+  // nor error, but just silently ignore it
+  const isSameSide = !!activeNode && activeNode.isSource === nodeData.isSource;
+
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
     id: `droppable-${id}`,
     data: nodeData,
+    disabled: isSameSide,
   });
 
   return (
     <div
       id={`droppable-${id}`}
       ref={setDroppableNodeRef}
-      className={clsx(className, { 'droppable-container': isOver }, 'pf-v6-c-droppable')}
+      className={clsx(
+        className,
+        { 'droppable-container': isOver && !isInvalidDrop },
+        { 'droppable-invalid': isOver && isInvalidDrop },
+        'pf-v6-c-droppable',
+      )}
       data-dnd-droppable={isOver ? `${id}` : undefined}
     >
       {children}
