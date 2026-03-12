@@ -55,9 +55,9 @@ describe('RestTree', () => {
     expect(treeNodes.length).toBeGreaterThan(0);
 
     // Verify method IDs are displayed (child nodes visible = expanded by default)
-    expect(screen.getByText('get-1')).toBeInTheDocument();
-    expect(screen.getByText('post-1')).toBeInTheDocument();
-    expect(screen.getByText('delete-1')).toBeInTheDocument();
+    expect(screen.getByText('/users')).toBeInTheDocument();
+    expect(screen.getByText('/orders')).toBeInTheDocument();
+    expect(screen.getByText('/items/{id}')).toBeInTheDocument();
 
     // Verify methods are rendered as tags (Carbon Tag component)
     const tags = container.querySelectorAll('.cds--tag');
@@ -91,7 +91,7 @@ describe('RestTree', () => {
     mockOnSelect.mockClear();
 
     // Click on a method node (by its ID)
-    const methodNode = screen.getByText('get-method-1');
+    const methodNode = screen.getByText('/test');
     fireEvent.click(methodNode);
 
     expect(mockOnSelect).toHaveBeenCalledWith({

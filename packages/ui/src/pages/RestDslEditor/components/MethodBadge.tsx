@@ -1,3 +1,5 @@
+import './MethodBadge.scss';
+
 import { OperationalTag } from '@carbon/react';
 import { FunctionComponent } from 'react';
 
@@ -21,9 +23,16 @@ export const MethodBadge: FunctionComponent<MethodBadgeProps> = ({ type }) => {
     case 'delete':
       badgeType = 'red';
       break;
+    case 'head':
+      badgeType = 'teal';
+      break;
     default:
       break;
   }
 
-  return <OperationalTag size="md" text={type.toUpperCase()} type={badgeType} />;
+  return (
+    <div className="method-badge">
+      <OperationalTag size="md" text={type.toUpperCase()} type={badgeType} />
+    </div>
+  );
 };
