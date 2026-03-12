@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
 import { TargetPanel } from './TargetPanel';
 
 // Mock ResizeObserver for ExpansionPanels
@@ -23,7 +23,7 @@ beforeAll(() => {
 describe('TargetPanel', () => {
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <DataMapperProvider>
-      <DataMapperCanvasProvider>{children}</DataMapperCanvasProvider>
+      <MappingLinksProvider>{children}</MappingLinksProvider>
     </DataMapperProvider>
   );
 
@@ -43,9 +43,10 @@ describe('TargetPanel', () => {
     expect(container.querySelector('.expansion-panel')).toBeInTheDocument();
   });
 
-  it('should render the target body panel as expanded', () => {
+  it('should render the target body panel as collapsed when primitive (no schema)', () => {
     const { container } = render(<TargetPanel />, { wrapper });
     const panel = container.querySelector('.expansion-panel');
-    expect(panel).toHaveAttribute('data-expanded', 'true');
+    // Target body starts as primitive (no schema), so it should be collapsed
+    expect(panel).toHaveAttribute('data-expanded', 'false');
   });
 });
