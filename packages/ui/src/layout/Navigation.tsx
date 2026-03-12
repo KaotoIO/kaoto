@@ -35,7 +35,6 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
           {
             title: 'Editor',
             to: Links.RestEditor,
-            hidden: () => true,
           },
         ],
       },
