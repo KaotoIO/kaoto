@@ -112,3 +112,7 @@ body {
   background-color: $background;
   block-size: calc(100% - #{$spacing-09});
 }
+
+.rest-tree-toolbar {
+  margin-bottom: $spacing-06;
+}

@@ -43,8 +43,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestConfigButton = screen.getByText('Add Configuration');
-      expect(addRestConfigButton).toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addRestConfigButton = screen.getByText('Add Configuration').closest('li');
+      expect(addRestConfigButton).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should be enabled when no RestConfiguration exists', () => {
@@ -65,8 +69,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestConfigButton = screen.getByText('Add Configuration');
-      expect(addRestConfigButton).not.toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addRestConfigButton = screen.getByText('Add Configuration').closest('li');
+      expect(addRestConfigButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should fire callback when clicked', () => {
@@ -82,8 +90,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestConfigButton = screen.getByText('Add Configuration');
-      fireEvent.click(addRestConfigButton);
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addRestConfigButton = screen.getByText('Add Configuration').closest('li');
+      fireEvent.click(addRestConfigButton!);
       expect(mockOnAddRestConfiguration).toHaveBeenCalledTimes(1);
     });
   });
@@ -92,7 +104,7 @@ describe('RestTreeToolbar', () => {
     it('should always be enabled', () => {
       const entities: BaseVisualCamelEntity[] = [];
 
-      const { rerender } = render(
+      render(
         <RestTreeToolbar
           entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
@@ -102,10 +114,15 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      let addRestButton = screen.getByRole('button', { name: 'Add Service' });
-      expect(addRestButton).not.toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
 
-      // Test with entities present
+      const addRestButton = screen.getByText('Add Service').closest('li');
+      expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should be enabled even with entities present', () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -113,11 +130,11 @@ describe('RestTreeToolbar', () => {
     host: localhost
       `);
 
-      const entitiesWithData = camelResource.getVisualEntities();
+      const entities = camelResource.getVisualEntities();
 
-      rerender(
+      render(
         <RestTreeToolbar
-          entities={entitiesWithData}
+          entities={entities}
           onAddRestConfiguration={mockOnAddRestConfiguration}
           onAddRest={mockOnAddRest}
           onAddMethod={mockOnAddMethod}
@@ -125,8 +142,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      addRestButton = screen.getByRole('button', { name: 'Add Service' });
-      expect(addRestButton).not.toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addRestButton = screen.getByText('Add Service').closest('li');
+      expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should fire callback when clicked', () => {
@@ -142,8 +163,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addRestButton = screen.getByText('Add Service');
-      fireEvent.click(addRestButton);
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addRestButton = screen.getByText('Add Service').closest('li');
+      fireEvent.click(addRestButton!);
       expect(mockOnAddRest).toHaveBeenCalledTimes(1);
     });
   });
@@ -162,8 +187,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addMethodButton = screen.getByText('Add Operation');
-      expect(addMethodButton).toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should be disabled when RestConfiguration is selected', () => {
@@ -187,11 +216,15 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addMethodButton = screen.getByText('Add Operation');
-      expect(addMethodButton).toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when Rest entity is selected', () => {
+    it('should be enabled when Rest entity root is selected', () => {
       const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -215,8 +248,80 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const addMethodButton = screen.getByText('Add Operation');
-      expect(addMethodButton).not.toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should be enabled when a Rest method is selected', () => {
+      const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    get:
+      - id: get-1
+        path: /test
+        to:
+          uri: direct:test
+      `);
+
+      const entities = camelResource.getVisualEntities();
+
+      render(
+        <RestTreeToolbar
+          entities={entities}
+          selectedElement={{ entityId: 'rest-1234', modelPath: 'rest.get.0' }}
+          onAddRestConfiguration={mockOnAddRestConfiguration}
+          onAddRest={mockOnAddRest}
+          onAddMethod={mockOnAddMethod}
+          onDelete={mockOnDelete}
+        />,
+      );
+
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('should be disabled when a non-Rest path is selected', () => {
+      const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    get:
+      - id: get-1
+        path: /test
+        to:
+          uri: direct:test
+- route:
+    id: route-1234
+    from:
+      uri: direct:test
+      `);
+
+      const entities = camelResource.getVisualEntities();
+
+      render(
+        <RestTreeToolbar
+          entities={entities}
+          selectedElement={{ entityId: 'route-1234', modelPath: 'route' }}
+          onAddRestConfiguration={mockOnAddRestConfiguration}
+          onAddRest={mockOnAddRest}
+          onAddMethod={mockOnAddMethod}
+          onDelete={mockOnDelete}
+        />,
+      );
+
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
   });
 
@@ -234,8 +339,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const deleteButton = screen.getByText('Delete');
-      expect(deleteButton).toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const deleteButton = screen.getByText('Delete').closest('li');
+      expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should be enabled when an element is selected', () => {
@@ -257,8 +366,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const deleteButton = screen.getByText('Delete');
-      expect(deleteButton).not.toBeDisabled();
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const deleteButton = screen.getByText('Delete').closest('li');
+      expect(deleteButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
     it('should fire callback when clicked', () => {
@@ -280,8 +393,12 @@ describe('RestTreeToolbar', () => {
         />,
       );
 
-      const deleteButton = screen.getByText('Delete');
-      fireEvent.click(deleteButton);
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const deleteButton = screen.getByText('Delete').closest('li');
+      fireEvent.click(deleteButton!);
       expect(mockOnDelete).toHaveBeenCalledTimes(1);
     });
   });
@@ -308,8 +425,12 @@ describe('RestTreeToolbar', () => {
         </TestWrapper>,
       );
 
-      const addMethodButton = screen.getByText('Add Operation');
-      fireEvent.click(addMethodButton);
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      fireEvent.click(addMethodButton!);
 
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
       expect(screen.getByText('Add REST Method')).toBeInTheDocument();
@@ -336,9 +457,13 @@ describe('RestTreeToolbar', () => {
         </TestWrapper>,
       );
 
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
       // Open modal
-      const addMethodButton = screen.getByText('Add Operation');
-      fireEvent.click(addMethodButton);
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      fireEvent.click(addMethodButton!);
 
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
 
@@ -370,9 +495,13 @@ describe('RestTreeToolbar', () => {
         </TestWrapper>,
       );
 
+      // Open the menu
+      const menuButton = screen.getByRole('button', { name: 'Actions' });
+      fireEvent.click(menuButton);
+
       // Open modal
-      const addMethodButton = screen.getByText('Add Operation');
-      fireEvent.click(addMethodButton);
+      const addMethodButton = screen.getByText('Add Operation').closest('li');
+      fireEvent.click(addMethodButton!);
 
       // Verify modal is rendered with the form
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();

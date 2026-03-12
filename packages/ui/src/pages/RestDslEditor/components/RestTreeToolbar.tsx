@@ -1,5 +1,5 @@
 import { Add, TrashCan } from '@carbon/icons-react';
-import { Button } from '@carbon/react';
+import { MenuButton, MenuItem, MenuItemDivider } from '@carbon/react';
 import { FunctionComponent, useMemo } from 'react';
 
 import { useToggle } from '../../../hooks/useToggle';
@@ -55,47 +55,20 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
   }, [entities, selectedElement]);
 
   return (
-    <>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-        <Button
-          kind="tertiary"
-          size="sm"
+    <div className="rest-tree-toolbar">
+      <MenuButton kind="tertiary" label="Actions">
+        <MenuItem
+          label="Add Configuration"
           renderIcon={Add}
-          iconDescription="Add RestConfiguration"
           onClick={onAddRestConfiguration}
           disabled={hasRestConfiguration}
-        >
-          Add Configuration
-        </Button>
-
-        <Button kind="tertiary" size="sm" renderIcon={Add} iconDescription="Add Rest" onClick={onAddRest}>
-          Add Service
-        </Button>
-
-        <Button
-          kind="tertiary"
-          size="sm"
-          renderIcon={Add}
-          iconDescription="Add Method"
-          onClick={openAddMethodModal}
-          disabled={!selectedRestEntity}
-        >
-          Add Operation
-        </Button>
-
-        <Button
-          kind="danger--ghost"
-          size="sm"
-          iconDescription="Delete"
-          renderIcon={TrashCan}
-          onClick={onDelete}
-          disabled={!selectedElement}
-        >
-          Delete
-        </Button>
-      </div>
-
+        />
+        <MenuItem label="Add Service" renderIcon={Add} onClick={onAddRest} />
+        <MenuItem label="Add Operation" renderIcon={Add} onClick={openAddMethodModal} disabled={!selectedRestEntity} />
+        <MenuItemDivider />
+        <MenuItem kind="danger" label="Delete" renderIcon={TrashCan} onClick={onDelete} disabled={!selectedElement} />
+      </MenuButton>
       {isAddMethodModalOpen && <AddMethodModal onClose={closeAddMethodModal} onAddMethod={onAddMethod} />}
-    </>
+    </div>
   );
 };

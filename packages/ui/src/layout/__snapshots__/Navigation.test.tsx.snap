@@ -154,7 +154,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
                   </a>
                 </li>
                 <li
-                  class="pf-v6-c-nav__item pf-v6-u-hidden"
+                  class="pf-v6-c-nav__item"
                   data-ouia-component-id="OUIA-Generated-NavItem-40"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
@@ -162,7 +162,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
                   <a
                     class="pf-v6-c-nav__link"
                     data-testid="Editor"
-                    href="/rest/editor"
+                    href="/rest"
                   >
                     Editor
                   </a>
@@ -402,7 +402,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
                   </a>
                 </li>
                 <li
-                  class="pf-v6-c-nav__item pf-v6-u-hidden"
+                  class="pf-v6-c-nav__item"
                   data-ouia-component-id="OUIA-Generated-NavItem-13"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
@@ -410,7 +410,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
                   <a
                     class="pf-v6-c-nav__link"
                     data-testid="Editor"
-                    href="/rest/editor"
+                    href="/rest"
                   >
                     Editor
                   </a>
@@ -650,7 +650,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
                   </a>
                 </li>
                 <li
-                  class="pf-v6-c-nav__item pf-v6-u-hidden"
+                  class="pf-v6-c-nav__item"
                   data-ouia-component-id="OUIA-Generated-NavItem-31"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
@@ -658,7 +658,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
                   <a
                     class="pf-v6-c-nav__link"
                     data-testid="Editor"
-                    href="/rest/editor"
+                    href="/rest"
                   >
                     Editor
                   </a>
@@ -898,7 +898,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
                   </a>
                 </li>
                 <li
-                  class="pf-v6-c-nav__item pf-v6-u-hidden"
+                  class="pf-v6-c-nav__item"
                   data-ouia-component-id="OUIA-Generated-NavItem-22"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
@@ -906,7 +906,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
                   <a
                     class="pf-v6-c-nav__link"
                     data-testid="Editor"
-                    href="/rest/editor"
+                    href="/rest"
                   >
                     Editor
                   </a>
@@ -1145,7 +1145,7 @@ exports[`Navigation Component navigation sidebar for: Route 1`] = `
                   </a>
                 </li>
                 <li
-                  class="pf-v6-c-nav__item pf-v6-u-hidden"
+                  class="pf-v6-c-nav__item"
                   data-ouia-component-id="OUIA-Generated-NavItem-4"
                   data-ouia-component-type="PF6/NavItem"
                   data-ouia-safe="true"
@@ -1153,7 +1153,7 @@ exports[`Navigation Component navigation sidebar for: Route 1`] = `
                   <a
                     class="pf-v6-c-nav__link"
                     data-testid="Editor"
-                    href="/rest/editor"
+                    href="/rest"
                   >
                     Editor
                   </a>

@@ -94,7 +94,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
     <ResizableSplitPanels
       defaultLeftWidth={30}
       leftPanel={
-        <RestTree entities={visualEntities} onSelect={setSelectedElement}>
+        <RestTree entities={visualEntities} selected={selectedElement} onSelect={setSelectedElement}>
           <RestTreeToolbar
             entities={visualEntities}
             selectedElement={selectedElement}

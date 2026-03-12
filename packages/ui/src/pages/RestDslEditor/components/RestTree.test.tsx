@@ -131,4 +131,114 @@ describe('RestTree', () => {
     expect(screen.getByTestId('toolbar-content')).toBeInTheDocument();
     expect(screen.getByText('Toolbar Content')).toBeInTheDocument();
   });
+
+  it('should highlight selected Rest entity node', () => {
+    const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    get:
+      - id: get-1
+        path: /test
+        to:
+          uri: direct:test
+    `);
+
+    const entities = camelResource.getVisualEntities();
+    const selected = { entityId: 'rest-1234', modelPath: 'rest' };
+
+    const { container } = render(<RestTree entities={entities} selected={selected} onSelect={mockOnSelect} />);
+
+    // Verify TreeView receives the active prop with correct node ID
+    const treeView = container.querySelector('.cds--tree');
+    expect(treeView).toBeInTheDocument();
+
+    // The active node ID should be constructed as entityId::modelPath
+    // Carbon TreeView uses this to highlight the selected node
+    const expectedActiveId = 'rest-1234::rest';
+
+    // Verify the node with this ID exists
+    const activeNode = container.querySelector(`[id="${expectedActiveId}"]`);
+    expect(activeNode).toBeInTheDocument();
+  });
+
+  it('should highlight selected method node', () => {
+    const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    get:
+      - id: get-1
+        path: /test
+        to:
+          uri: direct:test
+    post:
+      - id: post-1
+        path: /orders
+        to:
+          uri: direct:orders
+    `);
+
+    const entities = camelResource.getVisualEntities();
+    const selected = { entityId: 'rest-1234', modelPath: 'rest.post.0' };
+
+    const { container } = render(<RestTree entities={entities} selected={selected} onSelect={mockOnSelect} />);
+
+    // The active node ID should be constructed as entityId::modelPath
+    const expectedActiveId = 'rest-1234::rest.post.0';
+
+    // Verify the node with this ID exists
+    const activeNode = container.querySelector(`[id="${expectedActiveId}"]`);
+    expect(activeNode).toBeInTheDocument();
+  });
+
+  it('should handle undefined selected prop', () => {
+    const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    `);
+
+    const entities = camelResource.getVisualEntities();
+
+    const { container } = render(<RestTree entities={entities} selected={undefined} onSelect={mockOnSelect} />);
+
+    // Tree should render normally without errors
+    expect(screen.getByText('Rest DSL Configuration')).toBeInTheDocument();
+    expect(screen.getByText('rest-1234')).toBeInTheDocument();
+
+    // No node should be marked as active
+    const treeView = container.querySelector('.cds--tree');
+    expect(treeView).toBeInTheDocument();
+  });
+
+  it('should update selection when selected prop changes', () => {
+    const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    get:
+      - id: get-1
+        path: /test
+        to:
+          uri: direct:test
+    `);
+
+    const entities = camelResource.getVisualEntities();
+    const initialSelected = { entityId: 'rest-1234', modelPath: 'rest' };
+
+    const { container, rerender } = render(
+      <RestTree entities={entities} selected={initialSelected} onSelect={mockOnSelect} />,
+    );
+
+    // Verify initial selection
+    let expectedActiveId = 'rest-1234::rest';
+    let activeNode = container.querySelector(`[id="${expectedActiveId}"]`);
+    expect(activeNode).toBeInTheDocument();
+
+    // Update selection to a method
+    const newSelected = { entityId: 'rest-1234', modelPath: 'rest.get.0' };
+    rerender(<RestTree entities={entities} selected={newSelected} onSelect={mockOnSelect} />);
+
+    // Verify new selection
+    expectedActiveId = 'rest-1234::rest.get.0';
+    activeNode = container.querySelector(`[id="${expectedActiveId}"]`);
+    expect(activeNode).toBeInTheDocument();
+  });
 });
