@@ -2,10 +2,10 @@ import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { EditorNodeData, FieldNodeData, FunctionNodeData, MappingTree, NodeData } from '../../models/datamapper';
 import { MappingService } from '../../services/mapping.service';
-import { DnDHandler } from './DnDHandler';
+import { DnDHandler, DnDResult } from './DnDHandler';
 
 export class ExpressionEditorDnDHandler implements DnDHandler {
-  handleDragEnd(event: DragEndEvent, _mappingTree: MappingTree, onUpdate: () => void): void {
+  handleDragEnd(event: DragEndEvent, _mappingTree: MappingTree, onUpdate: () => void): DnDResult {
     const fromNode = event.active.data.current as NodeData;
     const toNode = event.over?.data.current as NodeData;
     if (
@@ -14,7 +14,7 @@ export class ExpressionEditorDnDHandler implements DnDHandler {
       (!(fromNode instanceof FunctionNodeData) && !(fromNode instanceof FieldNodeData)) ||
       !(toNode instanceof EditorNodeData)
     )
-      return;
+      return { success: false };
     const editorNodeData = toNode as EditorNodeData;
     if (fromNode instanceof FieldNodeData) {
       MappingService.mapToCondition(editorNodeData.mapping, fromNode.field);
@@ -22,6 +22,7 @@ export class ExpressionEditorDnDHandler implements DnDHandler {
       MappingService.wrapWithFunction(editorNodeData.mapping, fromNode.functionDefinition);
     }
     onUpdate();
+    return { success: true };
   }
 
   handleDragOver(_event: DragOverEvent): void {}
