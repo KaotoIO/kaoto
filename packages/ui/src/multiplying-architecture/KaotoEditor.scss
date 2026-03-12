@@ -30,6 +30,8 @@ html body {
   flex-flow: column nowrap;
   position: relative;
   background-color: var(--pf-t--global--background--color--secondary--default);
+  border-radius: var(--pf-t--global--border--radius--medium);
+  overflow: hidden;
 
   // Tab header shouldn't grow or shrink
   > div[role='region'] {
@@ -52,9 +54,35 @@ html body {
 }
 
 .context-toolbar {
-  padding: var(--pf-v6-c-toolbar__content-section--ColumnGap);
+  padding: var(--pf-t--global--spacer--xs);
 }
 
-.pf-v6-c-divider {
-  display: none;
+/* Reduce outer toolbar padding to minimize space between divider and canvas */
+.canvas-surface .pf-v6-c-toolbar {
+  --pf-v6-c-toolbar--PaddingBlockEnd: var(--pf-t--global--spacer--xs);
+}
+
+/* Match backgrounds with the properties panel (Card) so the canvas
+   rounded corners are visible, consistent with standalone Kaoto.
+   See: https://github.com/KaotoIO/kaoto/issues/2749 */
+.canvas-surface .pf-v6-l-stack {
+  background-color: var(--pf-t--global--background--color--primary--default);
+  padding: 4px;
+
+  /* Round both the toolbar and the canvas/sidebar container */
+  /* stylelint-disable-next-line selector-class-pattern */
+  > .pf-v6-l-stack__item:not(.pf-m-fill) {
+    border-radius: var(--pf-t--global--border--radius--medium);
+    overflow: hidden;
+  }
+
+  > .pf-topology-container {
+    border-radius: var(--pf-t--global--border--radius--medium);
+    overflow: hidden;
+  }
+
+  /* Hide the divider between toolbar and canvas */
+  .pf-v6-c-divider {
+    display: none;
+  }
 }
