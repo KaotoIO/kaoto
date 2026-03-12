@@ -51,7 +51,7 @@ import { xmlSchemaUseValueOf } from './XmlSchemaUse';
 import { XmlSchemaXPath } from './XmlSchemaXPath';
 
 export class SchemaBuilder {
-  private resolvedSchemas = new Map<string, XmlSchema>();
+  private readonly resolvedSchemas = new Map<string, XmlSchema>();
   private static readonly RESERVED_ATTRIBUTES = new Set<string>([
     'name',
     'type',
@@ -62,12 +62,12 @@ export class SchemaBuilder {
     'use',
     'ref',
   ]);
-  private currentSchema = new XmlSchema();
+  private readonly currentSchema = new XmlSchema();
   private extReg?: ExtensionRegistry;
 
   constructor(
-    private collection: XmlSchemaCollection,
-    private currentValidator?: (s: XmlSchema) => void,
+    private readonly collection: XmlSchemaCollection,
+    private readonly currentValidator?: (s: XmlSchema) => void,
   ) {
     if (this.collection.getExtReg() != null) {
       this.extReg = this.collection.getExtReg();
@@ -88,7 +88,7 @@ export class SchemaBuilder {
   }
 
   getDerivation(el: Element, attrName: string) {
-    if (el.hasAttribute(attrName) && !(el.getAttribute(attrName) === '')) {
+    if (el.hasAttribute(attrName) && el.getAttribute(attrName) !== '') {
       // #all | List of (extension | restriction | substitution)
       const derivationMethod = el.getAttribute(attrName)!.trim();
       return XmlSchemaDerivationMethod.schemaValueOf(derivationMethod);
@@ -104,7 +104,7 @@ export class SchemaBuilder {
   }
 
   getFormDefault(el: Element, attrName: string) {
-    if (el.getAttributeNode(attrName) != null) {
+    if (el.hasAttribute(attrName)) {
       const value = el.getAttribute(attrName)!;
       return xmlSchemaFormValueOf(value);
     } else {
@@ -222,11 +222,7 @@ export class SchemaBuilder {
         ct.getAttributes().push(this.handleAttributeGroupRef(schema, el));
       } else if (el.localName === 'group') {
         const group = this.handleGroupRef(schema, el, schemaEl);
-        if (group.getParticle() == null) {
-          ct.setParticle(group);
-        } else {
-          ct.setParticle(group.getParticle());
-        }
+        ct.setParticle(group.getParticle() ?? group);
       } else if (el.localName === 'simpleContent') {
         ct.setContentModel(this.handleSimpleContent(schema, el, schemaEl));
       } else if (el.localName === 'complexContent') {
@@ -237,30 +233,7 @@ export class SchemaBuilder {
         ct.setAnyAttribute(this.handleAnyAttribute(schema, el, schemaEl));
       }
     }
-    if (complexEl.hasAttribute('block')) {
-      const blockStr = complexEl.getAttribute('block')!;
-      ct.setBlock(XmlSchemaDerivationMethod.schemaValueOf(blockStr));
-    }
-    if (complexEl.hasAttribute('final')) {
-      const finalstr = complexEl.getAttribute('final')!;
-      ct.setFinal(XmlSchemaDerivationMethod.schemaValueOf(finalstr));
-    }
-    if (complexEl.hasAttribute('abstract')) {
-      const abs = complexEl.getAttribute('abstract')!;
-      if (abs.toLowerCase() === 'true') {
-        ct.setAbstract(true);
-      } else {
-        ct.setAbstract(false);
-      }
-    }
-    if (complexEl.hasAttribute('mixed')) {
-      const mixed = complexEl.getAttribute('mixed')!;
-      if (mixed.toLowerCase() === 'true') {
-        ct.setMixed(true);
-      } else {
-        ct.setMixed(false);
-      }
-    }
+    this.applyComplexTypeAttributes(ct, complexEl);
 
     // process extra attributes and elements
     this.processExtensibilityComponents(ct, complexEl, true);
@@ -315,50 +288,19 @@ export class SchemaBuilder {
     this.handleElementAnnotation(el, element);
     this.handleElementGlobalType(el, element);
 
-    let complexTypeEl: Element | null;
-    let keyEl: Element | null;
-    let keyrefEl: Element | null;
-    let uniqueEl: Element | null;
     const simpleTypeEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'simpleType');
-    if (simpleTypeEl != null) {
+    if (simpleTypeEl === null) {
+      const complexTypeEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'complexType');
+      if (complexTypeEl !== null) {
+        element.setSchemaType(this.handleComplexType(schema, complexTypeEl, schemaEl, false));
+      }
+    } else {
       const simpleType = this.handleSimpleType(schema, simpleTypeEl, schemaEl, false);
       element.setSchemaType(simpleType);
       element.setSchemaTypeName(simpleType.getQName());
-    } else {
-      complexTypeEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'complexType');
-      if (complexTypeEl != null) {
-        element.setSchemaType(this.handleComplexType(schema, complexTypeEl, schemaEl, false));
-      }
     }
 
-    keyEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'key');
-    if (keyEl != null) {
-      while (keyEl != null) {
-        element.getConstraints().push(this.handleConstraint(keyEl, new XmlSchemaKey()));
-        keyEl = XDOMUtil.getNextSiblingElementNS(keyEl, XmlSchema.SCHEMA_NS, 'key');
-      }
-    }
-
-    keyrefEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'keyref');
-    if (keyrefEl != null) {
-      while (keyrefEl != null) {
-        const keyRef = this.handleConstraint(keyrefEl, new XmlSchemaKeyref()) as XmlSchemaKeyref;
-        if (keyrefEl.hasAttribute('refer')) {
-          const name = keyrefEl.getAttribute('refer')!;
-          keyRef.refer = this.getRefQName(name, el);
-        }
-        element.getConstraints().push(keyRef);
-        keyrefEl = XDOMUtil.getNextSiblingElementNS(keyrefEl, XmlSchema.SCHEMA_NS, 'keyref');
-      }
-    }
-
-    uniqueEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'unique');
-    if (uniqueEl != null) {
-      while (uniqueEl != null) {
-        element.getConstraints().push(this.handleConstraint(uniqueEl, new XmlSchemaUnique()));
-        uniqueEl = XDOMUtil.getNextSiblingElementNS(uniqueEl, XmlSchema.SCHEMA_NS, 'unique');
-      }
-    }
+    this.handleElementConstraints(element, el);
 
     if (el.hasAttribute('abstract')) {
       element.setAbstractElement(/true/i.test(el.getAttribute('abstract')!));
@@ -538,7 +480,7 @@ export class SchemaBuilder {
       return existing;
     }
 
-    this.handleSchemaElementBasics(schemaEl, systemId, schemaKey);
+    this.handleSchemaElementBasics(schemaEl, schemaKey, systemId);
 
     let el = XDOMUtil.getFirstChildElementNS(schemaEl, XmlSchema.SCHEMA_NS);
     for (; el != null; el = XDOMUtil.getNextSiblingElementNS(el, XmlSchema.SCHEMA_NS)) {
@@ -563,12 +505,8 @@ export class SchemaBuilder {
     baseUri: string | null,
     validator: (s: XmlSchema) => void,
   ) {
-    if (baseUri == null) {
-      baseUri = this.collection.baseUri;
-    }
-    if (targetNamespace == null) {
-      targetNamespace = Constants.NULL_NS_URI;
-    }
+    baseUri ??= this.collection.baseUri;
+    targetNamespace ??= Constants.NULL_NS_URI;
 
     if (
       targetNamespace != null &&
@@ -581,7 +519,7 @@ export class SchemaBuilder {
 
     // use the entity resolver provided if the schema location is present
     // null
-    if (schemaLocation != null && !('' === schemaLocation)) {
+    if (schemaLocation != null && '' !== schemaLocation) {
       const source = this.collection.getSchemaResolver().resolveEntity(targetNamespace, schemaLocation, baseUri);
 
       // the entity resolver was unable to resolve this!!
@@ -590,7 +528,7 @@ export class SchemaBuilder {
         // known namespace map
         return this.collection.getKnownSchema(targetNamespace);
       }
-      //const systemId = source.getSystemId() == null ? schemaLocation : source.getSystemId();
+
       const systemId = schemaLocation;
       // Push repaired system id back into source where read sees it.
       // It is perhaps a bad thing to patch the source, but this fixes
@@ -649,14 +587,8 @@ export class SchemaBuilder {
    * @return The cached schema if one exists for this thread or null.
    */
   private getCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string) {
-    let resolvedSchema: XmlSchema | null = null;
-
-    if (this.resolvedSchemas != null) {
-      // cache is initialized, use it
-      const schemaKey = targetNamespace + schemaLocation + baseUri;
-      resolvedSchema = this.resolvedSchemas.get(schemaKey) || null;
-    }
-    return resolvedSchema;
+    const schemaKey = targetNamespace + schemaLocation + baseUri;
+    return this.resolvedSchemas.get(schemaKey) ?? null;
   }
 
   private getChildren(content: Element) {
@@ -686,10 +618,7 @@ export class SchemaBuilder {
     if (offset == -1) {
       uri = pContext.getNamespaceURI(Constants.DEFAULT_NS_PREFIX);
       if (Constants.NULL_NS_URI === uri) {
-        if (
-          this.currentSchema.getTargetNamespace() == null &&
-          !(this.currentSchema.getLogicalTargetNamespace() === '')
-        ) {
+        if (this.currentSchema.getTargetNamespace() == null && this.currentSchema.getLogicalTargetNamespace() !== '') {
           // If object is unqualified in a schema without a target namespace then it could
           // be that this schema is included in another one. The including namespace
           // should then be used for this reference
@@ -703,10 +632,7 @@ export class SchemaBuilder {
       prefix = pName.substring(0, offset);
       uri = pContext.getNamespaceURI(prefix);
       const parentSchema = this.currentSchema.getParent();
-      if (
-        uri == null ||
-        (Constants.NULL_NS_URI === uri && parentSchema != null && parentSchema.getNamespaceContext() != null)
-      ) {
+      if (uri == null || (Constants.NULL_NS_URI === uri && parentSchema?.getNamespaceContext() != null)) {
         uri = parentSchema!.getNamespaceContext()!.getNamespaceURI(prefix);
       }
 
@@ -783,9 +709,9 @@ export class SchemaBuilder {
       const contentProcessing = this.getEnumString(anyAttrEl, 'processContents');
 
       anyAttr.processContent =
-        contentProcessing != null
-          ? xmlSchemaContentProcessingValueOf(contentProcessing)
-          : XmlSchemaContentProcessing.NONE;
+        contentProcessing == null
+          ? XmlSchemaContentProcessing.NONE
+          : xmlSchemaContentProcessingValueOf(contentProcessing);
     }
     if (anyAttrEl.hasAttribute('id')) {
       anyAttr.setId(anyAttrEl.getAttribute('id'));
@@ -837,7 +763,7 @@ export class SchemaBuilder {
     }
 
     if (attrEl.hasAttribute('id')) {
-      attr.setId(attrEl.getAttribute('id')!);
+      attr.setId(attrEl.getAttribute('id'));
     }
 
     if (attrEl.hasAttribute('use')) {
@@ -863,22 +789,63 @@ export class SchemaBuilder {
       attr.setAnnotation(annotation);
     }
 
-    const attrNodes = attrEl.attributes;
+    const attrs = this.collectExtensionAttributes(attrEl);
+    if (attrs.length > 0) {
+      attr.setUnhandledAttributes(attrs);
+    }
+
+    // process extra attributes and elements
+    this.processExtensibilityComponents(attr, attrEl, true);
+    return attr;
+  }
+
+  private applyComplexTypeAttributes(ct: XmlSchemaComplexType, complexEl: Element): void {
+    if (complexEl.hasAttribute('block')) {
+      ct.setBlock(XmlSchemaDerivationMethod.schemaValueOf(complexEl.getAttribute('block')!));
+    }
+    if (complexEl.hasAttribute('final')) {
+      ct.setFinal(XmlSchemaDerivationMethod.schemaValueOf(complexEl.getAttribute('final')!));
+    }
+    if (complexEl.hasAttribute('abstract')) {
+      ct.setAbstract(complexEl.getAttribute('abstract')!.toLowerCase() === 'true');
+    }
+    if (complexEl.hasAttribute('mixed')) {
+      ct.setMixed(complexEl.getAttribute('mixed')!.toLowerCase() === 'true');
+    }
+  }
+
+  private handleElementConstraints(element: XmlSchemaElement, el: Element): void {
+    let keyEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'key');
+    while (keyEl !== null) {
+      element.getConstraints().push(this.handleConstraint(keyEl, new XmlSchemaKey()));
+      keyEl = XDOMUtil.getNextSiblingElementNS(keyEl, XmlSchema.SCHEMA_NS, 'key');
+    }
+    let keyrefEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'keyref');
+    while (keyrefEl !== null) {
+      const keyRef = this.handleConstraint(keyrefEl, new XmlSchemaKeyref()) as XmlSchemaKeyref;
+      element.getConstraints().push(keyRef);
+      keyrefEl = XDOMUtil.getNextSiblingElementNS(keyrefEl, XmlSchema.SCHEMA_NS, 'keyref');
+    }
+    let uniqueEl = XDOMUtil.getFirstChildElementNS(el, XmlSchema.SCHEMA_NS, 'unique');
+    while (uniqueEl !== null) {
+      element.getConstraints().push(this.handleConstraint(uniqueEl, new XmlSchemaUnique()));
+      uniqueEl = XDOMUtil.getNextSiblingElementNS(uniqueEl, XmlSchema.SCHEMA_NS, 'unique');
+    }
+  }
+
+  private collectExtensionAttributes(attrEl: Element): Attr[] {
     const attrs: Attr[] = [];
-    let ctx: NodeNamespaceContext | null = null;
+    let ctx: NodeNamespaceContext | undefined;
+    const attrNodes = attrEl.attributes;
     for (let i = 0; i < attrNodes.length; i++) {
       const att = attrNodes.item(i) as Attr;
       const attName = att.name;
       if (!SchemaBuilder.RESERVED_ATTRIBUTES.has(attName)) {
         attrs.push(att);
         const value = att.value;
-
-        if (value.indexOf(':') > -1) {
-          // there is a possibility of some namespace mapping
+        if (value.includes(':')) {
           const prefix = value.substring(0, value.indexOf(':'));
-          if (ctx == null) {
-            ctx = NodeNamespaceContext.getNamespaceContext(attrEl);
-          }
+          ctx ??= NodeNamespaceContext.getNamespaceContext(attrEl);
           const namespace = ctx.getNamespaceURI(prefix);
           if (Constants.NULL_NS_URI !== namespace) {
             const nsAttr = attrEl.ownerDocument.createAttributeNS(Constants.XMLNS_ATTRIBUTE_NS_URI, 'xmlns:' + prefix);
@@ -888,14 +855,7 @@ export class SchemaBuilder {
         }
       }
     }
-
-    if (attrs.length > 0) {
-      attr.setUnhandledAttributes(attrs);
-    }
-
-    // process extra attributes and elements
-    this.processExtensibilityComponents(attr, attrEl, true);
-    return attr;
+    return attrs;
   }
 
   private handleAttributeGroup(schema: XmlSchema, groupEl: Element, schemaEl: Element) {
@@ -1171,7 +1131,9 @@ export class SchemaBuilder {
     }
   }
 
-  private handleElementName(_isGlobal: boolean, _element: XmlSchemaElement, _isQualified: boolean) {}
+  private handleElementName(_isGlobal: boolean, _element: XmlSchemaElement, _isQualified: boolean) {
+    /* no-op */
+  }
 
   /*
    * handle_simple_content_restriction if( restriction has base attribute ) set the baseType else if(
@@ -1248,7 +1210,7 @@ export class SchemaBuilder {
     const notation = new XmlSchemaNotation(schema);
 
     if (notationEl.hasAttribute('id')) {
-      notation.setId(notationEl.getAttribute('id')!);
+      notation.setId(notationEl.getAttribute('id'));
     }
 
     if (notationEl.hasAttribute('name')) {
@@ -1333,15 +1295,15 @@ export class SchemaBuilder {
     return redefine;
   }
 
-  private handleSchemaElementBasics(schemaEl: Element, systemId: string | null = null, schemaKey: SchemaKey): void {
-    if (!this.collection.containsSchema(schemaKey)) {
-      this.collection.addSchema(schemaKey, this.currentSchema);
-      this.currentSchema.setParent(this.collection); // establish parentage now.
-    } else {
+  private handleSchemaElementBasics(schemaEl: Element, schemaKey: SchemaKey, systemId: string | null = null): void {
+    if (this.collection.containsSchema(schemaKey)) {
       throw new Error(
         'Schema name conflict in collection. Namespace: ' + this.currentSchema.getLogicalTargetNamespace(),
       );
     }
+
+    this.collection.addSchema(schemaKey, this.currentSchema);
+    this.currentSchema.setParent(this.collection); // establish parentage now.
 
     this.currentSchema.setElementFormDefault(this.getFormDefault(schemaEl, 'elementFormDefault'));
     this.currentSchema.setAttributeFormDefault(this.getFormDefault(schemaEl, 'attributeFormDefault'));
@@ -1656,14 +1618,12 @@ export class SchemaBuilder {
       };
       if (isEmpty(pSchema.getSyntacticalTargetNamespace())) {
         pSchema.setLogicalTargetNamespace(schema.getLogicalTargetNamespace());
-      } else {
-        if (pSchema.getSyntacticalTargetNamespace() !== schema.getLogicalTargetNamespace()) {
-          let msg = 'An included schema was announced to have the default target namespace';
-          if (!isEmpty(schema.getLogicalTargetNamespace())) {
-            msg += ' or the target namespace ' + schema.getLogicalTargetNamespace();
-          }
-          throw new Error(msg + ', but has the target namespace ' + pSchema.getLogicalTargetNamespace());
+      } else if (pSchema.getSyntacticalTargetNamespace() !== schema.getLogicalTargetNamespace()) {
+        let msg = 'An included schema was announced to have the default target namespace';
+        if (!isEmpty(schema.getLogicalTargetNamespace())) {
+          msg += ' or the target namespace ' + schema.getLogicalTargetNamespace();
         }
+        throw new Error(msg + ', but has the target namespace ' + pSchema.getLogicalTargetNamespace());
       }
     };
   }
@@ -1673,44 +1633,44 @@ export class SchemaBuilder {
     parentElement: Element,
     namespaces: boolean,
   ): void {
-    if (this.extReg != null) {
-      // process attributes
-      const attributes = parentElement.attributes;
-      for (let i = 0; i < attributes.length; i++) {
-        const attribute = attributes.item(i) as Attr;
+    if (this.extReg == null) return;
 
-        const namespaceURI = attribute.namespaceURI;
-        const name = attribute.localName;
+    // process attributes
+    const attributes = parentElement.attributes;
+    for (let i = 0; i < attributes.length; i++) {
+      const attribute = attributes.item(i) as Attr;
 
-        if (
-          namespaceURI != null &&
-          '' !== namespaceURI && // ignore unqualified attributes
-          // ignore namespaces
-          (namespaces || !namespaceURI.startsWith(Constants.XMLNS_ATTRIBUTE_NS_URI)) &&
-          // does not belong to the schema namespace by any chance!
-          Constants.URI_2001_SCHEMA_XSD !== namespaceURI
-        ) {
+      const namespaceURI = attribute.namespaceURI;
+      const name = attribute.localName;
+
+      if (
+        namespaceURI != null &&
+        '' !== namespaceURI && // ignore unqualified attributes
+        // ignore namespaces
+        (namespaces || !namespaceURI.startsWith(Constants.XMLNS_ATTRIBUTE_NS_URI)) &&
+        // does not belong to the schema namespace by any chance!
+        Constants.URI_2001_SCHEMA_XSD !== namespaceURI
+      ) {
+        const qName = new QName(namespaceURI, name);
+        this.extReg.deserializeExtension(schemaObject, qName, attribute);
+      }
+    }
+
+    // process elements
+    let child = parentElement.firstChild;
+    while (child != null) {
+      if (child.nodeType == Node.ELEMENT_NODE) {
+        const extElement = child as Element;
+        const namespaceURI = extElement.namespaceURI;
+        const name = extElement.localName;
+
+        if (namespaceURI != null && Constants.URI_2001_SCHEMA_XSD !== namespaceURI) {
+          // does not belong to the schema namespace
           const qName = new QName(namespaceURI, name);
-          this.extReg.deserializeExtension(schemaObject, qName, attribute);
+          this.extReg.deserializeExtension(schemaObject, qName, extElement);
         }
       }
-
-      // process elements
-      let child = parentElement.firstChild;
-      while (child != null) {
-        if (child.nodeType == Node.ELEMENT_NODE) {
-          const extElement = child as Element;
-          const namespaceURI = extElement.namespaceURI;
-          const name = extElement.localName;
-
-          if (namespaceURI != null && Constants.URI_2001_SCHEMA_XSD !== namespaceURI) {
-            // does not belong to the schema namespace
-            const qName = new QName(namespaceURI, name);
-            this.extReg.deserializeExtension(schemaObject, qName, extElement);
-          }
-        }
-        child = child.nextSibling;
-      }
+      child = child.nextSibling;
     }
   }
 
@@ -1724,9 +1684,7 @@ export class SchemaBuilder {
    * @param readSchema
    */
   private putCachedSchema(targetNamespace: string, schemaLocation: string, baseUri: string, readSchema: XmlSchema) {
-    if (this.resolvedSchemas != null) {
-      const schemaKey = targetNamespace + schemaLocation + baseUri;
-      this.resolvedSchemas.set(schemaKey, readSchema);
-    }
+    const schemaKey = targetNamespace + schemaLocation + baseUri;
+    this.resolvedSchemas.set(schemaKey, readSchema);
   }
 }

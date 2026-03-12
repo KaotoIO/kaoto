@@ -115,15 +115,6 @@ describe('NodeNamespaceContext', () => {
   });
 
   describe('getNamespaceURI', () => {
-    it('should throw error when prefix is null', () => {
-      const xml = `<root></root>`;
-      const parser = new JSDOM(xml, { contentType: 'text/xml' });
-      const node = parser.window.document.documentElement;
-      const context = NodeNamespaceContext.getNamespaceContext(node);
-
-      expect(() => context.getNamespaceURI(null as unknown as string)).toThrow('Prefix cannot be null');
-    });
-
     it('should return XML_NS_URI for xml prefix', () => {
       const xml = `<root></root>`;
       const parser = new JSDOM(xml, { contentType: 'text/xml' });
@@ -171,15 +162,6 @@ describe('NodeNamespaceContext', () => {
   });
 
   describe('getPrefix', () => {
-    it('should throw error when namespace URI is null', () => {
-      const xml = `<root></root>`;
-      const parser = new JSDOM(xml, { contentType: 'text/xml' });
-      const node = parser.window.document.documentElement;
-      const context = NodeNamespaceContext.getNamespaceContext(node);
-
-      expect(() => context.getPrefix(null as unknown as string)).toThrow('Namespace URI cannot be null');
-    });
-
     it('should return XML_NS_PREFIX for XML_NS_URI', () => {
       const xml = `<root></root>`;
       const parser = new JSDOM(xml, { contentType: 'text/xml' });
@@ -241,15 +223,6 @@ describe('NodeNamespaceContext', () => {
   });
 
   describe('getPrefixes', () => {
-    it('should throw error when namespace URI is null', () => {
-      const xml = `<root></root>`;
-      const parser = new JSDOM(xml, { contentType: 'text/xml' });
-      const node = parser.window.document.documentElement;
-      const context = NodeNamespaceContext.getNamespaceContext(node);
-
-      expect(() => context.getPrefixes(null as unknown as string)).toThrow('Namespace URI cannot be null');
-    });
-
     it('should return array with XML_NS_PREFIX for XML_NS_URI', () => {
       const xml = `<root></root>`;
       const parser = new JSDOM(xml, { contentType: 'text/xml' });

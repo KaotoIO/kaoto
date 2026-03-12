@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/DERIVATION"
+           xmlns:tns="http://www.example.com/DERIVATION"
+           elementFormDefault="qualified">
+
+  <xs:complexType name="FinalAllType" final="#all">
+    <xs:sequence>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FinalExtensionType" final="extension">
+    <xs:sequence>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BlockExtensionRestrictionType" block="extension restriction">
+    <xs:sequence>
+      <xs:element name="value" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="Root" type="tns:BlockExtensionRestrictionType" block="extension"/>
+
+</xs:schema>

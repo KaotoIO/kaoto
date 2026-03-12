@@ -109,14 +109,14 @@ export class XmlSchemaAttribute
 
   setName(name: string) {
     const fName = name;
-    if (this.isTopLevel() && this.getName() != null) {
+    if (this.isTopLevel() && fName === null) {
+      throw new Error('Top-level attributes may not be anonymous');
+    }
+    if (this.isTopLevel() && this.getName() !== null) {
       this.getParent().getAttributes().delete(this.getQName()!);
     }
     this.namedDelegate.setName(fName);
     if (this.isTopLevel()) {
-      if (fName == null) {
-        throw new Error('Top-level attributes may not be anonymous');
-      }
       this.getParent().getAttributes().set(this.getQName()!, this);
     }
   }
@@ -141,7 +141,7 @@ export class XmlSchemaAttribute
   }
 
   isRef() {
-    return this.ref.getTargetQName() != null;
+    return this.ref.getTargetQName() !== null;
   }
 
   getTargetQName() {
