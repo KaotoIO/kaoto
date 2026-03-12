@@ -25,7 +25,7 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
       <div>{children}</div>
 
       <div className="rest-tree">
-        <TreeView label="Rest DSL Configuration" active={activeNodeId}>
+        <TreeView key={entities.map((e) => e.id).join('-')} label="Rest DSL Configuration" active={activeNodeId}>
           {restTreeNodes.map((node) => {
             const nodeId = getNodeId(node.entityId, node.modelPath);
             return (

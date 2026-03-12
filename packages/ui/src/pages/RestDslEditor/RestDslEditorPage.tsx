@@ -45,8 +45,8 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   const handleAddRest = useCallback(() => {
     const newId = camelResource.addNewEntity(EntityType.Rest);
-    updateEntitiesFromCamelResource();
     setSelectedElement({ modelPath: 'rest', entityId: newId });
+    updateEntitiesFromCamelResource();
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   const handleAddMethod: RestTreeToolbarProps['onAddMethod'] = useCallback(
@@ -69,8 +69,8 @@ export const RestDslEditorPage: FunctionComponent = () => {
         },
       });
 
-      updateEntitiesFromCamelResource();
       setSelectedElement({ entityId: selectedEntity.id, modelPath: `rest.${model.method}.${methodsArray.length - 1}` });
+      updateEntitiesFromCamelResource();
     },
     [selectedEntity, updateEntitiesFromCamelResource],
   );
@@ -86,8 +86,8 @@ export const RestDslEditorPage: FunctionComponent = () => {
       selectedEntity.removeStep(selectedElement.modelPath);
     }
 
-    updateEntitiesFromCamelResource();
     setSelectedElement(undefined);
+    updateEntitiesFromCamelResource();
   }, [selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
 
   return (

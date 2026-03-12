@@ -23,7 +23,12 @@ describe('MethodBadge', () => {
     expect(screen.getByText('DELETE')).toBeInTheDocument();
   });
 
-  it('renders unknown type uppercased with gray when type is not get/post/put/delete', () => {
+  it('renders HEAD with teal type when type is head', () => {
+    render(<MethodBadge type="head" />);
+    expect(screen.getByText('HEAD')).toBeInTheDocument();
+  });
+
+  it('renders unknown type uppercased with gray when type is not get/post/put/delete/head', () => {
     render(<MethodBadge type="patch" />);
     expect(screen.getByText('PATCH')).toBeInTheDocument();
   });
