@@ -1,0 +1,64 @@
+/*
+ * Container mapping line style matrix:
+ *
+ *   Type             | Style                     | Width  | Unselected | Selected
+ *   -----------------|---------------------------|--------|------------|----------
+ *   copy-of          | double line (solid)       | 2px×2  | #3c3f42    | brand blue
+ *   complete         | almost-connected 20,5,5,5 | 3px    | #3c3f42    | brand blue
+ *   regular          | solid                     | 2px    | gray       | brand blue
+ *   partial          | short-dash 5,3            | 2px    | gray       | brand blue
+ *   out-of-view      | dotted 0.1,4              | 1px    | #b8bbbe    | #73bcf7
+ *
+ * Double-line rendering for copy-of is handled in TSX (two offset <path> elements).
+ * Exact values are adjustable here without touching component code.
+ */
+
+.dm-link {
+  fill: none;
+  stroke-linecap: round;
+
+  &--copy-of            { stroke: #3c3f42; stroke-width: 2; }
+  &--copy-of-selected   { stroke: var(--pf-t--global--border--color--brand--default); stroke-width: 2; }
+
+  &--complete           { stroke: #3c3f42; stroke-width: 3; stroke-dasharray: 20 5 5 5; }
+  &--complete-selected  { stroke: var(--pf-t--global--border--color--brand--default); stroke-width: 3; stroke-dasharray: 20 5 5 5; }
+
+  &--regular            { stroke: gray; stroke-width: 2; }
+  &--regular-selected   { stroke: var(--pf-t--global--border--color--brand--default); stroke-width: 2; }
+
+  &--partial            { stroke: gray; stroke-width: 2; stroke-dasharray: 5 3; }
+  &--partial-selected   { stroke: var(--pf-t--global--border--color--brand--default); stroke-width: 2; stroke-dasharray: 5 3; }
+
+  &--out-of-view        { stroke: #b8bbbe; stroke-width: 1; stroke-dasharray: 0.1 4; }
+  &--out-of-view-selected { stroke: #73bcf7; stroke-width: 1; stroke-dasharray: 0.1 4; }
+}
+
+.dm-link-dot {
+  &--copy-of            { fill: #3c3f42; }
+  &--copy-of-selected   { fill: var(--pf-t--global--border--color--brand--default); }
+
+  &--complete           { fill: #3c3f42; }
+  &--complete-selected  { fill: var(--pf-t--global--border--color--brand--default); }
+
+  &--regular            { fill: gray; }
+  &--regular-selected   { fill: var(--pf-t--global--border--color--brand--default); }
+
+  &--partial            { fill: gray; }
+  &--partial-selected   { fill: var(--pf-t--global--border--color--brand--default); }
+
+  &--out-of-view        { fill: #b8bbbe; }
+  &--out-of-view-selected { fill: #73bcf7; }
+}
+
+.node__target__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 0;
+  align-items: center;
+
+  .pf-v6-c-button {
+    height: 1.75rem;
+    min-width: auto;
+    padding: 0 0.25rem;
+  }
+}
