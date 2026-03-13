@@ -21,6 +21,7 @@ import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMe
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { NodeData } from '../models/datamapper';
+import { VisualizationService } from '../services/visualization.service';
 import { DnDHandler } from './dnd/DnDHandler';
 
 /** Type for tracking which side (source/target) is currently active during drag operations */
@@ -190,7 +191,7 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
     };
   }, [props.handler, activeData]);
 
-  const draggingLabel = activeData?.current?.title ? activeData.current.title : 'dragging...';
+  const draggingLabel = activeData?.current ? VisualizationService.createNodeTitle(activeData.current) : 'dragging...';
   return (
     <DataMapperDndContext.Provider value={handler}>
       <DndContext

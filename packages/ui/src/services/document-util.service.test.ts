@@ -6,7 +6,6 @@ import {
   PrimitiveDocument,
   Types,
 } from '../models/datamapper';
-import { IField } from '../models/datamapper/document';
 import { DocumentTree } from '../models/datamapper/document-tree';
 import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
@@ -1536,29 +1535,6 @@ describe('DocumentUtilService', () => {
       expect(() => {
         DocumentUtilService.invalidateDescendants(doc, '/ns0:ShipOrder');
       }).not.toThrow();
-    });
-  });
-
-  describe('formatChoiceDisplayName()', () => {
-    it('should format with member names', () => {
-      expect(DocumentUtilService.formatChoiceDisplayName([{ name: 'email' }, { name: 'phone' }] as IField[])).toEqual(
-        'choice (email | phone)',
-      );
-    });
-
-    it('should return "choice (empty)" when members array is empty', () => {
-      expect(DocumentUtilService.formatChoiceDisplayName([])).toEqual('choice (empty)');
-    });
-
-    it('should return "choice (empty)" when members is undefined', () => {
-      expect(DocumentUtilService.formatChoiceDisplayName()).toEqual('choice (empty)');
-    });
-
-    it('should truncate long member lists', () => {
-      const longMembers = Array.from({ length: 20 }, (_, i) => ({ name: `VeryLongMemberName${i}` })) as IField[];
-      const result = DocumentUtilService.formatChoiceDisplayName(longMembers);
-      expect(result).toContain('...');
-      expect(result).toMatch(/^choice \(.+\.\.\.\)$/);
     });
   });
 

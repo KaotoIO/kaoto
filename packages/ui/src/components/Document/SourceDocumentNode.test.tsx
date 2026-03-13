@@ -6,7 +6,6 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
-  IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
@@ -14,7 +13,6 @@ import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { ChoiceFieldNodeData, DocumentNodeData } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DocumentUtilService } from '../../services/document-util.service';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -180,7 +178,7 @@ describe('SourceDocumentNode', () => {
     const choiceField = {
       ...baseField,
       name: 'choice',
-      displayName: DocumentUtilService.formatChoiceDisplayName(memberFields as unknown as IField[]),
+      displayName: 'choice',
       isChoice: true,
       fields: memberFields,
     } as unknown as typeof baseField;

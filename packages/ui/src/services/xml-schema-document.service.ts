@@ -13,7 +13,6 @@ import {
   XmlSchemaAttributeGroupRef,
   XmlSchemaAttributeOrGroupRef,
   XmlSchemaChoice,
-  XmlSchemaChoiceMember,
   XmlSchemaCollection,
   XmlSchemaComplexContentExtension,
   XmlSchemaComplexContentRestriction,
@@ -734,15 +733,45 @@ export class XmlSchemaDocumentService {
     if (groupParticle == null) {
       return;
     }
-    if (groupParticle instanceof XmlSchemaChoice || groupParticle instanceof XmlSchemaSequence) {
+    if (groupParticle instanceof XmlSchemaChoice) {
+      XmlSchemaDocumentService.populateChoice(parent, fields, groupParticle, visitedGroupRefs);
+    } else if (groupParticle instanceof XmlSchemaSequence) {
       for (const member of groupParticle.getItems()) {
-        XmlSchemaDocumentService.populateSequenceOrChoiceMember(parent, fields, member, visitedGroupRefs);
+        XmlSchemaDocumentService.populateSequenceMember(parent, fields, member, visitedGroupRefs);
       }
     } else if (groupParticle instanceof XmlSchemaAll) {
       for (const member of groupParticle.getItems()) {
         XmlSchemaDocumentService.populateAllMember(parent, fields, member, visitedGroupRefs);
       }
     }
+  }
+
+  /**
+   * Creates a choice wrapper {@link XmlSchemaField} with {@link XmlSchemaField.isChoice} set to true,
+   * preserving minOccurs/maxOccurs from the xs:choice particle, and populates its children
+   * from the choice's member items. The `{choice:N}` path index is derived at runtime by
+   * {@link SchemaPathService.getChoiceSiblingIndex} from the field's position among sibling
+   * isChoice fields — no explicit index is stored on the field.
+   */
+  private static populateChoice(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    choice: XmlSchemaChoice,
+    visitedGroupRefs?: Set<string>,
+  ) {
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const choiceField = new XmlSchemaField(parent, '__choice__', false);
+    choiceField.isChoice = true;
+    choiceField.minOccurs = choice.getMinOccurs();
+    choiceField.maxOccurs = choice.getMaxOccurs();
+    choiceField.minOccursExplicit = choice.isMinOccursExplicit();
+    choiceField.maxOccursExplicit = choice.isMaxOccursExplicit();
+    fields.push(choiceField);
+    ownerDoc.totalFieldCount++;
+    for (const member of choice.getItems()) {
+      XmlSchemaDocumentService.populateSequenceMember(choiceField, choiceField.fields, member, visitedGroupRefs);
+    }
+    choiceField.displayName = 'choice';
   }
 
   private static populateGroupRef(
@@ -768,10 +797,10 @@ export class XmlSchemaDocumentService {
     visitedGroupRefs.delete(key);
   }
 
-  private static populateSequenceOrChoiceMember(
+  private static populateSequenceMember(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
-    member: XmlSchemaSequenceMember | XmlSchemaChoiceMember,
+    member: XmlSchemaSequenceMember,
     visitedGroupRefs?: Set<string>,
   ) {
     if (member instanceof XmlSchemaGroupRef) {
