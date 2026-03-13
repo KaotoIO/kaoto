@@ -23,18 +23,18 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
-      if (!selectedEntity) return;
+      if (!selectedElement || !selectedEntity) return;
 
       let updatedValue = value;
       if (typeof value === 'string' && value.trim() === '') {
         updatedValue = undefined;
       }
 
-      const fullPath = `${selectedEntity.getRootPath()}.${path}`;
+      const fullPath = `${selectedElement.modelPath}.${path}`;
       selectedEntity.updateModel(fullPath, updatedValue);
       updateEntitiesFromCamelResource();
     },
-    [selectedEntity, updateEntitiesFromCamelResource],
+    [selectedElement, selectedEntity, updateEntitiesFromCamelResource],
   );
 
   const handleAddRestConfiguration = useCallback(() => {
