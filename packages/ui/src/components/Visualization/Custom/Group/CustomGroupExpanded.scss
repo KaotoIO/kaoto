@@ -79,19 +79,19 @@
       }
 
       &__dropTarget-right {
-        border-right: var(--custom-group-border-dropTarget);
+        border-right: var(--custom-component-border-dropTarget);
       }
 
       &__dropTarget-left {
-        border-left: var(--custom-group-border-dropTarget);
+        border-left: var(--custom-component-border-dropTarget);
       }
 
       &__possibleDropTarget-right {
-        border-right: var(--custom-group-border-possibleDropTarget);
+        border-right: var(--custom-component-border-possibleDropTarget);
       }
 
       &__possibleDropTarget-left {
-        border-left: var(--custom-group-border-possibleDropTarget);
+        border-left: var(--custom-component-border-possibleDropTarget);
       }
     }
 

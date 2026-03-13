@@ -10,6 +10,24 @@
       flex-flow: column nowrap;
       justify-content: space-around;
 
+      &__dropTarget-right {
+        border-right: var(--custom-component-border-dropTarget);
+        border-radius: var(--custom-node-BorderRadius);
+      }
+
+      &__dropTarget-left {
+        border-left: var(--custom-component-border-dropTarget);
+        border-radius: var(--custom-node-BorderRadius);
+      }
+
+      &__possibleDropTarget-right {
+        border-right: var(--custom-component-border-possibleDropTarget);
+      }
+
+      &__possibleDropTarget-left {
+        border-left: var(--custom-component-border-possibleDropTarget);
+      }
+
       &__draggable {
         @include dnd.cursor-grab;
       }

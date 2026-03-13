@@ -39,7 +39,7 @@ import { IconResolver } from '../../../IconResolver';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
-import { canDragGroup, GROUP_DRAG_TYPE } from '../customComponentUtils';
+import { canDragGroup, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from '../Node/CustomNodeUtils';
@@ -120,10 +120,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       GraphElementProps
     > = useMemo(
       () => ({
-        accept: [GROUP_DRAG_TYPE],
+        accept: [NODE_DRAG_TYPE, GROUP_DRAG_TYPE],
         canDrop: (item, _monitor, _props) => {
           // Ensure that the node is not dropped onto itself
-          if (item === element) return false;
+          if ((item as Node) === element) return false;
 
           return checkNodeDropCompatibility(
             item.getData()?.vizNode,
@@ -139,6 +139,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           );
         },
         drop: (_item, monitor, _props) => {
+          // if (monitor.getItemType() === NODE_DRAG_TYPE) {
+          //   return element;
+          // }
           if (monitor.isOver({ shallow: true })) {
             return element;
           }
@@ -146,6 +149,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
         collect: (monitor) => ({
           droppable: monitor.isDragging(),
           hover: monitor.isOver({ shallow: true }),
+          // hover: monitor.getItemType() === NODE_DRAG_TYPE ? monitor.isOver() : monitor.isOver({ shallow: true }),
           canDrop: monitor.canDrop(),
         }),
       }),

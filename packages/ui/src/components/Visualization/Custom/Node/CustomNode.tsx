@@ -44,7 +44,7 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
-import { checkNodeDropCompatibility, handleValidNodeDrop } from './CustomNodeUtils';
+import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -158,7 +158,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       DragObjectWithType,
       DragSpecOperationType<EditableDragOperationType>,
       GraphElement,
-      { node: GraphElement | undefined },
+      object,
       GraphElementProps
     > = useMemo(
       () => ({
@@ -174,9 +174,6 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             element.getGraph().layout();
           }
         },
-        collect: (monitor) => ({
-          node: monitor.getItem(),
-        }),
       }),
       [canDragNode, element, entitiesContext, nodeInteractionAddonContext],
     );
@@ -194,7 +191,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       GraphElementProps
     > = useMemo(
       () => ({
-        accept: [NODE_DRAG_TYPE],
+        accept: [NODE_DRAG_TYPE, GROUP_DRAG_TYPE],
         canDrop: (item, _monitor, _props) => {
           const targetNode = element;
           const draggedNode = item as Node;
@@ -226,10 +223,10 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       [element, vizNode, entitiesContext, catalogModalContext],
     );
 
-    const [dragNodeProps, dragNodeRef] = useDragNode(nodeDragSourceSpec);
+    const [_dragNodeProps, dragNodeRef] = useDragNode(nodeDragSourceSpec);
     const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
     const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragNodeRef);
-    const isDraggingNode = dragNodeProps.node?.getId() === element.getId();
+    const isDraggingNode = dndDropProps.dragItem?.getId() === element.getId();
     const isDraggingNodeType = dndDropProps.dragItemType === NODE_DRAG_TYPE;
     const isDraggingGroupType = dndDropProps.dragItemType === GROUP_DRAG_TYPE;
     const draggedVizNode = dndDropProps.dragItem?.getData().vizNode;
@@ -248,6 +245,11 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const toolbarWidth = CanvasDefaults.STEP_TOOLBAR_WIDTH;
     const toolbarX = (box.width - toolbarWidth) / 2;
     const toolbarY = CanvasDefaults.STEP_TOOLBAR_HEIGHT * -1;
+
+    let dropDirection: 'forward' | 'backward' | null = null;
+    if (dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode) {
+      dropDirection = getNodeDragAndDropDirection(draggedVizNode, vizNode, false);
+    }
 
     return (
       <Layer id={isDraggingWithinGroup ? TOP_LAYER : DEFAULT_LAYER} data-lastupdate={lastUpdate}>
@@ -271,13 +273,13 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               width={box.width}
               height={box.height}
               dataNodelabel={label}
-              foreignObjectRef={dndDropRef}
+              foreignObjectRef={isDraggingNode ? null : dndDropRef}
               dataTestId={vizNode.id}
               containerClassNames={{
-                'custom-node__container__dropTarget':
-                  dndDropProps.droppable && dndDropProps.canDrop && dndDropProps.hover,
-                'custom-node__container__possibleDropTargets':
-                  dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
+                'custom-node__container__dropTarget-right': dropDirection === 'forward' && dndDropProps.hover,
+                'custom-node__container__dropTarget-left': dropDirection === 'backward' && dndDropProps.hover,
+                'custom-node__container__possibleDropTarget-right': dropDirection === 'forward' && !dndDropProps.hover,
+                'custom-node__container__possibleDropTarget-left': dropDirection === 'backward' && !dndDropProps.hover,
                 'custom-node__container__draggable': canDragNode,
                 'custom-node__container__draggedNode': isDraggedNode,
               }}
