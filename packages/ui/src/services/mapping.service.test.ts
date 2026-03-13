@@ -286,6 +286,20 @@ describe('MappingService', () => {
       expect(tree.children[0].children[0]).toBe(paramForEach);
       expect(paramForEach.children[0].children.length).toEqual(3);
     });
+
+    it('should handle XPath extractFieldPaths throwing in hasStaleSourceDocument', () => {
+      const consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+      const extractSpy = jest.spyOn(XPathService, 'extractFieldPaths').mockImplementation(() => {
+        throw new Error('Unexpected XPath error');
+      });
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY);
+
+      expect(consoleSpy).toHaveBeenCalledWith('XPath field path extraction failed:', expect.any(Error));
+
+      consoleSpy.mockRestore();
+      extractSpy.mockRestore();
+    });
   });
 
   describe('renameParameterInMappings()', () => {
@@ -567,6 +581,43 @@ describe('MappingService', () => {
       expect(tree.children[0].children[0]).toBe(ifConditionItem);
       expect(ifConditionItem.expression).toEqual('invalid[[xpath]]syntax');
     });
+
+    it('should handle XPath extractFieldPaths throwing in hasStaleSourceField', () => {
+      const consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
+      const extractSpy = jest.spyOn(XPathService, 'extractFieldPaths').mockImplementation(() => {
+        throw new Error('Unexpected XPath error');
+      });
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      expect(consoleSpy).toHaveBeenCalledWith('XPath field path extraction failed:', expect.any(Error));
+
+      consoleSpy.mockRestore();
+      extractSpy.mockRestore();
+    });
+  });
+
+  describe('addIf()', () => {
+    it('should add if with mapping', () => {
+      const parent = tree.children[0];
+      const mapping = parent.children[0];
+      const childrenBefore = parent.children.length;
+      MappingService.addIf(parent, mapping);
+      expect(parent.children.length).toEqual(childrenBefore + 1);
+      const ifItem = parent.children[parent.children.length - 1];
+      expect(ifItem instanceof IfItem).toBeTruthy();
+      expect(ifItem.children[0]).toBe(mapping);
+    });
+
+    it('should add if without mapping and create value selector', () => {
+      const parent = tree.children[0];
+      const childrenBefore = parent.children.length;
+      MappingService.addIf(parent);
+      expect(parent.children.length).toEqual(childrenBefore + 1);
+      const ifItem = parent.children[parent.children.length - 1];
+      expect(ifItem instanceof IfItem).toBeTruthy();
+      expect(ifItem.children[0] instanceof ValueSelector).toBeTruthy();
+    });
   });
 
   describe('addChooseWhenOtherwise()', () => {
@@ -579,6 +630,41 @@ describe('MappingService', () => {
       expect(chooseItem instanceof ChooseItem).toBeTruthy();
       expect(chooseItem.children[0] instanceof WhenItem).toBeTruthy();
       expect(chooseItem.children[1] instanceof OtherwiseItem).toBeTruthy();
+    });
+
+    it('should add conditions without mapping', () => {
+      const parent = tree.children[0];
+      const childrenBefore = parent.children.length;
+      MappingService.addChooseWhenOtherwise(parent);
+      expect(parent.children.length).toEqual(childrenBefore + 1);
+      const chooseItem = parent.children[parent.children.length - 1];
+      expect(chooseItem instanceof ChooseItem).toBeTruthy();
+      const whenItem = chooseItem.children[0];
+      expect(whenItem instanceof WhenItem).toBeTruthy();
+      expect(whenItem.children[0] instanceof ValueSelector).toBeTruthy();
+      const otherwiseItem = chooseItem.children[1];
+      expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+      expect(otherwiseItem.children[0] instanceof ValueSelector).toBeTruthy();
+    });
+  });
+
+  describe('addWhen()', () => {
+    it('should add when with field', () => {
+      const chooseItem = new ChooseItem(tree.children[0]);
+      const field = sourceDoc.fields[0].fields[0];
+      const whenItem = MappingService.addWhen(chooseItem, undefined, field);
+      expect(whenItem instanceof WhenItem).toBeTruthy();
+      expect(whenItem.children.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('addOtherwise()', () => {
+    it('should add otherwise with field', () => {
+      const chooseItem = new ChooseItem(tree.children[0]);
+      const field = sourceDoc.fields[0].fields[0];
+      const otherwiseItem = MappingService.addOtherwise(chooseItem, undefined, field);
+      expect(otherwiseItem instanceof OtherwiseItem).toBeTruthy();
+      expect(otherwiseItem.children.length).toBeGreaterThan(0);
     });
   });
 
