@@ -5,7 +5,70 @@ import { AddStepMode, IVisualizationNode } from '../../../models/visualization/b
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from '../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContextResult } from '../../../providers';
-import { canDragGroup, canDropOnEdge } from './customComponentUtils';
+import { canDragGroup, canDropOnEdge, getDropTargetContainerClassNames } from './customComponentUtils';
+
+describe('getDropTargetContainerClassNames', () => {
+  const prefix = 'custom-node__container';
+
+  it('returns dropTarget-right true when direction is forward and hover is true', () => {
+    const result = getDropTargetContainerClassNames(prefix, 'forward', true);
+
+    expect(Object.keys(result)).toHaveLength(4);
+    expect(result[`${prefix}__dropTarget-right`]).toBe(true);
+    expect(result[`${prefix}__dropTarget-left`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-left`]).toBe(false);
+  });
+
+  it('returns possibleDropTarget-right true when direction is forward and hover is false', () => {
+    const result = getDropTargetContainerClassNames(prefix, 'forward', false);
+
+    expect(Object.keys(result)).toHaveLength(4);
+    expect(result[`${prefix}__dropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__dropTarget-left`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-right`]).toBe(true);
+    expect(result[`${prefix}__possibleDropTarget-left`]).toBe(false);
+  });
+
+  it('returns dropTarget-left true when direction is backward and hover is true', () => {
+    const result = getDropTargetContainerClassNames(prefix, 'backward', true);
+
+    expect(Object.keys(result)).toHaveLength(4);
+    expect(result[`${prefix}__dropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__dropTarget-left`]).toBe(true);
+    expect(result[`${prefix}__possibleDropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-left`]).toBe(false);
+  });
+
+  it('returns possibleDropTarget-left true when direction is backward and hover is false', () => {
+    const result = getDropTargetContainerClassNames(prefix, 'backward', false);
+
+    expect(Object.keys(result)).toHaveLength(4);
+    expect(result[`${prefix}__dropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__dropTarget-left`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-left`]).toBe(true);
+  });
+
+  it('returns all drop-target flags false when dropDirection is null', () => {
+    const result = getDropTargetContainerClassNames(prefix, null, true);
+
+    expect(Object.keys(result)).toHaveLength(4);
+    expect(result[`${prefix}__dropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__dropTarget-left`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-right`]).toBe(false);
+    expect(result[`${prefix}__possibleDropTarget-left`]).toBe(false);
+  });
+
+  it('uses a custom prefix for class names', () => {
+    const customPrefix = 'custom-group__container__';
+    const result = getDropTargetContainerClassNames(customPrefix, 'forward', true);
+
+    expect(Object.keys(result)).toHaveLength(4);
+    expect(result[`${customPrefix}__dropTarget-right`]).toBe(true);
+    expect(result).not.toHaveProperty(`${prefix}__dropTarget-right`);
+  });
+});
 
 describe('canDropOnEdge', () => {
   const getMockVizNode = (id: string): IVisualizationNode => {

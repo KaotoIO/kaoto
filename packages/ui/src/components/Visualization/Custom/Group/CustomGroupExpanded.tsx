@@ -39,7 +39,12 @@ import { IconResolver } from '../../../IconResolver';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
-import { canDragGroup, GROUP_DRAG_TYPE } from '../customComponentUtils';
+import {
+  canDragGroup,
+  getDropTargetContainerClassNames,
+  GROUP_DRAG_TYPE,
+  NODE_DRAG_TYPE,
+} from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from '../Node/CustomNodeUtils';
@@ -120,10 +125,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       GraphElementProps
     > = useMemo(
       () => ({
-        accept: [GROUP_DRAG_TYPE],
+        accept: [NODE_DRAG_TYPE, GROUP_DRAG_TYPE],
         canDrop: (item, _monitor, _props) => {
           // Ensure that the node is not dropped onto itself
-          if (item === element) return false;
+          if ((item as Node) === element) return false;
 
           return checkNodeDropCompatibility(
             item.getData()?.vizNode,
@@ -161,10 +166,15 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       element.getData().vizNode.data.path.slice(0, draggedVizNode?.data.path.length) === draggedVizNode?.data.path;
     const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragGroupRef);
 
-    let dropDirection: 'forward' | 'backward' | null = null;
-    if (dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode) {
-      dropDirection = getNodeDragAndDropDirection(draggedVizNode, groupVizNode, false);
-    }
+    const dropDirection: 'forward' | 'backward' | null =
+      dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
+        ? getNodeDragAndDropDirection(draggedVizNode, groupVizNode, false)
+        : null;
+
+    const mainContainerClassNames = {
+      [`custom-group__container__draggedGroup`]: isDraggingGroup || refreshGroup,
+      ...getDropTargetContainerClassNames('custom-group__container', dropDirection, dndDropProps.hover),
+    };
 
     const box = element.getBounds();
     if (!dndDropProps.droppable || !boxRef.current) {
@@ -199,13 +209,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           >
             <div
               data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
-              className={clsx('custom-group__container', {
-                'custom-group__container__draggedGroup': isDraggingGroup || refreshGroup,
-                'custom-group__container__dropTarget-right': dropDirection === 'forward' && dndDropProps.hover,
-                'custom-group__container__dropTarget-left': dropDirection === 'backward' && dndDropProps.hover,
-                'custom-group__container__possibleDropTarget-right': dropDirection === 'forward' && !dndDropProps.hover,
-                'custom-group__container__possibleDropTarget-left': dropDirection === 'backward' && !dndDropProps.hover,
-              })}
+              className={clsx('custom-group__container', mainContainerClassNames)}
             >
               <div className="custom-group__container__text" title={tooltipContent}>
                 {doesHaveWarnings ? (

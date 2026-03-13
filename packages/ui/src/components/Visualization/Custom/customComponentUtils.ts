@@ -7,6 +7,19 @@ import { EntitiesContextResult } from '../../../providers';
 const NODE_DRAG_TYPE = '#node#';
 const GROUP_DRAG_TYPE = '#group#';
 
+type DropDirection = 'forward' | 'backward' | null;
+
+const getDropTargetContainerClassNames = (
+  prefix: string,
+  dropDirection: DropDirection,
+  hover: boolean,
+): Record<string, boolean> => ({
+  [`${prefix}__dropTarget-right`]: dropDirection === 'forward' && hover,
+  [`${prefix}__dropTarget-left`]: dropDirection === 'backward' && hover,
+  [`${prefix}__possibleDropTarget-right`]: dropDirection === 'forward' && !hover,
+  [`${prefix}__possibleDropTarget-left`]: dropDirection === 'backward' && !hover,
+});
+
 const canDropOnEdge = (
   draggedVizNode: IVisualizationNode,
   potentialEdge: Edge<EdgeModel, unknown>,
@@ -59,4 +72,4 @@ const canDragGroup = (groupVizNode?: IVisualizationNode): boolean => {
   return true;
 };
 
-export { canDragGroup, canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE };
+export { canDragGroup, canDropOnEdge, getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE };
