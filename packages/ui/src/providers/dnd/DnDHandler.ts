@@ -2,8 +2,13 @@ import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 
+export interface DnDResult {
+  success: boolean;
+  errorMessage?: string;
+}
+
 export interface DnDHandler {
   handleDragStart(event: DragStartEvent): void;
   handleDragOver(event: DragOverEvent): void;
-  handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): void;
+  handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): DnDResult;
 }

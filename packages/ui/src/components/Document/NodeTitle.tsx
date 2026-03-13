@@ -9,11 +9,14 @@ import Repeat0Icon from '../../assets/data-mapper/field-icons/Repeat0Icon';
 import Repeat1Icon from '../../assets/data-mapper/field-icons/Repeat1Icon';
 import {
   AddMappingNodeData,
+  ChoiceFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   NodeData,
+  TargetChoiceFieldNodeData,
 } from '../../models/datamapper/visualization';
+import { VisualizationService } from '../../services/visualization.service';
 
 interface INodeTitle {
   className?: string;
@@ -23,7 +26,7 @@ interface INodeTitle {
 }
 
 export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, nodeData, isDocument }) => {
-  const title = nodeData.title;
+  const title = VisualizationService.createNodeTitle(nodeData);
   const content = (
     <span className={clsx('node-title__text', className)} data-rank={rank}>
       {title}
@@ -44,6 +47,9 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
     nodeData instanceof FieldItemNodeData ||
     nodeData instanceof AddMappingNodeData
   ) {
+    const isChoiceWrapper =
+      (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
+      !nodeData.choiceField;
     const optionalField = nodeData.field.minOccurs === 0;
     const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
     const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
@@ -67,7 +73,11 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
         }
       >
         <div className="node-title-container">
-          <span className={clsx('node-title__text', className)} data-rank={rank}>
+          {isChoiceWrapper && <Label>choice</Label>}
+          <span
+            className={clsx('node-title__text', isChoiceWrapper && 'node-title__text__choice', className)}
+            data-rank={rank}
+          >
             {title}
           </span>
           {optionalField && !repeatingField0 && (

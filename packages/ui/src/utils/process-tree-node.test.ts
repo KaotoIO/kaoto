@@ -67,7 +67,7 @@ describe('processTreeNodeToDepth', () => {
       processedNodePaths.push(treeNode.path);
     });
 
-    expect(processedNodePaths).toHaveLength(107);
+    expect(processedNodePaths).toHaveLength(100);
   });
 
   it('should not throw an error when processing beyond the DocumentTree parsed level', () => {
@@ -106,6 +106,6 @@ describe('processTreeNodeToDepth', () => {
     };
 
     expect(fn).not.toThrow();
-    expect(processedNodePaths).toHaveLength(3517);
+    expect(processedNodePaths).toHaveLength(759);
   });
 });

@@ -451,7 +451,9 @@ export class XPathService {
     answer.documentReferenceName = doc.getReferenceId(namespaceMap) || undefined;
 
     const parentAbsPath = contextPath && XPathService.toAbsolutePath(contextPath);
-    const fieldStack = DocumentUtilService.getFieldStack(source, true).reverse();
+    const fieldStack = DocumentUtilService.getFieldStack(source, true)
+      .reverse()
+      .filter((f) => !f.isChoice);
 
     if (!parentAbsPath) {
       return fieldStack.reduce((acc, field) => {

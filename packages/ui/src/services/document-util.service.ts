@@ -476,22 +476,4 @@ export class DocumentUtilService {
       }
     }
   }
-
-  /**
-   * Generates a human-readable display name for a choice compositor based on its member names.
-   * Joins member names with ' | ' and truncates to 40 characters if needed.
-   * @param choiceMembers - The member fields of the choice compositor
-   * @returns A formatted display string such as "choice (option1 | option2)"
-   */
-  static formatChoiceDisplayName(choiceMembers?: IField[]): string {
-    if (!choiceMembers || choiceMembers.length === 0) {
-      return 'choice (empty)';
-    }
-    const memberNames = choiceMembers.map((m) => m.name).join(' | ');
-    const maxLength = 40;
-    if (memberNames.length > maxLength) {
-      return `choice (${memberNames.substring(0, maxLength - 3)}...)`;
-    }
-    return `choice (${memberNames})`;
-  }
 }

@@ -81,6 +81,106 @@ describe('XmlSchemaDocumentService', () => {
     expect(fields.length > 0).toBeTruthy();
   });
 
+  it('should create a choice wrapper field for xs:choice', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'testDocument.xsd': getTestDocumentXsd(),
+      },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const testDoc = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchemaCollection)!;
+    const fields: XmlSchemaField[] = [];
+    XmlSchemaDocumentService.populateElement(document, fields, testDoc);
+
+    const testDocument = fields[0];
+    const choiceElement = testDocument.fields.find((f) => f.name === 'ChoiceElement')!;
+    expect(choiceElement).toBeDefined();
+
+    // xs:choice should create a single choice wrapper field
+    expect(choiceElement.fields.length).toEqual(1);
+    const choiceWrapper = choiceElement.fields[0];
+    expect(choiceWrapper.isChoice).toBe(true);
+    expect(choiceWrapper.name).toEqual('__choice__');
+    expect(choiceWrapper.displayName).toEqual('choice');
+
+    // Choice1, Choice2, and Group1 (xs:sequence -> Group1Element1, Group1Element2 flattened)
+    expect(choiceWrapper.fields.length).toEqual(4);
+    expect(choiceWrapper.fields.find((f) => f.name === 'Choice1')).toBeDefined();
+    expect(choiceWrapper.fields.find((f) => f.name === 'Choice2')).toBeDefined();
+    expect(choiceWrapper.fields.find((f) => f.name === 'Group1Element1')).toBeDefined();
+    expect(choiceWrapper.fields.find((f) => f.name === 'Group1Element2')).toBeDefined();
+  });
+
+  it('should preserve maxOccurs from xs:choice on the choice wrapper', () => {
+    const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="OptionA" type="xs:string"/>
+        <xs:element name="OptionB" type="xs:string"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'root.xsd': xsdContent },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const root = document.fields[0];
+    const choiceWrapper = root.fields.find((f) => f.isChoice);
+    expect(choiceWrapper).toBeDefined();
+    expect(choiceWrapper!.maxOccurs).toEqual('unbounded');
+    expect(choiceWrapper!.maxOccursExplicit).toBe(true);
+    expect(choiceWrapper!.fields.length).toEqual(2);
+  });
+
+  it('should produce two sibling choice wrappers for two sibling xs:choice compositors', () => {
+    const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element name="A1" type="xs:string"/>
+          <xs:element name="A2" type="xs:string"/>
+        </xs:choice>
+        <xs:choice>
+          <xs:element name="B1" type="xs:string"/>
+          <xs:element name="B2" type="xs:string"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'root.xsd': xsdContent },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const root = document.fields[0];
+    const choiceWrappers = root.fields.filter((f) => f.isChoice);
+    expect(choiceWrappers.length).toEqual(2);
+    expect(choiceWrappers[0].fields.find((f) => f.name === 'A1')).toBeDefined();
+    expect(choiceWrappers[0].fields.find((f) => f.name === 'A2')).toBeDefined();
+    expect(choiceWrappers[1].fields.find((f) => f.name === 'B1')).toBeDefined();
+    expect(choiceWrappers[1].fields.find((f) => f.name === 'B2')).toBeDefined();
+  });
+
   it('should parse camel-spring.xsd XML schema', () => {
     const definition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
@@ -101,7 +201,8 @@ describe('XmlSchemaDocumentService', () => {
     expect(aggregate.namedTypeFragmentRefs[0]).toEqual('{http://camel.apache.org/schema/spring}aggregateDefinition');
     const aggregateDef = document.namedTypeFragments[aggregate.namedTypeFragmentRefs[0]];
 
-    expect(aggregateDef.fields.length).toBeGreaterThanOrEqual(100);
+    // Many fields; fewer direct children now that xs:choice compositors are wrapped
+    expect(aggregateDef.fields.length).toBeGreaterThanOrEqual(30);
 
     const outputDef = document.namedTypeFragments['{http://camel.apache.org/schema/spring}output'];
     expect(outputDef).toBeDefined();
@@ -298,7 +399,8 @@ describe('XmlSchemaDocumentService', () => {
     const personType = document.namedTypeFragments[person.namedTypeFragmentRefs[0]];
     expect(personType).toBeDefined();
 
-    expect(personType.fields.length).toEqual(11);
+    // name, street, city from AddressGroup, 1 choice wrapper, createdBy, createdDate, @id, @version, @status
+    expect(personType.fields.length).toEqual(9);
 
     const nameField = personType.fields.find((f) => f.name === 'name');
     expect(nameField).toBeDefined();
@@ -308,12 +410,17 @@ describe('XmlSchemaDocumentService', () => {
     const cityField = personType.fields.find((f) => f.name === 'city');
     expect(cityField).toBeDefined();
 
-    const emailField = personType.fields.find((f) => f.name === 'email');
+    // xs:choice wraps into a choice field; ContactGroup is itself xs:choice -> nested wrapper
+    const choiceField = personType.fields.find((f) => f.isChoice);
+    expect(choiceField).toBeDefined();
+    expect(choiceField!.isChoice).toBe(true);
+    const innerChoiceField = choiceField!.fields.find((f) => f.isChoice);
+    expect(innerChoiceField).toBeDefined();
+    const emailField = innerChoiceField!.fields.find((f) => f.name === 'email');
     expect(emailField).toBeDefined();
-    const phoneField = personType.fields.find((f) => f.name === 'phone');
+    const phoneField = innerChoiceField!.fields.find((f) => f.name === 'phone');
     expect(phoneField).toBeDefined();
-
-    const faxField = personType.fields.find((f) => f.name === 'fax');
+    const faxField = choiceField!.fields.find((f) => f.name === 'fax');
     expect(faxField).toBeDefined();
 
     const createdByField = personType.fields.find((f) => f.name === 'createdBy');
@@ -1561,7 +1668,10 @@ describe('XmlSchemaDocumentService', () => {
 
     const bigContainerFragment = document.namedTypeFragments['BigContainer'];
     expect(bigContainerFragment).toBeDefined();
-    const typeA01Field = bigContainerFragment.fields.find((f) => f.name === 'TypeA01');
+    // BigContainer has xs:choice wrapping all TypeA elements
+    const choiceWrapper = bigContainerFragment.fields.find((f) => f.isChoice);
+    expect(choiceWrapper).toBeDefined();
+    const typeA01Field = choiceWrapper!.fields.find((f) => f.name === 'TypeA01');
     expect(typeA01Field).toBeDefined();
     expect(typeA01Field!.type).toEqual(Types.Container);
     expect(typeA01Field!.originalType).toEqual(Types.Container);

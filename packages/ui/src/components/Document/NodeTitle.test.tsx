@@ -10,6 +10,7 @@ import {
 } from '../../models/datamapper/document';
 import { IfItem, MappingTree } from '../../models/datamapper/mapping';
 import {
+  ChoiceFieldNodeData,
   DocumentNodeData,
   FieldNodeData,
   MappingNodeData,
@@ -183,6 +184,31 @@ describe('NodeTitle', () => {
 
     const element = screen.getByLabelText('Repeat1');
     expect(element).toBeVisible();
+  });
+
+  it('should render choice wrapper with Label badge and italic member text', () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const baseField = shipOrderDoc.fields[0];
+    const memberFields = [
+      { ...baseField, name: 'email', displayName: 'email', fields: [] },
+      { ...baseField, name: 'phone', displayName: 'phone', fields: [] },
+    ];
+    const choiceField = {
+      ...baseField,
+      name: '__choice__',
+      displayName: 'choice',
+      isChoice: true,
+      fields: memberFields,
+    } as unknown as typeof baseField;
+    const choiceNodeData = new ChoiceFieldNodeData(documentNodeData, choiceField);
+
+    render(<NodeTitle nodeData={choiceNodeData} isDocument={false} rank={0} />);
+
+    expect(screen.getByText('choice')).toBeInTheDocument();
+    const memberText = screen.getByText('(email | phone)');
+    expect(memberText).toBeInTheDocument();
+    expect(memberText).toHaveClass('node-title__text__choice');
   });
 
   it('should not display popover for MappingNodeData', async () => {
