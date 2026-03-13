@@ -39,6 +39,8 @@ describe('HiddenCanvas', () => {
   let originalCreateObjectURL: typeof URL.createObjectURL;
   let originalRevokeObjectURL: typeof URL.revokeObjectURL;
   let originalRAF: typeof globalThis.requestAnimationFrame;
+  let originalCAF: typeof globalThis.cancelAnimationFrame;
+  let originalCT: typeof globalThis.clearTimeout;
   let clickSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -48,6 +50,8 @@ describe('HiddenCanvas', () => {
     originalCreateObjectURL = URL.createObjectURL;
     originalRevokeObjectURL = URL.revokeObjectURL;
     originalRAF = globalThis.requestAnimationFrame;
+    originalCAF = globalThis.cancelAnimationFrame;
+    originalCT = globalThis.clearTimeout;
 
     URL.createObjectURL = jest.fn(() => 'blob:mock-url');
     URL.revokeObjectURL = jest.fn();
@@ -57,6 +61,8 @@ describe('HiddenCanvas', () => {
       cb(0);
       return 1;
     }) as unknown as typeof globalThis.requestAnimationFrame;
+    globalThis.cancelAnimationFrame = jest.fn();
+    globalThis.clearTimeout = jest.fn();
 
     clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation();
     mockOnComplete = jest.fn();
@@ -93,6 +99,8 @@ describe('HiddenCanvas', () => {
     URL.createObjectURL = originalCreateObjectURL;
     URL.revokeObjectURL = originalRevokeObjectURL;
     globalThis.requestAnimationFrame = originalRAF;
+    globalThis.cancelAnimationFrame = originalCAF;
+    globalThis.clearTimeout = originalCT;
     clickSpy.mockRestore();
   });
 
@@ -177,8 +185,11 @@ describe('HiddenCanvas', () => {
     });
   });
 
-  it('revokes blob URL after download', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+  it('revokes blob URL after download when autoDownload is true', async () => {
+    const createObjectURLSpy = jest.spyOn(URL, 'createObjectURL');
+    const revokeObjectURLSpy = jest.spyOn(URL, 'revokeObjectURL');
+
+    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} autoDownload />, { wrapper });
 
     act(() => {
       eventListenerCallback?.();
@@ -187,15 +198,17 @@ describe('HiddenCanvas', () => {
     });
 
     await waitFor(() => {
-      expect(URL.createObjectURL).toHaveBeenCalled();
+      expect(createObjectURLSpy).toHaveBeenCalled();
     });
 
     act(() => {
-      // Fast-forward the cleanup timer (100ms)
+      // Fast-forward the cleanup timer (150ms)
       jest.advanceTimersByTime(150);
     });
 
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url');
+    await waitFor(() => {
+      expect(revokeObjectURLSpy).toHaveBeenCalledWith('blob:mock-url');
+    });
   });
 
   it('triggers fallback timer if layout does not complete', async () => {
@@ -293,5 +306,54 @@ describe('HiddenCanvas', () => {
     unmount();
 
     expect(clearTimeoutSpy).toHaveBeenCalled();
+  });
+
+  it('calls onBlobGenerated callback with the generated blob', async () => {
+    const mockBlob = new Blob(['fake-image-data'], { type: 'image/png' });
+    (toBlob as jest.Mock).mockResolvedValue(mockBlob);
+    const mockOnBlobGenerated = jest.fn();
+
+    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} onBlobGenerated={mockOnBlobGenerated} />, {
+      wrapper,
+    });
+
+    act(() => {
+      eventListenerCallback?.();
+      jest.advanceTimersByTime(0);
+    });
+
+    await waitFor(() => {
+      expect(mockOnBlobGenerated).toHaveBeenCalledWith(mockBlob);
+    });
+  });
+
+  it('does not auto-download when autoDownload is false', async () => {
+    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} autoDownload={false} />, { wrapper });
+
+    act(() => {
+      eventListenerCallback?.();
+      jest.advanceTimersByTime(0);
+    });
+
+    await waitFor(() => {
+      expect(toBlob).toHaveBeenCalled();
+    });
+
+    expect(URL.createObjectURL).not.toHaveBeenCalled();
+    expect(clickSpy).not.toHaveBeenCalled();
+  });
+
+  it('auto-downloads when autoDownload is true', async () => {
+    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} autoDownload />, { wrapper });
+
+    act(() => {
+      eventListenerCallback?.();
+      jest.advanceTimersByTime(0);
+    });
+
+    await waitFor(() => {
+      expect(URL.createObjectURL).toHaveBeenCalled();
+      expect(clickSpy).toHaveBeenCalled();
+    });
   });
 });
