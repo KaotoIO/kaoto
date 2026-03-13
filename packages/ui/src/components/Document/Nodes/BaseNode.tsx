@@ -1,6 +1,6 @@
 import './BaseNode.scss';
 
-import { At, ChevronDown, ChevronRight, Choices, Draggable } from '@carbon/icons-react';
+import { At, ChevronDown, ChevronRight, Choices, Draggable, ValueVariable } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
@@ -23,6 +23,7 @@ interface BaseNodeProps extends IDataTestID {
   isCollectionField?: boolean;
   isChoiceField?: boolean;
   isAttributeField?: boolean;
+  isVariableNode?: boolean;
 
   /** Title node */
   title: ReactNode;
@@ -43,6 +44,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   isCollectionField,
   isChoiceField,
   isAttributeField,
+  isVariableNode,
   title,
   rank,
   isSelected,
@@ -85,6 +87,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       {isAttributeField && (
         <Icon className="node__spacer" data-testid="attribute-field-icon">
           <At />
+        </Icon>
+      )}
+      {isVariableNode && (
+        <Icon className="node__spacer" data-testid="variable-node-icon">
+          <ValueVariable />
         </Icon>
       )}
 
