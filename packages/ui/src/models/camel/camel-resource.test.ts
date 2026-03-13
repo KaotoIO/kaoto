@@ -1,9 +1,10 @@
 import { camelRouteYaml } from '../../stubs/camel-route';
+import { citrusTestYaml } from '../../stubs/citrus-test';
 import { integrationJson } from '../../stubs/integration';
 import { kameletBindingJson } from '../../stubs/kamelet-binding-route';
 import { kameletJson } from '../../stubs/kamelet-route';
 import { pipeJson } from '../../stubs/pipe';
-import { CamelRouteVisualEntity, PipeVisualEntity } from '../visualization/flows';
+import { CamelRouteVisualEntity, CitrusTestVisualEntity, PipeVisualEntity } from '../visualization/flows';
 import { CamelResourceFactory } from './camel-resource-factory';
 import { SourceSchemaType } from './source-schema-type';
 
@@ -98,5 +99,13 @@ describe('CamelResourceFactory.createCamelResource', () => {
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0] as PipeVisualEntity;
     expect(vis.pipe.spec?.source?.ref?.name).toEqual('webhook-source');
+  });
+
+  it('should create a Citrus test resource', () => {
+    const resource = CamelResourceFactory.createCamelResource(citrusTestYaml);
+    expect(resource.getType()).toEqual(SourceSchemaType.Test);
+    expect(resource.getVisualEntities().length).toEqual(1);
+    const vis = resource.getVisualEntities()[0] as CitrusTestVisualEntity;
+    expect(vis.test).toBeDefined();
   });
 });
