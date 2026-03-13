@@ -506,9 +506,6 @@ describe('RestTreeToolbar', () => {
       // Verify modal is rendered with the form
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
       expect(screen.getByText('Add REST Method')).toBeInTheDocument();
-
-      // The modal receives the onAddMethod callback prop
-      // The actual form interaction is tested in AddMethodModal.test.tsx
     });
   });
 });
