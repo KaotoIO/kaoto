@@ -4,7 +4,6 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
-  IField,
   PrimitiveDocument,
 } from '../models/datamapper/document';
 import {
@@ -42,9 +41,9 @@ import {
   getShipOrderToShipOrderInvalidForEachXslt,
   getShipOrderToShipOrderMultipleForEachXslt,
   getShipOrderToShipOrderXslt,
+  getTestDocumentXsd,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
-import { DocumentUtilService } from './document-util.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { VisualizationService } from './visualization.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
@@ -847,7 +846,8 @@ describe('VisualizationService', () => {
       expect(personField).toBeDefined();
       const personChildren = VisualizationService.generateNonDocumentNodeDataChildren(personField);
 
-      expect(personChildren.length).toEqual(11);
+      // name, street, city, choice wrapper, createdBy, createdDate, @id, @version, @status
+      expect(personChildren.length).toEqual(9);
 
       const nameField = personChildren.find((child) => child.title === 'name');
       expect(nameField).toBeDefined();
@@ -858,13 +858,22 @@ describe('VisualizationService', () => {
       const cityField = personChildren.find((child) => child.title === 'city');
       expect(cityField).toBeDefined();
 
-      const emailField = personChildren.find((child) => child.title === 'email');
+      // xs:choice is represented as a ChoiceFieldNodeData; email/phone are inside nested choice
+      const outerChoiceNode = personChildren.find(
+        (child) => child instanceof ChoiceFieldNodeData,
+      ) as ChoiceFieldNodeData;
+      expect(outerChoiceNode).toBeDefined();
+      const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerChoiceNode);
+      const innerChoiceNode = outerChoiceChildren.find(
+        (child) => child instanceof ChoiceFieldNodeData,
+      ) as ChoiceFieldNodeData;
+      expect(innerChoiceNode).toBeDefined();
+      const innerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerChoiceNode);
+      const emailField = innerChoiceChildren.find((child) => child.title === 'email');
       expect(emailField).toBeDefined();
-
-      const phoneField = personChildren.find((child) => child.title === 'phone');
+      const phoneField = innerChoiceChildren.find((child) => child.title === 'phone');
       expect(phoneField).toBeDefined();
-
-      const faxField = personChildren.find((child) => child.title === 'fax');
+      const faxField = outerChoiceChildren.find((child) => child.title === 'fax');
       expect(faxField).toBeDefined();
 
       const createdByField = personChildren.find((child) => child.title === 'createdBy');
@@ -1195,7 +1204,7 @@ describe('VisualizationService', () => {
       return {
         ...baseField,
         name: 'choice',
-        displayName: DocumentUtilService.formatChoiceDisplayName(memberFields as unknown as IField[]),
+        displayName: 'choice',
         isChoice: true,
         selectedMemberIndex,
         fields: memberFields,
@@ -1352,6 +1361,173 @@ describe('VisualizationService', () => {
         const children = VisualizationService.generateNonDocumentNodeDataChildren(choiceNode);
         expect(children.length).toEqual(2);
       });
+
+      describe('XSD integration: choice wrapper expandability from real parsed schema', () => {
+        let testDocumentChildren: ReturnType<typeof VisualizationService.generateNonDocumentNodeDataChildren>;
+
+        beforeEach(() => {
+          const definition = new DocumentDefinition(
+            DocumentType.SOURCE_BODY,
+            DocumentDefinitionType.XML_SCHEMA,
+            BODY_DOCUMENT_ID,
+            { 'testDocument.xsd': getTestDocumentXsd() },
+          );
+          const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+          const docNode = new DocumentNodeData(result.document!);
+          const docChildren = VisualizationService.generateStructuredDocumentChildren(docNode);
+          const testDocumentNode = docChildren[0];
+          testDocumentChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentNode);
+        });
+
+        it('simple choice: members from elements and group ref are shown as children in order', () => {
+          expect(testDocumentChildren[2].title).toEqual('ChoiceElement');
+          const choiceElementChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+            testDocumentChildren[2],
+          );
+          expect(choiceElementChildren.length).toEqual(1);
+          const choiceNode = choiceElementChildren[0] as ChoiceFieldNodeData;
+          expect(choiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(choiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(choiceNode)).toEqual(
+            '(Choice1 | Choice2 | Group1Element1 | Group1Element2)',
+          );
+          const members = VisualizationService.generateNonDocumentNodeDataChildren(choiceNode);
+          expect(members.length).toEqual(4);
+          expect(members[0].title).toEqual('Choice1');
+          expect(members[1].title).toEqual('Choice2');
+          expect(members[2].title).toEqual('Group1Element1');
+          expect(members[3].title).toEqual('Group1Element2');
+        });
+
+        it('sibling choices: two sibling xs:choice wrappers appear as distinct ChoiceFieldNodeData in order', () => {
+          expect(testDocumentChildren[3].title).toEqual('SiblingChoicesElement');
+          const children = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentChildren[3]);
+          expect(children.length).toEqual(2);
+          expect(children[0]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(children[0].title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(children[0] as ChoiceFieldNodeData)).toEqual('(SibA1 | SibA2)');
+          expect(children[1]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(children[1].title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(children[1] as ChoiceFieldNodeData)).toEqual('(SibB1 | SibB2)');
+          const firstMembers = VisualizationService.generateNonDocumentNodeDataChildren(
+            children[0] as ChoiceFieldNodeData,
+          );
+          expect(firstMembers.length).toEqual(2);
+          expect(firstMembers[0].title).toEqual('SibA1');
+          expect(firstMembers[1].title).toEqual('SibA2');
+          const secondMembers = VisualizationService.generateNonDocumentNodeDataChildren(
+            children[1] as ChoiceFieldNodeData,
+          );
+          expect(secondMembers.length).toEqual(2);
+          expect(secondMembers[0].title).toEqual('SibB1');
+          expect(secondMembers[1].title).toEqual('SibB2');
+        });
+
+        it('direct nested choice: inner xs:choice appears as nested ChoiceFieldNodeData in order', () => {
+          expect(testDocumentChildren[4].title).toEqual('DirectNestedChoiceElement');
+          const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentChildren[4]);
+          expect(outerChoiceChildren.length).toEqual(1);
+          const outerChoiceNode = outerChoiceChildren[0] as ChoiceFieldNodeData;
+          expect(outerChoiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(outerChoiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(outerChoiceNode)).toEqual('(Direct1 | choice)');
+          const outerMembers = VisualizationService.generateNonDocumentNodeDataChildren(outerChoiceNode);
+          expect(outerMembers.length).toEqual(2);
+          expect(outerMembers[0]).not.toBeInstanceOf(ChoiceFieldNodeData);
+          expect(outerMembers[0].title).toEqual('Direct1');
+          const innerChoiceNode = outerMembers[1] as ChoiceFieldNodeData;
+          expect(innerChoiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(innerChoiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(innerChoiceNode)).toEqual('(NestedDirect1 | NestedDirect2)');
+          const innerMembers = VisualizationService.generateNonDocumentNodeDataChildren(innerChoiceNode);
+          expect(innerMembers.length).toEqual(2);
+          expect(innerMembers[0].title).toEqual('NestedDirect1');
+          expect(innerMembers[1].title).toEqual('NestedDirect2');
+        });
+
+        it('multiple nested choices: outer title uses numbered suffixes without truncation', () => {
+          expect(testDocumentChildren[5].title).toEqual('MultipleNestedChoicesElement');
+          const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentChildren[5]);
+          expect(outerChoiceChildren.length).toEqual(1);
+          const outerChoiceNode = outerChoiceChildren[0] as ChoiceFieldNodeData;
+          expect(outerChoiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(outerChoiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(outerChoiceNode)).toEqual('(choice1 | choice2)');
+          const outerMembers = VisualizationService.generateNonDocumentNodeDataChildren(outerChoiceNode);
+          expect(outerMembers.length).toEqual(2);
+          const innerChoiceA = outerMembers[0] as ChoiceFieldNodeData;
+          expect(innerChoiceA).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(innerChoiceA.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(innerChoiceA)).toEqual('(InnerA1 | InnerA2)');
+          const innerChoiceB = outerMembers[1] as ChoiceFieldNodeData;
+          expect(innerChoiceB).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(innerChoiceB.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(innerChoiceB)).toEqual('(InnerB1 | InnerB2)');
+          const innerAMembers = VisualizationService.generateNonDocumentNodeDataChildren(innerChoiceA);
+          expect(innerAMembers.length).toEqual(2);
+          expect(innerAMembers[0].title).toEqual('InnerA1');
+          expect(innerAMembers[1].title).toEqual('InnerA2');
+          const innerBMembers = VisualizationService.generateNonDocumentNodeDataChildren(innerChoiceB);
+          expect(innerBMembers.length).toEqual(2);
+          expect(innerBMembers[0].title).toEqual('InnerB1');
+          expect(innerBMembers[1].title).toEqual('InnerB2');
+        });
+
+        it('too many nested choices: outer title is truncated with numbered suffixes', () => {
+          expect(testDocumentChildren[6].title).toEqual('TooManyNestedChoicesElement');
+          const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentChildren[6]);
+          expect(outerChoiceChildren.length).toEqual(1);
+          const outerChoiceNode = outerChoiceChildren[0] as ChoiceFieldNodeData;
+          expect(outerChoiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(outerChoiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(outerChoiceNode)).toEqual(
+            '(choice1 | choice2 | choice3 | choice4 | choice5)',
+          );
+          const outerMembers = VisualizationService.generateNonDocumentNodeDataChildren(outerChoiceNode);
+          expect(outerMembers.length).toEqual(5);
+          const innerChoices = outerMembers as ChoiceFieldNodeData[];
+          expect(innerChoices[0]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(VisualizationService.createNodeTitle(innerChoices[0])).toEqual('(InnerA1 | InnerA2)');
+          expect(innerChoices[1]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(VisualizationService.createNodeTitle(innerChoices[1])).toEqual('(InnerB1 | InnerB2)');
+          expect(innerChoices[2]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(VisualizationService.createNodeTitle(innerChoices[2])).toEqual('(InnerC1 | InnerC2)');
+          expect(innerChoices[3]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(VisualizationService.createNodeTitle(innerChoices[3])).toEqual('(InnerD1 | InnerD2)');
+          expect(innerChoices[4]).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(VisualizationService.createNodeTitle(innerChoices[4])).toEqual('(InnerE1 | InnerE2)');
+          const innerAMembers = VisualizationService.generateNonDocumentNodeDataChildren(innerChoices[0]);
+          expect(innerAMembers.length).toEqual(2);
+          expect(innerAMembers[0].title).toEqual('InnerA1');
+          expect(innerAMembers[1].title).toEqual('InnerA2');
+          const innerEMembers = VisualizationService.generateNonDocumentNodeDataChildren(innerChoices[4]);
+          expect(innerEMembers.length).toEqual(2);
+          expect(innerEMembers[0].title).toEqual('InnerE1');
+          expect(innerEMembers[1].title).toEqual('InnerE2');
+        });
+
+        it('indirect nested choice via group ref: group xs:choice appears as nested ChoiceFieldNodeData in order', () => {
+          expect(testDocumentChildren[7].title).toEqual('IndirectNestedChoiceElement');
+          const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentChildren[7]);
+          expect(outerChoiceChildren.length).toEqual(1);
+          const outerChoiceNode = outerChoiceChildren[0] as ChoiceFieldNodeData;
+          expect(outerChoiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(outerChoiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(outerChoiceNode)).toEqual('(Indirect1 | choice)');
+          const outerMembers = VisualizationService.generateNonDocumentNodeDataChildren(outerChoiceNode);
+          expect(outerMembers.length).toEqual(2);
+          expect(outerMembers[0]).not.toBeInstanceOf(ChoiceFieldNodeData);
+          expect(outerMembers[0].title).toEqual('Indirect1');
+          const innerChoiceNode = outerMembers[1] as ChoiceFieldNodeData;
+          expect(innerChoiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+          expect(innerChoiceNode.title).toEqual('choice');
+          expect(VisualizationService.createNodeTitle(innerChoiceNode)).toEqual('(ChoiceGroupEl1 | ChoiceGroupEl2)');
+          const innerMembers = VisualizationService.generateNonDocumentNodeDataChildren(innerChoiceNode);
+          expect(innerMembers.length).toEqual(2);
+          expect(innerMembers[0].title).toEqual('ChoiceGroupEl1');
+          expect(innerMembers[1].title).toEqual('ChoiceGroupEl2');
+        });
+      });
     });
 
     describe('nested choice fields', () => {
@@ -1364,7 +1540,7 @@ describe('VisualizationService', () => {
         const innerChoice = {
           ...baseField,
           name: 'choice',
-          displayName: DocumentUtilService.formatChoiceDisplayName(innerMembers as unknown as IField[]),
+          displayName: 'choice',
           isChoice: true,
           fields: innerMembers,
           selectedMemberIndex: innerSelectedIndex,
@@ -1380,7 +1556,7 @@ describe('VisualizationService', () => {
         const outerChoice = {
           ...baseField,
           name: 'choice',
-          displayName: DocumentUtilService.formatChoiceDisplayName(outerMembers as unknown as IField[]),
+          displayName: 'choice',
           isChoice: true,
           fields: outerMembers,
           selectedMemberIndex: outerSelectedIndex,
@@ -1504,6 +1680,78 @@ describe('VisualizationService', () => {
         expect(outerMembers.length).toEqual(2);
         expect(outerMembers[0]).toBeInstanceOf(ChoiceFieldNodeData);
         expect(outerMembers[1].title).toEqual('regularField');
+      });
+    });
+
+    describe('getChoiceMemberLabel', () => {
+      it('should return member names joined with | in parentheses', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }, { name: 'fax' }]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(email | phone | fax)');
+      });
+
+      it('should return "(empty)" for a choice with no members', () => {
+        const choiceField = createMockChoiceField([]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(empty)');
+      });
+
+      it('should label a single nested choice member as "choice"', () => {
+        const baseField = sourceDoc.fields[0];
+        const innerChoice = { ...baseField, name: 'choice', displayName: 'choice', isChoice: true, fields: [] };
+        const choiceField = {
+          ...baseField,
+          name: 'choice',
+          displayName: 'choice',
+          isChoice: true,
+          fields: [innerChoice, { ...baseField, name: 'direct', displayName: 'direct', isChoice: false, fields: [] }],
+        } as unknown as typeof baseField;
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(choice | direct)');
+      });
+
+      it('should distinguish multiple nested choices with numbered labels', () => {
+        const baseField = sourceDoc.fields[0];
+        const inner1 = { ...baseField, name: 'choice', displayName: 'choice', isChoice: true, fields: [] };
+        const inner2 = { ...baseField, name: 'choice', displayName: 'choice', isChoice: true, fields: [] };
+        const choiceField = {
+          ...baseField,
+          name: 'choice',
+          displayName: 'choice',
+          isChoice: true,
+          fields: [inner1, inner2],
+        } as unknown as typeof baseField;
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(choice1 | choice2)');
+      });
+    });
+
+    describe('createNodeTitle', () => {
+      it('should return member label for unselected choice wrapper (no choiceField)', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+        const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+        expect(VisualizationService.createNodeTitle(choiceNode)).toEqual('(email | phone)');
+      });
+
+      it('should return nodeData.title for selected choice member (choiceField set)', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 0);
+        const parentField = { ...sourceDoc.fields[0], fields: [choiceField] };
+        const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+        const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+        const selectedNode = children[0] as ChoiceFieldNodeData;
+        expect(selectedNode.choiceField).toBeDefined();
+        expect(VisualizationService.createNodeTitle(selectedNode)).toEqual('email');
+      });
+
+      it('should return nodeData.title for regular FieldNodeData', () => {
+        const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+        expect(VisualizationService.createNodeTitle(fieldNode)).toEqual(fieldNode.title);
+      });
+
+      it('should return member label for unselected TargetChoiceFieldNodeData', () => {
+        const choiceField = createMockChoiceField([{ name: 'a' }, { name: 'b' }]);
+        const choiceNode = new TargetChoiceFieldNodeData(targetDocNode, choiceField);
+        expect(VisualizationService.createNodeTitle(choiceNode)).toEqual('(a | b)');
       });
     });
 

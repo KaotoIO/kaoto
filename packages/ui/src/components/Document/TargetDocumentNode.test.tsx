@@ -6,7 +6,6 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
-  IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
@@ -19,7 +18,6 @@ import {
 } from '../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { DataMapperCanvasProvider } from '../../providers/datamapper-canvas.provider';
-import { DocumentUtilService } from '../../services/document-util.service';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -172,7 +170,7 @@ describe('TargetDocumentNode', () => {
     const choiceField = {
       ...baseField,
       name: 'choice',
-      displayName: DocumentUtilService.formatChoiceDisplayName(memberFields as unknown as IField[]),
+      displayName: 'choice',
       isChoice: true,
       fields: memberFields,
     } as unknown as typeof baseField;
