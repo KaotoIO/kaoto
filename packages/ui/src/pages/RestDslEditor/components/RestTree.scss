@@ -1,0 +1,17 @@
+// Carbon's _treeview.scss gives leaf nodes with icon less padding on the <li> than
+// leaf nodes without icon ($spacing-07 vs $spacing-08), so verb rows appear left-aligned.
+// Override so leaf-with-icon uses the same padding as leaf-without-icon.
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.rest-tree {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .cds--tree-leaf-node.cds--tree-node--with-icon {
+    padding-inline-start: $spacing-08 !important;
+  }
+
+  &__label-unspecified {
+    font-style: italic;
+    color: $text-error;
+  }
+}

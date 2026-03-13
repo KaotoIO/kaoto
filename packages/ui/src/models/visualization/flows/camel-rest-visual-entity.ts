@@ -8,7 +8,12 @@ import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
-import { REST_DSL_VERBS, REST_ELEMENT_NAME, SPECIAL_PROCESSORS_PARENTS_MAP } from '../../special-processors.constants';
+import {
+  REST_DSL_VERBS,
+  REST_ELEMENT_NAME,
+  RestMethods,
+  SPECIAL_PROCESSORS_PARENTS_MAP,
+} from '../../special-processors.constants';
 import {
   AddStepMode,
   BaseVisualCamelEntity,
@@ -24,7 +29,6 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   id: string;
   readonly type = EntityType.Rest;
   static readonly ROOT_PATH = 'rest';
-  private static readonly OMIT_FIELDS = [...REST_DSL_VERBS, 'uri'];
 
   constructor(public restDef: { rest: Rest } = { rest: {} }) {
     super(restDef);
@@ -76,7 +80,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
 
     /** If we're targetting a Rest method, the path would be `rest.get.0` */
     const pathSegments = path?.split('.') ?? [];
-    const method = pathSegments[1] ?? '';
+    const method = (pathSegments[1] ?? '') as RestMethods;
     if (pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
       return CamelCatalogService.getComponent(CatalogKind.Pattern, method)?.propertiesSchema ?? {};
     }
@@ -91,16 +95,12 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
 
     /** If we're targetting a Rest method, the path would be `rest.get.0` */
     const pathSegments = path?.split('.') ?? [];
-    const method = pathSegments[1] ?? '';
+    const method = (pathSegments[1] ?? '') as RestMethods;
     if (isDefined(path) && pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
       return { ...getValue(this.restDef, path) };
     }
 
     return super.getNodeDefinition(path);
-  }
-
-  getOmitFormFields(): string[] {
-    return CamelRestVisualEntity.OMIT_FIELDS;
   }
 
   updateModel(path: string | undefined, value: unknown): void {

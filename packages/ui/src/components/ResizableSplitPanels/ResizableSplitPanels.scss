@@ -1,7 +1,7 @@
 .resizable-split-panels {
   // CSS custom properties as single source of truth for handle dimensions
   --resize-handle-width: 20px;
-  --resize-handle-margin: 20px;
+  --resize-handle-margin: 10px;
   --resize-handle-border-width: 1px;
 
   display: flex;
@@ -25,6 +25,7 @@
     cursor: col-resize;
     position: relative;
     margin-right: var(--resize-handle-margin);
+    margin-left: var(--resize-handle-margin);
     border-left: var(--resize-handle-border-width) solid rgb(0 0 0 / 10%);
     border-right: var(--resize-handle-border-width) solid rgb(0 0 0 / 10%);
 

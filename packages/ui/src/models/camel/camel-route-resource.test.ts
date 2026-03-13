@@ -494,12 +494,6 @@ describe('CamelRouteResource', () => {
           expect.objectContaining({ name: EntityType.ErrorHandler }),
         ]),
       );
-      expect(entityList.groups['Rest']).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ name: EntityType.RestConfiguration }),
-          expect.objectContaining({ name: EntityType.Rest }),
-        ]),
-      );
     });
 
     it('should filter out YAML-only entities for XML serializer', () => {
@@ -576,7 +570,6 @@ describe('CamelRouteResource', () => {
       // Check that entities are properly grouped
       expect(entityList.groups).toHaveProperty('Configuration');
       expect(entityList.groups).toHaveProperty('Error Handling');
-      expect(entityList.groups).toHaveProperty('Rest');
 
       // Route should be in common (empty group)
       expect(entityList.common).toEqual([expect.objectContaining({ name: EntityType.Route })]);

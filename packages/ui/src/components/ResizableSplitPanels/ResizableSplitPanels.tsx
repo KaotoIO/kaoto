@@ -28,6 +28,7 @@ const getGapPercent = (container: HTMLElement | null, handle: HTMLElement | null
   const gapPx =
     (Number.parseFloat(styles.width) || 0) +
     (Number.parseFloat(styles.marginRight) || 0) +
+    (Number.parseFloat(styles.marginLeft) || 0) +
     (Number.parseFloat(styles.borderLeftWidth) || 0) +
     (Number.parseFloat(styles.borderRightWidth) || 0);
 

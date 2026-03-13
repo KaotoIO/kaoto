@@ -1,0 +1,5 @@
+// Fixed width so all verb icons (GET, POST, DELETE, etc.) take the same space in the tree node
+.method-badge {
+  display: inline-flex;
+  min-width: 4.5rem;
+}
