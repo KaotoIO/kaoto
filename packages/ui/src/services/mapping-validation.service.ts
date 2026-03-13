@@ -62,7 +62,10 @@ export class MappingValidationService {
     const sourceNode = (fromNode.isSource ? fromNode : toNode) as SourceNodeDataType;
     const targetNode = (fromNode.isSource ? toNode : fromNode) as TargetNodeData;
 
-    if (targetNode instanceof MappingNodeData || targetNode instanceof TargetDocumentNodeData) {
+    if (targetNode instanceof TargetDocumentNodeData) {
+      return { isValid: true, sourceNode, targetNode };
+    }
+    if (targetNode instanceof MappingNodeData && !(targetNode instanceof FieldItemNodeData)) {
       return { isValid: true, sourceNode, targetNode };
     }
     if (!(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)) {

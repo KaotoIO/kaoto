@@ -17,7 +17,8 @@ export class SourceTargetDnDHandler implements DnDHandler {
       return { success: false, errorMessage: validation.errorMessage };
     }
 
-    VisualizationService.engageMapping(mappingTree, validation.sourceNode!, validation.targetNode!);
+    if (!validation.sourceNode || !validation.targetNode) return { success: false };
+    VisualizationService.engageMapping(mappingTree, validation.sourceNode, validation.targetNode);
     onUpdate();
     return { success: true };
   }
