@@ -116,3 +116,19 @@ body {
 .rest-tree-toolbar {
   margin-bottom: $spacing-06;
 }
+
+.form-rest-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 26px;
+
+  [class*='cds--snippet'] {
+    block-size: 2.25rem;
+  }
+
+  [class*='cds--snippet'],
+  [class*='cds--snippet'] > code {
+    font-size: 24px;
+  }
+}

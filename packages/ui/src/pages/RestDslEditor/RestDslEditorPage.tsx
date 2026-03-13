@@ -1,5 +1,6 @@
 import './RestDslEditorPage.scss';
 
+import { CodeSnippet } from '@carbon/react';
 import { CanvasFormTabsProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useState } from 'react';
 
@@ -14,7 +15,6 @@ import { RestTreeToolbar, RestTreeToolbarProps } from './components/RestTreeTool
 
 const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
 const DEFAULT_REST_METHOD_URI = 'direct';
-const REST_OPERATION_NAME_PREFIX = 'operation';
 
 export const RestDslEditorPage: FunctionComponent = () => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
@@ -71,7 +71,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
         to: {
           uri: DEFAULT_REST_METHOD_URI,
           parameters: {
-            name: `${REST_OPERATION_NAME_PREFIX}-${model.method}-${methodId}`,
+            name: `${model.path}-${(methodId.match(/\d/g) || []).join('')}`,
           },
         },
       });
@@ -118,7 +118,18 @@ export const RestDslEditorPage: FunctionComponent = () => {
           {!selectedElement?.entityId && <div>Select an entity from the list to edit its configuration</div>}
           {selectedElement && (
             <>
-              <h2>Edit {selectedElement.modelPath}</h2>
+              <div className="form-rest-title">
+                <span>Edit </span>
+                <span>{selectedElement.entityId} </span>
+                {selectedElement.modelPath.startsWith('rest.') && (
+                  <>
+                    <span>/ {selectedElement.modelPath.split('.')[1]?.toUpperCase()} /</span>
+                    <CodeSnippet feedback="Copied to clipboard" type="inline">
+                      {model.path}
+                    </CodeSnippet>
+                  </>
+                )}
+              </div>
               <CanvasFormTabsProvider tab="All">
                 <SuggestionRegistrar>
                   <KaotoForm

@@ -98,9 +98,11 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
 
   getCanvasEntityList(): BaseVisualCamelEntityDefinition {
     this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.filter(
-      ({ isYamlOnly }) =>
-        this.serializer.getType() === SerializerType.YAML ||
-        (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly),
+      ({ isYamlOnly, type }) =>
+        type !== EntityType.Rest &&
+        type !== EntityType.RestConfiguration &&
+        (this.serializer.getType() === SerializerType.YAML ||
+          (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly)),
     ).reduce(
       (acc, { type, group }) => {
         const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
