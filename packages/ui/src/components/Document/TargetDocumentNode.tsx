@@ -11,6 +11,7 @@ import {
   NodeReference,
   TargetDocumentNodeData,
   TargetNodeData,
+  VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -41,6 +42,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
   const nodeData = treeNode.nodeData;
   const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
 
+  const isVariableNode = nodeData instanceof VariableNodeData;
   const isDocument = VisualizationService.isDocumentNode(nodeData);
   const isPrimitive = VisualizationService.isPrimitiveDocumentNode(nodeData);
   const hasChildren = VisualizationService.hasChildren(nodeData);
@@ -117,6 +119,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
               isCollectionField={isCollectionField}
               isChoiceField={isChoiceField}
               isAttributeField={isAttributeField}
+              isVariableNode={isVariableNode}
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
               rank={rank}
               isSelected={isSelected}

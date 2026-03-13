@@ -9,6 +9,7 @@ import {
   MappingItem,
   MappingParentType,
   MappingTree,
+  VariableItem,
 } from './mapping';
 import { NodePath } from './nodepath';
 import { Types } from './types';
@@ -130,6 +131,16 @@ export class FieldItemNodeData extends MappingNodeData {
     this.field = mapping.field;
   }
   public field: IField;
+}
+
+export class VariableNodeData extends MappingNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public mapping: VariableItem,
+  ) {
+    super(parent, mapping);
+    this.title = `$${mapping.name}`;
+  }
 }
 
 export class AddMappingNodeData implements TargetNodeData {
