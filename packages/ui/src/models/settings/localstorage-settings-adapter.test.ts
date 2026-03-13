@@ -25,9 +25,6 @@ describe('LocalStorageSettingsAdapter', () => {
         customMediaTypes: [],
       },
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
-      experimentalFeatures: {
-        enableDragAndDrop: true,
-      },
     };
 
     adapter.saveSettings(newSettings);
@@ -59,9 +56,6 @@ describe('LocalStorageSettingsAdapter', () => {
         customMediaTypes: [],
       },
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
-      experimentalFeatures: {
-        enableDragAndDrop: true,
-      },
     };
 
     adapter.saveSettings(newSettings);
