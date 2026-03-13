@@ -1,0 +1,45 @@
+/*
+ * Container mapping line style matrix:
+ *
+ *   Type             | Weight | Unselected     | Selected
+ *   -----------------|--------|----------------|------------------
+ *   copy-of          | 5px    | darkest gray   | darkest blue
+ *   complete         | 4px    | dark gray      | medium blue
+ *   regular          | 3px    | medium gray    | brand blue
+ *   partial          | 2px    | light gray     | light blue
+ *
+ * No dashed lines — stroke-dasharray is reserved by the virtual scroll
+ * PR for lines whose endpoint is outside the viewport.
+ * Exact color values are adjustable here without touching component code.
+ */
+
+.dm-link {
+  fill: none;
+  stroke-linecap: round;
+
+  &--copy-of            { stroke: #151515; stroke-width: 5; }
+  &--copy-of-selected   { stroke: #003d82; stroke-width: 5; }
+
+  &--complete           { stroke: #3c3f42; stroke-width: 4; }
+  &--complete-selected  { stroke: #0066cc; stroke-width: 4; }
+
+  &--regular            { stroke: gray;   stroke-width: 3; }
+  &--regular-selected   { stroke: var(--pf-t--global--border--color--brand--default); stroke-width: 3; }
+
+  &--partial            { stroke: #b8bbbe; stroke-width: 2; }
+  &--partial-selected   { stroke: #73bcf7; stroke-width: 2; }
+}
+
+.dm-link-dot {
+  &--copy-of            { fill: #151515; }
+  &--copy-of-selected   { fill: #003d82; }
+
+  &--complete           { fill: #3c3f42; }
+  &--complete-selected  { fill: #0066cc; }
+
+  &--regular            { fill: gray; }
+  &--regular-selected   { fill: var(--pf-t--global--border--color--brand--default); }
+
+  &--partial            { fill: #b8bbbe; }
+  &--partial-selected   { fill: #73bcf7; }
+}
