@@ -2,7 +2,15 @@ import { AlertProps } from '@patternfly/react-core';
 import { RefObject } from 'react';
 
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
-import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
+import {
+  FieldItem,
+  IExpressionHolder,
+  IFunctionDefinition,
+  MappingItem,
+  MappingParentType,
+  MappingTree,
+  VariableItem,
+} from './mapping';
 import { NodePath } from './nodepath';
 import { Types } from './types';
 
@@ -125,6 +133,16 @@ export class FieldItemNodeData extends MappingNodeData {
   public field: IField;
 }
 
+export class VariableNodeData extends MappingNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public mapping: VariableItem,
+  ) {
+    super(parent, mapping);
+    this.title = `$${mapping.name}`;
+  }
+}
+
 export class AddMappingNodeData implements TargetNodeData {
   constructor(
     public parent: TargetNodeData,
@@ -154,7 +172,7 @@ class SimpleNodePath extends NodePath {
   }
 }
 export class EditorNodeData implements NodeData {
-  constructor(public mapping: ExpressionItem) {}
+  constructor(public mapping: IExpressionHolder & MappingItem) {}
   id: string = 'editor';
   isPrimitive: boolean = false;
   isSource: boolean = false;

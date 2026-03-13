@@ -12,10 +12,10 @@ import {
 } from '../models/datamapper/document';
 import {
   ChooseItem,
-  ConditionItem,
   FieldItem,
   ForEachItem,
   IfItem,
+  InstructionItem,
   MappingItem,
   MappingParentType,
   MappingTree,
@@ -48,11 +48,11 @@ export class MappingSerializerService {
 
   private static sortMappingItem(left: MappingItem, right: MappingItem) {
     const leftFields =
-      left instanceof FieldItem ? [left.field] : MappingService.getConditionalFields(left as ConditionItem);
+      left instanceof FieldItem ? [left.field] : MappingService.getInstructionFields(left as InstructionItem);
     if (leftFields.length === 0) return 1;
     if (leftFields.find((f) => f.isAttribute)) return -1;
     const rightFields =
-      right instanceof FieldItem ? [right.field] : MappingService.getConditionalFields(right as ConditionItem);
+      right instanceof FieldItem ? [right.field] : MappingService.getInstructionFields(right as InstructionItem);
     if (rightFields.length === 0) return -1;
     if (rightFields.find((f) => f.isAttribute)) return 1;
     const leftFirst = leftFields.sort(MappingSerializerService.sortFields)[0];

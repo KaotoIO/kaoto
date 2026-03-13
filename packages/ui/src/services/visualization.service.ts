@@ -1,14 +1,16 @@
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import {
   ChooseItem,
-  ExpressionItem,
   FieldItem,
   ForEachItem,
+  IExpressionHolder,
   IfItem,
+  isExpressionHolder,
   MappingItem,
   MappingTree,
   OtherwiseItem,
   ValueSelector,
+  VariableItem,
   WhenItem,
 } from '../models/datamapper/mapping';
 import {
@@ -25,6 +27,7 @@ import {
   TargetFieldNodeData,
   TargetNodeData,
   TargetNodeDataType,
+  VariableNodeData,
 } from '../models/datamapper/visualization';
 import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
@@ -57,7 +60,7 @@ export class VisualizationService {
     if (!(document instanceof TargetDocumentNodeData) || !document.mapping?.children) return [];
     return document.mapping.children
       .filter((child) => !(child instanceof ValueSelector))
-      .map((child) => new MappingNodeData(document, child));
+      .map((child) => VisualizationService.createNodeDataFromMappingItem(document, child));
   }
 
   static generateStructuredDocumentChildren(document: DocumentNodeData): NodeData[] {
@@ -96,11 +99,16 @@ export class VisualizationService {
     mappings?: MappingItem[],
   ): NodeData[] {
     const answer: NodeData[] = [];
-    if (parent.isPrimitive && mappings) {
+    if (mappings) {
+      let filterPriorityMappingItem = (m: MappingItem) => m instanceof VariableItem;
+      if (parent.isPrimitive) {
+        filterPriorityMappingItem = (m: MappingItem) => m instanceof ValueSelector;
+      }
       mappings
-        .filter((m) => m instanceof ValueSelector)
-        .forEach((m) => answer.push(new MappingNodeData(parent as TargetNodeData, m)));
+        .filter(filterPriorityMappingItem)
+        .forEach((m) => answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m)));
     }
+
     return fields.reduce((acc, field) => {
       if (field.isChoice) {
         acc.push(VisualizationService.doGenerateNodeDataFromChoiceField(parent, field, mappings));
@@ -167,7 +175,9 @@ export class VisualizationService {
   }
 
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
-    return mapping instanceof FieldItem ? new FieldItemNodeData(parent, mapping) : new MappingNodeData(parent, mapping);
+    if (mapping instanceof FieldItem) return new FieldItemNodeData(parent, mapping);
+    if (mapping instanceof VariableItem) return new VariableNodeData(parent, mapping);
+    return new MappingNodeData(parent, mapping);
   }
 
   static testNodePair(fromNode: NodeData, toNode: NodeData): MappingNodePairType {
@@ -270,9 +280,9 @@ export class VisualizationService {
     return VisualizationService.getFieldValueSelector(nodeData) !== undefined;
   }
 
-  static getExpressionItemForNode(nodeData: TargetNodeData) {
+  static getExpressionItemForNode(nodeData: TargetNodeData): (IExpressionHolder & MappingItem) | undefined {
     if (!nodeData.mapping) return;
-    if (nodeData.mapping instanceof ExpressionItem) return nodeData.mapping as ExpressionItem;
+    if (nodeData.mapping instanceof MappingItem && isExpressionHolder(nodeData.mapping)) return nodeData.mapping;
     return VisualizationService.getFieldValueSelector(nodeData);
   }
 

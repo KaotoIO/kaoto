@@ -149,6 +149,16 @@ describe('BaseNode', () => {
       render(<BaseNode title="Title" data-testid="test-node" isAttributeField={false} />);
       expect(screen.queryByTestId('attribute-field-icon')).not.toBeInTheDocument();
     });
+
+    it('should render variable icon when isVariableNode is true', () => {
+      render(<BaseNode title="Title" data-testid="test-node" isVariableNode={true} />);
+      expect(screen.getByTestId('variable-node-icon')).toBeInTheDocument();
+    });
+
+    it('should not render variable icon when isVariableNode is false', () => {
+      render(<BaseNode title="Title" data-testid="test-node" isVariableNode={false} />);
+      expect(screen.queryByTestId('variable-node-icon')).not.toBeInTheDocument();
+    });
   });
 
   describe('Combined States', () => {

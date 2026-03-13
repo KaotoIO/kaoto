@@ -16,7 +16,7 @@ import { QuestionCircleIcon } from '@patternfly/react-icons';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { ExpressionItem } from '../../models/datamapper';
+import { IExpressionHolder, MappingItem } from '../../models/datamapper';
 import { XPathService } from '../../services/xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../../services/xpath/xpath-model';
 import { XPathEditorLayout } from './XPathEditorLayout';
@@ -25,7 +25,7 @@ type XPathEditorModalProps = {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  mapping: ExpressionItem;
+  mapping: IExpressionHolder & MappingItem;
   onUpdate: () => void;
 };
 
