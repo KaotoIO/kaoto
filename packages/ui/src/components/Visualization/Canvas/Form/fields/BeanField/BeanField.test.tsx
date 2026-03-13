@@ -57,9 +57,9 @@ describe('BeanField', () => {
 
     await formPageObject.inputText('Type', 'io.kaoto.test.TestBean');
 
-    const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+    const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
     await act(async () => {
-      fireEvent.click(createButton!);
+      fireEvent.click(createButton);
     });
   };
 
@@ -70,9 +70,9 @@ describe('BeanField', () => {
   };
 
   const clickCreateButton = async () => {
-    const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+    const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
     await act(async () => {
-      fireEvent.click(createButton!);
+      fireEvent.click(createButton);
     });
   };
 
@@ -209,9 +209,9 @@ describe('BeanField', () => {
     it('should not update the BeanField when closing the modal', async () => {
       await createBean('myNewBean', 'Bean');
 
-      const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel');
+      const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel')!;
       await act(async () => {
-        fireEvent.click(cancelButton!);
+        fireEvent.click(cancelButton);
       });
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
@@ -227,9 +227,9 @@ describe('BeanField', () => {
       const clearButton = await screen.findByRole('menuitem', { name: /Clear type field/i });
       fireEvent.click(clearButton);
 
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
       await act(async () => {
-        fireEvent.click(createButton!);
+        fireEvent.click(createButton);
       });
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
@@ -406,9 +406,9 @@ describe('BeanField', () => {
     it('should not update the BeanField when closing the modal', async () => {
       await createBean('myNewBean', 'Ref');
 
-      const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel');
+      const cancelButton = screen.getAllByRole('button').find((b) => b.textContent === 'Cancel')!;
       await act(async () => {
-        fireEvent.click(cancelButton!);
+        fireEvent.click(cancelButton);
       });
 
       expect(onPropertyChangeSpy).not.toHaveBeenCalled();
@@ -461,9 +461,9 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'io.kaoto.test.ExistingBean');
 
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
       await act(async () => {
-        fireEvent.click(createButton!);
+        fireEvent.click(createButton);
       });
 
       cleanup();
@@ -507,9 +507,9 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'io.kaoto.test.AnotherBean');
 
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
       await act(async () => {
-        fireEvent.click(createButton!);
+        fireEvent.click(createButton);
       });
 
       cleanup();
@@ -616,9 +616,9 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'io.kaoto.test.RegularBean');
 
-      let createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+      let createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
       await act(async () => {
-        fireEvent.click(createButton!);
+        fireEvent.click(createButton);
       });
 
       cleanup();
@@ -640,9 +640,9 @@ describe('BeanField', () => {
       await formPageObject.selectTypeaheadItem('create-new-with-name');
       await formPageObject.inputText('Type', 'javax.sql.DataSource');
 
-      createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create');
+      createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
       await act(async () => {
-        fireEvent.click(createButton!);
+        fireEvent.click(createButton);
       });
 
       cleanup();

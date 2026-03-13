@@ -207,10 +207,10 @@ describe('PrefixCollector', () => {
         </root>
       `;
       const parser = new JSDOM(xml, { contentType: 'text/xml' });
-      const grandchild = parser.window.document.querySelector('grandchild');
+      const grandchild = parser.window.document.querySelector('grandchild')!;
 
       const declarationOrder: string[] = [];
-      PrefixCollector.searchAllPrefixDeclarations(grandchild!, (_prefix, uri) => {
+      PrefixCollector.searchAllPrefixDeclarations(grandchild, (_prefix, uri) => {
         declarationOrder.push(uri);
       });
 
