@@ -25,9 +25,9 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
   return (
     <div data-testid={`node-target-${nodeData.id}`} className="node__container">
       <BaseNode
+        nodeData={nodeData}
         data-testid={nodeData.title}
         isExpandable={false}
-        isDraggable={false}
         title={
           <>
             <Icon className="node__spacer">

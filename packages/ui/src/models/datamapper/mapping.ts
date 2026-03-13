@@ -189,11 +189,13 @@ export class ForEachItem extends InstructionItem implements IExpressionHolder {
 
   expression = '';
 
-  get contextPath() {
+  get contextPath(): PathExpression | undefined {
     const answer = XPathService.extractFieldPaths(this.expression)[0];
     if (answer) {
-      answer.contextPath = this.parent.contextPath;
-      return answer;
+      const pathExpr = new PathExpression(this.parent.contextPath, answer.isRelative);
+      pathExpr.pathSegments = answer.pathSegments;
+      pathExpr.documentReferenceName = answer.documentReferenceName;
+      return pathExpr;
     }
     return this.parent.contextPath;
   }

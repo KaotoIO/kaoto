@@ -9,6 +9,7 @@ import {
   MappingParentType,
   MappingTree,
   UnknownMappingItem,
+  VariableItem,
 } from './mapping';
 import { NodePath } from './nodepath';
 import { Types } from './types';
@@ -138,6 +139,16 @@ export class UnknownMappingNodeData extends MappingNodeData {
     public mapping: UnknownMappingItem,
   ) {
     super(parent, mapping);
+  }
+}
+
+export class VariableNodeData extends MappingNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public mapping: VariableItem,
+  ) {
+    super(parent, mapping);
+    this.title = `$${mapping.name}`;
   }
 }
 

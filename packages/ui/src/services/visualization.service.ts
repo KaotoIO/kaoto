@@ -13,6 +13,7 @@ import {
   OtherwiseItem,
   UnknownMappingItem,
   ValueSelector,
+  VariableItem,
   WhenItem,
 } from '../models/datamapper/mapping';
 import {
@@ -30,6 +31,7 @@ import {
   TargetNodeData,
   TargetNodeDataType,
   UnknownMappingNodeData,
+  VariableNodeData,
 } from '../models/datamapper/visualization';
 import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
@@ -102,8 +104,10 @@ export class VisualizationService {
   ): NodeData[] {
     const answer: NodeData[] = [];
     if (mappings) {
-      const filterPriorityMappingItem = (m: MappingItem) =>
-        m instanceof UnknownMappingItem || (parent.isPrimitive && m instanceof ValueSelector);
+      let filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof VariableItem;
+      if (parent.isPrimitive) {
+        filterPriorityMappingItem = (m: MappingItem) => m instanceof UnknownMappingItem || m instanceof ValueSelector;
+      }
       mappings
         .filter(filterPriorityMappingItem)
         .forEach((m) => answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m)));
@@ -177,6 +181,7 @@ export class VisualizationService {
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
     if (mapping instanceof FieldItem) return new FieldItemNodeData(parent, mapping);
     if (mapping instanceof UnknownMappingItem) return new UnknownMappingNodeData(parent, mapping);
+    if (mapping instanceof VariableItem) return new VariableNodeData(parent, mapping);
     return new MappingNodeData(parent, mapping);
   }
 

@@ -11,12 +11,13 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { MappingTree } from '../../models/datamapper/mapping';
+import { MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   DocumentNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
+  VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
@@ -802,6 +803,26 @@ describe('TargetDocumentNode', () => {
       });
 
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
+    });
+  });
+
+  describe('Variable Node', () => {
+    it('should render variable node with $name label and variable icon', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(document.documentType, document.documentId, DocumentDefinitionType.XML_SCHEMA);
+      const targetDocNode = new TargetDocumentNodeData(document, tree);
+      const variableItem = new VariableItem(tree, 'taxRate');
+      const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
+      const variableTreeNode = new DocumentTreeNode(variableNodeData);
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      expect(screen.getByText('$taxRate')).toBeInTheDocument();
+      expect(screen.getByTestId('variable-node-icon')).toBeInTheDocument();
     });
   });
 

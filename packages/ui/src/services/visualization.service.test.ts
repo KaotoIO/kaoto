@@ -16,6 +16,7 @@ import {
   OtherwiseItem,
   UnknownMappingItem,
   ValueSelector,
+  VariableItem,
   WhenItem,
 } from '../models/datamapper/mapping';
 import {
@@ -30,6 +31,7 @@ import {
   TargetFieldNodeData,
   TargetNodeData,
   UnknownMappingNodeData,
+  VariableNodeData,
 } from '../models/datamapper/visualization';
 import {
   getConditionalMappingsToShipOrderXslt,
@@ -1589,6 +1591,23 @@ describe('VisualizationService', () => {
       const unknownNode = children.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
       expect(unknownNode).toBeDefined();
       expect(unknownNode.mapping.element.localName).toEqual('apply-templates');
+    });
+  });
+
+  describe('VariableItem support', () => {
+    it('should create VariableNodeData for VariableItem in MappingNodeData children', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(fieldItem);
+      const variableItem = new VariableItem(fieldItem, 'taxRate');
+      fieldItem.children.push(variableItem);
+      const targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const fieldItemNodeData = new FieldItemNodeData(targetDocNode, fieldItem);
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(fieldItemNodeData);
+      const variableNodeData = children.find((c) => c instanceof VariableNodeData);
+      expect(variableNodeData).toBeInstanceOf(VariableNodeData);
+      expect(variableNodeData!.title).toBe('$taxRate');
     });
   });
 });
