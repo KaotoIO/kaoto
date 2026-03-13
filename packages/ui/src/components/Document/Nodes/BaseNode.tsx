@@ -1,28 +1,30 @@
 import './BaseNode.scss';
 
-import { At, ChevronDown, ChevronRight, Choices, Draggable } from '@carbon/icons-react';
+import { At, ChevronDown, ChevronRight, Choices, Draggable, ValueVariable } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
 
 import { IDataTestID } from '../../../models';
-import { Types } from '../../../models/datamapper';
+import {
+  AddMappingNodeData,
+  NodeData,
+  UnknownMappingNodeData,
+  VariableNodeData,
+} from '../../../models/datamapper/visualization';
+import { VisualizationService } from '../../../services/visualization.service';
 import { FieldIcon } from '../FieldIcon';
 
 interface BaseNodeProps extends IDataTestID {
+  /** Node data containing all node information */
+  nodeData: NodeData;
+
   /** Controls whether the Expansion icon is shown */
   isExpandable?: boolean;
   /** Expansion status. Requires `isExpandable=true` */
   isExpanded?: boolean;
   /** Expansion handler */
   onExpandChange?: MouseEventHandler<HTMLElement>;
-
-  /** Controls whether the Drag icon is shown */
-  isDraggable?: boolean;
-  iconType?: Types;
-  isCollectionField?: boolean;
-  isChoiceField?: boolean;
-  isAttributeField?: boolean;
 
   /** Title node */
   title: ReactNode;
@@ -33,9 +35,6 @@ interface BaseNodeProps extends IDataTestID {
   /** Selection state */
   isSelected?: boolean;
 
-  /** Indicates if this is a source node (true) or target node (false). Defaults to true. */
-  isSource?: boolean;
-
   /** Node path for connection port identification */
   nodePath?: string;
 
@@ -44,23 +43,31 @@ interface BaseNodeProps extends IDataTestID {
 }
 
 export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
+  nodeData,
   isExpandable,
   isExpanded,
   onExpandChange,
-  isDraggable,
-  iconType,
-  isCollectionField,
-  isChoiceField,
-  isAttributeField,
   title,
   rank,
   isSelected,
-  isSource = true,
   nodePath,
   documentId,
   'data-testid': dataTestId,
   children,
 }) => {
+  // Derive properties from nodeData
+  const field = VisualizationService.getField(nodeData);
+  const iconType = field?.type ?? nodeData.type;
+  const isCollectionField = VisualizationService.isCollectionField(nodeData);
+  const isChoiceField = VisualizationService.isChoiceField(nodeData);
+  const isAttributeField = VisualizationService.isAttributeField(nodeData);
+  const isVariableNode = nodeData instanceof VariableNodeData;
+  const isDocument = VisualizationService.isDocumentNode(nodeData);
+  const isDraggable =
+    !(nodeData instanceof UnknownMappingNodeData) &&
+    !(nodeData instanceof AddMappingNodeData) &&
+    (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
+  const isSource = nodeData.isSource;
   return (
     <section
       className="node__row"
@@ -107,6 +114,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       {isAttributeField && (
         <Icon className="node__spacer" data-testid="attribute-field-icon">
           <At />
+        </Icon>
+      )}
+      {isVariableNode && (
+        <Icon className="node__spacer" data-testid="variable-node-icon">
+          <ValueVariable />
         </Icon>
       )}
 

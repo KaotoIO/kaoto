@@ -3,12 +3,7 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, MouseEventHandler, 
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import {
-  AddMappingNodeData,
-  TargetDocumentNodeData,
-  TargetNodeData,
-  UnknownMappingNodeData,
-} from '../../models/datamapper/visualization';
+import { AddMappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
@@ -40,10 +35,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
 
     const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
     const nodeData = treeNode.nodeData;
-    const field = VisualizationService.getField(nodeData);
-    const iconType = field?.type ?? nodeData.type;
 
-    const isDocument = useMemo(() => VisualizationService.isDocumentNode(nodeData), [nodeData]);
     const isPrimitive = useMemo(() => VisualizationService.isPrimitiveDocumentNode(nodeData), [nodeData]);
     const hasChildren = useMemo(() => VisualizationService.hasChildren(nodeData), [nodeData]);
 
@@ -56,15 +48,10 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
       [hasChildren, documentId, treeNode.path],
     );
 
-    const isCollectionField = useMemo(() => VisualizationService.isCollectionField(nodeData), [nodeData]);
-    const isChoiceField = VisualizationService.isChoiceField(nodeData);
-    const isAttributeField = VisualizationService.isAttributeField(nodeData);
-    const isDraggable =
-      !(nodeData instanceof UnknownMappingNodeData) &&
-      (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
     const nodePathString = nodeData.path.toString();
-
+    const isDocument = VisualizationService.isDocumentNode(nodeData);
     const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
+    const field = VisualizationService.getField(nodeData);
     const { mappingTree, refreshMappingTree } = useDataMapper();
     const handleUpdate = useCallback(() => {
       refreshMappingTree();
@@ -105,15 +92,11 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
           <div className="node__header">
             <NodeContainer nodeData={nodeData} className={clsx({ 'selected-container': isSelected })}>
               <BaseNode
+                nodeData={nodeData}
                 data-testid={nodeData.title}
                 isExpandable={hasChildren}
                 isExpanded={isExpanded}
                 onExpandChange={handleClickToggle}
-                isDraggable={isDraggable}
-                iconType={iconType}
-                isCollectionField={isCollectionField}
-                isChoiceField={isChoiceField}
-                isAttributeField={isAttributeField}
                 title={
                   <NodeTitle
                     className="node__spacer"
@@ -125,7 +108,6 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
                 }
                 rank={rank}
                 isSelected={isSelected}
-                isSource={false}
                 nodePath={nodePathString}
                 documentId={documentId}
               >

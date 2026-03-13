@@ -33,7 +33,6 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
     const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
     const nodeData = treeNode.nodeData;
 
-    const isDocument = VisualizationService.isDocumentNode(nodeData);
     const hasChildren = VisualizationService.hasChildren(nodeData);
 
     const handleClickToggle = useCallback(
@@ -45,12 +44,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
       [hasChildren, documentId, treeNode.path],
     );
 
-    const isCollectionField = VisualizationService.isCollectionField(nodeData);
-    const isChoiceField = VisualizationService.isChoiceField(nodeData);
-    const isAttributeField = VisualizationService.isAttributeField(nodeData);
-    const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
     const nodePathString = nodeData.path.toString();
-
     const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, true));
 
     const handleClickField = useCallback(
@@ -61,6 +55,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
       [toggleSelectedNode, nodePathString],
     );
 
+    const isDocument = VisualizationService.isDocumentNode(nodeData);
     const field = VisualizationService.getField(nodeData);
 
     const handleKeyDown = useCallback(
@@ -84,15 +79,11 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
           <div className="node__header">
             <NodeContainer nodeData={nodeData} className={clsx({ 'selected-container': isSelected })}>
               <BaseNode
+                nodeData={nodeData}
                 data-testid={nodeData.title}
                 isExpandable={hasChildren}
                 isExpanded={isExpanded}
                 onExpandChange={handleClickToggle}
-                isDraggable={isDraggable}
-                iconType={field?.type ?? nodeData.type}
-                isCollectionField={isCollectionField}
-                isChoiceField={isChoiceField}
-                isAttributeField={isAttributeField}
                 title={
                   <NodeTitle
                     className="node__spacer"

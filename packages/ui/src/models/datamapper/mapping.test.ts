@@ -132,6 +132,23 @@ describe('mapping.ts', () => {
       expect((cloned.children[0] as ValueSelector).expression).toBe('ItemId');
       expect(cloned).not.toBe(item);
     });
+
+    it('contextPath getter should not mutate the original PathExpression', () => {
+      const item = new ForEachItem(tree);
+      item.expression = '/Order/Items/Item';
+
+      // Get contextPath twice
+      const firstCall = item.contextPath;
+      const secondCall = item.contextPath;
+
+      // Both calls should return different object instances (not mutated)
+      expect(firstCall).not.toBe(secondCall);
+
+      // But they should have the same values
+      if (firstCall && secondCall) {
+        expect(firstCall.contextPath).toEqual(secondCall.contextPath);
+      }
+    });
   });
 
   describe('ValueSelector', () => {
