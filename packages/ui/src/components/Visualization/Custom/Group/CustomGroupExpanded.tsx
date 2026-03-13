@@ -71,7 +71,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       CanvasDefaults.HOVER_DELAY_IN,
       CanvasDefaults.HOVER_DELAY_OUT,
     );
-    const dndSettingsEnabled = settingsAdapter.getSettings().experimentalFeatures.enableDragAndDrop;
     const boxRef = useRef<Rect | null>(null);
     const shouldShowToolbar =
       settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
@@ -96,7 +95,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       () => ({
         item: { type: GROUP_DRAG_TYPE },
         canDrag: () => {
-          return dndSettingsEnabled && canDragGroup(groupVizNode);
+          return canDragGroup(groupVizNode);
         },
         end(dropResult, monitor) {
           if (monitor.didDrop() && dropResult) {
@@ -111,7 +110,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
           dragEvent: monitor.getDragEvent(),
         }),
       }),
-      [dndSettingsEnabled, element, entitiesContext, groupVizNode, nodeInteractionAddonContext],
+      [element, entitiesContext, groupVizNode, nodeInteractionAddonContext],
     );
 
     const customGroupExpandedDropTargetSpec: DropTargetSpec<

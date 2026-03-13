@@ -23,9 +23,6 @@ describe('KaotoEditorFactory', () => {
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
-      experimentalFeatures: {
-        enableDragAndDrop: false,
-      },
     };
 
     const envelopeContext = {
@@ -57,9 +54,6 @@ describe('KaotoEditorFactory', () => {
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
-      experimentalFeatures: {
-        enableDragAndDrop: false,
-      },
     };
 
     const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
@@ -116,9 +110,6 @@ describe('KaotoEditorFactory', () => {
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
-      experimentalFeatures: {
-        enableDragAndDrop: false,
-      },
     };
     const expectedSettings: ISettingsModel = {
       catalogUrl: 'path-prefix/camel-catalog/index.json',
@@ -130,9 +121,6 @@ describe('KaotoEditorFactory', () => {
       nodeToolbarTrigger: NodeToolbarTrigger.onHover,
       colorScheme: ColorScheme.Auto,
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
-      experimentalFeatures: {
-        enableDragAndDrop: false,
-      },
     };
 
     const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
