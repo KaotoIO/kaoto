@@ -1,4 +1,5 @@
 import 'cypress-real-events';
+import '@4tw/cypress-drag-drop';
 
 describe('Canvas nodes Drag and Drop', () => {
   beforeEach(() => {
