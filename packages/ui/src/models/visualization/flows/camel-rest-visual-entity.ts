@@ -29,7 +29,6 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   id: string;
   readonly type = EntityType.Rest;
   static readonly ROOT_PATH = 'rest';
-  private static readonly OMIT_FIELDS = [...REST_DSL_VERBS, 'uri'];
 
   constructor(public restDef: { rest: Rest } = { rest: {} }) {
     super(restDef);
@@ -102,10 +101,6 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     }
 
     return super.getNodeDefinition(path);
-  }
-
-  getOmitFormFields(): string[] {
-    return CamelRestVisualEntity.OMIT_FIELDS;
   }
 
   updateModel(path: string | undefined, value: unknown): void {

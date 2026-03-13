@@ -3535,6 +3535,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kaoto/camel-catalog@npm:^0.4.1":
+  version: 0.4.1
+  resolution: "@kaoto/camel-catalog@npm:0.4.1"
+  checksum: 10/138ae776178cfee3149b76808c0b43562b5a6891a148c55737404c54fe3d02b8d91b7339567e20130be1c9e897897d44bb64b919587b642716a255d716a8f2d9
+  languageName: node
+  linkType: hard
+
 "@kaoto/forms@npm:^1.6.0":
   version: 1.6.0
   resolution: "@kaoto/forms@npm:1.6.0"
@@ -3620,7 +3627,7 @@ __metadata:
     "@carbon/react": "npm:^1.102.0"
     "@dnd-kit/core": "npm:^6.1.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.4.0"
+    "@kaoto/camel-catalog": "npm:^0.4.1"
     "@kaoto/forms": "npm:^1.6.0"
     "@kie-tools-core/editor": "npm:^10.0.0"
     "@kie-tools-core/notifications": "npm:^10.0.0"
@@ -3701,7 +3708,7 @@ __metadata:
     zundo: "npm:^2.3.0"
     zustand: "npm:^4.3.9"
   peerDependencies:
-    "@kaoto/camel-catalog": ^0.4.0
+    "@kaoto/camel-catalog": ^0.4.1
     "@patternfly/patternfly": ^6.4.0
     "@patternfly/react-code-editor": ^6.4.0
     "@patternfly/react-core": ^6.4.0

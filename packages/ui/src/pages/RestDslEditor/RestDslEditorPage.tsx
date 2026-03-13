@@ -12,6 +12,10 @@ import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-re
 import { IRestTreeSelection, RestTree } from './components/RestTree';
 import { RestTreeToolbar, RestTreeToolbarProps } from './components/RestTreeToolbar';
 
+const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
+const DEFAULT_REST_METHOD_URI = 'direct';
+const REST_OPERATION_NAME_PREFIX = 'operation';
+
 export const RestDslEditorPage: FunctionComponent = () => {
   const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
   const [selectedElement, setSelectedElement] = useState<IRestTreeSelection | undefined>();
@@ -19,7 +23,6 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const selectedEntity = visualEntities.find((entity) => entity.id === selectedElement?.entityId);
   const schema = selectedEntity?.getNodeSchema(selectedElement?.modelPath);
   const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
-  const omitFields = selectedEntity?.getOmitFormFields();
 
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
@@ -62,15 +65,15 @@ export const RestDslEditorPage: FunctionComponent = () => {
         id: methodId,
         path: model.path,
         to: {
-          uri: 'direct',
+          uri: DEFAULT_REST_METHOD_URI,
           parameters: {
-            name: `operation-${model.method}-${methodId}`,
+            name: `${REST_OPERATION_NAME_PREFIX}-${model.method}-${methodId}`,
           },
         },
       });
 
-      setSelectedElement({ entityId: selectedEntity.id, modelPath: `rest.${model.method}.${methodsArray.length - 1}` });
       updateEntitiesFromCamelResource();
+      setSelectedElement({ entityId: selectedEntity.id, modelPath: `rest.${model.method}.${methodsArray.length - 1}` });
     },
     [selectedEntity, updateEntitiesFromCamelResource],
   );
@@ -92,7 +95,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   return (
     <ResizableSplitPanels
-      defaultLeftWidth={30}
+      defaultLeftWidth={DEFAULT_TREE_PANEL_WIDTH_PERCENT}
       leftPanel={
         <RestTree entities={visualEntities} selected={selectedElement} onSelect={setSelectedElement}>
           <RestTreeToolbar
@@ -118,7 +121,6 @@ export const RestDslEditorPage: FunctionComponent = () => {
                     schema={schema}
                     onChangeProp={handleOnChangeIndividualProp}
                     model={model}
-                    omitFields={omitFields}
                     customFieldsFactory={customFieldsFactoryfactory}
                   />
                 </SuggestionRegistrar>
