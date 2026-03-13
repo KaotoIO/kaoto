@@ -241,4 +241,25 @@ describe('RestTree', () => {
     activeNode = container.querySelector(`[id="${expectedActiveId}"]`);
     expect(activeNode).toBeInTheDocument();
   });
+
+  it('should display "not specified" when method path is undefined', () => {
+    const camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-1234
+    get:
+      - id: get-1
+        to:
+          uri: direct:test
+    `);
+
+    const entities = camelResource.getVisualEntities();
+    const { container } = render(<RestTree entities={entities} onSelect={mockOnSelect} />);
+
+    // Verify "not specified" is displayed for method without path
+    expect(screen.getByText('not specified')).toBeInTheDocument();
+
+    // Verify it has the correct CSS class
+    const notSpecifiedElement = container.querySelector('.rest-tree__label-unspecified');
+    expect(notSpecifiedElement).toBeInTheDocument();
+  });
 });

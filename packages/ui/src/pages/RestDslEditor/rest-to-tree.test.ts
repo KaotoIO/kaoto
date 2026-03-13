@@ -98,4 +98,23 @@ describe('restToTree', () => {
 
     expect(treeNodes).toEqual(expectedTreeNodes);
   });
+
+  it('should handle rest entity with method without id', () => {
+    camelResource = CamelResourceFactory.createCamelResource(`
+- rest:
+    id: rest-9999
+    post:
+      - path: /create
+        to:
+          uri: direct:create
+    `);
+
+    const treeNodes = restToTree(camelResource.getVisualEntities());
+
+    expect(treeNodes).toHaveLength(1);
+    expect(treeNodes[0].children).toHaveLength(1);
+    // When methodDef.id is undefined, it should generate an id
+    expect(treeNodes[0].children![0].id).toBe('rest-9999-post-0');
+    expect(treeNodes[0].children![0].label).toBe('/create');
+  });
 });

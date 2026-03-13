@@ -19,14 +19,13 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
 
   const getNodeId = (entityId: string, modelPath: string) => `${entityId}::${modelPath}`;
   const activeNodeId = selected ? getNodeId(selected.entityId, selected.modelPath) : undefined;
-  const treeKey = restTreeNodes.map((node) => `${node.entityId}-${node.children?.length ?? 0}`).join('-');
 
   return (
     <>
       <div>{children}</div>
 
       <div className="rest-tree">
-        <TreeView key={treeKey} label="Rest DSL Configuration" active={activeNodeId}>
+        <TreeView label="Rest DSL Configuration" active={activeNodeId}>
           {restTreeNodes.map((node) => {
             const nodeId = getNodeId(node.entityId, node.modelPath);
             return (

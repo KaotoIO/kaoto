@@ -212,7 +212,15 @@ describe('CamelRestVisualEntity', () => {
   it('should return omit form fields', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getOmitFormFields()).toEqual(['get', 'post', 'put', 'delete', 'patch', 'head', 'uri']);
+    expect(entity.getOmitFormFields()).toEqual([
+      'from',
+      'outputs',
+      'steps',
+      'when',
+      'otherwise',
+      'doCatch',
+      'doFinally',
+    ]);
   });
 
   it('should return root path', () => {

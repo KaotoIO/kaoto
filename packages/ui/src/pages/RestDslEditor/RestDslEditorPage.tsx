@@ -24,6 +24,8 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const schema = selectedEntity?.getNodeSchema(selectedElement?.modelPath);
   const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
 
+  const [treeVersion, setTreeVersion] = useState(0);
+
   const handleOnChangeIndividualProp = useCallback(
     (path: string, value: unknown) => {
       if (!selectedElement || !selectedEntity) return;
@@ -44,12 +46,14 @@ export const RestDslEditorPage: FunctionComponent = () => {
     const newId = camelResource.addNewEntity(EntityType.RestConfiguration);
     updateEntitiesFromCamelResource();
     setSelectedElement({ modelPath: 'restConfiguration', entityId: newId });
+    setTreeVersion((version) => version + 1);
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   const handleAddRest = useCallback(() => {
     const newId = camelResource.addNewEntity(EntityType.Rest);
     setSelectedElement({ modelPath: 'rest', entityId: newId });
     updateEntitiesFromCamelResource();
+    setTreeVersion((version) => version + 1);
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   const handleAddMethod: RestTreeToolbarProps['onAddMethod'] = useCallback(
@@ -74,6 +78,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
       updateEntitiesFromCamelResource();
       setSelectedElement({ entityId: selectedEntity.id, modelPath: `rest.${model.method}.${methodsArray.length - 1}` });
+      setTreeVersion((version) => version + 1);
     },
     [selectedEntity, updateEntitiesFromCamelResource],
   );
@@ -97,7 +102,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
     <ResizableSplitPanels
       defaultLeftWidth={DEFAULT_TREE_PANEL_WIDTH_PERCENT}
       leftPanel={
-        <RestTree entities={visualEntities} selected={selectedElement} onSelect={setSelectedElement}>
+        <RestTree entities={visualEntities} selected={selectedElement} onSelect={setSelectedElement} key={treeVersion}>
           <RestTreeToolbar
             entities={visualEntities}
             selectedElement={selectedElement}
