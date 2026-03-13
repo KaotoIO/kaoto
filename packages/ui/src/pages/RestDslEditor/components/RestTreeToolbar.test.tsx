@@ -95,7 +95,7 @@ describe('RestTreeToolbar', () => {
       fireEvent.click(menuButton);
 
       const addRestConfigButton = screen.getByText('Add Configuration').closest('li');
-      fireEvent.click(addRestConfigButton!);
+      fireEvent.click(addRestConfigButton as HTMLElement);
       expect(mockOnAddRestConfiguration).toHaveBeenCalledTimes(1);
     });
   });
@@ -168,7 +168,7 @@ describe('RestTreeToolbar', () => {
       fireEvent.click(menuButton);
 
       const addRestButton = screen.getByText('Add Service').closest('li');
-      fireEvent.click(addRestButton!);
+      fireEvent.click(addRestButton as HTMLElement);
       expect(mockOnAddRest).toHaveBeenCalledTimes(1);
     });
   });
@@ -398,7 +398,7 @@ describe('RestTreeToolbar', () => {
       fireEvent.click(menuButton);
 
       const deleteButton = screen.getByText('Delete').closest('li');
-      fireEvent.click(deleteButton!);
+      fireEvent.click(deleteButton as HTMLElement);
       expect(mockOnDelete).toHaveBeenCalledTimes(1);
     });
   });
@@ -430,7 +430,7 @@ describe('RestTreeToolbar', () => {
       fireEvent.click(menuButton);
 
       const addMethodButton = screen.getByText('Add Operation').closest('li');
-      fireEvent.click(addMethodButton!);
+      fireEvent.click(addMethodButton as HTMLElement);
 
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
       expect(screen.getByText('Add REST Method')).toBeInTheDocument();
@@ -463,7 +463,7 @@ describe('RestTreeToolbar', () => {
 
       // Open modal
       const addMethodButton = screen.getByText('Add Operation').closest('li');
-      fireEvent.click(addMethodButton!);
+      fireEvent.click(addMethodButton as HTMLElement);
 
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
 
@@ -501,7 +501,7 @@ describe('RestTreeToolbar', () => {
 
       // Open modal
       const addMethodButton = screen.getByText('Add Operation').closest('li');
-      fireEvent.click(addMethodButton!);
+      fireEvent.click(addMethodButton as HTMLElement);
 
       // Verify modal is rendered with the form
       expect(screen.getByTestId('add-method-modal')).toBeInTheDocument();
