@@ -6,10 +6,11 @@ import {
   IField,
   PrimitiveDocument,
 } from '../models/datamapper/document';
-import { MappingTree } from '../models/datamapper/mapping';
+import { FieldItem, MappingTree } from '../models/datamapper/mapping';
 import { Types } from '../models/datamapper/types';
 import {
   DocumentNodeData,
+  FieldItemNodeData,
   FieldNodeData,
   NodeData,
   TargetDocumentNodeData,
@@ -199,6 +200,18 @@ describe('MappingValidationService', () => {
       expect(result.isValid).toBe(true);
       expect(result.sourceNode).toBe(fromNode);
       expect(result.targetNode).toBe(targetDocNode);
+    });
+
+    it('should run field validation when target is a FieldItemNodeData', () => {
+      const sourceField = createMockField({ type: Types.Container });
+      const targetField = createMockField({ type: Types.String });
+      const targetFieldNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const fieldItem = new FieldItem(tree, targetField);
+      const fromNode = new FieldNodeData(sourceDocNode, sourceField);
+      const toNode = new FieldItemNodeData(targetFieldNode, fieldItem);
+      const result = MappingValidationService.validateMappingPair(fromNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('container');
     });
 
     it('should return valid when source is a PrimitiveDocument node and target is a field', () => {

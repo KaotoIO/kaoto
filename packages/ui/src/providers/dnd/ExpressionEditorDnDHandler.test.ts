@@ -51,6 +51,7 @@ describe('ExpressionEditorDnDHandler', () => {
   const mockMapping = {} as unknown as ExpressionItem;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     handler = new ExpressionEditorDnDHandler();
     mockMappingTree = {} as MappingTree;
     mockOnUpdate = jest.fn();

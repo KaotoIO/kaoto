@@ -6,6 +6,13 @@
             <xs:element name="Group1Element2" type="xs:string"/>
         </xs:sequence>
     </xs:group>
+    <!-- A group whose particle is xs:choice, for indirect nested choice testing -->
+    <xs:group name="ChoiceGroup">
+        <xs:choice>
+            <xs:element name="ChoiceGroupEl1" type="xs:string"/>
+            <xs:element name="ChoiceGroupEl2" type="xs:string"/>
+        </xs:choice>
+    </xs:group>
     <xs:attributeGroup name="AttrGroup1">
         <xs:attribute name="AttrGroup1Attr1" type="xs:string"/>
         <xs:attribute name="AttrGroup1Attr2" type="xs:string"/>
@@ -13,12 +20,91 @@
     <xs:element name="TestDocument">
         <xs:complexType>
             <xs:sequence>
+                <!-- Simple xs:choice with elements and group ref -->
                 <xs:element name="ChoiceElement">
                     <xs:complexType>
                         <xs:choice>
                             <xs:element name="Choice1" type="xs:string" />
                             <xs:element name="Choice2" type="xs:string" />
                             <xs:group ref="ns0:Group1"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <!-- Two sibling xs:choice compositors in a sequence -->
+                <xs:element name="SiblingChoicesElement">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:choice>
+                                <xs:element name="SibA1" type="xs:string"/>
+                                <xs:element name="SibA2" type="xs:string"/>
+                            </xs:choice>
+                            <xs:choice>
+                                <xs:element name="SibB1" type="xs:string"/>
+                                <xs:element name="SibB2" type="xs:string"/>
+                            </xs:choice>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <!-- Direct nested xs:choice: a choice directly containing another choice -->
+                <xs:element name="DirectNestedChoiceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="Direct1" type="xs:string"/>
+                            <xs:choice>
+                                <xs:element name="NestedDirect1" type="xs:string"/>
+                                <xs:element name="NestedDirect2" type="xs:string"/>
+                            </xs:choice>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <!-- Two nested xs:choice compositors: produces title 'choice (choice1 | choice2)' -->
+                <xs:element name="MultipleNestedChoicesElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerA1" type="xs:string"/>
+                                <xs:element name="InnerA2" type="xs:string"/>
+                            </xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerB1" type="xs:string"/>
+                                <xs:element name="InnerB2" type="xs:string"/>
+                            </xs:choice>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <!-- Five nested xs:choice compositors: produces title 'choice (choice1 | choice2 | choice3 | choice4...)' -->
+                <xs:element name="TooManyNestedChoicesElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerA1" type="xs:string"/>
+                                <xs:element name="InnerA2" type="xs:string"/>
+                            </xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerB1" type="xs:string"/>
+                                <xs:element name="InnerB2" type="xs:string"/>
+                            </xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerC1" type="xs:string"/>
+                                <xs:element name="InnerC2" type="xs:string"/>
+                            </xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerD1" type="xs:string"/>
+                                <xs:element name="InnerD2" type="xs:string"/>
+                            </xs:choice>
+                            <xs:choice>
+                                <xs:element name="InnerE1" type="xs:string"/>
+                                <xs:element name="InnerE2" type="xs:string"/>
+                            </xs:choice>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <!-- Indirect nested xs:choice: an xs:choice containing a group ref whose particle is xs:choice -->
+                <xs:element name="IndirectNestedChoiceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="Indirect1" type="xs:string"/>
+                            <xs:group ref="ns0:ChoiceGroup"/>
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>

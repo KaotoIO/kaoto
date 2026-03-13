@@ -854,5 +854,71 @@ describe('XPathService', () => {
       expect(result.pathSegments[0].name).toBe('ShipOrder');
       expect(result.pathSegments[1].name).toBe('OrderPerson');
     });
+
+    it('should exclude choice wrapper fields from generated XPath', () => {
+      const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="OptionA" type="xs:string"/>
+        <xs:element name="OptionB" type="xs:string"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'root.xsd': xsdContent },
+      );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+      const rootField = doc.fields.find((f) => f.name === 'Root')!;
+      const choiceWrapper = rootField.fields.find((f) => f.isChoice)!;
+      const optionA = choiceWrapper.fields.find((f) => f.name === 'OptionA')!;
+
+      const result = XPathService.toPathExpression({}, optionA);
+
+      expect(result.pathSegments.every((s) => s.name !== '__choice__')).toBe(true);
+      expect(result.pathSegments.length).toBe(2);
+      expect(result.pathSegments[0].name).toBe('Root');
+      expect(result.pathSegments[1].name).toBe('OptionA');
+    });
+
+    it('should exclude choice wrapper fields from relative XPath when context path is provided', () => {
+      const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="OptionA" type="xs:string"/>
+        <xs:element name="OptionB" type="xs:string"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'root.xsd': xsdContent },
+      );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+      const rootField = doc.fields.find((f) => f.name === 'Root')!;
+      const choiceWrapper = rootField.fields.find((f) => f.isChoice)!;
+      const optionA = choiceWrapper.fields.find((f) => f.name === 'OptionA')!;
+
+      const contextPath = new PathExpression();
+      contextPath.isRelative = false;
+      contextPath.pathSegments = [new PathSegment('Root', false)];
+
+      const result = XPathService.toPathExpression({}, optionA, contextPath);
+
+      expect(result.pathSegments.every((s) => s.name !== '__choice__')).toBe(true);
+      expect(result.isRelative).toBe(true);
+      expect(result.pathSegments.length).toBe(1);
+      expect(result.pathSegments[0].name).toBe('OptionA');
+    });
   });
 });

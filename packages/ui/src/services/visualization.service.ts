@@ -96,6 +96,18 @@ export class VisualizationService {
     );
   }
 
+  /**
+   * Creates a {@link ChoiceFieldNodeData} or {@link TargetChoiceFieldNodeData} for a choice wrapper field.
+   *
+   * When no member is selected (`field.selectedMemberIndex === undefined`), the returned node's
+   * `field` is the choice wrapper itself and `choiceField` is `undefined`. {@link createNodeTitle}
+   * recognises this state and returns the member label string (e.g. `"(email | phone)"`), while
+   * {@link NodeTitle} renders it alongside a `<Label>choice</Label>` badge.
+   *
+   * When a member is selected, the returned node's `field` is the selected member and `choiceField`
+   * is set to the choice wrapper. {@link createNodeTitle} returns the member's own display name in
+   * that case, and {@link NodeTitle} renders it as a plain field title without the choice badge.
+   */
   private static doGenerateNodeDataFromChoiceField(
     parent: NodeData,
     field: IField,
@@ -564,7 +576,7 @@ export class VisualizationService {
       sourceNode instanceof ChoiceFieldNodeData &&
       (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)
     ) {
-      if (sourceNode.choiceField !== undefined) {
+      if (sourceNode.choiceField) {
         const item = VisualizationService.getOrCreateFieldItem(targetNode);
         MappingService.mapToField(sourceNode.field, item);
       } else {
@@ -587,7 +599,7 @@ export class VisualizationService {
     const targetItem = VisualizationService.getOrCreateFieldItem(targetNode);
     const chooseItem = new ChooseItem(targetItem);
 
-    for (const member of sourceField.fields) {
+    for (const member of sourceField.fields ?? []) {
       const whenItem = MappingService.addWhen(chooseItem);
       MappingService.mapToCondition(whenItem, member);
       MappingService.mapToField(member, whenItem);
@@ -611,6 +623,38 @@ export class VisualizationService {
     } catch {
       return rawXml;
     }
+  }
+
+  /**
+   * Returns the member label string (e.g. `"(email | phone | fax)"`) for a choice wrapper node.
+   * Nested choice members are labeled `'choice'` when there is only one nested choice sibling,
+   * or `'choice1'`, `'choice2'`, ... when there are multiple.
+   * @param node - The choice wrapper node whose members should be described.
+   */
+  static getChoiceMemberLabel(node: ChoiceFieldNodeData | TargetChoiceFieldNodeData): string {
+    const members = node.field.fields ?? [];
+    const nestedChoiceCount = members.filter((m) => m.isChoice).length;
+    let choiceIndex = 0;
+    const labels = members.map((m) => {
+      if (!m.isChoice) return m.name;
+      return nestedChoiceCount > 1 ? `choice${++choiceIndex}` : 'choice';
+    });
+    return labels.length === 0 ? '(empty)' : `(${labels.join(' | ')})`;
+  }
+
+  /**
+   * Returns the display title for a node, delegating to {@link getChoiceMemberLabel} for
+   * unselected choice wrapper nodes so the member list is rendered separately from the label.
+   * @param nodeData - The node whose title should be resolved.
+   */
+  static createNodeTitle(nodeData: NodeData): string {
+    if (
+      (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
+      !nodeData.choiceField
+    ) {
+      return VisualizationService.getChoiceMemberLabel(nodeData);
+    }
+    return nodeData.title;
   }
 
   /**
