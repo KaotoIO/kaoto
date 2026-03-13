@@ -459,7 +459,6 @@ export class JsonSchemaField extends BaseField {
     const ownerDocument = ('ownerDocument' in parent ? parent.ownerDocument : parent) as JsonSchemaDocument;
     super(parent, ownerDocument, key);
     this.type = type;
-    this.originalType = type;
     this.name = JsonSchemaDocumentUtilService.toXsltTypeName(this.type);
     const keyPart = this.key ? `-${this.key}` : '';
     this.id = `fj-${this.name}${keyPart}${getCamelRandomId('', 4)}`;
@@ -518,8 +517,6 @@ export class JsonSchemaField extends BaseField {
     to.namespacePrefix = this.namespacePrefix;
     to.namespaceURI = this.namespaceURI;
     to.typeQName = this.typeQName;
-    to.originalType = this.originalType;
-    to.originalTypeQName = this.originalTypeQName;
     to.typeOverride = this.typeOverride;
     to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     to.isChoice = this.isChoice;

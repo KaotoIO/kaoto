@@ -1,6 +1,6 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType, Types } from '../models/datamapper';
 import { IFieldTypeOverride } from '../models/datamapper/metadata';
-import { TypeOverrideVariant } from '../models/datamapper/types';
+import { FieldOverrideVariant } from '../models/datamapper/types';
 import { getAccountJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
@@ -137,7 +137,7 @@ describe('DocumentUtilService - JSON Schema', () => {
           schemaPath: '/fn:map/fn:string[@key="AccountId"]',
           type: 'number',
           originalType: 'string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -145,7 +145,7 @@ describe('DocumentUtilService - JSON Schema', () => {
 
       const accountIdField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'AccountId');
       expect(accountIdField?.type).toBe(Types.Numeric);
-      expect(accountIdField?.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(accountIdField?.typeOverride).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should apply type override to nested JSON field', () => {
@@ -161,7 +161,7 @@ describe('DocumentUtilService - JSON Schema', () => {
           schemaPath: '/fn:map/fn:map[@key="Address"]/fn:string[@key="City"]',
           type: 'number',
           originalType: 'string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -170,7 +170,7 @@ describe('DocumentUtilService - JSON Schema', () => {
       const addressField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'Address');
       const cityField = addressField?.fields.find((f) => 'key' in f && f.key === 'City');
       expect(cityField?.type).toBe(Types.Numeric);
-      expect(cityField?.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(cityField?.typeOverride).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should distinguish between fields with same key at different levels', () => {
@@ -201,7 +201,7 @@ describe('DocumentUtilService - JSON Schema', () => {
           schemaPath: '/fn:map/fn:map[@key="map"]/fn:string[@key="foo"]',
           type: 'number',
           originalType: 'string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -209,12 +209,12 @@ describe('DocumentUtilService - JSON Schema', () => {
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');
       expect(topLevelFoo?.type).toBe(Types.String);
-      expect(topLevelFoo?.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(topLevelFoo?.typeOverride).toBe(FieldOverrideVariant.NONE);
 
       const mapField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'map');
       const nestedFoo = mapField?.fields.find((f) => 'key' in f && f.key === 'foo');
       expect(nestedFoo?.type).toBe(Types.Numeric);
-      expect(nestedFoo?.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(nestedFoo?.typeOverride).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should apply override to /fn:map/fn:string[@key=foo] but not /fn:map[@key=map]/fn:string[@key=foo]', () => {
@@ -245,7 +245,7 @@ describe('DocumentUtilService - JSON Schema', () => {
           schemaPath: '/fn:map/fn:string[@key="foo"]',
           type: 'boolean',
           originalType: 'string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -253,12 +253,12 @@ describe('DocumentUtilService - JSON Schema', () => {
 
       const topLevelFoo = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'foo');
       expect(topLevelFoo?.type).toBe(Types.Boolean);
-      expect(topLevelFoo?.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(topLevelFoo?.typeOverride).toBe(FieldOverrideVariant.FORCE);
 
       const mapField = doc.fields[0].fields.find((f) => 'key' in f && f.key === 'map');
       const nestedFoo = mapField?.fields.find((f) => 'key' in f && f.key === 'foo');
       expect(nestedFoo?.type).toBe(Types.String);
-      expect(nestedFoo?.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(nestedFoo?.typeOverride).toBe(FieldOverrideVariant.NONE);
     });
   });
 });

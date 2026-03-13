@@ -1,6 +1,11 @@
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
-import { IChoiceSelection, IDataMapperMetadata, IFieldTypeOverride } from '../models/datamapper/metadata';
-import { TypeOverrideVariant } from '../models/datamapper/types';
+import {
+  IChoiceSelection,
+  IDataMapperMetadata,
+  IFieldSubstitution,
+  IFieldTypeOverride,
+} from '../models/datamapper/metadata';
+import { FieldOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
 import { getCommonTypesJsonSchema, getCustomerJsonSchema, getOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
@@ -465,7 +470,7 @@ describe('DataMapperMetadataService', () => {
           schemaPath: '/ns0:Root/Field1',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
       const definition = new DocumentDefinition(
@@ -473,6 +478,7 @@ describe('DataMapperMetadataService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
         { 'source.xsd': '<schema/>' },
+        undefined,
         undefined,
         fieldTypeOverrides,
       );
@@ -490,6 +496,7 @@ describe('DataMapperMetadataService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
         { 'source.xsd': '<schema/>' },
+        undefined,
         undefined,
         undefined,
         choiceSelections,
@@ -512,6 +519,32 @@ describe('DataMapperMetadataService', () => {
       await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
 
       expect(metadata.sourceBody.fieldTypeOverrides).toBeUndefined();
+    });
+
+    it('should persist fieldSubstitutions from DocumentDefinition', async () => {
+      const metadata = DataMapperMetadataService.createMetadata('test.xsl');
+      const fieldSubstitutions: IFieldSubstitution[] = [
+        {
+          schemaPath: '/ns0:Root/ns0:Message',
+          name: 'ns0:AlrtMetaDtaReq',
+          originalName: 'ns0:Message',
+        },
+      ];
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'source.xsd': '<schema/>' },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        fieldSubstitutions,
+      );
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
+
+      expect(metadata.sourceBody.fieldSubstitutions).toEqual(fieldSubstitutions);
     });
   });
 
@@ -544,7 +577,7 @@ describe('DataMapperMetadataService', () => {
           schemaPath: '/ns1:Order/ShipTo',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       const choiceSelections: IChoiceSelection[] = [{ schemaPath: '/ns1:Order/{choice:0}', selectedMemberIndex: 0 }];
@@ -553,6 +586,7 @@ describe('DataMapperMetadataService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         BODY_DOCUMENT_ID,
         { 'target.xsd': '<schema/>' },
+        undefined,
         undefined,
         fieldTypeOverrides,
         choiceSelections,
@@ -616,7 +650,7 @@ describe('DataMapperMetadataService', () => {
           schemaPath: '/ns0:Config/Setting',
           type: 'xs:string',
           originalType: 'xs:anyType',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
       const choiceSelections: IChoiceSelection[] = [{ schemaPath: '/ns0:Config/{choice:0}', selectedMemberIndex: 1 }];
@@ -625,6 +659,7 @@ describe('DataMapperMetadataService', () => {
         DocumentDefinitionType.XML_SCHEMA,
         'param1',
         { 'param1.xsd': '<schema/>' },
+        undefined,
         undefined,
         fieldTypeOverrides,
         choiceSelections,
@@ -905,13 +940,13 @@ describe('DataMapperMetadataService', () => {
               schemaPath: '/ns0:Root/Field1',
               type: 'ns0:Type1',
               originalType: 'xs:anyType',
-              variant: TypeOverrideVariant.SAFE,
+              variant: FieldOverrideVariant.SAFE,
             },
             {
               schemaPath: '/ns0:Root/Field2',
               type: 'ns0:Type2',
               originalType: 'xs:anyType',
-              variant: TypeOverrideVariant.SAFE,
+              variant: FieldOverrideVariant.SAFE,
             },
           ],
         },
@@ -927,13 +962,13 @@ describe('DataMapperMetadataService', () => {
         schemaPath: '/ns0:Root/Field1',
         type: 'ns0:Type1',
         originalType: 'xs:anyType',
-        variant: TypeOverrideVariant.SAFE,
+        variant: FieldOverrideVariant.SAFE,
       });
       expect(overrides[1]).toEqual({
         schemaPath: '/ns0:Root/Field2',
         type: 'ns0:Type2',
         originalType: 'xs:anyType',
-        variant: TypeOverrideVariant.SAFE,
+        variant: FieldOverrideVariant.SAFE,
       });
     });
 
@@ -949,7 +984,7 @@ describe('DataMapperMetadataService', () => {
               schemaPath: '/ns1:Order/ShipTo',
               type: 'ns1:ExtendedShipTo',
               originalType: 'xs:anyType',
-              variant: TypeOverrideVariant.SAFE,
+              variant: FieldOverrideVariant.SAFE,
             },
           ],
         },
@@ -963,7 +998,7 @@ describe('DataMapperMetadataService', () => {
         schemaPath: '/ns1:Order/ShipTo',
         type: 'ns1:ExtendedShipTo',
         originalType: 'xs:anyType',
-        variant: TypeOverrideVariant.SAFE,
+        variant: FieldOverrideVariant.SAFE,
       });
     });
 
@@ -979,7 +1014,7 @@ describe('DataMapperMetadataService', () => {
                 schemaPath: '/ns0:Config/Setting',
                 type: 'xs:string',
                 originalType: 'xs:anyType',
-                variant: TypeOverrideVariant.SAFE,
+                variant: FieldOverrideVariant.SAFE,
               },
             ],
           },
@@ -995,7 +1030,7 @@ describe('DataMapperMetadataService', () => {
         schemaPath: '/ns0:Config/Setting',
         type: 'xs:string',
         originalType: 'xs:anyType',
-        variant: TypeOverrideVariant.SAFE,
+        variant: FieldOverrideVariant.SAFE,
       });
     });
 
@@ -1041,6 +1076,32 @@ describe('DataMapperMetadataService', () => {
 
       expect(overrides).toEqual([]);
     });
+
+    it('should return empty array for PARAM document type without paramName', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      const overrides = DataMapperMetadataService.getFieldTypeOverrides(metadata, DocumentType.PARAM);
+
+      expect(overrides).toEqual([]);
+    });
+
+    it('should return empty array for unknown DocumentType', () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+
+      const overrides = DataMapperMetadataService.getFieldTypeOverrides(metadata, 99 as unknown as DocumentType);
+
+      expect(overrides).toEqual([]);
+    });
   });
 
   describe('setFieldTypeOverrides()', () => {
@@ -1054,7 +1115,7 @@ describe('DataMapperMetadataService', () => {
               schemaPath: '/ns0:Root/OldField',
               type: 'xs:int',
               originalType: 'xs:string',
-              variant: TypeOverrideVariant.FORCE,
+              variant: FieldOverrideVariant.FORCE,
             },
           ],
         },
@@ -1068,13 +1129,13 @@ describe('DataMapperMetadataService', () => {
           schemaPath: '/ns0:Root/Field1',
           type: 'xs:boolean',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
         {
           schemaPath: '/ns0:Root/Field2',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -1103,7 +1164,7 @@ describe('DataMapperMetadataService', () => {
           schemaPath: '/ns1:Order/ShipTo',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -1134,7 +1195,7 @@ describe('DataMapperMetadataService', () => {
           schemaPath: '/ns0:Config/Setting',
           type: 'xs:string',
           originalType: 'xs:anyType',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
 
@@ -1161,7 +1222,7 @@ describe('DataMapperMetadataService', () => {
               schemaPath: '/ns0:Root/Field',
               type: 'xs:int',
               originalType: 'xs:string',
-              variant: TypeOverrideVariant.FORCE,
+              variant: FieldOverrideVariant.FORCE,
             },
           ],
         },
