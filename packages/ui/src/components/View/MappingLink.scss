@@ -11,4 +11,32 @@
     stroke: var(--pf-t--global--border--color--brand--default);
     stroke-width: 6;
   }
+
+  &--partial {
+    stroke-dasharray: 5, 5;
+    opacity: 0.5;
+  }
+
+  &--edge {
+    stroke-width: 2;
+
+    &:hover {
+      stroke-width: 4;
+    }
+  }
+
+  &--source-edge {
+    // Edge -> Node: fade in from 25% to 100%
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 25%) 0%, rgb(0 0 0 / 100%) 100%);
+  }
+
+  &--target-edge {
+    // Node -> Edge: fade out from 100% to 25%
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 100%) 0%, rgb(0 0 0 / 25%) 100%);
+  }
+
+  // Edge -> Edge: both ends at 25%, peak in middle
+  &--source-edge#{&}--target-edge {
+    mask-image: linear-gradient(to right, rgb(0 0 0 / 25%) 0%, rgb(0 0 0 / 100%) 50%, rgb(0 0 0 / 25%) 100%);
+  }
 }

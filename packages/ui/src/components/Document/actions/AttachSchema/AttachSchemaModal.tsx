@@ -15,7 +15,6 @@ import {
 import { FileImportIcon, TrashIcon } from '@patternfly/react-icons';
 import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback, useContext, useMemo, useState } from 'react';
 
-import { useCanvas } from '../../../../hooks/useCanvas';
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import {
   CreateDocumentResult,
@@ -60,7 +59,6 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
 }) => {
   const api = useContext(MetadataContext)!;
   const { setIsLoading, updateDocument } = useDataMapper();
-  const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const [selectedSchemaType, setSelectedSchemaType] = useState<DocumentDefinitionType>(
     DocumentDefinitionType.XML_SCHEMA,
   );
@@ -199,8 +197,6 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     setIsLoading(true);
     try {
       updateDocument(createDocumentResult.document, createDocumentResult.documentDefinition, documentReferenceId);
-      clearNodeReferencesForDocument(documentType, documentId);
-      reloadNodeReferences();
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
       const cause = error['message'] ? ': ' + error['message'] : '';
@@ -214,17 +210,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     onModalClose();
     setCreateDocumentResult(null);
     setFilePaths([]);
-  }, [
-    clearNodeReferencesForDocument,
-    documentId,
-    documentType,
-    reloadNodeReferences,
-    setIsLoading,
-    updateDocument,
-    createDocumentResult,
-    documentReferenceId,
-    onModalClose,
-  ]);
+  }, [setIsLoading, updateDocument, createDocumentResult, documentReferenceId, onModalClose]);
 
   const onCancel = useCallback(() => {
     onModalClose();

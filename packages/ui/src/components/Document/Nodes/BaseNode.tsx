@@ -32,6 +32,15 @@ interface BaseNodeProps extends IDataTestID {
 
   /** Selection state */
   isSelected?: boolean;
+
+  /** Indicates if this is a source node (true) or target node (false). Defaults to true. */
+  isSource?: boolean;
+
+  /** Node path for connection port identification */
+  nodePath?: string;
+
+  /** Document ID for connection port identification */
+  documentId?: string;
 }
 
 export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
@@ -46,6 +55,9 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   title,
   rank,
   isSelected,
+  isSource = true,
+  nodePath,
+  documentId,
   'data-testid': dataTestId,
   children,
 }) => {
@@ -57,6 +69,14 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       data-selected={isSelected}
       style={{ '--node-rank': rank } as React.CSSProperties}
     >
+      <span
+        className={`node__connection-port ${isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
+        data-testid={`connection-port-${dataTestId}`}
+        data-connection-port="true"
+        data-node-path={nodePath}
+        data-document-id={documentId}
+      />
+
       {isExpandable && (
         <Icon className="node__expand" onClick={onExpandChange}>
           {isExpanded && <ChevronDown data-testid={`expand-icon-${dataTestId}`} />}

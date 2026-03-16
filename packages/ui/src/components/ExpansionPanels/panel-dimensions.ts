@@ -15,3 +15,12 @@ export const PANEL_INPUT_MIN_HEIGHT = 160; // Increased min height for error sta
 // Target panel dimensions
 export const TARGET_PANEL_DEFAULT_HEIGHT = 400; // 500 * 0.8
 export const TARGET_PANEL_MIN_HEIGHT = 80; // 100 * 0.8
+
+// Virtual scroll overscan configuration
+// Overscan determines how much extra content (in pixels) is rendered outside the visible viewport
+// Lower values reduce the number of off-screen rendered nodes, improving mapping line accuracy
+// but may show brief blank areas during very fast scrolling
+export const VIRTUOSO_OVERSCAN = {
+  main: 100, // Pixels to render below the visible area (when scrolling down)
+  reverse: 100, // Pixels to render above the visible area (when scrolling up)
+};
