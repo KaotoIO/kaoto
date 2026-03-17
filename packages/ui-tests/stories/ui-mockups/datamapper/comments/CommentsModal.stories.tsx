@@ -16,6 +16,10 @@ const Template: StoryFn<typeof CommentsModal> = (args) => {
 
   return (
     <div style={{ padding: '1rem' }}>
+      <p>
+        Issue: <a href="https://github.com/KaotoIO/kaoto/issues/2439">https://github.com/KaotoIO/kaoto/issues/2439</a>
+      </p>
+      <br />
       <Button variant="primary" onClick={() => setIsOpen(true)} style={{ marginBottom: '1rem' }}>
         Open Modal
       </Button>

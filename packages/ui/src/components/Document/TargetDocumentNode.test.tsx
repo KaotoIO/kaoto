@@ -819,7 +819,7 @@ describe('TargetDocumentNode', () => {
         });
       });
 
-      expect(screen.getByText('$taxRate')).toBeInTheDocument();
+      expect(screen.getByText('taxRate')).toBeInTheDocument();
       expect(screen.getByTestId('variable-node-icon')).toBeInTheDocument();
     });
   });

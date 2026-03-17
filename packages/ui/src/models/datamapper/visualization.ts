@@ -220,7 +220,11 @@ export class VariableNodeData extends MappingNodeData {
     public mapping: VariableItem,
   ) {
     super(parent, mapping);
-    this.title = `$${mapping.name}`;
+    this.title = mapping.name;
+  }
+
+  get displayTitle(): string {
+    return `$${this.title}`;
   }
 }
 
