@@ -9,7 +9,7 @@ import { AddMappingNodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
 import { ConditionMenuAction } from './actions/ConditionMenuAction';
 import { BaseNode } from './Nodes/BaseNode';
-import { NodeTitle } from './NodeTitle';
+import { NodeTitle } from './NodeTitle/NodeTitle';
 
 export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; rank: number }> = ({
   nodeData,

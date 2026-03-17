@@ -1,3 +1,5 @@
+import xmlFormat from 'xml-formatter';
+
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import {
   ChooseItem,
@@ -8,6 +10,7 @@ import {
   MappingItem,
   MappingTree,
   OtherwiseItem,
+  UnknownMappingItem,
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
@@ -25,6 +28,7 @@ import {
   TargetFieldNodeData,
   TargetNodeData,
   TargetNodeDataType,
+  UnknownMappingNodeData,
 } from '../models/datamapper/visualization';
 import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
@@ -57,7 +61,7 @@ export class VisualizationService {
     if (!(document instanceof TargetDocumentNodeData) || !document.mapping?.children) return [];
     return document.mapping.children
       .filter((child) => !(child instanceof ValueSelector))
-      .map((child) => new MappingNodeData(document, child));
+      .map((child) => VisualizationService.createNodeDataFromMappingItem(document, child));
   }
 
   static generateStructuredDocumentChildren(document: DocumentNodeData): NodeData[] {
@@ -96,11 +100,14 @@ export class VisualizationService {
     mappings?: MappingItem[],
   ): NodeData[] {
     const answer: NodeData[] = [];
-    if (parent.isPrimitive && mappings) {
+    if (mappings) {
+      const filterPriorityMappingItem = (m: MappingItem) =>
+        m instanceof UnknownMappingItem || (parent.isPrimitive && m instanceof ValueSelector);
       mappings
-        .filter((m) => m instanceof ValueSelector)
-        .forEach((m) => answer.push(new MappingNodeData(parent as TargetNodeData, m)));
+        .filter(filterPriorityMappingItem)
+        .forEach((m) => answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m)));
     }
+
     return fields.reduce((acc, field) => {
       if (field.isChoice) {
         acc.push(VisualizationService.doGenerateNodeDataFromChoiceField(parent, field, mappings));
@@ -167,7 +174,9 @@ export class VisualizationService {
   }
 
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
-    return mapping instanceof FieldItem ? new FieldItemNodeData(parent, mapping) : new MappingNodeData(parent, mapping);
+    if (mapping instanceof FieldItem) return new FieldItemNodeData(parent, mapping);
+    if (mapping instanceof UnknownMappingItem) return new UnknownMappingNodeData(parent, mapping);
+    return new MappingNodeData(parent, mapping);
   }
 
   static testNodePair(fromNode: NodeData, toNode: NodeData): MappingNodePairType {
@@ -298,13 +307,15 @@ export class VisualizationService {
     return (
       !(mappingNodeData.mapping instanceof WhenItem) &&
       !(mappingNodeData.mapping instanceof OtherwiseItem) &&
-      !(mappingNodeData.mapping instanceof ForEachItem)
+      !(mappingNodeData.mapping instanceof ForEachItem) &&
+      !(mappingNodeData.mapping instanceof UnknownMappingItem)
     );
   }
 
   static allowValueSelector(nodeData: TargetNodeData) {
     return (
       !(nodeData instanceof AddMappingNodeData) &&
+      !(nodeData instanceof UnknownMappingNodeData) &&
       !VisualizationService.isChooseNode(nodeData) &&
       !VisualizationService.isValueSelectorNode(nodeData) &&
       !VisualizationService.isForEachNode(nodeData)
@@ -400,6 +411,15 @@ export class VisualizationService {
     const fieldNodeData = nodeData as TargetFieldNodeData;
     const parentItem = VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
+  }
+
+  static formatXml(element: Element): string {
+    const rawXml = new XMLSerializer().serializeToString(element);
+    try {
+      return xmlFormat(rawXml);
+    } catch {
+      return rawXml;
+    }
   }
 
   static generateDndId(nodeData: NodeData) {

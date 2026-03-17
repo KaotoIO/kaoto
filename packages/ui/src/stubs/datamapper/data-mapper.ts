@@ -256,6 +256,15 @@ export function getInlineAttrSimpleTypeXsd(): string {
 export function getAnonymousGlobalElementRefLargeXsd(): string {
   return readStubFile('./xml/AnonymousGlobalElementRefLarge.xsd');
 }
+export function getUnknownApplyTemplateXslt(): string {
+  return readStubFile('./xml/UnknownApplyTemplate.xsl');
+}
+export function getUnknownApplyTemplateAfterFieldXslt(): string {
+  return readStubFile('./xml/UnknownApplyTemplateAfterField.xsl');
+}
+export function getUnknownApplyTemplateBeforeFieldXslt(): string {
+  return readStubFile('./xml/UnknownApplyTemplateBeforeField.xsl');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {

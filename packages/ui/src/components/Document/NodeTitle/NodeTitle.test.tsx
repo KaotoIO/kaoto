@@ -7,15 +7,16 @@ import {
   DocumentDefinitionType,
   DocumentType,
   PrimitiveDocument,
-} from '../../models/datamapper/document';
-import { IfItem, MappingTree } from '../../models/datamapper/mapping';
+} from '../../../models/datamapper/document';
+import { IfItem, MappingTree, UnknownMappingItem } from '../../../models/datamapper/mapping';
 import {
   DocumentNodeData,
   FieldNodeData,
   MappingNodeData,
   TargetDocumentNodeData,
-} from '../../models/datamapper/visualization';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+  UnknownMappingNodeData,
+} from '../../../models/datamapper/visualization';
+import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { NodeTitle } from './NodeTitle';
 
 describe('NodeTitle', () => {
@@ -183,6 +184,34 @@ describe('NodeTitle', () => {
 
     const element = screen.getByLabelText('Repeat1');
     expect(element).toBeVisible();
+  });
+
+  describe('UnknownMappingNodeData', () => {
+    const createUnknownNodeData = () => {
+      const element = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'apply-templates');
+      element.setAttribute('select', '/ns0:ShipOrder/Item');
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const parentNode = new TargetDocumentNodeData(targetDoc, tree);
+      const unknownItem = new UnknownMappingItem(tree, element);
+      return new UnknownMappingNodeData(parentNode, unknownItem);
+    };
+
+    it('should render a yellow label with "unknown" title', () => {
+      render(<NodeTitle nodeData={createUnknownNodeData()} isDocument={false} rank={0} />);
+      expect(screen.getByText('unknown')).toBeInTheDocument();
+    });
+
+    it('should show XML snippet in popover when label is clicked', async () => {
+      const user = userEvent.setup();
+      render(<NodeTitle nodeData={createUnknownNodeData()} isDocument={false} rank={0} />);
+
+      await user.click(screen.getByText('unknown'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/apply-templates/)).toBeInTheDocument();
+      });
+    });
   });
 
   it('should not display popover for MappingNodeData', async () => {

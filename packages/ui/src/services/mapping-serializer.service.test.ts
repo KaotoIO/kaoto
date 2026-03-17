@@ -11,6 +11,7 @@ import {
   IfItem,
   MappingTree,
   OtherwiseItem,
+  UnknownMappingItem,
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
@@ -22,6 +23,9 @@ import {
   getShipOrderToShipOrderInvalidForEachXslt,
   getShipOrderToShipOrderMultipleForEachXslt,
   getShipOrderToShipOrderXslt,
+  getUnknownApplyTemplateAfterFieldXslt,
+  getUnknownApplyTemplateBeforeFieldXslt,
+  getUnknownApplyTemplateXslt,
   getX12850ForEachXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
@@ -240,6 +244,43 @@ describe('MappingSerializerService', () => {
       expect(item2.field.name).toEqual('Item');
     });
 
+    it('should clone UnknownMappingItem with a deep copy of the element', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      mappingTree = MappingSerializerService.deserialize(
+        getUnknownApplyTemplateXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      const shipOrderItem = mappingTree.children[0];
+      const unknownItem = shipOrderItem.children[0] as UnknownMappingItem;
+
+      const cloned = unknownItem.clone() as UnknownMappingItem;
+
+      expect(cloned).toBeInstanceOf(UnknownMappingItem);
+      expect(cloned).not.toBe(unknownItem);
+      expect(cloned.element).not.toBe(unknownItem.element);
+      expect(cloned.element.localName).toEqual(unknownItem.element.localName);
+      expect(cloned.element.getAttribute('select')).toEqual(unknownItem.element.getAttribute('select'));
+      expect(cloned.element.children.length).toEqual(unknownItem.element.children.length);
+    });
+
+    it('should capture unrecognized XSL elements as UnknownMappingItem', () => {
+      const xslt = getUnknownApplyTemplateXslt();
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      mappingTree = MappingSerializerService.deserialize(xslt, targetDoc, mappingTree, sourceParameterMap);
+      expect(mappingTree.children.length).toEqual(1);
+      const shipOrderItem = mappingTree.children[0] as FieldItem;
+      expect(shipOrderItem.field.name).toEqual('ShipOrder');
+      expect(shipOrderItem.children.length).toEqual(1);
+      const unknownItem = shipOrderItem.children[0] as UnknownMappingItem;
+      expect(unknownItem).toBeInstanceOf(UnknownMappingItem);
+      expect(unknownItem.name).toEqual('unknown');
+      expect(unknownItem.element.localName).toEqual('apply-templates');
+      expect(unknownItem.element.getAttribute('select')).toEqual('/ns0:ShipOrder/Item');
+      expect(unknownItem.children.length).toEqual(0);
+    });
+
     it('should deserialize multiple indexed collection mappings on a same target collection', () => {
       const mockCrypto = { getRandomValues: () => [Math.random() * 10000] };
       jest.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
@@ -366,6 +407,85 @@ describe('MappingSerializerService', () => {
         )
         .iterateNext();
       expect(chooseOtherwiseSelect?.nodeValue).toEqual('Title');
+    });
+
+    it('should round-trip UnknownMappingItem verbatim including nested children', () => {
+      const xslt = getUnknownApplyTemplateXslt();
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      mappingTree = MappingSerializerService.deserialize(xslt, targetDoc, mappingTree, sourceParameterMap);
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const applyTemplates = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:apply-templates/@select',
+          xsltDocument,
+          null,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(applyTemplates?.nodeValue).toEqual('/ns0:ShipOrder/Item');
+      const sort = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:apply-templates/xsl:sort/@select',
+          xsltDocument,
+          null,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(sort?.nodeValue).toEqual('Title');
+      const withParam = xsltDocument
+        .evaluate(
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:apply-templates/xsl:with-param/@name',
+          xsltDocument,
+          null,
+          XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+        )
+        .iterateNext();
+      expect(withParam?.nodeValue).toEqual('prefix');
+    });
+
+    it('should preserve original order when UnknownMappingItem appears after a FieldItem', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      mappingTree = MappingSerializerService.deserialize(
+        getUnknownApplyTemplateAfterFieldXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const children = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/*',
+        xsltDocument,
+        null,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      );
+      const first = children.iterateNext() as Element;
+      expect(first.nodeName).toEqual('xsl:attribute');
+      const second = children.iterateNext() as Element;
+      expect(second.nodeName).toEqual('xsl:apply-templates');
+    });
+
+    it('should preserve original order when UnknownMappingItem appears before a FieldItem', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      mappingTree = MappingSerializerService.deserialize(
+        getUnknownApplyTemplateBeforeFieldXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const children = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/*',
+        xsltDocument,
+        null,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      );
+      const first = children.iterateNext() as Element;
+      expect(first.nodeName).toEqual('xsl:apply-templates');
+      const second = children.iterateNext() as Element;
+      expect(second.nodeName).toEqual('xsl:attribute');
     });
 
     it('should serialize mappings with respecting Document field order', () => {

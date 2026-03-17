@@ -2,7 +2,15 @@ import { AlertProps } from '@patternfly/react-core';
 import { RefObject } from 'react';
 
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
-import { ExpressionItem, FieldItem, IFunctionDefinition, MappingItem, MappingParentType, MappingTree } from './mapping';
+import {
+  ExpressionItem,
+  FieldItem,
+  IFunctionDefinition,
+  MappingItem,
+  MappingParentType,
+  MappingTree,
+  UnknownMappingItem,
+} from './mapping';
 import { NodePath } from './nodepath';
 import { Types } from './types';
 
@@ -123,6 +131,15 @@ export class FieldItemNodeData extends MappingNodeData {
     this.field = mapping.field;
   }
   public field: IField;
+}
+
+export class UnknownMappingNodeData extends MappingNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public mapping: UnknownMappingItem,
+  ) {
+    super(parent, mapping);
+  }
 }
 
 export class AddMappingNodeData implements TargetNodeData {

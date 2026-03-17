@@ -4,16 +4,18 @@ import { Label, Popover, Title } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
-import OptIcon from '../../assets/data-mapper/field-icons/OptIcon';
-import Repeat0Icon from '../../assets/data-mapper/field-icons/Repeat0Icon';
-import Repeat1Icon from '../../assets/data-mapper/field-icons/Repeat1Icon';
+import OptIcon from '../../../assets/data-mapper/field-icons/OptIcon';
+import Repeat0Icon from '../../../assets/data-mapper/field-icons/Repeat0Icon';
+import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   NodeData,
-} from '../../models/datamapper/visualization';
+  UnknownMappingNodeData,
+} from '../../../models/datamapper/visualization';
+import { UnknownMappingLabel } from './UnknownMappingLabel';
 
 interface INodeTitle {
   className?: string;
@@ -29,6 +31,10 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
       {title}
     </span>
   );
+
+  if (nodeData instanceof UnknownMappingNodeData) {
+    return <UnknownMappingLabel nodeData={nodeData} content={content} />;
+  }
 
   if (nodeData instanceof MappingNodeData && !(nodeData instanceof FieldItemNodeData)) {
     return <Label>{content}</Label>;
