@@ -13,6 +13,7 @@ import {
   FieldNodeData,
   MappingNodeData,
   NodeData,
+  VariableNodeData,
 } from '../../models/datamapper/visualization';
 
 interface INodeTitle {
@@ -29,6 +30,15 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
       {title}
     </span>
   );
+
+  if (nodeData instanceof VariableNodeData) {
+    return (
+      <>
+        <Label isCompact>$</Label>
+        {content}
+      </>
+    );
+  }
 
   if (nodeData instanceof MappingNodeData && !(nodeData instanceof FieldItemNodeData)) {
     return <Label>{content}</Label>;

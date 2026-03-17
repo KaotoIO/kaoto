@@ -109,6 +109,10 @@ export const MainStory: StoryFn = () => {
   return (
     <div style={{ padding: '2rem', backgroundColor: '#f5f5f5' }}>
       <h2 style={{ marginBottom: '0.5rem' }}>Choice Workflow</h2>
+      <p>
+        Issue: <a href="https://github.com/KaotoIO/kaoto/issues/2358">https://github.com/KaotoIO/kaoto/issues/2358</a>
+      </p>
+      <br />
       <p style={{ marginBottom: '1rem', color: '#666', maxWidth: '800px' }}>
         This story demonstrates the complete choice workflow in a realistic Person object context. The Person schema
         contains standard fields (firstName, lastName, age) plus three different types of choices: standard choice

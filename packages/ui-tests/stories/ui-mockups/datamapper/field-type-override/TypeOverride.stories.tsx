@@ -105,6 +105,10 @@ export const InteractiveWorkflow: StoryFn = () => {
   return (
     <div style={{ padding: '20px', minHeight: '400px' }}>
       <h3>Interactive Type Override Workflow</h3>
+      <p>
+        Issue: <a href="https://github.com/KaotoIO/kaoto/issues/2715">https://github.com/KaotoIO/kaoto/issues/2715</a>
+      </p>
+      <br />
       <p style={{ marginBottom: '20px', color: '#6a6e73' }}>
         Three schemas are pre-attached for demonstration. Right-click on any field to override its type. Safe override
         shows only compatible types, while force override shows all types:
