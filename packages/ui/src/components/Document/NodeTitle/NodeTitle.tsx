@@ -18,6 +18,7 @@ import {
   NodeData,
   TargetChoiceFieldNodeData,
   UnknownMappingNodeData,
+  VariableNodeData,
 } from '../../../models/datamapper/visualization';
 import { formatQNameWithPrefix } from '../../../services/namespace-util';
 import { VisualizationService } from '../../../services/visualization.service';
@@ -47,6 +48,15 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
 
   if (nodeData instanceof UnknownMappingNodeData) {
     return <UnknownMappingLabel nodeData={nodeData} content={content} />;
+  }
+
+  if (nodeData instanceof VariableNodeData) {
+    return (
+      <>
+        <Label isCompact>$</Label>
+        {content}
+      </>
+    );
   }
 
   if (nodeData instanceof MappingNodeData && !(nodeData instanceof FieldItemNodeData)) {

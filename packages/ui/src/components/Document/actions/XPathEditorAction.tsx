@@ -3,7 +3,7 @@ import { ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useState } from 'react';
 
 import { IExpressionHolder, MappingItem } from '../../../models/datamapper/mapping';
-import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { TargetNodeData, VariableNodeData } from '../../../models/datamapper/visualization';
 import { XPathEditorModal } from '../../XPath/XPathEditorModal';
 
 type XPathEditorProps = {
@@ -34,7 +34,7 @@ export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeDat
         }
       />
       <XPathEditorModal
-        title={nodeData.title}
+        title={nodeData instanceof VariableNodeData ? nodeData.displayTitle : nodeData.title}
         isOpen={isEditorOpen}
         onClose={closeXPathEditor}
         mapping={mapping}

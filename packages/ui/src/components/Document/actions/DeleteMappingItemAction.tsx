@@ -12,7 +12,7 @@ import { FunctionComponent, useCallback } from 'react';
 
 import { useToggle } from '../../../hooks/useToggle';
 import { InstructionItem } from '../../../models/datamapper/mapping';
-import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { TargetNodeData, VariableNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
 
 type DeleteItemProps = {
@@ -28,7 +28,8 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
     onDelete();
     closeModal();
   }, [closeModal, nodeData, onDelete]);
-  const title = `Delete ${nodeData.title} mapping`;
+  const displayName = nodeData instanceof VariableNodeData ? nodeData.displayTitle : nodeData.title;
+  const title = `Delete ${displayName} mapping`;
   let warningMessage = undefined;
   if (
     nodeData.mapping &&
@@ -36,7 +37,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
     nodeData.mapping.children.length > 0 &&
     nodeData.mapping.children[0].children.length > 0
   ) {
-    warningMessage = `Deleting a ${nodeData.title} mapping will also remove all its child mappings.`;
+    warningMessage = `Deleting a ${displayName} mapping will also remove all its child mappings.`;
   }
 
   return (

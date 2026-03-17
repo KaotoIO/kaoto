@@ -2312,7 +2312,7 @@ describe('VisualizationService', () => {
       const children = VisualizationService.generateNonDocumentNodeDataChildren(fieldItemNodeData);
       const variableNodeData = children.find((c) => c instanceof VariableNodeData);
       expect(variableNodeData).toBeInstanceOf(VariableNodeData);
-      expect(variableNodeData!.title).toBe('$taxRate');
+      expect(variableNodeData!.title).toBe('taxRate');
     });
   });
 });
