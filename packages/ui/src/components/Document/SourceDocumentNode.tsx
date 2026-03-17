@@ -11,7 +11,7 @@ import { useDocumentTreeStore } from '../../store';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
-import { NodeTitle } from './NodeTitle';
+import { NodeTitle } from './NodeTitle/NodeTitle';
 
 type TreeSourceNodeProps = {
   treeNode: DocumentTreeNode;

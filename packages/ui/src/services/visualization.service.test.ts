@@ -15,6 +15,7 @@ import {
   IfItem,
   MappingTree,
   OtherwiseItem,
+  UnknownMappingItem,
   ValueSelector,
   WhenItem,
 } from '../models/datamapper/mapping';
@@ -29,6 +30,7 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  UnknownMappingNodeData,
 } from '../models/datamapper/visualization';
 import {
   getConditionalMappingsToShipOrderXslt,
@@ -42,6 +44,7 @@ import {
   getShipOrderToShipOrderInvalidForEachXslt,
   getShipOrderToShipOrderMultipleForEachXslt,
   getShipOrderToShipOrderXslt,
+  getUnknownApplyTemplateXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from './document-util.service';
@@ -1505,6 +1508,88 @@ describe('VisualizationService', () => {
         expect(outerMembers[0]).toBeInstanceOf(ChoiceFieldNodeData);
         expect(outerMembers[1].title).toEqual('regularField');
       });
+    });
+  });
+
+  describe('formatXml()', () => {
+    it('should return formatted XML with indentation', () => {
+      const element = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'apply-templates');
+      element.setAttribute('select', '/ns0:ShipOrder/Item');
+      const child = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'sort');
+      child.setAttribute('select', 'Title');
+      element.appendChild(child);
+
+      const result = VisualizationService.formatXml(element);
+
+      expect(result).toContain('apply-templates');
+      expect(result).toContain('sort');
+      expect(result).toContain('\n');
+    });
+
+    it('should return the raw XML string when the element has no children', () => {
+      const element = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'apply-templates');
+      element.setAttribute('select', '/ns0:ShipOrder/Item');
+
+      const result = VisualizationService.formatXml(element);
+
+      expect(result).toContain('apply-templates');
+      expect(result).toContain('/ns0:ShipOrder/Item');
+    });
+  });
+
+  describe('UnknownMappingItem visibility', () => {
+    beforeEach(() => {
+      MappingSerializerService.deserialize(getUnknownApplyTemplateXslt(), targetDoc, tree, paramsMap);
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+    });
+
+    it('should include UnknownMappingNodeData in field children when mapping contains an unrecognized XSL element', () => {
+      const shipOrderItem = tree.children[0];
+      expect(shipOrderItem.children[0]).toBeInstanceOf(UnknownMappingItem);
+      expect((shipOrderItem.children[0] as UnknownMappingItem).name).toEqual('unknown');
+      expect((shipOrderItem.children[0] as UnknownMappingItem).element.localName).toEqual('apply-templates');
+
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderNode = docChildren[0] as FieldItemNodeData;
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode);
+
+      const unknownNode = shipOrderChildren.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
+      expect(unknownNode).toBeDefined();
+      expect(unknownNode.title).toEqual('unknown');
+      expect(unknownNode.mapping).toBeInstanceOf(UnknownMappingItem);
+    });
+
+    it('should mark UnknownMappingNodeData as deletable and disallow condition menu and value selector', () => {
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderNode = docChildren[0] as FieldItemNodeData;
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode);
+
+      const unknownNode = shipOrderChildren.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
+      expect(unknownNode).toBeDefined();
+      expect(VisualizationService.isDeletableNode(unknownNode)).toBeTruthy();
+      expect(VisualizationService.allowConditionMenu(unknownNode)).toBeFalsy();
+      expect(VisualizationService.allowValueSelector(unknownNode)).toBeFalsy();
+    });
+
+    it('should include UnknownMappingNodeData in children of a primitive target document', () => {
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const primitiveTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.Primitive,
+      );
+      const element = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'apply-templates');
+      element.setAttribute('select', '/ns0:ShipOrder/Item');
+      primitiveTree.children.push(new UnknownMappingItem(primitiveTree, element));
+      const primitiveDocNode = new TargetDocumentNodeData(primitiveDoc, primitiveTree);
+
+      const children = VisualizationService.generateStructuredDocumentChildren(primitiveDocNode);
+
+      const unknownNode = children.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
+      expect(unknownNode).toBeDefined();
+      expect(unknownNode.mapping.element.localName).toEqual('apply-templates');
     });
   });
 });

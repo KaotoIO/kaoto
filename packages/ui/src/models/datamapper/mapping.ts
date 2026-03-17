@@ -179,6 +179,18 @@ export class ValueSelector extends ExpressionItem {
   }
 }
 
+export class UnknownMappingItem extends MappingItem {
+  constructor(
+    public parent: MappingParentType,
+    public element: Element,
+  ) {
+    super(parent, 'unknown', getCamelRandomId(element.localName, 4));
+  }
+  doClone() {
+    return new UnknownMappingItem(this.parent, this.element.cloneNode(true) as Element);
+  }
+}
+
 export interface IFunctionDefinition {
   name: string;
   displayName: string;

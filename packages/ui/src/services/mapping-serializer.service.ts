@@ -20,6 +20,7 @@ import {
   MappingParentType,
   MappingTree,
   OtherwiseItem,
+  UnknownMappingItem,
   ValueSelector,
   ValueType,
   WhenItem,
@@ -47,6 +48,7 @@ export class MappingSerializerService {
   }
 
   private static sortMappingItem(left: MappingItem, right: MappingItem) {
+    if (left instanceof UnknownMappingItem || right instanceof UnknownMappingItem) return 0;
     const leftFields =
       left instanceof FieldItem ? [left.field] : MappingService.getConditionalFields(left as ConditionItem);
     if (leftFields.length === 0) return 1;
@@ -142,6 +144,8 @@ export class MappingSerializerService {
       child = MappingSerializerService.populateWhenItem(parent, mapping);
     } else if (mapping instanceof OtherwiseItem) {
       child = MappingSerializerService.populateOtherwiseItem(parent, mapping);
+    } else if (mapping instanceof UnknownMappingItem) {
+      child = MappingSerializerService.populateUnknownMappingItem(parent, mapping);
     }
     if (child)
       mapping.children
@@ -223,6 +227,12 @@ export class MappingSerializerService {
     const xslOtherwise = xsltDocument.createElementNS(NS_XSL, 'otherwise');
     parent.appendChild(xslOtherwise);
     return xslOtherwise;
+  }
+
+  private static populateUnknownMappingItem(parent: Element, mapping: UnknownMappingItem): Element {
+    const imported = parent.ownerDocument.importNode(mapping.element, true);
+    parent.appendChild(imported);
+    return imported;
   }
 
   /**
@@ -335,6 +345,10 @@ export class MappingSerializerService {
           mappingItem = new FieldItem(parentMapping, field);
           break;
         }
+        default: {
+          mappingItem = new UnknownMappingItem(parentMapping, item);
+          break;
+        }
       }
     } else {
       if (parentField instanceof PrimitiveDocument) return;
@@ -345,9 +359,11 @@ export class MappingSerializerService {
     }
     if (mappingItem) {
       parentMapping.children.push(mappingItem);
-      Array.from(item.children).forEach((childItem) =>
-        MappingSerializerService.restoreMapping(childItem, fieldItem ? fieldItem : parentField, mappingItem!),
-      );
+      if (!(mappingItem instanceof UnknownMappingItem)) {
+        Array.from(item.children).forEach((childItem) =>
+          MappingSerializerService.restoreMapping(childItem, fieldItem ?? parentField, mappingItem),
+        );
+      }
     }
   }
 

@@ -11,6 +11,7 @@ import {
   NodeReference,
   TargetDocumentNodeData,
   TargetNodeData,
+  UnknownMappingNodeData,
 } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -21,7 +22,7 @@ import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
-import { NodeTitle } from './NodeTitle';
+import { NodeTitle } from './NodeTitle/NodeTitle';
 
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
@@ -58,7 +59,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = ({ treeN
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isChoiceField = VisualizationService.isChoiceField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
-  const isDraggable = !isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData);
+  const isDraggable =
+    !(nodeData instanceof UnknownMappingNodeData) &&
+    (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
   const headerRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const nodeRefId = nodeData.path.toString();
