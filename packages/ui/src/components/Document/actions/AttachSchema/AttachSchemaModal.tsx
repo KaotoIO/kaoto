@@ -26,18 +26,11 @@ import {
   SCHEMA_FILE_NAME_PATTERN_XML,
 } from '../../../../models/datamapper/document';
 import { MetadataContext } from '../../../../providers';
-import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { DocumentService } from '../../../../services/document.service';
+import { createSchemaFileItems, getFileExtension, isJsonExtension, pickAndValidateSchemaFiles } from '../utils';
 import { RootElementSelect } from './RootElementSelect';
 import { SchemaFileDataList } from './SchemaFileDataList';
-import {
-  createSchemaFileItems,
-  getFileExtension,
-  isJsonExtension,
-  validateFileExtension,
-  validateNoMixedTypes,
-} from './utils';
 
 type AttachSchemaModalProps = {
   isModalOpen: boolean;
@@ -59,7 +52,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   documentTypeLabel,
 }) => {
   const api = useContext(MetadataContext)!;
-  const { setIsLoading, updateDocument } = useDataMapper();
+  const { mappingTree, setIsLoading, updateDocument } = useDataMapper();
   const { clearNodeReferencesForDocument, reloadNodeReferences } = useCanvas();
   const [selectedSchemaType, setSelectedSchemaType] = useState<DocumentDefinitionType>(
     DocumentDefinitionType.XML_SCHEMA,
@@ -93,36 +86,29 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
         ? DocumentDefinitionType.JSON_SCHEMA
         : DocumentDefinitionType.XML_SCHEMA;
 
-      const result = await DocumentService.createDocument(api, documentType, schemaType, documentId, allPaths);
+      const result = await DocumentService.createDocument(
+        api,
+        documentType,
+        schemaType,
+        documentId,
+        allPaths,
+        mappingTree.namespaceMap,
+      );
       setCreateDocumentResult(result);
       setSelectedSchemaType(schemaType);
     },
-    [api, documentType, documentId],
+    [api, documentType, documentId, mappingTree.namespaceMap],
   );
 
   const onFileUpload = useCallback(async () => {
-    const paths = await DataMapperMetadataService.selectDocumentSchema(api, fileNamePattern);
-    let newPaths: string[] = [];
-    if (Array.isArray(paths)) {
-      newPaths = paths;
-    } else if (paths) {
-      newPaths = [paths];
+    const { paths: newPaths, error } = await pickAndValidateSchemaFiles(api, fileNamePattern, documentType, filePaths);
+
+    if (error) {
+      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: error }] });
+      return;
     }
+
     if (newPaths.length === 0) return;
-
-    const firstNewExt = getFileExtension(newPaths[0]);
-
-    const extensionError = validateFileExtension(firstNewExt, documentType);
-    if (extensionError) {
-      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: extensionError }] });
-      return;
-    }
-
-    const mixedTypeError = validateNoMixedTypes(firstNewExt, filePaths);
-    if (mixedTypeError) {
-      setCreateDocumentResult({ validationStatus: 'error', errors: [{ message: mixedTypeError }] });
-      return;
-    }
 
     const combined = [...filePaths];
     for (const p of newPaths) {
@@ -147,7 +133,11 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
       }
 
       if (createDocumentResult?.documentDefinition) {
-        const result = DocumentService.removeSchemaFile(createDocumentResult.documentDefinition, filePathToRemove);
+        const result = DocumentService.removeSchemaFile(
+          createDocumentResult.documentDefinition,
+          filePathToRemove,
+          mappingTree.namespaceMap,
+        );
         if (result.document) {
           setCreateDocumentResult(result);
           return;
@@ -155,7 +145,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
       }
       await validateAndCreateDocument(remaining);
     },
-    [filePaths, validateAndCreateDocument, createDocumentResult],
+    [filePaths, validateAndCreateDocument, createDocumentResult, mappingTree.namespaceMap],
   );
 
   const onRemoveAllFiles = useCallback(() => {

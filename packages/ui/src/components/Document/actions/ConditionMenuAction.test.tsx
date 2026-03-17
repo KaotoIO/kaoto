@@ -14,9 +14,15 @@ import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { ConditionMenuAction } from './ConditionMenuAction';
 
 describe('ConditionMenuAction', () => {
-  const targetDoc = TestUtil.createTargetOrderDoc();
-  const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-  const documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+  let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+  let mappingTree: MappingTree;
+  let documentNodeData: TargetDocumentNodeData;
+
+  beforeEach(() => {
+    targetDoc = TestUtil.createTargetOrderDoc();
+    mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
+  });
 
   it('should apply ValueSelector', () => {
     const nodeData = new TargetFieldNodeData(

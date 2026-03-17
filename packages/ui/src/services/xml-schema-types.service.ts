@@ -56,9 +56,9 @@ export class XmlSchemaTypesService {
     const localPart = parts.length > 1 ? parts[1] : parts[0];
 
     const namespaceURI = prefix ? namespaceMap[prefix] || '' : '';
-    const typeQName = new QName(namespaceURI || null, localPart);
-
     const type = XmlSchemaTypesService.mapTypeStringToEnum(namespaceURI, localPart);
+
+    const typeQName = new QName(namespaceURI || null, localPart);
 
     const variant = XmlSchemaTypesService.determineOverrideVariant(field, type, typeQName, namespaceURI);
 

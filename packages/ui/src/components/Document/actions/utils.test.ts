@@ -1,5 +1,5 @@
-import { DocumentType } from '../../../../models/datamapper/document';
-import { DataMapperStepService } from '../../../../services/datamapper-step.service';
+import { DocumentType } from '../../../models/datamapper/document';
+import { DataMapperStepService } from '../../../services/datamapper-step.service';
 import {
   createSchemaFileItems,
   getFileExtension,

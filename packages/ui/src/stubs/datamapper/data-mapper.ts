@@ -211,6 +211,9 @@ export function getSimpleTypeRestrictionXsd(): string {
 export function getLazyLoadingTestXsd(): string {
   return readStubFile('./xml/LazyLoadingTest.xsd');
 }
+export function getLazyLoadingTestExtensionsXsd(): string {
+  return readStubFile('./xml/LazyLoadingTestExtensions.xsd');
+}
 export function getAdtInXsd(): string {
   return readStubFile('./xml/ADT_IN.xsd');
 }
