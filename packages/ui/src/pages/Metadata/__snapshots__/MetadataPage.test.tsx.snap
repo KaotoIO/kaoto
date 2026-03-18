@@ -224,6 +224,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             class="pf-v6-c-text-input-group__utilities"
           >
             <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-4"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.creationTimestamp__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <button
               aria-expanded="false"
               aria-label="#.creationTimestamp__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
@@ -282,7 +310,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for deletionGracePeriodSeconds field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-4"
+              data-ouia-component-id="OUIA-Generated-Button-plain-5"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -337,6 +365,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-6"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.deletionGracePeriodSeconds__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.deletionGracePeriodSeconds__field-actions"
@@ -396,7 +452,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for deletionTimestamp field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-5"
+              data-ouia-component-id="OUIA-Generated-Button-plain-7"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -452,6 +508,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             class="pf-v6-c-text-input-group__utilities"
           >
             <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-8"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.deletionTimestamp__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <button
               aria-expanded="false"
               aria-label="#.deletionTimestamp__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
@@ -500,7 +584,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <button
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-6"
+            data-ouia-component-id="OUIA-Generated-Button-plain-9"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             data-testid="#.finalizers__add"
@@ -544,7 +628,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
                 <span
                   aria-label="More info for finalizers field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-7"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-10"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -602,7 +686,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for generateName field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-8"
+              data-ouia-component-id="OUIA-Generated-Button-plain-11"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -657,6 +741,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-12"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.generateName__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.generateName__field-actions"
@@ -716,7 +828,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for generation field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-9"
+              data-ouia-component-id="OUIA-Generated-Button-plain-13"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -771,6 +883,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-14"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.generation__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.generation__field-actions"
@@ -837,7 +977,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for [object Object] field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-10"
+              data-ouia-component-id="OUIA-Generated-Button-plain-15"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -887,7 +1027,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <button
               aria-label="Add a new property"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-11"
+              data-ouia-component-id="OUIA-Generated-Button-plain-16"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.labels__add"
@@ -940,7 +1080,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <button
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-12"
+            data-ouia-component-id="OUIA-Generated-Button-plain-17"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             data-testid="#.managedFields__add"
@@ -984,7 +1124,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
                 <span
                   aria-label="More info for managedFields field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-13"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-18"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -1042,7 +1182,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for name field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-14"
+              data-ouia-component-id="OUIA-Generated-Button-plain-19"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1097,6 +1237,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-20"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.name__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.name__field-actions"
@@ -1156,7 +1324,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for namespace field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-15"
+              data-ouia-component-id="OUIA-Generated-Button-plain-21"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1212,6 +1380,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             class="pf-v6-c-text-input-group__utilities"
           >
             <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-22"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.namespace__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
+            <button
               aria-expanded="false"
               aria-label="#.namespace__field-actions"
               class="pf-v6-c-menu-toggle pf-m-plain"
@@ -1260,7 +1456,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <button
             aria-label="Add new item"
             class="pf-v6-c-button pf-m-plain"
-            data-ouia-component-id="OUIA-Generated-Button-plain-16"
+            data-ouia-component-id="OUIA-Generated-Button-plain-23"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             data-testid="#.ownerReferences__add"
@@ -1304,7 +1500,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
                 <span
                   aria-label="More info for ownerReferences field"
                   class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                  data-ouia-component-id="OUIA-Generated-Button-plain-17"
+                  data-ouia-component-id="OUIA-Generated-Button-plain-24"
                   data-ouia-component-type="PF6/Button"
                   data-ouia-safe="true"
                   role="button"
@@ -1362,7 +1558,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for resourceVersion field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-18"
+              data-ouia-component-id="OUIA-Generated-Button-plain-25"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1417,6 +1613,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-26"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.resourceVersion__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.resourceVersion__field-actions"
@@ -1476,7 +1700,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for selfLink field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-19"
+              data-ouia-component-id="OUIA-Generated-Button-plain-27"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1531,6 +1755,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-28"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.selfLink__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.selfLink__field-actions"
@@ -1590,7 +1842,7 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
             <span
               aria-label="More info for uid field"
               class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-              data-ouia-component-id="OUIA-Generated-Button-plain-20"
+              data-ouia-component-id="OUIA-Generated-Button-plain-29"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               role="button"
@@ -1645,6 +1897,34 @@ exports[`MetadataPage renders the KaotoForm when the resource type is supported 
           <div
             class="pf-v6-c-text-input-group__utilities"
           >
+            <button
+              aria-label="Open suggestions"
+              class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+              data-ouia-component-id="OUIA-Generated-Button-plain-30"
+              data-ouia-component-type="PF6/Button"
+              data-ouia-safe="true"
+              data-testid="#.uid__open-suggestions-button"
+              title="Open suggestions (Ctrl+Space)"
+              type="button"
+            >
+              <span
+                class="pf-v6-c-button__icon"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="pf-v6-svg"
+                  fill="currentColor"
+                  height="1em"
+                  role="img"
+                  viewBox="0 0 352 512"
+                  width="1em"
+                >
+                  <path
+                    d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                  />
+                </svg>
+              </span>
+            </button>
             <button
               aria-expanded="false"
               aria-label="#.uid__field-actions"

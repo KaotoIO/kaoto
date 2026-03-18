@@ -58,7 +58,7 @@
   },
   "dependencies": {
     "@kaoto/camel-catalog": "^0.4.0",
-    "@kaoto/forms": "^1.6.0",
+    "@kaoto/forms": "^1.7.0",
     "@kaoto/kaoto": "workspace:*",
     "@patternfly/patternfly": "^6.4.0",
     "@patternfly/react-code-editor": "^6.4.0",

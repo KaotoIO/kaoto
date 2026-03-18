@@ -184,7 +184,7 @@ exports[`BeanField UnprefixedBeanField should render 1`] = `
           <span
             aria-label="More info for # field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-119"
+            data-ouia-component-id="OUIA-Generated-Button-plain-175"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -246,7 +246,7 @@ exports[`BeanField UnprefixedBeanField should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-120"
+              data-ouia-component-id="OUIA-Generated-Button-plain-176"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#__clear"

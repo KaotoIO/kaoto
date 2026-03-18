@@ -90,6 +90,34 @@ exports[`SettingsForm should render 1`] = `
           class="pf-v6-c-text-input-group__utilities"
         >
           <button
+            aria-label="Open suggestions"
+            class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+            data-ouia-component-id="OUIA-Generated-Button-plain-2"
+            data-ouia-component-type="PF6/Button"
+            data-ouia-safe="true"
+            data-testid="#.catalogUrl__open-suggestions-button"
+            title="Open suggestions (Ctrl+Space)"
+            type="button"
+          >
+            <span
+              class="pf-v6-c-button__icon"
+            >
+              <svg
+                aria-hidden="true"
+                class="pf-v6-svg"
+                fill="currentColor"
+                height="1em"
+                role="img"
+                viewBox="0 0 352 512"
+                width="1em"
+              >
+                <path
+                  d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                />
+              </svg>
+            </span>
+          </button>
+          <button
             aria-expanded="false"
             aria-label="#.catalogUrl__field-actions"
             class="pf-v6-c-menu-toggle pf-m-plain"
@@ -148,7 +176,7 @@ exports[`SettingsForm should render 1`] = `
           <span
             aria-label="More info for Node label to display in canvas field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-2"
+            data-ouia-component-id="OUIA-Generated-Button-plain-3"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -210,7 +238,7 @@ exports[`SettingsForm should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-3"
+              data-ouia-component-id="OUIA-Generated-Button-plain-4"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.nodeLabel__clear"
@@ -298,7 +326,7 @@ exports[`SettingsForm should render 1`] = `
           <span
             aria-label="More info for Open Node toolbar field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-4"
+            data-ouia-component-id="OUIA-Generated-Button-plain-5"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -360,7 +388,7 @@ exports[`SettingsForm should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-5"
+              data-ouia-component-id="OUIA-Generated-Button-plain-6"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.nodeToolbarTrigger__clear"
@@ -448,7 +476,7 @@ exports[`SettingsForm should render 1`] = `
           <span
             aria-label="More info for Color scheme field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-6"
+            data-ouia-component-id="OUIA-Generated-Button-plain-7"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -510,7 +538,7 @@ exports[`SettingsForm should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-7"
+              data-ouia-component-id="OUIA-Generated-Button-plain-8"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.colorScheme__clear"
@@ -598,7 +626,7 @@ exports[`SettingsForm should render 1`] = `
           <span
             aria-label="More info for Canvas layout direction field"
             class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-            data-ouia-component-id="OUIA-Generated-Button-plain-8"
+            data-ouia-component-id="OUIA-Generated-Button-plain-9"
             data-ouia-component-type="PF6/Button"
             data-ouia-safe="true"
             role="button"
@@ -660,7 +688,7 @@ exports[`SettingsForm should render 1`] = `
             <button
               aria-label="Clear input value"
               class="pf-v6-c-button pf-m-plain"
-              data-ouia-component-id="OUIA-Generated-Button-plain-9"
+              data-ouia-component-id="OUIA-Generated-Button-plain-10"
               data-ouia-component-type="PF6/Button"
               data-ouia-safe="true"
               data-testid="#.canvasLayoutDirection__clear"
@@ -738,7 +766,7 @@ exports[`SettingsForm should render 1`] = `
         <button
           aria-label="Remove object"
           class="pf-v6-c-button pf-m-plain"
-          data-ouia-component-id="OUIA-Generated-Button-plain-10"
+          data-ouia-component-id="OUIA-Generated-Button-plain-11"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="#.rest__remove"
@@ -782,7 +810,7 @@ exports[`SettingsForm should render 1`] = `
               <span
                 aria-label="More info for Rest configuration field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-11"
+                data-ouia-component-id="OUIA-Generated-Button-plain-12"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -843,7 +871,7 @@ exports[`SettingsForm should render 1`] = `
               <span
                 aria-label="More info for Apicurio Registry URL field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-12"
+                data-ouia-component-id="OUIA-Generated-Button-plain-13"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
@@ -899,6 +927,34 @@ exports[`SettingsForm should render 1`] = `
             <div
               class="pf-v6-c-text-input-group__utilities"
             >
+              <button
+                aria-label="Open suggestions"
+                class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
+                data-ouia-component-id="OUIA-Generated-Button-plain-14"
+                data-ouia-component-type="PF6/Button"
+                data-ouia-safe="true"
+                data-testid="#.rest.apicurioRegistryUrl__open-suggestions-button"
+                title="Open suggestions (Ctrl+Space)"
+                type="button"
+              >
+                <span
+                  class="pf-v6-c-button__icon"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="pf-v6-svg"
+                    fill="currentColor"
+                    height="1em"
+                    role="img"
+                    viewBox="0 0 352 512"
+                    width="1em"
+                  >
+                    <path
+                      d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
+                    />
+                  </svg>
+                </span>
+              </button>
               <button
                 aria-expanded="false"
                 aria-label="#.rest.apicurioRegistryUrl__field-actions"
@@ -958,7 +1014,7 @@ exports[`SettingsForm should render 1`] = `
               <span
                 aria-label="More info for Custom media types field"
                 class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                data-ouia-component-id="OUIA-Generated-Button-plain-13"
+                data-ouia-component-id="OUIA-Generated-Button-plain-15"
                 data-ouia-component-type="PF6/Button"
                 data-ouia-safe="true"
                 role="button"
