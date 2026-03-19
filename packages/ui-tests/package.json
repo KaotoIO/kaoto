@@ -23,7 +23,6 @@
     "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=$CHROMATIC_PROJECT_TOKEN"
   },
   "devDependencies": {
-    "@4tw/cypress-drag-drop": "^2.3.1",
     "@cypress/grep": "^4.1.0",
     "@eslint/js": "^9.10.0",
     "@storybook/addon-docs": "^10.2.14",
