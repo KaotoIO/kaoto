@@ -5,15 +5,6 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@4tw/cypress-drag-drop@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@4tw/cypress-drag-drop@npm:2.3.1"
-  peerDependencies:
-    cypress: ">=2"
-  checksum: 10/776cb4b8810229dd79ffdda76d2f6a96013606cd7cdea936d6dd22585b832e7c53bdd8b2d4433e7aad6604248aee590bb95b2e1f71ecc1d89cf924449f62b185
-  languageName: node
-  linkType: hard
-
 "@adobe/css-tools@npm:^4.4.0":
   version: 4.4.0
   resolution: "@adobe/css-tools@npm:4.4.0"
@@ -3468,7 +3459,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kaoto/kaoto-tests@workspace:packages/ui-tests"
   dependencies:
-    "@4tw/cypress-drag-drop": "npm:^2.3.1"
     "@cypress/grep": "npm:^4.1.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.4.0"

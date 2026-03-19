@@ -267,6 +267,7 @@ Cypress.Commands.add('checkLightMode', () => {
 });
 
 Cypress.Commands.add('DnDOnNode', (sourceNodeName: string, targetNodeName: string) => {
+  cy.wait(1000); // Wait for graph to load and stabilize before performing DnD
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
   const targetNode = cy.get(`[data-testid="${targetNodeName}"]`);
 
@@ -275,6 +276,11 @@ Cypress.Commands.add('DnDOnNode', (sourceNodeName: string, targetNodeName: strin
 });
 
 Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: string) => {
+  cy.wait(1000); // Wait for graph to load and stabilize before performing DnD
   const sourceNode = cy.get(`[data-testid="${sourceNodeName}"]`);
-  sourceNode.drag(`[data-id="${targetEdgeName}"]`, { force: true });
+  const targetEdge = cy.get(`[data-id="${targetEdgeName}"]`);
+
+  sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
+  targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
+  targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
 });

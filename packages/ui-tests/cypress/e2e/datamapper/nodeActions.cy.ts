@@ -1,5 +1,4 @@
 import 'cypress-real-events';
-import '@4tw/cypress-drag-drop';
 
 describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' }, () => {
   beforeEach(() => {
@@ -36,6 +35,7 @@ describe('Test for DataMapper : datamapper node actions', { browser: '!firefox' 
       '- to:',
       'uri: log:test',
     ];
+    cy.get('[data-testid="Source Code"]').click({ force: true });
     cy.openSourceCode();
     cy.checkMultiLineContent(yamlRoute);
   });
