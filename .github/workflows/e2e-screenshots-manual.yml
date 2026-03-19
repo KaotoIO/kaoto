@@ -1,0 +1,92 @@
+name: 📸 E2E Screenshots (Manual - Chrome)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
+      options: --user 1001
+
+    steps:
+      - name: 👷‍♀️ Checkout
+        uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: yarn install --immutable
+
+      - name: Build packages
+        run: yarn workspaces foreach --verbose --all --topological-dev run build:dev
+
+      - name: Build @kaoto/kaoto package in lib mode
+        run: yarn workspace @kaoto/kaoto run build:lib
+
+      - name: 💾 Save build folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-dist
+          if-no-files-found: error
+          path: packages/ui/dist
+
+  test-chrome-with-screenshots:
+    needs: install
+    runs-on: ubuntu-latest
+    container:
+      image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
+      options: --user 1001
+
+    steps:
+      - name: 👷‍♀️ Checkout
+        uses: actions/checkout@v4
+
+      - name: 🗄️ Download the UI build folder
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-dist
+          path: packages/ui/dist
+
+      - name: 🔨 Cypress run - Screenshots Only
+        uses: cypress-io/github-action@v6.10.8
+        with:
+          browser: chrome
+          start: yarn workspace @kaoto/kaoto run preview --host
+          config: baseUrl=http://localhost:4173,viewportWidth=1366,viewportHeight=768,video=false
+          spec: cypress/e2e/screenshots-only.cy.ts
+          working-directory: packages/ui-tests
+          wait-on: 'http://127.0.0.1:4173'
+          wait-on-timeout: 120
+          env: CAPTURE_SCREENSHOTS=true
+
+      - name: 💾 Save screenshots from screenshots-only tests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-only
+          path: packages/ui-tests/cypress/screenshots
+
+      # - name: 🔨 Cypress run - All E2E Tests
+      #   uses: cypress-io/github-action@v6.10.8
+      #   with:
+      #     browser: chrome
+      #     start: yarn workspace @kaoto/kaoto run preview --host
+      #     config: baseUrl=http://localhost:4173,viewportWidth=1366,viewportHeight=768,video=false
+      #     working-directory: packages/ui-tests
+      #     wait-on: 'http://127.0.0.1:4173'
+      #     wait-on-timeout: 120
+      #     env: grepTags=-weekly,CAPTURE_SCREENSHOTS=true
+
+      # - name: 💾 Save screenshots from all E2E tests
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: screenshots-all-e2e
+      #     path: packages/ui-tests/cypress/screenshots
