@@ -1,3 +1,1 @@
-import { AboutPage } from './AboutPage';
-
-export const element = <AboutPage />;
+export { AboutPage as Component } from './AboutPage';

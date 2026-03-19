@@ -1,3 +1,1 @@
-import { MetadataPage } from './MetadataPage';
-
-export const element = <MetadataPage />;
+export { MetadataPage as Component } from './MetadataPage';

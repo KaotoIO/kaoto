@@ -25,7 +25,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
         ],
       },
       {
-        title: 'Rest DSL',
+        title: 'Rest',
         hidden: () => !NAVIGATION_ELEMENTS.RestDsl.includes(currentSchemaType),
         children: [
           {

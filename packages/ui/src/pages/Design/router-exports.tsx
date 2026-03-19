@@ -11,6 +11,7 @@ const additionalControls = [
   </ToolbarItem>,
   <SerializerSelector key="toolbar-serializer-selector" />,
 ];
-export const element = (
+
+export const Component = () => (
   <DesignPage fallback={<ReturnToSourceCodeFallback />} additionalToolbarControls={additionalControls} />
 );

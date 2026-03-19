@@ -1,3 +1,1 @@
-import { DataMapperNotYetInBrowserPage } from './DataMapperNotYetInBrowser';
-
-export const element = <DataMapperNotYetInBrowserPage />;
+export { DataMapperNotYetInBrowserPage as Component } from './DataMapperNotYetInBrowser';

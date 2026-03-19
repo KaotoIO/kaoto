@@ -1,3 +1,1 @@
-import { RestDslImportPage } from './RestDslImportPage';
-
-export const element = <RestDslImportPage />;
+export { RestDslImportPage as Component } from './RestDslImportPage';

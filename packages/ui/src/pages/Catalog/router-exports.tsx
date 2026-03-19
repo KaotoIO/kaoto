@@ -1,3 +1,1 @@
-import { CatalogPage } from './CatalogPage';
-
-export const element = <CatalogPage />;
+export { CatalogPage as Component } from './CatalogPage';

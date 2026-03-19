@@ -103,14 +103,14 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
             data-ouia-component-id="OUIA-Generated-NavExpandable-10"
             data-ouia-component-type="PF6/NavExpandable"
             data-ouia-safe="true"
-            data-testid="Rest DSL"
+            data-testid="Rest"
           >
             <button
               aria-expanded="true"
               class="pf-v6-c-nav__link"
-              id="Rest DSL"
+              id="Rest"
             >
-              Rest DSL
+              Rest
               <span
                 class="pf-v6-c-nav__toggle"
               >
@@ -134,7 +134,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
               </span>
             </button>
             <section
-              aria-labelledby="Rest DSL"
+              aria-labelledby="Rest"
               class="pf-v6-c-nav__subnav"
             >
               <ul
@@ -359,15 +359,15 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
             data-ouia-component-id="OUIA-Generated-NavExpandable-4"
             data-ouia-component-type="PF6/NavExpandable"
             data-ouia-safe="true"
-            data-testid="Rest DSL"
+            data-testid="Rest"
             hidden=""
           >
             <button
               aria-expanded="true"
               class="pf-v6-c-nav__link"
-              id="Rest DSL"
+              id="Rest"
             >
-              Rest DSL
+              Rest
               <span
                 class="pf-v6-c-nav__toggle"
               >
@@ -391,7 +391,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
               </span>
             </button>
             <section
-              aria-labelledby="Rest DSL"
+              aria-labelledby="Rest"
               class="pf-v6-c-nav__subnav"
             >
               <ul
@@ -616,15 +616,15 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
             data-ouia-component-id="OUIA-Generated-NavExpandable-8"
             data-ouia-component-type="PF6/NavExpandable"
             data-ouia-safe="true"
-            data-testid="Rest DSL"
+            data-testid="Rest"
             hidden=""
           >
             <button
               aria-expanded="true"
               class="pf-v6-c-nav__link"
-              id="Rest DSL"
+              id="Rest"
             >
-              Rest DSL
+              Rest
               <span
                 class="pf-v6-c-nav__toggle"
               >
@@ -648,7 +648,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
               </span>
             </button>
             <section
-              aria-labelledby="Rest DSL"
+              aria-labelledby="Rest"
               class="pf-v6-c-nav__subnav"
             >
               <ul
@@ -873,15 +873,15 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
             data-ouia-component-id="OUIA-Generated-NavExpandable-6"
             data-ouia-component-type="PF6/NavExpandable"
             data-ouia-safe="true"
-            data-testid="Rest DSL"
+            data-testid="Rest"
             hidden=""
           >
             <button
               aria-expanded="true"
               class="pf-v6-c-nav__link"
-              id="Rest DSL"
+              id="Rest"
             >
-              Rest DSL
+              Rest
               <span
                 class="pf-v6-c-nav__toggle"
               >
@@ -905,7 +905,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
               </span>
             </button>
             <section
-              aria-labelledby="Rest DSL"
+              aria-labelledby="Rest"
               class="pf-v6-c-nav__subnav"
             >
               <ul
@@ -1130,14 +1130,14 @@ exports[`Navigation Component navigation sidebar for: Route 1`] = `
             data-ouia-component-id="OUIA-Generated-NavExpandable-2"
             data-ouia-component-type="PF6/NavExpandable"
             data-ouia-safe="true"
-            data-testid="Rest DSL"
+            data-testid="Rest"
           >
             <button
               aria-expanded="true"
               class="pf-v6-c-nav__link"
-              id="Rest DSL"
+              id="Rest"
             >
-              Rest DSL
+              Rest
               <span
                 class="pf-v6-c-nav__toggle"
               >
@@ -1161,7 +1161,7 @@ exports[`Navigation Component navigation sidebar for: Route 1`] = `
               </span>
             </button>
             <section
-              aria-labelledby="Rest DSL"
+              aria-labelledby="Rest"
               class="pf-v6-c-nav__subnav"
             >
               <ul
