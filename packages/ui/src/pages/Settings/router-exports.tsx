@@ -1,3 +1,1 @@
-import { SettingsPage } from './SettingsPage';
-
-export const element = <SettingsPage />;
+export { SettingsPage as Component } from './SettingsPage';

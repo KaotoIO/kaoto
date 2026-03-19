@@ -1,3 +1,1 @@
-import { RestDslEditorPage } from './RestDslEditorPage';
-
-export const element = <RestDslEditorPage />;
+export { RestDslEditorPage as Component } from './RestDslEditorPage';

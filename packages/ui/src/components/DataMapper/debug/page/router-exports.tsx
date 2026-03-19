@@ -1,3 +1,1 @@
-import { DataMapperDebugger } from '../DataMapperDebugger';
-
-export const element = <DataMapperDebugger />;
+export { DataMapperDebugger as Component } from '../DataMapperDebugger';

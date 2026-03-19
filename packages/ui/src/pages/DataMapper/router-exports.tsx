@@ -1,3 +1,1 @@
-import { DataMapperPage } from './DataMapperPage';
-
-export const element = <DataMapperPage />;
+export { DataMapperPage as Component } from './DataMapperPage';

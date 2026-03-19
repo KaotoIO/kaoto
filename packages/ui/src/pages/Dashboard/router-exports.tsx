@@ -1,3 +1,1 @@
-import { DashboardPage } from './DashboardPage';
-
-export const element = <DashboardPage />;
+export { DashboardPage as Component } from './DashboardPage';

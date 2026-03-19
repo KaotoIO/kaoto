@@ -1,3 +1,1 @@
-import { BeansPage } from './BeansPage';
-
-export const element = <BeansPage />;
+export { BeansPage as Component } from './BeansPage';

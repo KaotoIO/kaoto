@@ -1,3 +1,1 @@
-import { PipeErrorHandlerPage } from './PipeErrorHandlerPage';
-
-export const element = <PipeErrorHandlerPage />;
+export { PipeErrorHandlerPage as Component } from './PipeErrorHandlerPage';
