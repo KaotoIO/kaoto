@@ -1597,6 +1597,26 @@ describe('VisualizationService', () => {
         expect(chooseItem.when.length).toEqual(0);
         expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
       });
+
+      it('should create a simple field mapping when dragging a selected choice member', () => {
+        const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], 0);
+        const selectedMember = choiceField.fields[0];
+        const choiceNode = new ChoiceFieldNodeData(
+          sourceDocNode,
+          selectedMember as unknown as (typeof sourceDoc.fields)[0],
+        );
+        choiceNode.choiceField = choiceField;
+        const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+
+        VisualizationService.engageMapping(tree, choiceNode, targetFieldNode);
+
+        expect(tree.children.length).toEqual(1);
+        const targetFieldItem = tree.children[0];
+        expect(targetFieldItem).toBeInstanceOf(FieldItem);
+        expect(targetFieldItem.children.length).toEqual(1);
+        expect(targetFieldItem.children[0]).toBeInstanceOf(ValueSelector);
+        expect(targetFieldItem.children[0]).not.toBeInstanceOf(ChooseItem);
+      });
     });
   });
 

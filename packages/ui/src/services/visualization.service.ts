@@ -564,7 +564,12 @@ export class VisualizationService {
       sourceNode instanceof ChoiceFieldNodeData &&
       (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)
     ) {
-      VisualizationService.createChooseFromChoice(sourceNode.field, targetNode);
+      if (sourceNode.choiceField !== undefined) {
+        const item = VisualizationService.getOrCreateFieldItem(targetNode);
+        MappingService.mapToField(sourceNode.field, item);
+      } else {
+        VisualizationService.createChooseFromChoice(sourceNode.field, targetNode);
+      }
       return;
     }
 
