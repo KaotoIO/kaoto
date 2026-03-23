@@ -12,7 +12,9 @@ import {
 } from '@kaoto/forms';
 import { Badge, Button, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { TrashIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+
+import { CamelComponentSchemaService } from '../../../../../../models/visualization/flows/support/camel-component-schema.service';
 
 export const CustomTableToggle: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const [activeView, setActiveView] = useState<'standard' | 'custom'>('standard');
@@ -28,6 +30,45 @@ export const CustomTableToggle: FunctionComponent<FieldProps> = ({ propName, req
   }, [schema]);
 
   const { value, onChange } = useFieldValue<KeyValueType | undefined>(propName);
+  const previousViewRef = useRef<'standard' | 'custom'>(activeView);
+  const isTransformingRef = useRef(false);
+
+  const componentName = useMemo(() => {
+    return schema['x-component-name'] as string | undefined;
+  }, [schema]);
+
+  // Transform value when switching views
+  useEffect(() => {
+    if (previousViewRef.current === activeView || isTransformingRef.current || !componentName || !value) {
+      return;
+    }
+
+    isTransformingRef.current = true;
+    previousViewRef.current = activeView;
+
+    if (activeView === 'custom' && hasSchemaProperties) {
+      // Flatten for custom view
+      const flattened = CamelComponentSchemaService.flattenMultivalueParameters(
+        componentName,
+        value as Record<string, unknown>,
+      ) as KeyValueType;
+      if (JSON.stringify(flattened) !== JSON.stringify(value)) {
+        onChange(flattened);
+      }
+    } else if (activeView === 'standard' && hasSchemaProperties) {
+      // Nest for standard view
+      const nested = CamelComponentSchemaService.nestMultivalueParameters(
+        componentName,
+        value as Record<string, unknown>,
+      ) as KeyValueType;
+      if (JSON.stringify(nested) !== JSON.stringify(value)) {
+        onChange(nested);
+      }
+    }
+
+    isTransformingRef.current = false;
+  }, [activeView, componentName, hasSchemaProperties, value, onChange]);
+
   const items = useMemo(() => Object.entries(value ?? {}), [value]);
 
   const onRemove = useCallback(() => {
