@@ -1109,6 +1109,39 @@ describe('DocumentUtilService', () => {
       expect(doc.definition.choiceSelections![0].selectedMemberIndex).toBe(1);
       expect(choiceField.selectedMemberIndex).toBe(1);
     });
+    it('should return false when applying same selectedMemberIndex (idempotency)', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = makeChoiceField(shipOrderField, ['email', 'phone']);
+      shipOrderField.fields.push(choiceField);
+
+      // Add a descendant choice to verify it's not invalidated
+      const emailField = choiceField.fields[0];
+      const nestedChoice = makeChoiceField(emailField, ['work', 'personal']);
+      emailField.fields = [nestedChoice];
+
+      const selection: IChoiceSelection = { schemaPath: '/ns0:ShipOrder/{choice:0}', selectedMemberIndex: 0 };
+      const nestedSelection: IChoiceSelection = {
+        schemaPath: '/ns0:ShipOrder/{choice:0}/email/{choice:0}',
+        selectedMemberIndex: 1,
+      };
+
+      // Apply initial selections
+      DocumentUtilService.processChoiceSelection(doc, selection, namespaceMap);
+      DocumentUtilService.processChoiceSelection(doc, nestedSelection, namespaceMap);
+
+      expect(choiceField.selectedMemberIndex).toBe(0);
+      expect(nestedChoice.selectedMemberIndex).toBe(1);
+      expect(doc.definition.choiceSelections).toHaveLength(2);
+
+      // Re-apply the same selection - should return false and not invalidate descendants
+      const result = DocumentUtilService.processChoiceSelection(doc, selection, namespaceMap);
+
+      expect(result).toBe(false);
+      expect(choiceField.selectedMemberIndex).toBe(0);
+      expect(nestedChoice.selectedMemberIndex).toBe(1); // Should remain unchanged
+      expect(doc.definition.choiceSelections).toHaveLength(2); // Both selections still present
+    });
 
     it('should handle nested choice (element inside choice member)', () => {
       const doc = TestUtil.createSourceOrderDoc();

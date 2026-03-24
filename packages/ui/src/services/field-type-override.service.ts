@@ -1,5 +1,5 @@
 import { DocumentDefinition, IDocument, IField, PrimitiveDocument } from '../models/datamapper/document';
-import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { FieldOverrideVariant, IFieldSubstituteInfo, IFieldTypeInfo, Types } from '../models/datamapper/types';
 import { DocumentUtilService, ParseTypeOverrideFn } from './document-util.service';
 import { JsonSchemaDocument } from './json-schema-document.model';
@@ -13,12 +13,14 @@ import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 /**
  * Service for field type override and element substitution operations.
- * Provides high-level orchestration for applying, removing, and managing type overrides,
- * choice selections, and element substitutions (apply/revert).
+ * Provides high-level orchestration for applying, removing, and managing type overrides
+ * and element substitutions (apply/revert).
  *
  * This service consolidates all field type override functionality in one place, reducing
  * code duplication and improving maintainability by eliminating if-XML/if-JSON patterns
  * scattered across multiple services.
+ *
+ * Note: Choice selection operations have been moved to {@link ChoiceSelectionService}.
  *
  * @example
  * ```typescript
@@ -356,81 +358,6 @@ export class FieldTypeOverrideService {
       document.definition.choiceSelections,
       document.definition.fieldSubstitutions,
     );
-  }
-
-  /**
-   * Apply a choice selection to a choice compositor field in a document.
-   *
-   * This high-level orchestration method builds the `schemaPath` string from the
-   * field's ancestor chain and delegates to {@link DocumentUtilService.processChoiceSelection()}.
-   *
-   * The document is modified in place. After calling this method, use
-   * {@link DataMapperProvider.updateDocument()} to persist changes and trigger re-visualization.
-   *
-   * @param document - The document containing the choice field
-   * @param choiceField - The choice compositor field (must have `isChoice === true`)
-   * @param selectedMemberIndex - 0-based index of the choice member to select
-   * @param namespaceMap - Namespace prefix to URI mapping for path generation
-   *
-   * @example
-   * ```typescript
-   * FieldTypeOverrideService.applyChoiceSelection(document, choiceField, 1, namespaceMap);
-   *
-   * // Persist changes via provider
-   * const previousRefId = document.getReferenceId(namespaceMap);
-   * updateDocument(document, document.definition, previousRefId);
-   * ```
-   *
-   * @see revertChoiceSelection
-   * @see DocumentUtilService.processChoiceSelection
-   */
-  static applyChoiceSelection(
-    document: IDocument,
-    choiceField: IField,
-    selectedMemberIndex: number,
-    namespaceMap: Record<string, string>,
-  ): void {
-    if (!choiceField.isChoice) return;
-    const schemaPath = SchemaPathService.build(choiceField, namespaceMap);
-    const selection: IChoiceSelection = { schemaPath, selectedMemberIndex };
-    const changed = DocumentUtilService.processChoiceSelection(document, selection, namespaceMap);
-    if (changed) {
-      DocumentUtilService.invalidateDescendants(document, schemaPath);
-    }
-  }
-
-  /**
-   * Revert a choice selection from a choice compositor field in a document.
-   * Clears the selected member index from the field and removes the entry from the document definition.
-   *
-   * This is a no-op if `choiceField.selectedMemberIndex` is already `undefined`.
-   *
-   * The document is modified in place. After calling this method, use
-   * {@link DataMapperProvider.updateDocument()} to persist changes and trigger re-visualization.
-   *
-   * @param document - The document containing the choice field
-   * @param choiceField - The choice compositor field to clear
-   * @param namespaceMap - Namespace prefix to URI mapping for path generation
-   *
-   * @example
-   * ```typescript
-   * FieldTypeOverrideService.revertChoiceSelection(document, choiceField, namespaceMap);
-   *
-   * // Persist changes via provider
-   * const previousRefId = document.getReferenceId(namespaceMap);
-   * updateDocument(document, document.definition, previousRefId);
-   * ```
-   *
-   * @see applyChoiceSelection
-   * @see DocumentUtilService.removeChoiceSelection
-   */
-  static revertChoiceSelection(document: IDocument, choiceField: IField, namespaceMap: Record<string, string>): void {
-    if (choiceField.selectedMemberIndex === undefined) return;
-    const schemaPath = SchemaPathService.build(choiceField, namespaceMap);
-    const changed = DocumentUtilService.removeChoiceSelection(document, schemaPath, namespaceMap);
-    if (changed) {
-      DocumentUtilService.invalidateDescendants(document, schemaPath);
-    }
   }
 
   /**

@@ -514,6 +514,9 @@ export class DocumentUtilService {
       // Ignoring out of length selectedMemberIndex
       return false;
     }
+    if (choiceField.selectedMemberIndex === selectedMemberIndex) {
+      return false;
+    }
     choiceField.selectedMemberIndex = selectedMemberIndex;
     return true;
   }
