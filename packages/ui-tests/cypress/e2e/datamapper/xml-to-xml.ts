@@ -14,7 +14,7 @@ describe('Test for DataMapper : XML to XML', () => {
     cy.get('[data-testid^="node-source-fx-OrderId"]').click({ force: true });
 
     cy.checkFieldSelected('source', 'fx', 'OrderId', true);
-    cy.checkFieldSelected('target', 'fx', 'OrderId', true);
+    cy.checkFieldSelected('target', 'fx', 'OrderId', false);
     cy.checkMappingLineSelected(true);
 
     cy.exportMappings();
@@ -45,22 +45,22 @@ describe('Test for DataMapper : XML to XML', () => {
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Name'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Name'],
       '$Account/ns0:Account/Name',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Address'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Address'],
       '$Account/ns0:Account/Address',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-City'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-City'],
+      ['document-doc-targetBody-Body', 'node-target-fx-City'],
       '$Account/ns0:Account/City',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Country'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
 
@@ -71,23 +71,23 @@ describe('Test for DataMapper : XML to XML', () => {
     );
 
     cy.engageMapping(
-      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Title'],
-      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Title'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Title'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Title'],
       'Title',
     );
     cy.engageMapping(
-      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Note'],
-      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Note'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Note'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Note'],
       'Note',
     );
     cy.engageMapping(
-      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Quantity'],
-      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Quantity'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Quantity'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Quantity'],
       'Quantity',
     );
     cy.engageMapping(
-      ['document-doc-sourceBody-Body', 'node-source-fx-Item', 'node-source-fx-Price'],
-      ['document-doc-targetBody-Body', 'node-target-for-each', 'node-target-fx-Item', 'node-target-fx-Price'],
+      ['document-doc-sourceBody-Body', 'node-source-fx-Price'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Price'],
       'Price',
     );
 
@@ -108,22 +108,22 @@ describe('Test for DataMapper : XML to XML', () => {
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Name'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Name'],
       '$Account/ns0:Account/Name',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Address'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Address'],
       '$Account/ns0:Account/Address',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-City'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-City'],
+      ['document-doc-targetBody-Body', 'node-target-fx-City'],
       '$Account/ns0:Account/City',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Country'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
 
@@ -147,22 +147,22 @@ describe('Test for DataMapper : XML to XML', () => {
 
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Name'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Name'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Name'],
       '$Account/ns0:Account/Name',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Address'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Address'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Address'],
       '$Account/ns0:Account/Address',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-City'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-City'],
+      ['document-doc-targetBody-Body', 'node-target-fx-City'],
       '$Account/ns0:Account/City',
     );
     cy.engageMapping(
       ['document-doc-param-Account', 'node-source-fx-Country'],
-      ['document-doc-targetBody-Body', 'node-target-fx-ShipTo', 'node-target-fx-Country'],
+      ['document-doc-targetBody-Body', 'node-target-fx-Country'],
       '$Account/ns0:Account/Country',
     );
 
@@ -185,7 +185,7 @@ describe('Test for DataMapper : XML to XML', () => {
 
     cy.get('[data-testid^="node-source-fx-OrderPerson"]').first().click({ force: true });
     cy.checkFieldSelected('source', 'fx', 'OrderPerson', true);
-    cy.checkFieldSelected('target', 'fx', 'OrderPerson', true);
+    cy.checkFieldSelected('target', 'fx', 'OrderPerson', false);
     cy.checkMappingLineSelected(true);
   });
 
@@ -210,14 +210,14 @@ describe('Test for DataMapper : XML to XML', () => {
     // Should create mapping lines for both Price and Quantity
     cy.get('[data-testid^="node-source-fx-Price"]').first().click({ force: true });
     cy.checkFieldSelected('source', 'fx', 'Price', true);
-    cy.checkFieldSelected('target', 'fx', 'Note', true);
+    cy.checkFieldSelected('target', 'fx', 'Note', false);
     cy.checkMappingLineSelected(true);
 
     // Test logical operator mapping: OrderPerson = 'VIP' and OrderId = '123'
     // Should create mapping lines for both OrderPerson and OrderId
     cy.get('[data-testid^="node-source-fx-OrderPerson"]').first().click({ force: true });
     cy.checkFieldSelected('source', 'fx', 'OrderPerson', true);
-    cy.checkFieldSelected('target', 'fx', 'OrderPerson', true);
+    cy.checkFieldSelected('target', 'fx', 'OrderPerson', false);
     cy.checkMappingLineSelected(true);
   });
 });
