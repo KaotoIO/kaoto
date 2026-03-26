@@ -1,10 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "OrderId": {
-      "type": "string"
-    },
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "OrderId": {
+        "type": "string"
+      },
     "OrderPerson": {
       "type": "string"
     },
@@ -35,29 +37,30 @@
         "Country"
       ]
     },
-    "Item": {
-      "type": "array",
-      "items": [
-        {
-          "type": "object",
-          "properties": {
-            "Title": {
-              "type": "string"
+      "Item": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "Title": {
+                "type": "string"
+              },
+              "Quantity": {
+                "type": "number"
+              },
+              "Price": {
+                "type": "number"
+              }
             },
-            "Quantity": {
-              "type": "number"
-            },
-            "Price": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "Title",
-            "Quantity",
-            "Price"
-          ]
-        }
-      ]
+            "required": [
+              "Title",
+              "Quantity",
+              "Price"
+            ]
+          }
+        ]
+      }
     }
   },
   "required": [
