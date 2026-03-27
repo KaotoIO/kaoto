@@ -35,19 +35,19 @@ describe('processTreeNodeToDepth', () => {
 
     expect(processedNodePaths).toHaveLength(14);
     expect(processedNodePaths).toEqual([
-      //
+      // DFS order: Root -> ShipOrder -> children -> grandchildren (maxFields extends beyond maxDepth)
       'targetBody:Body://',
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-OrderId-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-OrderPerson-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-ShipTo-\d{4}$/),
-      expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}$/),
-
+      // ShipTo children (depth-first: complete this subtree before moving to Item)
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-ShipTo-\d{4}\/fx-Name-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-ShipTo-\d{4}\/fx-Address-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-ShipTo-\d{4}\/fx-City-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-ShipTo-\d{4}\/fx-Country-\d{4}$/),
-
+      // Item and its children
+      expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}\/fx-Title-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}\/fx-Note-\d{4}$/),
       expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}\/fx-Quantity-\d{4}$/),
@@ -67,7 +67,7 @@ describe('processTreeNodeToDepth', () => {
       processedNodePaths.push(treeNode.path);
     });
 
-    expect(processedNodePaths).toHaveLength(107);
+    expect(processedNodePaths).toHaveLength(177);
   });
 
   it('should not throw an error when processing beyond the DocumentTree parsed level', () => {
@@ -88,24 +88,25 @@ describe('processTreeNodeToDepth', () => {
     expect(processedNodePaths).toHaveLength(14);
   });
 
-  it('should stop processing when reaching the max fields count', () => {
-    targetDoc = TestUtil.createCamelSpringXsdSourceDoc();
-    targetDocNode = new DocumentNodeData(targetDoc);
-    tree = new DocumentTree(targetDocNode);
-    const processedNodePaths: string[] = [];
+  it('should use maxFields to extend traversal beyond maxDepth', () => {
+    const processedWithFields: string[] = [];
+    const processedDepthOnly: string[] = [];
     TreeParsingService.parseTree(tree);
 
-    const fn = () => {
-      processTreeNode(
-        tree.root,
-        (treeNode) => {
-          processedNodePaths.push(treeNode.path);
-        },
-        { maxDepth: Number.MAX_SAFE_INTEGER },
-      );
-    };
+    // With default maxFields=100, nodes beyond maxDepth are still visited
+    processTreeNode(tree.root, (treeNode) => {
+      processedWithFields.push(treeNode.path);
+    });
 
-    expect(fn).not.toThrow();
-    expect(processedNodePaths).toHaveLength(3517);
+    // With maxFields=0, only maxDepth is respected (no extension)
+    processTreeNode(
+      tree.root,
+      (treeNode) => {
+        processedDepthOnly.push(treeNode.path);
+      },
+      { maxFields: 0 },
+    );
+
+    expect(processedWithFields.length).toBeGreaterThan(processedDepthOnly.length);
   });
 });
