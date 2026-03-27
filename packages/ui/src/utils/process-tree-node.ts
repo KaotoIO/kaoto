@@ -2,7 +2,8 @@ import { INITIAL_FIELD_COUNTS, INITIAL_PARSE_DEPTH } from '../models/datamapper/
 import { DocumentTreeNode } from '../models/datamapper/document-tree-node';
 
 /**
- * Process on a tree node and its children up to the specified depth
+ * Process a tree node and its children up to the specified depth.
+ * maxDepth is the guaranteed minimum depth, maxFields allows extending beyond it.
  */
 export const processTreeNode = (
   treeNode: DocumentTreeNode,
@@ -14,35 +15,22 @@ export const processTreeNode = (
 ): void => {
   const { maxDepth = INITIAL_PARSE_DEPTH, maxFields = INITIAL_FIELD_COUNTS } = options;
 
-  // Use a queue for breadth-first traversal
-  const queue: Array<{ node: DocumentTreeNode; depth: number; count: number }> = [
-    { node: treeNode, depth: 0, count: 0 },
-  ];
-
   let totalFieldsProcessed = 0;
 
-  while (queue.length > 0) {
-    const { node, depth, count } = queue.shift()!;
-
-    if ((depth >= maxDepth && count >= maxFields) || node.nodeData.isPrimitive) {
-      continue;
+  const visit = (node: DocumentTreeNode, depth: number): void => {
+    if ((depth >= maxDepth && totalFieldsProcessed >= maxFields) || node.nodeData.isPrimitive) {
+      return;
     }
 
+    totalFieldsProcessed++;
     fn(node);
 
     for (const childTreeNode of node.children) {
-      const nextDepth = depth + 1;
-      const nextFieldsCount = count + 1;
-
-      totalFieldsProcessed++;
-
-      if (nextDepth < maxDepth || totalFieldsProcessed < maxFields) {
-        queue.push({
-          node: childTreeNode,
-          depth: nextDepth,
-          count: nextFieldsCount,
-        });
+      if (depth + 1 < maxDepth || totalFieldsProcessed < maxFields) {
+        visit(childTreeNode, depth + 1);
       }
     }
-  }
+  };
+
+  visit(treeNode, 0);
 };
