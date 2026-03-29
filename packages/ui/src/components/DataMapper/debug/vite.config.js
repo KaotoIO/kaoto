@@ -18,10 +18,8 @@ export default defineConfig(async () => {
     resolve: {
       alias: [
         {
-          find: /^~.+/,
-          replacement: (val) => {
-            return val.replace(/^~/, '');
-          },
+          find: /^~(.+)/,
+          replacement: '$1',
         },
       ],
     },
