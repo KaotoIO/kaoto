@@ -1,6 +1,6 @@
 import './SourcePanel.scss';
 
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
 import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
@@ -52,6 +52,22 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
   useEffect(() => {
     syncConnectionPorts();
   }, [flattenedNodes.length, syncConnectionPorts]);
+
+  const renderSourceItem = useCallback(
+    (index: number) => {
+      const flattenedNode = flattenedNodes[index];
+      return (
+        <SourceDocumentNode
+          key={flattenedNode.path}
+          treeNode={flattenedNode.treeNode}
+          documentId={sourceBodyNodeData.id}
+          isReadOnly={isReadOnly}
+          rank={flattenedNode.depth + 1}
+        />
+      );
+    },
+    [flattenedNodes, sourceBodyNodeData.id, isReadOnly],
+  );
 
   // Check if body has schema (similar to parameter logic)
   const hasSchema = !sourceBodyNodeData.isPrimitive;
@@ -107,18 +123,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
             <Virtuoso
               totalCount={flattenedNodes.length}
               components={virtuosoComponents}
-              itemContent={(index) => {
-                const flattenedNode = flattenedNodes[index];
-                return (
-                  <SourceDocumentNode
-                    key={flattenedNode.path}
-                    treeNode={flattenedNode.treeNode}
-                    documentId={sourceBodyNodeData.id}
-                    isReadOnly={isReadOnly}
-                    rank={flattenedNode.depth + 1}
-                  />
-                );
-              }}
+              itemContent={renderSourceItem}
               overscan={VIRTUOSO_OVERSCAN}
             />
           )}

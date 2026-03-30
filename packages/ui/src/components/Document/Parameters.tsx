@@ -140,6 +140,22 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
 
   const hasSchema = !parameterNodeData.isPrimitive;
   const [isExpanded, setIsExpanded] = useState(hasSchema);
+
+  const renderParameterItem = useCallback(
+    (index: number) => {
+      const flattenedNode = flattenedNodes[index];
+      return (
+        <SourceDocumentNode
+          key={flattenedNode.path}
+          treeNode={flattenedNode.treeNode}
+          documentId={parameterNodeData.id}
+          isReadOnly={isReadOnly}
+          rank={flattenedNode.depth + 1}
+        />
+      );
+    },
+    [flattenedNodes, parameterNodeData.id, isReadOnly],
+  );
   const parameterName = document.documentId;
   const isRenaming = renamingParameter === parameterName;
   const documentReferenceId = document.getReferenceId(mappingTree.namespaceMap);
@@ -212,18 +228,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
         <Virtuoso
           totalCount={flattenedNodes.length}
           components={virtuosoComponents}
-          itemContent={(index) => {
-            const flattenedNode = flattenedNodes[index];
-            return (
-              <SourceDocumentNode
-                key={flattenedNode.path}
-                treeNode={flattenedNode.treeNode}
-                documentId={parameterNodeData.id}
-                isReadOnly={isReadOnly}
-                rank={flattenedNode.depth + 1}
-              />
-            );
-          }}
+          itemContent={renderParameterItem}
           overscan={VIRTUOSO_OVERSCAN}
         />
       )}
