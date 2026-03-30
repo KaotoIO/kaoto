@@ -89,6 +89,21 @@ export const TargetPanel: FunctionComponent = () => {
     [targetBodyNodeData.id, targetBodyDocument.documentId],
   );
 
+  const renderTargetItem = useCallback(
+    (index: number) => {
+      const flattenedNode = flattenedNodes[index];
+      return (
+        <TargetDocumentNode
+          key={flattenedNode.path}
+          treeNode={flattenedNode.treeNode}
+          documentId={targetBodyNodeData.id}
+          rank={flattenedNode.depth + 1}
+        />
+      );
+    },
+    [flattenedNodes, targetBodyNodeData.id],
+  );
+
   // Actions for target body document
   const documentActions = useMemo(() => {
     const actions = [...edgeMarkers];
@@ -147,17 +162,7 @@ export const TargetPanel: FunctionComponent = () => {
             <Virtuoso
               totalCount={flattenedNodes.length}
               components={virtuosoComponents}
-              itemContent={(index) => {
-                const flattenedNode = flattenedNodes[index];
-                return (
-                  <TargetDocumentNode
-                    key={flattenedNode.path}
-                    treeNode={flattenedNode.treeNode}
-                    documentId={targetBodyNodeData.id}
-                    rank={flattenedNode.depth + 1}
-                  />
-                );
-              }}
+              itemContent={renderTargetItem}
               overscan={VIRTUOSO_OVERSCAN}
             />
           )}
