@@ -186,39 +186,65 @@ describe('BaseNode', () => {
   });
 
   describe('Connection Port', () => {
-    it('should always render connection port', () => {
-      render(<BaseNode title="Title" data-testid="test-node" />);
+    it('should render connection port when both nodePath and documentId are provided', () => {
+      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path" documentId="doc-123" />);
       expect(screen.getByTestId('connection-port-test-node')).toBeInTheDocument();
     });
 
+    it('should not render connection port when nodePath is missing', () => {
+      render(<BaseNode title="Title" data-testid="test-node" documentId="doc-123" />);
+      expect(screen.queryByTestId('connection-port-test-node')).not.toBeInTheDocument();
+    });
+
+    it('should not render connection port when documentId is missing', () => {
+      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path" />);
+      expect(screen.queryByTestId('connection-port-test-node')).not.toBeInTheDocument();
+    });
+
     it('should render source connection port by default', () => {
-      render(<BaseNode title="Title" data-testid="test-node" />);
+      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path" documentId="doc-123" />);
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveClass('node__connection-port--source');
     });
 
     it('should render source connection port when isSource is true', () => {
-      render(<BaseNode title="Title" data-testid="test-node" isSource={true} />);
+      render(
+        <BaseNode
+          title="Title"
+          data-testid="test-node"
+          isSource={true}
+          nodePath="source://path"
+          documentId="doc-123"
+        />,
+      );
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveClass('node__connection-port--source');
       expect(port).not.toHaveClass('node__connection-port--target');
     });
 
     it('should render target connection port when isSource is false', () => {
-      render(<BaseNode title="Title" data-testid="test-node" isSource={false} />);
+      render(
+        <BaseNode
+          title="Title"
+          data-testid="test-node"
+          isSource={false}
+          nodePath="source://path"
+          documentId="doc-123"
+        />,
+      );
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveClass('node__connection-port--target');
       expect(port).not.toHaveClass('node__connection-port--source');
     });
 
     it('should set data-node-path attribute when nodePath is provided', () => {
-      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path/to/node" />);
+      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path/to/node" documentId="doc-123" />);
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveAttribute('data-node-path', 'source://path/to/node');
     });
 
     it('should set data-document-id attribute when documentId is provided', () => {
-      render(<BaseNode title="Title" data-testid="test-node" documentId="doc-123" />);
+      render(<BaseNode title="Title" data-testid="test-node" nodePath="source://path" documentId="doc-123" />);
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveAttribute('data-document-id', 'doc-123');
     });

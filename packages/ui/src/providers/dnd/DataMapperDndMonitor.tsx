@@ -32,7 +32,7 @@ export const DataMapperDnDMonitor: FunctionComponent = () => {
       const fromField = event.active?.data.current as NodeData;
       const toField = event.over?.data.current as NodeData;
       console.debug(
-        `onDragCancel: active: ${fromField?.path?.toString()}, over:${toField?.path?.toString()}, handler=${handler?.constructor.name}]`,
+        `onDragCancel: [active: ${fromField?.path?.toString()}, over:${toField?.path?.toString()}, handler=${handler?.constructor.name}]`,
       );
     },
   });

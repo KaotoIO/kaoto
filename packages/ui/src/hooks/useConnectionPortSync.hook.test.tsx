@@ -79,8 +79,9 @@ describe('useConnectionPortSync', () => {
     });
 
     it('should query for connection port elements with correct selector', () => {
-      const mockQuerySelectorAll = jest.fn().mockReturnValue([]);
-      document.querySelectorAll = mockQuerySelectorAll;
+      const querySelectorAllSpy = jest
+        .spyOn(document, 'querySelectorAll')
+        .mockReturnValue([] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -88,13 +89,16 @@ describe('useConnectionPortSync', () => {
         result.current.syncConnectionPorts();
       });
 
-      expect(mockQuerySelectorAll).toHaveBeenCalledWith(
+      expect(querySelectorAllSpy).toHaveBeenCalledWith(
         `[data-connection-port="true"][data-document-id="${documentId}"]`,
       );
+      querySelectorAllSpy.mockRestore();
     });
 
     it('should not set connection ports when no elements found', () => {
-      document.querySelectorAll = jest.fn().mockReturnValue([]);
+      const querySelectorAllSpy = jest
+        .spyOn(document, 'querySelectorAll')
+        .mockReturnValue([] as unknown as NodeListOf<Element>);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -103,6 +107,7 @@ describe('useConnectionPortSync', () => {
       });
 
       expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith(documentId, {});
+      querySelectorAllSpy.mockRestore();
     });
 
     it('should skip elements without nodePath data attribute', () => {

@@ -13,6 +13,7 @@ import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingTree } from '../../models/datamapper/mapping';
 import {
+  AddMappingNodeData,
   DocumentNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -624,6 +625,45 @@ describe('TargetDocumentNode', () => {
       expect(actionsContainer).toBeInTheDocument();
       // Should be a span placeholder, not actual actions
       expect(actionsContainer?.tagName).toBe('SPAN');
+    });
+  });
+
+  describe('AddMappingNode', () => {
+    it('should render AddMappingNode with Add Mapping button for AddMappingNodeData', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const documentNodeData = new TargetDocumentNodeData(document, mappingTree);
+      const addMappingNodeData = new AddMappingNodeData(documentNodeData, document.fields[0]);
+      const treeNode = new DocumentTreeNode(addMappingNodeData);
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />, { wrapper });
+      });
+
+      expect(screen.getByText('Add Mapping')).toBeInTheDocument();
+    });
+
+    it('should not render TargetNodeActions for AddMappingNodeData', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const documentNodeData = new TargetDocumentNodeData(document, mappingTree);
+      const addMappingNodeData = new AddMappingNodeData(documentNodeData, document.fields[0]);
+      const treeNode = new DocumentTreeNode(addMappingNodeData);
+
+      const { container } = render(
+        <TargetDocumentNode treeNode={treeNode} documentId={documentNodeData.id} rank={1} />,
+        { wrapper },
+      );
+
+      expect(container.querySelector('.node__target__actions')).not.toBeInTheDocument();
     });
   });
 

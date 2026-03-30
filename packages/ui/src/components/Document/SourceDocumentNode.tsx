@@ -48,7 +48,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo((
   const nodePathString = nodeData.path.toString();
 
   // Get selection state from store
-  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString));
+  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, true));
 
   const handleClickField = useCallback(
     (event: MouseEvent) => {

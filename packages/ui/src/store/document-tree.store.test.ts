@@ -379,7 +379,7 @@ describe('useDocumentTreeStore', () => {
       const nodePath = 'sourceBody:Body://';
 
       useDocumentTreeStore.getState().setSelectedNode(nodePath, true);
-      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath);
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath, true);
 
       expect(isSelected).toBe(true);
     });
@@ -389,7 +389,7 @@ describe('useDocumentTreeStore', () => {
       const otherPath = 'targetBody:Body://';
 
       useDocumentTreeStore.getState().setSelectedNode(selectedPath, true);
-      const isSelected = useDocumentTreeStore.getState().isNodeSelected(otherPath);
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(otherPath, true);
 
       expect(isSelected).toBe(false);
     });
@@ -397,7 +397,16 @@ describe('useDocumentTreeStore', () => {
     it('should return false when nothing is selected', () => {
       const nodePath = 'sourceBody:Body://';
 
-      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath);
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath, true);
+
+      expect(isSelected).toBe(false);
+    });
+
+    it('should return false when same path but different isSource side', () => {
+      const nodePath = 'order:Body://id';
+
+      useDocumentTreeStore.getState().setSelectedNode(nodePath, true);
+      const isSelected = useDocumentTreeStore.getState().isNodeSelected(nodePath, false);
 
       expect(isSelected).toBe(false);
     });

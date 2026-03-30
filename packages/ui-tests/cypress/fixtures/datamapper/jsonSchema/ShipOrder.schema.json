@@ -7,36 +7,36 @@
       "OrderId": {
         "type": "string"
       },
-    "OrderPerson": {
-      "type": "string"
-    },
-    "ShipTo": {
-      "type": "object",
-      "properties": {
-        "Name": {
-          "type": "string"
-        },
-        "Street": {
-          "type": "string"
-        },
-        "City": {
-          "type": "string"
-        },
-        "State": {
-          "type": "string"
-        },
-        "Country": {
-          "type": "string"
-        }
+      "OrderPerson": {
+        "type": "string"
       },
-      "required": [
-        "Name",
-        "Street",
-        "City",
-        "State",
-        "Country"
-      ]
-    },
+      "ShipTo": {
+        "type": "object",
+        "properties": {
+          "Name": {
+            "type": "string"
+          },
+          "Street": {
+            "type": "string"
+          },
+          "City": {
+            "type": "string"
+          },
+          "State": {
+            "type": "string"
+          },
+          "Country": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "Name",
+          "Street",
+          "City",
+          "State",
+          "Country"
+        ]
+      },
       "Item": {
         "type": "array",
         "items": [
