@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo, useRef } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useRef } from 'react';
 import { VirtuosoProps } from 'react-virtuoso';
 
 import { TreeConnectionPorts, useDocumentTreeStore } from '../store/document-tree.store';
@@ -26,6 +26,14 @@ export const useConnectionPortSync = (documentId: string) => {
     // Add small buffer to account for rounding errors.
     return elemRect.top >= containerRect.top - 1 && elemRect.bottom <= containerRect.bottom + 1;
   };
+
+  useEffect(() => {
+    return () => {
+      if (rafId.current !== null) {
+        cancelAnimationFrame(rafId.current);
+      }
+    };
+  }, []);
 
   const syncConnectionPorts = useCallback(() => {
     /* Cancel any pending update */
@@ -61,14 +69,13 @@ export const useConnectionPortSync = (documentId: string) => {
   }, [documentId, setNodesConnectionPorts]);
 
   // Create Virtuoso components object with custom Scroller that triggers sync on scroll
-  const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(
-    () => ({
-      Scroller: forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, ref) => (
-        <div {...props} ref={ref} onScroll={syncConnectionPorts} />
-      )),
-    }),
-    [syncConnectionPorts],
-  );
+  const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(() => {
+    const Scroller = forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>((props, ref) => (
+      <div {...props} ref={ref} onScroll={syncConnectionPorts} />
+    ));
+    Scroller.displayName = 'VirtuosoScroller';
+    return { Scroller };
+  }, [syncConnectionPorts]);
 
   return { syncConnectionPorts, virtuosoComponents };
 };

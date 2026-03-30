@@ -5,7 +5,7 @@ import { MappingLinksService } from '../../../services/mapping-links.service';
 import { useDocumentTreeStore } from '../../../store';
 
 export const DataMapperMonitor = () => {
-  const { mappingTree, sourceParameterMap, sourceBodyDocument, targetBodyDocument } = useDataMapper();
+  const { mappingTree, sourceParameterMap, sourceBodyDocument } = useDataMapper();
   const selectedNodePath = useDocumentTreeStore((state) => state.selectedNodePath);
   const selectedNodeIsSource = useDocumentTreeStore((state) => state.selectedNodeIsSource);
 
@@ -19,7 +19,7 @@ export const DataMapperMonitor = () => {
     ).forEach((mapping) => {
       console.debug(`Mapping: [source={${mapping.sourceNodePath}}, target={${mapping.targetNodePath}}]`);
     });
-  }, [selectedNodePath, selectedNodeIsSource, mappingTree, sourceBodyDocument, sourceParameterMap, targetBodyDocument]);
+  }, [selectedNodePath, selectedNodeIsSource, mappingTree, sourceBodyDocument, sourceParameterMap]);
 
   return <></>;
 };

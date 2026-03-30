@@ -69,13 +69,15 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       data-selected={isSelected}
       style={{ '--node-rank': rank } as React.CSSProperties}
     >
-      <span
-        className={`node__connection-port ${isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
-        data-testid={`connection-port-${dataTestId}`}
-        data-connection-port="true"
-        data-node-path={nodePath}
-        data-document-id={documentId}
-      />
+      {nodePath && documentId && (
+        <span
+          className={`node__connection-port ${isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
+          data-testid={`connection-port-${dataTestId}`}
+          data-connection-port="true"
+          data-node-path={nodePath}
+          data-document-id={documentId}
+        />
+      )}
 
       {isExpandable && (
         <Icon className="node__expand" onClick={onExpandChange}>

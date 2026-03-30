@@ -4,6 +4,7 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, useCallback, useMem
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import {
+  AddMappingNodeData,
   FieldItemNodeData,
   TargetDocumentNodeData,
   TargetNodeData,
@@ -14,6 +15,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { TargetNodeActions } from './actions/TargetNodeActions';
+import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
@@ -64,7 +66,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
   }, [refreshMappingTree]);
 
   // Get selection state from store
-  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString));
+  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, false));
 
   const handleClickField = useCallback(
     (event: MouseEvent) => {
@@ -75,9 +77,13 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
   );
 
   const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)), // false for source nodes
+    (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)), // false for target nodes
     [nodePathString, toggleSelectedNode],
   );
+
+  if (nodeData instanceof AddMappingNodeData) {
+    return <AddMappingNode nodeData={nodeData} rank={rank} />;
+  }
 
   return (
     <div

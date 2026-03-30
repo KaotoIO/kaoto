@@ -40,14 +40,16 @@ export interface DocumentTreeState {
   setSelectedNode: (nodePath: string | null, isSource: boolean) => void;
   toggleSelectedNode: (nodePath: string, isSource: boolean) => void;
   clearSelection: () => void;
-  isNodeSelected: (nodePath: string) => boolean;
+  isNodeSelected: (nodePath: string, isSource: boolean) => boolean;
 }
 
 export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
   devtools(
     (set, get) => ({
       expansionState: {},
+      expansionStateArray: {},
       nodesConnectionPorts: {},
+      nodesConnectionPortsArray: {},
       selectedNodePath: null,
       selectedNodeIsSource: false,
 
@@ -118,8 +120,8 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         set({ selectedNodePath: null, selectedNodeIsSource: false });
       },
 
-      isNodeSelected: (nodePath) => {
-        return get().selectedNodePath === nodePath;
+      isNodeSelected: (nodePath, isSource) => {
+        return get().selectedNodePath === nodePath && get().selectedNodeIsSource === isSource;
       },
     }),
     { name: 'Document Tree Store' },

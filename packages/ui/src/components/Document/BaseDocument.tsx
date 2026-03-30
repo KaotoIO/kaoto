@@ -3,7 +3,7 @@ import './BaseDocument.scss';
 import { Draggable } from '@carbon/icons-react';
 import { ActionListGroup, ActionListItem, Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
-import { FunctionComponent, MouseEvent, ReactNode, useCallback, useMemo } from 'react';
+import { FunctionComponent, KeyboardEvent, MouseEvent, ReactNode, useCallback, useMemo } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType, IDocument } from '../../models/datamapper/document';
@@ -76,13 +76,24 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
   const nodePathString = nodeData.path.toString();
 
   // Get selection state from store
-  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString));
+  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, nodeData.isSource));
 
   // Click handler for selecting/deselecting this node for mapping
   // Note: We don't stop propagation to allow ExpansionPanel toggle to work
   const handleClickField = useCallback(
     (_event: MouseEvent) => {
       toggleSelectedNode(nodePathString, nodeData.isSource);
+    },
+    [toggleSelectedNode, nodePathString, nodeData.isSource],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target !== event.currentTarget) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        toggleSelectedNode(nodePathString, nodeData.isSource);
+      }
     },
     [toggleSelectedNode, nodePathString, nodeData.isSource],
   );
@@ -129,8 +140,20 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
       data-testid={`document-${nodeData.id}`}
       data-selected={isSelected}
       onClick={handleClickField}
+      onKeyDown={handleKeyDown}
+      role="button"
+      tabIndex={0}
       className="document-header__container"
     >
+      {!hasSchema && (
+        <span
+          className={`node__connection-port ${nodeData.isSource ? 'node__connection-port--source' : 'node__connection-port--target'}`}
+          data-testid={`connection-port-${nodeData.id}`}
+          data-connection-port="true"
+          data-node-path={nodePathString}
+          data-document-id={document.documentId}
+        />
+      )}
       {enableDnD ? (
         <NodeContainer nodeData={nodeData} enableDnD={true}>
           {headerContent}
