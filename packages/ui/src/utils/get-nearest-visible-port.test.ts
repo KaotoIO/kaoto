@@ -193,4 +193,34 @@ describe('getNearestVisiblePort', () => {
 
     expect(result).toEqual({ connectionTarget: 'parent', position: [50, 150] });
   });
+
+  it('should return [0, 0] when edge ports are not registered', () => {
+    const options: NearestVisiblePortOptions = {
+      nodesConnectionPorts: {},
+      nodesConnectionPortsArray: [],
+      expansionState: {},
+      expansionStateArray: [],
+    };
+
+    const result = getNearestVisiblePort('SOURCE_BODY:customer://customer/field', options);
+
+    expect(result).toEqual({ connectionTarget: 'edge', position: [0, 0] });
+  });
+
+  it('should return edge top when node is scrolled above the visible area', () => {
+    const options: NearestVisiblePortOptions = {
+      nodesConnectionPorts: {
+        'SOURCE_BODY:customer://customer/phone': [100, 300],
+        'customer:EDGE:top': [0, 50],
+        'customer:EDGE:bottom': [0, 500],
+      },
+      nodesConnectionPortsArray: ['SOURCE_BODY:customer://customer/phone'],
+      expansionState: {},
+      expansionStateArray: ['SOURCE_BODY:customer://customer/address', 'SOURCE_BODY:customer://customer/phone'],
+    };
+
+    const result = getNearestVisiblePort('SOURCE_BODY:customer://customer/address', options);
+
+    expect(result).toEqual({ connectionTarget: 'edge', position: [0, 50] });
+  });
 });

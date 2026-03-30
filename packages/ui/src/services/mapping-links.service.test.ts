@@ -31,6 +31,7 @@ import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XPathService } from './xpath/xpath.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -270,6 +271,31 @@ describe('MappingLinksService', () => {
 
       // Clean up
       store.clearSelection();
+    });
+
+    it('should select links by target node path when selectedNodeIsSource is false', () => {
+      const allLinks = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const firstTargetPath = allLinks[0].targetNodePath;
+
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, firstTargetPath, false);
+      const selectedLinks = links.filter((l) => l.isSelected);
+
+      expect(selectedLinks.length).toBeGreaterThan(0);
+      expect(selectedLinks.every((l) => l.targetNodePath === firstTargetPath)).toBeTruthy();
+    });
+  });
+
+  describe('when XPath validation fails', () => {
+    it('should return empty links for invalid XPath expressions', () => {
+      const validateSpy = jest.spyOn(XPathService, 'validate').mockReturnValue({
+        getExprNode: () => null,
+        dataMapperErrors: [],
+      } as never);
+
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      expect(links).toHaveLength(0);
+
+      validateSpy.mockRestore();
     });
   });
 });
