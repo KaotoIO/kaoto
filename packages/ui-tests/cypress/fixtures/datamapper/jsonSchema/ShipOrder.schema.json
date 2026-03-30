@@ -61,10 +61,10 @@
           }
         ]
       }
-    }
-  },
-  "required": [
-    "OrderId",
-    "ShipTo"
-  ]
+    },
+    "required": [
+      "OrderId",
+      "ShipTo"
+    ]
+  }
 }
