@@ -108,5 +108,3 @@ describe('SchemaFileList', () => {
     expect(items[3]).toHaveTextContent('d.xsd');
   });
 });
-
-// Made with Bob

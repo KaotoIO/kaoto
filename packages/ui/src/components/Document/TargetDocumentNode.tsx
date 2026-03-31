@@ -14,7 +14,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { FieldOverrideContextMenu } from './actions/FieldTypeOverride/FieldOverrideContextMenu';
-import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
+import { TypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
@@ -67,7 +67,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
     refreshMappingTree();
   }, [refreshMappingTree]);
 
-  const typeOverrideIndicator = renderTypeOverrideIndicator(field, mappingTree.namespaceMap);
+  const typeOverrideIndicator = <TypeOverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />;
 
   // Get selection state from store
   const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, false));
