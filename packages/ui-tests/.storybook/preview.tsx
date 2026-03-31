@@ -7,6 +7,8 @@ import '@patternfly/patternfly/utilities/Spacing/spacing.css';
 
 import type { Preview } from '@storybook/react';
 
+document.documentElement.setAttribute('data-theme-setting', 'light');
+
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
