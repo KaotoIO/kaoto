@@ -1,21 +1,10 @@
-import {
-  AngleDoubleDownIcon,
-  AngleDoubleLeftIcon,
-  AngleDoubleRightIcon,
-  AngleDoubleUpIcon,
-  ArrowDownIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  ArrowUpIcon,
-  BlueprintIcon,
-  CodeBranchIcon,
-  PlusIcon,
-} from '@patternfly/react-icons';
+import { BlueprintIcon, CodeBranchIcon, PlusIcon } from '@patternfly/react-icons';
 import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
 
 import { AddStepMode, IVisualizationNode, NodeInteraction } from '../../../../models/visualization/base-visual-entity';
-import { CanvasNode } from '../../Canvas/canvas.models';
+import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
+import { getMoveIcons } from './get-move-icons.util';
 import { ItemAddStep } from './ItemAddStep';
 import { ItemCopyStep } from './ItemCopyStep';
 import { ItemDeleteGroup } from './ItemDeleteGroup';
@@ -29,24 +18,13 @@ import { ItemMoveStep } from './ItemMoveStep';
 import { ItemPasteStep } from './ItemPasteStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 
-const getLayoutIcons = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
-  const layout = element?.getGraph?.().getLayout?.() ?? '';
-  const isVertical = layout.includes('Vertical');
-
-  return {
-    prepend: isVertical ? <ArrowUpIcon /> : <ArrowLeftIcon />,
-    append: isVertical ? <ArrowDownIcon /> : <ArrowRightIcon />,
-    moveBefore: isVertical ? <AngleDoubleUpIcon /> : <AngleDoubleLeftIcon />,
-    moveNext: isVertical ? <AngleDoubleDownIcon /> : <AngleDoubleRightIcon />,
-  };
-};
-
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
   const vizNode = element.getData()?.vizNode;
   if (!vizNode) return items;
 
-  const icons = getLayoutIcons(element);
+  const layout = element.getGraph?.().getLayout?.() as LayoutType | undefined;
+  const icons = getMoveIcons(layout, vizNode);
   const nodeInteractions = vizNode.getNodeInteraction();
   const childrenNodes = vizNode.getChildren();
   const isStepWithChildren = childrenNodes !== undefined && childrenNodes.length > 0;

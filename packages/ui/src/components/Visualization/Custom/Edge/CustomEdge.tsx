@@ -26,6 +26,7 @@ import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { LayoutType } from '../../Canvas';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { canDropOnEdge, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { AddStepIcon } from './AddStepIcon';
 
 type DefaultEdgeProps = Parameters<typeof DefaultEdge>[0];
@@ -59,6 +60,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
 
   const entitiesContext = useEntityContext();
   const catalogModalContext = useContext(CatalogModalContext)!;
+  const layout = useGraphLayout();
   const edgeDRef = useRef<string | null>(null);
   const startPointRef = useRef<Point | null>(null);
   const endPointRef = useRef<Point | null>(null);
@@ -109,7 +111,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
 
   const startPoint = element.getStartPoint();
   const endPoint = element.getEndPoint();
-  const isHorizontal = element.getGraph().getLayout() === LayoutType.DagreHorizontal;
+  const isHorizontal = layout === LayoutType.DagreHorizontal;
 
   let x = startPoint.x + (endPoint.x - startPoint.x - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2;
   let y = startPoint.y + (endPoint.y - startPoint.y - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2;
