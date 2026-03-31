@@ -7,7 +7,7 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { FieldOverrideContextMenu } from './actions/FieldTypeOverride/FieldOverrideContextMenu';
-import { renderTypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
+import { TypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
@@ -74,7 +74,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
       refreshMappingTree();
     }, [refreshMappingTree]);
 
-    const typeOverrideIndicator = renderTypeOverrideIndicator(field, mappingTree.namespaceMap);
+    const typeOverrideIndicator = <TypeOverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />;
 
     return (
       <FieldOverrideContextMenu field={field} isReadOnly={isReadOnly} onUpdate={handleUpdate}>

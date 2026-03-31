@@ -13,7 +13,7 @@ export function getFileExtension(filePath: string): string {
 }
 
 export function getFileName(filePath: string): string {
-  return filePath.split('/').pop() || filePath;
+  return filePath.replace(/\\/g, '/').split('/').pop() || filePath;
 }
 
 export function isXmlExtension(ext: string): boolean {
@@ -152,14 +152,30 @@ export async function pickAndValidateSchemaFiles(
   // Normalize to array
   const newPaths = Array.isArray(paths) ? paths : [paths];
 
-  // Validate file extension
-  const firstExt = getFileExtension(newPaths[0]);
-  const extensionError = validateFileExtension(firstExt, documentType);
-  if (extensionError) {
-    return { paths: [], error: extensionError };
+  // Validate file extensions for all selected files
+  for (const filePath of newPaths) {
+    const ext = getFileExtension(filePath);
+    const extensionError = validateFileExtension(ext, documentType);
+    if (extensionError) {
+      return { paths: [], error: extensionError };
+    }
   }
 
-  // Validate no mixed types
+  // Validate no mixed types among selected files
+  const firstExt = getFileExtension(newPaths[0]);
+  if (newPaths.length > 1) {
+    for (let i = 1; i < newPaths.length; i++) {
+      const ext = getFileExtension(newPaths[i]);
+      if (isXmlExtension(firstExt) !== isXmlExtension(ext)) {
+        return {
+          paths: [],
+          error: 'Cannot mix schema types. Please select files of the same type, either XML schema or JSON schema.',
+        };
+      }
+    }
+  }
+
+  // Validate no mixed types with existing files
   const mixedTypeError = validateNoMixedTypes(firstExt, existingPaths);
   if (mixedTypeError) {
     return { paths: [], error: mixedTypeError };

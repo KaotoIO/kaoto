@@ -57,37 +57,19 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dro
   const onSelectAction = useCallback(
     (event: MouseEvent | undefined, value: string | number | undefined) => {
       event?.stopPropagation();
-      switch (value) {
-        case 'selector':
-          VisualizationService.applyValueSelector(nodeData);
-          onUpdate();
-          setIsActionMenuOpen(false);
-          break;
-        case 'if':
-          VisualizationService.applyIf(nodeData);
-          onUpdate();
-          setIsActionMenuOpen(false);
-          break;
-        case 'choose':
-          VisualizationService.applyChooseWhenOtherwise(nodeData);
-          onUpdate();
-          setIsActionMenuOpen(false);
-          break;
-        case 'foreach':
-          VisualizationService.applyForEach(nodeData as TargetFieldNodeData);
-          onUpdate();
-          setIsActionMenuOpen(false);
-          break;
-        case 'when':
-          VisualizationService.applyWhen(nodeData);
-          onUpdate();
-          setIsActionMenuOpen(false);
-          break;
-        case 'otherwise':
-          VisualizationService.applyOtherwise(nodeData);
-          onUpdate();
-          setIsActionMenuOpen(false);
-          break;
+      const actions: Record<string, () => void> = {
+        selector: () => VisualizationService.applyValueSelector(nodeData),
+        if: () => VisualizationService.applyIf(nodeData),
+        choose: () => VisualizationService.applyChooseWhenOtherwise(nodeData),
+        foreach: () => VisualizationService.applyForEach(nodeData as TargetFieldNodeData),
+        when: () => VisualizationService.applyWhen(nodeData),
+        otherwise: () => VisualizationService.applyOtherwise(nodeData),
+      };
+      const action = actions[value as string];
+      if (action) {
+        action();
+        onUpdate();
+        setIsActionMenuOpen(false);
       }
     },
     [nodeData, onUpdate],

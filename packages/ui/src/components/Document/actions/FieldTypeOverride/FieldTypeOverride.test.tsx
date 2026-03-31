@@ -50,17 +50,15 @@ const mockSelectedType: IFieldTypeInfo = {
 };
 
 describe('FieldTypeOverride', () => {
-  const testTargetDoc = TestUtil.createTargetOrderDoc();
-  const testMappingTree = new MappingTree(
-    DocumentType.TARGET_BODY,
-    BODY_DOCUMENT_ID,
-    DocumentDefinitionType.XML_SCHEMA,
-  );
+  let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+  let testMappingTree: MappingTree;
   const mockUpdateDocument = jest.fn();
   const mockOnComplete = jest.fn();
   const mockOnClose = jest.fn();
 
   beforeEach(() => {
+    testTargetDoc = TestUtil.createTargetOrderDoc();
+    testMappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     jest.clearAllMocks();
     const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     useDataMapper.mockReturnValue({
@@ -69,14 +67,21 @@ describe('FieldTypeOverride', () => {
     });
   });
 
-  it('should pass field and isOpen to TypeOverrideModal', () => {
+  it('should pass field to TypeOverrideModal when open', () => {
     const field = testTargetDoc.fields[0];
     render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
     const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
     const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
-    expect(lastCall[0].isOpen).toBe(true);
     expect(lastCall[0].field).toBe(field);
+  });
+
+  it('should not render TypeOverrideModal when closed', () => {
+    const field = testTargetDoc.fields[0];
+    render(<FieldTypeOverride isOpen={false} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+
+    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
+    expect(TypeOverrideModalMock).not.toHaveBeenCalled();
   });
 
   it('should call applyFieldTypeOverride and updateDocument on save', () => {

@@ -16,15 +16,14 @@ jest.mock('../../../../hooks/useDataMapper', () => ({
 }));
 
 describe('TypeOverrideModal', () => {
-  const testTargetDoc = TestUtil.createTargetOrderDoc();
-  const testMappingTree = new MappingTree(
-    DocumentType.TARGET_BODY,
-    BODY_DOCUMENT_ID,
-    DocumentDefinitionType.XML_SCHEMA,
-  );
+  let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+  let testMappingTree: MappingTree;
   let testField: IField;
 
   beforeEach(() => {
+    testTargetDoc = TestUtil.createTargetOrderDoc();
+    testMappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+
     const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     useDataMapper.mockReturnValue({
       mappingTree: testMappingTree,
@@ -32,7 +31,6 @@ describe('TypeOverrideModal', () => {
     });
 
     testField = testTargetDoc.fields[0];
-    // Reset field state
     testField.typeOverride = TypeOverrideVariant.NONE;
     testField.originalType = Types.String;
   });
@@ -44,7 +42,6 @@ describe('TypeOverrideModal', () => {
   it('should render modal when isOpen is true', () => {
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -56,25 +53,9 @@ describe('TypeOverrideModal', () => {
     expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
   });
 
-  it('should not render modal when isOpen is false', () => {
-    render(
-      <TypeOverrideModal
-        isOpen={false}
-        onClose={jest.fn()}
-        onSave={jest.fn()}
-        onAttach={jest.fn()}
-        onRemove={jest.fn()}
-        field={testField}
-      />,
-    );
-
-    expect(screen.queryByText(/Type Override:/)).not.toBeInTheDocument();
-  });
-
   it('should display field name in modal title', () => {
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -90,7 +71,6 @@ describe('TypeOverrideModal', () => {
   it('should open type selector when toggle is clicked', () => {
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -129,7 +109,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -177,7 +156,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -211,7 +189,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -228,7 +205,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={onCloseMock}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -262,7 +238,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={onSaveMock}
         onAttach={jest.fn()}
@@ -307,7 +282,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -341,7 +315,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -358,7 +331,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -386,7 +358,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -440,7 +411,6 @@ describe('TypeOverrideModal', () => {
 
     render(
       <TypeOverrideModal
-        isOpen={true}
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -469,7 +439,6 @@ describe('TypeOverrideModal', () => {
       return render(
         <MetadataContext.Provider value={mockApi}>
           <TypeOverrideModal
-            isOpen={true}
             onClose={jest.fn()}
             onSave={jest.fn()}
             onAttach={jest.fn()}

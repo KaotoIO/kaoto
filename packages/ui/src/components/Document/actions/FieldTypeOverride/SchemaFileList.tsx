@@ -33,15 +33,16 @@ export const SchemaFileList: FunctionComponent<SchemaFileListProps> = memo(
         isCompact
         className="schema-file-list"
       >
-        {existingFiles.map((filePath) => {
+        {existingFiles.map((filePath, index) => {
           const displayName = getFileName(filePath);
+          const itemId = `schema-file-existing-${index}`;
           return (
-            <DataListItem key={filePath} aria-labelledby={`schema-file-${displayName}`}>
+            <DataListItem key={filePath} aria-labelledby={itemId}>
               <DataListItemRow>
                 <DataListItemCells
                   dataListCells={[
                     <DataListCell key="name">
-                      <span id={`schema-file-${displayName}`} data-testid={`existing-schema-item-${displayName}`}>
+                      <span id={itemId} data-testid={`existing-schema-item-${displayName}`}>
                         {displayName}
                       </span>
                     </DataListCell>,
@@ -51,24 +52,25 @@ export const SchemaFileList: FunctionComponent<SchemaFileListProps> = memo(
             </DataListItem>
           );
         })}
-        {pendingUploads.map((filePath) => {
+        {pendingUploads.map((filePath, index) => {
           const displayName = getFileName(filePath);
+          const itemId = `schema-file-pending-${index}`;
           return (
-            <DataListItem key={filePath} aria-labelledby={`schema-file-${displayName}`}>
+            <DataListItem key={filePath} aria-labelledby={itemId}>
               <DataListItemRow>
                 <DataListItemCells
                   dataListCells={[
                     <DataListCell key="name">
-                      <span id={`schema-file-${displayName}`} data-testid={`uploaded-schema-item-${displayName}`}>
+                      <span id={itemId} data-testid={`uploaded-schema-item-${displayName}`}>
                         {displayName}
                       </span>
                     </DataListCell>,
                   ]}
                 />
                 <DataListAction
-                  aria-labelledby={`schema-file-${displayName}`}
+                  aria-labelledby={itemId}
                   aria-label={`Remove ${displayName}`}
-                  id={`action-${displayName}`}
+                  id={`action-pending-${index}`}
                 >
                   <Button
                     variant="plain"
@@ -88,5 +90,3 @@ export const SchemaFileList: FunctionComponent<SchemaFileListProps> = memo(
 );
 
 SchemaFileList.displayName = 'SchemaFileList';
-
-// Made with Bob

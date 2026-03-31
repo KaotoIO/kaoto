@@ -1,13 +1,14 @@
-import { Icon } from '@patternfly/react-core';
-import { WrenchIcon } from '@patternfly/react-icons';
-import { FunctionComponent, ReactNode, useCallback } from 'react';
+import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
-import { DocumentDefinition, IDocument, IField } from '../../../../models/datamapper/document';
+import { IField } from '../../../../models/datamapper/document';
 import { IFieldTypeInfo, TypeOverrideVariant } from '../../../../models/datamapper/types';
 import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
-import { formatQNameWithPrefix } from '../../../../services/qname-util';
+import { revertTypeOverride } from './revert-type-override';
 import { TypeOverrideModal } from './TypeOverrideModal';
+
+export { revertTypeOverride } from './revert-type-override';
+export { TypeOverrideIndicator } from './TypeOverrideIndicator';
 
 type FieldTypeOverrideProps = {
   field: IField;
@@ -69,9 +70,10 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
     onClose();
   }, [field, mappingTree.namespaceMap, updateDocument, onComplete, onClose]);
 
+  if (!isOpen) return null;
+
   return (
     <TypeOverrideModal
-      isOpen={isOpen}
       field={field}
       onSave={handleSave}
       onAttach={handleAttach}
@@ -80,39 +82,3 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
     />
   );
 };
-
-/**
- * Revert a field type override without opening the modal.
- * Used by context menus and dropdown actions for direct reset.
- */
-export function revertTypeOverride(
-  field: IField,
-  namespaceMap: Record<string, string>,
-  updateDocument: (document: IDocument, definition: DocumentDefinition, previousRefId: string) => void,
-): void {
-  const document = field.ownerDocument;
-  const previousRefId = document.getReferenceId(namespaceMap);
-  FieldTypeOverrideService.revertFieldTypeOverride(document, field, namespaceMap);
-  updateDocument(document, document.definition, previousRefId);
-}
-
-/** Render a wrench icon indicator for a field with a type override. Returns null if no override. */
-export function renderTypeOverrideIndicator(
-  field: IField | undefined,
-  namespaceMap: Record<string, string> = {},
-): ReactNode {
-  if (!field || field.typeOverride === TypeOverrideVariant.NONE) return null;
-  const originalDisplay = formatQNameWithPrefix(field.originalTypeQName, namespaceMap, field.originalType);
-  const currentDisplay = formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
-  return (
-    <Icon
-      className="node__spacer node__type-override-indicator"
-      size="md"
-      status="warning"
-      isInline
-      title={`Type overridden: ${originalDisplay} → ${currentDisplay}`}
-    >
-      <WrenchIcon />
-    </Icon>
-  );
-}

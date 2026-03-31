@@ -30,7 +30,6 @@ import { getFileName, pickAndValidateSchemaFiles } from '../utils';
 import { SchemaFileList } from './SchemaFileList';
 
 export type TypeOverrideModalProps = {
-  isOpen: boolean;
   onClose: () => void;
   onSave: (selectedType: IFieldTypeInfo | null) => void;
   onAttach: (schemas: Record<string, string>) => void;
@@ -39,7 +38,6 @@ export type TypeOverrideModalProps = {
 };
 
 export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
-  isOpen,
   onClose,
   onSave,
   onAttach,
@@ -77,32 +75,31 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     }
   }, [field, mappingTree.namespaceMap]);
 
-  // Reload type candidates when the modal opens, or when definition files change (e.g., after schema attachment)
+  // Reload type candidates on mount and when definition files change (e.g., after schema attachment).
+  // `existingFiles` is not used in the effect body but is included as a dependency to trigger a reload
+  // when schema files are added — `loadTypeCandidates` itself doesn't depend on definitionFiles.
   useEffect(() => {
-    if (isOpen && field) {
+    if (field) {
       loadTypeCandidates();
     }
-  }, [isOpen, field, loadTypeCandidates, existingFiles]);
+  }, [field, loadTypeCandidates, existingFiles]);
 
-  // Clean up transient state when modal closes
+  // Clean up transient state when modal unmounts
   useEffect(() => {
-    if (!isOpen) return;
     return () => {
       setUploadError(null);
       setSelectedType(null);
       setIsSelectOpen(false);
       setUploadedSchemas({});
     };
-  }, [isOpen]);
+  }, []);
 
-  // Prevent @dnd-kit drag activation when modal is open
+  // Prevent @dnd-kit drag activation when modal is open.
   // React synthetic events from portals bubble through the React tree, not DOM tree.
   // Since this modal is rendered inside a draggable component, mousedown events
   // would bubble to the useDraggable listeners. We use native capture-phase listeners
   // to intercept events BEFORE they reach React's synthetic event system.
   useEffect(() => {
-    if (!isOpen) return;
-
     const handleMouseDownCapture = (e: Event) => {
       const target = e.target as HTMLElement;
       // Stop propagation for any click on backdrop or modal content
@@ -119,7 +116,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       document.removeEventListener('mousedown', handleMouseDownCapture, true);
       document.removeEventListener('pointerdown', handleMouseDownCapture, true);
     };
-  }, [isOpen]);
+  }, []);
 
   const handleTypeSelect = useCallback(
     (_event: MouseEvent | undefined, value: string | number | undefined) => {
@@ -223,7 +220,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
   return (
     <Modal
       variant={ModalVariant.medium}
-      isOpen={isOpen}
+      isOpen
       onClose={onClose}
       appendTo={() => document.body}
       className="type-override-modal"
@@ -278,6 +275,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
           </FormGroup>
 
           <FormGroup label="Document Schema Files" fieldId="schema-upload">
+            {/* Removal of individual schema files from this modal is intentionally not supported — files are managed via the document-level attach/detach flow */}
             <SchemaFileList existingFiles={existingFiles} pendingUploads={[]} onRemove={() => {}} />
             <Button
               icon={<FileImportIcon />}

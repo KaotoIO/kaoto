@@ -16,15 +16,13 @@ jest.mock('./FieldTypeOverride', () => ({
 }));
 
 describe('FieldOverrideContextMenu', () => {
-  const testTargetDoc = TestUtil.createTargetOrderDoc();
-  const testMappingTree = new MappingTree(
-    DocumentType.TARGET_BODY,
-    BODY_DOCUMENT_ID,
-    DocumentDefinitionType.XML_SCHEMA,
-  );
+  let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+  let testMappingTree: MappingTree;
   const mockOnUpdate = jest.fn();
 
   beforeEach(() => {
+    testTargetDoc = TestUtil.createTargetOrderDoc();
+    testMappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     jest.clearAllMocks();
     const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
     useDataMapper.mockReturnValue({
@@ -183,9 +181,6 @@ describe('FieldOverrideContextMenu', () => {
     });
 
     expect(screen.getByText('Reset Override')).toBeInTheDocument();
-
-    // Clean up
-    field.typeOverride = TypeOverrideVariant.NONE;
   });
 
   it('should call revertTypeOverride and onUpdate when Reset Override is clicked', () => {
@@ -216,8 +211,5 @@ describe('FieldOverrideContextMenu', () => {
 
     expect(revertTypeOverride).toHaveBeenCalledWith(field, testMappingTree.namespaceMap, mockUpdateDocument);
     expect(mockOnUpdate).toHaveBeenCalled();
-
-    // Clean up
-    field.typeOverride = TypeOverrideVariant.NONE;
   });
 });
