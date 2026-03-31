@@ -3,15 +3,8 @@ import { EdgeModel, NodeModel } from '@patternfly/react-topology';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 
 export const enum LayoutType {
-  BreadthFirst = 'BreadthFirst',
-  Cola = 'Cola',
-  ColaNoForce = 'ColaNoForce',
-  Concentric = 'Concentric',
   DagreVertical = 'DagreVertical',
   DagreHorizontal = 'DagreHorizontal',
-  Force = 'Force',
-  Grid = 'Grid',
-  ColaGroups = 'ColaGroups',
 }
 
 /**
