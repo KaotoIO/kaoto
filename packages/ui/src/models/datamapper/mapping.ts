@@ -31,6 +31,7 @@ export abstract class MappingItem {
   }
   mappingTree: MappingTree;
   children: MappingItem[] = [];
+  comment?: string;
   get nodePath(): NodePath {
     return NodePath.childOf(this.parent.nodePath, this.id);
   }
@@ -40,6 +41,7 @@ export abstract class MappingItem {
   protected abstract doClone(): MappingItem;
   clone(): MappingItem {
     const cloned = this.doClone();
+    cloned.comment = this.comment;
     cloned.children = this.children.map((c) => c.clone());
     return cloned;
   }

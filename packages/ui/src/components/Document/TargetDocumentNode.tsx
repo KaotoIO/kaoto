@@ -3,6 +3,7 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, useCallback, useMem
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
+import { MappingItem } from '../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
@@ -35,7 +36,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
   const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
   const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
-  const nodeData = treeNode.nodeData;
+  const nodeData = treeNode.nodeData as TargetNodeData;
   const iconType = nodeData instanceof FieldItemNodeData ? nodeData.field.type : nodeData.type;
 
   const isDocument = useMemo(() => VisualizationService.isDocumentNode(nodeData), [nodeData]);
@@ -58,8 +59,10 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
     !(nodeData instanceof UnknownMappingNodeData) &&
     (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
   const nodePathString = nodeData.path.toString();
+  const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
+  const commentText = mappingItem?.comment;
 
-  const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
+  const showNodeActions = (isDocument && isPrimitive) || !isDocument;
   const { refreshMappingTree } = useDataMapper();
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
@@ -108,6 +111,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ 
               isCollectionField={isCollectionField}
               isChoiceField={isChoiceField}
               isAttributeField={isAttributeField}
+              commentText={commentText}
+              mapping={mappingItem}
+              onUpdate={handleUpdate}
               title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
               rank={rank}
               isSelected={isSelected}
