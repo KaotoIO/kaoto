@@ -26,7 +26,7 @@ import { DeleteParameterButton } from './actions/DeleteParameterButton';
 import { RenameParameterButton } from './actions/RenameParameterButton';
 import { DocumentHeader } from './BaseDocument';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
-import { SourceDocumentNode } from './SourceDocumentNode';
+import { SourceDocumentNodeWithContextMenu } from './SourceDocumentNode';
 
 type ParametersSectionProps = {
   isReadOnly: boolean;
@@ -145,7 +145,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
     (index: number) => {
       const flattenedNode = flattenedNodes[index];
       return (
-        <SourceDocumentNode
+        <SourceDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
           documentId={parameterNodeData.id}

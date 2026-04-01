@@ -16,7 +16,7 @@ import { DeleteMappingItemAction } from '../Document/actions/DeleteMappingItemAc
 import { XPathEditorAction } from '../Document/actions/XPathEditorAction';
 import { XPathInputAction } from '../Document/actions/XPathInputAction';
 import { DocumentHeader } from '../Document/BaseDocument';
-import { TargetDocumentNode } from '../Document/TargetDocumentNode';
+import { TargetDocumentNodeWithContextMenu } from '../Document/TargetDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import {
@@ -93,7 +93,7 @@ export const TargetPanel: FunctionComponent = () => {
     (index: number) => {
       const flattenedNode = flattenedNodes[index];
       return (
-        <TargetDocumentNode
+        <TargetDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
           documentId={targetBodyNodeData.id}

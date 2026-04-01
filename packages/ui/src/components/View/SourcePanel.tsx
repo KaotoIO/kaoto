@@ -12,7 +12,7 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentHeader } from '../Document/BaseDocument';
 import { ParametersSection } from '../Document/Parameters';
-import { SourceDocumentNode } from '../Document/SourceDocumentNode';
+import { SourceDocumentNodeWithContextMenu } from '../Document/SourceDocumentNode';
 import { ExpansionPanel } from '../ExpansionPanels/ExpansionPanel';
 import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import {
@@ -57,7 +57,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     (index: number) => {
       const flattenedNode = flattenedNodes[index];
       return (
-        <SourceDocumentNode
+        <SourceDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
           documentId={sourceBodyNodeData.id}
