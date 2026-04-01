@@ -129,6 +129,13 @@ export class MappingSerializerService {
   }
 
   private static populateMapping(parent: Element, mapping: MappingItem) {
+    // Add comment before the element if it exists
+    if (mapping.comment) {
+      const xsltDocument = parent.ownerDocument;
+      const comment = xsltDocument.createComment(` ${mapping.comment} `);
+      parent.appendChild(comment);
+    }
+
     let child: Element | null = null;
     if (mapping instanceof ValueSelector) {
       child = MappingSerializerService.populateValueSelector(parent, mapping);
@@ -358,6 +365,15 @@ export class MappingSerializerService {
       mappingItem = new FieldItem(parentMapping, field);
     }
     if (mappingItem) {
+      // Look for preceding comment node
+      let previousSibling = item.previousSibling;
+      while (previousSibling && previousSibling.nodeType === Node.TEXT_NODE) {
+        previousSibling = previousSibling.previousSibling;
+      }
+      if (previousSibling && previousSibling.nodeType === Node.COMMENT_NODE) {
+        mappingItem.comment = (previousSibling as Comment).data.trim();
+      }
+
       parentMapping.children.push(mappingItem);
       if (!(mappingItem instanceof UnknownMappingItem)) {
         Array.from(item.children).forEach((childItem) =>

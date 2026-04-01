@@ -3,6 +3,7 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, MouseEventHandler, 
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
+import { MappingItem } from '../../models/datamapper/mapping';
 import { AddMappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -34,7 +35,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
     const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
-    const nodeData = treeNode.nodeData;
+    const nodeData = treeNode.nodeData as TargetNodeData;
+    const field = VisualizationService.getField(nodeData);
+    const iconType = field?.type ?? nodeData.type;
 
     const isPrimitive = useMemo(() => VisualizationService.isPrimitiveDocumentNode(nodeData), [nodeData]);
     const hasChildren = useMemo(() => VisualizationService.hasChildren(nodeData), [nodeData]);
@@ -50,8 +53,10 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
 
     const nodePathString = nodeData.path.toString();
     const isDocument = VisualizationService.isDocumentNode(nodeData);
-    const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
-    const field = VisualizationService.getField(nodeData);
+    const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
+    const commentText = mappingItem?.comment;
+
+    const showNodeActions = (isDocument && isPrimitive) || !isDocument;
     const { mappingTree, refreshMappingTree } = useDataMapper();
     const handleUpdate = useCallback(() => {
       refreshMappingTree();
@@ -97,6 +102,10 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
                 isExpandable={hasChildren}
                 isExpanded={isExpanded}
                 onExpandChange={handleClickToggle}
+                iconType={iconType}
+                commentText={commentText}
+                mapping={mappingItem}
+                onUpdate={handleUpdate}
                 title={
                   <NodeTitle
                     className="node__spacer"
