@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FunctionComponent, KeyboardEvent, memo, MouseEvent, useCallback, useMemo } from 'react';
+import { FunctionComponent, KeyboardEvent, memo, MouseEvent, MouseEventHandler, useCallback, useMemo } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
@@ -13,8 +13,8 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
-import { FieldOverrideContextMenu } from './actions/FieldTypeOverride/FieldOverrideContextMenu';
 import { TypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
+import { withFieldOverrideContextMenu } from './actions/FieldTypeOverride/withFieldOverrideContextMenu';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
@@ -25,134 +25,133 @@ import { NodeTitle } from './NodeTitle/NodeTitle';
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
   documentId: string;
+  isReadOnly?: boolean;
   rank: number;
+  onContextMenu?: MouseEventHandler;
 };
 
 /**
  * Tree-based target node component that uses pre-parsed tree structure
  * for improved performance with large schemas
  */
-export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(({ treeNode, documentId, rank }) => {
-  const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
+export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
+  ({ treeNode, documentId, rank, onContextMenu }) => {
+    const toggleSelectedNode = useDocumentTreeStore((state) => state.toggleSelectedNode);
 
-  const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
-  const nodeData = treeNode.nodeData;
-  const field = VisualizationService.getField(nodeData);
-  const iconType = field?.type ?? nodeData.type;
+    const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
+    const nodeData = treeNode.nodeData;
+    const field = VisualizationService.getField(nodeData);
+    const iconType = field?.type ?? nodeData.type;
 
-  const isDocument = useMemo(() => VisualizationService.isDocumentNode(nodeData), [nodeData]);
-  const isPrimitive = useMemo(() => VisualizationService.isPrimitiveDocumentNode(nodeData), [nodeData]);
-  const hasChildren = useMemo(() => VisualizationService.hasChildren(nodeData), [nodeData]);
+    const isDocument = useMemo(() => VisualizationService.isDocumentNode(nodeData), [nodeData]);
+    const isPrimitive = useMemo(() => VisualizationService.isPrimitiveDocumentNode(nodeData), [nodeData]);
+    const hasChildren = useMemo(() => VisualizationService.hasChildren(nodeData), [nodeData]);
 
-  const handleClickToggle = useCallback(
-    (event: MouseEvent) => {
-      event.stopPropagation();
-      if (!hasChildren) return;
+    const handleClickToggle = useCallback(
+      (event: MouseEvent) => {
+        event.stopPropagation();
+        if (!hasChildren) return;
+        TreeUIService.toggleNode(documentId, treeNode.path);
+      },
+      [hasChildren, documentId, treeNode.path],
+    );
 
-      TreeUIService.toggleNode(documentId, treeNode.path);
-    },
-    [hasChildren, documentId, treeNode.path],
-  );
-  const isCollectionField = useMemo(() => VisualizationService.isCollectionField(nodeData), [nodeData]);
-  const isChoiceField = VisualizationService.isChoiceField(nodeData);
-  const isAttributeField = VisualizationService.isAttributeField(nodeData);
-  const isDraggable =
-    !(nodeData instanceof UnknownMappingNodeData) &&
-    (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
-  const nodePathString = nodeData.path.toString();
+    const isCollectionField = useMemo(() => VisualizationService.isCollectionField(nodeData), [nodeData]);
+    const isChoiceField = VisualizationService.isChoiceField(nodeData);
+    const isAttributeField = VisualizationService.isAttributeField(nodeData);
+    const isDraggable =
+      !(nodeData instanceof UnknownMappingNodeData) &&
+      (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
+    const nodePathString = nodeData.path.toString();
 
-  const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
-  const { mappingTree, refreshMappingTree } = useDataMapper();
-  const handleUpdate = useCallback(() => {
-    refreshMappingTree();
-  }, [refreshMappingTree]);
+    const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
+    const { mappingTree, refreshMappingTree } = useDataMapper();
+    const handleUpdate = useCallback(() => {
+      refreshMappingTree();
+    }, [refreshMappingTree]);
 
-  const typeOverrideIndicator = <TypeOverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />;
+    const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, false));
 
-  // Get selection state from store
-  const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, false));
+    const handleClickField = useCallback(
+      (event: MouseEvent) => {
+        toggleSelectedNode(nodePathString, false);
+        event.stopPropagation();
+      },
+      [toggleSelectedNode, nodePathString],
+    );
 
-  const handleClickField = useCallback(
-    (event: MouseEvent) => {
-      toggleSelectedNode(nodePathString, false); // false for target nodes
-      event.stopPropagation();
-    },
-    [toggleSelectedNode, nodePathString],
-  );
+    const handleKeyDown = useCallback(
+      (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)),
+      [nodePathString, toggleSelectedNode],
+    );
 
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)), // false for target nodes
-    [nodePathString, toggleSelectedNode],
-  );
+    if (nodeData instanceof AddMappingNodeData) {
+      return <AddMappingNode nodeData={nodeData} rank={rank} />;
+    }
 
-  if (nodeData instanceof AddMappingNodeData) {
-    return <AddMappingNode nodeData={nodeData} rank={rank} />;
-  }
+    return (
+      <div
+        role="treeitem"
+        tabIndex={0}
+        aria-selected={isSelected}
+        data-testid={`node-target-${nodeData.id}`}
+        data-selected={isSelected}
+        className="node__container"
+        onClick={handleClickField}
+        onKeyDown={handleKeyDown}
+        onContextMenu={onContextMenu}
+      >
+        <NodeContainer nodeData={nodeData}>
+          <div className="node__header">
+            <NodeContainer nodeData={nodeData} className={clsx({ 'selected-container': isSelected })}>
+              <BaseNode
+                data-testid={nodeData.title}
+                isExpandable={hasChildren}
+                isExpanded={isExpanded}
+                onExpandChange={handleClickToggle}
+                isDraggable={isDraggable}
+                iconType={iconType}
+                isCollectionField={isCollectionField}
+                isChoiceField={isChoiceField}
+                isAttributeField={isAttributeField}
+                title={
+                  <NodeTitle
+                    className="node__spacer"
+                    nodeData={nodeData}
+                    isDocument={isDocument}
+                    rank={rank}
+                    namespaceMap={mappingTree.namespaceMap}
+                  />
+                }
+                rank={rank}
+                isSelected={isSelected}
+                isSource={false}
+                nodePath={nodePathString}
+                documentId={documentId}
+              >
+                <TypeOverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />
+                {showNodeActions ? (
+                  <TargetNodeActions
+                    className="node__target__actions"
+                    nodeData={nodeData as TargetNodeData}
+                    onUpdate={handleUpdate}
+                  />
+                ) : (
+                  <span className="node__target__actions" />
+                )}
 
-  return (
-    <FieldOverrideContextMenu field={field} onUpdate={handleUpdate}>
-      {({ onContextMenu }) => (
-        <div
-          role="treeitem"
-          tabIndex={0}
-          aria-selected={isSelected}
-          data-testid={`node-target-${nodeData.id}`}
-          data-selected={isSelected}
-          className="node__container"
-          onClick={handleClickField}
-          onKeyDown={handleKeyDown}
-          onContextMenu={onContextMenu}
-        >
-          <NodeContainer nodeData={nodeData}>
-            <div className="node__header">
-              <NodeContainer nodeData={nodeData} className={clsx({ 'selected-container': isSelected })}>
-                <BaseNode
-                  data-testid={nodeData.title}
-                  isExpandable={hasChildren}
-                  isExpanded={isExpanded}
-                  onExpandChange={handleClickToggle}
-                  isDraggable={isDraggable}
-                  iconType={iconType}
-                  isCollectionField={isCollectionField}
-                  isChoiceField={isChoiceField}
-                  isAttributeField={isAttributeField}
-                  title={
-                    <NodeTitle
-                      className="node__spacer"
-                      nodeData={nodeData}
-                      isDocument={isDocument}
-                      rank={rank}
-                      namespaceMap={mappingTree.namespaceMap}
-                    />
-                  }
-                  rank={rank}
-                  isSelected={isSelected}
-                  isSource={false}
-                  nodePath={nodePathString}
-                  documentId={documentId}
-                >
-                  {typeOverrideIndicator}
-                  {showNodeActions ? (
-                    <TargetNodeActions
-                      className="node__target__actions"
-                      nodeData={nodeData as TargetNodeData}
-                      onUpdate={handleUpdate}
-                    />
-                  ) : (
-                    <span className="node__target__actions" />
-                  )}
-
-                  {isDocument && (
-                    <DocumentActions nodeData={nodeData as TargetDocumentNodeData} onRenameClick={() => {}} />
-                  )}
-                </BaseNode>
-              </NodeContainer>
-            </div>
-          </NodeContainer>
-        </div>
-      )}
-    </FieldOverrideContextMenu>
-  );
-});
+                {isDocument && (
+                  <DocumentActions nodeData={nodeData as TargetDocumentNodeData} onRenameClick={() => {}} />
+                )}
+              </BaseNode>
+            </NodeContainer>
+          </div>
+        </NodeContainer>
+      </div>
+    );
+  },
+);
 
 TargetDocumentNode.displayName = 'TargetDocumentNode';
+
+export const TargetDocumentNodeWithContextMenu = withFieldOverrideContextMenu(TargetDocumentNode);
