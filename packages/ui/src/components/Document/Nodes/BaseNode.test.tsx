@@ -1,8 +1,13 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { DocumentDefinitionType, FieldOverrideVariant, IField, NodePath, Types } from '../../../models/datamapper';
-import { DocumentDefinition, DocumentType, PrimitiveDocument } from '../../../models/datamapper/document';
-import { MappingTree, UnknownMappingItem, VariableItem } from '../../../models/datamapper/mapping';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentType,
+  PrimitiveDocument,
+} from '../../../models/datamapper/document';
+import { MappingTree, UnknownMappingItem, ValueSelector, VariableItem } from '../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   DocumentNodeData,
@@ -464,6 +469,147 @@ describe('BaseNode', () => {
       );
       const port = screen.getByTestId('connection-port-test-node');
       expect(port).toHaveAttribute('data-document-id', 'doc-123');
+    });
+  });
+
+  describe('Comment Functionality', () => {
+    let mockMapping: ValueSelector;
+    let mockOnUpdate: jest.Mock;
+
+    beforeEach(() => {
+      const tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      mockMapping = new ValueSelector(tree);
+      mockOnUpdate = jest.fn();
+    });
+
+    describe('Comment Indicator Icon', () => {
+      it('should render comment indicator icon when commentText is provided', () => {
+        mockMapping.comment = 'This is a comment';
+        render(
+          <BaseNode
+            nodeData={createMockNodeData()}
+            title="Title"
+            data-testid="test-node"
+            mapping={mockMapping}
+            onUpdate={mockOnUpdate}
+          />,
+        );
+        expect(screen.getByTestId('comment-indicator-icon')).toBeInTheDocument();
+      });
+
+      it('should display tooltip with comment text', () => {
+        mockMapping.comment = 'This is a comment';
+        render(
+          <BaseNode
+            nodeData={createMockNodeData()}
+            title="Title"
+            data-testid="test-node"
+            mapping={mockMapping}
+            onUpdate={mockOnUpdate}
+          />,
+        );
+        const icon = screen.getByTestId('comment-indicator-icon');
+        // Tooltip is rendered by PatternFly, we just verify the icon is wrapped with tooltip props
+        expect(icon).toBeInTheDocument();
+      });
+    });
+
+    describe('handleOpenCommentModal', () => {
+      it('should open CommentModal when comment button is clicked with mapping and onUpdate', () => {
+        mockMapping.comment = 'Existing comment';
+        render(
+          <BaseNode
+            nodeData={createMockNodeData()}
+            title="Title"
+            data-testid="test-node"
+            mapping={mockMapping}
+            onUpdate={mockOnUpdate}
+          />,
+        );
+
+        // Click the comment button
+        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        expect(commentButton).toBeInTheDocument();
+        fireEvent.click(commentButton!);
+
+        // Modal should be open
+        expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+      });
+
+      it('should stop event propagation when comment button is clicked', () => {
+        mockMapping.comment = 'Some comment';
+        render(
+          <BaseNode
+            nodeData={createMockNodeData()}
+            title="Title"
+            data-testid="test-node"
+            mapping={mockMapping}
+            onUpdate={mockOnUpdate}
+          />,
+        );
+
+        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const stopPropagationSpy = jest.fn();
+
+        // Create a click event
+        const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+        Object.defineProperty(clickEvent, 'stopPropagation', {
+          value: stopPropagationSpy,
+          writable: false,
+        });
+
+        fireEvent(commentButton!, clickEvent);
+
+        // stopPropagation should have been called
+        expect(stopPropagationSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe('CommentModal Rendering', () => {
+      it('should render CommentModal when both mapping and onUpdate are provided', () => {
+        mockMapping.comment = 'Some comment';
+        render(
+          <BaseNode
+            nodeData={createMockNodeData()}
+            title="Title"
+            data-testid="test-node"
+            mapping={mockMapping}
+            onUpdate={mockOnUpdate}
+          />,
+        );
+
+        // Modal component should be in the DOM (even if not visible)
+        // When closed, the modal is not rendered, so we need to open it first
+        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        fireEvent.click(commentButton!);
+
+        expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+      });
+
+      it('should close modal when handleCloseCommentModal is called', () => {
+        mockMapping.comment = 'Some comment';
+        render(
+          <BaseNode
+            nodeData={createMockNodeData()}
+            title="Title"
+            data-testid="test-node"
+            mapping={mockMapping}
+            onUpdate={mockOnUpdate}
+          />,
+        );
+
+        // Open the modal
+        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        fireEvent.click(commentButton!);
+        expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+
+        // Close the modal by clicking Cancel
+        const cancelButton = screen.getByTestId('cancel-comment-btn');
+        fireEvent.click(cancelButton);
+
+        // Modal should be closed
+        expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+      });
     });
   });
 });

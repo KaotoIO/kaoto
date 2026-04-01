@@ -129,6 +129,15 @@ export class MappingSerializerService {
   }
 
   private static populateMapping(parent: Element, mapping: MappingItem) {
+    // Add comment before the element if it exists
+    if (mapping.comment) {
+      const xsltDocument = parent.ownerDocument;
+      const comment = xsltDocument.createComment(` ${mapping.comment} `);
+      const sanitized = comment.data.replace(/--/g, '- -');
+      comment.data = sanitized;
+      parent.appendChild(comment);
+    }
+
     let child: Element | null = null;
     if (mapping instanceof ValueSelector) {
       child = MappingSerializerService.populateValueSelector(parent, mapping);
@@ -309,6 +318,17 @@ export class MappingSerializerService {
     parentMapping.children.push(selector);
   }
 
+  private static restoreCommentFromPreviousSibling(element: Element, mappingItem: MappingItem) {
+    // Look for preceding comment node
+    let previousSibling = element.previousSibling;
+    while (previousSibling?.nodeType === Node.TEXT_NODE) {
+      previousSibling = previousSibling.previousSibling;
+    }
+    if (previousSibling?.nodeType === Node.COMMENT_NODE) {
+      mappingItem.comment = (previousSibling as Comment).data.trim();
+    }
+  }
+
   private static restoreElementNode(element: Element, parentField: IParentType, parentMapping: MappingParentType) {
     const result =
       element.namespaceURI === NS_XSL
@@ -334,7 +354,9 @@ export class MappingSerializerService {
     if (parentField instanceof PrimitiveDocument) return null;
     const field = MappingSerializerService.getOrCreateElementField(element, parentField);
     if (!field) return null;
-    return { fieldItem: field, mappingItem: new FieldItem(parentMapping, field) };
+    const mappingItem = new FieldItem(parentMapping, field);
+    MappingSerializerService.restoreCommentFromPreviousSibling(element, mappingItem);
+    return { fieldItem: field, mappingItem };
   }
 
   private static restoreXslElement(
@@ -406,6 +428,8 @@ export class MappingSerializerService {
         break;
       }
     }
+
+    MappingSerializerService.restoreCommentFromPreviousSibling(element, mappingItem);
     return { mappingItem, fieldItem };
   }
 

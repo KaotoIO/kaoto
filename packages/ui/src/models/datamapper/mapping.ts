@@ -43,6 +43,7 @@ export abstract class MappingItem {
   /** The root {@link MappingTree} this item belongs to. */
   mappingTree: MappingTree;
   children: MappingItem[] = [];
+  comment?: string;
   /**
    * {@link NodePath} representing this item's position in the **mapping tree** (XSLT output
    * structure). `xs:choice` is a schema compositor — not an XML element — so choice wrapper
@@ -65,6 +66,7 @@ export abstract class MappingItem {
       cc.parent = cloned;
       return cc;
     });
+    cloned.comment = this.comment;
     return cloned;
   }
 }

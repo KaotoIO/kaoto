@@ -1,11 +1,12 @@
 import './BaseNode.scss';
 
-import { At, ChevronDown, ChevronRight, Choices, Draggable, ValueVariable } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
+import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, ValueVariable } from '@carbon/icons-react';
+import { Button, Icon, Tooltip } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { IDataTestID } from '../../../models';
+import { MappingItem } from '../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   NodeData,
@@ -13,6 +14,7 @@ import {
   VariableNodeData,
 } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization.service';
+import { CommentModal } from '../actions/Comment/CommentModal';
 import { FieldIcon } from '../FieldIcon';
 
 interface BaseNodeProps extends IDataTestID {
@@ -38,6 +40,12 @@ interface BaseNodeProps extends IDataTestID {
   /** Node path for connection port identification */
   nodePath?: string;
 
+  /** Mapping item for comment editing */
+  mapping?: MappingItem;
+
+  /** Callback when mapping is updated */
+  onUpdate?: () => void;
+
   /** Document ID for connection port identification */
   documentId?: string;
 }
@@ -47,6 +55,8 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   isExpandable,
   isExpanded,
   onExpandChange,
+  mapping,
+  onUpdate,
   title,
   rank,
   isSelected,
@@ -68,6 +78,21 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
     !(nodeData instanceof AddMappingNodeData) &&
     (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
   const isSource = nodeData.isSource;
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+
+  const handleOpenCommentModal = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      if (mapping && onUpdate) {
+        setIsCommentModalOpen(true);
+      }
+    },
+    [mapping, onUpdate],
+  );
+
+  const handleCloseCommentModal = useCallback(() => {
+    setIsCommentModalOpen(false);
+  }, []);
   return (
     <section
       className="node__row"
@@ -122,7 +147,30 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Icon>
       )}
 
+      {mapping?.comment && mapping && onUpdate && (
+        <Tooltip content={mapping?.comment}>
+          <Icon className="node__spacer" data-testid="comment-indicator-icon">
+            <Button
+              variant="plain"
+              icon={<DocumentComment />}
+              onClick={handleOpenCommentModal}
+              aria-label="Edit comment"
+            />
+          </Icon>
+        </Tooltip>
+      )}
       {children}
+
+      {mapping && onUpdate && (
+        <CommentModal
+          isOpen={isCommentModalOpen}
+          onClose={handleCloseCommentModal}
+          mapping={mapping}
+          onUpdate={onUpdate}
+          showDeleteButton={true}
+          withFormGroup={true}
+        />
+      )}
     </section>
   );
 };

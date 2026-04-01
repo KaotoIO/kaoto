@@ -289,6 +289,15 @@ export function getXslTextNodeXslt(): string {
 export function getWhitespaceTextNodeXslt(): string {
   return readStubFile('./xml/WhitespaceTextNode.xsl');
 }
+export function getShipOrderWithCommentXslt(): string {
+  return readStubFile('./xml/ShipOrderWithComment.xsl');
+}
+export function getShipOrderWithMultipleCommentsXslt(): string {
+  return readStubFile('./xml/ShipOrderWithMultipleComments.xsl');
+}
+export function getShipOrderManuallyEditedXslt(): string {
+  return readStubFile('./xml/ShipOrderManuallyEdited.xsl');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {
