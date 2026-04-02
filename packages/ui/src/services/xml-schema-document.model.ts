@@ -85,6 +85,7 @@ export class XmlSchemaField extends BaseField {
     adopted.originalType = this.originalType;
     adopted.originalTypeQName = this.originalTypeQName;
     adopted.typeOverride = this.typeOverride;
+    adopted.nillable = this.nillable;
     adopted.minOccurs = this.minOccurs;
     adopted.maxOccurs = this.maxOccurs;
     adopted.minOccursExplicit = this.minOccursExplicit;
@@ -105,7 +106,7 @@ export class XmlSchemaField extends BaseField {
     const nsPrefix = Object.keys(namespaceMap).find((key) => namespaceMap[key] === this.namespaceURI);
     const prefix = nsPrefix ? `${nsPrefix}:` : '';
     const name = this.isAttribute ? `@${this.name}` : this.name;
-    return prefix + name;
+    return this.isAttribute && prefix ? `@${prefix}${this.name}` : prefix + name;
   }
 
   isIdentical(other: IField): boolean {

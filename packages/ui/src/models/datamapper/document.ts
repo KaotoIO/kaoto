@@ -51,6 +51,8 @@ export interface IField {
   isAttribute: boolean;
   /** Default value for this field, if specified in schema */
   defaultValue: string | null;
+  /** Whether this field can be explicitly marked as nil with xsi:nil */
+  nillable: boolean;
   /** Minimum number of occurrences (0 = optional) */
   minOccurs: number;
   /** Maximum number of occurrences (1 = single, >1 or 'unbounded' = collection) */
@@ -201,6 +203,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   ownerDocument: IDocument = this;
   defaultValue: string | null = null;
   isAttribute: boolean = false;
+  nillable: boolean = false;
   maxOccurs: MaxOccursType = 1;
   minOccurs: number = 0;
   namespacePrefix: string | null = null;
@@ -256,6 +259,7 @@ export class BaseField implements IField {
   minOccurs: number = 0;
   maxOccurs: MaxOccursType = 1;
   defaultValue: string | null = null;
+  nillable: boolean = false;
   namespacePrefix: string | null = null;
   namespaceURI: string | null = null;
   namedTypeFragmentRefs: string[] = [];
@@ -266,6 +270,7 @@ export class BaseField implements IField {
   protected mergeInto(existing: IField): void {
     if (this.type && this.type !== Types.AnyType) existing.type = this.type;
     if (this.defaultValue !== null) existing.defaultValue = this.defaultValue;
+    if (this.nillable) existing.nillable = true;
     for (const ref of this.namedTypeFragmentRefs) {
       !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
     }
@@ -291,6 +296,7 @@ export class BaseField implements IField {
     adopted.minOccurs = this.minOccurs;
     adopted.maxOccurs = this.maxOccurs;
     adopted.defaultValue = this.defaultValue;
+    adopted.nillable = this.nillable;
     adopted.namespacePrefix = this.namespacePrefix;
     adopted.namespaceURI = this.namespaceURI;
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
