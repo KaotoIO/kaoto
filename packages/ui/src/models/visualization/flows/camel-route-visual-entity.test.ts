@@ -505,5 +505,134 @@ describe('Camel Route', () => {
         },
       ]);
     });
+
+    it('should show play icon when autoStartup is a string "true"', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: 'true' as unknown as boolean },
+      });
+
+      expect(entity.getGroupIcons()).toEqual([
+        {
+          icon: 'play',
+          title: 'Auto Startup Enabled',
+        },
+      ]);
+    });
+
+    it('should show play icon when autoStartup is a string "false"', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: 'false' as unknown as boolean },
+      });
+
+      expect(entity.getGroupIcons()).toEqual([
+        {
+          icon: 'play',
+          title: 'Auto Startup Enabled',
+        },
+      ]);
+    });
+
+    it('should show play icon when autoStartup is a placeholder', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: '{{autoStartup}}' as unknown as boolean },
+      });
+
+      expect(entity.getGroupIcons()).toEqual([
+        {
+          icon: 'play',
+          title: 'Auto Startup Enabled',
+        },
+      ]);
+    });
+  });
+
+  describe('toggleAutoStartup', () => {
+    it('should set autoStartup to false when it is undefined', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] } },
+      });
+
+      expect(entity.entityDef.route.autoStartup).toBeUndefined();
+
+      entity.toggleAutoStartup();
+
+      expect(entity.entityDef.route.autoStartup).toBe(false);
+    });
+
+    it('should set autoStartup to false when it is true', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: true },
+      });
+
+      expect(entity.entityDef.route.autoStartup).toBe(true);
+
+      entity.toggleAutoStartup();
+
+      expect(entity.entityDef.route.autoStartup).toBe(false);
+    });
+
+    it('should remove autoStartup property when it is false', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: false },
+      });
+
+      expect(entity.entityDef.route.autoStartup).toBe(false);
+
+      entity.toggleAutoStartup();
+
+      expect(entity.entityDef.route.autoStartup).toBeUndefined();
+    });
+
+    it('should update icon after toggling', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] } },
+      });
+
+      expect(entity.getGroupIcons()[0].icon).toBe('play');
+
+      entity.toggleAutoStartup();
+
+      expect(entity.getGroupIcons()[0].icon).toBe('pause');
+
+      entity.toggleAutoStartup();
+
+      expect(entity.getGroupIcons()[0].icon).toBe('play');
+    });
+
+    it('should preserve string value "true" and not toggle', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: 'true' as unknown as boolean },
+      });
+
+      expect(entity.entityDef.route.autoStartup).toBe('true');
+
+      entity.toggleAutoStartup();
+
+      expect(entity.entityDef.route.autoStartup).toBe('true');
+    });
+
+    it('should preserve string value "false" and not toggle', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: 'false' as unknown as boolean },
+      });
+
+      expect(entity.entityDef.route.autoStartup).toBe('false');
+
+      entity.toggleAutoStartup();
+
+      expect(entity.entityDef.route.autoStartup).toBe('false');
+    });
+
+    it('should preserve placeholder value and not toggle', () => {
+      const entity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'direct:test', steps: [] }, autoStartup: '{{autoStartup}}' as unknown as boolean },
+      });
+
+      expect(entity.entityDef.route.autoStartup).toBe('{{autoStartup}}');
+
+      entity.toggleAutoStartup();
+
+      expect(entity.entityDef.route.autoStartup).toBe('{{autoStartup}}');
+    });
   });
 });

@@ -111,6 +111,9 @@ export default {
     '^react-dom$': '<rootDir>/../../node_modules/react-dom',
   },
 
+  // Custom snapshot serializer to normalize PatternFly IDs
+  snapshotSerializers: ['<rootDir>/jest-snapshot-serializer.ts'],
+
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
 
