@@ -109,17 +109,17 @@
       margin: var(--pf-t--global--spacer--xs);
     }
 
-    &__autostart-icon {
+    &__autostart-container {
       position: absolute;
-      top: 2px;
       right: 8px;
-      margin: var(--pf-t--global--spacer--xs);
-      font-size: 16px;
+      top: 50%;
+      transform: translateY(-50%);
       z-index: 2;
+    }
 
-      > * {
-        color: var(--pf-t--global--icon--color--on-brand--default);
-      }
+    &__autostart-switch {
+      // Make the switch smaller to fit in the header
+      --pf-v6-c-switch--FontSize: 0.75rem;
     }
   }
 
