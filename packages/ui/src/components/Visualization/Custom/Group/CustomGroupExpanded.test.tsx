@@ -1,9 +1,10 @@
 import * as ReactTopology from '@patternfly/react-topology';
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { BaseVisualCamelEntity, CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -216,5 +217,132 @@ describe('CustomGroupExpanded', () => {
     await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(getNodeDragAndDropDirection).toHaveBeenCalledWith(draggedVizNode, groupVizNode, false);
+  });
+
+  it('should render auto-startup switch when entity has getGroupIcons', async () => {
+    const mockEntity = {
+      getId: jest.fn().mockReturnValue('route-1'),
+      getGroupIcons: jest.fn().mockReturnValue([{ icon: 'play', title: 'Auto Startup Enabled' }]),
+      toggleAutoStartup: jest.fn(),
+    } as unknown as BaseVisualCamelEntity;
+
+    const vizNode = createVisualizationNode('route-1', {
+      catalogKind: CatalogKind.Entity,
+      name: 'route',
+      path: 'route',
+      entity: mockEntity,
+    }) as IVisualizationNode;
+
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Route');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Route');
+
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-route-1');
+
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
+    expect(switchElement).toBeInTheDocument();
+    expect(switchElement).toBeChecked();
+  });
+
+  it('should call toggleAutoStartup when switch is clicked', async () => {
+    const user = userEvent.setup();
+    const mockToggleAutoStartup = jest.fn();
+
+    const mockEntity = {
+      getId: jest.fn().mockReturnValue('route-1'),
+      getGroupIcons: jest.fn().mockReturnValue([{ icon: 'play', title: 'Auto Startup Enabled' }]),
+      toggleAutoStartup: mockToggleAutoStartup,
+    } as unknown as BaseVisualCamelEntity;
+
+    const vizNode = createVisualizationNode('route-1', {
+      catalogKind: CatalogKind.Entity,
+      name: 'route',
+      path: 'route',
+      entity: mockEntity,
+    }) as IVisualizationNode;
+
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Route');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Route');
+
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-route-1');
+
+    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomGroupExpanded element={element} />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
+    await user.click(switchElement);
+
+    expect(mockToggleAutoStartup).toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
+  });
+
+  it('should not call toggleAutoStartup when entity does not have the method', async () => {
+    const user = userEvent.setup();
+
+    const mockEntity = {
+      getId: jest.fn().mockReturnValue('route-1'),
+      getGroupIcons: jest.fn().mockReturnValue([{ icon: 'play', title: 'Auto Startup Enabled' }]),
+      // No toggleAutoStartup method
+    } as unknown as BaseVisualCamelEntity;
+
+    const vizNode = createVisualizationNode('route-1', {
+      catalogKind: CatalogKind.Entity,
+      name: 'route',
+      path: 'route',
+      entity: mockEntity,
+    }) as IVisualizationNode;
+
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Route');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Route');
+
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-route-1');
+
+    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomGroupExpanded element={element} />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const switchElement = screen.getByRole('switch', { name: 'Auto Startup' });
+    await user.click(switchElement);
+
+    // Should not crash, and updateEntities should not be called
+    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
   });
 });

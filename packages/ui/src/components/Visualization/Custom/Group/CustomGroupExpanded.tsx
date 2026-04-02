@@ -1,7 +1,7 @@
 import './CustomGroupExpanded.scss';
 
-import { Icon } from '@patternfly/react-core';
-import { BanIcon, ExclamationCircleIcon, PauseIcon, PlayIcon } from '@patternfly/react-icons';
+import { Icon, Switch } from '@patternfly/react-core';
+import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   DragEvent,
@@ -226,13 +226,29 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                   />
                 )}
                 <span title={label}>{label}</span>
-              </div>
 
-              {groupVizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
-                <Icon key={title} className="custom-group__autostart-icon" title={title}>
-                  {icon === 'play' ? <PlayIcon /> : <PauseIcon />}
-                </Icon>
-              ))}
+                {groupVizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
+                  <div key={`${icon}-${title}`} className="custom-group__autostart-container" title={title}>
+                    <Switch
+                      className="custom-group__autostart-switch"
+                      aria-label="Auto Startup"
+                      isChecked={icon === 'play'}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        if (
+                          groupVizNode.data.entity &&
+                          'toggleAutoStartup' in groupVizNode.data.entity &&
+                          typeof groupVizNode.data.entity.toggleAutoStartup === 'function'
+                        ) {
+                          groupVizNode.data.entity.toggleAutoStartup();
+                          entitiesContext.updateEntitiesFromCamelResource();
+                        }
+                      }}
+                      isReversed
+                    />
+                  </div>
+                ))}
+              </div>
 
               {isDisabled && !doesHaveWarnings && (
                 <Icon className="custom-group__disabled-icon" title="Step disabled">
