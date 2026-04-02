@@ -502,6 +502,13 @@ export class XmlSchemaDocumentService {
    * This allows the Document tree to represent the nil state distinctly from an empty element.
    */
   private static populateNillableAttribute(parent: XmlSchemaField) {
+    const alreadyExists = parent.fields.some(
+      (field) => field.isAttribute && field.name === 'nil' && field.namespaceURI === NS_XML_SCHEMA_INSTANCE,
+    );
+    if (alreadyExists) {
+      return;
+    }
+
     const nillableField = new XmlSchemaField(parent, 'nil', true);
     nillableField.displayName = 'xsi:nil';
     nillableField.namespacePrefix = 'xsi';
