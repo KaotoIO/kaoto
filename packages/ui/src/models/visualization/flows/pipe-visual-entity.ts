@@ -336,8 +336,4 @@ export class PipeVisualEntity implements BaseVisualCamelEntity {
 
     return schema;
   }
-
-  getGroupIcons(): { icon: string; title: string }[] {
-    return [];
-  }
 }

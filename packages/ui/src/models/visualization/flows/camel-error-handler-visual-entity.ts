@@ -175,8 +175,4 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualCamelEntity {
   toJSON(): { errorHandler: ErrorHandlerDeserializer } {
     return { errorHandler: this.errorHandlerDef.errorHandler };
   }
-
-  getGroupIcons(): { icon: string; title: string }[] {
-    return [];
-  }
 }
