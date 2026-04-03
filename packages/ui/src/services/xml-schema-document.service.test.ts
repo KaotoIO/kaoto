@@ -4,8 +4,8 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../models/datamapper/document';
-import { Types } from '../models/datamapper/types';
 import { NS_XML_SCHEMA_INSTANCE } from '../models/datamapper/standard-namespaces';
+import { Types } from '../models/datamapper/types';
 import {
   getAnonymousGlobalElementRefLargeXsd,
   getCamelSpringXsd,
