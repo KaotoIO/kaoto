@@ -193,6 +193,7 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
         ) : (
           <span
             title={label}
+            onClick={(e) => e.stopPropagation()}
             onDoubleClick={handleDoubleClick}
             style={{ cursor: nodeLabelType === NodeLabelType.Description ? 'pointer' : 'default' }}
           >
