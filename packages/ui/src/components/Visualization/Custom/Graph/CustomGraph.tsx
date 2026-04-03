@@ -1,15 +1,10 @@
 import { Divider } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, PlusIcon } from '@patternfly/react-icons';
-import {
-  ContextSubMenuItem,
-  ElementContext,
-  GraphComponent,
-  withContextMenu,
-  withPanZoom,
-} from '@patternfly/react-topology';
+import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, ReactElement, useContext } from 'react';
 
 import { IDataTestID } from '../../../../models';
+import { withCustomPanZoom } from './customUsePanZoom';
 import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
 import { withEntityContextMenu, WithEntityContextMenuProps } from './withEntityContextMenu';
@@ -59,7 +54,9 @@ export const GraphContextMenuFn = ({
 const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
   const contextMenuFn = () => GraphContextMenuFn({ entityContextMenuFn });
   const element = useContext(ElementContext);
-  const EnhancedGraphComponent = withPanZoom()(withContextMenu(contextMenuFn)(GraphComponent));
+  const EnhancedGraphComponent = withCustomPanZoom({ enableSpacebarPanning: true })(
+    withContextMenu(contextMenuFn)(GraphComponent),
+  );
 
   return <EnhancedGraphComponent {...rest} element={element} />;
 };
