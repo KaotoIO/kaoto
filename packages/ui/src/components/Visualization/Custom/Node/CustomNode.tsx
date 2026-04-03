@@ -1,6 +1,6 @@
 import './CustomNode.scss';
 
-import { Icon } from '@patternfly/react-core';
+import { Icon, TextInput } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
@@ -142,10 +142,6 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
     [handleSave, handleCancel],
   );
 
-  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    setEditValue(event.target.value);
-  }, []);
-
   const handleBlur = useCallback(() => {
     // Don't save if user is cancelling with Escape
     if (!isCancelling) {
@@ -153,12 +149,24 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
     }
   }, [handleSave, isCancelling]);
 
+  // When editing, expand the input box to provide more space for typing
+  // Normal: 180px width x 24px height
+  // Editing: 240px width x 40px height (accommodates PatternFly TextInput padding)
+  const editWidth = 240;
+  const editHeight = 40;
+
+  // Calculate x-position adjustment to keep the input centered when width changes
+  // Example: if width increases from 180px to 240px (60px difference),
+  // shift left by 30px (half the difference) to maintain center alignment
+  const widthDiff = editWidth - width;
+  const adjustedX = isEditing && x !== undefined ? x - widthDiff / 2 : x;
+
   return (
     <foreignObject
-      width={width}
-      height={height}
+      width={isEditing ? editWidth : width}
+      height={isEditing ? editHeight : height}
       className={className}
-      {...(transform ? { transform } : { x: x!, y: y! })}
+      {...(transform ? { transform } : { x: adjustedX!, y: y! })}
     >
       <div
         className={clsx('custom-node__label__text', {
@@ -171,22 +179,15 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
           </Icon>
         )}
         {isEditing ? (
-          <input
+          <TextInput
             ref={inputRef}
             type="text"
             value={editValue}
-            onChange={handleChange}
+            onChange={(_event, value) => setEditValue(value)}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
             placeholder="Enter description"
             aria-label="Edit node description"
-            style={{
-              width: '100%',
-              padding: '2px 4px',
-              border: '1px solid #ccc',
-              borderRadius: '3px',
-              fontSize: 'inherit',
-            }}
             onClick={(e) => e.stopPropagation()}
           />
         ) : (

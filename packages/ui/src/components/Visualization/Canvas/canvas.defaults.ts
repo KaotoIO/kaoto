@@ -5,7 +5,7 @@ import { LayoutType } from './canvas.models';
 export class CanvasDefaults {
   static readonly DEFAULT_LAYOUT = LayoutType.DagreVertical;
   static readonly DEFAULT_SIDEBAR_WIDTH = 500;
-  static readonly DEFAULT_LABEL_WIDTH = 150;
+  static readonly DEFAULT_LABEL_WIDTH = 180;
   static readonly DEFAULT_LABEL_HEIGHT = 24;
 
   static readonly DEFAULT_NODE_SHAPE = NodeShape.rect;
