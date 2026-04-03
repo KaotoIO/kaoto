@@ -1,7 +1,5 @@
 import './CustomNode.scss';
 
-import { Icon } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   DEFAULT_LAYER,
@@ -27,8 +25,7 @@ import {
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
-import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
@@ -44,6 +41,7 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
+import { CustomNodeLabel } from './CustomNodeLabel';
 import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
@@ -53,50 +51,6 @@ interface CustomNodeProps extends DefaultNodeProps {
   /** Toggle node collapse / expand */
   onCollapseToggle?: () => void;
 }
-
-interface CustomNodeLabelProps {
-  label: string;
-  doesHaveWarnings?: boolean;
-  validationText?: string;
-  x?: number;
-  y?: number;
-  transform?: string;
-  width?: number;
-  height?: number;
-  className?: string;
-}
-
-const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
-  label,
-  doesHaveWarnings = false,
-  validationText,
-  x,
-  y,
-  transform,
-  width = CanvasDefaults.DEFAULT_LABEL_WIDTH,
-  height = CanvasDefaults.DEFAULT_LABEL_HEIGHT,
-  className = 'custom-node__label',
-}) => (
-  <foreignObject
-    width={width}
-    height={height}
-    className={className}
-    {...(transform ? { transform } : { x: x!, y: y! })}
-  >
-    <div
-      className={clsx('custom-node__label__text', {
-        'custom-node__label__text__error': doesHaveWarnings,
-      })}
-    >
-      {doesHaveWarnings && (
-        <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-          <ExclamationCircleIcon />
-        </Icon>
-      )}
-      <span title={label}>{label}</span>
-    </div>
-  </foreignObject>
-);
 
 function getShouldShowToolbar(
   trigger: NodeToolbarTrigger | undefined,
@@ -122,13 +76,27 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const catalogModalContext = useContext(CatalogModalContext);
     const settingsAdapter = useContext(SettingsContext);
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
-    const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
+    const nodeLabelType = settingsAdapter.getSettings().nodeLabel;
+    const label = vizNode?.getNodeLabel(nodeLabelType);
     const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
     const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
+
+    const handleDescriptionChange = useCallback(
+      (newDescription: string) => {
+        if (!vizNode) return;
+        const nodeDefinition = vizNode.getNodeDefinition();
+        if (nodeDefinition) {
+          const updatedDefinition = { ...nodeDefinition, description: newDescription };
+          vizNode.updateModel(updatedDefinition);
+          entitiesContext.updateSourceCodeFromEntities();
+        }
+      },
+      [vizNode, entitiesContext],
+    );
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
@@ -335,6 +303,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               validationText={validationText}
               x={labelX}
               y={box.height - 1}
+              vizNode={vizNode}
+              onDescriptionChange={handleDescriptionChange}
+              nodeLabelType={nodeLabelType}
             />
           )}
 
@@ -346,6 +317,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               validationText={validationText}
               x={labelX}
               y={box.height - 1}
+              vizNode={vizNode}
+              onDescriptionChange={handleDescriptionChange}
+              nodeLabelType={nodeLabelType}
             />
           )}
 
@@ -356,6 +330,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               doesHaveWarnings={doesHaveWarnings}
               validationText={validationText}
               transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
+              vizNode={vizNode}
+              onDescriptionChange={handleDescriptionChange}
+              nodeLabelType={nodeLabelType}
             />
           )}
 
