@@ -6,6 +6,10 @@
     max-width: 100%;
     display: inline-block;
     vertical-align: middle;
+
+    &__choice {
+      font-style: italic;
+    }
   }
 }
 

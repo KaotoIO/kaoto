@@ -10,13 +10,16 @@ import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
 import { TypeOverrideVariant } from '../../../models/datamapper/types';
 import {
   AddMappingNodeData,
+  ChoiceFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   NodeData,
+  TargetChoiceFieldNodeData,
   UnknownMappingNodeData,
 } from '../../../models/datamapper/visualization';
 import { formatQNameWithPrefix } from '../../../services/qname-util';
+import { VisualizationService } from '../../../services/visualization.service';
 import { UnknownMappingLabel } from './UnknownMappingLabel';
 
 interface INodeTitle {
@@ -34,7 +37,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
   isDocument,
   namespaceMap = {},
 }) => {
-  const title = nodeData.title;
+  const title = VisualizationService.createNodeTitle(nodeData);
   const content = (
     <span className={clsx('node-title__text', className)} data-rank={rank}>
       {title}
@@ -59,6 +62,9 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
     nodeData instanceof FieldItemNodeData ||
     nodeData instanceof AddMappingNodeData
   ) {
+    const isChoiceWrapper =
+      (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
+      !nodeData.choiceField;
     const optionalField = nodeData.field.minOccurs === 0;
     const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
     const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
@@ -103,7 +109,11 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
         }
       >
         <div className="node-title-container">
-          <span className={clsx('node-title__text', className)} data-rank={rank}>
+          {isChoiceWrapper && <Label>choice</Label>}
+          <span
+            className={clsx('node-title__text', isChoiceWrapper && 'node-title__text__choice', className)}
+            data-rank={rank}
+          >
             {title}
           </span>
           {optionalField && !repeatingField0 && (

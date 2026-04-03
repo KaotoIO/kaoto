@@ -16,11 +16,12 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { Label } from '@patternfly/react-core';
+import { AlertVariant, Label } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef, useState } from 'react';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { NodeData } from '../models/datamapper';
+import { VisualizationService } from '../services/visualization.service';
 import { DnDHandler } from './dnd/DnDHandler';
 
 /** Type for tracking which side (source/target) is currently active during drag operations */
@@ -116,6 +117,7 @@ export const canScrollPanel = (element: Element, activeDragSideRef: { current: D
 
 export interface IDataMapperDndContext {
   handler?: DnDHandler;
+  activeNode?: NodeData;
 }
 
 export const DataMapperDndContext = createContext<IDataMapperDndContext>({});
@@ -125,7 +127,7 @@ type DataMapperDndContextProps = PropsWithChildren & {
 };
 
 export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps> = (props) => {
-  const { mappingTree, refreshMappingTree } = useDataMapper();
+  const { mappingTree, refreshMappingTree, sendAlert } = useDataMapper();
   const [activeData, setActiveData] = useState<DataRef<NodeData> | null>(null);
   const activeDragSideRef = useRef<'source' | 'target' | null>(null);
 
@@ -164,22 +166,32 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
     [props.handler],
   );
 
+  const clearActiveDrag = useCallback(() => {
+    setActiveData(null);
+    activeDragSideRef.current = null;
+  }, []);
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
-      props.handler && props.handler.handleDragEnd(event, mappingTree, refreshMappingTree);
-      setActiveData(null);
-      activeDragSideRef.current = null;
+      if (props.handler) {
+        const result = props.handler.handleDragEnd(event, mappingTree, refreshMappingTree);
+        if (!result.success && result.errorMessage) {
+          sendAlert({ variant: AlertVariant.danger, title: result.errorMessage });
+        }
+      }
+      clearActiveDrag();
     },
-    [mappingTree, props.handler, refreshMappingTree],
+    [clearActiveDrag, mappingTree, props.handler, refreshMappingTree, sendAlert],
   );
 
   const handler = useMemo(() => {
     return {
       handler: props.handler,
+      activeNode: activeData?.current,
     };
-  }, [props.handler]);
+  }, [props.handler, activeData]);
 
-  const draggingLabel = activeData?.current?.title ? activeData.current.title : 'dragging...';
+  const draggingLabel = activeData?.current ? VisualizationService.createNodeTitle(activeData.current) : 'dragging...';
   return (
     <DataMapperDndContext.Provider value={handler}>
       <DndContext
@@ -194,10 +206,15 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
+        onDragCancel={clearActiveDrag}
       >
         {props.children}
         <DragOverlay dropAnimation={null}>
-          <div className={'pf-v6-c-draggable node__row dragging-container'} data-dnd-dragging={draggingLabel}>
+          <div
+            className={'pf-v6-c-draggable node__row dragging-container'}
+            data-dnd-dragging={draggingLabel}
+            style={{ pointerEvents: 'none' }}
+          >
             <Label>{draggingLabel}</Label>
           </div>
         </DragOverlay>
