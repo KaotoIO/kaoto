@@ -11,10 +11,8 @@ import {
   GraphElement,
   GraphElementProps,
   isEdge,
-  Layer,
   observer,
   Point,
-  TOP_LAYER,
   useDndDrop,
 } from '@patternfly/react-topology';
 import { clsx } from 'clsx';
@@ -91,14 +89,6 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   );
 
   const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);
-  const dragItemType = dndDropProps.dragItemType;
-  const dragItem = dndDropProps.dragItem;
-  const edgeSourceParent = element.getSource().getParent()?.getId();
-  const edgeTargetParent = element.getTarget().getParent()?.getId();
-  const refreshEdge =
-    dragItemType === GROUP_DRAG_TYPE &&
-    edgeSourceParent.slice(0, dragItem?.getId().length) === dragItem?.getId() &&
-    edgeTargetParent.slice(0, dragItem?.getId().length) === dragItem?.getId();
 
   /* If the edge connects to nodes in a collapsed group don't draw */
   const sourceParent = getClosestVisibleParent(element.getSource());

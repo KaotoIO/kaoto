@@ -4,7 +4,6 @@ import { Icon } from '@patternfly/react-core';
 import { BanIcon, ExclamationCircleIcon, PauseIcon, PlayIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
-  DEFAULT_LAYER,
   DragEvent,
   DragObjectWithType,
   DragSourceSpec,
