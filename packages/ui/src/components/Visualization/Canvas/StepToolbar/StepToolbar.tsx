@@ -2,8 +2,6 @@ import './StepToolbar.scss';
 
 import { Button } from '@patternfly/react-core';
 import {
-  AngleDoubleDownIcon,
-  AngleDoubleUpIcon,
   BanIcon,
   BlueprintIcon,
   CheckIcon,
@@ -15,10 +13,11 @@ import {
   TrashIcon,
 } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, useContext, useMemo } from 'react';
 
 import { AddStepMode, IDataTestID, IVisualizationNode } from '../../../../models';
 import { SettingsContext } from '../../../../providers/settings.provider';
+import { getMoveIcons } from '../../Custom/ContextMenu/get-move-icons.util';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';
 import { useDeleteStep } from '../../Custom/hooks/delete-step.hook';
 import { useDisableStep } from '../../Custom/hooks/disable-step.hook';
@@ -27,6 +26,7 @@ import { useEnableAllSteps } from '../../Custom/hooks/enable-all-steps.hook';
 import { useInsertStep } from '../../Custom/hooks/insert-step.hook';
 import { useMoveStep } from '../../Custom/hooks/move-step.hook';
 import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
+import { useGraphLayout } from '../../Custom/hooks/use-graph-layout.hook';
 
 interface IStepToolbar extends IDataTestID {
   vizNode: IVisualizationNode;
@@ -44,6 +44,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   'data-testid': dataTestId,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
+  const layout = useGraphLayout();
   const { canHaveSpecialChildren, canBeDisabled, canReplaceStep, canRemoveStep, canRemoveFlow } =
     vizNode.getNodeInteraction();
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
@@ -56,6 +57,9 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   const { canDuplicate, onDuplicate } = useDuplicateStep(vizNode);
   const { canBeMoved: canMoveBefore, onMoveStep: onMoveBefore } = useMoveStep(vizNode, AddStepMode.PrependStep);
   const { canBeMoved: canMoveAfter, onMoveStep: onMoveAfter } = useMoveStep(vizNode, AddStepMode.AppendStep);
+
+  // Get the appropriate move icons based on layout and node type
+  const icons = useMemo(() => getMoveIcons(layout, vizNode), [layout, vizNode]);
 
   return (
     <div className="step-toolbar-wrapper">
@@ -76,7 +80,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canMoveBefore && (
           <Button
-            icon={<AngleDoubleUpIcon />}
+            icon={icons.moveBefore}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-move-before`}
             variant="control"
@@ -90,7 +94,7 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
 
         {canMoveAfter && (
           <Button
-            icon={<AngleDoubleDownIcon />}
+            icon={icons.moveNext}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-move-after`}
             variant="control"

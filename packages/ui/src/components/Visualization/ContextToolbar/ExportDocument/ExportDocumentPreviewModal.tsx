@@ -15,7 +15,6 @@ import {
   ToolbarItem,
 } from '@patternfly/react-core';
 import { DownloadIcon } from '@patternfly/react-icons';
-import { useVisualizationController } from '@patternfly/react-topology';
 import { Element } from 'hast';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
@@ -25,7 +24,7 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { DocumentationEntity } from '../../../../models/documentation';
 import { VisibleFlowsContext } from '../../../../providers';
 import { DocumentationService } from '../../../../services/documentation.service';
-import { LayoutType } from '../../Canvas/canvas.models';
+import { useGraphLayout } from '../../Custom/hooks/use-graph-layout.hook';
 import { HiddenCanvas } from '../FlowExportImage/HiddenCanvas';
 import { EntitiesMenu } from './EntitiesMenu';
 import { markdownComponentMapping } from './MarkdownComponentMapping';
@@ -39,7 +38,6 @@ const FILENAME_BASE = 'route-export';
 export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPreviewModal> = ({ onClose }) => {
   const { camelResource } = useEntityContext();
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
-  const controller = useVisualizationController();
   const { visualEntities } = useEntityContext();
   const [markdownText, setMarkdownText] = useState<string>('');
   const [flowImageBlob, setFlowImageBlob] = useState<Blob>();
@@ -50,7 +48,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
 
-  const currentLayout = controller.getGraph().getLayout() as LayoutType | undefined;
+  const currentLayout = useGraphLayout();
 
   const onUpdateDocumentationEntities = (documentationEntities: DocumentationEntity[]) => {
     documentationEntities.forEach((docEntity) => {

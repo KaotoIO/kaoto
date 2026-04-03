@@ -1,5 +1,5 @@
-import { ActionListItem, Button } from '@patternfly/react-core';
-import { PencilAltIcon } from '@patternfly/react-icons';
+import { FunctionMath } from '@carbon/icons-react';
+import { ActionListItem, Button, Icon } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useState } from 'react';
 
 import { ExpressionItem } from '../../../models/datamapper/mapping';
@@ -27,7 +27,11 @@ export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeDat
         data-testid={`edit-xpath-button-${nodeData.id}`}
         onClick={launchXPathEditor}
         className="document-field__button"
-        icon={<PencilAltIcon />}
+        icon={
+          <Icon>
+            <FunctionMath />
+          </Icon>
+        }
       />
       <XPathEditorModal
         title={nodeData.title}
