@@ -34,6 +34,7 @@ import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.p
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { NodeLabelType } from '../../../../models/settings';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
@@ -66,6 +67,7 @@ interface CustomNodeLabelProps {
   className?: string;
   vizNode?: IVisualizationNode;
   onDescriptionChange?: (description: string) => void;
+  nodeLabelType?: NodeLabelType;
 }
 
 const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
@@ -80,6 +82,7 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
   className = 'custom-node__label',
   vizNode,
   onDescriptionChange,
+  nodeLabelType = NodeLabelType.Description,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
@@ -97,8 +100,10 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
 
   const handleDoubleClick = useCallback(
     (event: React.MouseEvent) => {
-      // Only allow editing if vizNode and onDescriptionChange are available
-      if (!vizNode || !onDescriptionChange) {
+      // Only allow editing if:
+      // 1. vizNode and onDescriptionChange are available
+      // 2. The current node label setting is set to 'description'
+      if (!vizNode || !onDescriptionChange || nodeLabelType !== NodeLabelType.Description) {
         return;
       }
       event.stopPropagation();
@@ -106,12 +111,13 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
       setIsEditing(true);
       setIsCancelling(false);
     },
-    [currentDescription, vizNode, onDescriptionChange],
+    [currentDescription, vizNode, onDescriptionChange, nodeLabelType],
   );
 
   const handleSave = useCallback(() => {
-    if (onDescriptionChange && editValue !== currentDescription) {
-      onDescriptionChange(editValue.trim());
+    const trimmedValue = editValue.trim();
+    if (onDescriptionChange && trimmedValue !== currentDescription) {
+      onDescriptionChange(trimmedValue);
     }
     setIsEditing(false);
     setIsCancelling(false);
@@ -184,7 +190,11 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
             onClick={(e) => e.stopPropagation()}
           />
         ) : (
-          <span title={label} onDoubleClick={handleDoubleClick} style={{ cursor: 'pointer' }}>
+          <span
+            title={label}
+            onDoubleClick={handleDoubleClick}
+            style={{ cursor: nodeLabelType === NodeLabelType.Description ? 'pointer' : 'default' }}
+          >
             {label}
           </span>
         )}
@@ -217,7 +227,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const catalogModalContext = useContext(CatalogModalContext);
     const settingsAdapter = useContext(SettingsContext);
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
-    const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
+    const nodeLabelType = settingsAdapter.getSettings().nodeLabel;
+    const label = vizNode?.getNodeLabel(nodeLabelType);
     const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
     const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
@@ -445,6 +456,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               y={box.height - 1}
               vizNode={vizNode}
               onDescriptionChange={handleDescriptionChange}
+              nodeLabelType={nodeLabelType}
             />
           )}
 
@@ -458,6 +470,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               y={box.height - 1}
               vizNode={vizNode}
               onDescriptionChange={handleDescriptionChange}
+              nodeLabelType={nodeLabelType}
             />
           )}
 
@@ -470,6 +483,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
               vizNode={vizNode}
               onDescriptionChange={handleDescriptionChange}
+              nodeLabelType={nodeLabelType}
             />
           )}
 
