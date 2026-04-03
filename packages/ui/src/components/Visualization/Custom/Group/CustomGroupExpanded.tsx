@@ -1,6 +1,6 @@
 import './CustomGroupExpanded.scss';
 
-import { Icon, Switch } from '@patternfly/react-core';
+import { Icon } from '@patternfly/react-core';
 import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
@@ -34,7 +34,9 @@ import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../..
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { IconResolver } from '../../../IconResolver';
+import { Anchors } from '../../../registers/anchors';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import {
@@ -227,27 +229,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 )}
                 <span title={label}>{label}</span>
 
-                {groupVizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
-                  <div key={`${icon}-${title}`} className="custom-group__autostart-container" title={title}>
-                    <Switch
-                      className="custom-group__autostart-switch"
-                      aria-label="Auto Startup"
-                      isChecked={icon === 'play'}
-                      onChange={(e) => {
-                        e.stopPropagation();
-                        if (
-                          groupVizNode.data.entity &&
-                          'toggleAutoStartup' in groupVizNode.data.entity &&
-                          typeof groupVizNode.data.entity.toggleAutoStartup === 'function'
-                        ) {
-                          groupVizNode.data.entity.toggleAutoStartup();
-                          entitiesContext.updateEntitiesFromCamelResource();
-                        }
-                      }}
-                      isReversed
-                    />
-                  </div>
-                ))}
+                <RenderingAnchor anchorTag={Anchors.CanvasGroupTitlebar} vizNode={groupVizNode} />
               </div>
 
               {isDisabled && !doesHaveWarnings && (
