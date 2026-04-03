@@ -1,7 +1,7 @@
 import './CustomGroupExpanded.scss';
 
 import { Icon } from '@patternfly/react-core';
-import { BanIcon, ExclamationCircleIcon, PauseIcon, PlayIcon } from '@patternfly/react-icons';
+import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   DEFAULT_LAYER,
@@ -36,7 +36,9 @@ import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../..
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { IconResolver } from '../../../IconResolver';
+import { Anchors } from '../../../registers/anchors';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
+import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
 import {
@@ -222,13 +224,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                   />
                 )}
                 <span title={label}>{label}</span>
-              </div>
 
-              {groupVizNode.data.entity?.getGroupIcons?.()?.map(({ icon, title }) => (
-                <Icon key={title} className="custom-group__autostart-icon" title={title}>
-                  {icon === 'play' ? <PlayIcon /> : <PauseIcon />}
-                </Icon>
-              ))}
+                <RenderingAnchor anchorTag={Anchors.CanvasGroupTitlebar} vizNode={groupVizNode} />
+              </div>
 
               {isDisabled && !doesHaveWarnings && (
                 <Icon className="custom-group__disabled-icon" title="Step disabled">
