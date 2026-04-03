@@ -267,7 +267,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const showLabelWhenDragging =
       (isDraggingNodeType && !isDraggingNode) || (isDraggingGroupType && !isDraggingWithinGroup);
     const showToolbarSection = !dndDropProps.droppable && shouldShowToolbar && hasSomeInteractions;
-    const layerId = isDraggingWithinGroup ? TOP_LAYER : DEFAULT_LAYER;
+    const layerId = DEFAULT_LAYER;
 
     const mainContainerClassNames = {
       ...getDropTargetContainerClassNames('custom-node__container', dropDirection, dndDropProps.hover),

@@ -140,50 +140,48 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
   }
 
   return (
-    <Layer id={refreshEdge ? TOP_LAYER : undefined}>
-      <g className="custom-edge" ref={dndDropRef}>
-        <path className="custom-edge__background" d={edgeDRef.current} />
-        <path
-          className={clsx('custom-edge__body', {
-            'custom-edge__body__validDropTarget': dndDropProps.droppable && dndDropProps.hover && dndDropProps.canDrop,
-            'custom-edge__body__possibleDropTargets':
-              dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
-          })}
-          d={edgeDRef.current}
-        />
-        <ConnectorArrow
-          isTarget
-          className={clsx('custom-edge__connector', {
-            'custom-edge__connector__validDropTarget':
-              dndDropProps.droppable && dndDropProps.hover && dndDropProps.canDrop,
-            'custom-edge__connector__possibleDropTargets':
-              dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
-          })}
-          startPoint={startPointRef.current}
-          endPoint={endPointRef.current}
-        />
+    <g className="custom-edge" ref={dndDropRef}>
+      <path className="custom-edge__background" d={edgeDRef.current} />
+      <path
+        className={clsx('custom-edge__body', {
+          'custom-edge__body__validDropTarget': dndDropProps.droppable && dndDropProps.hover && dndDropProps.canDrop,
+          'custom-edge__body__possibleDropTargets':
+            dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
+        })}
+        d={edgeDRef.current}
+      />
+      <ConnectorArrow
+        isTarget
+        className={clsx('custom-edge__connector', {
+          'custom-edge__connector__validDropTarget':
+            dndDropProps.droppable && dndDropProps.hover && dndDropProps.canDrop,
+          'custom-edge__connector__possibleDropTargets':
+            dndDropProps.canDrop && dndDropProps.droppable && !dndDropProps.hover,
+        })}
+        startPoint={startPointRef.current}
+        endPoint={endPointRef.current}
+      />
 
-        {/** Add Step Icon, appears when nothing is dragging and user hovers over the edge */}
-        {!dndDropProps.droppable && shouldShowPrepend && (
-          <EdgeAddStepIconSlot x={x} y={y} vizNode={vizNode} className="custom-edge__add-step" />
-        )}
+      {/** Add Step Icon, appears when nothing is dragging and user hovers over the edge */}
+      {!dndDropProps.droppable && shouldShowPrepend && (
+        <EdgeAddStepIconSlot x={x} y={y} vizNode={vizNode} className="custom-edge__add-step" />
+      )}
 
-        {/** Add Step Icon, appears when a compatible node/group is being dragged over the edge */}
-        {dndDropProps.droppable && shouldShowPrepend && dndDropProps.hover && dndDropProps.canDrop && (
-          <EdgeAddStepIconSlot
-            x={
-              startPointRef.current.x +
-              (endPointRef.current.x - startPointRef.current.x - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
-            }
-            y={
-              startPointRef.current.y +
-              (endPointRef.current.y - startPointRef.current.y - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
-            }
-            vizNode={vizNode}
-            className="add-step-icon__icon__validDropTarget"
-          />
-        )}
-      </g>
-    </Layer>
+      {/** Add Step Icon, appears when a compatible node/group is being dragged over the edge */}
+      {dndDropProps.droppable && shouldShowPrepend && dndDropProps.hover && dndDropProps.canDrop && (
+        <EdgeAddStepIconSlot
+          x={
+            startPointRef.current.x +
+            (endPointRef.current.x - startPointRef.current.x - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
+          }
+          y={
+            startPointRef.current.y +
+            (endPointRef.current.y - startPointRef.current.y - CanvasDefaults.ADD_STEP_ICON_SIZE) / 2
+          }
+          vizNode={vizNode}
+          className="add-step-icon__icon__validDropTarget"
+        />
+      )}
+    </g>
   );
 });

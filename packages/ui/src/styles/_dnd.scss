@@ -7,3 +7,7 @@
     cursor: grabbing;
   }
 }
+
+@mixin cursor-grabbing {
+  cursor: grabbing;
+}
