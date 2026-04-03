@@ -60,10 +60,8 @@ const config: StorybookConfig = {
         alias: [
           ...(Array.isArray(config.resolve?.alias) ? config.resolve.alias : []),
           {
-            find: /^~.+/,
-            replacement: (val: string) => {
-              return val.replace(/^~/, '');
-            },
+            find: /^~(.+)/,
+            replacement: '$1',
           },
         ],
       },
