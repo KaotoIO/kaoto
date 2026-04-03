@@ -207,4 +207,121 @@ describe('CustomNode', () => {
       );
     }
   });
+
+  it('should trim whitespace when saving description', () => {
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      catalogKind: CatalogKind.Component,
+      name: 'log',
+      path: 'route.from.steps.0.log',
+    }) as IVisualizationNode;
+
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ log: { message: 'test' } });
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Log');
+    jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+    const parentElement = new BaseGraph();
+    const element = new BaseNode();
+    const controller = ControllerService.createController();
+    parentElement.setController(controller);
+    element.setController(controller);
+    element.setParent(parentElement);
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-log');
+
+    const { Provider } = TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomNodeObserver element={element} />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    const labelElement = screen.getByText('log');
+    act(() => {
+      fireEvent.doubleClick(labelElement);
+    });
+
+    const input = screen.queryByRole('textbox');
+    if (input) {
+      act(() => {
+        fireEvent.change(input, { target: { value: '  description with spaces  ' } });
+      });
+
+      act(() => {
+        fireEvent.keyDown(input, { key: 'Enter' });
+      });
+
+      expect(updateModelSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'description with spaces',
+        }),
+      );
+    }
+  });
+
+  it('should cancel editing on Escape key without saving', () => {
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      catalogKind: CatalogKind.Component,
+      name: 'log',
+      path: 'route.from.steps.0.log',
+    }) as IVisualizationNode;
+
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ log: { message: 'test', description: 'original' } });
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Log');
+    jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+    const parentElement = new BaseGraph();
+    const element = new BaseNode();
+    const controller = ControllerService.createController();
+    parentElement.setController(controller);
+    element.setController(controller);
+    element.setParent(parentElement);
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-log');
+
+    const { Provider } = TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomNodeObserver element={element} />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    const labelElement = screen.getByText('log');
+    act(() => {
+      fireEvent.doubleClick(labelElement);
+    });
+
+    const input = screen.queryByRole('textbox');
+    if (input) {
+      act(() => {
+        fireEvent.change(input, { target: { value: 'new description' } });
+      });
+
+      act(() => {
+        fireEvent.keyDown(input, { key: 'Escape' });
+      });
+
+      // Verify updateModel was NOT called
+      expect(updateModelSpy).not.toHaveBeenCalled();
+    }
+  });
 });

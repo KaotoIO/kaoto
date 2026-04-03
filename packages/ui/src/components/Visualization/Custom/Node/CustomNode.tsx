@@ -83,6 +83,7 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
+  const [isCancelling, setIsCancelling] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const nodeDefinition = vizNode?.getNodeDefinition();
   const currentDescription = nodeDefinition?.description || '';
@@ -96,21 +97,28 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
 
   const handleDoubleClick = useCallback(
     (event: React.MouseEvent) => {
+      // Only allow editing if vizNode and onDescriptionChange are available
+      if (!vizNode || !onDescriptionChange) {
+        return;
+      }
       event.stopPropagation();
       setEditValue(currentDescription);
       setIsEditing(true);
+      setIsCancelling(false);
     },
-    [currentDescription],
+    [currentDescription, vizNode, onDescriptionChange],
   );
 
   const handleSave = useCallback(() => {
     if (onDescriptionChange && editValue !== currentDescription) {
-      onDescriptionChange(editValue);
+      onDescriptionChange(editValue.trim());
     }
     setIsEditing(false);
+    setIsCancelling(false);
   }, [editValue, currentDescription, onDescriptionChange]);
 
   const handleCancel = useCallback(() => {
+    setIsCancelling(true);
     setIsEditing(false);
     setEditValue('');
   }, []);
@@ -133,8 +141,11 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
   }, []);
 
   const handleBlur = useCallback(() => {
-    handleSave();
-  }, [handleSave]);
+    // Don't save if user is cancelling with Escape
+    if (!isCancelling) {
+      handleSave();
+    }
+  }, [handleSave, isCancelling]);
 
   return (
     <foreignObject
@@ -162,6 +173,7 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
             placeholder="Enter description"
+            aria-label="Edit node description"
             style={{
               width: '100%',
               padding: '2px 4px',
