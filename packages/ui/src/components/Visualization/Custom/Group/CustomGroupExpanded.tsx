@@ -4,7 +4,6 @@ import { Icon } from '@patternfly/react-core';
 import { BanIcon, ExclamationCircleIcon, PauseIcon, PlayIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
-  DEFAULT_LAYER,
   DragEvent,
   DragObjectWithType,
   DragSourceSpec,
@@ -21,7 +20,6 @@ import {
   Rect,
   TOP_LAYER,
   useAnchor,
-  useCombineRefs,
   useDndDrop,
   useDragNode,
   useHover,
@@ -164,7 +162,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const refreshGroup =
       draggedVizNode?.getId() === element.getData().vizNode.getId() &&
       element.getData().vizNode.data.path.slice(0, draggedVizNode?.data.path.length) === draggedVizNode?.data.path;
-    const gCombinedRef = useCombineRefs<SVGGElement>(gHoverRef, dragGroupRef);
 
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
@@ -185,9 +182,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const toolbarY = boxRef.current.y - CanvasDefaults.STEP_TOOLBAR_HEIGHT;
 
     return (
-      <Layer id={refreshGroup ? DEFAULT_LAYER : GROUPS_LAYER} data-lastupdate={lastUpdate}>
+      <Layer id={GROUPS_LAYER} data-lastupdate={lastUpdate}>
         <g
-          ref={gCombinedRef}
+          ref={gHoverRef}
           className="custom-group"
           data-testid={`custom-group__${groupVizNode.id}`}
           data-grouplabel={label}
@@ -211,7 +208,13 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
               data-testid={`${groupVizNode.getId()}|${groupVizNode.id}`}
               className={clsx('custom-group__container', mainContainerClassNames)}
             >
-              <div className="custom-group__container__text" title={tooltipContent}>
+              <div
+                ref={dragGroupRef}
+                className={clsx('custom-group__container__text', {
+                  'custom-group__container__text--draggable': canDragGroup(groupVizNode),
+                })}
+                title={tooltipContent}
+              >
                 {doesHaveWarnings ? (
                   <div className="custom-group__container__icon-placeholder" />
                 ) : (
@@ -240,22 +243,25 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
 
           {/** This is the dragged node which is being moved */}
           {dndDropProps.droppable && isDraggingGroup && (
-            <CustomNodeContainer
-              width={CanvasDefaults.DEFAULT_NODE_WIDTH}
-              height={CanvasDefaults.DEFAULT_NODE_HEIGHT}
-              dataNodelabel={label}
-              transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
-              dataTestId={groupVizNode.id}
-              vizNode={groupVizNode}
-              tooltipContent={tooltipContent}
-              childCount={childCount}
-              containerClassNames={{
-                'custom-node__container__draggedNode': true,
-              }}
-              ProcessorIcon={ProcessorIcon}
-              processorDescription={processorDescription}
-              isDisabled={isDisabled}
-            />
+            <Layer id={TOP_LAYER}>
+              <CustomNodeContainer
+                width={CanvasDefaults.DEFAULT_NODE_WIDTH}
+                height={CanvasDefaults.DEFAULT_NODE_HEIGHT}
+                dataNodelabel={label}
+                transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
+                dataTestId={groupVizNode.id}
+                vizNode={groupVizNode}
+                tooltipContent={tooltipContent}
+                childCount={childCount}
+                containerClassNames={{
+                  'custom-node__container__draggedNode': true,
+                  'custom-node__container__grabbing-cursor': true,
+                }}
+                ProcessorIcon={ProcessorIcon}
+                processorDescription={processorDescription}
+                isDisabled={isDisabled}
+              />
+            </Layer>
           )}
 
           {doesHaveWarnings && !isDisabled && (

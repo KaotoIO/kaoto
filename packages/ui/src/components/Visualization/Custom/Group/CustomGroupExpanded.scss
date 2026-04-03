@@ -1,4 +1,5 @@
 @use '../custom';
+@use '../../../../styles/dnd';
 
 .custom-group {
   @include custom.highligth {
@@ -92,6 +93,13 @@
 
       &__possibleDropTarget-left {
         border-left: var(--custom-component-border-possibleDropTarget);
+      }
+
+      // Must beat `custom.label` mixin (`_custom.scss`), which sets `cursor: pointer` on
+      // `.custom-group__container .custom-group__container__text` (specificity 0,2,0).
+      // stylelint-disable-next-line selector-class-pattern -- BEM block + element + modifier (matches TSX class)
+      & &__text.custom-group__container__text--draggable {
+        @include dnd.cursor-grab;
       }
     }
 
