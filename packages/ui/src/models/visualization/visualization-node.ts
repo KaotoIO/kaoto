@@ -179,8 +179,4 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
 
     return rootNode!;
   }
-
-  getGroupIcons(): { icon: string; title: string }[] {
-    return this.getBaseEntity()?.getGroupIcons() ?? [];
-  }
 }

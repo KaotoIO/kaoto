@@ -5,6 +5,7 @@ import { IRegisteredComponent } from '../RenderingAnchor/rendering.provider.mode
 import { Anchors } from './anchors';
 import { componentModeActivationFn } from './component-mode.activationfn';
 import { datamapperActivationFn } from './datamapper.activationfn';
+import { groupAutoStartupActivationFn } from './group-auto-startup.activationfn';
 
 export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const { registerComponent } = useContext(RenderingAnchorContext);
@@ -19,6 +20,11 @@ export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ child
       anchor: Anchors.CanvasFormHeader,
       activationFn: componentModeActivationFn,
       component: lazy(() => import('../ComponentMode/ComponentMode')),
+    },
+    {
+      anchor: Anchors.CanvasGroupTitlebar,
+      activationFn: groupAutoStartupActivationFn,
+      component: lazy(() => import('../GroupAutoStartupSwitch/GroupAutoStartupSwitch')),
     },
   ]);
 

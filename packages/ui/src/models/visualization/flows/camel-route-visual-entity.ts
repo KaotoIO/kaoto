@@ -131,35 +131,4 @@ export class CamelRouteVisualEntity extends AbstractCamelVisualEntity<{ route: R
   protected getRootUri(): string | undefined {
     return this.entityDef.route.from?.uri;
   }
-
-  getGroupIcons(): { icon: 'play' | 'pause'; title: string }[] {
-    const autoStartupValue = this.entityDef.route.autoStartup;
-    // Only treat actual boolean false as disabled; strings (including "false" or placeholders like "{{...}}")
-    // are considered non-boolean and should show as enabled since we can't determine their runtime value
-    const isAutoStartup = autoStartupValue !== false;
-
-    return [
-      {
-        icon: isAutoStartup ? 'play' : 'pause',
-        title: isAutoStartup ? 'Auto Startup Enabled' : 'Auto Startup Disabled',
-      },
-    ];
-  }
-
-  toggleAutoStartup(): void {
-    const currentValue = this.entityDef.route.autoStartup;
-    // Only toggle if the value is boolean or undefined; preserve string values (e.g., "true"/"false" or
-    // placeholders like "{{...}}") as they may be property placeholders that should not be overwritten
-    if (typeof currentValue === 'string') {
-      return;
-    }
-
-    if (currentValue === false) {
-      // Remove the property to set it back to default (true)
-      delete this.entityDef.route.autoStartup;
-    } else {
-      // Set to false (handles both undefined and true)
-      this.entityDef.route.autoStartup = false;
-    }
-  }
 }
