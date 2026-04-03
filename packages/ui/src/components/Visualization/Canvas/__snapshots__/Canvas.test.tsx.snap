@@ -80,6 +80,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                 >
                                   <div
                                     class="custom-group__container__text"
+                                    data-testid="route-8888|route|drag-handle"
                                     title="route"
                                   >
                                     <img
@@ -145,7 +146,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
                                     title="choice"
                                   >
                                     <img
@@ -189,7 +191,8 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                                   data-testid="route-8888|route.from.steps.1.choice.when.0"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
                                     title="when"
                                   >
                                     <img
@@ -1071,6 +1074,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                 >
                                   <div
                                     class="custom-group__container__text"
+                                    data-testid="route-8888|route|drag-handle"
                                     title="route"
                                   >
                                     <img
@@ -1136,7 +1140,8 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
                                     title="choice"
                                   >
                                     <img
@@ -1180,7 +1185,8 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                                   data-testid="route-8888|route.from.steps.1.choice.when.0"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
                                     title="when"
                                   >
                                     <img
@@ -2949,6 +2955,7 @@ exports[`Canvas should render correctly 1`] = `
                                 >
                                   <div
                                     class="custom-group__container__text"
+                                    data-testid="route-8888|route|drag-handle"
                                     title="route"
                                   >
                                     <img
@@ -3014,7 +3021,8 @@ exports[`Canvas should render correctly 1`] = `
                                   data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
                                     title="choice"
                                   >
                                     <img
@@ -3058,7 +3066,8 @@ exports[`Canvas should render correctly 1`] = `
                                   data-testid="route-8888|route.from.steps.1.choice.when.0"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
                                     title="when"
                                   >
                                     <img
@@ -3940,6 +3949,7 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                 >
                                   <div
                                     class="custom-group__container__text"
+                                    data-testid="route-8888|route|drag-handle"
                                     title="route"
                                   >
                                     <img
@@ -4005,7 +4015,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-testid="route-8888|route.from.steps.1.choice"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
                                     title="choice"
                                   >
                                     <img
@@ -4049,7 +4060,8 @@ exports[`Canvas should render correctly with more routes  1`] = `
                                   data-testid="route-8888|route.from.steps.1.choice.when.0"
                                 >
                                   <div
-                                    class="custom-group__container__text"
+                                    class="custom-group__container__text custom-group__container__text__draggable"
+                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
                                     title="when"
                                   >
                                     <img
