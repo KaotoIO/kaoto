@@ -28,7 +28,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
@@ -64,6 +64,8 @@ interface CustomNodeLabelProps {
   width?: number;
   height?: number;
   className?: string;
+  vizNode?: IVisualizationNode;
+  onDescriptionChange?: (description: string) => void;
 }
 
 const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
@@ -76,27 +78,108 @@ const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
   width = CanvasDefaults.DEFAULT_LABEL_WIDTH,
   height = CanvasDefaults.DEFAULT_LABEL_HEIGHT,
   className = 'custom-node__label',
-}) => (
-  <foreignObject
-    width={width}
-    height={height}
-    className={className}
-    {...(transform ? { transform } : { x: x!, y: y! })}
-  >
-    <div
-      className={clsx('custom-node__label__text', {
-        'custom-node__label__text__error': doesHaveWarnings,
-      })}
+  vizNode,
+  onDescriptionChange,
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const nodeDefinition = vizNode?.getNodeDefinition();
+  const currentDescription = nodeDefinition?.description || '';
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditing]);
+
+  const handleDoubleClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation();
+      setEditValue(currentDescription);
+      setIsEditing(true);
+    },
+    [currentDescription],
+  );
+
+  const handleSave = useCallback(() => {
+    if (onDescriptionChange && editValue !== currentDescription) {
+      onDescriptionChange(editValue);
+    }
+    setIsEditing(false);
+  }, [editValue, currentDescription, onDescriptionChange]);
+
+  const handleCancel = useCallback(() => {
+    setIsEditing(false);
+    setEditValue('');
+  }, []);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        event.stopPropagation();
+        handleSave();
+      } else if (event.key === 'Escape') {
+        event.stopPropagation();
+        handleCancel();
+      }
+    },
+    [handleSave, handleCancel],
+  );
+
+  const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditValue(event.target.value);
+  }, []);
+
+  const handleBlur = useCallback(() => {
+    handleSave();
+  }, [handleSave]);
+
+  return (
+    <foreignObject
+      width={width}
+      height={height}
+      className={className}
+      {...(transform ? { transform } : { x: x!, y: y! })}
     >
-      {doesHaveWarnings && (
-        <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-          <ExclamationCircleIcon />
-        </Icon>
-      )}
-      <span title={label}>{label}</span>
-    </div>
-  </foreignObject>
-);
+      <div
+        className={clsx('custom-node__label__text', {
+          'custom-node__label__text__error': doesHaveWarnings,
+        })}
+      >
+        {doesHaveWarnings && (
+          <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
+            <ExclamationCircleIcon />
+          </Icon>
+        )}
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editValue}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown}
+            onBlur={handleBlur}
+            placeholder="Enter description"
+            style={{
+              width: '100%',
+              padding: '2px 4px',
+              border: '1px solid #ccc',
+              borderRadius: '3px',
+              fontSize: 'inherit',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ) : (
+          <span title={label} onDoubleClick={handleDoubleClick} style={{ cursor: 'pointer' }}>
+            {label}
+          </span>
+        )}
+      </div>
+    </foreignObject>
+  );
+};
 
 function getShouldShowToolbar(
   trigger: NodeToolbarTrigger | undefined,
@@ -129,6 +212,19 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const tooltipContent = vizNode?.getTooltipContent();
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
+
+    const handleDescriptionChange = useCallback(
+      (newDescription: string) => {
+        if (!vizNode) return;
+        const nodeDefinition = vizNode.getNodeDefinition();
+        if (nodeDefinition) {
+          const updatedDefinition = { ...nodeDefinition, description: newDescription };
+          vizNode.updateModel(updatedDefinition);
+          entitiesContext.updateSourceCodeFromEntities();
+        }
+      },
+      [vizNode, entitiesContext],
+    );
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
@@ -335,6 +431,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               validationText={validationText}
               x={labelX}
               y={box.height - 1}
+              vizNode={vizNode}
+              onDescriptionChange={handleDescriptionChange}
             />
           )}
 
@@ -346,6 +444,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               validationText={validationText}
               x={labelX}
               y={box.height - 1}
+              vizNode={vizNode}
+              onDescriptionChange={handleDescriptionChange}
             />
           )}
 
@@ -356,6 +456,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               doesHaveWarnings={doesHaveWarnings}
               validationText={validationText}
               transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
+              vizNode={vizNode}
+              onDescriptionChange={handleDescriptionChange}
             />
           )}
 

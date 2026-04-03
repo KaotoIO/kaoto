@@ -1,5 +1,5 @@
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
@@ -137,5 +137,74 @@ describe('CustomNode', () => {
 
     // The component should return null, resulting in empty render
     expect(container.querySelector('.custom-node')).toBeNull();
+  });
+
+  it('should allow editing description on double-click of node label', () => {
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      catalogKind: CatalogKind.Component,
+      name: 'log',
+      path: 'route.from.steps.0.log',
+    }) as IVisualizationNode;
+
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ log: { message: 'test' } });
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Log');
+    jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+    const parentElement = new BaseGraph();
+    const element = new BaseNode();
+    const controller = ControllerService.createController();
+    parentElement.setController(controller);
+    element.setController(controller);
+    element.setParent(parentElement);
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-log');
+
+    const { Provider } = TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomNodeObserver element={element} />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    const labelElement = screen.getByText('log');
+    expect(labelElement).toBeInTheDocument();
+
+    // Double-click on the label
+    act(() => {
+      fireEvent.doubleClick(labelElement);
+    });
+
+    // Should show an input field for editing
+    const input = screen.queryByRole('textbox');
+    expect(input).toBeInTheDocument();
+
+    // Type a new description
+    if (input) {
+      act(() => {
+        fireEvent.change(input, { target: { value: 'My custom log description' } });
+      });
+
+      // Press Enter to save
+      act(() => {
+        fireEvent.keyDown(input, { key: 'Enter' });
+      });
+
+      // Should call updateModel with the new description
+      expect(updateModelSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          description: 'My custom log description',
+        }),
+      );
+    }
   });
 });
