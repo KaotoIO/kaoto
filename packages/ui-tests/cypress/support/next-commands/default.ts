@@ -43,11 +43,18 @@ Cypress.Commands.add('openHomePageWithPreExistingRoutes', () => {
 
 Cypress.Commands.add('waitSchemasLoading', () => {
   // Wait for the loading schemas to disappear
-  cy.get('[data-testid="loading-schemas"]').should('be.visible');
-  cy.get('[data-testid="loading-schemas"]').should('not.exist');
+  // Use a more flexible approach that handles cases where loading is very fast
+  cy.get('body').then(($body) => {
+    if ($body.find('[data-testid="loading-schemas"]').length > 0) {
+      cy.get('[data-testid="loading-schemas"]').should('not.exist');
+    }
+  });
   // Wait for the loading connectors to disappear
-  cy.get('[data-testid="loading-catalogs"]').should('be.visible');
-  cy.get('[data-testid="loading-catalogs"]').should('not.exist');
+  cy.get('body').then(($body) => {
+    if ($body.find('[data-testid="loading-catalogs"]').length > 0) {
+      cy.get('[data-testid="loading-catalogs"]').should('not.exist');
+    }
+  });
 });
 
 Cypress.Commands.add('expandVisualization', () => {

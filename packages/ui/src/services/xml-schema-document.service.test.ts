@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../models/datamapper/document';
+import { NS_XML_SCHEMA_INSTANCE } from '../models/datamapper/standard-namespaces';
 import { Types } from '../models/datamapper/types';
 import {
   getAnonymousGlobalElementRefLargeXsd,
@@ -378,6 +379,44 @@ describe('XmlSchemaDocumentService', () => {
     expect(attrExpression).toEqual('@discount');
     attrExpression = discountAttr!.getExpression(namespaceMap);
     expect(attrExpression).toEqual('@discount');
+  });
+
+  it('should expose xsi:nil as a child field for nillable elements', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'nillable.xsd': `
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                     targetNamespace="http://www.example.com/NILLABLE"
+                     xmlns:tns="http://www.example.com/NILLABLE"
+                     elementFormDefault="qualified">
+            <xs:element name="Root" nillable="true">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="Child" type="xs:string" />
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:schema>`,
+      },
+      { namespaceUri: 'http://www.example.com/NILLABLE', name: 'Root' },
+    );
+
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const root = document.fields[0];
+
+    expect(root.nillable).toBe(true);
+    expect(root.fields.some((field) => field.isAttribute && field.name === 'nil')).toBe(true);
+
+    const nilField = root.fields.find((field) => field.isAttribute && field.name === 'nil');
+    expect(nilField).toBeDefined();
+    expect(nilField!.displayName).toEqual('xsi:nil');
+    expect(nilField!.namespacePrefix).toEqual('xsi');
+    expect(nilField!.namespaceURI).toEqual(NS_XML_SCHEMA_INSTANCE);
   });
 
   it('should parse RestrictionSimple.xsd', () => {

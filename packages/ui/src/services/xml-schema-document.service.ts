@@ -1,4 +1,5 @@
 import { DocumentDefinition, RootElementOption } from '../models/datamapper/document';
+import { NS_XML_SCHEMA_INSTANCE } from '../models/datamapper/standard-namespaces';
 import { Types } from '../models/datamapper/types';
 import { capitalize } from '../serializers/xml/utils/xml-utils';
 import {
@@ -391,6 +392,7 @@ export class XmlSchemaDocumentService {
     field.namespaceURI = namespaceURI;
     field.namespacePrefix = resolvedElement.getWireName()!.getPrefix();
     field.defaultValue = resolvedElement.defaultValue || resolvedElement.fixedValue;
+    field.nillable = resolvedElement.isNillable();
     field.minOccurs = element.getMinOccurs();
     field.maxOccurs = element.getMaxOccurs();
     field.minOccursExplicit = element.isMinOccursExplicit();
@@ -404,6 +406,10 @@ export class XmlSchemaDocumentService {
       XmlSchemaDocumentService.populateGlobalElementFragment(ownerDoc, resolvedElement, schemaType, field);
     } else {
       XmlSchemaDocumentService.populateSchemaType(ownerDoc, field, schemaType);
+    }
+
+    if (field.nillable) {
+      XmlSchemaDocumentService.populateNillableAttribute(field);
     }
   }
 
@@ -489,6 +495,32 @@ export class XmlSchemaDocumentService {
     } else if (attr instanceof XmlSchemaAttributeGroupRef) {
       XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, attr);
     }
+  }
+
+  /**
+   * Adds a synthetic xsi:nil attribute child to a nillable XML element field.
+   * This allows the Document tree to represent the nil state distinctly from an empty element.
+   */
+  private static populateNillableAttribute(parent: XmlSchemaField) {
+    const alreadyExists = parent.fields.some(
+      (field) => field.isAttribute && field.name === 'nil' && field.namespaceURI === NS_XML_SCHEMA_INSTANCE,
+    );
+    if (alreadyExists) {
+      return;
+    }
+
+    const nillableField = new XmlSchemaField(parent, 'nil', true);
+    nillableField.displayName = 'xsi:nil';
+    nillableField.namespacePrefix = 'xsi';
+    nillableField.namespaceURI = NS_XML_SCHEMA_INSTANCE;
+    nillableField.type = Types.Boolean;
+    nillableField.originalType = Types.Boolean;
+    nillableField.minOccurs = 0;
+    nillableField.maxOccurs = 1;
+    nillableField.minOccursExplicit = true;
+    nillableField.maxOccursExplicit = true;
+    parent.fields.push(nillableField);
+    parent.ownerDocument.totalFieldCount++;
   }
 
   /**

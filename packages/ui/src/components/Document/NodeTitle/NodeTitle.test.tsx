@@ -186,6 +186,18 @@ describe('NodeTitle', () => {
     expect(element).toBeVisible();
   });
 
+  it('should display a nullable icon when the field can be nilled', () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const mockField = createMockField();
+    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
+    fieldNodeData.field.nillable = true;
+
+    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
+
+    expect(screen.getByLabelText('Nullable')).toBeVisible();
+  });
+
   describe('UnknownMappingNodeData', () => {
     const createUnknownNodeData = () => {
       const element = document.createElementNS('http://www.w3.org/1999/XSL/Transform', 'apply-templates');

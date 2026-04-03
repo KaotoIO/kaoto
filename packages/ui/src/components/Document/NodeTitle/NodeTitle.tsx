@@ -1,5 +1,6 @@
 import './NodeTitle.scss';
 
+import { NullSign } from '@carbon/icons-react';
 import { Label, Popover, Title } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
@@ -113,6 +114,9 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
             <Repeat0Icon className="node__spacer datamapper-marker-field" aria-label="Repeat0" />
           )}
           {repeatingField1 && <Repeat1Icon className="node__spacer datamapper-marker-field" aria-label="Repeat1" />}
+          {nodeData.field.nillable && (
+            <NullSign className="node__spacer datamapper-marker-field" aria-label="Nullable" />
+          )}
         </div>
       </Popover>
     );
