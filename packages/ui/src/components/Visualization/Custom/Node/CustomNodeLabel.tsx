@@ -147,9 +147,18 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
         ) : (
           <span
             title={label}
+            role={nodeLabelType === NodeLabelType.Description ? 'button' : undefined}
+            tabIndex={nodeLabelType === NodeLabelType.Description ? 0 : undefined}
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={handleDoubleClick}
+            onKeyDown={(e) => {
+              if (nodeLabelType === NodeLabelType.Description && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                handleDoubleClick(e as unknown as React.MouseEvent);
+              }
+            }}
             style={{ cursor: nodeLabelType === NodeLabelType.Description ? 'pointer' : 'default' }}
+            aria-label={nodeLabelType === NodeLabelType.Description ? 'Double-click to edit description' : undefined}
           >
             {label}
           </span>
