@@ -84,7 +84,7 @@ describe('Canvas nodes Drag and Drop', () => {
     cy.uploadFixture('flows/camelRoute/complexMultiFlow.yaml');
     cy.openDesignPage();
 
-    cy.DnDOnNode('route-1|route.from.steps.0.choice.when.0', 'route-2|route.from.steps.0.choice.when.0');
+    cy.DnDOnNode('route-1|route.from.steps.0.choice.when.0|drag-handle', 'route-2|route.from.steps.0.choice.when.0');
 
     cy.get('[data-testid="Source Code"]').click({ force: true });
     cy.openSourceCode();
@@ -96,7 +96,7 @@ describe('Canvas nodes Drag and Drop', () => {
     cy.openDesignPage();
 
     cy.DnDOnEdge(
-      'doTry-route|route.from.steps.2.doTry',
+      'doTry-route|route.from.steps.2.doTry|drag-handle',
       'doTry-route|route.from.steps.0.setHeader >>> route.from.steps.1.marshal',
     );
 

@@ -32,6 +32,11 @@
         @include dnd.cursor-grab;
       }
 
+      // Drag preview under the pointer (already dragging — use grabbing, not grab).
+      &__grabbing-cursor {
+        @include dnd.cursor-grabbing;
+      }
+
       &__draggedNode {
         @include custom.drag-node;
       }

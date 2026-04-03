@@ -1,4 +1,5 @@
 @use '../custom';
+@use '../../../../styles/dnd';
 
 .custom-group {
   @include custom.highligth {
@@ -92,6 +93,12 @@
 
       &__possibleDropTarget-left {
         border-left: var(--custom-component-border-possibleDropTarget);
+      }
+
+      & &__text {
+        &__draggable {
+          @include dnd.cursor-grab;
+        }
       }
     }
 
