@@ -2,11 +2,13 @@ import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction } from '@kaoto/camel
 
 import {
   CamelCatalogIndex,
+  CitrusCatalogIndex,
   ICamelComponentDefinition,
   ICamelDataformatDefinition,
   ICamelLanguageDefinition,
   ICamelLoadBalancerDefinition,
   ICamelProcessorDefinition,
+  ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../models';
 
@@ -85,5 +87,48 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
     loadbalancerCatalog,
     entitiesCatalog,
     functionsCatalogMap,
+  };
+};
+
+export const citrusCatalogSelector = (catalogLibrary: CatalogLibrary) => {
+  return catalogLibrary.definitions.find((catalog) => catalog.runtime === 'Citrus');
+};
+
+export const getFirstCitrusCatalogMap = async (catalogLibrary: CatalogLibrary) => {
+  const citrusCatalogLibraryEntry = citrusCatalogSelector(catalogLibrary);
+  if (!citrusCatalogLibraryEntry) {
+    throw new Error('No Citrus catalog found in catalog library');
+  }
+
+  return await testLoadCitrusCatalog(citrusCatalogLibraryEntry as CatalogLibraryEntry);
+};
+
+export const testLoadCitrusCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) => {
+  const catalogDefinition: CitrusCatalogIndex = (await import(`@kaoto/camel-catalog/${catalogLibraryEntry.fileName}`))
+    .default;
+
+  const catalogPath = `@kaoto/camel-catalog/${catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/') + 1)}`;
+
+  const actionsCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
+    `${catalogPath}${catalogDefinition.catalogs.actions.file}`
+  );
+  delete actionsCatalogMap.default;
+
+  const containersCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
+    `${catalogPath}${catalogDefinition.catalogs.containers.file}`
+  );
+  delete containersCatalogMap.default;
+
+  const endpointsCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
+    `${catalogPath}${catalogDefinition.catalogs.endpoints.file}`
+  );
+  delete endpointsCatalogMap.default;
+
+  return {
+    catalogDefinition,
+    catalogPath,
+    actionsCatalogMap,
+    containersCatalogMap,
+    endpointsCatalogMap,
   };
 };

@@ -1,18 +1,20 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
 import { LoadingStatus, LocalStorageKeys } from '../models';
-import { versionCompare } from '../utils/version-compare';
+import { SourceSchemaType } from '../models/camel';
+import { findCatalog } from '../utils/catalog-helper';
+import { EntitiesContext } from './entities.provider';
 
 export interface IRuntimeContext {
   basePath: string;
   catalogLibrary: CatalogLibrary | undefined;
   selectedCatalog: CatalogLibraryEntry | undefined;
-  setSelectedCatalog: (catalog: CatalogLibraryEntry) => void;
+  setSelectedCatalog: (catalog: CatalogLibraryEntry | undefined) => void;
 }
 
 export const RuntimeContext = createContext<IRuntimeContext | undefined>(undefined);
@@ -24,6 +26,8 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
+  const entitiesContext = useContext(EntitiesContext);
+  const currentSchemaType = entitiesContext?.currentSchemaType || SourceSchemaType.Route;
   let localSelectedCatalog: CatalogLibraryEntry | undefined = undefined;
 
   try {
@@ -49,17 +53,13 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
           );
         }
         if (!isDefined(catalogLibraryEntry)) {
-          const redhatMainCatalogs = catalogLibrary.definitions
-            .filter((c: CatalogLibraryEntry) => c.runtime === 'Main' && c.name.includes('redhat'))
-            .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) =>
-              versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
-            );
-
-          catalogLibraryEntry = redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
+          catalogLibraryEntry = findCatalog(currentSchemaType, catalogLibrary);
         }
 
         setCatalogLibrary(catalogLibrary);
-        setSelectedCatalog(catalogLibraryEntry);
+        if (isDefined(catalogLibraryEntry)) {
+          setSelectedCatalog(catalogLibraryEntry);
+        }
       })
       .then(() => {
         setLoadingStatus(LoadingStatus.Loaded);
@@ -69,7 +69,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
         setLoadingStatus(LoadingStatus.Error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentSchemaType]);
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({
