@@ -7,7 +7,7 @@ import { FunctionComponent } from 'react';
 import OptIcon from '../../../assets/data-mapper/field-icons/OptIcon';
 import Repeat0Icon from '../../../assets/data-mapper/field-icons/Repeat0Icon';
 import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
-import { TypeOverrideVariant } from '../../../models/datamapper/types';
+import { FieldOverrideVariant } from '../../../models/datamapper/types';
 import {
   AddMappingNodeData,
   FieldItemNodeData,
@@ -16,7 +16,7 @@ import {
   NodeData,
   UnknownMappingNodeData,
 } from '../../../models/datamapper/visualization';
-import { formatQNameWithPrefix } from '../../../services/qname-util';
+import { formatQNameWithPrefix } from '../../../services/namespace-util';
 import { UnknownMappingLabel } from './UnknownMappingLabel';
 
 interface INodeTitle {
@@ -62,11 +62,11 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
     const optionalField = nodeData.field.minOccurs === 0;
     const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
     const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
-    const hasTypeOverride = nodeData.field.typeOverride !== TypeOverrideVariant.NONE;
+    const hasTypeOverride = nodeData.field.typeOverride !== FieldOverrideVariant.NONE;
 
     // Format type names with namespace prefixes for display
     const originalTypeDisplay = hasTypeOverride
-      ? formatQNameWithPrefix(nodeData.field.originalTypeQName, namespaceMap, nodeData.field.originalType)
+      ? formatQNameWithPrefix(nodeData.field.originalField?.typeQName, namespaceMap, nodeData.field.originalField?.type)
       : '';
     const overriddenTypeDisplay = hasTypeOverride
       ? formatQNameWithPrefix(nodeData.field.typeQName, namespaceMap, nodeData.field.type)

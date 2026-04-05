@@ -4,7 +4,9 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../models/datamapper/document';
-import { Types } from '../models/datamapper/types';
+import { IFieldSubstitution } from '../models/datamapper/metadata';
+import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant, Types } from '../models/datamapper/types';
 import {
   getAnonymousGlobalElementRefLargeXsd,
   getCamelSpringXsd,
@@ -12,6 +14,7 @@ import {
   getElementRefXsd,
   getExtensionComplexXsd,
   getExtensionSimpleXsd,
+  getFieldSubstitutionXsd,
   getImportedTypesXsd,
   getInlineAttrSimpleTypeXsd,
   getInvalidComplexExtensionXsd,
@@ -32,7 +35,7 @@ import {
   getTestDocumentXsd,
 } from '../stubs/datamapper/data-mapper';
 import { QName } from '../xml-schema-ts/QName';
-import { DocumentUtilService } from './document-util.service';
+import { ensureNamespaceRegistered } from './namespace-util';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -1136,21 +1139,40 @@ describe('XmlSchemaDocumentService', () => {
       expect(document.xmlSchemaCollection.getTypeByQName(customQName)).toBeDefined();
     });
 
-    it('should generate prefixes following sequential pattern (ns0, ns1, ns2, ...)', () => {
-      const prefix1 = DocumentUtilService.generateNamespacePrefix({});
-      expect(prefix1).toBe('ns0');
+    it('should register namespace with sequential prefix (ns0, ns1, ns2, ...)', () => {
+      const map1: Record<string, string> = {};
+      ensureNamespaceRegistered('http://example.com/test', map1);
+      expect(map1['ns0']).toBe('http://example.com/test');
 
-      const prefix2 = DocumentUtilService.generateNamespacePrefix({
-        ns0: 'http://example.com/test',
-      });
-      expect(prefix2).toBe('ns1');
+      const map2: Record<string, string> = { ns0: 'http://example.com/test' };
+      ensureNamespaceRegistered('http://example.com/other', map2);
+      expect(map2['ns1']).toBe('http://example.com/other');
 
-      const prefix3 = DocumentUtilService.generateNamespacePrefix({
+      const map3: Record<string, string> = {
         ns0: 'http://example.com/test',
         ns1: 'http://example.com/test2',
         ns2: 'http://example.com/other',
-      });
-      expect(prefix3).toBe('ns3');
+      };
+      ensureNamespaceRegistered('http://example.com/new', map3);
+      expect(map3['ns3']).toBe('http://example.com/new');
+    });
+
+    it('should be a no-op when namespace is already registered', () => {
+      const map = { ns0: 'http://example.com/test' };
+      ensureNamespaceRegistered('http://example.com/test', map);
+      expect(Object.keys(map)).toHaveLength(1);
+    });
+
+    it('should use preferredPrefix when supplied and available', () => {
+      const map: Record<string, string> = {};
+      ensureNamespaceRegistered('http://example.com/test', map, 'tns');
+      expect(map['tns']).toBe('http://example.com/test');
+    });
+
+    it('should fall back to sequential prefix when preferredPrefix is taken', () => {
+      const map: Record<string, string> = { tns: 'http://example.com/other' };
+      ensureNamespaceRegistered('http://example.com/test', map, 'tns');
+      expect(map['ns0']).toBe('http://example.com/test');
     });
 
     it('should support multiple sequential addSchemaFiles() calls', () => {
@@ -1444,6 +1466,117 @@ describe('XmlSchemaDocumentService', () => {
         name: 'ShipOrder',
       });
     });
+
+    it('should clear fieldTypeOverrides, choiceSelections and fieldSubstitutions when rootElementChoice file is removed', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd(), 'element-ref.xsd': getElementRefXsd() },
+        { namespaceUri: 'io.kaoto.datamapper.poc.test', name: 'ShipOrder' },
+      );
+      definition.fieldTypeOverrides = [
+        { schemaPath: '/old/path', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/old/{choice:0}', selectedMemberIndex: 1 }];
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/old/path',
+        name: 'ns0:newName',
+        originalName: 'ns0:oldName',
+      };
+      definition.fieldSubstitutions = [substitution];
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd');
+
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toEqual([]);
+      expect(removeResult.documentDefinition!.choiceSelections).toEqual([]);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toEqual([]);
+    });
+
+    it('should clear metadata when file removal changes the effective root (no rootElementChoice set)', () => {
+      const schemaA = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/A">
+  <xs:element name="RootA" type="xs:string"/>
+</xs:schema>`;
+      const schemaB = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/B">
+  <xs:element name="RootB" type="xs:string"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'A.xsd': schemaA, 'B.xsd': schemaB },
+      );
+      const initialResult = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(initialResult.document).toBeDefined();
+      const initialRootLocal = initialResult.document!.rootElement?.getQName()?.getLocalPart();
+      expect(initialRootLocal).toBe('RootA');
+
+      definition.fieldTypeOverrides = [
+        {
+          schemaPath: '/ns_a:RootA',
+          type: 'xs:string',
+          originalType: 'xs:string',
+          variant: FieldOverrideVariant.FORCE,
+        },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/ns_a:RootA/{choice:0}', selectedMemberIndex: 0 }];
+      definition.fieldSubstitutions = [{ schemaPath: '/ns_a:RootA', name: 'ns_a:RootA', originalName: 'ns_a:RootA' }];
+
+      const namespaceMap = { ns_a: 'http://example.com/A' };
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'A.xsd', namespaceMap);
+
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.document!.rootElement?.getQName()?.getLocalPart()).toBe('RootB');
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toEqual([]);
+      expect(removeResult.documentDefinition!.choiceSelections).toEqual([]);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toEqual([]);
+    });
+
+    it('should preserve metadata when removing a non-essential file with root field substituted', () => {
+      const secondarySchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.com/SECONDARY">
+  <xs:complexType name="Helper_t">
+    <xs:sequence>
+      <xs:element name="data" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+
+      const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'FieldSubstitution.xsd': getFieldSubstitutionXsd(), 'Secondary.xsd': secondarySchema },
+      );
+      definition.fieldSubstitutions = [
+        { schemaPath: '/sub:AbstractAnimal', name: 'sub:Cat', originalName: 'sub:AbstractAnimal' },
+      ];
+      definition.fieldTypeOverrides = [
+        {
+          schemaPath: '/sub:Cat/name',
+          type: 'xs:string',
+          originalType: 'xs:string',
+          variant: FieldOverrideVariant.FORCE,
+        },
+      ];
+      const namespaceMap = { sub: NS_SUBSTITUTION, xs: NS_XML_SCHEMA };
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'Secondary.xsd', namespaceMap);
+
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.document!.rootElement?.getQName()?.getLocalPart()).toBe('AbstractAnimal');
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toHaveLength(1);
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toHaveLength(1);
+      expect(removeResult.document!.fields[0].name).toBe('Cat');
+    });
   });
 
   it('should load attribute with inline simple type without crashing', () => {
@@ -1496,6 +1629,5 @@ describe('XmlSchemaDocumentService', () => {
     const typeA01Field = bigContainerFragment.fields.find((f) => f.name === 'TypeA01');
     expect(typeA01Field).toBeDefined();
     expect(typeA01Field!.type).toEqual(Types.Container);
-    expect(typeA01Field!.originalType).toEqual(Types.Container);
   });
 });

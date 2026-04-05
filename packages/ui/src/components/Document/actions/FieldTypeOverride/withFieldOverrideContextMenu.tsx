@@ -2,7 +2,7 @@ import { ComponentType, MouseEvent, useCallback, useEffect, useRef, useState } f
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../../../models/datamapper/document-tree-node';
-import { TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import { VisualizationService } from '../../../../services/visualization.service';
 import { FieldContextMenu } from '../FieldContextMenu';
 import { FieldTypeOverride } from './FieldTypeOverride';
@@ -32,7 +32,7 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
     const { mappingTree, updateDocument, refreshMappingTree } = useDataMapper();
 
     const field = VisualizationService.getField(treeNode.nodeData);
-    const hasTypeOverride = !!field && field.typeOverride !== TypeOverrideVariant.NONE;
+    const hasTypeOverride = !!field && field.typeOverride !== FieldOverrideVariant.NONE;
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });

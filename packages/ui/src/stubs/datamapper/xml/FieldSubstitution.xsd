@@ -1,0 +1,100 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/SUBSTITUTION"
+           xmlns="http://www.example.com/SUBSTITUTION"
+           elementFormDefault="qualified">
+
+  <xs:element name="AbstractAnimal" type="Animal_t" abstract="true"/>
+  <xs:element name="Cat" type="Cat_t" substitutionGroup="AbstractAnimal"/>
+  <xs:element name="Dog" type="Dog_t" substitutionGroup="AbstractAnimal"/>
+  <xs:element name="Feline" type="Feline_t" abstract="true" substitutionGroup="AbstractAnimal"/>
+  <xs:element name="Kitten" type="Kitten_t" substitutionGroup="Feline"/>
+
+  <xs:element name="AbstractLabel" type="xs:string" abstract="true"/>
+  <xs:element name="Nickname" type="Nickname_t" substitutionGroup="AbstractLabel"/>
+  <xs:element name="XsStringTag" type="xs:string" substitutionGroup="AbstractLabel"/>
+
+  <xs:element name="AbstractCount" type="xs:integer" abstract="true"/>
+  <xs:element name="InlineIntCount" substitutionGroup="AbstractCount">
+    <xs:simpleType>
+      <xs:restriction base="xs:int">
+        <xs:minInclusive value="0"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  <xs:element name="Fish" substitutionGroup="AbstractAnimal">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="Animal_t">
+          <xs:sequence>
+            <xs:element name="freshwater" type="xs:boolean"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Animal_t">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Cat_t">
+    <xs:complexContent>
+      <xs:extension base="Animal_t">
+        <xs:sequence>
+          <xs:element name="indoor" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Dog_t">
+    <xs:complexContent>
+      <xs:extension base="Animal_t">
+        <xs:sequence>
+          <xs:element name="breed" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Feline_t">
+    <xs:complexContent>
+      <xs:extension base="Animal_t">
+        <xs:sequence>
+          <xs:element name="indoor" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Kitten_t">
+    <xs:complexContent>
+      <xs:extension base="Feline_t">
+        <xs:sequence>
+          <xs:element name="age" type="xs:integer"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="Nickname_t">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Multi-hop restriction chain: SmallInt_t -> PositiveInt_t -> xs:int -->
+  <xs:simpleType name="PositiveInt_t">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="1"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="SmallInt_t">
+    <xs:restriction base="PositiveInt_t">
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:element name="SmallIntCount" type="SmallInt_t" substitutionGroup="AbstractCount"/>
+</xs:schema>

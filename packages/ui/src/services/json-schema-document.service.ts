@@ -109,8 +109,10 @@ export class JsonSchemaDocumentService {
       document,
       definition.fieldTypeOverrides ?? [],
       definition.choiceSelections ?? [],
+      [],
       namespaceMap,
       JsonSchemaTypesService.parseTypeOverride,
+      () => undefined,
     );
 
     const validationWarnings = analysisResult.warnings;
@@ -173,19 +175,41 @@ export class JsonSchemaDocumentService {
       definition.rootElementChoice,
       definition.fieldTypeOverrides,
       definition.choiceSelections,
+      definition.fieldSubstitutions,
     );
 
     // Try to create the Document object. It could fail if the primary schema is the removed schema file.
     // In that case, we unset updatedDefinition.rootElementChoice and retry.
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
 
-    // If it succeeds or a primary schema not set, return as it is
-    if (result.document || !definition.rootElementChoice) {
+    if (!definition.rootElementChoice) {
+      // When there is no explicit primary schema, the implicit primary (schemas[0]) may have shifted
+      // because the removed file was first. Clear overrides to avoid stale metadata in that case.
+      const prevFirstKey = Object.keys(definition.definitionFiles ?? {})[0];
+      const newFirstKey = Object.keys(updatedFiles)[0];
+      if (prevFirstKey !== newFirstKey) {
+        updatedDefinition.fieldTypeOverrides = [];
+        updatedDefinition.choiceSelections = [];
+        updatedDefinition.fieldSubstitutions = [];
+        return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
+      }
       return result;
     }
 
-    // Unset the primary schema and retry
+    // If document was created successfully with explicit rootElementChoice, return it
+    if (result.document) {
+      return result;
+    }
+
+    // Unset the primary schema and retry.
+    // Only clear persisted overrides when the removed file was the primary schema itself;
+    // if a dependency was removed, preserve the user's metadata for later restoration.
     updatedDefinition.rootElementChoice = undefined;
+    if (filePath === definition.rootElementChoice?.name) {
+      updatedDefinition.fieldTypeOverrides = [];
+      updatedDefinition.choiceSelections = [];
+      updatedDefinition.fieldSubstitutions = [];
+    }
     return JsonSchemaDocumentService.createJsonSchemaDocument(updatedDefinition, namespaceMap);
   }
 
@@ -526,7 +550,6 @@ export class JsonSchemaDocumentService {
   private assignRefTypeQName(field: JsonSchemaField, ref: string): void {
     const refQName = new QName(null, ref);
     field.typeQName = refQName;
-    field.originalTypeQName = refQName;
   }
 
   private assignTypeMetadata(field: JsonSchemaField, schema: JsonSchemaMetadata): void {
@@ -535,7 +558,6 @@ export class JsonSchemaDocumentService {
       const typeString = typeArray[0];
       const typeQName = new QName(null, typeString);
       field.typeQName = typeQName;
-      field.originalTypeQName = typeQName;
     }
 
     if (schema.required) {

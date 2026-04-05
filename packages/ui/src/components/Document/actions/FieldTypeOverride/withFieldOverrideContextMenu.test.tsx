@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { DocumentTree } from '../../../../models/datamapper/document-tree';
-import { TypeOverrideVariant, Types } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../../../../models/datamapper/types';
 import { DocumentNodeData, FieldNodeData } from '../../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
@@ -168,8 +168,16 @@ describe('withFieldOverrideContextMenu', () => {
   it('should show Reset Override menu item when field has type override', () => {
     const { documentNodeData, fieldNode } = createFieldNode();
     const field = (fieldNode.nodeData as FieldNodeData).field;
-    field.typeOverride = TypeOverrideVariant.SAFE;
-    field.originalType = Types.String;
+    field.typeOverride = FieldOverrideVariant.SAFE;
+    field.originalField = {
+      name: field.name,
+      displayName: field.displayName,
+      namespaceURI: field.namespaceURI,
+      namespacePrefix: field.namespacePrefix,
+      type: Types.String,
+      typeQName: null,
+      namedTypeFragmentRefs: [],
+    };
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -192,8 +200,16 @@ describe('withFieldOverrideContextMenu', () => {
   it('should call revertFieldTypeOverride when clicking Reset Override', () => {
     const { document, documentNodeData, fieldNode } = createFieldNode();
     const field = (fieldNode.nodeData as FieldNodeData).field;
-    field.typeOverride = TypeOverrideVariant.SAFE;
-    field.originalType = Types.String;
+    field.typeOverride = FieldOverrideVariant.SAFE;
+    field.originalField = {
+      name: field.name,
+      displayName: field.displayName,
+      namespaceURI: field.namespaceURI,
+      namespacePrefix: field.namespacePrefix,
+      type: Types.String,
+      typeQName: null,
+      namedTypeFragmentRefs: [],
+    };
 
     const revertSpy = jest.spyOn(FieldTypeOverrideService, 'revertFieldTypeOverride');
 
@@ -283,7 +299,7 @@ describe('withFieldOverrideContextMenu', () => {
       field,
       mockCandidates['xs:int'],
       expect.any(Object),
-      TypeOverrideVariant.SAFE,
+      FieldOverrideVariant.SAFE,
     );
 
     applySpy.mockRestore();

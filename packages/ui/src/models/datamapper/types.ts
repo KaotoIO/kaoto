@@ -32,10 +32,11 @@ export enum Types {
   Array = 'Array',
 }
 
-export enum TypeOverrideVariant {
+export enum FieldOverrideVariant {
   NONE = 'NONE',
   SAFE = 'SAFE',
   FORCE = 'FORCE',
+  SUBSTITUTION = 'SUBSTITUTION',
 }
 
 /**
@@ -44,6 +45,18 @@ export enum TypeOverrideVariant {
 export enum TypeDerivation {
   EXTENSION = 'extension',
   RESTRICTION = 'restriction',
+}
+
+/**
+ * Represents the resolved state of a substitute element used when applying a field substitution.
+ * Contains the wire name, namespace, and type information of the substitute element.
+ */
+export interface IFieldSubstituteInfo {
+  qname: QName;
+  displayName: string;
+  type: Types;
+  typeQName: QName | null;
+  namedTypeFragmentRefs: string[];
 }
 
 /**

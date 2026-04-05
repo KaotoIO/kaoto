@@ -2,7 +2,9 @@ import { JSONSchema7 } from 'json-schema';
 
 import { DocumentDefinition, DocumentDefinitionType, PathExpression, Types } from '../models/datamapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../models/datamapper/document';
+import { IFieldSubstitution } from '../models/datamapper/metadata';
 import { NS_XPATH_FUNCTIONS } from '../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant } from '../models/datamapper/types';
 import {
   getAccountJsonSchema,
   getCamelYamlDslJsonSchema,
@@ -931,6 +933,100 @@ describe('JsonSchemaDocumentService', () => {
         namespaceUri: '',
         name: 'Account.schema.json',
       });
+    });
+
+    it('should clear fieldTypeOverrides, choiceSelections and fieldSubstitutions when primary schema is removed', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': getAccountJsonSchema(), 'camelYamlDsl.json': getCamelYamlDslJsonSchema() },
+        { namespaceUri: '', name: 'Account.schema.json' },
+      );
+      definition.fieldTypeOverrides = [
+        { schemaPath: '/old/path', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/old/{choice:0}', selectedMemberIndex: 1 }];
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/old/path',
+        name: 'ns0:newName',
+        originalName: 'ns0:oldName',
+      };
+      definition.fieldSubstitutions = [substitution];
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'Account.schema.json');
+
+      expect(removeResult.validationStatus).not.toBe('error');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toEqual([]);
+      expect(removeResult.documentDefinition!.choiceSelections).toEqual([]);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toEqual([]);
+    });
+
+    it('should clear overrides when no rootElementChoice and the implicit primary schema shifts', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': getAccountJsonSchema(), 'camelYamlDsl.json': getCamelYamlDslJsonSchema() },
+      );
+      definition.fieldTypeOverrides = [
+        { schemaPath: '/old/path', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/old/{choice:0}', selectedMemberIndex: 1 }];
+      definition.fieldSubstitutions = [{ schemaPath: '/old/path', name: 'ns0:newName', originalName: 'ns0:oldName' }];
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'Account.schema.json');
+
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toEqual([]);
+      expect(removeResult.documentDefinition!.choiceSelections).toEqual([]);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toEqual([]);
+    });
+
+    it('should preserve overrides when explicit rootElementChoice is set and a non-primary dependency is removed', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        {
+          'MainWithRef.schema.json': getMainWithRefJsonSchema(),
+          'CommonTypes.schema.json': getCommonTypesJsonSchema(),
+        },
+        { namespaceUri: '', name: 'MainWithRef.schema.json' },
+      );
+      definition.fieldTypeOverrides = [
+        { schemaPath: '/old/path', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/old/{choice:0}', selectedMemberIndex: 1 }];
+      definition.fieldSubstitutions = [{ schemaPath: '/old/path', name: 'ns0:newName', originalName: 'ns0:oldName' }];
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'CommonTypes.schema.json');
+
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toHaveLength(1);
+      expect(removeResult.documentDefinition!.choiceSelections).toHaveLength(1);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toHaveLength(1);
+    });
+
+    it('should preserve overrides when no rootElementChoice and the implicit primary schema does not shift', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        { 'Account.schema.json': getAccountJsonSchema(), 'camelYamlDsl.json': getCamelYamlDslJsonSchema() },
+      );
+      definition.fieldTypeOverrides = [
+        { schemaPath: '/old/path', type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.FORCE },
+      ];
+      definition.choiceSelections = [{ schemaPath: '/old/{choice:0}', selectedMemberIndex: 1 }];
+      definition.fieldSubstitutions = [{ schemaPath: '/old/path', name: 'ns0:newName', originalName: 'ns0:oldName' }];
+
+      const removeResult = JsonSchemaDocumentService.removeSchemaFile(definition, 'camelYamlDsl.json');
+
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.fieldTypeOverrides).toHaveLength(1);
+      expect(removeResult.documentDefinition!.choiceSelections).toHaveLength(1);
+      expect(removeResult.documentDefinition!.fieldSubstitutions).toHaveLength(1);
     });
   });
 });

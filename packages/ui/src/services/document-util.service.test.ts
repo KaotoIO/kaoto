@@ -3,13 +3,14 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  PrimitiveDocument,
   Types,
 } from '../models/datamapper';
 import { IField } from '../models/datamapper/document';
 import { DocumentTree } from '../models/datamapper/document-tree';
-import { IChoiceSelection, IFieldTypeOverride } from '../models/datamapper/metadata';
+import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../models/datamapper/standard-namespaces';
-import { TypeOverrideVariant } from '../models/datamapper/types';
+import { FieldOverrideVariant, IFieldSubstituteInfo } from '../models/datamapper/types';
 import { DocumentNodeData } from '../models/datamapper/visualization';
 import {
   getCamelSpringXsd,
@@ -17,6 +18,7 @@ import {
   getLazyLoadingTestXsd,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
+import { QName } from '../xml-schema-ts/QName';
 import { DocumentUtilService } from './document-util.service';
 import { TreeParsingService } from './tree-parsing.service';
 import { VisualizationService } from './visualization.service';
@@ -44,6 +46,13 @@ describe('DocumentUtilService', () => {
       const stackWithSelf = DocumentUtilService.getFieldStack(sourceDoc.fields[0].fields[1], true);
       expect(stackWithSelf.length).toEqual(2);
       expect(stackWithSelf[0].name).toEqual('OrderPerson');
+    });
+
+    it('should return empty array for PrimitiveDocument', () => {
+      const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test-doc');
+      const primitiveDoc = new PrimitiveDocument(definition);
+      const stack = DocumentUtilService.getFieldStack(primitiveDoc);
+      expect(stack).toEqual([]);
     });
   });
 
@@ -93,6 +102,80 @@ describe('DocumentUtilService', () => {
       // occurrences must be taken from the referrer as opposed to the other attributes
       expect(route?.minOccurs).toEqual(0);
       expect(route?.maxOccurs).toEqual('unbounded');
+    });
+
+    it('should not overwrite originalField if already set', () => {
+      const testDoc = TestUtil.createSourceOrderDoc();
+      const testChildField = new XmlSchemaField(testDoc, 'testField', false);
+      testChildField.type = Types.String;
+      testDoc.namedTypeFragments['testFragment'] = {
+        type: Types.Container,
+        minOccurs: 1,
+        maxOccurs: 1,
+        namedTypeFragmentRefs: [],
+        fields: [testChildField],
+      };
+
+      const refField = new XmlSchemaField(testDoc.fields[0], 'testRefField', false);
+      refField.namedTypeFragmentRefs.push('testFragment');
+      testDoc.fields[0].fields.push(refField);
+
+      const existingOriginalField = {
+        name: 'testRefField',
+        displayName: 'testRefField',
+        namespaceURI: null,
+        namespacePrefix: null,
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: ['testFragment'],
+      };
+      refField.originalField = existingOriginalField;
+
+      DocumentUtilService.resolveTypeFragment(refField);
+
+      expect(refField.originalField).toBe(existingOriginalField);
+    });
+
+    it('should backfill originalField.fields when originalField was pre-captured without fields and expansion succeeds', () => {
+      const testDoc = TestUtil.createSourceOrderDoc();
+      const testChildField = new XmlSchemaField(testDoc, 'resolvedChild', false);
+      testChildField.type = Types.String;
+      testDoc.namedTypeFragments['testFragment'] = {
+        type: Types.Container,
+        minOccurs: 1,
+        maxOccurs: 1,
+        namedTypeFragmentRefs: [],
+        fields: [testChildField],
+      };
+
+      const refField = new XmlSchemaField(testDoc.fields[0], 'testRefField', false);
+      refField.namedTypeFragmentRefs.push('testFragment');
+      testDoc.fields[0].fields.push(refField);
+
+      refField.originalField = {
+        name: 'testRefField',
+        displayName: 'testRefField',
+        namespaceURI: null,
+        namespacePrefix: null,
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: ['testFragment'],
+      };
+
+      DocumentUtilService.resolveTypeFragment(refField);
+
+      expect(refField.originalField.fields).toBeDefined();
+      expect(refField.originalField.fields).toHaveLength(1);
+    });
+
+    it('should not throw and preserve unresolved refs when a namedTypeFragmentRef does not exist in namedTypeFragments', () => {
+      const testDoc = TestUtil.createSourceOrderDoc();
+      const refField = new XmlSchemaField(testDoc.fields[0], 'missingRefField', false);
+      refField.namedTypeFragmentRefs = ['nonExistentRef'];
+      testDoc.fields[0].fields.push(refField);
+
+      expect(() => DocumentUtilService.resolveTypeFragment(refField)).not.toThrow();
+      expect(refField.namedTypeFragmentRefs).toEqual(['nonExistentRef']);
     });
   });
 
@@ -164,6 +247,19 @@ describe('DocumentUtilService', () => {
 
       expect(field.fields.length).toBe(2);
     });
+
+    it('should not throw when a namedTypeFragmentRef inside a fragment does not exist in namedTypeFragments', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = new XmlSchemaField(doc, 'testField', false);
+
+      const fragment = {
+        fields: [],
+        namedTypeFragmentRefs: ['nonExistentChildRef'],
+      };
+
+      expect(() => DocumentUtilService.adoptTypeFragment(field, fragment)).not.toThrow();
+      expect(field.fields).toHaveLength(0);
+    });
   });
 
   describe('processTypeOverrides()', () => {
@@ -174,7 +270,7 @@ describe('DocumentUtilService', () => {
       DocumentUtilService.processTypeOverrides(doc, [], {}, XmlSchemaTypesService.parseTypeOverride);
 
       expect(orderPerson?.type).toBe(Types.String);
-      expect(orderPerson?.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(orderPerson?.typeOverride).toBe(FieldOverrideVariant.NONE);
     });
 
     it('should apply type override to top-level field', () => {
@@ -185,7 +281,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -193,7 +289,7 @@ describe('DocumentUtilService', () => {
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       expect(orderPerson?.type).toBe(Types.Integer);
-      expect(orderPerson?.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(orderPerson?.typeOverride).toBe(FieldOverrideVariant.FORCE);
     });
 
     it('should apply type override to nested field', () => {
@@ -204,7 +300,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ShipTo/City',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -213,7 +309,7 @@ describe('DocumentUtilService', () => {
       const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo');
       const city = shipTo?.fields.find((f) => f.name === 'City');
       expect(city?.type).toBe(Types.Integer);
-      expect(city?.typeOverride).toBe(TypeOverrideVariant.FORCE);
+      expect(city?.typeOverride).toBe(FieldOverrideVariant.FORCE);
       expect(city?.fields).toEqual([]);
     });
 
@@ -225,13 +321,13 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
         {
           schemaPath: '/ns0:ShipOrder/ShipTo/City',
           type: 'xs:boolean',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -253,7 +349,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
           type: 'ns0:CustomType',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
 
@@ -261,8 +357,7 @@ describe('DocumentUtilService', () => {
 
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
       expect(orderPerson?.type).toBe(Types.Container);
-      // Eager resolution clears namedTypeFragmentRefs even when fragment is not found
-      expect(orderPerson?.namedTypeFragmentRefs).toHaveLength(0);
+      expect(orderPerson?.namedTypeFragmentRefs).toHaveLength(1);
       expect(orderPerson?.fields).toEqual([]);
     });
 
@@ -290,7 +385,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/tns:Root/tns:Person/tns:Name',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -322,7 +417,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/tns:Root/tns:Person/tns:Address/tns:City',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -354,7 +449,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/{choice:0}/email/emailAddress',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -382,7 +477,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/{choice:0}/{choice:0}/targetField',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -415,13 +510,13 @@ describe('DocumentUtilService', () => {
           schemaPath: '/tns:Root/tns:Person/tns:Name',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
         {
           schemaPath: '/tns:Root/tns:Company/tns:CompanyName',
           type: 'xs:boolean',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -460,7 +555,7 @@ describe('DocumentUtilService', () => {
         schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
         type: 'xs:int',
         originalType: 'xs:string',
-        variant: TypeOverrideVariant.FORCE,
+        variant: FieldOverrideVariant.FORCE,
       };
 
       const result = DocumentUtilService.processTypeOverride(
@@ -483,7 +578,7 @@ describe('DocumentUtilService', () => {
         schemaPath: '/ns0:ShipOrder/ns0:NonExistent',
         type: 'xs:int',
         originalType: 'xs:string',
-        variant: TypeOverrideVariant.FORCE,
+        variant: FieldOverrideVariant.FORCE,
       };
 
       const result = DocumentUtilService.processTypeOverride(
@@ -503,7 +598,7 @@ describe('DocumentUtilService', () => {
         schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
         type: 'xs:int',
         originalType: 'xs:string',
-        variant: TypeOverrideVariant.FORCE,
+        variant: FieldOverrideVariant.FORCE,
       };
       DocumentUtilService.processTypeOverride(doc, first, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
@@ -511,7 +606,7 @@ describe('DocumentUtilService', () => {
         schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
         type: 'xs:boolean',
         originalType: 'xs:string',
-        variant: TypeOverrideVariant.FORCE,
+        variant: FieldOverrideVariant.FORCE,
       };
       DocumentUtilService.processTypeOverride(doc, second, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
@@ -529,7 +624,7 @@ describe('DocumentUtilService', () => {
         schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
         type: 'xs:int',
         originalType: 'xs:string',
-        variant: TypeOverrideVariant.FORCE,
+        variant: FieldOverrideVariant.FORCE,
       };
       DocumentUtilService.processTypeOverride(doc, override, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
 
@@ -537,7 +632,7 @@ describe('DocumentUtilService', () => {
 
       expect(result).toBe(true);
       const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson');
-      expect(orderPerson?.typeOverride).toBe(TypeOverrideVariant.NONE);
+      expect(orderPerson?.typeOverride).toBe(FieldOverrideVariant.NONE);
       expect(doc.definition.fieldTypeOverrides).toHaveLength(0);
     });
 
@@ -556,6 +651,187 @@ describe('DocumentUtilService', () => {
       const result = DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
 
       expect(result).toBe(false);
+    });
+
+    it('should return false when schemaPath is not present in fieldTypeOverrides', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      doc.definition.fieldTypeOverrides = [
+        {
+          schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+          type: 'xs:int',
+          originalType: 'xs:string',
+          variant: FieldOverrideVariant.FORCE,
+        },
+      ];
+
+      const result = DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/NonExistent', namespaceMap);
+
+      expect(result).toBe(false);
+    });
+
+    it('should restore fields=[] and refs=[] when reverting override on a simple-type field', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const override: IFieldTypeOverride = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        type: 'xs:int',
+        originalType: 'xs:string',
+        variant: FieldOverrideVariant.FORCE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      expect(orderPerson.originalField?.fields).toBeUndefined();
+      expect(orderPerson.originalField?.namedTypeFragmentRefs).toHaveLength(0);
+
+      DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
+
+      expect(orderPerson.fields).toHaveLength(0);
+      expect(orderPerson.namedTypeFragmentRefs).toHaveLength(0);
+      expect(orderPerson.originalField).toBeUndefined();
+    });
+
+    it('should restore namedTypeFragmentRefs when reverting override on a named-type field that was not yet expanded', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'lazy.xsd': getLazyLoadingTestXsd() },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
+      const lazyNamespaceMap = { tns: 'http://www.example.com/LAZYTEST', xs: NS_XML_SCHEMA };
+
+      const person = doc.fields[0].fields.find((f) => f.name === 'Person')!;
+      expect(person.namedTypeFragmentRefs).toHaveLength(1);
+      expect(person.fields).toHaveLength(0);
+
+      const override: IFieldTypeOverride = {
+        schemaPath: '/tns:Root/tns:Person',
+        type: 'xs:string',
+        originalType: 'tns:PersonType',
+        variant: FieldOverrideVariant.FORCE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, lazyNamespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      expect(person.originalField?.fields).toBeUndefined();
+      expect(person.originalField?.namedTypeFragmentRefs).toHaveLength(1);
+      expect(person.fields).toHaveLength(0);
+      expect(person.namedTypeFragmentRefs).toHaveLength(0);
+
+      DocumentUtilService.removeTypeOverride(doc, '/tns:Root/tns:Person', lazyNamespaceMap);
+
+      expect(person.namedTypeFragmentRefs).toHaveLength(1);
+      expect(person.fields).toHaveLength(0);
+      expect(person.originalField).toBeUndefined();
+    });
+
+    it('should restore inline children when reverting override on an XML anonymous-type field', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      const originalChildren = shipTo.fields;
+      expect(originalChildren).toHaveLength(4);
+      expect(shipTo.namedTypeFragmentRefs).toHaveLength(0);
+
+      const override: IFieldTypeOverride = {
+        schemaPath: '/ns0:ShipOrder/ShipTo',
+        type: 'xs:string',
+        originalType: 'container',
+        variant: FieldOverrideVariant.FORCE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      expect(shipTo.fields).toHaveLength(0);
+      expect(shipTo.originalField?.fields).toEqual(originalChildren);
+      expect(shipTo.originalField?.namedTypeFragmentRefs).toHaveLength(0);
+
+      DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ShipTo', namespaceMap);
+
+      expect(shipTo.fields).toEqual(originalChildren);
+      expect(shipTo.fields.map((f) => f.name)).toEqual(['Name', 'Address', 'City', 'Country']);
+      expect(shipTo.namedTypeFragmentRefs).toHaveLength(0);
+      expect(shipTo.originalField).toBeUndefined();
+    });
+
+    it('should preserve namespace values across apply and revert of a type override', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const namespaceMap2 = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
+      const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const originalNamespaceURI = orderPerson.namespaceURI;
+      const originalNamespacePrefix = orderPerson.namespacePrefix;
+
+      const override: IFieldTypeOverride = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        type: 'xs:int',
+        originalType: 'xs:string',
+        variant: FieldOverrideVariant.FORCE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, namespaceMap2, XmlSchemaTypesService.parseTypeOverride);
+
+      expect(orderPerson.originalField!.namespaceURI).toBe(originalNamespaceURI);
+      expect(orderPerson.originalField!.namespacePrefix).toBe(originalNamespacePrefix);
+
+      DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap2);
+
+      expect(orderPerson.namespaceURI).toBe(originalNamespaceURI);
+      expect(orderPerson.namespacePrefix).toBe(originalNamespacePrefix);
+    });
+
+    it('should capture and restore null namespace values without coercing to empty string', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const namespaceMap2 = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
+      const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+      shipTo.namespaceURI = null;
+      shipTo.namespacePrefix = null;
+
+      const override: IFieldTypeOverride = {
+        schemaPath: '/ns0:ShipOrder/ShipTo',
+        type: 'xs:string',
+        originalType: 'container',
+        variant: FieldOverrideVariant.FORCE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, namespaceMap2, XmlSchemaTypesService.parseTypeOverride);
+
+      expect(shipTo.originalField!.namespaceURI).toBeNull();
+      expect(shipTo.originalField!.namespacePrefix).toBeNull();
+
+      DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ShipTo', namespaceMap2);
+
+      expect(shipTo.namespaceURI).toBeNull();
+      expect(shipTo.namespacePrefix).toBeNull();
+    });
+
+    it('should restore both inline children and refs when reverting override on a field with both set', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+
+      const mixedField = new XmlSchemaField(shipOrderField, 'mixedField', false);
+      mixedField.type = Types.Container;
+      mixedField.namedTypeFragmentRefs = ['someRef'];
+      const childField = new XmlSchemaField(mixedField, 'child', false);
+      childField.type = Types.String;
+      mixedField.fields.push(childField);
+      shipOrderField.fields.push(mixedField);
+
+      const originalChildren = mixedField.fields;
+      const override: IFieldTypeOverride = {
+        schemaPath: '/ns0:ShipOrder/mixedField',
+        type: 'xs:string',
+        originalType: 'container',
+        variant: FieldOverrideVariant.FORCE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      expect(mixedField.fields).toHaveLength(0);
+      expect(mixedField.namedTypeFragmentRefs).toHaveLength(0);
+      expect(mixedField.originalField?.fields).toEqual(originalChildren);
+      expect(mixedField.originalField?.namedTypeFragmentRefs).toEqual(['someRef']);
+
+      DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/mixedField', namespaceMap);
+
+      expect(mixedField.fields).toEqual(originalChildren);
+      expect(mixedField.namedTypeFragmentRefs).toEqual(['someRef']);
+      expect(mixedField.originalField).toBeUndefined();
     });
   });
 
@@ -580,7 +856,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/{choice:0}/email/emailAddress',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       const choiceSelections: IChoiceSelection[] = [
@@ -591,8 +867,10 @@ describe('DocumentUtilService', () => {
         doc,
         typeOverrides,
         choiceSelections,
+        [],
         namespaceMap,
         XmlSchemaTypesService.parseTypeOverride,
+        () => undefined,
       );
 
       expect(choiceField.selectedMemberIndex).toBe(0);
@@ -616,7 +894,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
       const choiceSelections: IChoiceSelection[] = [
@@ -626,27 +904,39 @@ describe('DocumentUtilService', () => {
       const typeSpy = jest.spyOn(DocumentUtilService, 'processTypeOverride');
       const choiceSpy = jest.spyOn(DocumentUtilService, 'processChoiceSelection');
 
-      DocumentUtilService.processOverrides(
-        doc,
-        typeOverrides,
-        choiceSelections,
-        namespaceMap2,
-        XmlSchemaTypesService.parseTypeOverride,
-      );
+      try {
+        DocumentUtilService.processOverrides(
+          doc,
+          typeOverrides,
+          choiceSelections,
+          [],
+          namespaceMap2,
+          XmlSchemaTypesService.parseTypeOverride,
+          () => undefined,
+        );
 
-      expect(typeSpy).toHaveBeenCalled();
-      expect(choiceSpy).toHaveBeenCalled();
-      expect(typeSpy.mock.invocationCallOrder[0]).toBeLessThan(choiceSpy.mock.invocationCallOrder[0]);
-
-      typeSpy.mockRestore();
-      choiceSpy.mockRestore();
+        expect(typeSpy).toHaveBeenCalled();
+        expect(choiceSpy).toHaveBeenCalled();
+        expect(typeSpy.mock.invocationCallOrder[0]).toBeLessThan(choiceSpy.mock.invocationCallOrder[0]);
+      } finally {
+        typeSpy.mockRestore();
+        choiceSpy.mockRestore();
+      }
     });
 
     it('should handle empty arrays without errors', () => {
       const doc = TestUtil.createSourceOrderDoc();
 
       expect(() => {
-        DocumentUtilService.processOverrides(doc, [], [], namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+        DocumentUtilService.processOverrides(
+          doc,
+          [],
+          [],
+          [],
+          namespaceMap,
+          XmlSchemaTypesService.parseTypeOverride,
+          () => undefined,
+        );
       }).not.toThrow();
     });
   });
@@ -659,13 +949,13 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
         {
           schemaPath: '/ns0:ShipOrder/ShipTo/City',
           type: 'xs:boolean',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -695,13 +985,13 @@ describe('DocumentUtilService', () => {
           schemaPath: '/ns0:ShipOrder/ShipTo',
           type: 'xs:int',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
         {
           schemaPath: '/ns0:ShipOrder/ShipTo/City',
           type: 'xs:boolean',
           originalType: 'xs:string',
-          variant: TypeOverrideVariant.FORCE,
+          variant: FieldOverrideVariant.FORCE,
         },
       ];
 
@@ -986,6 +1276,269 @@ describe('DocumentUtilService', () => {
     });
   });
 
+  describe('applySubstitutionToField()', () => {
+    it('should apply substitute info to the field and capture original state', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const originalName = field.name;
+      const originalType = field.type;
+
+      const info: IFieldSubstituteInfo = {
+        qname: new QName('http://www.example.com/SUBSTITUTION', 'Cat', 'sub'),
+        displayName: 'Cat',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: ['someRef'],
+      };
+
+      DocumentUtilService.applySubstitutionToField(field, info);
+
+      expect(field.name).toBe('Cat');
+      expect(field.namespaceURI).toBe('http://www.example.com/SUBSTITUTION');
+      expect(field.type).toBe(Types.Container);
+      expect(field.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(field.namedTypeFragmentRefs).toEqual(['someRef']);
+      expect(field.fields).toHaveLength(0);
+      expect(field.originalField?.name).toBe(originalName);
+      expect(field.originalField?.type).toBe(originalType);
+    });
+
+    it('should not overwrite originalField if already captured', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      field.originalField = {
+        name: 'OriginalName',
+        displayName: 'OriginalName',
+        namespaceURI: null,
+        namespacePrefix: null,
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      const info: IFieldSubstituteInfo = {
+        qname: new QName(null, 'Cat'),
+        displayName: 'Cat',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+      DocumentUtilService.applySubstitutionToField(field, info);
+
+      expect(field.originalField.name).toBe('OriginalName');
+    });
+  });
+
+  describe('restoreOriginalField() - recursive child revert', () => {
+    it('should revert independently-overridden children when ancestor substitution is reverted', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const parentField = doc.fields[0];
+
+      const childField = new XmlSchemaField(parentField, 'inlineChild', false);
+      childField.type = Types.String;
+      parentField.fields.push(childField);
+      parentField.namedTypeFragmentRefs = [];
+
+      const substituteInfo: IFieldSubstituteInfo = {
+        qname: new QName(null, 'Substitute'),
+        displayName: 'Substitute',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      childField.originalField = {
+        name: 'inlineChild',
+        displayName: 'inlineChild',
+        namespaceURI: childField.namespaceURI,
+        namespacePrefix: childField.namespacePrefix,
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+        fields: [],
+      };
+      childField.type = Types.Integer;
+      childField.typeQName = new QName(null, 'integer');
+      childField.typeOverride = FieldOverrideVariant.FORCE;
+      childField.fields = [];
+      childField.namedTypeFragmentRefs = [];
+      expect(childField.type).toBe(Types.Integer);
+      expect(childField.typeOverride).toBe(FieldOverrideVariant.FORCE);
+
+      DocumentUtilService.applySubstitutionToField(parentField, substituteInfo);
+
+      DocumentUtilService.restoreOriginalField(parentField);
+
+      const restoredChild = parentField.fields.find((f) => f.name === 'inlineChild');
+      expect(restoredChild).toBeDefined();
+      expect(restoredChild!.type).toBe(Types.String);
+      expect(restoredChild!.typeOverride).toBe(FieldOverrideVariant.NONE);
+      expect(restoredChild!.originalField).toBeUndefined();
+    });
+
+    it('should restore children that were visible before the override when field was expanded first', () => {
+      const testDoc = TestUtil.createSourceOrderDoc();
+      const fragmentChild = new XmlSchemaField(testDoc, 'fragmentChild', false);
+      fragmentChild.type = Types.String;
+      testDoc.namedTypeFragments['myFragment'] = {
+        type: Types.Container,
+        minOccurs: 1,
+        maxOccurs: 1,
+        namedTypeFragmentRefs: [],
+        fields: [fragmentChild],
+      };
+
+      const refField = new XmlSchemaField(testDoc.fields[0], 'refField', false);
+      refField.type = Types.Container;
+      refField.namedTypeFragmentRefs = ['myFragment'];
+      refField.fields = [];
+      testDoc.fields[0].fields.push(refField);
+
+      DocumentUtilService.resolveTypeFragment(refField);
+      expect(refField.fields).toHaveLength(1);
+      expect(refField.originalField?.fields).toHaveLength(1);
+
+      const substituteInfo: IFieldSubstituteInfo = {
+        qname: new QName(null, 'Substitute'),
+        displayName: 'Substitute',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      DocumentUtilService.applySubstitutionToField(refField, substituteInfo);
+      expect(refField.originalField?.fields).toHaveLength(1);
+
+      DocumentUtilService.restoreOriginalField(refField);
+
+      expect(refField.name).toBe('refField');
+      expect(refField.fields).toHaveLength(1);
+      expect(refField.fields[0].name).toBe('fragmentChild');
+    });
+  });
+
+  describe('processFieldSubstitution()', () => {
+    it('should resolve and apply substitution when field and info are found', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        name: 'ns0:Cat',
+        originalName: 'ns0:OrderPerson',
+      };
+      const info: IFieldSubstituteInfo = {
+        qname: new QName(null, 'Cat'),
+        displayName: 'Cat',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+      const resolveSubstituteFn = jest.fn().mockReturnValue(info);
+
+      DocumentUtilService.processFieldSubstitution(doc, substitution, namespaceMap, resolveSubstituteFn);
+
+      const field = doc.fields[0].fields.find((f) => f.name === 'Cat');
+      expect(field).toBeDefined();
+      expect(field?.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+    });
+
+    it('should do nothing when field is not found', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/ns0:ShipOrder/NonExistent',
+        name: 'Cat',
+        originalName: 'NonExistent',
+      };
+      const resolveSubstituteFn = jest.fn();
+
+      DocumentUtilService.processFieldSubstitution(doc, substitution, {}, resolveSubstituteFn);
+
+      expect(resolveSubstituteFn).not.toHaveBeenCalled();
+    });
+
+    it('should do nothing when resolveSubstituteFn returns undefined', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const substitution: IFieldSubstitution = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        name: 'Cat',
+        originalName: 'ns0:OrderPerson',
+      };
+      const resolveSubstituteFn = jest.fn().mockReturnValue(undefined);
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const originalType = field.type;
+
+      DocumentUtilService.processFieldSubstitution(doc, substitution, namespaceMap, resolveSubstituteFn);
+
+      expect(field.type).toBe(originalType);
+      expect(field.typeOverride).toBe(FieldOverrideVariant.NONE);
+    });
+  });
+
+  describe('processOverrides() with substitutions', () => {
+    const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
+
+    it('should apply substitutions before type overrides at same depth', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const substitutions: IFieldSubstitution[] = [
+        { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', name: 'ns0:Cat', originalName: 'ns0:OrderPerson' },
+      ];
+      const typeOverrides: IFieldTypeOverride[] = [
+        {
+          schemaPath: '/ns0:ShipOrder/ShipTo',
+          type: 'xs:string',
+          originalType: 'container',
+          variant: FieldOverrideVariant.FORCE,
+        },
+      ];
+      const substitutionSpy = jest.spyOn(DocumentUtilService, 'processFieldSubstitution');
+      const typeSpy = jest.spyOn(DocumentUtilService, 'processTypeOverride');
+
+      try {
+        DocumentUtilService.processOverrides(
+          doc,
+          typeOverrides,
+          [],
+          substitutions,
+          namespaceMap,
+          XmlSchemaTypesService.parseTypeOverride,
+          () => undefined,
+        );
+
+        expect(substitutionSpy).toHaveBeenCalled();
+        expect(typeSpy).toHaveBeenCalled();
+        expect(substitutionSpy.mock.invocationCallOrder[0]).toBeLessThan(typeSpy.mock.invocationCallOrder[0]);
+      } finally {
+        substitutionSpy.mockRestore();
+        typeSpy.mockRestore();
+      }
+    });
+  });
+
+  describe('invalidateDescendants() with fieldSubstitutions', () => {
+    it('should remove fieldSubstitutions that are descendants of the given path', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      doc.definition.fieldSubstitutions = [
+        { schemaPath: '/ns0:ShipOrder/ns0:OrderPerson', name: 'Cat', originalName: 'ns0:OrderPerson' },
+        { schemaPath: '/ns0:ShipOrder/ShipTo/Element', name: 'Dog', originalName: 'Element' },
+      ];
+
+      DocumentUtilService.invalidateDescendants(doc, '/ns0:ShipOrder/ShipTo');
+
+      expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+      expect(doc.definition.fieldSubstitutions[0].schemaPath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+    });
+
+    it('should handle undefined fieldSubstitutions without errors', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      delete doc.definition.fieldSubstitutions;
+
+      expect(() => {
+        DocumentUtilService.invalidateDescendants(doc, '/ns0:ShipOrder');
+      }).not.toThrow();
+    });
+  });
+
   describe('formatChoiceDisplayName()', () => {
     it('should format with member names', () => {
       expect(DocumentUtilService.formatChoiceDisplayName([{ name: 'email' }, { name: 'phone' }] as IField[])).toEqual(
@@ -1073,7 +1626,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/tns:Root/tns:Person/tns:Address',
           type: 'tns:DetailedAddressType',
           originalType: 'tns:USAddressType',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
       DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
@@ -1129,7 +1682,7 @@ describe('DocumentUtilService', () => {
           schemaPath: '/tns:Root/tns:Person/tns:Address',
           type: 'tns:DetailedAddressType',
           originalType: 'tns:USAddressType',
-          variant: TypeOverrideVariant.SAFE,
+          variant: FieldOverrideVariant.SAFE,
         },
       ];
       DocumentUtilService.processTypeOverrides(doc, overrides, namespaceMap, XmlSchemaTypesService.parseTypeOverride);

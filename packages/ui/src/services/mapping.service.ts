@@ -16,7 +16,7 @@ import {
   WhenItem,
 } from '../models/datamapper/mapping';
 import { DocumentService } from './document.service';
-import { DocumentUtilService } from './document-util.service';
+import { ensureNamespaceRegistered } from './namespace-util';
 import { XPathService } from './xpath/xpath.service';
 
 export class MappingService {
@@ -369,14 +369,7 @@ export class MappingService {
     if (DocumentService.isNonPrimitiveField(field.parent)) {
       MappingService.registerNamespaceFromField(mappingTree, field.parent as IField);
     }
-    if (!field.namespaceURI) return;
-    const existingns = Object.entries(mappingTree.namespaceMap).find(
-      ([_prefix, uri]) => field.namespaceURI && uri === field.namespaceURI,
-    );
-    if (!existingns && field.namespaceURI) {
-      const prefix = field.namespacePrefix ?? DocumentUtilService.generateNamespacePrefix(mappingTree.namespaceMap);
-      mappingTree.namespaceMap[prefix] = field.namespaceURI;
-    }
+    ensureNamespaceRegistered(field.namespaceURI, mappingTree.namespaceMap, field.namespacePrefix ?? undefined);
   }
 
   static createValueSelector(parent: MappingParentType) {

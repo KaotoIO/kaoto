@@ -1,0 +1,33 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="AbstractAnimal" type="Animal_t" abstract="true"/>
+  <xs:element name="Cat" type="Cat_t" substitutionGroup="AbstractAnimal"/>
+  <xs:element name="Dog" type="Dog_t" substitutionGroup="AbstractAnimal"/>
+
+  <xs:complexType name="Animal_t">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Cat_t">
+    <xs:complexContent>
+      <xs:extension base="Animal_t">
+        <xs:sequence>
+          <xs:element name="indoor" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Dog_t">
+    <xs:complexContent>
+      <xs:extension base="Animal_t">
+        <xs:sequence>
+          <xs:element name="breed" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>

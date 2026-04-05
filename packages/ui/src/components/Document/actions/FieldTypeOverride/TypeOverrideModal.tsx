@@ -18,14 +18,14 @@ import {
   SelectOption,
 } from '@patternfly/react-core';
 import { FileImportIcon, WrenchIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, Ref, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, MouseEvent, Ref, useCallback, useContext, useEffect, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField, SCHEMA_FILE_NAME_PATTERN_XML } from '../../../../models/datamapper/document';
-import { IFieldTypeInfo, TypeOverrideVariant } from '../../../../models/datamapper/types';
+import { FieldOverrideVariant, IFieldTypeInfo } from '../../../../models/datamapper/types';
 import { MetadataContext } from '../../../../providers';
 import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
-import { formatQNameWithPrefix } from '../../../../services/qname-util';
+import { formatQNameWithPrefix } from '../../../../services/namespace-util';
 import { getFileName, pickAndValidateSchemaFiles } from '../utils';
 import { SchemaFileList } from './SchemaFileList';
 
@@ -52,10 +52,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
   const [uploadedSchemas, setUploadedSchemas] = useState<Record<string, string>>({});
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  const existingFiles = useMemo(
-    () => Object.keys(field?.ownerDocument?.definition?.definitionFiles ?? {}),
-    [field?.ownerDocument?.definition?.definitionFiles],
-  );
+  const existingFiles = Object.keys(field?.ownerDocument?.definition?.definitionFiles ?? {});
 
   const loadTypeCandidates = useCallback(() => {
     if (!field) return;
@@ -67,7 +64,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     setTypeCandidates(candidates);
 
     // If field has an existing override, pre-select it by matching namespace URI + local part
-    if (field.typeOverride !== TypeOverrideVariant.NONE && field.typeQName) {
+    if (field.typeOverride !== FieldOverrideVariant.NONE && field.typeQName) {
       const typeString = formatQNameWithPrefix(field.typeQName, namespaceMap);
       setSelectedType(candidates[typeString] || null);
     } else {
@@ -75,14 +72,13 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     }
   }, [field, mappingTree.namespaceMap]);
 
-  // Reload type candidates on mount and when definition files change (e.g., after schema attachment).
-  // `existingFiles` is not used in the effect body but is included as a dependency to trigger a reload
-  // when schema files are added — `loadTypeCandidates` itself doesn't depend on definitionFiles.
+  // Reload type candidates on mount and when loadTypeCandidates identity changes
+  // (e.g., field or namespaceMap changed).
   useEffect(() => {
     if (field) {
       loadTypeCandidates();
     }
-  }, [field, loadTypeCandidates, existingFiles]);
+  }, [field, loadTypeCandidates]);
 
   // Clean up transient state when modal unmounts
   useEffect(() => {
@@ -175,7 +171,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       // Immediately attach schemas to document and reload types
       try {
         onAttach(newSchemas);
-        // Types will be reloaded automatically via useEffect when existingFiles changes
+        loadTypeCandidates();
       } catch (attachError: unknown) {
         const message = attachError instanceof Error ? attachError.message : String(attachError);
         setUploadError(`Invalid schema: ${message}`);
@@ -184,7 +180,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       const message = error instanceof Error ? error.message : String(error);
       setUploadError(`Failed to upload: ${message}`);
     }
-  }, [api, uploadedSchemas, field, readSchemaFiles, onAttach]);
+  }, [api, uploadedSchemas, field, readSchemaFiles, onAttach, loadTypeCandidates]);
 
   const handleSave = useCallback(() => {
     onSave(selectedType);
@@ -203,9 +199,14 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     [handleToggleSelect, isSelectOpen, selectedType?.displayName],
   );
 
-  const hasExistingOverride = field?.typeOverride !== TypeOverrideVariant.NONE;
+  const hasExistingOverride = field?.typeOverride !== FieldOverrideVariant.NONE;
 
-  const originalTypeDisplay = field?.originalTypeQName?.toString() || field?.originalType || field?.type || 'Unknown';
+  const originalTypeDisplay =
+    field?.originalField?.typeQName?.toString() ||
+    field?.originalField?.type ||
+    field?.typeQName?.toString() ||
+    field?.type ||
+    'Unknown';
   const fieldName = field?.displayName || field?.name || 'Field';
   const fieldPath = field?.path?.toString() || '';
   const modalTitle = (
