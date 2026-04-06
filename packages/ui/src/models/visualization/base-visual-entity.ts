@@ -39,7 +39,7 @@ export interface BaseVisualCamelEntity extends BaseCamelEntity {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(path?: string): any;
 
-  /** Returnt fields that should be omitted when configuring this entity */
+  /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields: () => string[];
 
   /** Given a path, update the model */
@@ -142,7 +142,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(): any;
 
-  /** Returnt fields that should be omitted when configuring this entity */
+  /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];
 
   updateModel(value: unknown): void;

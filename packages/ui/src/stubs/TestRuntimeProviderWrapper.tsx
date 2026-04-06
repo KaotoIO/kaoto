@@ -14,7 +14,7 @@ export const TestRuntimeProviderWrapper = (
 ): TestRuntimeProviderWrapperResult => {
   const catalogLibraryCasted = catalogLibrary as CatalogLibrary;
   const basePath = CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH;
-  const selectedCatalog = (catalogSelect && catalogSelect(catalogLibraryCasted)) || catalogLibraryCasted.definitions[0];
+  const selectedCatalog = catalogSelect?.(catalogLibraryCasted) ?? catalogLibraryCasted.definitions[0];
   const setSelectedCatalog = jest.fn();
 
   const Provider: FunctionComponent<PropsWithChildren> = (props) => (

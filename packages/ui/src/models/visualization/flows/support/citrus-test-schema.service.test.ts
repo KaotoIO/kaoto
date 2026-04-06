@@ -36,11 +36,10 @@ describe('CitrusTestSchemaService', () => {
       expect(getComponentSpy).toHaveBeenCalledWith(catalogKind, actionName);
     });
 
-    it.each([undefined, { propertiesSchema: undefined }])(
+    it.each([undefined, { kind: CatalogKind.TestAction, name: 'test-action', propertiesSchema: undefined } as const])(
       'should return an empty schema when the action is not found',
       (schema) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema as any);
+        jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema);
         const result = CitrusTestSchemaService.getNodeSchema('non-existing');
         expect(result).toEqual({});
       },

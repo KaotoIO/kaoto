@@ -53,19 +53,20 @@ describe('CatalogHelper', () => {
   });
 
   it('should find matching Camel catalog latest version', () => {
-    catalogLibrary.definitions.push({
-      name: 'Camel Main 1.0.2.redhat-00002',
-      runtime: 'Main',
-      version: '1.0.2.redhat-00002',
-      fileName: 'camel-main-redhat/index.js',
-    });
-
-    catalogLibrary.definitions.push({
-      name: 'Camel Main 1.0.3.redhat-00003',
-      runtime: 'Main',
-      version: '1.0.3.redhat-00003',
-      fileName: 'camel-main-redhat/index.js',
-    });
+    catalogLibrary.definitions.push(
+      {
+        name: 'Camel Main 1.0.2.redhat-00002',
+        runtime: 'Main',
+        version: '1.0.2.redhat-00002',
+        fileName: 'camel-main-redhat/index.js',
+      },
+      {
+        name: 'Camel Main 1.0.3.redhat-00003',
+        runtime: 'Main',
+        version: '1.0.3.redhat-00003',
+        fileName: 'camel-main-redhat/index.js',
+      },
+    );
 
     const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
     expect(entry).toBeDefined();
@@ -81,19 +82,20 @@ describe('CatalogHelper', () => {
   });
 
   it('should find matching Citrus catalog latest version', () => {
-    catalogLibrary.definitions.push({
-      name: 'Citrus 1.0.2',
-      runtime: 'Citrus',
-      version: '1.0.2',
-      fileName: 'citrus/1.0.2/index.js',
-    });
-
-    catalogLibrary.definitions.push({
-      name: 'Citrus 1.0.3',
-      runtime: 'Citrus',
-      version: '1.0.3',
-      fileName: 'citrus/1.0.3/index.js',
-    });
+    catalogLibrary.definitions.push(
+      {
+        name: 'Citrus 1.0.2',
+        runtime: 'Citrus',
+        version: '1.0.2',
+        fileName: 'citrus/1.0.2/index.js',
+      },
+      {
+        name: 'Citrus 1.0.3',
+        runtime: 'Citrus',
+        version: '1.0.3',
+        fileName: 'citrus/1.0.3/index.js',
+      },
+    );
 
     const entry = findCatalog(SourceSchemaType.Test, catalogLibrary);
     expect(entry).toBeDefined();
