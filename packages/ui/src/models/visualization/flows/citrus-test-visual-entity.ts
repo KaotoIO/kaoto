@@ -39,9 +39,9 @@ export const isCitrusTest = (rawEntity: unknown): rawEntity is Test => {
     return false;
   }
 
-  const objectKeys = Object.keys(rawEntity!);
+  const objectKeys = Object.keys(rawEntity);
 
-  return objectKeys.length > 1 && 'name' in rawEntity! && 'actions' in rawEntity!;
+  return objectKeys.length > 1 && 'name' in rawEntity && 'actions' in rawEntity;
 };
 
 /**
@@ -214,12 +214,10 @@ export class CitrusTestVisualEntity implements BaseVisualCamelEntity {
     if (!path) return;
 
     if (path === this.getRootPath()) {
-      this.id = this.test.name as string;
+      this.id = this.test.name;
     }
 
     setValue(this.test, this.toModelPath(path), value);
-
-    return;
   }
 
   /**
@@ -323,8 +321,6 @@ export class CitrusTestVisualEntity implements BaseVisualCamelEntity {
     array = getValue(this.test, this.toModelPath(pathArray.slice(0, -2).join('.')), []);
     if (!Number.isInteger(Number(last)) && Number.isInteger(Number(penultimate)) && Array.isArray(array)) {
       array.splice(Number(penultimate), 1);
-
-      return;
     }
   }
 
@@ -458,7 +454,10 @@ export class CitrusTestVisualEntity implements BaseVisualCamelEntity {
     return vizNode;
   }
 
-  private getVizNodesFromSteps(actions: TestActions[] = [], path: string): IVisualizationNode[] {
+  private getVizNodesFromSteps(actions: TestActions[], path: string): IVisualizationNode[] {
+    if (!Array.isArray(actions)) {
+      return [];
+    }
     const actionsPath = path === this.getRootPath() ? 'actions' : path;
     const vizNodes = actions.reduce((acc, action, index) => {
       const actionName = CitrusTestSchemaService.getTestActionName(action);
@@ -594,7 +593,7 @@ export class CitrusTestVisualEntity implements BaseVisualCamelEntity {
         groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
         if (group.propertiesSchema?.properties) {
           for (const [key, _schema] of Object.entries(group.propertiesSchema.properties)) {
-            const value = getValue(this.test, `${basePath}.${groupPath}.${key}`, undefined);
+            const value = getValue(this.test, `${basePath}.${groupPath}.${key}`);
             if (isDefined(value)) {
               // set value to action node
               setValue(actionModel, key, value);
@@ -620,7 +619,7 @@ export class CitrusTestVisualEntity implements BaseVisualCamelEntity {
           groupPath = groupPath.length === 0 ? group.name : `${groupPath}.${group.name}`;
           if (group.propertiesSchema?.properties) {
             for (const [key, _schema] of Object.entries(group.propertiesSchema.properties)) {
-              const value = getValue(action, `${this.toModelPath(actionName)}.${key}`, undefined);
+              const value = getValue(action, `${this.toModelPath(actionName)}.${key}`);
               if (isDefined(value)) {
                 // remove the original value set in child node
                 setValue(action, `${this.toModelPath(actionName)}.${key}`, undefined);

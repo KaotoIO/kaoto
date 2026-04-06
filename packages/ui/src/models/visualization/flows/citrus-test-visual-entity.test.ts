@@ -9,6 +9,7 @@ import { setValue } from '../../../utils';
 import { sourceSchemaConfig, SourceSchemaType } from '../../camel';
 import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
+import { Test } from '../../citrus/entities/Test';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import { AddStepMode } from '../base-visual-entity';
@@ -16,7 +17,7 @@ import { CamelCatalogService } from './camel-catalog.service';
 import { CitrusTestVisualEntity, isCitrusTest } from './citrus-test-visual-entity';
 import { CitrusTestSchemaService } from './support/citrus-test-schema.service';
 
-describe('Citrus Test', () => {
+describe('CitrusTestVisualEntity', () => {
   let citrusTestEntity: CitrusTestVisualEntity;
 
   beforeAll(async () => {
@@ -45,23 +46,75 @@ describe('Citrus Test', () => {
     });
   });
 
-  describe('id', () => {
-    it('should have an uuid', () => {
+  describe('constructor', () => {
+    it('should create entity with provided test', () => {
       expect(citrusTestEntity.id).toBeDefined();
       expect(typeof citrusTestEntity.id).toBe('string');
-    });
-
-    it('should have a type', () => {
       expect(citrusTestEntity.type).toEqual(EntityType.Test);
     });
 
+    it('should create a default test when test is undefined', () => {
+      const entity = new CitrusTestVisualEntity(undefined as unknown as Test);
+
+      expect(entity.test).toBeDefined();
+      expect(entity.test.name).toBeDefined();
+      expect(entity.test.variables).toEqual([]);
+      expect(entity.test.actions).toHaveLength(2);
+      expect(entity.test.actions[0].createVariables).toBeDefined();
+      expect(entity.test.actions[1].print).toBeDefined();
+    });
+
+    it('should use test name as id when test is provided', () => {
+      const entity = new CitrusTestVisualEntity({ name: 'my-test', actions: [] });
+
+      expect(entity.id).toEqual('my-test');
+      expect(entity.test.name).toEqual('my-test');
+    });
+  });
+
+  describe('getRootPath', () => {
+    it('should return the root path', () => {
+      expect(citrusTestEntity.getRootPath()).toEqual(CitrusTestVisualEntity.ROOT_PATH);
+      expect(citrusTestEntity.getRootPath()).toEqual('test');
+    });
+  });
+
+  describe('isApplicable', () => {
+    it('should return true for valid citrus test', () => {
+      expect(CitrusTestVisualEntity.isApplicable(citrusTestJson)).toBe(true);
+    });
+
+    it('should return false for invalid test', () => {
+      expect(CitrusTestVisualEntity.isApplicable({ name: 'test' })).toBe(false);
+    });
+  });
+
+  describe('getId', () => {
     it('should return the id', () => {
       expect(citrusTestEntity.getId()).toEqual(expect.any(String));
     });
+  });
 
+  describe('setId', () => {
     it('should change the id', () => {
       citrusTestEntity.setId('myTest-12345');
       expect(citrusTestEntity.getId()).toEqual('myTest-12345');
+    });
+  });
+
+  describe('getNodeLabel', () => {
+    it('should return an empty string if path is not provided', () => {
+      expect(citrusTestEntity.getNodeLabel()).toEqual('');
+    });
+
+    it('should return the test ID for root path', () => {
+      const label = citrusTestEntity.getNodeLabel('test');
+      expect(label).toEqual('sample-test');
+    });
+
+    it('should get the label from given node path', () => {
+      const label = citrusTestEntity.getNodeLabel('actions.0.print');
+      expect(label).toEqual('print');
     });
   });
 
@@ -94,17 +147,6 @@ describe('Citrus Test', () => {
     it('should get the tooltip from given node path', () => {
       const title = citrusTestEntity.getTooltipContent('actions.0.print');
       expect(title).toEqual('Print test action.');
-    });
-  });
-
-  describe('getNodeLabel', () => {
-    it('should return an empty string if path is not provided', () => {
-      expect(citrusTestEntity.getNodeLabel()).toEqual('');
-    });
-
-    it('should get the label from given node path', () => {
-      const label = citrusTestEntity.getNodeLabel('actions.0.print');
-      expect(label).toEqual('print');
     });
   });
 
@@ -152,6 +194,12 @@ describe('Citrus Test', () => {
   describe('getNodeDefinition', () => {
     it('should return undefined if no path is provided', () => {
       expect(citrusTestEntity.getNodeDefinition()).toBeUndefined();
+    });
+
+    it('should return the test object for root path', () => {
+      const result = citrusTestEntity.getNodeDefinition('test');
+
+      expect(result).toEqual(citrusTestEntity.test);
     });
 
     it('should return an empty object if path does not exist in the entity', () => {
@@ -206,6 +254,12 @@ describe('Citrus Test', () => {
     });
   });
 
+  describe('getOmitFormFields', () => {
+    it('should return an empty array', () => {
+      expect(citrusTestEntity.getOmitFormFields()).toEqual([]);
+    });
+  });
+
   describe('toJSON', () => {
     it('should return the json', () => {
       expect(citrusTestEntity.toJSON()).toEqual(citrusTestJson);
@@ -250,19 +304,345 @@ describe('Citrus Test', () => {
       expect(citrusTestEntity.toJSON()).toEqual(originalObject);
     });
 
-    it('should update the id', () => {
+    it('should update the id when updating root path', () => {
       citrusTestEntity.test.name = 'my-test';
       citrusTestEntity.updateModel(CitrusTestVisualEntity.ROOT_PATH, {});
 
       expect(citrusTestEntity.id).toEqual('my-test');
     });
+
+    it('should update the model at the specified path', () => {
+      citrusTestEntity.updateModel('actions.0.print', { message: 'Updated message' });
+
+      expect(citrusTestEntity.test.actions[0].print?.message).toEqual('Updated message');
+    });
   });
 
-  describe('removeAction', () => {
+  describe('addStep', () => {
+    it('should not add step when path is undefined', () => {
+      const originalLength = citrusTestEntity.test.actions.length;
+
+      citrusTestEntity.addStep({
+        definedComponent: {
+          name: 'delay',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'delay',
+          path: undefined,
+        },
+      });
+
+      expect(citrusTestEntity.test.actions).toHaveLength(originalLength);
+    });
+
+    it('should prepend a new action to the model', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'delay',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.PrependStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'delay',
+          path: 'actions.0',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(2);
+      expect(entity.test.actions[0].delay).toBeDefined();
+      expect(entity.test.actions[1].print).toBeDefined();
+    });
+
+    it('should append a new action to the model', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'delay',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'delay',
+          path: 'actions.0',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(2);
+      expect(entity.test.actions[0].print).toBeDefined();
+      expect(entity.test.actions[1].delay).toBeDefined();
+    });
+
+    it('should replace an existing action', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'delay',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'delay',
+          path: 'actions.0',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(1);
+      expect(entity.test.actions[0].delay).toBeDefined();
+    });
+
+    it('should replace a placeholder step', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'print',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'placeholder',
+          isPlaceholder: true,
+          path: 'actions.0.placeholder',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(1);
+      expect(entity.test.actions[0]).toBeDefined();
+    });
+
+    it('should insert a new nested action to the model', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [
+          { print: { message: 'Hello World!' } },
+          {
+            iterate: {
+              condition: 'i < 5',
+              actions: [{ print: { message: '${i}: Hello World!' } }, { delay: { milliseconds: 5000 } }],
+            },
+          },
+        ],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'echo',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'echo',
+          path: 'actions.1.iterate.actions.0',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(2);
+      expect(entity.test.actions[0].print).toBeDefined();
+      expect(entity.test.actions[1].iterate).toBeDefined();
+      expect(entity.test.actions[1].iterate?.actions).toHaveLength(3);
+      expect(entity.test.actions[1].iterate?.actions[0].print).toBeDefined();
+      expect(entity.test.actions[1].iterate?.actions[1].echo).toBeDefined();
+      expect(entity.test.actions[1].iterate?.actions[2].delay).toBeDefined();
+    });
+
+    it('should insert a new empty container to the model', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'iterate',
+          type: CatalogKind.TestContainer,
+          definition: undefined,
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          catalogKind: CatalogKind.TestContainer,
+          name: 'iterate',
+          path: 'actions.0',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(2);
+      expect(entity.test.actions[0].print).toBeDefined();
+      expect(entity.test.actions[1].iterate).toBeDefined();
+      expect(entity.test.actions[1].iterate?.actions).toBeUndefined();
+    });
+
+    it('should replace a single nested node in a container', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [
+          {
+            soap: {
+              assertFault: {
+                faultCode: 'some-code',
+                faultString: 'some',
+                when: { print: { message: 'old message' } },
+              },
+            },
+          },
+        ],
+      });
+
+      entity.addStep({
+        definedComponent: {
+          name: 'delay',
+          type: CatalogKind.TestAction,
+          definition: undefined,
+        },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'delay',
+          path: 'actions.0.soap-assertFault.when.print',
+        },
+      });
+
+      expect(entity.test.actions).toHaveLength(1);
+      const soapAction = entity.test.actions[0].soap;
+      expect(soapAction?.assertFault?.when).toBeDefined();
+      const whenClause = soapAction?.assertFault?.when as Record<string, unknown>;
+      expect(whenClause.delay).toBeDefined();
+    });
+  });
+
+  describe('getCopiedContent', () => {
+    it('should return undefined if the path is undefined', () => {
+      const copiedContent = citrusTestEntity.getCopiedContent();
+      expect(copiedContent).toBeUndefined();
+    });
+
+    it('should return the copied content for a step', () => {
+      const copiedContent = citrusTestEntity.getCopiedContent('actions.0.print');
+      expect(copiedContent).toEqual({
+        type: SourceSchemaType.Test,
+        name: 'print',
+        definition: {
+          print: {
+            message: 'Hello from Citrus!',
+          },
+        },
+      });
+    });
+
+    it('should return undefined node default value if the path is invalid', () => {
+      const copiedContent = citrusTestEntity.getCopiedContent('actions.999.foo');
+      expect(copiedContent).toEqual({
+        type: SourceSchemaType.Test,
+        name: 'foo',
+        definition: undefined,
+      });
+    });
+  });
+
+  describe('pasteStep', () => {
+    it('should not paste step when path is undefined', () => {
+      const originalLength = citrusTestEntity.test.actions.length;
+
+      citrusTestEntity.pasteStep({
+        clipboardContent: {
+          name: 'echo',
+          type: SourceSchemaType.Test,
+          definition: {
+            echo: {
+              message: 'Hello World!',
+            },
+          },
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'echo',
+          path: undefined,
+        },
+      });
+
+      expect(citrusTestEntity.test.actions).toHaveLength(originalLength);
+    });
+
+    it('should append a new action to the model', () => {
+      citrusTestEntity.pasteStep({
+        clipboardContent: {
+          name: 'echo',
+          type: SourceSchemaType.Test,
+          definition: {
+            echo: {
+              message: 'Hello World!',
+            },
+          },
+        },
+        mode: AddStepMode.AppendStep,
+        data: {
+          catalogKind: CatalogKind.TestAction,
+          name: 'echo',
+          path: 'actions.0',
+        },
+      });
+
+      expect(citrusTestEntity.test.actions).toHaveLength(2);
+      expect(citrusTestEntity.test.actions[0].print).toBeDefined();
+      expect(citrusTestEntity.test.actions[1].echo).toBeDefined();
+    });
+  });
+
+  describe('canDragNode', () => {
+    it('should return true when path is defined', () => {
+      expect(citrusTestEntity.canDragNode('actions.0.print')).toBe(true);
+    });
+
+    it('should return false when path is undefined', () => {
+      expect(citrusTestEntity.canDragNode()).toBe(false);
+    });
+  });
+
+  describe('canDropOnNode', () => {
+    it('should return true when path is defined', () => {
+      expect(citrusTestEntity.canDropOnNode('actions.0.print')).toBe(true);
+    });
+
+    it('should return false when path is undefined', () => {
+      expect(citrusTestEntity.canDropOnNode()).toBe(false);
+    });
+  });
+
+  describe('removeStep', () => {
     it('should not remove any action if no path is provided', () => {
       const originalObject = cloneDeep(citrusTestJson);
 
-      citrusTestEntity.removeStep(undefined);
+      citrusTestEntity.removeStep();
 
       expect(originalObject).toEqual(citrusTestEntity.toJSON());
     });
@@ -300,6 +680,13 @@ describe('Citrus Test', () => {
     });
 
     it('should remove an action container', () => {
+      citrusTestEntity.test.actions.push({
+        iterate: {
+          condition: 'i < 5',
+          actions: [],
+        },
+      });
+
       /** Remove `iterate` action */
       citrusTestEntity.removeStep('actions.1.iterate');
 
@@ -352,12 +739,143 @@ describe('Citrus Test', () => {
     });
   });
 
+  describe('getNodeInteraction', () => {
+    it('should handle root path', () => {
+      const result = citrusTestEntity.getNodeInteraction({
+        catalogKind: CatalogKind.TestAction,
+        name: 'test',
+        path: CitrusTestVisualEntity.ROOT_PATH,
+      });
+      expect(result.canHavePreviousStep).toEqual(false);
+      expect(result.canReplaceStep).toEqual(false);
+      expect(result.canRemoveStep).toEqual(false);
+      expect(result.canHaveNextStep).toEqual(true);
+      expect(result.canRemoveFlow).toEqual(true);
+    });
+
+    it('should allow processors to have previous/next steps', () => {
+      const result = citrusTestEntity.getNodeInteraction({
+        catalogKind: CatalogKind.TestAction,
+        name: 'print',
+        path: 'actions.0',
+      });
+      expect(result.canHavePreviousStep).toEqual(true);
+      expect(result.canHaveNextStep).toEqual(true);
+    });
+
+    it.each(['print', 'delay', 'send', 'receive'])(
+      `should return the correct interaction for the '%s' action`,
+      (actionName) => {
+        const result = citrusTestEntity.getNodeInteraction({
+          catalogKind: CatalogKind.TestAction,
+          name: actionName,
+          actionName,
+        });
+        expect(result.canRemoveStep).toBeTruthy();
+        expect(result.canReplaceStep).toBeTruthy();
+        expect(result.canHavePreviousStep).toBeTruthy();
+        expect(result.canHaveNextStep).toBeTruthy();
+        expect(result.canHaveChildren).toBeFalsy();
+        expect(result.canHaveSpecialChildren).toBeFalsy();
+        expect(result.canBeDisabled).toBeFalsy();
+      },
+    );
+
+    it.each(['sequential', 'iterate', 'parallel', 'conditional'])(
+      `should return the correct interaction for the '%s' container`,
+      (actionName) => {
+        const result = citrusTestEntity.getNodeInteraction({
+          catalogKind: CatalogKind.TestContainer,
+          isGroup: true,
+          name: actionName,
+          actionName,
+        });
+        expect(result.canRemoveStep).toBeTruthy();
+        expect(result.canReplaceStep).toBeTruthy();
+        expect(result.canHavePreviousStep).toBeTruthy();
+        expect(result.canHaveNextStep).toBeTruthy();
+        expect(result.canHaveChildren).toBeTruthy();
+        expect(result.canHaveSpecialChildren).toBeFalsy();
+        expect(result.canBeDisabled).toBeFalsy();
+      },
+    );
+  });
+
+  describe('getNodeValidationText', () => {
+    it('should return an `undefined` if the path is `undefined`', () => {
+      const result = citrusTestEntity.getNodeValidationText();
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return an `undefined` if the path is empty', () => {
+      const result = citrusTestEntity.getNodeValidationText('');
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+      const invalidModel = cloneDeep(citrusTestJson);
+      setValue(invalidModel, 'actions[0].print.message', undefined);
+      const entity = new CitrusTestVisualEntity(invalidModel);
+
+      const spy = jest.spyOn(CitrusTestSchemaService, 'extractTestActionName');
+      spy.mockReturnValueOnce('print');
+
+      const result = entity.getNodeValidationText('actions.0.print');
+
+      expect(spy).toHaveBeenCalledWith('actions.0.print');
+      expect(result).toEqual('1 required parameter is not yet configured: [ message ]');
+    });
+  });
+
+  describe('getGroupIcons', () => {
+    it('should have no icons', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }],
+      });
+
+      expect(entity.getGroupIcons()).toEqual([]);
+    });
+  });
+
   describe('toVizNode', () => {
-    it(`should return the group viz node and set the initial path to '${CitrusTestVisualEntity.ROOT_PATH}'`, () => {
+    it('should return the group viz node and set the initial path to root', () => {
       const vizNode = citrusTestEntity.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
+    });
+
+    it('should return empty array when actions is not an array', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-with-invalid-actions',
+        actions: null as unknown as [],
+      });
+
+      // Test the private method indirectly through toVizNode
+      const vizNode = entity.toVizNode();
+
+      expect(vizNode).toBeDefined();
+      expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
+      // When actions is null/non-array, getVizNodesFromSteps returns [], so no children are added to the root node
+      const children = vizNode.getChildren();
+      expect(children).toBeUndefined();
+    });
+
+    it('should return empty array when actions is undefined', () => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-with-undefined-actions',
+        actions: undefined as unknown as [],
+      });
+
+      const vizNode = entity.toVizNode();
+
+      expect(vizNode).toBeDefined();
+      expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
+      const children = vizNode.getChildren();
+      expect(children).toBeUndefined();
     });
 
     it('should use the test ID as the group label', () => {
@@ -713,325 +1231,6 @@ describe('Citrus Test', () => {
       const placeHolderNode = vizNode.getChildren()![1];
       expect(placeHolderNode.data.path).toEqual('actions.1.placeholder');
       expect(placeHolderNode.getNextNode()).toBeUndefined();
-    });
-  });
-
-  describe('getGroupIcons', () => {
-    it('should have no icons', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [{ print: { message: 'Hello World!' } }],
-      });
-
-      expect(entity.getGroupIcons()).toEqual([]);
-    });
-  });
-
-  describe('addStep', () => {
-    it('should prepend a new action to the model', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [{ print: { message: 'Hello World!' } }],
-      });
-
-      entity.addStep({
-        definedComponent: {
-          name: 'delay',
-          type: CatalogKind.TestAction,
-          definition: undefined,
-        },
-        mode: AddStepMode.PrependStep,
-        data: {
-          catalogKind: CatalogKind.TestAction,
-          name: 'delay',
-          path: 'actions.0',
-        },
-      });
-
-      expect(entity.test.actions).toHaveLength(2);
-      expect(entity.test.actions[0].delay).toBeDefined();
-      expect(entity.test.actions[1].print).toBeDefined();
-    });
-
-    it('should append a new action to the model', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [{ print: { message: 'Hello World!' } }],
-      });
-
-      entity.addStep({
-        definedComponent: {
-          name: 'delay',
-          type: CatalogKind.TestAction,
-          definition: undefined,
-        },
-        mode: AddStepMode.AppendStep,
-        data: {
-          catalogKind: CatalogKind.TestAction,
-          name: 'delay',
-          path: 'actions.0',
-        },
-      });
-
-      expect(entity.test.actions).toHaveLength(2);
-      expect(entity.test.actions[0].print).toBeDefined();
-      expect(entity.test.actions[1].delay).toBeDefined();
-    });
-
-    it('should replace an existing action', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [{ print: { message: 'Hello World!' } }],
-      });
-
-      entity.addStep({
-        definedComponent: {
-          name: 'delay',
-          type: CatalogKind.TestAction,
-          definition: undefined,
-        },
-        mode: AddStepMode.ReplaceStep,
-        data: {
-          catalogKind: CatalogKind.TestAction,
-          name: 'delay',
-          path: 'actions.0',
-        },
-      });
-
-      expect(entity.test.actions).toHaveLength(1);
-      expect(entity.test.actions[0].delay).toBeDefined();
-    });
-
-    it('should replace a placeholder step', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [{ print: { message: 'Hello World!' } }],
-      });
-
-      entity.addStep({
-        definedComponent: {
-          name: 'print',
-          type: CatalogKind.TestAction,
-          definition: undefined,
-        },
-        mode: AddStepMode.ReplaceStep,
-        data: {
-          catalogKind: CatalogKind.TestAction,
-          name: 'placeholder',
-          isPlaceholder: true,
-          path: 'actions.0.placeholder',
-        },
-      });
-
-      expect(entity.test.actions).toHaveLength(1);
-      expect(entity.test.actions[0]).toBeDefined();
-    });
-
-    it('should insert a new nested action to the model', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [
-          { print: { message: 'Hello World!' } },
-          {
-            iterate: {
-              condition: 'i < 5',
-              actions: [{ print: { message: '${i}: Hello World!' } }, { delay: { milliseconds: 5000 } }],
-            },
-          },
-        ],
-      });
-
-      entity.addStep({
-        definedComponent: {
-          name: 'echo',
-          type: CatalogKind.TestAction,
-          definition: undefined,
-        },
-        mode: AddStepMode.AppendStep,
-        data: {
-          catalogKind: CatalogKind.TestAction,
-          name: 'echo',
-          path: 'actions.1.iterate.actions.0',
-        },
-      });
-
-      expect(entity.test.actions).toHaveLength(2);
-      expect(entity.test.actions[0].print).toBeDefined();
-      expect(entity.test.actions[1].iterate).toBeDefined();
-      expect(entity.test.actions[1].iterate?.actions).toHaveLength(3);
-      expect(entity.test.actions[1].iterate?.actions[0].print).toBeDefined();
-      expect(entity.test.actions[1].iterate?.actions[1].echo).toBeDefined();
-      expect(entity.test.actions[1].iterate?.actions[2].delay).toBeDefined();
-    });
-
-    it('should insert a new empty container to the model', () => {
-      const entity = new CitrusTestVisualEntity({
-        name: 'test-1234',
-        actions: [{ print: { message: 'Hello World!' } }],
-      });
-
-      entity.addStep({
-        definedComponent: {
-          name: 'iterate',
-          type: CatalogKind.TestContainer,
-          definition: undefined,
-        },
-        mode: AddStepMode.AppendStep,
-        data: {
-          catalogKind: CatalogKind.TestContainer,
-          name: 'iterate',
-          path: 'actions.0',
-        },
-      });
-
-      expect(entity.test.actions).toHaveLength(2);
-      expect(entity.test.actions[0].print).toBeDefined();
-      expect(entity.test.actions[1].iterate).toBeDefined();
-      expect(entity.test.actions[1].iterate?.actions).toBeUndefined();
-    });
-  });
-
-  describe('pasteStep', () => {
-    it('should append a new action to the model', () => {
-      citrusTestEntity.pasteStep({
-        clipboardContent: {
-          name: 'echo',
-          type: SourceSchemaType.Test,
-          definition: {
-            echo: {
-              message: 'Hello World!',
-            },
-          },
-        },
-        mode: AddStepMode.AppendStep,
-        data: {
-          catalogKind: CatalogKind.TestAction,
-          name: 'echo',
-          path: 'actions.0',
-        },
-      });
-
-      expect(citrusTestEntity.test.actions).toHaveLength(2);
-      expect(citrusTestEntity.test.actions[0].print).toBeDefined();
-      expect(citrusTestEntity.test.actions[1].echo).toBeDefined();
-    });
-  });
-
-  describe('getCopiedContent', () => {
-    it('should return the copied content for a step', () => {
-      const copiedContent = citrusTestEntity.getCopiedContent('actions.0.print');
-      expect(copiedContent).toEqual({
-        type: SourceSchemaType.Test,
-        name: 'print',
-        definition: {
-          print: {
-            message: 'Hello from Citrus!',
-          },
-        },
-      });
-    });
-
-    it('should return undefined if the path is undefined', () => {
-      const copiedContent = citrusTestEntity.getCopiedContent();
-      expect(copiedContent).toBeUndefined();
-    });
-
-    it('should return undefined node default value if the path is invalid', () => {
-      const copiedContent = citrusTestEntity.getCopiedContent('actions.999.foo');
-      expect(copiedContent).toEqual({
-        type: SourceSchemaType.Test,
-        name: 'foo',
-        definition: undefined,
-      });
-    });
-  });
-
-  describe('getNodeInteraction', () => {
-    it('should handle root path', () => {
-      const result = citrusTestEntity.getNodeInteraction({
-        catalogKind: CatalogKind.TestAction,
-        name: 'test',
-        path: CitrusTestVisualEntity.ROOT_PATH,
-      });
-      expect(result.canHavePreviousStep).toEqual(false);
-      expect(result.canReplaceStep).toEqual(false);
-      expect(result.canReplaceStep).toEqual(false);
-      expect(result.canHaveNextStep).toEqual(true);
-    });
-
-    it('should allow processors to have previous/next steps', () => {
-      const result = citrusTestEntity.getNodeInteraction({
-        catalogKind: CatalogKind.TestAction,
-        name: 'print',
-        path: 'actions.0',
-      });
-      expect(result.canHavePreviousStep).toEqual(true);
-      expect(result.canHaveNextStep).toEqual(true);
-    });
-
-    it.each(['print', 'delay', 'send', 'receive'])(
-      `should return the correct interaction for the '%s' action`,
-      (actionName) => {
-        const result = citrusTestEntity.getNodeInteraction({
-          catalogKind: CatalogKind.TestAction,
-          name: actionName,
-          actionName,
-        });
-        expect(result.canRemoveStep).toBeTruthy();
-        expect(result.canReplaceStep).toBeTruthy();
-        expect(result.canHavePreviousStep).toBeTruthy();
-        expect(result.canHaveNextStep).toBeTruthy();
-        expect(result.canHaveChildren).toBeFalsy();
-        expect(result.canHaveSpecialChildren).toBeFalsy();
-        expect(result.canBeDisabled).toBeFalsy();
-      },
-    );
-
-    it.each(['sequential', 'iterate', 'parallel', 'conditional'])(
-      `should return the correct interaction for the '%s' container`,
-      (actionName) => {
-        const result = citrusTestEntity.getNodeInteraction({
-          catalogKind: CatalogKind.TestContainer,
-          isGroup: true,
-          name: actionName,
-          actionName,
-        });
-        expect(result.canRemoveStep).toBeTruthy();
-        expect(result.canReplaceStep).toBeTruthy();
-        expect(result.canHavePreviousStep).toBeTruthy();
-        expect(result.canHaveNextStep).toBeTruthy();
-        expect(result.canHaveChildren).toBeTruthy();
-        expect(result.canHaveSpecialChildren).toBeFalsy();
-        expect(result.canBeDisabled).toBeFalsy();
-      },
-    );
-  });
-
-  describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = citrusTestEntity.getNodeValidationText(undefined);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return an `undefined` if the path is empty', () => {
-      const result = citrusTestEntity.getNodeValidationText('');
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
-      const invalidModel = cloneDeep(citrusTestJson);
-      setValue(invalidModel, 'actions[0].print.message', undefined);
-      const entity = new CitrusTestVisualEntity(invalidModel);
-
-      const spy = jest.spyOn(CitrusTestSchemaService, 'extractTestActionName');
-      spy.mockReturnValueOnce('print');
-
-      const result = entity.getNodeValidationText('actions.0.print');
-
-      expect(spy).toHaveBeenCalledWith('actions.0.print');
-      expect(result).toEqual('1 required parameter is not yet configured: [ message ]');
     });
   });
 });

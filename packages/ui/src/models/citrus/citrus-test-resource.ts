@@ -178,7 +178,7 @@ export class CitrusTestResource implements CamelResource {
    * Gets all non-visual entities from this resource.
    */
   getEntities(): BaseCamelEntity[] {
-    return this.entities.filter((entity) => !(entity instanceof CitrusTestVisualEntity)) as BaseCamelEntity[];
+    return this.entities.filter((entity) => !(entity instanceof CitrusTestVisualEntity));
   }
 
   /**
