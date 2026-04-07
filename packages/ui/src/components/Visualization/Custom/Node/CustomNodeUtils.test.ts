@@ -241,6 +241,45 @@ describe('CustomNodeUtils', () => {
       const result = checkNodeDropCompatibility(choiceNode, whenBranchPlaceholder, jest.fn());
       expect(result).toBe(false);
     });
+
+    it('should return false when dragged node is a when and target is when-placeholder inside of the same when', () => {
+      const whenNode = getMockVizNode('route.from.steps.0.choice.when.0');
+      (whenNode.getId as jest.Mock).mockReturnValue('test');
+      const whenPlaceholderInsideSameWhen = getMockVizNode('route.from.steps.0.choice.when.0.steps.1.choice.when');
+      whenPlaceholderInsideSameWhen.getId = jest.fn().mockReturnValue('test');
+
+      const result = checkNodeDropCompatibility(whenNode, whenPlaceholderInsideSameWhen, jest.fn());
+      expect(result).toBe(false);
+    });
+
+    it('should return false when dragged node is a when and target is another when inside of the same when', () => {
+      const whenNode = getMockVizNode('route.from.steps.0.choice.when.0');
+      (whenNode.getId as jest.Mock).mockReturnValue('test');
+      const whenInsideSameWhen = getMockVizNode('route.from.steps.0.choice.when.0.steps.1.choice.when.0');
+      whenInsideSameWhen.getId = jest.fn().mockReturnValue('test');
+
+      const result = checkNodeDropCompatibility(whenNode, whenInsideSameWhen, jest.fn());
+      expect(result).toBe(false);
+    });
+
+    it('should return true when dragged node is a when and target is another when not inside of the same when', () => {
+      const mockValidate = jest.fn().mockReturnValue(true);
+      const whenNode = getMockVizNode('route.from.steps.0.choice.when.0');
+      whenNode.getCopiedContent = jest.fn().mockReturnValue({ name: 'when' });
+      (whenNode.getId as jest.Mock).mockReturnValue('test1');
+      const choiceNode = getMockVizNode('route.from.steps.0.choice.when.0.steps.1.choice');
+      const AnotherWhen = getMockVizNode('route.from.steps.0.choice.when.0.steps.1.choice.when.0');
+      AnotherWhen.getId = jest.fn().mockReturnValue('test2');
+      AnotherWhen.getParentNode = jest.fn().mockReturnValue(choiceNode);
+      AnotherWhen.getCopiedContent = jest.fn().mockReturnValue({ name: 'when' });
+      choiceNode.getNodeInteraction = jest.fn().mockReturnValue({
+        canHaveSpecialChildren: true,
+      });
+
+      const result = checkNodeDropCompatibility(whenNode, AnotherWhen, mockValidate);
+      expect(result).toBe(true);
+      expect(mockValidate).toHaveBeenCalled();
+    });
   });
 
   describe('handleValidNodeDrop', () => {

@@ -1,5 +1,6 @@
 import './PlaceholderNode.scss';
 
+import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { CodeBranchIcon, PlusCircleIcon } from '@patternfly/react-icons';
 import type {
@@ -184,11 +185,12 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
   const isDraggingGroupType = dndDropProps.dragItemType === GROUP_DRAG_TYPE;
   const isDraggingNodeType = dndDropProps.dragItemType === NODE_DRAG_TYPE;
   const draggedGroupVizNode = dndDropProps.dragItem?.getData().vizNode;
+  const draggedGroupVizNodePath = draggedGroupVizNode?.data.path;
   const isDraggingWithinGroup =
     isDraggingGroupType &&
     draggedGroupVizNode?.getId() === element.getData().vizNode.getId() &&
-    element.getData().vizNode.data.path.slice(0, draggedGroupVizNode?.data.path.length) ===
-      draggedGroupVizNode?.data.path;
+    isDefined(draggedGroupVizNodePath) &&
+    element.getData().vizNode.data.path.startsWith(draggedGroupVizNodePath + '.');
 
   const box = element.getBounds();
   if (!dndDropProps.droppable || !boxRef.current || !boxXRef.current || !boxYRef.current) {
