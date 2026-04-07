@@ -3,11 +3,11 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getCustomSchemaFromKamelet, setValue, updateKameletFromCustomSchema } from '../../../utils';
-import { EntityType } from '../../camel/entities';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
+import { IKameletDefinition, IKameletSpec } from '../../camel/kamelets-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
-import { IKameletDefinition, IKameletSpec } from '../../kamelets-catalog';
+import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';

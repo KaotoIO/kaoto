@@ -3,16 +3,16 @@ import { cloneDeep } from 'lodash';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
-import { EntityType } from '../../camel/entities';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { sourceSchemaConfig } from '../../camel/source-schema-config';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
+import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -84,7 +84,7 @@ const getDefaultTest = (name: string): Test => {
  * The visual entity manages the complete lifecycle of a Citrus test in the editor,
  * including nested containers and action groups.
  */
-export class CitrusTestVisualEntity implements BaseVisualCamelEntity {
+export class CitrusTestVisualEntity implements BaseVisualEntity {
   id: string;
   readonly type = EntityType.Test;
   static readonly ROOT_PATH = 'test';

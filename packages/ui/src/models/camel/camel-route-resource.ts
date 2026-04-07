@@ -20,6 +20,14 @@ import { isDefined } from '@kaoto/forms';
 import { TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { CatalogKind } from '../catalog-kind';
+import { BaseEntity, EntityType } from '../entities';
+import {
+  BaseVisualEntityDefinition,
+  BeansAwareResource,
+  KaotoResource,
+  KaotoResourceSerializer,
+  SerializerType,
+} from '../kaoto-resource';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
@@ -36,18 +44,10 @@ import { CamelComponentFilterService } from '../visualization/flows/support/came
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { BeansEntity, isBeans } from '../visualization/metadata';
-import {
-  BaseVisualCamelEntityDefinition,
-  BeansAwareResource,
-  CamelResource,
-  CamelResourceSerializer,
-  SerializerType,
-} from './camel-resource';
-import { BaseCamelEntity, EntityType } from './entities';
 import { EntityOrderingService } from './entity-ordering.service';
 import { SourceSchemaType } from './source-schema-type';
 
-export class CamelRouteResource implements CamelResource, BeansAwareResource {
+export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   static readonly SUPPORTED_ENTITIES: {
     type: EntityType;
     group: string;
@@ -112,12 +112,12 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     },
     { type: EntityType.Rest, group: 'Rest', Entity: CamelRestVisualEntity, isVisualEntity: false },
   ];
-  private entities: BaseCamelEntity[] = [];
-  private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
+  private entities: BaseEntity[] = [];
+  private resolvedEntities: BaseVisualEntityDefinition | undefined;
 
   constructor(
     rawEntities?: CamelYamlDsl,
-    private serializer: CamelResourceSerializer = new YamlCamelResourceSerializer(),
+    private serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
   ) {
     if (!rawEntities) return;
 
@@ -128,12 +128,12 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
         acc.push(entity);
       }
       return acc;
-    }, [] as BaseCamelEntity[]);
+    }, [] as BaseEntity[]);
 
     this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
   }
 
-  getCanvasEntityList(): BaseVisualCamelEntityDefinition {
+  getCanvasEntityList(): BaseVisualEntityDefinition {
     this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.filter(
       ({ isVisualEntity, isYamlOnly }) =>
         isVisualEntity &&
@@ -157,7 +157,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
         acc.groups[group].push(entityDefinition);
         return acc;
       },
-      { common: [], groups: {} } as BaseVisualCamelEntityDefinition,
+      { common: [], groups: {} } as BaseVisualEntityDefinition,
     );
 
     return this.resolvedEntities;
@@ -237,7 +237,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     ) as CamelRouteVisualEntity[];
   }
 
-  getEntities(): BaseCamelEntity[] {
+  getEntities(): BaseEntity[] {
     return this.entities.filter((entity) => !(entity instanceof CamelRouteVisualEntity));
   }
 
@@ -279,7 +279,7 @@ export class CamelRouteResource implements CamelResource, BeansAwareResource {
     return CamelComponentFilterService.getCamelCompatibleComponents(mode, visualEntityData, definition);
   }
 
-  private getEntity(rawItem: unknown): BaseCamelEntity | undefined {
+  private getEntity(rawItem: unknown): BaseEntity | undefined {
     if (!isDefined(rawItem) || Array.isArray(rawItem)) {
       return undefined;
     }

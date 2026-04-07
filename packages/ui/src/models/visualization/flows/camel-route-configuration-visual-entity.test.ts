@@ -3,9 +3,9 @@ import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catal
 
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { EntityType } from '../../camel/entities';
-import { DefinedComponent } from '../../camel-catalog-index';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';

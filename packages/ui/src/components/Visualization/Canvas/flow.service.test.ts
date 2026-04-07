@@ -1,5 +1,5 @@
 import { CatalogKind } from '../../../models';
-import { EntityType } from '../../../models/camel/entities';
+import { EntityType } from '../../../models/entities';
 import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { FlowService } from './flow.service';

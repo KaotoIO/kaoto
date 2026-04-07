@@ -1,4 +1,5 @@
-import { CamelResource, SerializerType, SourceSchemaType } from '../models/camel';
+import { SourceSchemaType } from '../models/camel';
+import { KaotoResource, SerializerType } from '../models/kaoto-resource';
 
 const DSL_LISTS: Record<SerializerType, SourceSchemaType[]> = {
   [SerializerType.YAML]: [
@@ -10,6 +11,6 @@ const DSL_LISTS: Record<SerializerType, SourceSchemaType[]> = {
   [SerializerType.XML]: [SourceSchemaType.Route],
 };
 
-export function getSupportedDsls(camelResource: CamelResource) {
+export function getSupportedDsls(camelResource: KaotoResource) {
   return DSL_LISTS[camelResource.getSerializerType()];
 }

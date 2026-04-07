@@ -2,9 +2,9 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { EntityType } from '../../camel/entities';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 

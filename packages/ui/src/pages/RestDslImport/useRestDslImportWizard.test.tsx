@@ -2,8 +2,8 @@ import { act, renderHook } from '@testing-library/react';
 import { OpenApi } from 'openapi-v3';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { CamelResource } from '../../models/camel/camel-resource';
 import { CamelRouteResource } from '../../models/camel/camel-route-resource';
+import { KaotoResource } from '../../models/kaoto-resource';
 import { EntitiesContextResult, SettingsContext } from '../../providers';
 import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
 import { useRestDslImportWizard } from './useRestDslImportWizard';
@@ -522,7 +522,7 @@ describe('useRestDslImportWizard', () => {
       },
     });
     let routeWrapper: FunctionComponent<PropsWithChildren>;
-    let camelResource: CamelResource;
+    let camelResource: KaotoResource;
     let updateEntitiesFromCamelResourceSpy: EntitiesContextResult['updateEntitiesFromCamelResource'];
 
     beforeEach(() => {

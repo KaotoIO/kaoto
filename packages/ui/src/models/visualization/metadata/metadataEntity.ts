@@ -1,13 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { BaseCamelEntity, EntityType } from '../../camel/entities';
-import { IKameletMetadata } from '../../kamelets-catalog';
+import { IKameletMetadata } from '../../camel/kamelets-catalog';
+import { BaseEntity, EntityType } from '../../entities';
 
 type MetadataParentType = {
   metadata?: Partial<IKameletMetadata>;
 };
 
-export class MetadataEntity implements BaseCamelEntity {
+export class MetadataEntity implements BaseEntity {
   readonly id = uuidv4();
   type = EntityType.Metadata;
 

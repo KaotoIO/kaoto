@@ -2,16 +2,11 @@ import { isDefined } from '@kaoto/forms';
 
 import { ITile, TileFilter } from '../../components/Catalog';
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
-import {
-  BaseVisualCamelEntityDefinition,
-  CamelResource,
-  CamelResourceSerializer,
-  SerializerType,
-} from '../camel/camel-resource';
-import { BaseCamelEntity, EntityType } from '../camel/entities';
 import { EntityOrderingService } from '../camel/entity-ordering.service';
 import { SourceSchemaType } from '../camel/source-schema-type';
 import { CatalogKind } from '../catalog-kind';
+import { BaseEntity, EntityType } from '../entities';
+import { BaseVisualEntityDefinition, KaotoResource, KaotoResourceSerializer, SerializerType } from '../kaoto-resource';
 import {
   AddStepMode,
   BaseVisualCamelEntityConstructor,
@@ -37,15 +32,15 @@ import { Test } from './entities/Test';
  * - Serialize tests to YAML/XML format
  * - Filter compatible components for the catalog
  */
-export class CitrusTestResource implements CamelResource {
+export class CitrusTestResource implements KaotoResource {
   static readonly SUPPORTED_ENTITIES: {
     type: EntityType;
     group: string;
     Entity: BaseVisualCamelEntityConstructor;
     isYamlOnly?: boolean;
   }[] = [{ type: EntityType.Test, group: '', Entity: CitrusTestVisualEntity }];
-  private entities: BaseCamelEntity[] = [];
-  private resolvedEntities: BaseVisualCamelEntityDefinition | undefined;
+  private entities: BaseEntity[] = [];
+  private resolvedEntities: BaseVisualEntityDefinition | undefined;
 
   /**
    * Creates a new CitrusTestResource instance.
@@ -55,7 +50,7 @@ export class CitrusTestResource implements CamelResource {
    */
   constructor(
     rawEntities?: Test | Test[],
-    private serializer: CamelResourceSerializer = new YamlCamelResourceSerializer(),
+    private serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
   ) {
     if (!rawEntities) return;
 
@@ -66,7 +61,7 @@ export class CitrusTestResource implements CamelResource {
         acc.push(entity);
       }
       return acc;
-    }, [] as BaseCamelEntity[]);
+    }, [] as BaseEntity[]);
 
     this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
   }
@@ -79,7 +74,7 @@ export class CitrusTestResource implements CamelResource {
    *
    * @returns Entity definitions with metadata for display in the visual editor
    */
-  getCanvasEntityList(): BaseVisualCamelEntityDefinition {
+  getCanvasEntityList(): BaseVisualEntityDefinition {
     this.resolvedEntities = CitrusTestResource.SUPPORTED_ENTITIES.filter(
       ({ isYamlOnly }) =>
         this.serializer.getType() === SerializerType.YAML ||
@@ -102,7 +97,7 @@ export class CitrusTestResource implements CamelResource {
         acc.groups[group].push(entityDefinition);
         return acc;
       },
-      { common: [], groups: {} } as BaseVisualCamelEntityDefinition,
+      { common: [], groups: {} } as BaseVisualEntityDefinition,
     );
 
     return this.resolvedEntities;
@@ -177,7 +172,7 @@ export class CitrusTestResource implements CamelResource {
   /**
    * Gets all non-visual entities from this resource.
    */
-  getEntities(): BaseCamelEntity[] {
+  getEntities(): BaseEntity[] {
     return this.entities.filter((entity) => !(entity instanceof CitrusTestVisualEntity));
   }
 
@@ -233,7 +228,7 @@ export class CitrusTestResource implements CamelResource {
    * @param rawItem - The raw item to convert
    * @returns A BaseCamelEntity instance or undefined if the item is invalid
    */
-  private getEntity(rawItem: unknown): BaseCamelEntity | undefined {
+  private getEntity(rawItem: unknown): BaseEntity | undefined {
     if (!isDefined(rawItem) || Array.isArray(rawItem)) {
       return undefined;
     }

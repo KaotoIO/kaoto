@@ -4,7 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { getVisualizationNodesFromGraph } from '../../../../utils/get-viznodes-from-graph';

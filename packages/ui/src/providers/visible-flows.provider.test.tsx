@@ -2,7 +2,7 @@ import { render } from '@testing-library/react';
 import { FunctionComponent, useContext } from 'react';
 
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
-import { EntityType } from '../models/camel/entities';
+import { EntityType } from '../models/entities';
 import { mockRandomValues, TestProvidersWrapper } from '../stubs';
 import { VisibleFlowsContext, VisibleFlowsProvider } from './visible-flows.provider';
 

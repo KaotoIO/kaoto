@@ -1,7 +1,7 @@
 import { BeanFactory, FromDefinition, Kamelet } from '@kaoto/camel-catalog/types';
 
-import { SourceSchemaType } from './camel/source-schema-type';
-import { KaotoSchemaDefinition } from './kaoto-schema';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
+import { SourceSchemaType } from './source-schema-type';
 
 export const enum KameletKnownAnnotations {
   Icon = 'camel.apache.org/kamelet.icon',

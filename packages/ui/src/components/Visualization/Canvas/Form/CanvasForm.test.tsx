@@ -15,7 +15,7 @@ import {
   KameletVisualEntity,
   KaotoSchemaDefinition,
 } from '../../../../models';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../../providers';

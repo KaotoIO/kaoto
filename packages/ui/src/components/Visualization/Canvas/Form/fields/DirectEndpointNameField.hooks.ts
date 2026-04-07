@@ -2,7 +2,7 @@ import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { TypeaheadItem } from '@kaoto/forms';
 import { useCallback, useMemo } from 'react';
 
-import { EntityType } from '../../../../../models/camel/entities';
+import { EntityType } from '../../../../../models/entities';
 import { EntitiesContextResult } from '../../../../../providers/entities.provider';
 import { VisibleFlowsContextResult } from '../../../../../providers/visible-flows.provider';
 

@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
 import { ItemHideOtherFlows } from './ItemHideOtherFlows';

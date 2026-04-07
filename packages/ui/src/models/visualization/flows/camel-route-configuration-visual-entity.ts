@@ -3,15 +3,15 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
-import { EntityType } from '../../camel/entities/base-entity';
-import { DefinedComponent } from '../../camel-catalog-index';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import { SPECIAL_PROCESSORS_PARENTS_MAP } from '../../special-processors.constants';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -22,7 +22,7 @@ import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelRouteConfigurationVisualEntity
   extends AbstractCamelVisualEntity<{ routeConfiguration: RouteConfigurationDefinition }>
-  implements BaseVisualCamelEntity
+  implements BaseVisualEntity
 {
   id: string;
   readonly type = EntityType.RouteConfiguration;

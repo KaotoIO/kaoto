@@ -1,23 +1,23 @@
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 
-import { TileFilter } from '../../components/Catalog';
-import { Test } from '../citrus/entities/Test';
-import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
-import { BeansEntity } from '../visualization/metadata';
-import { RouteTemplateBeansEntity } from '../visualization/metadata/routeTemplateBeansEntity';
-import { BaseCamelEntity, EntityType } from './entities';
-import { SourceSchemaType } from './source-schema-type';
+import { TileFilter } from '../components/Catalog';
+import { SourceSchemaType } from './camel/source-schema-type';
+import { Test } from './citrus/entities/Test';
+import { BaseEntity, EntityType } from './entities';
+import { AddStepMode, BaseVisualEntity, IVisualizationNodeData } from './visualization/base-visual-entity';
+import { BeansEntity } from './visualization/metadata';
+import { RouteTemplateBeansEntity } from './visualization/metadata/routeTemplateBeansEntity';
 
-export interface CamelResource {
-  getVisualEntities(): BaseVisualCamelEntity[];
-  getEntities(): BaseCamelEntity[];
+export interface KaotoResource {
+  getVisualEntities(): BaseVisualEntity[];
+  getEntities(): BaseEntity[];
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string;
   removeEntity(ids?: string[]): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
   toString(): string;
   getType(): SourceSchemaType;
-  getCanvasEntityList(): BaseVisualCamelEntityDefinition;
+  getCanvasEntityList(): BaseVisualEntityDefinition;
   getSerializerType(): SerializerType;
   setSerializer(serializer: SerializerType): void;
 
@@ -37,9 +37,9 @@ export enum SerializerType {
 
 export type Metadata = { [key: string]: unknown };
 
-export interface CamelResourceSerializer {
+export interface KaotoResourceSerializer {
   parse: (code: string) => CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined;
-  serialize: (resource: CamelResource) => string;
+  serialize: (resource: KaotoResource) => string;
   getComments: () => string[];
   setComments: (comments: string[]) => void;
   setMetadata: (metadata: Metadata) => void;
@@ -47,12 +47,12 @@ export interface CamelResourceSerializer {
   getType(): SerializerType;
 }
 
-export interface BaseVisualCamelEntityDefinition {
-  common: BaseVisualCamelEntityDefinitionItem[];
-  groups: Record<string, BaseVisualCamelEntityDefinitionItem[]>;
+export interface BaseVisualEntityDefinition {
+  common: BaseVisualEntityDefinitionItem[];
+  groups: Record<string, BaseVisualEntityDefinitionItem[]>;
 }
 
-export interface BaseVisualCamelEntityDefinitionItem {
+export interface BaseVisualEntityDefinitionItem {
   name: EntityType;
   title: string;
   description: string;

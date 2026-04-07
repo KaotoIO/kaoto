@@ -1,5 +1,5 @@
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { ICamelProcessorModel, ICamelProcessorProperty } from './camel-processors-catalog';
-import { KaotoSchemaDefinition } from './kaoto-schema';
 
 export interface ICamelLanguageDefinition {
   model: ICamelLanguageModel;

@@ -18,8 +18,8 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../models';
-import { EntityType } from '../../../models/camel/entities';
 import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
+import { EntityType } from '../../../models/entities';
 import { CamelErrorHandlerVisualEntity } from '../../../models/visualization/flows/camel-error-handler-visual-entity';
 import { BeansEntity } from '../../../models/visualization/metadata';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';

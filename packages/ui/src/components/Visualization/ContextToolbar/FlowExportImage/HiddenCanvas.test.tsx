@@ -3,7 +3,7 @@ import { act, render, waitFor } from '@testing-library/react';
 import { toBlob } from 'html-to-image';
 import { PropsWithChildren } from 'react';
 
-import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../../models/visualization/base-visual-entity';
 import { EntitiesProvider } from '../../../../providers/entities.provider';
 import { SourceCodeProvider } from '../../../../providers/source-code.provider';
 import { VisibleFlowsProvider } from '../../../../providers/visible-flows.provider';
@@ -33,7 +33,7 @@ describe('HiddenCanvas', () => {
   );
 
   let mockOnComplete: jest.Mock;
-  let mockEntity: BaseVisualCamelEntity;
+  let mockEntity: BaseVisualEntity;
   let eventListenerCallback: ((event?: Event) => void) | null = null;
   let fromModelSpy: jest.SpyInstance;
   let originalCreateObjectURL: typeof URL.createObjectURL;
@@ -70,7 +70,7 @@ describe('HiddenCanvas', () => {
     mockEntity = {
       id: 'test-entity-1',
       toVizNode: jest.fn(() => ({ id: 'node-1', data: {} })),
-    } as unknown as BaseVisualCamelEntity;
+    } as unknown as BaseVisualEntity;
 
     (FlowService.getFlowDiagram as jest.Mock).mockReturnValue({
       nodes: [{ id: 'node-1', type: 'node' } as CanvasNode],

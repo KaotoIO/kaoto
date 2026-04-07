@@ -1,6 +1,6 @@
 import { TileFilter } from '../../components/Catalog/Catalog.models';
 import { setValue } from '../../utils';
-import { IKameletDefinition } from '../kamelets-catalog';
+import { RouteTemplateBeansAwareResource } from '../kaoto-resource';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelRouteVisualEntityData } from '../visualization/flows/support/camel-component-types';
@@ -11,7 +11,7 @@ import {
 } from '../visualization/metadata/routeTemplateBeansEntity';
 import { KameletVisualEntity } from './../visualization/flows/kamelet-visual-entity';
 import { CamelKResource } from './camel-k-resource';
-import { RouteTemplateBeansAwareResource } from './camel-resource';
+import { IKameletDefinition } from './kamelets-catalog';
 import { SourceSchemaType } from './source-schema-type';
 
 export class KameletResource extends CamelKResource implements RouteTemplateBeansAwareResource {

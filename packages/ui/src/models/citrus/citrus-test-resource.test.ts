@@ -1,8 +1,9 @@
 import { ITile } from '../../components/Catalog';
 import { citrusTestJson } from '../../stubs/citrus-test';
-import { SerializerType, SourceSchemaType } from '../camel';
-import { EntityType } from '../camel/entities';
+import { SourceSchemaType } from '../camel';
 import { CatalogKind } from '../catalog-kind';
+import { EntityType } from '../entities';
+import { SerializerType } from '../kaoto-resource';
 import { AddStepMode, CitrusTestVisualEntity } from '../visualization';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { CitrusTestResource } from './citrus-test-resource';

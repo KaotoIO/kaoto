@@ -6,7 +6,7 @@ import {
   IKameletSpecProperty,
   KameletKnownAnnotations,
   KameletKnownLabels,
-} from '../models/kamelets-catalog';
+} from '../models/camel/kamelets-catalog';
 import { getValue } from './get-value';
 import { setValue } from './set-value';
 

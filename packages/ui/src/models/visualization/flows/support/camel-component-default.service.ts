@@ -3,7 +3,7 @@ import { parse } from 'yaml';
 
 import { getCamelRandomId, getHexaDecimalRandomId } from '../../../../camel-utils/camel-random-id';
 import { XSLT_COMPONENT_NAME } from '../../../../utils';
-import { DefinedComponent } from '../../../camel-catalog-index';
+import { DefinedComponent } from '../../../camel/camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 
 /**

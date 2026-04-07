@@ -14,7 +14,7 @@ import {
   FileTypesResponse,
   LoadingStatus,
 } from '../models';
-import { CitrusCatalogIndex } from '../models/citrus-catalog-index';
+import { CitrusCatalogIndex } from '../models/citrus/citrus-catalog-index';
 import { CatalogSchemaLoader } from '../utils';
 import { DynamicCatalog } from './dynamic-catalog';
 import { DynamicCatalogRegistry } from './dynamic-catalog-registry';

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { EntityType } from './entities';
+import { EntityType } from '../entities';
 import { EntityOrderingService } from './entity-ordering.service';
 
 describe('EntityOrderingService', () => {

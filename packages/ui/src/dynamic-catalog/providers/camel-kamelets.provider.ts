@@ -1,5 +1,5 @@
+import { IKameletDefinition } from '../../models/camel/kamelets-catalog';
 import { FileTypes, FileTypesResponse } from '../../models/file-types';
-import { IKameletDefinition } from '../../models/kamelets-catalog';
 import { ICatalogProvider } from '../models';
 
 export class CamelKameletsProvider implements ICatalogProvider<IKameletDefinition> {

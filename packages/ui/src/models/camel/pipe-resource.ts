@@ -2,12 +2,12 @@ import { Pipe as PipeType } from '@kaoto/camel-catalog/types';
 
 import { ITile, TileFilter } from '../../components/Catalog/Catalog.models';
 import { CatalogKind } from '../catalog-kind';
+import { BaseEntity, PipeSpecErrorHandler } from '../entities';
 import { AddStepMode, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { PipeVisualEntity } from '../visualization/flows';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { PipeErrorHandlerEntity } from '../visualization/metadata/pipeErrorHandlerEntity';
 import { CamelKResource } from './camel-k-resource';
-import { BaseCamelEntity, PipeSpecErrorHandler } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
 export class PipeResource extends CamelKResource {
@@ -38,7 +38,7 @@ export class PipeResource extends CamelKResource {
     this.flow = new PipeVisualEntity(flowTemplate);
   }
 
-  getEntities(): BaseCamelEntity[] {
+  getEntities(): BaseEntity[] {
     const answer = super.getEntities();
     if (this.pipe.spec!.errorHandler && this.errorHandler) {
       answer.push(this.errorHandler);

@@ -7,7 +7,7 @@ import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { SettingsProvider } from '../../../providers/settings.provider';
@@ -137,9 +137,9 @@ describe('Canvas', () => {
     const fromModelSpy = jest.spyOn(controller, 'fromModel');
 
     // Stateful child so we can update entities without re-rendering Provider
-    let setEntitiesState: (next: BaseVisualCamelEntity[]) => void = () => {};
+    let setEntitiesState: (next: BaseVisualEntity[]) => void = () => {};
     const Inner = () => {
-      const [entities, setEntities] = useState<BaseVisualCamelEntity[]>([entity]);
+      const [entities, setEntities] = useState<BaseVisualEntity[]>([entity]);
       setEntitiesState = setEntities;
       return (
         <VisualizationProvider controller={controller}>

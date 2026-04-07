@@ -3,7 +3,7 @@ import { MenuButton, MenuItem, MenuItemDivider } from '@carbon/react';
 import { FunctionComponent, useMemo } from 'react';
 
 import { useToggle } from '../../../hooks/useToggle';
-import { BaseVisualCamelEntity } from '../../../models';
+import { BaseVisualEntity } from '../../../models';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
 import { AddMethodFormModel } from './add-method-schema';
@@ -14,7 +14,7 @@ import { IRestTreeSelection } from './RestTree';
  * Props for the RestTreeToolbar component.
  */
 export interface RestTreeToolbarProps {
-  entities: BaseVisualCamelEntity[];
+  entities: BaseVisualEntity[];
   selectedElement?: IRestTreeSelection;
   onAddRestConfiguration: () => void;
   onAddRest: () => void;

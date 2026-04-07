@@ -5,16 +5,16 @@ import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
 import { CatalogKind } from '../catalog-kind';
+import { EntityType } from '../entities';
+import { SerializerType } from '../kaoto-resource';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { BeansEntity } from '../visualization/metadata/beansEntity';
-import { SerializerType } from './camel-resource';
 import { CamelResourceFactory } from './camel-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
-import { EntityType } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
 describe('CamelRouteResource', () => {

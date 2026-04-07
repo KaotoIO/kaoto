@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { BaseCamelEntity, EntityType } from '../../camel/entities';
-import { PipeSpecErrorHandler } from '../../camel/entities/pipe-overrides';
+import { BaseEntity, EntityType } from '../../entities';
+import { PipeSpecErrorHandler } from '../../entities/pipe-overrides';
 
-export class PipeErrorHandlerEntity implements BaseCamelEntity {
+export class PipeErrorHandlerEntity implements BaseEntity {
   readonly id = uuidv4();
   readonly type = EntityType.PipeErrorHandler;
 

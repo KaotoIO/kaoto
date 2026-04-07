@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { getRestEntities } from './get-rest-entities';
 import { RestTree } from './RestTree';
 
@@ -90,7 +90,7 @@ describe('RestTree', () => {
   });
 
   it('should handle empty entities array gracefully', () => {
-    const entities: BaseVisualCamelEntity[] = [];
+    const entities: BaseVisualEntity[] = [];
 
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
 

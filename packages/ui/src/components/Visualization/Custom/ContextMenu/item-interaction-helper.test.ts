@@ -1,8 +1,8 @@
 import { ButtonVariant } from '@patternfly/react-core';
 
 import { CatalogKind, createVisualizationNode } from '../../../../models';
-import { EntityType } from '../../../../models/camel/entities';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
+import { EntityType } from '../../../../models/entities';
 import { ACTION_ID_CONFIRM } from '../../../../providers';
 import {
   IInteractionType,

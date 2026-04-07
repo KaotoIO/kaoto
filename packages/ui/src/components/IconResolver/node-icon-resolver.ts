@@ -241,8 +241,8 @@ import icon_eip_wiretap from '../../assets/eip/wiretap.png';
 import expandIcon from '../../assets/expand.svg';
 import questionIcon from '../../assets/question-mark.svg';
 import { DynamicCatalogRegistry } from '../../dynamic-catalog';
-import { EntityType } from '../../models/camel/entities';
 import { CatalogKind } from '../../models/catalog-kind';
+import { EntityType } from '../../models/entities';
 import { PlaceholderType } from '../../models/placeholder.constants';
 
 export class NodeIconResolver {

@@ -16,8 +16,8 @@
 
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 
-import { EntityType } from '../../../models/camel/entities';
 import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
+import { EntityType } from '../../../models/entities';
 import { BeansXmlSerializer } from './beans-xml-serializer';
 import { EntityDefinition } from './entitiy-definition';
 import { RestXmlSerializer } from './rest-xml-serializer';

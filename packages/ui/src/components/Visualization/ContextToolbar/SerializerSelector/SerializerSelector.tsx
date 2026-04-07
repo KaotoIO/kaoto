@@ -3,7 +3,8 @@ import './SerializerSelector.scss';
 import { MenuToggle, Select, SelectList, SelectOption, ToolbarItem } from '@patternfly/react-core';
 import { FunctionComponent, RefObject, useContext, useState } from 'react';
 
-import { SerializerType, SourceSchemaType } from '../../../../models/camel';
+import { SourceSchemaType } from '../../../../models/camel';
+import { SerializerType } from '../../../../models/kaoto-resource';
 import { EntitiesContext } from '../../../../providers';
 
 export const SerializerSelector: FunctionComponent = () => {

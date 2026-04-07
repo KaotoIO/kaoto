@@ -9,18 +9,19 @@ import {
   useState,
 } from 'react';
 
-import { BaseVisualCamelEntity } from '../models';
-import { CamelResource, SourceSchemaType } from '../models/camel';
+import { BaseVisualEntity } from '../models';
+import { SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
-import { BaseCamelEntity } from '../models/camel/entities';
+import { BaseEntity } from '../models/entities';
+import { KaotoResource } from '../models/kaoto-resource';
 import { EventNotifier } from '../utils';
 import { SourceCodeContext } from './source-code.provider';
 
 export interface EntitiesContextResult {
-  entities: BaseCamelEntity[];
+  entities: BaseEntity[];
   currentSchemaType: SourceSchemaType;
-  visualEntities: BaseVisualCamelEntity[];
-  camelResource: CamelResource;
+  visualEntities: BaseVisualEntity[];
+  camelResource: KaotoResource;
 
   /**
    * Notify that a property in an entity has changed, hence the source
@@ -51,16 +52,16 @@ export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fil
   const eventNotifier = EventNotifier.getInstance();
   const initialSourceCode = useContext(SourceCodeContext);
 
-  let initialCamelResource: CamelResource;
+  let initialCamelResource: KaotoResource;
   try {
     initialCamelResource = CamelResourceFactory.createCamelResource(initialSourceCode, { path: fileExtension });
   } catch (error) {
     initialCamelResource = CamelResourceFactory.createCamelResource('', { path: fileExtension });
   }
 
-  const [camelResource, setCamelResource] = useState<CamelResource>(initialCamelResource);
-  const [entities, setEntities] = useState<BaseCamelEntity[]>(camelResource.getEntities());
-  const [visualEntities, setVisualEntities] = useState<BaseVisualCamelEntity[]>(camelResource.getVisualEntities());
+  const [camelResource, setCamelResource] = useState<KaotoResource>(initialCamelResource);
+  const [entities, setEntities] = useState<BaseEntity[]>(camelResource.getEntities());
+  const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>(camelResource.getVisualEntities());
 
   /**
    * Subscribe to the `code:updated` event to recreate the CamelResource

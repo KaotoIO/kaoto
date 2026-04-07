@@ -1,6 +1,6 @@
 import { Rest } from '@kaoto/camel-catalog/types';
 
-import { BaseVisualCamelEntity } from '../../models';
+import { BaseVisualEntity } from '../../models';
 import { REST_DSL_VERBS } from '../../models/special-processors.constants';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
@@ -25,7 +25,7 @@ export interface RestTreeNode {
  * @param visualEntities - Array of visual entities to convert
  * @returns Array of tree nodes representing the REST DSL hierarchy
  */
-export const restToTree = (visualEntities: BaseVisualCamelEntity[]): RestTreeNode[] => {
+export const restToTree = (visualEntities: BaseVisualEntity[]): RestTreeNode[] => {
   const restConfigEntities: CamelRestConfigurationVisualEntity[] = visualEntities.filter(
     (entity) => entity instanceof CamelRestConfigurationVisualEntity,
   );

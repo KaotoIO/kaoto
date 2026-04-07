@@ -6,16 +6,11 @@ import {
 
 import { TileFilter } from '../../components/Catalog';
 import { YamlCamelResourceSerializer } from '../../serializers';
-import { IKameletDefinition } from '../kamelets-catalog';
-import { AddStepMode, BaseVisualCamelEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
+import { BaseEntity } from '../entities';
+import { BaseVisualEntityDefinition, KaotoResource, KaotoResourceSerializer, SerializerType } from '../kaoto-resource';
+import { AddStepMode, BaseVisualEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { MetadataEntity } from '../visualization/metadata';
-import {
-  BaseVisualCamelEntityDefinition,
-  CamelResource,
-  CamelResourceSerializer,
-  SerializerType,
-} from './camel-resource';
-import { BaseCamelEntity } from './entities';
+import { IKameletDefinition } from './kamelets-catalog';
 import { SourceSchemaType } from './source-schema-type';
 
 export type CamelKType = IntegrationType | IKameletDefinition | KameletBindingType | PipeType;
@@ -29,13 +24,13 @@ export enum CamelKResourceKinds {
 
 export const CAMEL_K_K8S_API_VERSION_V1 = 'camel.apache.org/v1';
 
-export abstract class CamelKResource implements CamelResource {
+export abstract class CamelKResource implements KaotoResource {
   protected resource: CamelKType;
   private metadata?: MetadataEntity;
 
   constructor(
     parsedResource: unknown,
-    private readonly serializer: CamelResourceSerializer = new YamlCamelResourceSerializer(),
+    private readonly serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
   ) {
     if (parsedResource) {
       this.resource = parsedResource as CamelKType;
@@ -48,7 +43,7 @@ export abstract class CamelKResource implements CamelResource {
     this.metadata = this.resource.metadata && new MetadataEntity(this.resource);
   }
 
-  getCanvasEntityList(): BaseVisualCamelEntityDefinition {
+  getCanvasEntityList(): BaseVisualEntityDefinition {
     return {
       common: [],
       groups: {},
@@ -72,7 +67,7 @@ export abstract class CamelKResource implements CamelResource {
     this.metadata = undefined;
   }
 
-  getEntities(): BaseCamelEntity[] {
+  getEntities(): BaseEntity[] {
     const answer = [];
     if (this.resource.metadata && this.metadata) {
       answer.push(this.metadata);
@@ -82,7 +77,7 @@ export abstract class CamelKResource implements CamelResource {
 
   abstract getType(): SourceSchemaType;
 
-  abstract getVisualEntities(): BaseVisualCamelEntity[];
+  abstract getVisualEntities(): BaseVisualEntity[];
 
   abstract toJSON(): unknown;
 

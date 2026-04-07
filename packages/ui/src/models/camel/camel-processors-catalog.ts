@@ -1,6 +1,6 @@
+import { CatalogKind } from '../catalog-kind';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { CamelPropertyCommon } from './camel-properties-common';
-import { CatalogKind } from './catalog-kind';
-import { KaotoSchemaDefinition } from './kaoto-schema';
 
 export interface ICamelProcessorDefinition {
   model: ICamelProcessorModel;

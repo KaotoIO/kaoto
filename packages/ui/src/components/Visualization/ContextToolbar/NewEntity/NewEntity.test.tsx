@@ -3,7 +3,8 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../models';
-import { CamelRouteResource, SerializerType, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { SerializerType } from '../../../../models/kaoto-resource';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { camelRouteJson } from '../../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';

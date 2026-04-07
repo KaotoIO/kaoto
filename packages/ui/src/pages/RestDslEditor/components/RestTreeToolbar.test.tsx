@@ -2,7 +2,7 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { clickToolbarActionUtil } from '../test-utils';
 import { getRestEntities } from './get-rest-entities';
@@ -78,7 +78,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should fire callback when clicked', async () => {
-      const entities: BaseVisualCamelEntity[] = [];
+      const entities: BaseVisualEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -97,7 +97,7 @@ describe('RestTreeToolbar', () => {
 
   describe('Add Rest button', () => {
     it('should always be enabled', () => {
-      const entities: BaseVisualCamelEntity[] = [];
+      const entities: BaseVisualEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -144,7 +144,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should fire callback when clicked', async () => {
-      const entities: BaseVisualCamelEntity[] = [];
+      const entities: BaseVisualEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -163,7 +163,7 @@ describe('RestTreeToolbar', () => {
 
   describe('Add Method button', () => {
     it('should be disabled when nothing is selected', () => {
-      const entities: BaseVisualCamelEntity[] = [];
+      const entities: BaseVisualEntity[] = [];
 
       render(
         <RestTreeToolbar
@@ -310,7 +310,7 @@ describe('RestTreeToolbar', () => {
 
   describe('Delete button', () => {
     it('should be disabled when nothing is selected', () => {
-      const entities: BaseVisualCamelEntity[] = [];
+      const entities: BaseVisualEntity[] = [];
 
       render(
         <RestTreeToolbar

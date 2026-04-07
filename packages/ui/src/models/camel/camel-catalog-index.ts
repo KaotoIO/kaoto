@@ -1,12 +1,12 @@
 import { CatalogDefinition, CatalogDefinitionEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
 
+import { CatalogKind } from '../catalog-kind';
+import { ICitrusComponentDefinition } from '../citrus/citrus-catalog';
 import { ICamelComponentDefinition } from './camel-components-catalog';
 import { ICamelDataformatDefinition } from './camel-dataformats-catalog';
 import { ICamelLanguageDefinition } from './camel-languages-catalog';
 import { ICamelLoadBalancerDefinition } from './camel-loadbalancers-catalog';
 import { ICamelProcessorDefinition } from './camel-processors-catalog';
-import { CatalogKind } from './catalog-kind';
-import { ICitrusComponentDefinition } from './citrus-catalog';
 import { IKameletDefinition } from './kamelets-catalog';
 
 export interface CamelCatalogIndex extends Omit<CatalogDefinition, 'catalogs'> {

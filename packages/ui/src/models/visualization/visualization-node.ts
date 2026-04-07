@@ -1,12 +1,12 @@
 import { action, makeObservable, observable } from 'mobx';
 
-import { DefinedComponent } from '../camel-catalog-index';
+import { DefinedComponent } from '../camel/camel-catalog-index';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
 import { IClipboardCopyObject } from '../visualization/clipboard';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   DISABLED_NODE_INTERACTION,
   IVisualizationNode,
   IVisualizationNodeData,
@@ -165,7 +165,7 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
    * Get the underlying entity for the entire flow
    * This property is only set on the root node
    */
-  protected getBaseEntity(): BaseVisualCamelEntity | undefined {
+  protected getBaseEntity(): BaseVisualEntity | undefined {
     return this.getRootNode().data.entity;
   }
 

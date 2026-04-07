@@ -1,12 +1,12 @@
-import { camelRouteYaml } from '../../stubs/camel-route';
-import { citrusTestYaml } from '../../stubs/citrus-test';
-import { integrationJson } from '../../stubs/integration';
-import { kameletBindingJson } from '../../stubs/kamelet-binding-route';
-import { kameletJson } from '../../stubs/kamelet-route';
-import { pipeJson } from '../../stubs/pipe';
-import { CamelRouteVisualEntity, CitrusTestVisualEntity, PipeVisualEntity } from '../visualization/flows';
-import { CamelResourceFactory } from './camel-resource-factory';
-import { SourceSchemaType } from './source-schema-type';
+import { camelRouteYaml } from '../stubs/camel-route';
+import { citrusTestYaml } from '../stubs/citrus-test';
+import { integrationJson } from '../stubs/integration';
+import { kameletBindingJson } from '../stubs/kamelet-binding-route';
+import { kameletJson } from '../stubs/kamelet-route';
+import { pipeJson } from '../stubs/pipe';
+import { CamelResourceFactory } from './camel/camel-resource-factory';
+import { SourceSchemaType } from './camel/source-schema-type';
+import { CamelRouteVisualEntity, CitrusTestVisualEntity, PipeVisualEntity } from './visualization/flows';
 
 describe('CamelResourceFactory.createCamelResource', () => {
   it('should create an empty CamelRouteResource if no args is specified', () => {

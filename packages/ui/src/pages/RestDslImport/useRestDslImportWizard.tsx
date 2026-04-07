@@ -2,7 +2,7 @@ import { OpenApi } from 'openapi-v3';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { parse as parseYaml } from 'yaml';
 
-import { EntityType } from '../../models/camel/entities';
+import { EntityType } from '../../models/entities';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows/camel-route-visual-entity';
 import { EntitiesContext, SettingsContext } from '../../providers';

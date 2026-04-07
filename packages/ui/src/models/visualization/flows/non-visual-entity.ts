@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { BaseCamelEntity, EntityType } from '../../camel/entities/base-entity';
+import { BaseEntity, EntityType } from '../../entities/base-entity';
 
-export class NonVisualEntity implements BaseCamelEntity {
+export class NonVisualEntity implements BaseEntity {
   readonly id = uuidv4();
   type: EntityType = EntityType.NonVisualEntity;
 

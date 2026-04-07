@@ -1,5 +1,5 @@
 import { pipeJson } from '../../../stubs/pipe';
-import { PipeSpecErrorHandler } from '../../camel/entities';
+import { PipeSpecErrorHandler } from '../../entities';
 import { PipeErrorHandlerEntity } from './pipeErrorHandlerEntity';
 
 describe('PipeErrorHandlerEntity', () => {

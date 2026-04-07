@@ -2,7 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { getFirstCitrusCatalogMap } from '../../../../stubs/test-load-catalog';
-import { DefinedComponent } from '../../../camel-catalog-index';
+import { DefinedComponent } from '../../../camel/camel-catalog-index';
 import { CatalogKind } from '../../../catalog-kind';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { CitrusTestDefaultService } from './citrus-test-default.service';

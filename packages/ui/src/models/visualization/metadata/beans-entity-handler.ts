@@ -1,9 +1,9 @@
 import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
 import { isDefined, resolveSchemaWithRef } from '@kaoto/forms';
 
-import { BeansAwareResource, CamelResource, RouteTemplateBeansAwareResource } from '../../camel';
-import { EntityType } from '../../camel/entities';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities';
+import { BeansAwareResource, KaotoResource, RouteTemplateBeansAwareResource } from '../../kaoto-resource';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { CamelCatalogService } from '../flows/camel-catalog.service';
 import { BeansEntity } from './beansEntity';
@@ -15,7 +15,7 @@ import { RouteTemplateBeansEntity } from './routeTemplateBeansEntity';
 export class BeansEntityHandler {
   private type: 'beans' | 'routeTemplateBean' | undefined;
   private beansAware: BeansAwareResource | RouteTemplateBeansAwareResource | undefined;
-  constructor(private camelResource?: CamelResource) {
+  constructor(private camelResource?: KaotoResource) {
     if (!this.camelResource) return;
     if ((this.camelResource as unknown as BeansAwareResource).createBeansEntity !== undefined) {
       this.beansAware = this.camelResource as unknown as BeansAwareResource;

@@ -3,7 +3,7 @@ import './RestTree.scss';
 import { TreeNode, TreeView } from '@carbon/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { restToTree } from '../rest-to-tree';
 import { MethodBadge } from './MethodBadge';
 
@@ -14,7 +14,7 @@ export type IRestTreeSelection = { entityId: string; modelPath: string };
  * Props for the RestTree component.
  */
 export interface IRestTree extends PropsWithChildren {
-  entities: BaseVisualCamelEntity[];
+  entities: BaseVisualEntity[];
   selected?: IRestTreeSelection;
   onSelect: (selection: IRestTreeSelection) => void;
 }

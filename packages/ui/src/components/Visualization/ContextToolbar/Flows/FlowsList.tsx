@@ -7,7 +7,7 @@ import { useVisualizationController } from '@patternfly/react-topology';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { ValidationResult } from '../../../../models';
-import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../../models/visualization/base-visual-entity';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
@@ -147,7 +147,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
         <Tbody>
           {visualEntities
             .filter((flow) => flow.id.includes(searchString))
-            .map((flow: BaseVisualCamelEntity) => (
+            .map((flow: BaseVisualEntity) => (
               <Tr key={flow.id} data-testid={`flows-list-row-${flow.id}`}>
                 <Td dataLabel={columnNames.current.id}>
                   <InlineEdit
