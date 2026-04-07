@@ -148,7 +148,6 @@ Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType,
       });
     });
   });
-
   // Now the menu should be visible, click it
   cy.get(menuItemSelector).should('be.visible').click();
 });
@@ -209,7 +208,10 @@ Cypress.Commands.add('deleteBranch', (branchIndex) => {
 });
 
 Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) => {
-  cy.get('[data-testid="new-entity-list-dropdown"]').click({ force: true });
+  const dropdownSelector = '[data-testid="new-entity-list-dropdown"]';
+  const listSelector = '[data-testid="new-entity-list"]';
+  cy.retryClickDropdown(dropdownSelector, listSelector);
+
   if (subType) {
     cy.get('ul.pf-v6-c-menu__list')
       .should('exist')
@@ -231,8 +233,27 @@ Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
   cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
 });
 
+Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelector: string) => {
+  cy.wrap(null).then(() => {
+    cy.get(dropdownSelector).click({ force: true });
+    cy.wait(200).then(() => {
+      cy.get('body').then(($body) => {
+        if ($body.find(listSelector).length === 0) {
+          cy.log('Runtime selector list not visible, retrying click...');
+          cy.get(dropdownSelector).click({ force: true });
+          cy.wait(200);
+        }
+      });
+    });
+  });
+});
+
 Cypress.Commands.add('hoverOnRuntime', (type: string) => {
-  cy.get('[data-testid="runtime-selector-list-dropdown"]').click({ force: true });
+  const dropdownSelector = '[data-testid="runtime-selector-list-dropdown"]';
+  const listSelector = '[data-testid="runtime-selector-list"]';
+  cy.retryClickDropdown(dropdownSelector, listSelector);
+  // Now the list should be visible
+  cy.get(listSelector).should('exist');
   cy.get('ul.pf-v6-c-menu__list')
     .should('exist')
     .find(`[data-testid="runtime-selector-${type}"]`)

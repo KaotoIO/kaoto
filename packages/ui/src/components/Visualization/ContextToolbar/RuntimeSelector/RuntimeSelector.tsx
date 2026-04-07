@@ -154,7 +154,7 @@ export const RuntimeSelector: FunctionComponent = () => {
       menu={
         <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>
-            <MenuList>
+            <MenuList data-testid="runtime-selector-list">
               {Object.entries(groupedRuntimes).map(([group, runtimes]) => {
                 const flyoutMenu = (
                   <Menu className="runtime-selector__submenu" onSelect={onSelect}>

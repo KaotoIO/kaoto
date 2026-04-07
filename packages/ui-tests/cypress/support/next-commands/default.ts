@@ -134,7 +134,10 @@ Cypress.Commands.add('openCatalog', () => {
  * Possible values are - Integration, camelYamlDsl(Camel Route), Kamelet, KameletBinding
  */
 Cypress.Commands.add('switchIntegrationType', (type: string) => {
-  cy.get('[data-testid="integration-type-list-dropdown"]').click({ force: true });
+  const dropdownSelector = '[data-testid="integration-type-list-dropdown"]';
+  const listSelector = '[data-testid="integration-type-list"]';
+  cy.retryClickDropdown(dropdownSelector, listSelector);
+
   cy.get('#integration-type-list-select')
     .should('exist')
     .find(`[data-testid="integration-type-${type}"]`)
