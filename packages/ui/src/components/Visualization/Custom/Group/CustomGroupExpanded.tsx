@@ -1,5 +1,6 @@
 import './CustomGroupExpanded.scss';
 
+import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { BanIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
@@ -160,10 +161,12 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const [dragGroupProps, dragGroupRef] = useDragNode(groupDragSourceSpec);
     const [dndDropProps, dndDropRef] = useDndDrop(customGroupExpandedDropTargetSpec);
     const draggedVizNode = dragGroupProps.node?.getData().vizNode;
+    const draggedVizNodePath = draggedVizNode?.data.path;
     const isDraggingGroup = dragGroupProps.node?.getId() === element.getId();
     const refreshGroup =
       draggedVizNode?.getId() === element.getData().vizNode.getId() &&
-      element.getData().vizNode.data.path.slice(0, draggedVizNode?.data.path.length) === draggedVizNode?.data.path;
+      isDefined(draggedVizNodePath) &&
+      element.getData().vizNode.data.path.startsWith(draggedVizNodePath + '.');
 
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode

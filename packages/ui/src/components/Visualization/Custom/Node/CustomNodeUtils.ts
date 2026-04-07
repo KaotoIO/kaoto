@@ -117,6 +117,16 @@ export const checkNodeDropCompatibility = (
   const targetVizNodeContent = droppedVizNode.getCopiedContent();
   if (!isDefined(droppedVizNodeContent) || !isDefined(targetVizNodeContent)) return false;
 
+  // prevent dragged container sub-nodes and sub-containers as dropping targets
+  const draggedPath = draggedVizNode.data.path;
+  const droppedPath = droppedVizNode.data.path;
+  if (
+    isDefined(draggedPath) &&
+    droppedPath?.startsWith(draggedPath + '.') &&
+    droppedVizNode.getId() === draggedVizNode.getId()
+  )
+    return false;
+
   // validation for placeholder nodes
   if (droppedVizNode.data.isPlaceholder) {
     if (droppedVizNode.data.name === draggedVizNode?.data.name) {
@@ -129,12 +139,6 @@ export const checkNodeDropCompatibility = (
       droppedVizNode.data.name === PlaceholderType.Placeholder &&
       droppedVizNode.getPreviousNode() !== draggedVizNode
     ) {
-      if (
-        droppedVizNode.data.path?.includes(draggedVizNode.data.path ?? '') &&
-        droppedVizNode.getId() === draggedVizNode.getId()
-      )
-        return false;
-
       return validate(AddStepMode.ReplaceStep, droppedVizNode, droppedVizNodeContent.name);
     }
 

@@ -1,5 +1,6 @@
 import './CustomNode.scss';
 
+import { isDefined } from '@kaoto/forms';
 import { Icon } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
@@ -242,10 +243,12 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const isDraggingNodeType = dndDropProps.dragItemType === NODE_DRAG_TYPE;
     const isDraggingGroupType = dndDropProps.dragItemType === GROUP_DRAG_TYPE;
     const draggedVizNode = dndDropProps.dragItem?.getData().vizNode;
+    const draggedVizNodePath = draggedVizNode?.data.path;
     const isDraggingWithinGroup =
       isDraggingGroupType &&
       draggedVizNode?.getId() === element.getData().vizNode.getId() &&
-      element.getData().vizNode.data.path.slice(0, draggedVizNode?.data.path.length) === draggedVizNode?.data.path;
+      isDefined(draggedVizNodePath) &&
+      element.getData().vizNode.data.path.startsWith(draggedVizNodePath + '.');
     const isDraggedNode = isDraggingNode || isDraggingWithinGroup;
     const loadGhostNode = dndDropProps.droppable && ((isDraggingGroupType && isDraggingWithinGroup) || isDraggingNode);
     const box = element.getBounds();
