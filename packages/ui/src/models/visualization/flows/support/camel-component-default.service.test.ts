@@ -1,6 +1,6 @@
 import { DoCatch, OnFallback } from '@kaoto/camel-catalog/types';
 
-import { DefinedComponent } from '../../../camel-catalog-index';
+import { DefinedComponent } from '../../../camel/camel-catalog-index';
 import { CamelComponentDefaultService } from './camel-component-default.service';
 
 describe('CamelComponentDefaultService', () => {

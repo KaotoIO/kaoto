@@ -1,14 +1,15 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CamelResource, CamelRouteResource } from '../../../../models/camel';
-import { EntityType } from '../../../../models/camel/entities';
+import { CamelRouteResource } from '../../../../models/camel';
+import { EntityType } from '../../../../models/entities';
+import { KaotoResource } from '../../../../models/kaoto-resource';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
 import { ExportDocument } from './ExportDocument';
 
 describe('FlowExportDocument.tsx', () => {
-  let camelResource: CamelResource;
+  let camelResource: KaotoResource;
   beforeEach(async () => {
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);

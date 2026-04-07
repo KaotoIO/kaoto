@@ -9,7 +9,7 @@ import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
-import { EntityType } from '../../models/camel/entities';
+import { EntityType } from '../../models/entities';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { getRestEntities } from './components/get-rest-entities';
 import { restFormFieldFactory } from './components/restFormFieldFactory';

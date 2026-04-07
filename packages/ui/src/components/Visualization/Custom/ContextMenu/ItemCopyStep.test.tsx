@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 
 import { CatalogKind, createVisualizationNode } from '../../../../models';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { useCopyStep } from '../hooks/copy-step.hook';
 import { ItemCopyStep } from './ItemCopyStep';
 

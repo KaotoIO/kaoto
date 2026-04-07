@@ -3,8 +3,8 @@ import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types'
 
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
+import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
 import { SourceSchemaType } from '../../../camel/source-schema-type';
-import { ICamelComponentDefinition } from '../../../camel-components-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { IClipboardCopyObject } from '../../clipboard';

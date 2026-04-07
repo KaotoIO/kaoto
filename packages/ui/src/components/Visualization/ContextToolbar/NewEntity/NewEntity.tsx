@@ -5,7 +5,7 @@ import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, ReactElement, useCallback, useRef, useState } from 'react';
 
 import { useCanvasEntities } from '../../../../hooks/useCanvasEntities';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 
 export const NewEntity: FunctionComponent = () => {
   const [isOpen, setIsOpen] = useState(false);

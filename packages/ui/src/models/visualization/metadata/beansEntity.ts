@@ -2,7 +2,7 @@ import { BeansDeserializer } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { v4 as uuidv4 } from 'uuid';
 
-import { BaseCamelEntity, EntityType } from '../../camel/entities';
+import { BaseEntity, EntityType } from '../../entities';
 
 /** Very basic check to determine whether this object is a Beans */
 export const isBeans = (rawEntity: unknown): rawEntity is { beans: BeansDeserializer } => {
@@ -18,7 +18,7 @@ export type BeansParentType = {
   beans: BeansDeserializer;
 };
 
-export class BeansEntity implements BaseCamelEntity {
+export class BeansEntity implements BaseEntity {
   readonly id = uuidv4();
   readonly type = EntityType.Beans;
 

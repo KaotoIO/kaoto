@@ -2,16 +2,16 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { camelCaseToSpaces, isDefined } from '@kaoto/forms';
 
 import { getArrayProperty, getValue, setValue } from '../../../utils';
-import { EntityType } from '../../camel/entities';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings/settings.model';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -24,7 +24,7 @@ import { CamelComponentSchemaService } from './support/camel-component-schema.se
 import { CamelProcessorStepsProperties, CamelRouteVisualEntityData } from './support/camel-component-types';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
-export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualCamelEntity {
+export abstract class AbstractCamelVisualEntity<T extends object> implements BaseVisualEntity {
   constructor(public entityDef: T) {}
 
   abstract id: string;

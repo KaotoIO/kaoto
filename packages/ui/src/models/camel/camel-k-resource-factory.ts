@@ -5,11 +5,11 @@ import {
 } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
-import { IKameletDefinition } from '../kamelets-catalog';
-import { CamelResource } from './camel-resource';
+import { KaotoResource } from '../kaoto-resource';
 import { IntegrationResource } from './integration-resource';
 import { KameletBindingResource } from './kamelet-binding-resource';
 import { KameletResource } from './kamelet-resource';
+import { IKameletDefinition } from './kamelets-catalog';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
 
@@ -17,7 +17,7 @@ export class CamelKResourceFactory {
   static getCamelKResource(
     json?: IntegrationType | IKameletDefinition | KameletBindingType | PipeType,
     type?: SourceSchemaType,
-  ): CamelResource | undefined {
+  ): KaotoResource | undefined {
     const jsonRecord =
       isDefined(json) && !Array.isArray(json) && typeof json === 'object' ? (json as Record<string, unknown>) : {};
     const kind = jsonRecord['kind'] ?? type;

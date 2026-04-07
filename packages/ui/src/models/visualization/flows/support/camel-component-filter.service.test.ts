@@ -20,8 +20,8 @@ import {
   processorWhenTile,
   tiles,
 } from '../../../../stubs';
-import { EntityType } from '../../../camel/entities';
 import { CatalogKind } from '../../../catalog-kind';
+import { EntityType } from '../../../entities';
 import { PlaceholderType } from '../../../placeholder.constants';
 import { AddStepMode } from '../../base-visual-entity';
 import { CamelComponentFilterService } from './camel-component-filter.service';

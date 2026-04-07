@@ -1,10 +1,10 @@
 import { KaotoFunction } from '@kaoto/camel-catalog/types';
 
-import { ICamelComponentDefinition } from '../../models/camel-components-catalog';
-import { ICamelDataformatDefinition } from '../../models/camel-dataformats-catalog';
-import { ICamelLanguageDefinition } from '../../models/camel-languages-catalog';
-import { ICamelLoadBalancerDefinition } from '../../models/camel-loadbalancers-catalog';
-import { ICamelProcessorDefinition } from '../../models/camel-processors-catalog';
+import { ICamelComponentDefinition } from '../../models/camel/camel-components-catalog';
+import { ICamelDataformatDefinition } from '../../models/camel/camel-dataformats-catalog';
+import { ICamelLanguageDefinition } from '../../models/camel/camel-languages-catalog';
+import { ICamelLoadBalancerDefinition } from '../../models/camel/camel-loadbalancers-catalog';
+import { ICamelProcessorDefinition } from '../../models/camel/camel-processors-catalog';
 import { ICatalogProvider } from '../models';
 
 abstract class BaseCamelProvider<T = unknown> implements ICatalogProvider<T> {

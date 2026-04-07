@@ -2,14 +2,9 @@ import { InterceptFrom, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
-import { EntityType } from '../../camel/entities/base-entity';
 import { CatalogKind } from '../../catalog-kind';
-import {
-  BaseVisualCamelEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
-  NodeInteraction,
-} from '../base-visual-entity';
+import { EntityType } from '../../entities/base-entity';
+import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -17,7 +12,7 @@ import { CamelRouteVisualEntityData } from './support/camel-component-types';
 
 export class CamelInterceptFromVisualEntity
   extends AbstractCamelVisualEntity<{ interceptFrom: InterceptFrom }>
-  implements BaseVisualCamelEntity
+  implements BaseVisualEntity
 {
   id: string;
   interceptFromDef: { interceptFrom: Exclude<InterceptFrom, string> };

@@ -3,21 +3,16 @@ import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { setValue } from '../../../utils';
-import { EntityType } from '../../camel/entities/base-entity';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
-import {
-  BaseVisualCamelEntity,
-  IVisualizationNode,
-  IVisualizationNodeData,
-  NodeInteraction,
-} from '../base-visual-entity';
+import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 
-export class CamelRestConfigurationVisualEntity implements BaseVisualCamelEntity {
+export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
   id: string;
   readonly type = EntityType.RestConfiguration;
   static readonly ROOT_PATH = 'restConfiguration';

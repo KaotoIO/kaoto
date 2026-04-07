@@ -7,7 +7,7 @@ import {
   IKameletSpecProperty,
   KameletKnownAnnotations,
   KameletKnownLabels,
-} from '../models/kamelets-catalog';
+} from '../models/camel/kamelets-catalog';
 import { getValue } from './get-value';
 
 export const getCustomSchemaFromKamelet = (kamelet: IKameletDefinition): IKameletCustomDefinition => {

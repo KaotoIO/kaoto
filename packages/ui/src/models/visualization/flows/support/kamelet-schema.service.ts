@@ -1,6 +1,6 @@
-import { KameletBindingStep, PipeStep } from '../../../camel/entities';
+import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
-import { IKameletDefinition } from '../../../kamelets-catalog';
+import { KameletBindingStep, PipeStep } from '../../../entities';
 import { CamelCatalogService } from '../camel-catalog.service';
 
 export class KameletSchemaService {

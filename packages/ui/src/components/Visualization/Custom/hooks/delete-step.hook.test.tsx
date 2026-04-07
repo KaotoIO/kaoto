@@ -3,7 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../../../../providers';

@@ -1,8 +1,8 @@
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import xmlFormat from 'xml-formatter';
 
-import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
-import { EntityType } from '../models/camel/entities';
+import { EntityType } from '../models/entities';
+import { KaotoResource, KaotoResourceSerializer, Metadata, SerializerType } from '../models/kaoto-resource';
 import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
 import { EntityDefinition } from './xml/serializers/entitiy-definition';
 import { KaotoXmlSerializer } from './xml/serializers/kaoto-xml-serializer';
@@ -12,7 +12,7 @@ export type XMLMetadata = {
   rootElementDefinitions: { name: string; value: string }[];
 };
 
-export class XmlCamelResourceSerializer implements CamelResourceSerializer {
+export class XmlCamelResourceSerializer implements KaotoResourceSerializer {
   private comments: string[] = [];
   private metadata: XMLMetadata = { xmlDeclaration: '', rootElementDefinitions: [] };
   xmlSerializer: XMLSerializer = new XMLSerializer();
@@ -41,7 +41,7 @@ export class XmlCamelResourceSerializer implements CamelResourceSerializer {
     return entities as CamelYamlDsl;
   }
 
-  serialize(resource: CamelResource): string {
+  serialize(resource: KaotoResource): string {
     const entities: EntityDefinition[] = resource
       .getEntities()
       .filter((entity) => entity.type === EntityType.Beans) as EntityDefinition[];

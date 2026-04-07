@@ -1,11 +1,11 @@
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import { parse, stringify } from 'yaml';
 
-import { CamelResource, CamelResourceSerializer, Metadata, SerializerType } from '../models/camel/camel-resource';
 import { Test } from '../models/citrus/entities/Test';
+import { KaotoResource, KaotoResourceSerializer, Metadata, SerializerType } from '../models/kaoto-resource';
 import { isXML } from './xml/kaoto-xml-parser';
 
-export class YamlCamelResourceSerializer implements CamelResourceSerializer {
+export class YamlCamelResourceSerializer implements KaotoResourceSerializer {
   /**
    * Regular expression to match commented lines, regardless of indentation
    * Given the following examples, the regular expression should match the comments:
@@ -32,7 +32,7 @@ export class YamlCamelResourceSerializer implements CamelResourceSerializer {
     return json;
   }
 
-  serialize(resource: CamelResource): string {
+  serialize(resource: KaotoResource): string {
     let code = stringify(resource.toJSON(), { schema: 'yaml-1.1' }) || '';
     if (this.comments.length > 0) {
       code = this.insertComments(code);

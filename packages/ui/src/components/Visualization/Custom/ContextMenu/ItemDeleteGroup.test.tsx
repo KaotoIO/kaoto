@@ -2,7 +2,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,

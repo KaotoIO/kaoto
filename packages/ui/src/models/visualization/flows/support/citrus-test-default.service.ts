@@ -1,8 +1,8 @@
 import { parse } from 'yaml';
 
-import { DefinedComponent } from '../../../camel-catalog-index';
+import { DefinedComponent } from '../../../camel/camel-catalog-index';
+import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestActions } from '../../../citrus/entities/Test';
-import { ICitrusComponentDefinition } from '../../../citrus-catalog';
 import { CitrusTestSchemaService } from './citrus-test-schema.service';
 
 /**

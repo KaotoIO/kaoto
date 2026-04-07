@@ -1,13 +1,14 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CamelResource, CamelRouteResource } from '../../../../models/camel';
-import { EntityType } from '../../../../models/camel/entities';
+import { CamelRouteResource } from '../../../../models/camel';
+import { EntityType } from '../../../../models/entities';
+import { KaotoResource } from '../../../../models/kaoto-resource';
 import { VisibleFlowsContextResult } from '../../../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowsMenu } from './FlowsMenu';
 
 describe('FlowsMenu.tsx', () => {
-  let camelResource: CamelResource;
+  let camelResource: KaotoResource;
   beforeEach(async () => {
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);

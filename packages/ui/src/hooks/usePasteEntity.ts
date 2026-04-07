@@ -3,8 +3,8 @@ import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
-import { EntityType } from '../models/camel/entities';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
+import { EntityType } from '../models/entities';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
 import { ACTION_ID_CONFIRM, ActionConfirmationModalContext } from '../providers/action-confirmation-modal.provider';
 import { EntitiesContext } from '../providers/entities.provider';

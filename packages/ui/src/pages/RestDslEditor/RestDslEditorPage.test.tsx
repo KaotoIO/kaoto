@@ -3,10 +3,10 @@ import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { CamelCatalogService } from '../../models';
-import { CamelResource } from '../../models/camel/camel-resource';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { EntityType } from '../../models/camel/entities';
 import { CatalogKind } from '../../models/catalog-kind';
+import { EntityType } from '../../models/entities';
+import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { TestProvidersWrapper } from '../../stubs';
@@ -15,7 +15,7 @@ import { RestDslEditorPage } from './RestDslEditorPage';
 import { clickToolbarActionUtil } from './test-utils';
 
 /** Helper to get REST-related entities (non-visual after refactor) */
-const getRestEntities = (camelResource: CamelResource) =>
+const getRestEntities = (camelResource: KaotoResource) =>
   camelResource
     .getEntities()
     .filter((e) => e instanceof CamelRestVisualEntity || e instanceof CamelRestConfigurationVisualEntity);

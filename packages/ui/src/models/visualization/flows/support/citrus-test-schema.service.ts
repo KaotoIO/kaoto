@@ -1,8 +1,8 @@
 import { isDefined } from '@kaoto/forms';
 
 import { CatalogKind } from '../../../catalog-kind';
+import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestAction, TestActions } from '../../../citrus/entities/Test';
-import { ICitrusComponentDefinition } from '../../../citrus-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { CamelCatalogService } from '../camel-catalog.service';
 

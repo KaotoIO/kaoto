@@ -3,7 +3,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,

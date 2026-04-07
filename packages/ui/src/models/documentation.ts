@@ -1,5 +1,5 @@
-import { BaseCamelEntity } from './camel/entities';
-import { BaseVisualCamelEntity } from './index';
+import { BaseEntity } from './entities';
+import { BaseVisualEntity } from './visualization/base-visual-entity';
 
 export type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5';
 
@@ -14,7 +14,7 @@ export class ParsedTable {
     Object.assign(this, init);
   }
 
-  static unsupported(entity: BaseCamelEntity) {
+  static unsupported(entity: BaseEntity) {
     return new ParsedTable({
       title: entity.id,
       description: 'This entity is not yet supported for documentation export.',
@@ -37,7 +37,7 @@ export class ParsedStep {
 }
 
 export class DocumentationEntity {
-  entity?: BaseCamelEntity | BaseVisualCamelEntity;
+  entity?: BaseEntity | BaseVisualEntity;
   label: string = '';
   isVisible: boolean = true;
   isVisualEntity: boolean = false;

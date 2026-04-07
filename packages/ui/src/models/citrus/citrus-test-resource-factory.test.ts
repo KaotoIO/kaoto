@@ -1,5 +1,6 @@
 import { citrusTestJson } from '../../stubs/citrus-test';
-import { SerializerType, SourceSchemaType } from '../camel';
+import { SourceSchemaType } from '../camel';
+import { SerializerType } from '../kaoto-resource';
 import { CitrusTestResource } from './citrus-test-resource';
 import { CitrusTestResourceFactory } from './citrus-test-resource-factory';
 import { Test } from './entities/Test';

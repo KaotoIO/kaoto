@@ -11,14 +11,14 @@ import {
 import { toBlob } from 'html-to-image';
 import { FunctionComponent, useContext, useEffect, useRef, useState } from 'react';
 
-import { BaseVisualCamelEntity } from '../../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../../models/visualization/base-visual-entity';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { CanvasEdge, CanvasNode, LayoutType } from '../../Canvas/canvas.models';
 import { ControllerService } from '../../Canvas/controller.service';
 import { FlowService } from '../../Canvas/flow.service';
 
 interface HiddenCanvasProps {
-  entities: BaseVisualCamelEntity[];
+  entities: BaseVisualEntity[];
   layout?: LayoutType;
   autoDownload?: boolean;
   onComplete: () => void;

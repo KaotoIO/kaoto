@@ -2,7 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { EnumField } from '@kaoto/forms';
 
-import { ICamelComponentDefinition } from '../../../../../models/camel-components-catalog';
+import { ICamelComponentDefinition } from '../../../../../models/camel/camel-components-catalog';
 import { CatalogKind } from '../../../../../models/catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../../models/kaoto-schema';
 import { CamelCatalogService } from '../../../../../models/visualization/flows/camel-catalog.service';

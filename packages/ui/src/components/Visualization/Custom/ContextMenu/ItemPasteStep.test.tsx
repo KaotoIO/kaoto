@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 
 import { AddStepMode, CatalogKind, createVisualizationNode } from '../../../../models';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { usePasteStep } from '../hooks/paste-step.hook';
 import { ItemPasteStep } from './ItemPasteStep';
 

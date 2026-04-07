@@ -1,7 +1,7 @@
 import { isDefined } from '@kaoto/forms';
 
-import { CamelResource } from '../camel/camel-resource';
 import { SourceSchemaType } from '../camel/source-schema-type';
+import { KaotoResource } from '../kaoto-resource';
 import { CitrusTestResource } from './citrus-test-resource';
 import { Test } from './entities/Test';
 
@@ -23,7 +23,7 @@ export class CitrusTestResourceFactory {
    * @param type - Optional explicit source schema type
    * @returns A CitrusTestResource instance if the input is a valid Citrus test, undefined otherwise
    */
-  static getCitrusTestResource(json?: Test, type?: SourceSchemaType): CamelResource | undefined {
+  static getCitrusTestResource(json?: Test, type?: SourceSchemaType): KaotoResource | undefined {
     if (SourceSchemaType.Test === type) {
       return new CitrusTestResource(json);
     }

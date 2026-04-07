@@ -7,7 +7,7 @@ import { NodeLabelType } from '../settings';
 import { IClipboardCopyObject } from '../visualization/clipboard';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   DISABLED_NODE_INTERACTION,
   IVisualizationNode,
   NodeInteraction,
@@ -58,7 +58,7 @@ describe('VisualizationNode', () => {
     const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
       getNodeSchema: getNodeSchemaSpy,
-    } as unknown as BaseVisualCamelEntity;
+    } as unknown as BaseVisualEntity;
 
     node = createVisualizationNode('test', {
       catalogKind: CatalogKind.Component,
@@ -75,7 +75,7 @@ describe('VisualizationNode', () => {
     const getNodeDefinitionSpy = jest.fn();
     const visualEntity = {
       getNodeDefinition: getNodeDefinitionSpy,
-    } as unknown as BaseVisualCamelEntity;
+    } as unknown as BaseVisualEntity;
 
     node = createVisualizationNode('test', {
       catalogKind: CatalogKind.Component,
@@ -92,7 +92,7 @@ describe('VisualizationNode', () => {
     const getOmitFormFieldsSpy = jest.fn();
     const visualEntity = {
       getOmitFormFields: getOmitFormFieldsSpy,
-    } as unknown as BaseVisualCamelEntity;
+    } as unknown as BaseVisualEntity;
 
     node = createVisualizationNode('test', {
       catalogKind: CatalogKind.Component,
@@ -110,7 +110,7 @@ describe('VisualizationNode', () => {
       const getNodeLabelSpy = jest.fn().mockReturnValue('test-label');
       const visualEntity = {
         getNodeLabel: getNodeLabelSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       node = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,
@@ -137,7 +137,7 @@ describe('VisualizationNode', () => {
       const getTooltipContentSpy = jest.fn().mockReturnValue('test-description');
       const visualEntity = {
         getTooltipContent: getTooltipContentSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       node = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,
@@ -164,7 +164,7 @@ describe('VisualizationNode', () => {
     const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
       getNodeSchema: getNodeSchemaSpy,
-    } as unknown as BaseVisualCamelEntity;
+    } as unknown as BaseVisualEntity;
 
     const rootNode = createVisualizationNode('test', {
       catalogKind: CatalogKind.Component,
@@ -186,7 +186,7 @@ describe('VisualizationNode', () => {
     const getNodeDefinitionSpy = jest.fn();
     const visualEntity = {
       getNodeDefinition: getNodeDefinitionSpy,
-    } as unknown as BaseVisualCamelEntity;
+    } as unknown as BaseVisualEntity;
 
     const rootNode = createVisualizationNode('test', {
       catalogKind: CatalogKind.Component,
@@ -215,7 +215,7 @@ describe('VisualizationNode', () => {
       const updateModelSpy = jest.fn();
       const visualEntity = {
         updateModel: updateModelSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       node = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,
@@ -233,7 +233,7 @@ describe('VisualizationNode', () => {
       const updateModelSpy = jest.fn();
       const visualEntity = {
         updateModel: updateModelSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       const rootNode = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,
@@ -294,7 +294,7 @@ describe('VisualizationNode', () => {
       const getNodeInteractionSpy = jest.fn().mockReturnValue(mockNodeInteraction);
       const visualEntity = {
         getNodeInteraction: getNodeInteractionSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
       node = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log', entity: visualEntity });
       const expectedNodeInteraction = node.getNodeInteraction();
 
@@ -362,7 +362,7 @@ describe('VisualizationNode', () => {
       const getNodeValidationTextSpy = jest.fn().mockReturnValue('test-validation-text');
       const visualEntity = {
         getNodeValidationText: getNodeValidationTextSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       node = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,
@@ -389,7 +389,7 @@ describe('VisualizationNode', () => {
       const getCopiedContentSpy = jest.fn().mockReturnValue('test-copied-content');
       const visualEntity = {
         getCopiedContent: getCopiedContentSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       node = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,
@@ -425,7 +425,7 @@ describe('VisualizationNode', () => {
       const pasteStepSpy = jest.fn();
       const visualEntity = {
         pasteStep: pasteStepSpy,
-      } as unknown as BaseVisualCamelEntity;
+      } as unknown as BaseVisualEntity;
 
       node = createVisualizationNode('test', {
         catalogKind: CatalogKind.Component,

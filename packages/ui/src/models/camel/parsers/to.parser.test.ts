@@ -6,8 +6,8 @@ import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
 import { IDynamicCatalogRegistry } from '../../../dynamic-catalog/models';
 import { CamelComponentsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { ICamelComponentDefinition } from '../../camel-components-catalog';
 import { CatalogKind } from '../../catalog-kind';
+import { ICamelComponentDefinition } from '../camel-components-catalog';
 import { toParser } from './to.parser';
 
 describe('CatalogTilesProvider', () => {

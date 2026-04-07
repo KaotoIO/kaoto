@@ -4,7 +4,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
 import { CamelRouteResource } from '../../../../../models/camel/camel-route-resource';
-import { EntityType } from '../../../../../models/camel/entities';
+import { EntityType } from '../../../../../models/entities';
 import { VisibleFlowsContextResult } from '../../../../../providers';
 import { TestProvidersWrapper } from '../../../../../stubs';
 import { DirectEndpointNameField } from './DirectEndpointNameField';

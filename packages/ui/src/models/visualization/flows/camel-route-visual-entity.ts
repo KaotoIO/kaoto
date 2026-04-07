@@ -3,8 +3,8 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { setValue } from '../../../utils';
-import { EntityType } from '../../camel/entities';
-import { DefinedComponent } from '../../camel-catalog-index';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
+import { EntityType } from '../../entities';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';

@@ -1,5 +1,5 @@
-import { CatalogKind } from './catalog-kind';
-import { KaotoSchemaDefinition } from './kaoto-schema';
+import { CatalogKind } from '../catalog-kind';
+import { KaotoSchemaDefinition } from '../kaoto-schema';
 
 /**
  * Interface representing a Citrus component definition in the catalog.

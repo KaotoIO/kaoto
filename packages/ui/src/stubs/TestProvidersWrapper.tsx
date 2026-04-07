@@ -1,20 +1,20 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { CamelResource } from '../models/camel/camel-resource';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
+import { KaotoResource } from '../models/kaoto-resource';
 import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
 import { EntitiesContext, EntitiesContextResult, VisibleFlowsContext, VisibleFlowsContextResult } from '../providers';
 import { camelRouteJson } from './camel-route';
 
 interface TestProviderWrapperProps extends PropsWithChildren {
-  camelResource?: CamelResource;
+  camelResource?: KaotoResource;
   visibleFlowsContext?: VisibleFlowsContextResult;
 }
 
 interface TestProvidersWrapperResult {
   Provider: FunctionComponent<PropsWithChildren>;
-  camelResource: CamelResource;
+  camelResource: KaotoResource;
   updateEntitiesFromCamelResourceSpy: EntitiesContextResult['updateEntitiesFromCamelResource'];
   updateSourceCodeFromEntitiesSpy: EntitiesContextResult['updateSourceCodeFromEntities'];
 }

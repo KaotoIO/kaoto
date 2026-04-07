@@ -12,7 +12,7 @@ import {
   NodeInteraction,
 } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CanvasNode } from '../../Canvas';

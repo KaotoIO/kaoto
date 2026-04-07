@@ -3,8 +3,8 @@ import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
 import { CamelUriHelper, DATAMAPPER_ID_PREFIX, getValue, isDataMapperNode, ParsedParameters } from '../../../../utils';
+import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
-import { IKameletDefinition } from '../../../kamelets-catalog';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { REST_DSL_VERBS } from '../../../special-processors.constants';

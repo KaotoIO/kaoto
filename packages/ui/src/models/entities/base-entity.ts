@@ -21,7 +21,7 @@ export const enum EntityType {
   NonVisualEntity = 'nonVisualEntity',
 }
 
-export interface BaseCamelEntity {
+export interface BaseEntity {
   /** Internal API fields */
   id: string;
   readonly type: EntityType;

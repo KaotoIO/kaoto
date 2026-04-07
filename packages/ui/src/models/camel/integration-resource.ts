@@ -1,8 +1,8 @@
 import { Integration as IntegrationType } from '@kaoto/camel-catalog/types';
 
-import { BaseVisualCamelEntity } from '../visualization/base-visual-entity';
+import { BaseEntity } from '../entities';
+import { BaseVisualEntity } from '../visualization/base-visual-entity';
 import { CamelKResource } from './camel-k-resource';
-import { BaseCamelEntity } from './entities';
 import { SourceSchemaType } from './source-schema-type';
 
 export class IntegrationResource extends CamelKResource {
@@ -19,7 +19,7 @@ export class IntegrationResource extends CamelKResource {
     }
   }
 
-  getEntities(): BaseCamelEntity[] {
+  getEntities(): BaseEntity[] {
     return super.getEntities(); // TODO
   }
 
@@ -27,7 +27,7 @@ export class IntegrationResource extends CamelKResource {
     return SourceSchemaType.Integration;
   }
 
-  getVisualEntities(): BaseVisualCamelEntity[] {
+  getVisualEntities(): BaseVisualEntity[] {
     return []; // TODO
   }
 

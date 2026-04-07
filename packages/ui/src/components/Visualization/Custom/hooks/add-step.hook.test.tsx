@@ -5,7 +5,7 @@ import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, StepUpdateAction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { EntitiesContext } from '../../../../providers/entities.provider';

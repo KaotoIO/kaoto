@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { generateEntityContextMenu } from './generateEntityContextMenu';
 
 jest.mock('@patternfly/react-topology', () => ({

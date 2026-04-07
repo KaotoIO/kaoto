@@ -3,9 +3,9 @@ import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getValue, setValue } from '../../../utils';
-import { EntityType } from '../../camel/entities/base-entity';
-import { DefinedComponent } from '../../camel-catalog-index';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import {
@@ -16,7 +16,7 @@ import {
 } from '../../special-processors.constants';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -25,7 +25,7 @@ import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 
-export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualCamelEntity {
+export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualEntity {
   id: string;
   readonly type = EntityType.Rest;
   static readonly ROOT_PATH = 'rest';

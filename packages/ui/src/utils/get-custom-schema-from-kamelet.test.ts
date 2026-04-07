@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 
+import { IKameletDefinition, IKameletSpecProperty } from '../models/camel/kamelets-catalog';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
-import { IKameletDefinition, IKameletSpecProperty } from '../models/kamelets-catalog';
 import { getCustomSchemaFromKamelet } from './get-custom-schema-from-kamelet';
 
 describe('getCustomSchemaFromKamelet', () => {

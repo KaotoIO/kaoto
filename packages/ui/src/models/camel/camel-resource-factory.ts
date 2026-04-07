@@ -3,22 +3,22 @@ import { CamelYamlDsl, Integration, KameletBinding, Pipe } from '@kaoto/camel-ca
 import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { CitrusTestResourceFactory } from '../citrus/citrus-test-resource-factory';
 import { Test } from '../citrus/entities/Test';
-import { IKameletDefinition } from '../kamelets-catalog';
+import { KaotoResource, KaotoResourceSerializer } from '../kaoto-resource';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
-import { CamelResource, CamelResourceSerializer } from './camel-resource';
 import { CamelRouteResource } from './camel-route-resource';
+import { IKameletDefinition } from './kamelets-catalog';
 import { getResourceTypeFromPath } from './source-schema-type';
 
 export class CamelResourceFactory {
   /**
    * Creates a CamelResource based on the given {@link type} and {@link source}. If
    * both are not specified, a default empty {@link CamelRouteResource} is created.
-   * If only {@link type} is specified, an empty {@link CamelResource} of the given
+   * If only {@link type} is specified, an empty {@link KaotoResource} of the given
    * {@link type} is created.
    * @param type
    * @param source
    */
-  static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): CamelResource {
+  static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): KaotoResource {
     const pathResourceType = getResourceTypeFromPath(options.path);
 
     const serializer = this.initSerializer(source, options.path);
@@ -37,7 +37,7 @@ export class CamelResourceFactory {
     return new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
   }
 
-  private static initSerializer(source?: string, path?: string): CamelResourceSerializer {
+  private static initSerializer(source?: string, path?: string): KaotoResourceSerializer {
     if (!path) {
       return XmlCamelResourceSerializer.isApplicable(source)
         ? new XmlCamelResourceSerializer()

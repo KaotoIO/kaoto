@@ -2,12 +2,12 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { ICamelComponentDefinition } from '../../camel-components-catalog';
-import { ICamelDataformatDefinition } from '../../camel-dataformats-catalog';
-import { ICamelLanguageDefinition } from '../../camel-languages-catalog';
-import { ICamelLoadBalancerDefinition } from '../../camel-loadbalancers-catalog';
+import { ICamelComponentDefinition } from '../../camel/camel-components-catalog';
+import { ICamelDataformatDefinition } from '../../camel/camel-dataformats-catalog';
+import { ICamelLanguageDefinition } from '../../camel/camel-languages-catalog';
+import { ICamelLoadBalancerDefinition } from '../../camel/camel-loadbalancers-catalog';
+import { IKameletDefinition } from '../../camel/kamelets-catalog';
 import { CatalogKind } from '../../catalog-kind';
-import { IKameletDefinition } from '../../kamelets-catalog';
 import { CamelCatalogService } from './camel-catalog.service';
 
 describe('CamelCatalogService', () => {

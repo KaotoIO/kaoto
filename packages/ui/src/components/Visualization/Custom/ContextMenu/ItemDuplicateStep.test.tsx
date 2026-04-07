@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 
 import { CatalogKind, createVisualizationNode } from '../../../../models';
-import { EntityType } from '../../../../models/camel/entities';
+import { EntityType } from '../../../../models/entities';
 import { useDuplicateStep } from '../hooks/duplicate-step.hook';
 import { ItemDuplicateStep } from './ItemDuplicateStep';
 

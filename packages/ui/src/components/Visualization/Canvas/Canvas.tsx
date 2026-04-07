@@ -32,7 +32,7 @@ import { useLocalStorage } from '../../../hooks';
 import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { BaseVisualCamelEntity } from '../../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { VisibleFlowsContext } from '../../../providers/visible-flows.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
@@ -47,7 +47,7 @@ import { CanvasSideBar } from './CanvasSideBar';
 import { FlowService } from './flow.service';
 
 interface CanvasProps {
-  entities: BaseVisualCamelEntity[];
+  entities: BaseVisualEntity[];
   contextToolbar?: ReactNode;
 }
 

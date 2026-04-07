@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
 import { parse } from 'yaml';
 
-import { CamelResource, SerializerType } from '../models/camel';
+import { KaotoResource, SerializerType } from '../models/kaoto-resource';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { mockRandomValues } from '../stubs';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
@@ -157,8 +157,8 @@ describe('EntitiesProvider', () => {
   });
 
   it('updating entities should NOT recreate the Camel Resource', () => {
-    let firstCamelResource: CamelResource | undefined;
-    let secondCamelResource: CamelResource | undefined;
+    let firstCamelResource: KaotoResource | undefined;
+    let secondCamelResource: KaotoResource | undefined;
 
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
 

@@ -4,11 +4,11 @@ import { cloneDeep } from 'lodash';
 
 import { pipeJson } from '../../../stubs/pipe';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { EntityType } from '../../camel/entities';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
+import { IKameletDefinition } from '../../camel/kamelets-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
-import { IKameletDefinition } from '../../kamelets-catalog';
+import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { PipeVisualEntity } from './pipe-visual-entity';

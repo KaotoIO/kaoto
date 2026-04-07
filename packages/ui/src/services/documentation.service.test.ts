@@ -3,7 +3,8 @@ import JSZip from 'jszip';
 import { useContext } from 'react';
 
 import { PipeVisualEntity } from '../models';
-import { CamelResource, CamelRouteResource } from '../models/camel';
+import { CamelRouteResource } from '../models/camel';
+import { KaotoResource } from '../models/kaoto-resource';
 import { EntitiesContext, EntitiesProvider } from '../providers/entities.provider';
 import { camelRouteYaml, kameletYaml, mockRandomValues, pipeYaml } from '../stubs';
 import { beansYaml } from '../stubs/beans';
@@ -41,7 +42,7 @@ describe('DocumentationService', () => {
     return DocumentationService.getDocumentationEntities(entitiesContext.current.camelResource, visibleFlows);
   };
 
-  const createDocumentationEntitiesFromCamelResource = (camelResource: CamelResource) => {
+  const createDocumentationEntitiesFromCamelResource = (camelResource: KaotoResource) => {
     const visibleFlows = camelResource.getVisualEntities().reduce((acc, entity) => {
       acc[entity.id] = true;
       return acc;

@@ -9,16 +9,16 @@ import {
   setValue,
   updatePipeFromCustomSchema,
 } from '../../../utils';
-import { EntityType } from '../../camel/entities';
-import { PipeStep } from '../../camel/entities/pipe-overrides';
+import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { DefinedComponent } from '../../camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
+import { EntityType } from '../../entities';
+import { PipeStep } from '../../entities/pipe-overrides';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { PlaceholderType } from '../../placeholder.constants';
 import {
   AddStepMode,
-  BaseVisualCamelEntity,
+  BaseVisualEntity,
   IVisualizationNode,
   IVisualizationNodeData,
   NodeInteraction,
@@ -29,7 +29,7 @@ import { CamelCatalogService } from './camel-catalog.service';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
-export class PipeVisualEntity implements BaseVisualCamelEntity {
+export class PipeVisualEntity implements BaseVisualEntity {
   id: string;
   readonly type: EntityType = EntityType.Pipe;
   static readonly ROOT_PATH = 'pipe';

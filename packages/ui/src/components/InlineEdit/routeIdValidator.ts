@@ -1,5 +1,5 @@
 import { ValidationResult, ValidationStatus } from '../../models';
-import { BaseVisualCamelEntity } from '../../models/visualization/base-visual-entity';
+import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 
 export class RouteIdValidator {
   private static URI_REGEXP = /^[a-z\d]([-a-z\d]*[a-z\d])?(\.[a-z\d]([-a-z\d]*[a-z\d])?)*$/gm;
@@ -16,7 +16,7 @@ export class RouteIdValidator {
     return isValid;
   }
 
-  static validateUniqueName(flowName: string, visualEntities: BaseVisualCamelEntity[]): ValidationResult {
+  static validateUniqueName(flowName: string, visualEntities: BaseVisualEntity[]): ValidationResult {
     const errMessages = [];
     const flowsIds = visualEntities.map((flow) => flow.getId());
 
