@@ -60,7 +60,7 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
       toggle={toggle}
       style={{ width: '20rem' }}
     >
-      <SelectList>
+      <SelectList data-testid="integration-type-list">
         {dslEntries.map((sourceType, index) => {
           const sourceSchema = sourceSchemaConfig.config[sourceType];
           const isCurrentType = sourceSchema.name === currentFlowType.name;

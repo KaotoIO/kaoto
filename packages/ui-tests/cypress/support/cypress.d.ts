@@ -100,6 +100,7 @@ declare global {
       switchCodeToYaml(): Chainable<JQuery<Element>>;
       DnDOnNode(sourceNode: string, targetNode: string): Chainable<JQuery<Element>>;
       DnDOnEdge(sourceNode: string, targetEdge: string): Chainable<JQuery<Element>>;
+      retryClickDropdown(dropdownSelector: string, listSelector: string): Chainable<JQuery<Element>>;
       // nodeConfiguration
       interactWithConfigInputObject(inputName: string, value?: string): Chainable<JQuery<Element>>;
       interactWithExpressionInputObject(inputName: string, value?: string, index?: number): Chainable<JQuery<Element>>;

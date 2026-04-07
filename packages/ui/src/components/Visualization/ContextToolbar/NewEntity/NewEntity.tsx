@@ -60,7 +60,7 @@ export const NewEntity: FunctionComponent = () => {
       menu={
         <Menu ref={menuRef} containsFlyout onSelect={onSelect}>
           <MenuContent>
-            <MenuList>
+            <MenuList data-testid="new-entity-list">
               {commonEntities.map((entityDef) => getMenuItem(entityDef))}
 
               {Object.entries(groupedEntities).map(([group, entities]) => {
