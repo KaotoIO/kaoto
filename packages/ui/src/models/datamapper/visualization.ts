@@ -146,8 +146,20 @@ export class ChoiceFieldNodeData extends FieldNodeData {
 /**
  * Target-side counterpart of {@link ChoiceFieldNodeData}.
  * Carries the same selected/unselected semantics; see that class for details.
+ *
+ * When unselected (`field.isChoice === true`), the wrapper is **path-transparent**:
+ * its {@link path} equals its parent's path so that children compute paths matching
+ * the mapping tree hierarchy (which has no choice wrapper nodes). This ensures
+ * {@link MappingLinksService} can match visual node paths to mapping node paths
+ * for line rendering.
  */
 export class TargetChoiceFieldNodeData extends TargetFieldNodeData {
+  constructor(parent: TargetNodeData, field: IField, mapping?: FieldItem) {
+    super(parent, field, mapping);
+    if (field.isChoice) {
+      this.path = parent.path;
+    }
+  }
   /** The choice wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
   choiceField?: IField;
 }
