@@ -9,6 +9,7 @@ import {
 import { FieldItem, MappingTree } from '../models/datamapper/mapping';
 import { Types } from '../models/datamapper/types';
 import {
+  ChoiceFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -212,6 +213,25 @@ describe('MappingValidationService', () => {
       const result = MappingValidationService.validateMappingPair(fromNode, toNode);
       expect(result.isValid).toBe(false);
       expect(result.errorMessage).toContain('container');
+    });
+
+    it('should reject unselected choice source dropped onto document root', () => {
+      const choiceField = createMockField({ isChoice: true, type: Types.Container });
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const result = MappingValidationService.validateMappingPair(choiceNode, targetDocNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('choice');
+      expect(result.sourceNode).toBe(choiceNode);
+      expect(result.targetNode).toBe(targetDocNode);
+    });
+
+    it('should allow unselected choice source dropped onto a target field', () => {
+      const choiceField = createMockField({ isChoice: true, type: Types.Container });
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetField = createMockField({ type: Types.String });
+      const toNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const result = MappingValidationService.validateMappingPair(choiceNode, toNode);
+      expect(result.isValid).toBe(true);
     });
 
     it('should return valid when source is a PrimitiveDocument node and target is a field', () => {

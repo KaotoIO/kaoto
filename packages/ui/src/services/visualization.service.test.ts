@@ -1207,7 +1207,7 @@ describe('VisualizationService', () => {
       }));
       return {
         ...baseField,
-        name: 'choice',
+        name: '__choice__',
         displayName: 'choice',
         isChoice: true,
         selectedMemberIndex,
@@ -1552,7 +1552,7 @@ describe('VisualizationService', () => {
         ];
         const innerChoice = {
           ...baseField,
-          name: 'choice',
+          name: '__choice__',
           displayName: 'choice',
           isChoice: true,
           fields: innerMembers,
@@ -1568,7 +1568,7 @@ describe('VisualizationService', () => {
         const outerMembers = [innerChoice, regularMember];
         const outerChoice = {
           ...baseField,
-          name: 'choice',
+          name: '__choice__',
           displayName: 'choice',
           isChoice: true,
           fields: outerMembers,
@@ -1844,12 +1844,17 @@ describe('VisualizationService', () => {
         const fieldItemNode = updatedTargetDocChildren[0] as FieldItemNodeData;
         expect(fieldItemNode).toBeInstanceOf(FieldItemNodeData);
 
+        const valueSelectorBefore = fieldItemNode.mapping.children.some((c) => c instanceof ValueSelector);
+        expect(valueSelectorBefore).toBe(true);
+
         VisualizationService.engageMapping(tree, choiceNode, fieldItemNode);
 
         const chooseItem = fieldItemNode.mapping.children.find((c) => c instanceof ChooseItem) as ChooseItem;
         expect(chooseItem).toBeInstanceOf(ChooseItem);
         expect(chooseItem.when.length).toEqual(2);
         expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
+        const valueSelectorAfter = fieldItemNode.mapping.children.some((c) => c instanceof ValueSelector);
+        expect(valueSelectorAfter).toBe(false);
       });
 
       it('should create ChooseItem with only OtherwiseItem for empty-member choice source', () => {
@@ -1896,6 +1901,318 @@ describe('VisualizationService', () => {
         const targetFieldItem = tree.children[0];
         const chooseItems = targetFieldItem.children.filter((c) => c instanceof ChooseItem);
         expect(chooseItems.length).toEqual(1);
+      });
+    });
+
+    describe('mapping through unselected target choice wrapper', () => {
+      let localTargetDocNode: TargetDocumentNodeData;
+      let parentFieldNode: TargetFieldNodeData;
+      let choiceField: ReturnType<typeof createMockChoiceField>;
+
+      beforeEach(() => {
+        localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        choiceField = createMockChoiceField([{ name: 'contactEmail' }, { name: 'contactPhone' }]);
+        const parentField = {
+          ...targetDoc.fields[0],
+          fields: [choiceField],
+        };
+        parentFieldNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+      });
+
+      it('getOrCreateFieldItem should skip unselected choice wrapper and create FieldItem under grandparent', () => {
+        // Build the node hierarchy: parentField -> choiceWrapper -> memberField
+        const choiceNode = new TargetChoiceFieldNodeData(parentFieldNode, choiceField);
+        // choiceField property is undefined = unselected wrapper
+        expect(choiceNode.choiceField).toBeUndefined();
+
+        const memberField = choiceField.fields[0];
+        const memberNode = new TargetFieldNodeData(choiceNode, memberField);
+
+        // engageMapping triggers getOrCreateFieldItem for the member inside the choice wrapper
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceFieldNode = sourceDocChildren[0] as FieldNodeData;
+        const sourceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode);
+
+        VisualizationService.engageMapping(tree, sourceChildren[0] as FieldNodeData, memberNode);
+
+        // The mapping tree should have the member's FieldItem directly under the parent FieldItem,
+        // not under a spurious choice wrapper FieldItem.
+        const parentItem = tree.children[0]; // FieldItem for parentField (e.g. ShipOrder)
+        expect(parentItem).toBeInstanceOf(FieldItem);
+        const memberItem = parentItem.children.find(
+          (c) => c instanceof FieldItem && c.field === memberField,
+        ) as FieldItem;
+        expect(memberItem).toBeDefined();
+        expect(memberItem.field.name).toEqual('contactEmail');
+      });
+
+      it('generateNonDocumentNodeDataChildren should find mappings for fields inside unselected choice wrapper', () => {
+        // First create a mapping for a member field inside the choice wrapper
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceFieldNode = sourceDocChildren[0] as FieldNodeData;
+        const sourceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode);
+
+        // Build the node hierarchy and engage mapping
+        const choiceNode = new TargetChoiceFieldNodeData(parentFieldNode, choiceField);
+        const memberField = choiceField.fields[0];
+        const memberNode = new TargetFieldNodeData(choiceNode, memberField);
+
+        VisualizationService.engageMapping(tree, sourceChildren[0] as FieldNodeData, memberNode);
+
+        // Now regenerate the target tree from scratch and verify the choice wrapper children
+        // resolve the existing mapping correctly
+        const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const freshParentField = {
+          ...targetDoc.fields[0],
+          fields: [choiceField],
+        };
+        const freshParentNode = new TargetFieldNodeData(
+          freshTargetDocNode,
+          freshParentField as (typeof targetDoc.fields)[0],
+        );
+        // parentField should have a mapping now
+        freshParentNode.mapping = tree.children[0] as FieldItem;
+
+        const freshChoiceNode = new TargetChoiceFieldNodeData(freshParentNode, choiceField);
+        // Unselected wrapper — choiceField property is undefined
+        const choiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshChoiceNode);
+
+        // The member 'contactEmail' should be rendered as a FieldItemNodeData (has mapping),
+        // not as a plain TargetFieldNodeData (no mapping found)
+        const contactEmailNode = choiceChildren.find((c) => c.title === 'contactEmail');
+        expect(contactEmailNode).toBeDefined();
+        expect(contactEmailNode).toBeInstanceOf(FieldItemNodeData);
+      });
+
+      it('FieldItemNodeData.path should match FieldItem.nodePath so mapping lines render correctly', () => {
+        // Create a mapping for a member field inside the choice wrapper
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceFieldNode = sourceDocChildren[0] as FieldNodeData;
+        const sourceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode);
+
+        const choiceNode = new TargetChoiceFieldNodeData(parentFieldNode, choiceField);
+        const memberField = choiceField.fields[0];
+        const memberNode = new TargetFieldNodeData(choiceNode, memberField);
+
+        VisualizationService.engageMapping(tree, sourceChildren[0] as FieldNodeData, memberNode);
+
+        // Re-render the visual tree using FieldItemNodeData for the parent (as the
+        // real rendering pipeline would, since it has a mapping)
+        const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const parentItem = tree.children[0] as FieldItem;
+        const freshParentNode = new FieldItemNodeData(freshTargetDocNode, parentItem);
+        // Override field to include the choice member
+        freshParentNode.field = {
+          ...freshParentNode.field,
+          fields: [choiceField],
+        } as typeof freshParentNode.field;
+
+        const freshChoiceNode = new TargetChoiceFieldNodeData(freshParentNode, choiceField);
+        const choiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshChoiceNode);
+        const contactEmailNode = choiceChildren.find((c) => c.title === 'contactEmail') as FieldItemNodeData;
+
+        // The visual node path must match the mapping tree nodePath for line rendering
+        const mappingFieldItem = parentItem.children.find(
+          (c) => c instanceof FieldItem && c.field === memberField,
+        ) as FieldItem;
+        expect(contactEmailNode.path.toString()).toEqual(mappingFieldItem.nodePath.toString());
+      });
+
+      it('should work for nested fields inside choice member (mapping + rendering + path)', () => {
+        // Create a choice field where the member has nested children
+        const baseField = sourceDoc.fields[0];
+        const nestedField = {
+          ...baseField,
+          name: 'emailAddress',
+          displayName: 'emailAddress',
+          fields: [] as unknown[],
+          isChoice: false,
+        } as unknown as typeof baseField;
+        const memberWithChildren = {
+          ...baseField,
+          name: 'contactEmail',
+          displayName: 'contactEmail',
+          fields: [nestedField],
+          isChoice: false,
+        } as unknown as typeof baseField;
+        (nestedField as unknown as Record<string, unknown>).parent = memberWithChildren;
+        const nestedChoiceField = {
+          ...baseField,
+          name: 'choice',
+          displayName: 'choice',
+          isChoice: true,
+          selectedMemberIndex: undefined,
+          fields: [memberWithChildren],
+        } as unknown as typeof baseField;
+
+        const nestedParentField = {
+          ...targetDoc.fields[0],
+          fields: [nestedChoiceField],
+        };
+        const nestedParentNode = new TargetFieldNodeData(
+          localTargetDocNode,
+          nestedParentField as (typeof targetDoc.fields)[0],
+        );
+
+        // Build the visual tree: parent → choice → contactEmail → emailAddress
+        const nestedChoiceNode = new TargetChoiceFieldNodeData(nestedParentNode, nestedChoiceField);
+        const contactEmailNode = new TargetFieldNodeData(nestedChoiceNode, memberWithChildren);
+        const emailAddressNode = new TargetFieldNodeData(contactEmailNode, nestedField);
+
+        // Map source to the nested emailAddress field
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceFieldNode = sourceDocChildren[0] as FieldNodeData;
+        const sourceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode);
+
+        VisualizationService.engageMapping(tree, sourceChildren[0] as FieldNodeData, emailAddressNode);
+
+        // Verify mapping tree structure: parent → contactEmail → emailAddress
+        const parentItem = tree.children[0] as FieldItem;
+        expect(parentItem).toBeInstanceOf(FieldItem);
+        const contactEmailItem = parentItem.children.find(
+          (c) => c instanceof FieldItem && c.field === memberWithChildren,
+        ) as FieldItem;
+        expect(contactEmailItem).toBeDefined();
+        const emailAddressItem = contactEmailItem.children.find(
+          (c) => c instanceof FieldItem && c.field === nestedField,
+        ) as FieldItem;
+        expect(emailAddressItem).toBeDefined();
+
+        // Verify ValueSelector was created with an expression
+        const valueSelector = emailAddressItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        expect(valueSelector).toBeDefined();
+        expect(valueSelector.expression).not.toEqual('');
+
+        // Re-render using FieldItemNodeData for the parent (realistic rendering)
+        const freshTargetDocNode2 = new TargetDocumentNodeData(targetDoc, tree);
+        const freshParentNode2 = new FieldItemNodeData(freshTargetDocNode2, parentItem);
+        freshParentNode2.field = {
+          ...freshParentNode2.field,
+          fields: [nestedChoiceField],
+        } as typeof freshParentNode2.field;
+
+        const freshChoiceNode2 = new TargetChoiceFieldNodeData(freshParentNode2, nestedChoiceField);
+        const freshChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshChoiceNode2);
+
+        // contactEmail should be found as FieldItemNodeData
+        const freshContactEmailNode = freshChoiceChildren.find((c) => c.title === 'contactEmail') as FieldItemNodeData;
+        expect(freshContactEmailNode).toBeInstanceOf(FieldItemNodeData);
+
+        // Expand contactEmail — emailAddress should be found as FieldItemNodeData
+        const contactEmailChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshContactEmailNode);
+        const freshEmailAddressNode = contactEmailChildren.find((c) => c.title === 'emailAddress');
+        expect(freshEmailAddressNode).toBeDefined();
+        expect(freshEmailAddressNode).toBeInstanceOf(FieldItemNodeData);
+
+        // Path must match mapping tree nodePath for line rendering
+        expect((freshEmailAddressNode as FieldItemNodeData).path.toString()).toEqual(
+          emailAddressItem.nodePath.toString(),
+        );
+      });
+    });
+
+    describe('nested choice wrappers (choice inside choice)', () => {
+      it('should map to a field inside a nested choice and render the mapping correctly', () => {
+        // Use TestDocument.xsd which has DirectNestedChoiceElement:
+        //   <xs:choice>
+        //     <xs:element name="Direct1"/>
+        //     <xs:choice>
+        //       <xs:element name="NestedDirect1"/>
+        //       <xs:element name="NestedDirect2"/>
+        //     </xs:choice>
+        //   </xs:choice>
+        const definition = new DocumentDefinition(
+          DocumentType.TARGET_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'testDocument.xsd': getTestDocumentXsd() },
+        );
+        const testTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+        const testTree = new MappingTree(
+          testTargetDoc.documentType,
+          testTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const testTargetDocNode = new TargetDocumentNodeData(testTargetDoc, testTree);
+
+        // Navigate to DirectNestedChoiceElement
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(testTargetDocNode);
+        const testDocumentNode = docChildren[0];
+        const testDocumentChildren = VisualizationService.generateNonDocumentNodeDataChildren(testDocumentNode);
+        // DirectNestedChoiceElement is the 3rd child (index 2) after ChoiceElement, SiblingChoicesElement
+        const directNestedNode = testDocumentChildren.find((c) => c.title === 'DirectNestedChoiceElement')!;
+        const directNestedChildren = VisualizationService.generateNonDocumentNodeDataChildren(directNestedNode);
+
+        // Should have one outer choice wrapper
+        expect(directNestedChildren.length).toEqual(1);
+        const outerChoice = directNestedChildren[0] as TargetChoiceFieldNodeData;
+        expect(outerChoice).toBeInstanceOf(TargetChoiceFieldNodeData);
+
+        // Expand outer choice: [Direct1, inner_choice]
+        const outerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerChoice);
+        expect(outerChoiceChildren[0].title).toEqual('Direct1');
+        const innerChoice = outerChoiceChildren.find(
+          (c) => c instanceof TargetChoiceFieldNodeData,
+        ) as TargetChoiceFieldNodeData;
+        expect(innerChoice).toBeDefined();
+
+        // Expand inner choice: [NestedDirect1, NestedDirect2]
+        const innerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(innerChoice);
+        const nestedDirect1 = innerChoiceChildren.find((c) => c.title === 'NestedDirect1')! as TargetFieldNodeData;
+        expect(nestedDirect1).toBeDefined();
+
+        // Map source field to NestedDirect1 inside the nested choice
+        const sourceDocChildren2 = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceFieldNode2 = sourceDocChildren2[0] as FieldNodeData;
+        const sourceChildren2 = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode2);
+        VisualizationService.engageMapping(testTree, sourceChildren2[0] as FieldNodeData, nestedDirect1);
+
+        // Verify mapping tree: TestDocument → DirectNestedChoiceElement → NestedDirect1
+        // (both choice wrappers skipped)
+        const testDocItem = testTree.children[0] as FieldItem;
+        expect(testDocItem).toBeInstanceOf(FieldItem);
+        const directNestedItem = testDocItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'DirectNestedChoiceElement',
+        ) as FieldItem;
+        expect(directNestedItem).toBeDefined();
+        const nestedDirect1Item = directNestedItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'NestedDirect1',
+        ) as FieldItem;
+        expect(nestedDirect1Item).toBeDefined();
+
+        // Re-render from scratch and verify nested field is found with correct path
+        const freshDocNode = new TargetDocumentNodeData(testTargetDoc, testTree);
+        const freshDocChildren = VisualizationService.generateStructuredDocumentChildren(freshDocNode);
+        const freshTestDocNode = freshDocChildren[0];
+        const freshTestDocChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshTestDocNode);
+        const freshDirectNestedNode = freshTestDocChildren.find(
+          (c) => c.title === 'DirectNestedChoiceElement',
+        )! as FieldItemNodeData;
+        expect(freshDirectNestedNode).toBeInstanceOf(FieldItemNodeData);
+
+        // DirectNestedChoiceElement → [outerChoice]
+        const freshDirectNestedChildren =
+          VisualizationService.generateNonDocumentNodeDataChildren(freshDirectNestedNode);
+        const freshOuterChoice = freshDirectNestedChildren[0] as TargetChoiceFieldNodeData;
+        expect(freshOuterChoice).toBeInstanceOf(TargetChoiceFieldNodeData);
+
+        // outerChoice → [Direct1, innerChoice]
+        const freshOuterChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshOuterChoice);
+        const freshInnerChoice = freshOuterChoiceChildren.find(
+          (c) => c instanceof TargetChoiceFieldNodeData,
+        ) as TargetChoiceFieldNodeData;
+        expect(freshInnerChoice).toBeDefined();
+
+        // innerChoice → [NestedDirect1, NestedDirect2]
+        const freshInnerChoiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshInnerChoice);
+        const freshNestedDirect1 = freshInnerChoiceChildren.find((c) => c.title === 'NestedDirect1');
+        expect(freshNestedDirect1).toBeDefined();
+        expect(freshNestedDirect1).toBeInstanceOf(FieldItemNodeData);
+
+        // Path must match mapping tree nodePath
+        expect((freshNestedDirect1 as FieldItemNodeData).path.toString()).toEqual(
+          nestedDirect1Item.nodePath.toString(),
+        );
       });
     });
   });

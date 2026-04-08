@@ -190,6 +190,24 @@ export class VisualizationService {
   }
 
   /**
+   * Resolves mapping children for a choice wrapper node. Unselected target choice wrappers
+   * have no mapping tree counterpart, so we walk up through any nested unselected choice
+   * wrappers to find the nearest real ancestor that carries mapping children.
+   */
+  private static resolveChoiceNodeMappings(
+    parent: ChoiceFieldNodeData | TargetChoiceFieldNodeData,
+  ): MappingItem[] | undefined {
+    if (!(parent instanceof TargetChoiceFieldNodeData) || parent.choiceField) {
+      return 'mapping' in parent ? parent.mapping?.children : undefined;
+    }
+    let ancestor: TargetNodeData = parent.parent;
+    while (ancestor instanceof TargetChoiceFieldNodeData && !ancestor.choiceField) {
+      ancestor = ancestor.parent;
+    }
+    return ancestor.mapping?.children;
+  }
+
+  /**
    * Returns children for choice, field, and mapping nodes (i.e. non-document nodes).
    * Resolves type fragments for complex fields before generating children.
    * @param parent - The non-document parent node.
@@ -200,7 +218,7 @@ export class VisualizationService {
       return VisualizationService.doGenerateNodeDataFromFields(
         parent,
         VisualizationService.resolveChoiceNodeFields(parent.field),
-        'mapping' in parent ? parent.mapping?.children : undefined,
+        VisualizationService.resolveChoiceNodeMappings(parent),
       );
     }
     if (parent instanceof FieldNodeData || parent instanceof FieldItemNodeData) {
@@ -605,6 +623,7 @@ export class VisualizationService {
   private static createChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {
     const targetItem = VisualizationService.getOrCreateFieldItem(targetNode);
     if (targetItem.children.some((c) => c instanceof ChooseItem)) return;
+    targetItem.children = targetItem.children.filter((c) => !(c instanceof ValueSelector));
     const chooseItem = new ChooseItem(targetItem);
 
     for (const member of sourceField.fields ?? []) {
@@ -620,6 +639,12 @@ export class VisualizationService {
   private static getOrCreateFieldItem(nodeData: TargetNodeData): MappingItem {
     if (nodeData.mapping) return nodeData.mapping as MappingItem;
     const fieldNodeData = nodeData as TargetFieldNodeData;
+    // Skip unselected choice wrappers — they are artificial document nodes with no
+    // mapping tree counterpart. Go straight to their parent so the FieldItem is
+    // created at the correct mapping tree level.
+    if (fieldNodeData instanceof TargetChoiceFieldNodeData && !fieldNodeData.choiceField) {
+      return VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
+    }
     const parentItem = VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
@@ -644,7 +669,7 @@ export class VisualizationService {
     const nestedChoiceCount = members.filter((m) => m.isChoice).length;
     let choiceIndex = 0;
     const labels = members.map((m) => {
-      if (!m.isChoice) return m.name;
+      if (!m.isChoice) return m.displayName ?? m.name;
       return nestedChoiceCount > 1 ? `choice${++choiceIndex}` : 'choice';
     });
     if (labels.length === 0) return '(empty)';

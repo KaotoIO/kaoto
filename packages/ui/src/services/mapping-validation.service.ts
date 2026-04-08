@@ -1,6 +1,7 @@
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import {
+  ChoiceFieldNodeData,
   FieldItemNodeData,
   MappingNodeData,
   NodeData,
@@ -61,6 +62,17 @@ export class MappingValidationService {
 
     const sourceNode = (fromNode.isSource ? fromNode : toNode) as SourceNodeDataType;
     const targetNode = (fromNode.isSource ? toNode : fromNode) as TargetNodeData;
+
+    if (sourceNode instanceof ChoiceFieldNodeData && !sourceNode.choiceField) {
+      if (!(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)) {
+        return {
+          isValid: false,
+          sourceNode,
+          targetNode,
+          errorMessage: 'Drop a choice node onto a target field to create a conditional mapping.',
+        };
+      }
+    }
 
     if (targetNode instanceof TargetDocumentNodeData) {
       return { isValid: true, sourceNode, targetNode };

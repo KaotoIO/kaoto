@@ -1,7 +1,7 @@
 import { DragEndEvent } from '@dnd-kit/core';
 
 import { DocumentType, IField } from '../../models/datamapper/document';
-import { ExpressionItem, IFunctionDefinition, MappingTree } from '../../models/datamapper/mapping';
+import { IExpressionHolder, IFunctionDefinition, MappingItem, MappingTree } from '../../models/datamapper/mapping';
 import { NodePath } from '../../models/datamapper/nodepath';
 import { Types } from '../../models/datamapper/types';
 import { EditorNodeData, FieldNodeData, FunctionNodeData, NodeData } from '../../models/datamapper/visualization';
@@ -48,7 +48,7 @@ describe('ExpressionEditorDnDHandler', () => {
     arguments: [],
   } as unknown as IFunctionDefinition;
 
-  const mockMapping = {} as unknown as ExpressionItem;
+  const mockMapping = {} as unknown as IExpressionHolder & MappingItem;
 
   beforeEach(() => {
     jest.clearAllMocks();
