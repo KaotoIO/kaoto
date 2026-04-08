@@ -1,15 +1,19 @@
+import { isDefined } from '@kaoto/forms';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
+import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { findCatalog, requiresCatalogChange } from '../../../../utils/catalog-helper';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
+  const runtimeContext = useRuntimeContext();
   const sourceCodeContextApi = useContext(SourceCodeApiContext);
   const { currentSchemaType, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
@@ -80,6 +84,16 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             onClick={() => {
               if (proposedFlowType) {
                 sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
+
+                // Update catalog if needed when switching flow types
+                const changeCatalog = requiresCatalogChange(proposedFlowType, runtimeContext.selectedCatalog);
+                if (changeCatalog) {
+                  const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
+                  if (isDefined(matchingCatalog)) {
+                    runtimeContext.setSelectedCatalog(matchingCatalog);
+                  }
+                }
+
                 setIsConfirmationModalOpen(false);
               }
             }}

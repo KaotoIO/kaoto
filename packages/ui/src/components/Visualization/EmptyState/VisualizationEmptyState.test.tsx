@@ -1,16 +1,19 @@
 import { render } from '@testing-library/react';
 
-import { TestProvidersWrapper } from '../../../stubs';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../stubs';
 import { VisualizationEmptyState } from './VisualizationEmptyState';
 
 describe('VisualizationEmptyState.tsx', () => {
   describe('when there are no routes', () => {
     it('should render the CubesIcon whenever there are no routes', () => {
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = TestProvidersWrapper();
       const wrapper = render(
-        <Provider>
-          <VisualizationEmptyState entitiesNumber={0} />
-        </Provider>,
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationEmptyState entitiesNumber={0} />
+          </Provider>
+        </RuntimeProvider>,
       );
 
       const icon = wrapper.getByTestId('cubes-icon');
@@ -19,11 +22,14 @@ describe('VisualizationEmptyState.tsx', () => {
     });
 
     it('should state that there are no routes', () => {
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = TestProvidersWrapper();
       const wrapper = render(
-        <Provider>
-          <VisualizationEmptyState entitiesNumber={0} />
-        </Provider>,
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationEmptyState entitiesNumber={0} />
+          </Provider>
+        </RuntimeProvider>,
       );
 
       const noRoutesTitle = wrapper.getByText('There are no routes defined');
@@ -36,11 +42,14 @@ describe('VisualizationEmptyState.tsx', () => {
 
   describe('when there are routes but they are not visible', () => {
     it('should render the EyeSlashIcon whenever there are no routes', () => {
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = TestProvidersWrapper();
       const wrapper = render(
-        <Provider>
-          <VisualizationEmptyState entitiesNumber={1} />
-        </Provider>,
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationEmptyState entitiesNumber={1} />
+          </Provider>
+        </RuntimeProvider>,
       );
       const icon = wrapper.getByTestId('eye-slash-icon');
 
@@ -48,11 +57,14 @@ describe('VisualizationEmptyState.tsx', () => {
     });
 
     it('should state that there are no visible routes', () => {
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = TestProvidersWrapper();
       const wrapper = render(
-        <Provider>
-          <VisualizationEmptyState entitiesNumber={1} />
-        </Provider>,
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationEmptyState entitiesNumber={1} />
+          </Provider>
+        </RuntimeProvider>,
       );
       const noRoutesTitle = wrapper.getByText('There are no visible routes');
 
