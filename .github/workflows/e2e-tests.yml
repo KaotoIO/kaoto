@@ -32,7 +32,7 @@ jobs:
 
 
       - name: Build packages
-        run: yarn workspaces foreach --verbose --all --topological-dev run build:dev
+        run: yarn workspace @kaoto/kaoto run build:dev
 
       # Build lib
       - name: Build @kaoto/kaoto package in lib mode
