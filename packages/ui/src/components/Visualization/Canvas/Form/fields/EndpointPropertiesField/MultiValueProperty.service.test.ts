@@ -41,10 +41,6 @@ describe('MultiValuePropertyService', () => {
       const result = MultiValuePropertyService.readMultiValue('quartz', definition);
 
       expect(result).toEqual({
-        'job.name': 'myJob',
-        'job.description': 'My job description',
-        'trigger.repeatCount': '5',
-        'trigger.repeatInterval': '1000',
         normalParam: 'normalValue',
         jobParameters: {
           name: 'myJob',
@@ -66,8 +62,6 @@ describe('MultiValuePropertyService', () => {
       const result = MultiValuePropertyService.readMultiValue('quartz', definition);
 
       expect(result).toEqual({
-        'job.name': 'testJob',
-        'trigger.cron': '0 0 * * *',
         regularParam: 'value',
         jobParameters: {
           name: 'testJob',
