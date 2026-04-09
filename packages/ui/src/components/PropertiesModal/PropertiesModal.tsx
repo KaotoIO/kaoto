@@ -1,7 +1,7 @@
 import './PropertiesModal.scss';
 
 import { Modal, ModalBody, ModalHeader, Tab, Tabs } from '@patternfly/react-core';
-import { FunctionComponent, ReactElement, useContext, useEffect, useState } from 'react';
+import { FunctionComponent, ReactElement, Suspense, useContext, useEffect, useState } from 'react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { CatalogKind } from '../../models/catalog-kind';
@@ -97,12 +97,14 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
 
   const title: ReactElement = (
     <div className="properties-modal__title-div">
-      <IconResolver
-        alt={`${props.tile.type} icon`}
-        className={'properties-modal__title-image'}
-        catalogKind={props.tile.type as CatalogKind}
-        name={props.tile.name}
-      />
+      <Suspense fallback={null}>
+        <IconResolver
+          alt={`${props.tile.type} icon`}
+          className={'properties-modal__title-image'}
+          catalogKind={props.tile.type as CatalogKind}
+          name={props.tile.name}
+        />
+      </Suspense>
       <h1 className="properties-modal__title">{props.tile.title}</h1>
     </div>
   );

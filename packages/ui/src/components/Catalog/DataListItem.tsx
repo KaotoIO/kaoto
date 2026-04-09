@@ -9,7 +9,7 @@ import {
   GridItem,
   LabelGroup,
 } from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, Suspense } from 'react';
 
 import { CatalogKind } from '../../models/catalog-kind';
 import { IconResolver } from '../IconResolver';
@@ -55,11 +55,13 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
               <Grid>
                 <GridItem sm={12} md={6} order={titleElementOrder}>
                   <div className="catalog-data-list-item__title-div-left">
-                    <IconResolver
-                      className="catalog-data-list-item__title-div-left__icon"
-                      catalogKind={props.tile.type as CatalogKind}
-                      name={props.tile.name}
-                    />
+                    <Suspense fallback={null}>
+                      <IconResolver
+                        className="catalog-data-list-item__title-div-left__icon"
+                        catalogKind={props.tile.type as CatalogKind}
+                        name={props.tile.name}
+                      />
+                    </Suspense>
                     <span id="clickable-action-item1" className="catalog-data-list-item__title-div-left__title">
                       {props.tile.title}
                     </span>
