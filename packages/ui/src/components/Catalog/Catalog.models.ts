@@ -7,6 +7,7 @@ export interface ITile {
   tags: string[];
   version?: string;
   provider?: string;
+  iconUrl: string;
 }
 
 export type TileFilter = (item: ITile) => boolean;

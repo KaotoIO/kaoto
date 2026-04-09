@@ -55,16 +55,25 @@ describe('CamelOnExceptionVisualEntity', () => {
       const onExceptionDef = { onException: {} as OnException };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
 
-      const result = entity.getNodeInteraction({ processorName, catalogKind, name: processorName });
+      const result = entity.getNodeInteraction({
+        processorName,
+        catalogKind,
+        name: processorName,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
       expect(result).toMatchSnapshot();
     });
   });
 
   describe('toVizNode', () => {
-    it('should return a visualization node with correct structure and properties', () => {
+    it('should return a visualization node with correct structure and properties', async () => {
       const onExceptionDef = { onException: { id: 'test-id' } };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.id).toBeDefined();
@@ -75,10 +84,10 @@ describe('CamelOnExceptionVisualEntity', () => {
       expect(vizNode.data.name).toBe(EntityType.OnException);
     });
 
-    it('should work with auto-generated id', () => {
+    it('should work with auto-generated id', async () => {
       const onExceptionDef = { onException: {} as OnException };
       const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.data.entity).toBe(entity);
       expect(vizNode.data.isGroup).toBe(true);

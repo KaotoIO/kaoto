@@ -2,7 +2,6 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -69,7 +68,14 @@ describe('usePasteStep', () => {
     jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     jest.spyOn(ClipboardManager, 'paste').mockResolvedValueOnce(null);
 
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Processor, name: 'test' });
+    const vizNode = createVisualizationNode('test', {
+      name: 'test',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const { result } = renderHook(() => usePasteStep(vizNode, AddStepMode.InsertChildStep), { wrapper });
 
     await waitFor(() => {
@@ -82,7 +88,14 @@ describe('usePasteStep', () => {
   it('should return the isCompatible true when clipboard-read permission returns rejected', async () => {
     jest.spyOn(navigator.permissions, 'query').mockRejectedValueOnce(new Error('Permission error'));
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Processor, name: 'test' });
+    const vizNode = createVisualizationNode('test', {
+      name: 'test',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const { result } = renderHook(() => usePasteStep(vizNode, AddStepMode.InsertChildStep), { wrapper });
     // Initially, isCompatible should be false
     expect(result.current.isCompatible).toBe(false);
@@ -163,9 +176,13 @@ describe('usePasteStep', () => {
 
   describe('onPasteStep', () => {
     const mockChoiceVizNode = createVisualizationNode('choice', {
-      catalogKind: CatalogKind.Processor,
       name: 'choice',
       processorName: 'choice',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockChoiceVizNode.pasteBaseEntityStep = jest.fn();
 
@@ -214,9 +231,13 @@ describe('usePasteStep', () => {
     it('should call controller.fromModel() when mode is InsertSpecialChildStep and conditions are met', async () => {
       mockChoiceVizNode.getChildren = jest.fn().mockReturnValue([
         createVisualizationNode('test-when', {
-          catalogKind: CatalogKind.Processor,
           name: 'when',
           processorName: 'when',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
         }),
       ]);
 

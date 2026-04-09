@@ -1,6 +1,5 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
-import { CatalogKind } from '../../../../catalog-kind';
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
@@ -25,20 +24,19 @@ describe('BaseNodeMapper', () => {
   });
 
   describe('getVizNodeFromProcessor', () => {
-    it('should return a VisualizationNode', () => {
-      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition);
+    it('should return a VisualizationNode', async () => {
+      const vizNode = await mapper.getVizNodeFromProcessor(path, componentLookup, entityDefinition);
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data).toMatchObject({
         path,
-        catalogKind: CatalogKind.Component,
         name: 'timer',
         processorName: 'from',
         componentName: 'timer',
       });
     });
 
-    it('should return a VisualizationNode with children', () => {
+    it('should return a VisualizationNode with children', async () => {
       const routeDefinition: RouteDefinition = {
         from: {
           uri: 'timer',
@@ -49,14 +47,14 @@ describe('BaseNodeMapper', () => {
         },
       };
 
-      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
+      const vizNode = await mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
       expect(vizNode.getChildren()).toHaveLength(3);
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.log');
       expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.1.to');
       expect(vizNode.getChildren()?.[2].data.isPlaceholder).toBe(true);
     });
 
-    it('should return a VisualizationNode with special children', () => {
+    it('should return a VisualizationNode with special children', async () => {
       const routeDefinition: RouteDefinition = {
         from: {
           uri: 'timer',
@@ -74,7 +72,7 @@ describe('BaseNodeMapper', () => {
         },
       };
 
-      const vizNode = mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
+      const vizNode = await mapper.getVizNodeFromProcessor(path, componentLookup, routeDefinition);
       expect(vizNode.getChildren()).toHaveLength(2);
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.doTry');
       expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);

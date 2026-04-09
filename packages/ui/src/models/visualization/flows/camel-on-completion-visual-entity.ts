@@ -75,8 +75,8 @@ export class CamelOnCompletionVisualEntity
     };
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const onCompletionGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
+    const onCompletionGroupNode = await NodeMapperService.getVizNode(
       CamelOnCompletionVisualEntity.ROOT_PATH,
       { processorName: CamelOnCompletionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onCompletionDef,

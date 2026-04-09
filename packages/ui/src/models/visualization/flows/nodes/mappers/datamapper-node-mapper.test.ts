@@ -26,19 +26,19 @@ describe('DataMapperNodeMapper', () => {
   });
 
   describe('getVizNodeFromProcessor', () => {
-    it('should not return any children', () => {
-      const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    it('should not return any children', async () => {
+      const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
       expect(vizNode.getChildren()).toBeUndefined();
     });
 
-    it('should assign an unique ID for each DataMapper steps', () => {
-      const firstVizNode = mapper.getVizNodeFromProcessor(
+    it('should assign an unique ID for each DataMapper steps', async () => {
+      const firstVizNode = await mapper.getVizNodeFromProcessor(
         firstDataMapperPath,
         { processorName: 'step' },
         twoDataMapperRouteDefinition,
       );
-      const secondVizNode = mapper.getVizNodeFromProcessor(
+      const secondVizNode = await mapper.getVizNodeFromProcessor(
         secondDataMapperPath,
         { processorName: 'step' },
         twoDataMapperRouteDefinition,

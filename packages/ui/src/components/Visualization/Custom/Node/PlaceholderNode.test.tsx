@@ -2,7 +2,7 @@ import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } 
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
@@ -95,10 +95,13 @@ describe('PlaceholderNode', () => {
 
   it('should render placeholder container with data-testid when vizNode is provided', () => {
     const vizNode = createVisualizationNode('route.from.steps.1.placeholder', {
-      catalogKind: CatalogKind.Processor,
       name: PlaceholderType.Placeholder,
       path: 'route.from.steps.1.placeholder',
       isPlaceholder: true,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue(PlaceholderType.Placeholder);
     jest.spyOn(vizNode, 'getId').mockReturnValue('route-1234');

@@ -4,28 +4,33 @@ import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
+import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
   abstract getProcessorName(): keyof ProcessorDefinition;
 
-  getVizNodeFromProcessor(
+  async getVizNodeFromProcessor(
     path: string,
     _componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): Promise<IVisualizationNode> {
     const processorName = this.getProcessorName();
 
     const data: CamelRouteVisualEntityData = {
-      catalogKind: CatalogKind.Processor,
       name: processorName,
       path,
       processorName,
+      isPlaceholder: false,
       isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
     };
 
     const vizNode = createVisualizationNode(path, data);
-    const children = this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    const children = await this.getChildrenFromBranch(`${path}.steps`, entityDefinition);
     children.forEach((child) => {
       vizNode.addChild(child);
       /**

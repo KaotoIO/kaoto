@@ -24,6 +24,7 @@ describe('CatalogPage', () => {
       tags: ['scheduling'],
       headerTags: ['Stable'],
       provider: 'Apache Camel',
+      iconUrl: '',
     },
     {
       type: 'kamelet',
@@ -33,6 +34,7 @@ describe('CatalogPage', () => {
       tags: ['source', 'cloud'],
       headerTags: ['Stable'],
       provider: 'Apache Camel Kamelets',
+      iconUrl: '',
     },
   ];
 

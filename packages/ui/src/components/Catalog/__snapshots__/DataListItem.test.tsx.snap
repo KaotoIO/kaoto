@@ -27,7 +27,7 @@ exports[`DataListItem renders correctly 1`] = `
               <img
                 alt="component icon"
                 class="catalog-data-list-item__title-div-left__icon"
-                src="file-mock-data"
+                src="tile-icon-url"
               />
               <span
                 class="catalog-data-list-item__title-div-left__title"

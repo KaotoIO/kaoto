@@ -23,7 +23,14 @@ describe('DataMapperStepService', () => {
 
   describe('getDataMapperMetadataId', () => {
     it('should return the id from visualization node', () => {
-      const vizNode = createVisualizationNode('custom-id', { catalogKind: CatalogKind.Processor, name: 'step' });
+      const vizNode = createVisualizationNode('custom-id', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'custom-metadata-id' });
 
       const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
@@ -37,7 +44,14 @@ describe('DataMapperStepService', () => {
     const metadataId = 'test-metadata-id';
 
     beforeEach(() => {
-      vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Pattern, name: 'step' });
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
     });
 
     it('should initialize XSLT step with document name based on metadata ID', () => {
@@ -195,7 +209,14 @@ describe('DataMapperStepService', () => {
     let vizNode: IVisualizationNode;
 
     beforeEach(() => {
-      vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Pattern, name: 'step' });
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
     });
 
     it('should set useJsonBody parameter when isUseJsonBody is true', () => {

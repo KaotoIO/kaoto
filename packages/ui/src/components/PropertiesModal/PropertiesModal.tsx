@@ -6,7 +6,6 @@ import { FunctionComponent, ReactElement, useContext, useEffect, useState } from
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
 import { CatalogKind } from '../../models/catalog-kind';
 import { ITile } from '../Catalog';
-import { IconResolver } from '../IconResolver';
 import { Loading } from '../Loading';
 import {
   transformCamelComponentIntoTab,
@@ -97,12 +96,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
 
   const title: ReactElement = (
     <div className="properties-modal__title-div">
-      <IconResolver
-        alt={`${props.tile.type} icon`}
-        className={'properties-modal__title-image'}
-        catalogKind={props.tile.type as CatalogKind}
-        name={props.tile.name}
-      />
+      <img src={props.tile.iconUrl} alt={`${props.tile.type} icon`} className={'properties-modal__title-image'} />
       <h1 className="properties-modal__title">{props.tile.title}</h1>
     </div>
   );

@@ -5,24 +5,14 @@ import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupIte
 import { TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useContext } from 'react';
 
-import { CatalogKind } from '../../../../models';
-import { IconResolver } from '../../../IconResolver';
-
 interface CanvasFormHeaderProps {
   nodeId: string;
-  catalogKind: CatalogKind;
-  name: string;
+  iconUrl: string;
   title?: string;
   onClose?: () => void;
 }
 
-export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({
-  nodeId,
-  catalogKind,
-  name,
-  title,
-  onClose,
-}) => {
+export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({ nodeId, iconUrl, title, onClose }) => {
   const { filteredFieldText, onFilterChange } = useContext(FilteredFieldContext);
   const canvasFormTabsContext = useContext(CanvasFormTabsContext);
 
@@ -30,7 +20,7 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({
     <>
       <Grid hasGutter>
         <GridItem className="form-header" span={11}>
-          <IconResolver className={`form-header__icon-${nodeId}`} catalogKind={catalogKind} name={name} />
+          <img src={iconUrl} className={`form-header__icon-${nodeId}`} alt={title} />
 
           <Title className="form-header__title" headingLevel="h2">
             {title}

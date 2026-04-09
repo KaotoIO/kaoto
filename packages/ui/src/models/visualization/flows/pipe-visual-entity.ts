@@ -26,6 +26,7 @@ import {
 import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
@@ -232,18 +233,23 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
-  toVizNode(): IVisualizationNode {
+  async toVizNode(): Promise<IVisualizationNode> {
     const pipeGroupNode = createVisualizationNode(this.id, {
-      catalogKind: CatalogKind.Entity,
       name: this.type,
       path: this.getRootPath(),
       entity: this,
+      isPlaceholder: false,
       isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
 
-    const sourceNode = this.getVizNodeFromStep(this.pipe.spec!.source, 'source', true);
-    const stepNodes = this.getVizNodesFromSteps(this.pipe.spec!.steps);
-    const sinkNode = this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
+    await NodeEnrichmentService.enrichNodeFromCatalog(pipeGroupNode, CatalogKind.Entity);
+
+    const sourceNode = await this.getVizNodeFromStep(this.pipe.spec!.source, 'source', true);
+    const stepNodes = await this.getVizNodesFromSteps(this.pipe.spec!.steps);
+    const sinkNode = await this.getVizNodeFromStep(this.pipe.spec!.sink, 'sink');
 
     pipeGroupNode.addChild(sourceNode);
     stepNodes.forEach((stepNode) => pipeGroupNode.addChild(stepNode));
@@ -295,33 +301,41 @@ export class PipeVisualEntity implements BaseVisualEntity {
     }
   }
 
-  private getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): IVisualizationNode {
+  private async getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): Promise<IVisualizationNode> {
     const isPlaceholder = step?.ref?.name === undefined;
 
     const data: IVisualizationNodeData = {
-      catalogKind: CatalogKind.Kamelet,
       name: step?.ref?.name ?? PlaceholderType.Placeholder,
       path,
       entity: isRoot ? this : undefined,
       isPlaceholder,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     };
 
-    return createVisualizationNode(path, data);
+    const vizNode = createVisualizationNode(path, data);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Kamelet);
+    return vizNode;
   }
 
-  private getVizNodesFromSteps(steps: PipeStep[] = []): IVisualizationNode[] {
-    return steps.reduce((acc, kamelet, index) => {
-      const vizNode = this.getVizNodeFromStep(kamelet, `steps.${index}`);
+  private async getVizNodesFromSteps(steps: PipeStep[] = []): Promise<IVisualizationNode[]> {
+    const vizNodes: IVisualizationNode[] = [];
+    for (let index = 0; index < steps.length; index++) {
+      const kamelet = steps[index];
+      const path = `steps.${index}`;
+      const vizNode = await this.getVizNodeFromStep(kamelet, path);
 
-      const previousVizNode = acc[acc.length - 1];
+      const previousVizNode = vizNodes[vizNodes.length - 1];
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
 
-      acc.push(vizNode);
-      return acc;
-    }, [] as IVisualizationNode[]);
+      vizNodes.push(vizNode);
+    }
+    return vizNodes;
   }
 
   private getRootPipeSchema(): KaotoSchemaDefinition['schema'] {

@@ -5,25 +5,31 @@ import { CatalogKind } from '../../../../catalog-kind';
 import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { CamelRouteVisualEntityData, ICamelElementLookupResult } from '../../support/camel-component-types';
+import { NodeEnrichmentService } from '../node-enrichment.service';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class DataMapperNodeMapper extends BaseNodeMapper {
-  getVizNodeFromProcessor(
+  async getVizNodeFromProcessor(
     path: string,
     _componentLookup: ICamelElementLookupResult,
     _entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): Promise<IVisualizationNode> {
     const processorName = DATAMAPPER_ID_PREFIX;
 
     const data: CamelRouteVisualEntityData = {
-      catalogKind: CatalogKind.Processor,
       name: processorName,
       path,
       processorName: DATAMAPPER_ID_PREFIX,
+      isPlaceholder: false,
       isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     };
 
-    return createVisualizationNode(path + ':' + processorName, data);
+    const vizNode = createVisualizationNode(path + ':' + processorName, data);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+    return vizNode;
   }
 
   static isDataMapperNode(stepDefinition: Step): boolean {

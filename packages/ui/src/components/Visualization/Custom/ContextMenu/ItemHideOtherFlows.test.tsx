@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
@@ -12,7 +12,14 @@ describe('ItemHideOtherFlows', () => {
   let visibleFlowsContext: VisibleFlowsContextResult;
 
   beforeEach(() => {
-    vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     jest.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
 
     dispatchSpy = jest.fn();

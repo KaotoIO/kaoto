@@ -35,8 +35,8 @@ describe('OnFallbackNodeMapper', () => {
     };
   });
 
-  it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(
+  it('should return children', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(
       path,
       { processorName: 'onFallback' as keyof ProcessorDefinition },
       routeDefinition,

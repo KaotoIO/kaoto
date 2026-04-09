@@ -143,15 +143,14 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     return super.getNodeInteraction(data);
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const restGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
+    const restGroupNode = await NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: REST_ELEMENT_NAME },
       this.restDef,
     );
     restGroupNode.data.entity = this;
     restGroupNode.data.isGroup = true;
-    restGroupNode.data.catalogKind = CatalogKind.Entity;
     restGroupNode.data.name = this.type;
 
     return restGroupNode;

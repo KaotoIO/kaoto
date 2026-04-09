@@ -4,7 +4,6 @@ import clsx from 'clsx';
 import { ElementType, FunctionComponent, Ref } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
-import { IconResolver } from '../../../IconResolver';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 
 export interface CustomNodeContainerProps {
@@ -47,7 +46,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
       <div title={tooltipContent} className="custom-node__container__image">
-        <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
+        <img src={vizNode.data.iconUrl} alt={tooltipContent ?? (vizNode.data.iconAlt as string)} />
 
         {childCount > 0 && (
           <FloatingCircle className="step-icon step-icon__processor">

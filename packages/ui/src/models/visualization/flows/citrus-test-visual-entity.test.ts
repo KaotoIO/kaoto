@@ -330,9 +330,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.AppendStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'delay',
           path: undefined,
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -353,9 +357,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.PrependStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'delay',
           path: 'actions.0',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -378,9 +386,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.AppendStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'delay',
           path: 'actions.0',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -403,9 +415,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.ReplaceStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'delay',
           path: 'actions.0',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -427,10 +443,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.ReplaceStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'placeholder',
           isPlaceholder: true,
           path: 'actions.0.placeholder',
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -460,9 +479,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.AppendStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'echo',
           path: 'actions.1.iterate.actions.0',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -489,9 +512,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.AppendStep,
         data: {
-          catalogKind: CatalogKind.TestContainer,
           name: 'iterate',
           path: 'actions.0',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -525,9 +552,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.ReplaceStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'delay',
           path: 'actions.0.soap-assertFault.when.print',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -584,9 +615,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.AppendStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'echo',
           path: undefined,
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -606,9 +641,13 @@ describe('CitrusTestVisualEntity', () => {
         },
         mode: AddStepMode.AppendStep,
         data: {
-          catalogKind: CatalogKind.TestAction,
           name: 'echo',
           path: 'actions.0',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -742,9 +781,13 @@ describe('CitrusTestVisualEntity', () => {
   describe('getNodeInteraction', () => {
     it('should handle root path', () => {
       const result = citrusTestEntity.getNodeInteraction({
-        catalogKind: CatalogKind.TestAction,
         name: 'test',
         path: CitrusTestVisualEntity.ROOT_PATH,
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
       });
       expect(result.canHavePreviousStep).toEqual(false);
       expect(result.canReplaceStep).toEqual(false);
@@ -755,9 +798,13 @@ describe('CitrusTestVisualEntity', () => {
 
     it('should allow processors to have previous/next steps', () => {
       const result = citrusTestEntity.getNodeInteraction({
-        catalogKind: CatalogKind.TestAction,
         name: 'print',
         path: 'actions.0',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
       });
       expect(result.canHavePreviousStep).toEqual(true);
       expect(result.canHaveNextStep).toEqual(true);
@@ -767,9 +814,13 @@ describe('CitrusTestVisualEntity', () => {
       `should return the correct interaction for the '%s' action`,
       (actionName) => {
         const result = citrusTestEntity.getNodeInteraction({
-          catalogKind: CatalogKind.TestAction,
           name: actionName,
           actionName,
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         });
         expect(result.canRemoveStep).toBeTruthy();
         expect(result.canReplaceStep).toBeTruthy();
@@ -785,10 +836,13 @@ describe('CitrusTestVisualEntity', () => {
       `should return the correct interaction for the '%s' container`,
       (actionName) => {
         const result = citrusTestEntity.getNodeInteraction({
-          catalogKind: CatalogKind.TestContainer,
           isGroup: true,
           name: actionName,
           actionName,
+          isPlaceholder: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         });
         expect(result.canRemoveStep).toBeTruthy();
         expect(result.canReplaceStep).toBeTruthy();
@@ -841,21 +895,21 @@ describe('CitrusTestVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return the group viz node and set the initial path to root', () => {
-      const vizNode = citrusTestEntity.toVizNode();
+    it('should return the group viz node and set the initial path to root', async () => {
+      const vizNode = await citrusTestEntity.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
     });
 
-    it('should return empty array when actions is not an array', () => {
+    it('should return empty array when actions is not an array', async () => {
       const entity = new CitrusTestVisualEntity({
         name: 'test-with-invalid-actions',
         actions: null as unknown as [],
       });
 
       // Test the private method indirectly through toVizNode
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
@@ -864,13 +918,13 @@ describe('CitrusTestVisualEntity', () => {
       expect(children).toBeUndefined();
     });
 
-    it('should return empty array when actions is undefined', () => {
+    it('should return empty array when actions is undefined', async () => {
       const entity = new CitrusTestVisualEntity({
         name: 'test-with-undefined-actions',
         actions: undefined as unknown as [],
       });
 
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(CitrusTestVisualEntity.ROOT_PATH);
@@ -878,28 +932,28 @@ describe('CitrusTestVisualEntity', () => {
       expect(children).toBeUndefined();
     });
 
-    it('should use the test ID as the group label', () => {
-      const vizNode = citrusTestEntity.toVizNode();
+    it('should use the test ID as the group label', async () => {
+      const vizNode = await citrusTestEntity.toVizNode();
 
       expect(vizNode.getNodeLabel()).toEqual('sample-test');
     });
 
-    it('should use the test description as the group label if available', () => {
+    it('should use the test description as the group label if available', async () => {
       citrusTestEntity.test.description = 'This is a test description';
-      const vizNode = citrusTestEntity.toVizNode();
+      const vizNode = await citrusTestEntity.toVizNode();
 
       expect(vizNode.getNodeLabel(NodeLabelType.Description)).toEqual('sample-test');
     });
 
-    it('should use the path name as the node label', () => {
-      const vizNode = citrusTestEntity.toVizNode();
+    it('should use the path name as the node label', async () => {
+      const vizNode = await citrusTestEntity.toVizNode();
       const printNode = vizNode.getChildren()?.[0];
 
       expect(printNode?.getNodeLabel()).toEqual('print');
     });
 
-    it('should populate the viz node chain with simple actions', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with simple actions', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [{ print: { message: 'Hello World!' } }, { delay: { milliseconds: 5000 } }],
       }).toVizNode();
@@ -937,8 +991,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with container actions', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with container actions', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           { print: { message: 'Hello World!' } },
@@ -985,8 +1039,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with empty container actions using placeholder child', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with empty container actions using placeholder child', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           {
@@ -1028,8 +1082,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with single node container', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with single node container', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           {
@@ -1069,8 +1123,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with empty single node container using placeholder child', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with empty single node container using placeholder child', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           {
@@ -1114,8 +1168,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with array node container', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with array node container', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           {
@@ -1151,8 +1205,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with empty array node container using placeholder child', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with empty array node container using placeholder child', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           {
@@ -1193,8 +1247,8 @@ describe('CitrusTestVisualEntity', () => {
       expect(placeHolderNode.getNextNode()).toBeUndefined();
     });
 
-    it('should populate the viz node chain with test action groups', () => {
-      const vizNode = new CitrusTestVisualEntity({
+    it('should populate the viz node chain with test action groups', async () => {
+      const vizNode = await new CitrusTestVisualEntity({
         name: 'test-1234',
         actions: [
           {

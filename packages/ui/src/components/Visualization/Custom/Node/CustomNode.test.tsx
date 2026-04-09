@@ -2,7 +2,7 @@ import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } 
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CustomNodeObserver } from './CustomNode';
@@ -76,9 +76,13 @@ describe('CustomNode', () => {
 
   it('should render node container with label from vizNode', () => {
     const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      catalogKind: CatalogKind.Component,
       name: 'log',
       path: 'route.from.steps.0.log',
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);

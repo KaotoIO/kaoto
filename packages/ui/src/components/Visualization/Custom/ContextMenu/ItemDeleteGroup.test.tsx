@@ -1,6 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import {
@@ -23,7 +23,14 @@ describe('ItemDeleteGroup', () => {
   };
 
   beforeEach(() => {
-    vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
   });
 
   afterEach(() => {
@@ -37,7 +44,14 @@ describe('ItemDeleteGroup', () => {
   });
 
   it('should open delete confirmation modal on click', async () => {
-    const childNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const childNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     vizNode.addChild(childNode);
 
     const wrapper = render(
@@ -58,7 +72,7 @@ describe('ItemDeleteGroup', () => {
     const camelResource = new CamelRouteResource();
     const removeEntitySpy = jest.spyOn(camelResource, 'removeEntity');
     const entityId = camelResource.addNewEntity(EntityType.Route);
-    vizNode = camelResource.getVisualEntities()[0].toVizNode();
+    vizNode = await camelResource.getVisualEntities()[0].toVizNode();
     mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
 
     const { Provider } = TestProvidersWrapper({ camelResource });

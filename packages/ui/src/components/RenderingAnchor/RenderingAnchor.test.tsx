@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../models';
 import { RenderingAnchorContext } from './rendering.provider';
 import { IRegisteredValidatedComponent, IRenderingAnchorContext } from './rendering.provider.model';
 import { RenderingAnchor } from './RenderingAnchor';
@@ -8,8 +8,12 @@ import { RenderingAnchor } from './RenderingAnchor';
 describe('RenderingAnchor', () => {
   const anchorTag = 'example-anchor';
   const vizNode: IVisualizationNode = createVisualizationNode('example-node', {
-    catalogKind: CatalogKind.Processor,
     name: 'to',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   });
   let renderingAnchorContext: IRenderingAnchorContext;
 

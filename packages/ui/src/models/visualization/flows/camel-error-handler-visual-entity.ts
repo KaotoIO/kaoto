@@ -153,8 +153,8 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return undefined;
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const errorHandlerGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
+    const errorHandlerGroupNode = await NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: 'errorHandler' as keyof ProcessorDefinition },
       this.errorHandlerDef,

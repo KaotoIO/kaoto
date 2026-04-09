@@ -12,26 +12,34 @@ import {
   CamelRouteVisualEntityData,
   ICamelElementLookupResult,
 } from '../../support/camel-component-types';
+import { NodeEnrichmentService } from '../node-enrichment.service';
 import { INodeMapper } from '../node-mapper';
 
 export class BaseNodeMapper implements INodeMapper {
   constructor(protected readonly rootNodeMapper: INodeMapper) {}
 
-  getVizNodeFromProcessor(
+  async getVizNodeFromProcessor(
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): Promise<IVisualizationNode> {
     const catalogKind = componentLookup.componentName ? CatalogKind.Component : CatalogKind.Processor;
     const data: CamelRouteVisualEntityData = {
-      catalogKind,
       name: componentLookup.componentName ?? componentLookup.processorName,
       path,
       processorName: componentLookup.processorName,
       componentName: componentLookup.componentName,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     };
 
     const vizNode = createVisualizationNode(path, data);
+
+    // Resolve catalog-derived properties
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, catalogKind);
 
     const childrenStepsProperties = CamelComponentSchemaService.getProcessorStepsProperties(
       componentLookup.processorName,
@@ -41,22 +49,22 @@ export class BaseNodeMapper implements INodeMapper {
       vizNode.data.isGroup = true;
     }
 
-    childrenStepsProperties.forEach((stepsProperty) => {
-      const childrenVizNodes = this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
+    for (const stepsProperty of childrenStepsProperties) {
+      const childrenVizNodes = await this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
 
       childrenVizNodes.forEach((childVizNode) => {
         vizNode.addChild(childVizNode);
       });
-    });
+    }
 
     return vizNode;
   }
 
-  protected getVizNodesFromChildren(
+  protected async getVizNodesFromChildren(
     path: string,
     stepsProperty: CamelProcessorStepsProperties,
     entityDefinition: unknown,
-  ): IVisualizationNode[] {
+  ): Promise<IVisualizationNode[]> {
     const subpath = `${path}.${stepsProperty.name}`;
 
     switch (stepsProperty.type) {
@@ -74,10 +82,12 @@ export class BaseNodeMapper implements INodeMapper {
     }
   }
 
-  protected getChildrenFromBranch(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected async getChildrenFromBranch(path: string, entityDefinition: unknown): Promise<IVisualizationNode[]> {
     const stepsList = getValue(entityDefinition, path, []) as ProcessorDefinition[];
 
-    const branchVizNodes = stepsList.reduce((accStepsNodes, step, index) => {
+    const branchVizNodes: IVisualizationNode[] = [];
+    for (let index = 0; index < stepsList.length; index++) {
+      const step = stepsList[index];
       const singlePropertyName = Object.keys(step)[0];
       const childPath = `${path}.${index}.${singlePropertyName}`;
       const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(
@@ -85,25 +95,31 @@ export class BaseNodeMapper implements INodeMapper {
         getValue(step, singlePropertyName),
       );
 
-      const vizNode = this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      const vizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
+        childPath,
+        childComponentLookup,
+        entityDefinition,
+      );
 
-      const previousVizNode = accStepsNodes[accStepsNodes.length - 1];
+      const previousVizNode = branchVizNodes[branchVizNodes.length - 1];
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
 
-      accStepsNodes.push(vizNode);
-      return accStepsNodes;
-    }, [] as IVisualizationNode[]);
+      branchVizNodes.push(vizNode);
+    }
 
     /** Empty steps branch placeholder */
     const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
     const previousNode = branchVizNodes[branchVizNodes.length - 1];
     const placeholderNode = createVisualizationNode(placeholderPath, {
-      catalogKind: CatalogKind.Entity,
       name: PlaceholderType.Placeholder,
       isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
       path: placeholderPath,
     });
     branchVizNodes.push(placeholderNode);
@@ -116,20 +132,26 @@ export class BaseNodeMapper implements INodeMapper {
     return branchVizNodes;
   }
 
-  protected getChildrenFromSingleClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected async getChildrenFromSingleClause(path: string, entityDefinition: unknown): Promise<IVisualizationNode[]> {
     const childComponentLookup = CamelComponentSchemaService.getCamelComponentLookup(path, entityDefinition);
 
     /** If the single-clause property is not defined, return a placeholder */
     if (getValue(entityDefinition, path) === undefined) return [this.getPlaceHolderNodeForProcessor(path)];
 
-    return [this.rootNodeMapper.getVizNodeFromProcessor(path, childComponentLookup, entityDefinition)];
+    const singleClauseVizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
+      path,
+      childComponentLookup,
+      entityDefinition,
+    );
+
+    return [singleClauseVizNode];
   }
 
-  protected getChildrenFromArrayClause(path: string, entityDefinition: unknown): IVisualizationNode[] {
+  protected async getChildrenFromArrayClause(path: string, entityDefinition: unknown): Promise<IVisualizationNode[]> {
     const expressionList = getValue(entityDefinition, path, []) as When1[] | DoCatch[];
 
     const children: IVisualizationNode[] = [this.getPlaceHolderNodeForProcessor(path)];
-    expressionList.forEach((_step, index) => {
+    for (let index = 0; index < expressionList.length; index++) {
       let childPath = `${path}.${index}`;
       const processorName = path.split('.').pop() as keyof ProcessorDefinition;
       const childComponentLookup = { processorName };
@@ -141,17 +163,27 @@ export class BaseNodeMapper implements INodeMapper {
       ) {
         childPath = `${path}.${index}.${processorName}`;
       }
-      children.push(this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition));
-    });
+
+      const arrayClauseVizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
+        childPath,
+        childComponentLookup,
+        entityDefinition,
+      );
+
+      children.push(arrayClauseVizNode);
+    }
 
     return children;
   }
 
   protected getPlaceHolderNodeForProcessor(path: string): IVisualizationNode {
     return createVisualizationNode(`${path}`, {
-      catalogKind: CatalogKind.Entity,
       name: path.split('.').pop() as keyof ProcessorDefinition,
       isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
       path: `${path}`,
     });
   }

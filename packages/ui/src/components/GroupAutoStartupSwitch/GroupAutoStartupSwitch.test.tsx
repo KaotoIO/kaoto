@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event';
 import { act } from 'react';
 
 import { CamelRouteVisualEntity, createVisualizationNode, IVisualizationNode } from '../../models';
-import { CatalogKind } from '../../models/catalog-kind';
 import { TestProvidersWrapper } from '../../stubs';
 import { GroupAutoStartupSwitch } from './GroupAutoStartupSwitch';
 
@@ -20,9 +19,13 @@ describe('GroupAutoStartupSwitch', () => {
 
   it('should return null when entity is undefined', () => {
     const vizNode = createVisualizationNode('test-node', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
 
     const { Provider } = TestProvidersWrapper();
@@ -40,10 +43,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const { Provider } = TestProvidersWrapper();
@@ -68,10 +75,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const { Provider } = TestProvidersWrapper();
@@ -97,10 +108,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -134,10 +149,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -168,10 +187,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -201,10 +224,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -239,10 +266,14 @@ describe('GroupAutoStartupSwitch', () => {
     });
 
     const vizNode = createVisualizationNode('route-1', {
-      catalogKind: CatalogKind.Entity,
       name: 'route',
       path: 'route',
       entity,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');

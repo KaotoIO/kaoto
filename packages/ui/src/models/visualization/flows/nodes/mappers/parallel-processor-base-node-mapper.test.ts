@@ -1,4 +1,5 @@
-import { CatalogKind } from '../../../../catalog-kind';
+import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+
 import { ICamelElementLookupResult } from '../../support/camel-component-types';
 import { RootNodeMapper } from '../root-node-mapper';
 import { LoadBalanceNodeMapper } from './loadbalance-node-mapper';
@@ -23,7 +24,7 @@ describe('ParallelProcessorBaseNodeMapper', () => {
     });
 
     describe('getVizNodeFromProcessor', () => {
-      it('should return a VisualizationNode', () => {
+      it('should return a VisualizationNode', async () => {
         routeDefinition = {
           from: {
             uri: 'timer',
@@ -39,19 +40,24 @@ describe('ParallelProcessorBaseNodeMapper', () => {
             ],
           },
         };
-        const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+        const vizNode = await mapper.getVizNodeFromProcessor(
+          path,
+          { processorName: processorName as keyof ProcessorDefinition } as ICamelElementLookupResult,
+          routeDefinition,
+        );
 
         expect(vizNode).toBeDefined();
         expect(vizNode.data).toMatchObject({
           path,
-          catalogKind: CatalogKind.Processor,
           name: processorName,
           processorName,
           isGroup: true,
         });
+        // catalogKind is not set when lookup doesn't have componentName
+        expect(vizNode.data.catalogKind).toBeUndefined();
       });
 
-      it('should return a VisualizationNode with children', () => {
+      it('should return a VisualizationNode with children', async () => {
         routeDefinition = {
           from: {
             uri: 'timer',
@@ -82,7 +88,7 @@ describe('ParallelProcessorBaseNodeMapper', () => {
           },
         };
 
-        const vizNode = mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
+        const vizNode = await mapper.getVizNodeFromProcessor(path, {} as ICamelElementLookupResult, routeDefinition);
         expect(vizNode.getChildren()).toHaveLength(3);
         expect(vizNode.getChildren()?.[0].getNextNode()).toBeUndefined();
         expect(vizNode.getChildren()?.[1].getPreviousNode()).toBeUndefined();

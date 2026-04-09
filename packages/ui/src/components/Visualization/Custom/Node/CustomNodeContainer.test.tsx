@@ -3,12 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { CatalogKind, IVisualizationNode } from '../../../../models';
 import { CustomNodeContainer } from './CustomNodeContainer';
 
-jest.mock('../../../IconResolver', () => ({
-  IconResolver: ({ alt, catalogKind, name }: { alt?: string; catalogKind: CatalogKind; name: string }) => (
-    <div data-testid="icon-resolver" data-alt={alt} data-catalog-kind={catalogKind} data-name={name} />
-  ),
-}));
-
 describe('CustomNodeContainer', () => {
   const createMockVizNode = (): IVisualizationNode =>
     ({
@@ -28,27 +22,23 @@ describe('CustomNodeContainer', () => {
     dataTestId: 'test-node',
   };
 
-  it('should render IconResolver with correct props', () => {
+  it('should render the CustomNodeContainer correctly', () => {
     const vizNode = createMockVizNode();
     const tooltipContent = 'Test tooltip';
 
-    render(
+    const { container } = render(
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={tooltipContent}
-        childCount={0}
+        childCount={1}
         ProcessorIcon={null}
         processorDescription={undefined}
-        isDisabled={false}
+        isDisabled={true}
       />,
     );
 
-    const iconResolver = screen.getByTestId('icon-resolver');
-    expect(iconResolver).toBeInTheDocument();
-    expect(iconResolver).toHaveAttribute('data-catalog-kind', CatalogKind.Component);
-    expect(iconResolver).toHaveAttribute('data-name', 'log');
-    expect(iconResolver).toHaveAttribute('data-alt', tooltipContent);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render child count when childCount > 0', () => {
@@ -131,7 +121,7 @@ describe('CustomNodeContainer', () => {
   it('should render disabled icon when isDisabled is true', () => {
     const vizNode = createMockVizNode();
 
-    render(
+    const { container } = render(
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
@@ -143,9 +133,7 @@ describe('CustomNodeContainer', () => {
       />,
     );
 
-    const disabledIcon = screen.getByRole('img', { hidden: true });
-    expect(disabledIcon).toBeInTheDocument();
-    expect(disabledIcon.closest('.step-icon__disabled')).toBeInTheDocument();
+    expect(container.querySelector('.step-icon__disabled')).toBeInTheDocument();
   });
 
   it('should not render disabled icon when isDisabled is false', () => {
@@ -189,7 +177,7 @@ describe('CustomNodeContainer', () => {
   it('should render container with dataTestId and content together', () => {
     const vizNode = createMockVizNode();
 
-    render(
+    const { container } = render(
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
@@ -202,9 +190,8 @@ describe('CustomNodeContainer', () => {
     );
 
     expect(screen.getByTestId('test-node')).toBeInTheDocument();
-    expect(screen.getByTestId('icon-resolver')).toBeInTheDocument();
     expect(screen.getByTitle('3')).toBeInTheDocument();
     expect(screen.getByTestId('processor-icon')).toBeInTheDocument();
-    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
+    expect(container.querySelector('.step-icon__disabled')).toBeInTheDocument();
   });
 });

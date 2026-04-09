@@ -4,7 +4,6 @@ import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
-import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { SerializerType } from '../kaoto-resource';
 import { AddStepMode } from '../visualization/base-visual-entity';
@@ -776,15 +775,28 @@ describe('CamelRouteResource', () => {
 
       const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
-        catalogKind: CatalogKind.Processor,
         name: 'from',
         path: 'from',
         label: 'timer',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
 
       expect(filterSpy).toHaveBeenCalledWith(
         AddStepMode.ReplaceStep,
-        { catalogKind: CatalogKind.Processor, name: 'from', path: 'from', label: 'timer' },
+        {
+          name: 'from',
+          path: 'from',
+          label: 'timer',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+        },
         undefined,
       );
     });

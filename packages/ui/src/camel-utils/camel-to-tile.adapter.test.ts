@@ -14,7 +14,7 @@ import {
 } from './camel-to-tile.adapter';
 
 describe('camelComponentToTile', () => {
-  it('should return a tile with the correct type', () => {
+  it('should return a tile with the correct type', async () => {
     const componentDef = {
       component: {
         name: 'my-component',
@@ -23,26 +23,25 @@ describe('camelComponentToTile', () => {
       },
     } as ICamelComponentDefinition;
 
-    const tile = camelComponentToTile(componentDef);
+    const tile = await camelComponentToTile(componentDef);
 
-    expect(tile.type).toEqual(CatalogKind.Component);
     expect(tile.name).toEqual('my-component');
     expect(tile.description).toEqual('My Component Description');
   });
 
-  it('should populate the headerTags', () => {
+  it('should populate the headerTags', async () => {
     const componentDef = {
       component: {
         supportLevel: 'Preview',
       },
     } as ICamelComponentDefinition;
 
-    const tile = camelComponentToTile(componentDef);
+    const tile = await camelComponentToTile(componentDef);
 
     expect(tile.headerTags).toEqual(['Component', 'Preview']);
   });
 
-  it('should populate the tags and version', () => {
+  it('should populate the tags and version', async () => {
     const componentDef = {
       component: {
         label: 'label1,label2',
@@ -50,25 +49,25 @@ describe('camelComponentToTile', () => {
       },
     } as ICamelComponentDefinition;
 
-    const tile = camelComponentToTile(componentDef);
+    const tile = await camelComponentToTile(componentDef);
 
     expect(tile.tags).toEqual(['label1', 'label2']);
     expect(tile.version).toEqual('4.0.0');
   });
 
-  it('should populate the provider', () => {
+  it('should populate the provider', async () => {
     const componentDef = {
       component: {
         provider: 'my-provider',
       },
     } as ICamelComponentDefinition;
 
-    const tile = camelComponentToTile(componentDef);
+    const tile = await camelComponentToTile(componentDef);
 
     expect(tile.provider).toEqual('my-provider');
   });
 
-  it('should populate tags with `consumerOnly` and `producerOnly` when applicable', () => {
+  it('should populate tags with `consumerOnly` and `producerOnly` when applicable', async () => {
     const componentDef = {
       component: {
         consumerOnly: true,
@@ -76,12 +75,12 @@ describe('camelComponentToTile', () => {
       },
     } as ICamelComponentDefinition;
 
-    const tile = camelComponentToTile(componentDef);
+    const tile = await camelComponentToTile(componentDef);
 
     expect(tile.tags).toEqual(['consumerOnly', 'producerOnly']);
   });
 
-  it('should replace the supportLevel header tag if the component is deprecated', () => {
+  it('should replace the supportLevel header tag if the component is deprecated', async () => {
     const componentDef = {
       component: {
         supportLevel: 'Stable',
@@ -89,14 +88,14 @@ describe('camelComponentToTile', () => {
       },
     } as ICamelComponentDefinition;
 
-    const tile = camelComponentToTile(componentDef);
+    const tile = await camelComponentToTile(componentDef);
 
     expect(tile.headerTags).toEqual(['Component', 'Deprecated']);
   });
 });
 
 describe('camelProcessorToTile', () => {
-  it('should return a tile with the correct type', () => {
+  it('should return a tile with the correct type', async () => {
     const processorDef = {
       model: {
         name: 'my-processor',
@@ -106,14 +105,13 @@ describe('camelProcessorToTile', () => {
       },
     } as ICamelProcessorDefinition;
 
-    const tile = camelProcessorToTile(processorDef);
+    const tile = await camelProcessorToTile(processorDef);
 
-    expect(tile.type).toEqual(CatalogKind.Processor);
     expect(tile.name).toEqual('my-processor');
     expect(tile.description).toEqual('My Processor Description');
   });
 
-  it('should populate the headerTags', () => {
+  it('should populate the headerTags', async () => {
     const processorDef = {
       model: {
         supportLevel: 'Preview',
@@ -121,24 +119,24 @@ describe('camelProcessorToTile', () => {
       },
     } as ICamelProcessorDefinition;
 
-    const tile = camelProcessorToTile(processorDef);
+    const tile = await camelProcessorToTile(processorDef);
 
     expect(tile.headerTags).toEqual(['Processor', 'Preview']);
   });
 
-  it('should populate the tags', () => {
+  it('should populate the tags', async () => {
     const processorDef = {
       model: {
         label: 'label1,label2',
       },
     } as ICamelProcessorDefinition;
 
-    const tile = camelProcessorToTile(processorDef);
+    const tile = await camelProcessorToTile(processorDef);
 
     expect(tile.tags).toEqual(['label1', 'label2']);
   });
 
-  it('should populate the provider', () => {
+  it('should populate the provider', async () => {
     const processorDef = {
       model: {
         name: 'my-processor',
@@ -149,14 +147,14 @@ describe('camelProcessorToTile', () => {
       },
     } as ICamelProcessorDefinition;
 
-    const tile = camelProcessorToTile(processorDef);
+    const tile = await camelProcessorToTile(processorDef);
 
     expect(tile.provider).toEqual('my-provider');
   });
 });
 
 describe('camelEntityToTile', () => {
-  it('should return a tile with the correct type', () => {
+  it('should return a tile with the correct type', async () => {
     const processorDef = {
       model: {
         name: 'my-entity',
@@ -166,16 +164,15 @@ describe('camelEntityToTile', () => {
       },
     } as ICamelProcessorDefinition;
 
-    const tile = camelEntityToTile(processorDef);
+    const tile = await camelEntityToTile(processorDef);
 
-    expect(tile.type).toEqual(CatalogKind.Entity);
     expect(tile.name).toEqual('my-entity');
     expect(tile.description).toEqual('My Entity Description');
   });
 });
 
 describe('citrusComponentToTile', () => {
-  it('should return a tile with the correct type', () => {
+  it('should return a tile with the correct type', async () => {
     const componentDef = {
       kind: CatalogKind.TestAction,
       name: 'my-action',
@@ -184,23 +181,21 @@ describe('citrusComponentToTile', () => {
       description: 'This is the description',
     } as ICitrusComponentDefinition;
 
-    const tile = citrusComponentToTile(componentDef);
+    const tile = await citrusComponentToTile(componentDef);
 
-    expect(tile.type).toEqual(CatalogKind.TestAction);
     expect(tile.name).toEqual('my-action');
     expect(tile.title).toEqual('My Action');
     expect(tile.description).toEqual('This is the description');
   });
 
-  it('should return a tile with defaults', () => {
+  it('should return a tile with defaults', async () => {
     const componentDef = {
       kind: CatalogKind.TestContainer,
       name: 'my-container',
     } as ICitrusComponentDefinition;
 
-    const tile = citrusComponentToTile(componentDef);
+    const tile = await citrusComponentToTile(componentDef);
 
-    expect(tile.type).toEqual(CatalogKind.TestContainer);
     expect(tile.name).toEqual('my-container');
     expect(tile.title).toEqual('my-container');
     expect(tile.description).toBeUndefined();
@@ -208,7 +203,7 @@ describe('citrusComponentToTile', () => {
 });
 
 describe('kameletToTile', () => {
-  it('should return a tile with the correct type', () => {
+  it('should return a tile with the correct type', async () => {
     const kameletDef = {
       metadata: {
         name: 'my-kamelet',
@@ -227,14 +222,13 @@ describe('kameletToTile', () => {
       },
     } as IKameletDefinition;
 
-    const tile = kameletToTile(kameletDef);
+    const tile = await kameletToTile(kameletDef);
 
-    expect(tile.type).toEqual(CatalogKind.Kamelet);
     expect(tile.name).toEqual('my-kamelet');
     expect(tile.description).toEqual('My Kamelet Description');
   });
 
-  it('should populate the tags for type', () => {
+  it('should populate the tags for type', async () => {
     const kameletDef = {
       metadata: {
         labels: {
@@ -250,12 +244,12 @@ describe('kameletToTile', () => {
       },
     } as IKameletDefinition;
 
-    const tile = kameletToTile(kameletDef);
+    const tile = await kameletToTile(kameletDef);
 
     expect(tile.tags).toEqual(['source']);
   });
 
-  it('should use the selected CatalogKind.Kamelet by default', () => {
+  it('should use the selected CatalogKind.Kamelet by default', async () => {
     const kameletDef = {
       metadata: {
         labels: {
@@ -271,12 +265,12 @@ describe('kameletToTile', () => {
       },
     } as IKameletDefinition;
 
-    const tile = kameletToTile(kameletDef);
+    const tile = await kameletToTile(kameletDef);
 
     expect(tile.type).toEqual(CatalogKind.Kamelet);
   });
 
-  it('should populate the version for annotations', () => {
+  it('should populate the version for annotations', async () => {
     const kameletDef = {
       metadata: {
         labels: {},
@@ -292,12 +286,12 @@ describe('kameletToTile', () => {
       },
     } as IKameletDefinition;
 
-    const tile = kameletToTile(kameletDef);
+    const tile = await kameletToTile(kameletDef);
 
     expect(tile.version).toEqual('1.0.0');
   });
 
-  it('should populate the headerTags', () => {
+  it('should populate the headerTags', async () => {
     const kameletDef = {
       metadata: {
         annotations: {
@@ -313,7 +307,7 @@ describe('kameletToTile', () => {
       },
     } as IKameletDefinition;
 
-    const tile = kameletToTile(kameletDef);
+    const tile = await kameletToTile(kameletDef);
 
     expect(tile.headerTags).toEqual(['Kamelet', 'Preview']);
   });

@@ -1,4 +1,3 @@
-import { CatalogKind } from '../../../models';
 import { EntityType } from '../../../models/entities';
 import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
 import { camelRouteJson } from '../../../stubs/camel-route';
@@ -20,7 +19,14 @@ describe('FlowService', () => {
 
   describe('getFlowDiagram', () => {
     it('should return nodes and edges for a simple VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const vizNode = createVisualizationNode('node', {
+        name: EntityType.Route,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
 
@@ -30,17 +36,28 @@ describe('FlowService', () => {
 
     it('should return nodes and edges for a group with children', () => {
       const groupVizNode = createVisualizationNode('group', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
         isGroup: true,
+        isPlaceholder: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
       const child1VizNode = createVisualizationNode('child1', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
       const child2VizNode = createVisualizationNode('child2', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
       groupVizNode.addChild(child1VizNode);
       groupVizNode.addChild(child2VizNode);
@@ -52,8 +69,22 @@ describe('FlowService', () => {
     });
 
     it('should return nodes and edges for a two-nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
-      const childNode = createVisualizationNode('child', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const vizNode = createVisualizationNode('node', {
+        name: EntityType.Route,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+      const childNode = createVisualizationNode('child', {
+        name: EntityType.Route,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
       vizNode.addChild(childNode);
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
@@ -63,44 +94,51 @@ describe('FlowService', () => {
     });
 
     it('should return nodes and edges for a multiple nodes VisualizationNode', () => {
-      const vizNode = createVisualizationNode('node', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const baseData = {
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      };
+      const vizNode = createVisualizationNode('node', { name: EntityType.Route, ...baseData });
 
       const setHeaderNode = createVisualizationNode('set-header', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
+        ...baseData,
       });
       vizNode.setNextNode(setHeaderNode);
       setHeaderNode.setPreviousNode(vizNode);
 
-      const choiceNode = createVisualizationNode('choice', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const choiceNode = createVisualizationNode('choice', { name: EntityType.Route, ...baseData });
       setHeaderNode.setNextNode(choiceNode);
       choiceNode.setPreviousNode(setHeaderNode);
 
-      const directNode = createVisualizationNode('direct', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const directNode = createVisualizationNode('direct', { name: EntityType.Route, ...baseData });
       choiceNode.setNextNode(directNode);
       directNode.setPreviousNode(choiceNode);
 
-      const whenNode = createVisualizationNode('when', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const whenNode = createVisualizationNode('when', { name: EntityType.Route, ...baseData });
       choiceNode.addChild(whenNode);
 
       const otherwiseNode = createVisualizationNode('otherwise', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
+        ...baseData,
       });
       choiceNode.addChild(otherwiseNode);
 
       const whenLeafNode = createVisualizationNode('when-leaf', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
+        ...baseData,
       });
       whenNode.addChild(whenLeafNode);
 
       const processNode = createVisualizationNode('process', {
-        catalogKind: CatalogKind.Entity,
         name: EntityType.Route,
+        ...baseData,
       });
       otherwiseNode.addChild(processNode);
-      const logNode = createVisualizationNode('log', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+      const logNode = createVisualizationNode('log', { name: EntityType.Route, ...baseData });
       processNode.addChild(logNode);
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
@@ -109,8 +147,8 @@ describe('FlowService', () => {
       expect(edges).toMatchSnapshot();
     });
 
-    it('should return a group node for a multiple nodes VisualizationNode with a group', () => {
-      const routeNode = new CamelRouteVisualEntity({ from: { uri: 'timer:clock', steps: [] } }).toVizNode();
+    it('should return a group node for a multiple nodes VisualizationNode with a group', async () => {
+      const routeNode = await new CamelRouteVisualEntity({ from: { uri: 'timer:clock', steps: [] } }).toVizNode();
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode);
 
@@ -128,8 +166,8 @@ describe('FlowService', () => {
       expect(group.group).toBeTruthy();
     });
 
-    it('should remove placeholders', () => {
-      const routeNode = new CamelRouteVisualEntity(camelRouteJson).toVizNode();
+    it('should remove placeholders', async () => {
+      const routeNode = await new CamelRouteVisualEntity(camelRouteJson).toVizNode();
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', routeNode, { removePlaceholder: true });
       nodes.forEach((node) => {
@@ -140,8 +178,8 @@ describe('FlowService', () => {
       expect(edges).toMatchSnapshot();
     });
 
-    it('should scope nodes & edges IDs', () => {
-      const routeNode = new CamelRouteVisualEntity({
+    it('should scope nodes & edges IDs', async () => {
+      const routeNode = await new CamelRouteVisualEntity({
         route: { id: 'route-8888', from: { uri: 'timer:clock', steps: [{ to: { uri: 'log' } }] } },
       }).toVizNode();
 

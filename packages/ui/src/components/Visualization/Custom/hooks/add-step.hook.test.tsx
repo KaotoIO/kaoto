@@ -3,7 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind, StepUpdateAction } from '../../../../models';
+import { StepUpdateAction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
@@ -64,7 +64,14 @@ describe('useAddStep', () => {
   );
 
   it('should return onAddStep function', () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
     expect(result.current.onAddStep).toBeDefined();
@@ -72,7 +79,14 @@ describe('useAddStep', () => {
   });
 
   it('should maintain stable reference when dependencies do not change', () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const { result, rerender } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
     const firstResult = result.current;
@@ -82,14 +96,28 @@ describe('useAddStep', () => {
   });
 
   it('should use AppendStep mode as default when mode is not provided', () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const { result } = renderHook(() => useAddStep(vizNode), { wrapper });
 
     expect(result.current.onAddStep).toBeDefined();
   });
 
   it('should return early when entitiesContext is null', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <EntitiesContext.Provider value={null}>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
@@ -109,7 +137,14 @@ describe('useAddStep', () => {
   });
 
   it('should get compatible components and open catalog modal', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
@@ -131,7 +166,14 @@ describe('useAddStep', () => {
   });
 
   it('should work with PrependStep mode', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
@@ -146,7 +188,14 @@ describe('useAddStep', () => {
   });
 
   it('should return early when catalog modal returns no component', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
@@ -164,7 +213,14 @@ describe('useAddStep', () => {
   });
 
   it('should return early when catalog modal returns undefined', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
@@ -180,7 +236,14 @@ describe('useAddStep', () => {
   });
 
   it('should handle missing metadata context gracefully', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);

@@ -20,10 +20,10 @@ describe('ItemEnableAllSteps', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
   });
 
-  it('should NOT render an ItemEnableAllSteps if there are not at least 2 or more disabled steps', () => {
+  it('should NOT render an ItemEnableAllSteps if there are not at least 2 or more disabled steps', async () => {
     const camelResource = new CamelRouteResource([camelRouteJson]);
     const visualEntity = camelResource.getVisualEntities()[0];
-    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 
     const model: Model = {
       nodes,
@@ -53,7 +53,7 @@ describe('ItemEnableAllSteps', () => {
   it('should call updateModel and updateEntitiesFromCamelResource on click', async () => {
     const camelResource = new CamelRouteResource([camelRouteWithDisabledSteps]);
     const visualEntity = camelResource.getVisualEntities()[0];
-    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 
     const model: Model = {
       nodes,

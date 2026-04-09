@@ -1,6 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
 import {
   ACTION_ID_CONFIRM,
@@ -21,7 +21,14 @@ describe('ItemDeleteStep', () => {
   };
 
   beforeEach(() => {
-    vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
   });
 
   afterEach(() => {
@@ -35,7 +42,14 @@ describe('ItemDeleteStep', () => {
   });
 
   it('should open delete confirmation modal on click', async () => {
-    const childNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const childNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     vizNode.addChild(childNode);
 
     const wrapper = render(

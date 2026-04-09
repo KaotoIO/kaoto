@@ -247,10 +247,14 @@ describe('CitrusTestResource', () => {
     it('should get compatible types', () => {
       const resource = new CitrusTestResource(citrusTestJson);
       const tileFilter = resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
-        catalogKind: CatalogKind.TestAction,
         name: 'print',
         path: 'actions.0',
         label: 'print',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: 'Print',
+        description: '',
       });
 
       expect(

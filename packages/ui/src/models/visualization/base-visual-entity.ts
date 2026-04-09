@@ -1,5 +1,4 @@
 import { DefinedComponent } from '../camel/camel-catalog-index';
-import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { KaotoSchemaDefinition } from '../kaoto-schema';
 import { NodeLabelType } from '../settings/settings.model';
@@ -82,7 +81,7 @@ export interface BaseVisualEntity extends BaseEntity {
   getNodeValidationText(path?: string): string | undefined;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
-  toVizNode: () => IVisualizationNode;
+  toVizNode: () => Promise<IVisualizationNode>;
 }
 
 export interface BaseVisualCamelEntityConstructor {
@@ -168,12 +167,17 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 }
 
 export interface IVisualizationNodeData {
-  catalogKind: CatalogKind;
   name: string;
   path?: string;
   entity?: BaseVisualEntity;
-  isPlaceholder?: boolean;
-  isGroup?: boolean;
+  isPlaceholder: boolean;
+  isGroup: boolean;
+  /** Icon URL resolved from the catalog at mapping time */
+  iconUrl: string;
+  /** Display title resolved from the catalog at mapping time */
+  title: string;
+  /** Description/tooltip resolved from the catalog at mapping time */
+  description: string;
   [key: string]: unknown;
 }
 

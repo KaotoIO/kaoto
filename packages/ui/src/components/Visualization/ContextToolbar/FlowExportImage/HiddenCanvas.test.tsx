@@ -1,15 +1,12 @@
 import { GRAPH_LAYOUT_END_EVENT, useEventListener } from '@patternfly/react-topology';
 import { act, render, waitFor } from '@testing-library/react';
 import { toBlob } from 'html-to-image';
-import { PropsWithChildren } from 'react';
 
-import { BaseVisualEntity } from '../../../../models/visualization/base-visual-entity';
-import { EntitiesProvider } from '../../../../providers/entities.provider';
-import { SourceCodeProvider } from '../../../../providers/source-code.provider';
-import { VisibleFlowsProvider } from '../../../../providers/visible-flows.provider';
-import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
+import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
+import { TestProvidersWrapper } from '../../../../stubs';
+import { camelRouteJson } from '../../../../stubs/camel-route';
+import { LayoutType } from '../../Canvas/canvas.models';
 import { ControllerService } from '../../Canvas/controller.service';
-import { FlowService } from '../../Canvas/flow.service';
 import { HiddenCanvas } from './HiddenCanvas';
 
 jest.mock('html-to-image', () => ({
@@ -21,19 +18,10 @@ jest.mock('@patternfly/react-topology', () => ({
   useEventListener: jest.fn(),
 }));
 
-jest.mock('../../Canvas/flow.service');
-
 describe('HiddenCanvas', () => {
-  const wrapper = ({ children }: PropsWithChildren) => (
-    <SourceCodeProvider>
-      <EntitiesProvider>
-        <VisibleFlowsProvider>{children}</VisibleFlowsProvider>
-      </EntitiesProvider>
-    </SourceCodeProvider>
-  );
+  const entity = new CamelRouteVisualEntity(camelRouteJson);
 
   let mockOnComplete: jest.Mock;
-  let mockEntity: BaseVisualEntity;
   let eventListenerCallback: ((event?: Event) => void) | null = null;
   let fromModelSpy: jest.SpyInstance;
   let originalCreateObjectURL: typeof URL.createObjectURL;
@@ -67,16 +55,6 @@ describe('HiddenCanvas', () => {
     clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation();
     mockOnComplete = jest.fn();
 
-    mockEntity = {
-      id: 'test-entity-1',
-      toVizNode: jest.fn(() => ({ id: 'node-1', data: {} })),
-    } as unknown as BaseVisualEntity;
-
-    (FlowService.getFlowDiagram as jest.Mock).mockReturnValue({
-      nodes: [{ id: 'node-1', type: 'node' } as CanvasNode],
-      edges: [{ id: 'edge-1', type: 'edge' }],
-    });
-
     (toBlob as jest.Mock).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
 
     const controller = ControllerService.createController();
@@ -104,21 +82,35 @@ describe('HiddenCanvas', () => {
     clickSpy.mockRestore();
   });
 
-  it('renders the hidden canvas container', () => {
-    const { container } = render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+  it('renders the hidden canvas container', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    const { container } = render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, {
+      wrapper: Provider,
+    });
 
     expect(container.querySelector('.hidden-canvas')).toBeInTheDocument();
   });
 
-  it('creates a controller on mount', () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+  it('creates a controller on mount', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
 
     // Called once in beforeEach and once in render
     expect(ControllerService.createController).toHaveBeenCalledTimes(2);
   });
 
-  it('builds the graph model from entities', () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+  it('builds the graph model from viz nodes', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
 
     expect(fromModelSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -131,19 +123,26 @@ describe('HiddenCanvas', () => {
     );
   });
 
-  it('resets and layouts the graph after model is loaded', () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+  it('resets and layouts the graph after model is loaded', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
 
     expect(globalThis.requestAnimationFrame).toHaveBeenCalled();
   });
 
   it('triggers export when GRAPH_LAYOUT_END_EVENT fires', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
-      // Simulate the GRAPH_LAYOUT_END_EVENT
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+
+    await act(async () => {
       eventListenerCallback?.();
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
     });
 
     await waitFor(() => {
@@ -152,11 +151,15 @@ describe('HiddenCanvas', () => {
   });
 
   it('calls toBlob with correct options', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+
+    await act(async () => {
       eventListenerCallback?.();
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
     });
 
     await waitFor(() => {
@@ -171,13 +174,17 @@ describe('HiddenCanvas', () => {
   });
 
   it('calls onComplete after successful export', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+
+    await act(async () => {
       if (eventListenerCallback) {
         eventListenerCallback();
       }
-      jest.runAllTimers();
+      await jest.runAllTimersAsync();
     });
 
     await waitFor(() => {
@@ -186,24 +193,26 @@ describe('HiddenCanvas', () => {
   });
 
   it('revokes blob URL after download when autoDownload is true', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const createObjectURLSpy = jest.spyOn(URL, 'createObjectURL');
     const revokeObjectURLSpy = jest.spyOn(URL, 'revokeObjectURL');
 
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} autoDownload />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload />, { wrapper: Provider });
+
+    await act(async () => {
       eventListenerCallback?.();
-      // Advance time just enough to trigger the layout
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {
       expect(createObjectURLSpy).toHaveBeenCalled();
     });
 
-    act(() => {
-      // Fast-forward the cleanup timer (150ms)
-      jest.advanceTimersByTime(150);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(150);
     });
 
     await waitFor(() => {
@@ -212,12 +221,15 @@ describe('HiddenCanvas', () => {
   });
 
   it('triggers fallback timer if layout does not complete', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
 
     // Don't trigger the GRAPH_LAYOUT_END_EVENT
-    // Fast-forward past the fallback timer
-    act(() => {
-      jest.advanceTimersByTime(1000);
+    await act(async () => {
+      await jest.advanceTimersByTimeAsync(1000);
     });
 
     await waitFor(() => {
@@ -226,13 +238,16 @@ describe('HiddenCanvas', () => {
   });
 
   it('handles missing surface element gracefully', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    render(<HiddenCanvas entities={[]} onComplete={mockOnComplete} />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[]} onComplete={mockOnComplete} />, { wrapper: Provider });
+
+    await act(async () => {
       eventListenerCallback?.();
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {
@@ -243,16 +258,20 @@ describe('HiddenCanvas', () => {
   });
 
   it('handles toBlob returning null', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     (toBlob as jest.Mock).mockResolvedValue(null);
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+
+    await act(async () => {
       if (eventListenerCallback) {
         eventListenerCallback();
       }
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {
@@ -264,15 +283,19 @@ describe('HiddenCanvas', () => {
   });
 
   it('handles export error and calls onComplete', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const error = new Error('Export failed');
     (toBlob as jest.Mock).mockRejectedValue(error);
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, { wrapper: Provider });
+
+    await act(async () => {
       eventListenerCallback?.();
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {
@@ -283,9 +306,13 @@ describe('HiddenCanvas', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('uses custom layout type when provided', () => {
-    render(<HiddenCanvas entities={[mockEntity]} layout={LayoutType.DagreVertical} onComplete={mockOnComplete} />, {
-      wrapper,
+  it('uses custom layout type when provided', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    render(<HiddenCanvas vizNodes={[vizNode]} layout={LayoutType.DagreVertical} onComplete={mockOnComplete} />, {
+      wrapper: Provider,
     });
 
     expect(fromModelSpy).toHaveBeenCalledWith(
@@ -298,10 +325,16 @@ describe('HiddenCanvas', () => {
     );
   });
 
-  it('clears fallback timer on unmount', () => {
+  it('clears fallback timer on unmount', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const clearTimeoutSpy = jest.spyOn(globalThis, 'clearTimeout');
 
-    const { unmount } = render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    const { unmount } = render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} />, {
+      wrapper: Provider,
+    });
 
     unmount();
 
@@ -309,17 +342,21 @@ describe('HiddenCanvas', () => {
   });
 
   it('calls onBlobGenerated callback with the generated blob', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     const mockBlob = new Blob(['fake-image-data'], { type: 'image/png' });
     (toBlob as jest.Mock).mockResolvedValue(mockBlob);
     const mockOnBlobGenerated = jest.fn();
 
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} onBlobGenerated={mockOnBlobGenerated} />, {
-      wrapper,
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
+
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} onBlobGenerated={mockOnBlobGenerated} />, {
+      wrapper: Provider,
     });
 
-    act(() => {
+    await act(async () => {
       eventListenerCallback?.();
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {
@@ -328,11 +365,17 @@ describe('HiddenCanvas', () => {
   });
 
   it('does not auto-download when autoDownload is false', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} autoDownload={false} />, { wrapper });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload={false} />, {
+      wrapper: Provider,
+    });
+
+    await act(async () => {
       eventListenerCallback?.();
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {
@@ -344,11 +387,15 @@ describe('HiddenCanvas', () => {
   });
 
   it('auto-downloads when autoDownload is true', async () => {
-    render(<HiddenCanvas entities={[mockEntity]} onComplete={mockOnComplete} autoDownload />, { wrapper });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
-    act(() => {
+    render(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} autoDownload />, { wrapper: Provider });
+
+    await act(async () => {
       eventListenerCallback?.();
-      jest.advanceTimersByTime(0);
+      await jest.advanceTimersByTimeAsync(0);
     });
 
     await waitFor(() => {

@@ -1,6 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 
-import { CatalogKind, createVisualizationNode } from '../../../../models';
+import { createVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
 import { useCopyStep } from '../hooks/copy-step.hook';
 import { ItemCopyStep } from './ItemCopyStep';
@@ -11,7 +11,14 @@ jest.mock('../hooks/copy-step.hook', () => ({
 }));
 
 describe('ItemCopyStep', () => {
-  const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+  const vizNode = createVisualizationNode('test', {
+    name: EntityType.Route,
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
+  });
   const mockOnCopyStep = jest.fn();
   beforeEach(() => {
     // Mock the `useCopyStep` hook to return the `onCopyStep` function

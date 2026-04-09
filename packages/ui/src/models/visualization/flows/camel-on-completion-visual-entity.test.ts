@@ -1,7 +1,6 @@
 import { OnCompletion } from '@kaoto/camel-catalog/types';
 
 import { mockRandomValues } from '../../../stubs';
-import { CatalogKind } from '../../catalog-kind';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
@@ -62,15 +61,14 @@ describe('CamelOnCompletionVisualEntity', () => {
 
   describe('getNodeInteraction', () => {
     it.each([
-      { processorName: 'route', path: 'route', catalogKind: CatalogKind.Entity },
-      { processorName: 'from', path: 'from', catalogKind: CatalogKind.Entity },
-      { processorName: 'to', path: 'to', catalogKind: CatalogKind.Processor },
-      { processorName: 'log', path: 'log', catalogKind: CatalogKind.Processor },
-      { processorName: 'onException', path: 'onException', catalogKind: CatalogKind.Entity },
-      { processorName: 'onCompletion', path: 'onCompletion', catalogKind: CatalogKind.Entity },
-      { processorName: 'intercept', path: 'intercept', catalogKind: CatalogKind.Entity },
-      { processorName: 'onCompletion', path: 'onCompletion', catalogKind: CatalogKind.Entity },
-      { processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint', catalogKind: CatalogKind.Entity },
+      { processorName: 'route', path: 'route' },
+      { processorName: 'from', path: 'from' },
+      { processorName: 'to', path: 'to' },
+      { processorName: 'log', path: 'log' },
+      { processorName: 'onException', path: 'onException' },
+      { processorName: 'onCompletion', path: 'onCompletion' },
+      { processorName: 'intercept', path: 'intercept' },
+      { processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint' },
     ] as const)(`should return the correct interaction for the '%s' processor`, (data) => {
       const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
         onCompletion: { id: 'id', mode: 'AfterConsumer' },
@@ -79,6 +77,11 @@ describe('CamelOnCompletionVisualEntity', () => {
       const result = onCompletionVisualEntity.getNodeInteraction({
         ...data,
         name: data.processorName,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();
     });
@@ -95,11 +98,11 @@ describe('CamelOnCompletionVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', () => {
+  it('should return the visualization node', async () => {
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
-    const vizNode = onCompletionVisualEntity.toVizNode();
+    const vizNode = await onCompletionVisualEntity.toVizNode();
 
     expect(vizNode.data.processorName).toBe(CamelOnCompletionVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(onCompletionVisualEntity);

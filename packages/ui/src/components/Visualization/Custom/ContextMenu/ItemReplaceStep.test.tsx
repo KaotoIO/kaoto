@@ -1,7 +1,7 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind, createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, DefinedComponent, IVisualizationNode } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import {
@@ -18,7 +18,14 @@ import { NodeInteractionAddonContext } from '../../../registers/interactions/nod
 import { ItemReplaceStep } from './ItemReplaceStep';
 
 describe('ItemReplaceStep', () => {
-  const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+  const vizNode = createVisualizationNode('test', {
+    name: EntityType.Route,
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
+  });
 
   const camelResource = new CamelRouteResource();
   const mockEntitiesContext = {
@@ -45,7 +52,14 @@ describe('ItemReplaceStep', () => {
   });
 
   it('should open replace confirmation modal on click', async () => {
-    const childNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    const childNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     vizNode.addChild(childNode);
 
     const wrapper = render(

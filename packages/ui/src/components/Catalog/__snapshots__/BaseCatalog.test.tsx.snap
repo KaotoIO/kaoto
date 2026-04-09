@@ -278,7 +278,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -378,7 +378,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -478,7 +478,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -578,7 +578,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -678,7 +678,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -778,7 +778,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -878,7 +878,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -978,7 +978,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1078,7 +1078,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1178,7 +1178,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1278,7 +1278,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1378,7 +1378,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1478,7 +1478,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1578,7 +1578,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1678,7 +1678,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1778,7 +1778,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1878,7 +1878,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -1976,9 +1976,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2076,9 +2076,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2176,9 +2176,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2276,9 +2276,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2376,9 +2376,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2476,9 +2476,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2576,9 +2576,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2676,9 +2676,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2776,9 +2776,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2876,9 +2876,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -2976,9 +2976,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3076,9 +3076,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3176,9 +3176,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3278,7 +3278,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3378,7 +3378,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3478,7 +3478,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3578,7 +3578,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3678,7 +3678,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3778,7 +3778,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3878,7 +3878,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="component icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -3978,7 +3978,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4078,7 +4078,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4178,7 +4178,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4278,7 +4278,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4378,7 +4378,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4478,7 +4478,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4578,7 +4578,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4678,7 +4678,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4778,7 +4778,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4878,7 +4878,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               <img
                 alt="processor icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -4976,9 +4976,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -5076,9 +5076,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -5176,9 +5176,9 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               class="tile__header"
             >
               <img
-                alt="Kamelet icon"
+                alt="kamelet icon"
                 class="tile__icon"
-                src="file-mock-data"
+                src="test"
               />
             </div>
             <div
@@ -5520,7 +5520,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -5620,7 +5620,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -5720,7 +5720,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -5820,7 +5820,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -5920,7 +5920,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6020,7 +6020,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6120,7 +6120,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6220,7 +6220,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6320,7 +6320,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6420,7 +6420,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6520,7 +6520,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6620,7 +6620,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6720,7 +6720,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6820,7 +6820,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -6920,7 +6920,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7020,7 +7020,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7120,7 +7120,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7218,9 +7218,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7318,9 +7318,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7418,9 +7418,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7518,9 +7518,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7618,9 +7618,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7718,9 +7718,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7818,9 +7818,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -7918,9 +7918,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8018,9 +8018,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8118,9 +8118,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8218,9 +8218,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8318,9 +8318,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8418,9 +8418,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8520,7 +8520,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8620,7 +8620,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8720,7 +8720,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8820,7 +8820,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -8920,7 +8920,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9020,7 +9020,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9120,7 +9120,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="component icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9220,7 +9220,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9320,7 +9320,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9420,7 +9420,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9520,7 +9520,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9620,7 +9620,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9720,7 +9720,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9820,7 +9820,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -9920,7 +9920,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -10020,7 +10020,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -10120,7 +10120,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     <img
                       alt="processor icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -10218,9 +10218,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -10318,9 +10318,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
@@ -10418,9 +10418,9 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
                     class="catalog-data-list-item__title-div-left"
                   >
                     <img
-                      alt="Kamelet icon"
+                      alt="kamelet icon"
                       class="catalog-data-list-item__title-div-left__icon"
-                      src="file-mock-data"
+                      src="test"
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
