@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * This file was ported from the usePanZoom.tsx file from @patternfly/topology
  * this will be contributed to the library upstream.
@@ -16,7 +15,7 @@ import {
 import * as d3 from 'd3';
 import { action, autorun, IReactionDisposer } from 'mobx';
 import { observer } from 'mobx-react';
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 export type PanZoomRef = (node: SVGGElement | null) => void;
 
@@ -38,8 +37,10 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
   const elementRef = useRef<Graph>(element);
   elementRef.current = element;
 
-  // State for spacebar panning
-  const [isSpacebarPressed, setIsSpacebarPressed] = useState(false);
+  // Refs for spacebar panning (refs instead of state to avoid re-renders
+  // that would tear down and recreate the D3 zoom behavior)
+  const isSpacebarPressedRef = useRef(false);
+  const isMouseOverCanvasRef = useRef(false);
   const lastMousePositionRef = useRef<{ x: number; y: number } | null>(null);
   const isPanningRef = useRef(false);
 
@@ -49,29 +50,27 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
       return;
     }
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Only activate spacebar panning if spacebar is pressed and not in an input field
-      if (event.code === 'Space' && !isInputElement(event.target)) {
+      // Only activate spacebar panning when the mouse is over the canvas
+      if (event.code === 'Space' && isMouseOverCanvasRef.current) {
         event.preventDefault();
-        setIsSpacebarPressed(true);
+        isSpacebarPressedRef.current = true;
         document.body.style.cursor = 'grab';
       }
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === 'Space') {
+      if (event.code === 'Space' && isSpacebarPressedRef.current) {
         event.preventDefault();
-        setIsSpacebarPressed(false);
+        if (isPanningRef.current) {
+          isPanningRef.current = false;
+          elementRef.current
+            .getController()
+            .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: false });
+        }
+        isSpacebarPressedRef.current = false;
         lastMousePositionRef.current = null;
-        isPanningRef.current = false;
         document.body.style.cursor = '';
       }
-    };
-
-    // Helper to check if target is an input element
-    const isInputElement = (target: EventTarget | null): boolean => {
-      if (!target || !(target instanceof HTMLElement)) return false;
-      const tagName = target.tagName.toLowerCase();
-      return tagName === 'input' || tagName === 'textarea' || target.isContentEditable;
     };
 
     globalThis.addEventListener('keydown', handleKeyDown);
@@ -89,9 +88,10 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
     let handleMouseMove: ((event: MouseEvent) => void) | undefined;
     let handleMouseUp: (() => void) | undefined;
     let handleMouseLeave: (() => void) | undefined;
+    let handleMouseEnter: (() => void) | undefined;
 
     if (node) {
-      // TODO fix any type
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- d3 zoom internals require untyped access
       const $svg = d3.select(node.ownerSVGElement) as any;
       if (node?.ownerSVGElement) {
         node.ownerSVGElement.addEventListener('mousedown', propagatePanZoomMouseEvent);
@@ -99,8 +99,11 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
 
         // Spacebar panning: handle mouse movement (only if enabled)
         if (enableSpacebarPanning) {
+          handleMouseEnter = () => {
+            isMouseOverCanvasRef.current = true;
+          };
           handleMouseMove = (event: MouseEvent) => {
-            if (isSpacebarPressed) {
+            if (isSpacebarPressedRef.current) {
               if (!lastMousePositionRef.current) {
                 lastMousePositionRef.current = { x: event.clientX, y: event.clientY };
                 return;
@@ -130,18 +133,20 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
           };
 
           handleMouseUp = () => {
+            lastMousePositionRef.current = null;
             if (isPanningRef.current) {
               isPanningRef.current = false;
               elementRef.current
                 .getController()
                 .fireEvent(GRAPH_AREA_DRAGGING_EVENT, { graph: elementRef.current, isDragging: false });
-              if (isSpacebarPressed) {
+              if (isSpacebarPressedRef.current) {
                 document.body.style.cursor = 'grab';
               }
             }
           };
 
           handleMouseLeave = () => {
+            isMouseOverCanvasRef.current = false;
             lastMousePositionRef.current = null;
             if (isPanningRef.current) {
               isPanningRef.current = false;
@@ -151,6 +156,7 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
             }
           };
 
+          node.ownerSVGElement.addEventListener('mouseenter', handleMouseEnter);
           node.ownerSVGElement.addEventListener('mousemove', handleMouseMove);
           node.ownerSVGElement.addEventListener('mouseup', handleMouseUp);
           node.ownerSVGElement.addEventListener('mouseleave', handleMouseLeave);
@@ -161,6 +167,7 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
         .scaleExtent(elementRef.current.getScaleExtent())
         .on(
           'zoom',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           action((event: d3.D3ZoomEvent<any, any>) => {
             if (event.sourceEvent?.type === 'mousemove') {
               elementRef.current
@@ -238,6 +245,9 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
           node.ownerSVGElement.removeEventListener('mousedown', propagatePanZoomMouseEvent);
           node.ownerSVGElement.removeEventListener('click', propagatePanZoomMouseEvent);
           // Remove spacebar panning listeners
+          if (handleMouseEnter) {
+            node.ownerSVGElement.removeEventListener('mouseenter', handleMouseEnter);
+          }
           if (handleMouseMove) {
             node.ownerSVGElement.removeEventListener('mousemove', handleMouseMove);
           }
@@ -252,6 +262,7 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
     };
   });
 };
+
 export interface WithPanZoomProps {
   panZoomRef?: PanZoomRef;
 }
@@ -261,7 +272,7 @@ export const withCustomPanZoom =
   <P extends WithPanZoomProps>(WrappedComponent: React.ComponentType<P>) => {
     const Component: React.FunctionComponent<Omit<P, keyof WithPanZoomProps>> = (props) => {
       const panZoomRef = usePanZoom(options);
-      return <WrappedComponent {...(props as any)} panZoomRef={panZoomRef} />;
+      return <WrappedComponent {...(props as P)} panZoomRef={panZoomRef} />;
     };
     Component.displayName = `withPanZoom(${WrappedComponent.displayName || WrappedComponent.name})`;
     return observer(Component);
