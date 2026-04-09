@@ -112,19 +112,6 @@ describe('VisualizationService', () => {
       });
     });
 
-    describe('testNodePair()', () => {
-      it('should sort source, target', () => {
-        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
-        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-        const { sourceNode, targetNode } = VisualizationService.testNodePair(
-          targetDocChildren[0],
-          sourceDocChildren[0],
-        );
-        expect(sourceNode).toEqual(sourceDocChildren[0]);
-        expect(targetNode).toEqual(targetDocChildren[0]);
-      });
-    });
-
     describe('applyIf()', () => {
       it('should add If', () => {
         let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);

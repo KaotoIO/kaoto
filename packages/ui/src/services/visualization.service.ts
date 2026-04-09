@@ -29,7 +29,6 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
-  TargetNodeDataType,
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../models/datamapper/visualization';
@@ -40,11 +39,6 @@ import { MappingService } from './mapping.service';
 // Regex patterns for DnD ID generation
 const FORWARD_SLASH_REGEX = /\//g;
 const COLON_REGEX = /:/g;
-
-type MappingNodePairType = {
-  sourceNode?: SourceNodeDataType;
-  targetNode?: TargetNodeDataType;
-};
 
 /**
  * Static utility service for the DataMapper visualization layer.
@@ -242,22 +236,6 @@ export class VisualizationService {
     if (mapping instanceof UnknownMappingItem) return new UnknownMappingNodeData(parent, mapping);
     if (mapping instanceof VariableItem) return new VariableNodeData(parent, mapping);
     return new MappingNodeData(parent, mapping);
-  }
-
-  /**
-   * Validates that two nodes form a valid source/target pair and returns them typed accordingly.
-   * Returns an empty object when both nodes are on the same side (both source or both target).
-   * @param fromNode - The originating node (e.g. the drag source).
-   * @param toNode - The destination node (e.g. the drop target).
-   * @returns A {@link MappingNodePairType} with `sourceNode` and `targetNode`, or an empty object if invalid.
-   */
-  static testNodePair(fromNode: NodeData, toNode: NodeData): MappingNodePairType {
-    const answer: MappingNodePairType = {};
-    if ((fromNode.isSource && toNode.isSource) || (!fromNode.isSource && !toNode.isSource)) return answer;
-
-    const sourceNode = (fromNode.isSource ? fromNode : toNode) as SourceNodeDataType;
-    const targetNode = (fromNode.isSource ? toNode : fromNode) as TargetNodeDataType;
-    return { sourceNode, targetNode };
   }
 
   /**
