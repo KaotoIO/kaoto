@@ -19,18 +19,30 @@ export class MultiValuePropertyService {
     let parameters: any = {};
 
     if (multiValueParameters.size > 0) {
-      multiValueParameters.forEach((prefix, key) => {
-        const nestParameters: ParsedParameters = {};
+      // Initialize nested objects for each multi-value parameter
+      const nestedByPrefix: Map<string, ParsedParameters> = new Map();
+      multiValueParameters.forEach((prefix, _key) => {
+        nestedByPrefix.set(prefix, {});
+      });
 
-        Object.entries(definition).forEach(([paramKey, paramValue]) => {
+      // Single pass: route each entry to the correct nested object or to parameters
+      Object.entries(definition).forEach(([paramKey, paramValue]) => {
+        let matched = false;
+        for (const [prefix, nested] of nestedByPrefix.entries()) {
           if (paramKey.startsWith(prefix)) {
-            nestParameters[paramKey.replace(prefix, '')] = paramValue as string;
-          } else {
-            parameters[paramKey] = paramValue;
+            nested[paramKey.replace(prefix, '')] = paramValue as string;
+            matched = true;
+            break;
           }
-        });
+        }
+        if (!matched) {
+          parameters[paramKey] = paramValue;
+        }
+      });
 
-        parameters[key] = { ...nestParameters };
+      // Assign nested objects using their property names
+      multiValueParameters.forEach((prefix, key) => {
+        parameters[key] = { ...nestedByPrefix.get(prefix)! };
       });
     } else {
       parameters = { ...definition };
@@ -54,7 +66,8 @@ export class MultiValuePropertyService {
         });
       }
       const defaultMultiValues: ParsedParameters = {};
-      const filteredParameters = definition.parameters;
+      const filteredParameters = { ...definition.parameters };
+      const prefixes = Array.from(multiValueParameters.values());
 
       if (definition.parameters !== undefined) {
         Object.keys(definition.parameters).forEach((key) => {
@@ -65,6 +78,9 @@ export class MultiValuePropertyService {
             Object.keys(definition.parameters[key]).forEach((subKey) => {
               defaultMultiValues[multiValueParameters.get(key) + subKey] = definition.parameters[key][subKey];
             });
+            delete filteredParameters[key];
+          } else if (prefixes.some((prefix) => key.startsWith(prefix))) {
+            // Remove stale flat keys that match a multi-value prefix
             delete filteredParameters[key];
           }
         });
