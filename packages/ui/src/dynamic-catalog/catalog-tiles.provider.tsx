@@ -58,9 +58,10 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
       catalogRegistry.getCatalog(CatalogKind.TestEndpoint)?.getAll(),
     ]);
 
-    const combinedTiles: ITile[] = [];
+    const tilePromises: Promise<ITile>[] = [];
+
     Object.values(componentsCatalog ?? {}).forEach((component) => {
-      combinedTiles.push(camelComponentToTile(component));
+      tilePromises.push(camelComponentToTile(component));
     });
     /**
      * To build the Patterns catalog, we use the short list, as opposed of the CatalogKind.Processor which have all definitions
@@ -69,29 +70,31 @@ export const CatalogTilesProvider: FunctionComponent<PropsWithChildren> = (props
      * The full list of patterns is available in the CatalogKind.Processor catalog and it's being used as lookup for components properties.
      */
     Object.values(patternsCatalog ?? {}).forEach((processor) => {
-      combinedTiles.push(camelProcessorToTile(processor));
+      tilePromises.push(camelProcessorToTile(processor));
     });
     Object.values(entitiesCatalog ?? {}).forEach((entity) => {
       /** KameletConfiguration and PipeConfiguration schemas are stored inside the entity catalog without model or properties */
       if (isDefined(entity.model)) {
-        combinedTiles.push(camelEntityToTile(entity));
+        tilePromises.push(camelEntityToTile(entity));
       }
     });
     Object.values(kameletsCatalog ?? {}).forEach((kamelet) => {
-      combinedTiles.push(kameletToTile(kamelet));
+      tilePromises.push(kameletToTile(kamelet));
     });
 
     Object.values(testActions ?? {}).forEach((action) => {
       if (action.kind !== CatalogKind.TestActionGroup) {
-        combinedTiles.push(citrusComponentToTile(action));
+        tilePromises.push(citrusComponentToTile(action));
       }
     });
     Object.values(testContainers ?? {}).forEach((container) => {
-      combinedTiles.push(citrusComponentToTile(container));
+      tilePromises.push(citrusComponentToTile(container));
     });
     Object.values(testEndpoints ?? {}).forEach((endpoint) => {
-      combinedTiles.push(citrusComponentToTile(endpoint));
+      tilePromises.push(citrusComponentToTile(endpoint));
     });
+
+    const combinedTiles = await Promise.all(tilePromises);
 
     tilesRef.current = combinedTiles;
 

@@ -3,7 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { CatalogKind, StepUpdateAction } from '../../../../models';
+import { StepUpdateAction } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -81,7 +81,14 @@ describe('useReplaceStep', () => {
   const mockCompatibleComponents = (item: ITile) => ['log', 'to'].includes(item.type);
 
   beforeEach(() => {
-    mockVizNode = createVisualizationNode('test-step', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    mockVizNode = createVisualizationNode('test-step', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
     jest.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
@@ -168,9 +175,12 @@ describe('useReplaceStep', () => {
 
   it('should replace step without confirmation when only placeholder child', async () => {
     const placeholderChild = createVisualizationNode('placeholder', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([placeholderChild]);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
@@ -186,9 +196,12 @@ describe('useReplaceStep', () => {
 
   it('should show confirmation modal when step has non-placeholder children', async () => {
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
@@ -210,9 +223,12 @@ describe('useReplaceStep', () => {
 
   it('should not replace step when modal is cancelled', async () => {
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
@@ -229,9 +245,12 @@ describe('useReplaceStep', () => {
 
   it('should not replace step when modal returns undefined', async () => {
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(undefined);
@@ -277,9 +296,12 @@ describe('useReplaceStep', () => {
       buttonOptions: { confirm: 'Replace Now', cancel: 'Keep Current' },
     };
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);

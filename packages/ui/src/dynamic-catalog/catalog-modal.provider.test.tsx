@@ -10,10 +10,10 @@ import { IDynamicCatalogRegistry } from './models';
 
 describe('CatalogModalProvider', () => {
   const mockTiles: ITile[] = [
-    { name: 'amqp', type: 'component', title: 'AMQP', tags: ['messaging'] },
-    { name: 'log', type: 'processor', title: 'Logger', tags: ['eip', 'routing'] },
-    { name: 'route', type: 'entity', title: 'Route', tags: ['configuration'] },
-    { name: 'sink', type: 'kamelet', title: 'Kamelet Sink', tags: ['sink'] },
+    { name: 'amqp', type: 'component', title: 'AMQP', tags: ['messaging'], iconUrl: 'test-icon-url' },
+    { name: 'log', type: 'processor', title: 'Logger', tags: ['eip', 'routing'], iconUrl: 'test-icon-url' },
+    { name: 'route', type: 'entity', title: 'Route', tags: ['configuration'], iconUrl: 'test-icon-url' },
+    { name: 'sink', type: 'kamelet', title: 'Kamelet Sink', tags: ['sink'], iconUrl: 'test-icon-url' },
   ];
 
   const mockCatalogRegistry: IDynamicCatalogRegistry = {

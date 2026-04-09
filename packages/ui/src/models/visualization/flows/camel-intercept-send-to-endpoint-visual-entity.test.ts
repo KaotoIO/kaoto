@@ -1,5 +1,4 @@
 import { mockRandomValues } from '../../../stubs';
-import { CatalogKind } from '../../catalog-kind';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from './camel-intercept-send-to-endpoint-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
@@ -64,15 +63,14 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
 
   describe('getNodeInteraction', () => {
     it.each([
-      { processorName: 'route', path: 'route', catalogKind: CatalogKind.Entity },
-      { processorName: 'from', path: 'from', catalogKind: CatalogKind.Entity },
-      { processorName: 'to', path: 'to', catalogKind: CatalogKind.Processor },
-      { processorName: 'log', path: 'log', catalogKind: CatalogKind.Processor },
-      { processorName: 'onException', path: 'onException', catalogKind: CatalogKind.Entity },
-      { processorName: 'onCompletion', path: 'onCompletion', catalogKind: CatalogKind.Entity },
-      { processorName: 'intercept', path: 'intercept', catalogKind: CatalogKind.Entity },
-      { processorName: 'onCompletion', path: 'onCompletion', catalogKind: CatalogKind.Entity },
-      { processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint', catalogKind: CatalogKind.Entity },
+      { processorName: 'route', path: 'route' },
+      { processorName: 'from', path: 'from' },
+      { processorName: 'to', path: 'to' },
+      { processorName: 'log', path: 'log' },
+      { processorName: 'onException', path: 'onException' },
+      { processorName: 'onCompletion', path: 'onCompletion' },
+      { processorName: 'intercept', path: 'intercept' },
+      { processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint' },
     ] as const)(`should return the correct interaction for the '%s' processor`, (data) => {
       const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
         interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
@@ -81,6 +79,11 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
       const result = interceptSendToEndpointVisualEntity.getNodeInteraction({
         ...data,
         name: data.processorName,
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();
     });
@@ -97,11 +100,11 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', () => {
+  it('should return the vizualization node', async () => {
     const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
       interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
     });
-    const vizNode = interceptSendToEndpointVisualEntity.toVizNode();
+    const vizNode = await interceptSendToEndpointVisualEntity.toVizNode();
 
     expect(vizNode.data.processorName).toBe(CamelInterceptSendToEndpointVisualEntity.ROOT_PATH);
     expect(vizNode.data.entity).toBe(interceptSendToEndpointVisualEntity);

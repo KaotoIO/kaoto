@@ -243,7 +243,7 @@ describe('canDragGroup', () => {
       : undefined;
     return {
       id: 'group-1',
-      data: { path, name },
+      data: { path, name, isPlaceholder: false, isGroup: false, iconUrl: '', title: '', description: '' },
       getParentNode: jest.fn().mockReturnValue(parentData ? { data: parentData } : undefined),
     } as unknown as IVisualizationNode;
   };

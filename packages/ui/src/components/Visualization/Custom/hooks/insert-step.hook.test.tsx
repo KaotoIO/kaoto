@@ -50,9 +50,13 @@ describe('useInsertStep', () => {
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test', {
-      catalogKind: CatalogKind.Processor,
       name: 'test',
       processorName: 'test',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
@@ -259,8 +263,12 @@ describe('useInsertStep', () => {
     const firstResult = result.current;
 
     const newMockVizNode = createVisualizationNode('new-test', {
-      catalogKind: CatalogKind.Processor,
       name: 'new-test',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     newMockVizNode.addBaseEntityStep = jest.fn();
     newMockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});

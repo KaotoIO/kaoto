@@ -164,15 +164,14 @@ export class CamelRouteConfigurationVisualEntity
     return super.getNodeInteraction(data);
   }
 
-  toVizNode(): IVisualizationNode {
-    const routeConfigurationGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode> {
+    const routeConfigurationGroupNode = await NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: this.getRootPath() as keyof ProcessorDefinition },
       this.routeConfigurationDef,
     );
     routeConfigurationGroupNode.data.entity = this;
     routeConfigurationGroupNode.data.isGroup = true;
-    routeConfigurationGroupNode.data.catalogKind = CatalogKind.Entity;
     routeConfigurationGroupNode.data.name = this.type;
 
     return routeConfigurationGroupNode;

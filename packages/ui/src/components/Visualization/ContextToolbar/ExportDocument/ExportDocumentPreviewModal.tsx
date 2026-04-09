@@ -20,6 +20,7 @@ import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+import { useVisibleVizNodes } from '../../../../hooks/use-visible-viz-nodes';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { DocumentationEntity } from '../../../../models/documentation';
 import { VisibleFlowsContext } from '../../../../providers';
@@ -49,6 +50,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
   const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
 
   const currentLayout = useGraphLayout();
+  const { vizNodes, isResolving } = useVisibleVizNodes(visualEntities, visibleFlows);
 
   const onUpdateDocumentationEntities = (documentationEntities: DocumentationEntity[]) => {
     documentationEntities.forEach((docEntity) => {
@@ -177,9 +179,9 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
         )}
       </ModalBody>
 
-      {isGeneratingImage && (
+      {isGeneratingImage && !isResolving && (
         <HiddenCanvas
-          entities={visualEntities}
+          vizNodes={vizNodes}
           layout={currentLayout}
           onComplete={handleImageGenerationComplete}
           onBlobGenerated={handleBlobGenerated}

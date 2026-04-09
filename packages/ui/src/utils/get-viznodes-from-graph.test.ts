@@ -33,9 +33,9 @@ describe('getVisualizationNodesFromGraph', () => {
     expect(result).toEqual([]);
   });
 
-  it('should return all visualization nodes from the graph', () => {
+  it('should return all visualization nodes from the graph', async () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteWithDisabledSteps);
-    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 
     const model: Model = {
       nodes,
@@ -58,9 +58,9 @@ describe('getVisualizationNodesFromGraph', () => {
     expect(vizNodes[4].data.isPlaceholder).toBe(true);
   });
 
-  it('should return all visualization nodes matching the predicate', () => {
+  it('should return all visualization nodes matching the predicate', async () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteWithDisabledSteps);
-    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 
     const model: Model = {
       nodes,
@@ -83,9 +83,9 @@ describe('getVisualizationNodesFromGraph', () => {
     expect(vizNodes[3].data.isPlaceholder).toBe(true);
   });
 
-  it('should return all visualization nodes matching a complex predicate', () => {
+  it('should return all visualization nodes matching a complex predicate', async () => {
     const visualEntity = new CamelRouteVisualEntity(camelRouteWithDisabledSteps);
-    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 
     const model: Model = {
       nodes,

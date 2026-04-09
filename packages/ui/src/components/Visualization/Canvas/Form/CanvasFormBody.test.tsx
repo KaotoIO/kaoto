@@ -63,7 +63,7 @@ describe('CanvasFormBody', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
 
       render(
@@ -117,7 +117,7 @@ describe('CanvasFormBody', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
 
       render(
@@ -176,7 +176,7 @@ describe('CanvasFormBody', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
 
       render(
@@ -227,7 +227,7 @@ describe('CanvasFormBody', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
 
       render(
@@ -283,7 +283,7 @@ describe('CanvasFormBody', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
 
       render(
@@ -334,7 +334,7 @@ describe('CanvasFormBody', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
 
       render(
@@ -370,7 +370,7 @@ describe('CanvasFormBody', () => {
 
   it('should show suggestions', async () => {
     const { Provider, camelResource } = TestProvidersWrapper();
-    const vizNode = camelResource.getVisualEntities()[0].toVizNode();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
     jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue({
       type: 'object',
       properties: {

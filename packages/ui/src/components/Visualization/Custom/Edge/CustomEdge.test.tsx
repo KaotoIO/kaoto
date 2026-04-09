@@ -2,7 +2,7 @@ import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } 
 import { act, render } from '@testing-library/react';
 import React from 'react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CustomEdge } from './CustomEdge';
@@ -45,9 +45,13 @@ describe('CustomEdge', () => {
 
   it('should render edge with custom-edge class when edge is valid', () => {
     const vizNode = createVisualizationNode('route.from.steps.0.log', {
-      catalogKind: CatalogKind.Component,
       name: 'log',
       path: 'route.from.steps.0.log',
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue({
       canHavePreviousStep: true,

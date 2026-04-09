@@ -186,10 +186,10 @@ describe('CamelRestConfigurationVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return visualization node', () => {
+    it('should return visualization node', async () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
@@ -203,12 +203,17 @@ describe('CamelRestConfigurationVisualEntity', () => {
         isGroup: true,
         path: 'restConfiguration',
         processorName: 'restConfiguration',
+        iconAlt: 'processor icon',
+        iconUrl: 'file-mock-data',
+        isPlaceholder: false,
+        title: '',
+        description: '',
       });
     });
 
-    it('should return hardcoded schema title', () => {
+    it('should return hardcoded schema title', async () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.getNodeTitle()).toEqual('Rest Configuration');
     });

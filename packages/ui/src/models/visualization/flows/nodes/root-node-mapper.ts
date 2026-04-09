@@ -16,11 +16,11 @@ export class RootNodeMapper implements INodeMapper {
     this.defaultMapper = mapper;
   }
 
-  getVizNodeFromProcessor(
+  async getVizNodeFromProcessor(
     path: string,
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
-  ): IVisualizationNode {
+  ): Promise<IVisualizationNode> {
     const mapper = this.mappers.get(componentLookup.processorName) || this.defaultMapper;
 
     if (!mapper) {

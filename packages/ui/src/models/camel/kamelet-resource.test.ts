@@ -2,7 +2,6 @@ import { cloneDeep } from 'lodash';
 
 import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';
-import { CatalogKind } from '../catalog-kind';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
@@ -87,15 +86,28 @@ describe('KameletResource', () => {
 
       const resource = CamelKResourceFactory.getCamelKResource(kameletJson)!;
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
-        catalogKind: CatalogKind.Processor,
         name: 'from',
         path: 'from',
         label: 'timer',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
 
       expect(filterSpy).toHaveBeenCalledWith(
         AddStepMode.ReplaceStep,
-        { catalogKind: CatalogKind.Processor, name: 'from', path: 'from', label: 'timer' },
+        {
+          name: 'from',
+          path: 'from',
+          label: 'timer',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+        },
         undefined,
       );
     });

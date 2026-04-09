@@ -36,7 +36,7 @@ exports[`Tile renders correctly 1`] = `
         <img
           alt="component icon"
           class="tile__icon"
-          src="file-mock-data"
+          src="test-icon-url"
         />
         <div
           class="pf-v6-c-label-group"

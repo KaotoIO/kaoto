@@ -25,12 +25,14 @@ describe('sortTags()', () => {
         name: '1',
         title: '1',
         tags: ['transformation', 'aaa-comp'],
+        iconUrl: 'test-icon-url',
       },
       {
         type: 'processor',
         name: '2',
         title: '2',
         tags: ['transformation', 'eip', 'aaa-proc'],
+        iconUrl: 'test-icon-url',
       },
     ];
     let filterTags: string[] = [];

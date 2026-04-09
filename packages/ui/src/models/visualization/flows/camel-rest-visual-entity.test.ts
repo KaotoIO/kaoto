@@ -275,7 +275,15 @@ describe('CamelRestVisualEntity', () => {
       const entity = new CamelRestVisualEntity(restDef);
 
       expect(
-        entity.getNodeInteraction({ catalogKind: CatalogKind.Entity, name: REST_ELEMENT_NAME, path: 'rest' }),
+        entity.getNodeInteraction({
+          name: REST_ELEMENT_NAME,
+          path: 'rest',
+          isPlaceholder: false,
+          isGroup: true,
+          iconUrl: '',
+          title: '',
+          description: '',
+        }),
       ).toEqual({
         canHavePreviousStep: false,
         canHaveNextStep: false,
@@ -299,10 +307,14 @@ describe('CamelRestVisualEntity', () => {
 
       expect(
         entity.getNodeInteraction({
-          catalogKind: CatalogKind.Component,
           name: 'direct',
           path: 'rest.get.0.to',
           processorName: 'to',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
         }),
       ).toEqual({
         canHavePreviousStep: false,
@@ -327,10 +339,14 @@ describe('CamelRestVisualEntity', () => {
       const superGetNodeInteractionSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction');
 
       entity.getNodeInteraction({
-        catalogKind: CatalogKind.Entity,
         name: 'get',
         path: 'rest.get.0',
         processorName: 'get' as keyof ProcessorDefinition,
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
 
       expect(superGetNodeInteractionSpy).toHaveBeenCalled();
@@ -345,7 +361,15 @@ describe('CamelRestVisualEntity', () => {
       entity.addStep({
         definedComponent: { type: CatalogKind.Processor, name: 'get' } as DefinedComponent,
         mode: AddStepMode.InsertSpecialChildStep,
-        data: { catalogKind: CatalogKind.Entity, name: REST_ELEMENT_NAME, path: CamelRestVisualEntity.ROOT_PATH },
+        data: {
+          name: REST_ELEMENT_NAME,
+          path: CamelRestVisualEntity.ROOT_PATH,
+          isPlaceholder: false,
+          isGroup: true,
+          iconUrl: '',
+          title: '',
+          description: '',
+        },
         targetProperty: 'get',
       });
 
@@ -366,10 +390,13 @@ describe('CamelRestVisualEntity', () => {
         definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
         mode: AddStepMode.ReplaceStep,
         data: {
-          catalogKind: CatalogKind.Pattern,
           name: PlaceholderType.Placeholder,
           path: 'rest.get.0.to.placeholder',
           isPlaceholder: true,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
         },
       });
 
@@ -385,7 +412,15 @@ describe('CamelRestVisualEntity', () => {
       entity.addStep({
         definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
         mode: AddStepMode.ReplaceStep,
-        data: { catalogKind: CatalogKind.Pattern, name: PlaceholderType.Placeholder, path: undefined },
+        data: {
+          name: PlaceholderType.Placeholder,
+          path: undefined,
+          isPlaceholder: true,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+        },
       });
 
       // Should not throw and rest should remain unchanged
@@ -427,19 +462,23 @@ describe('CamelRestVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return visualization node', () => {
+    it('should return visualization node', async () => {
       const entity = new CamelRestVisualEntity(restDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
         entity,
-        catalogKind: CatalogKind.Entity,
         name: 'rest',
         isGroup: true,
         path: 'rest',
         processorName: 'rest',
+        iconAlt: 'processor icon',
+        iconUrl: 'file-mock-data',
+        isPlaceholder: false,
+        title: '',
+        description: '',
       });
     });
   });

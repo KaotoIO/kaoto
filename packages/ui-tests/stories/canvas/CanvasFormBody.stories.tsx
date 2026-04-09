@@ -53,6 +53,11 @@ AggregateNode.args = {
     name: 'aggregate',
     entity: storybookCamelRouteEntity,
     processorName: 'aggregate',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   }),
 };
 
@@ -65,6 +70,11 @@ MarshalNode.args = {
     name: 'marshal',
     entity: storybookCamelRouteEntity,
     processorName: 'marshal',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   }),
 };
 
@@ -77,6 +87,11 @@ ResequenceNode.args = {
     name: 'resequence',
     entity: storybookCamelRouteEntity,
     processorName: 'resequence',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   }),
 };
 
@@ -89,6 +104,11 @@ SagaNode.args = {
     name: 'saga',
     entity: storybookCamelRouteEntity,
     processorName: 'saga',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   }),
 };
 
@@ -101,6 +121,11 @@ SetHeaderNode.args = {
     name: 'setHeader',
     entity: storybookCamelRouteEntity,
     processorName: 'setHeader',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   }),
 };
 
@@ -113,5 +138,10 @@ TokenizerNode.args = {
     name: 'tokenizer',
     entity: storybookCamelRouteEntity,
     processorName: 'tokenizer',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   }),
 };

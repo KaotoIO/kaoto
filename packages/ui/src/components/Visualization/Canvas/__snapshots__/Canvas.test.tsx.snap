@@ -732,10 +732,10 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-8"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-7"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-21"
+                    id="pf-topology-control-bar-19"
                     style="background-color: transparent;"
                   >
                     <div
@@ -756,7 +756,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-37"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-32"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -796,7 +796,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-38"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-33"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -836,7 +836,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-39"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-34"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -875,7 +875,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-40"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-35"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -913,7 +913,7 @@ exports[`Canvas Catalog button should NOT be present if \`CatalogModalContext\` 
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-41"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-36"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
@@ -1704,10 +1704,10 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-7"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-6"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-19"
+                    id="pf-topology-control-bar-17"
                     style="background-color: transparent;"
                   >
                     <div
@@ -1728,7 +1728,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-31"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-26"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -1768,7 +1768,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-32"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-27"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -1808,7 +1808,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-33"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-28"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -1847,7 +1847,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-34"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-29"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -1885,7 +1885,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-35"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-30"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
@@ -1923,7 +1923,7 @@ exports[`Canvas Catalog button should be present if \`CatalogModalContext\` is p
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-36"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-31"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-catalog-button"
@@ -2150,10 +2150,10 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-10"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-9"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-25"
+                    id="pf-topology-control-bar-23"
                     style="background-color: transparent;"
                   >
                     <div
@@ -2174,7 +2174,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-47"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-42"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -2214,7 +2214,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-48"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-43"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -2254,7 +2254,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-49"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-44"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -2293,7 +2293,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-50"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-45"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -2331,7 +2331,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-51"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-46"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
@@ -2390,7 +2390,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
 </div>
 `;
 
-exports[`Canvas Empty state should render empty state when there is no visual entity 1`] = `
+exports[`Canvas Empty state should render empty state when there is no visual viznode 1`] = `
 <DocumentFragment>
   <div
     class="pf-v6-l-stack"
@@ -2591,10 +2591,10 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-9"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-8"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-23"
+                    id="pf-topology-control-bar-21"
                     style="background-color: transparent;"
                   >
                     <div
@@ -2615,7 +2615,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-42"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-37"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -2655,7 +2655,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-43"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-38"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -2695,7 +2695,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-44"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-39"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -2734,7 +2734,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-45"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-40"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -2772,7 +2772,7 @@ exports[`Canvas Empty state should render empty state when there is no visual en
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-46"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-41"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
@@ -3745,978 +3745,6 @@ exports[`Canvas should render correctly 1`] = `
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
                                 data-ouia-component-id="OUIA-Generated-Button-tertiary-5"
-                                data-ouia-component-type="PF6/Button"
-                                data-ouia-safe="true"
-                                id="topology-control-bar-v_layout-button"
-                                type="button"
-                              >
-                                <span
-                                  class="pf-v6-c-button__text"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
-                                    viewBox="0 0 512 512"
-                                    width="1em"
-                                  >
-                                    <path
-                                      d="m 256,-0.00195313 c -41.77177,4.83e-6 -76.20117,34.33777113 -76.20117,76.10546913 -1e-5,33.245764 21.84391,61.720664 51.81054,71.982424 V 265.81445 H 55.074219 v 13.14844 h -0.275391 v 78.68359 C 23.150155,368.03955 1.9169543e-6,397.92105 0,432.84961 c 2.3846233e-6,43.44988 35.794913,79.15234 79.251953,79.15234 43.457047,1e-5 79.253907,-35.70245 79.253907,-79.15234 0,-34.97602 -23.2129,-64.89598 -54.92773,-75.25 v -43.00586 h 128.03124 v 43.0293 c -31.68129,10.37383 -54.86132,40.2746 -54.86132,75.22656 0,43.44988 35.79491,79.15234 79.25195,79.15234 43.45703,-10e-6 79.25195,-35.70246 79.25195,-79.15234 0,-34.9526 -23.18109,-64.85325 -54.86328,-75.22656 v -43.0293 h 127.96875 v 43.0293 c -31.6813,10.37383 -54.86328,40.27459 -54.86328,75.22656 0,43.44989 35.79686,79.15235 79.25391,79.15234 43.45704,0 79.25195,-35.70246 79.25195,-79.15234 0,-34.95261 -23.18109,-64.85326 -54.86328,-75.22656 v -78.66016 h -0.28516 V 265.81445 H 280.38867 V 148.08789 c 29.96786,-10.26106 51.81251,-38.73773 51.8125,-71.984374 0,-41.767698 -34.4294,-76.1054643 -76.20117,-76.10546913 z M 280.38867,63.634766 c 1.88026,3.732198 3.0332,7.918634 3.0332,12.46875 10e-6,4.550115 -1.15294,8.738504 -3.0332,12.470703 z m -48.7793,0.0039 v 24.93164 c -1.87901,-3.731258 -3.03125,-7.91827 -3.03125,-12.466796 0,-4.548526 1.15223,-8.733586 3.03125,-12.464844 z M 103.57813,414.50586 c 3.82192,5.07537 6.14843,11.3614 6.14843,18.34375 0,6.98235 -2.32651,13.26838 -6.14843,18.34375 z m 176.81054,0.0762 c 3.78578,5.0623 6.08399,11.32141 6.08399,18.26758 0,6.94616 -2.29821,13.20528 -6.08399,18.26758 z m 176.74805,0 c 3.78566,5.06225 6.08398,11.32153 6.08398,18.26758 0,6.94605 -2.29832,13.20533 -6.08398,18.26758 z m -225.52735,0.002 v 36.53125 c -3.78477,-5.06192 -6.08203,-11.32046 -6.08203,-18.26562 0,-6.94516 2.29726,-13.2037 6.08203,-18.26563 z m 176.74805,0 v 36.53125 c -3.78477,-5.06192 -6.08398,-11.32046 -6.08398,-18.26562 0,-6.94516 2.29921,-13.2037 6.08398,-18.26563 z m -353.558592,0.0762 v 36.3789 c -3.748649,-5.04863 -6.019531,-11.28059 -6.019531,-18.18945 0,-6.90886 2.270882,-13.14082 6.019531,-18.18945 z M 307.81153,76.104458 A 51.811546,51.716827 0 0 0 255.99999,24.387631 51.811546,51.716827 0 0 0 204.18845,76.104458 51.811546,51.716827 0 0 0 255.99999,127.82129 51.811546,51.716827 0 0 0 307.81153,76.104458 Z M 134.11561,432.84943 a 54.862992,54.762693 0 0 0 -54.863002,-54.76269 54.862992,54.762693 0 0 0 -54.862992,54.76269 54.862992,54.762693 0 0 0 54.862992,54.76269 54.862992,54.762693 0 0 0 54.863002,-54.76269 z m 353.49475,0 a 54.862992,54.762693 0 0 0 -54.86299,-54.76269 54.862992,54.762693 0 0 0 -54.863,54.76269 54.862992,54.762693 0 0 0 54.863,54.76269 54.862992,54.762693 0 0 0 54.86299,-54.76269 z m -176.74739,0 a 54.862992,54.762693 0 0 0 -54.86298,-54.76269 54.862992,54.762693 0 0 0 -54.86299,54.76269 54.862992,54.762693 0 0 0 54.86299,54.76269 54.862992,54.762693 0 0 0 54.86298,-54.76269 z M 79.18924,493.73631 V 278.96326 M 255.99999,493.73631 V 17.414482 M 432.74737,493.73631 V 278.96326 m 24.10342,11.23988 H 55.07487"
-                                    />
-                                  </svg>
-                                  <span
-                                    class="pf-v6-screen-reader"
-                                  >
-                                    Vertical Layout
-                                  </span>
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      class="pf-v6-c-toolbar__content pf-m-hidden"
-                      hidden=""
-                    >
-                      <div
-                        class="pf-v6-c-toolbar__group"
-                      />
-                    </div>
-                  </div>
-                </span>
-              </div>
-            </div>
-          </div>
-          <div
-            class="pf-v6-c-drawer__panel pf-m-resizable"
-            hidden=""
-            id="topology-resize-panel"
-            style="--pf-v6-c-drawer__panel--md--FlexBasis: 500px; --pf-v6-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v6-c-drawer__panel--md--FlexBasis--max: 100%;"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
-</DocumentFragment>
-`;
-
-exports[`Canvas should render correctly with more routes  1`] = `
-<DocumentFragment>
-  <div
-    class="pf-v6-l-stack"
-  >
-    <div
-      class="pf-v6-l-stack__item pf-m-fill pf-topology-container"
-    >
-      <div
-        class="pf-v6-c-drawer pf-m-inline"
-      >
-        <div
-          class="pf-v6-c-drawer__main"
-        >
-          <div
-            class="pf-v6-c-drawer__content"
-          >
-            <div
-              class="pf-v6-c-drawer__body"
-            >
-              <div
-                class="pf-topology-content"
-              >
-                <div
-                  class="pf-topology-visualization-surface"
-                  data-test-id="topology"
-                >
-                  <svg
-                    class="pf-topology-visualization-surface__svg"
-                  >
-                    <g
-                      data-id="g1"
-                      data-kind="graph"
-                      data-type="graph"
-                    >
-                      <rect
-                        fill-opacity="0"
-                        height="0"
-                        width="0"
-                        x="0"
-                        y="0"
-                      />
-                      <g
-                        data-surface="true"
-                        transform="translate(-0.29444444444444445, -0.5259259259259259) scale(0.0007407407407407407)"
-                      >
-                        <g
-                          data-layer-id="bottom"
-                        />
-                        <g
-                          data-layer-id="groups"
-                        >
-                          <g
-                            data-id="route-8888|route"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="route-8888"
-                              data-selected="false"
-                              data-testid="custom-group__route"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="route-8888"
-                                height="1350"
-                                width="725"
-                                x="35"
-                                y="35"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route"
-                                >
-                                  <div
-                                    class="custom-group__container__text"
-                                    data-testid="route-8888|route|drag-handle"
-                                    title="route"
-                                  >
-                                    <img
-                                      alt="route"
-                                      src="file-mock-data"
-                                    />
-                                    <span
-                                      title="route-8888"
-                                    >
-                                      route-8888
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="choice"
-                              data-selected="false"
-                              data-testid="custom-group__route.from.steps.1.choice"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="choice"
-                                height="680"
-                                width="645"
-                                x="75"
-                                y="380"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice"
-                                >
-                                  <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice|drag-handle"
-                                    title="choice"
-                                  >
-                                    <img
-                                      alt="choice"
-                                      src="file-mock-data"
-                                    />
-                                    <span
-                                      title="choice"
-                                    >
-                                      choice
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.when.0"
-                            data-kind="node"
-                            data-type="group"
-                            transform="translate(0, 0)"
-                          >
-                            <g
-                              class="custom-group"
-                              data-disabled="false"
-                              data-grouplabel="when"
-                              data-selected="false"
-                              data-testid="custom-group__route.from.steps.1.choice.when.0"
-                              data-toolbar-open="false"
-                              data-warnings="false"
-                            >
-                              <foreignobject
-                                data-nodelabel="when"
-                                height="290"
-                                width="170"
-                                x="260"
-                                y="575"
-                              >
-                                <div
-                                  class="custom-group__container"
-                                  data-testid="route-8888|route.from.steps.1.choice.when.0"
-                                >
-                                  <div
-                                    class="custom-group__container__text custom-group__container__text__draggable"
-                                    data-testid="route-8888|route.from.steps.1.choice.when.0|drag-handle"
-                                    title="when"
-                                  >
-                                    <img
-                                      alt="when"
-                                      src="file-mock-data"
-                                    />
-                                    <span
-                                      title="when"
-                                    >
-                                      when
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                        </g>
-                        <g
-                          data-layer-id="default"
-                        >
-                          <g
-                            data-id="route-8888|route.from >>> route.from.steps.0.set-header"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M397.5 112.5 L397.5 267.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M397.5 112.5 L397.5 267.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(397.5, 253.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="377.5"
-                                y="174"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.0.set-header >>> route.from.steps.1.choice"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M397.5 267.5 L397.5 380"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M397.5 267.5 L397.5 380"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(397.5, 366) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="377.5"
-                                y="307.75"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log >>> route.from.steps.1.choice.when.0.steps.1.placeholder"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M345 652.5 L345 797.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M345 652.5 L345 797.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(345, 783.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to >>> route.from.steps.1.choice.otherwise.steps.1.to"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M595 497.5 L595 652.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M595 497.5 L595 652.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(595, 638.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="575"
-                                y="559"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to >>> route.from.steps.1.choice.otherwise.steps.2.log"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M595 652.5 L595 807.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M595 652.5 L595 807.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(595, 793.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="575"
-                                y="714"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log >>> route.from.steps.1.choice.otherwise.steps.3.placeholder"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M595 807.5 L595 952.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M595 807.5 L595 952.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(595, 938.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.1.choice >>> route.from.steps.2.to"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M397.5 1060 L397.5 1172.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M397.5 1060 L397.5 1172.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(397.5, 1158.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                              <foreignobject
-                                height="40"
-                                width="40"
-                                x="377.5"
-                                y="1090.25"
-                              >
-                                <div
-                                  aria-hidden="true"
-                                  class="custom-edge__add-step add-step-icon"
-                                  title="Add step"
-                                >
-                                  <div
-                                    class="add-step-icon__icon"
-                                  >
-                                    <span
-                                      class="pf-v6-c-icon pf-m-lg"
-                                    >
-                                      <span
-                                        class="pf-v6-c-icon__content"
-                                      >
-                                        <svg
-                                          aria-hidden="true"
-                                          class="pf-v6-svg"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                          />
-                                        </svg>
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-                              </foreignobject>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route.from.steps.2.to >>> route.from.steps.3.placeholder"
-                            data-kind="edge"
-                            data-type="edge"
-                            style="z-index: 0;"
-                          >
-                            <g
-                              class="custom-edge"
-                            >
-                              <path
-                                class="custom-edge__background"
-                                d="M397.5 1172.5 L397.5 1317.5"
-                              />
-                              <path
-                                class="custom-edge__body"
-                                d="M397.5 1172.5 L397.5 1317.5"
-                              />
-                              <g
-                                class="pf-topology-connector-arrow custom-edge__connector"
-                                transform="translate(397.5, 1303.5) rotate(90)"
-                              >
-                                <polygon
-                                  points=" 0,7 0,-7 14,0"
-                                />
-                                <polygon
-                                  fill-opacity="0"
-                                  stroke-width="0"
-                                />
-                              </g>
-                            </g>
-                          </g>
-                          <g
-                            data-id="route-8888|route"
-                            data-kind="node"
-                            data-type="group"
-                          >
-                            <g
-                              data-id="route-8888|route.from"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(352.5, 75)"
-                            />
-                            <g
-                              data-id="route-8888|route.from.steps.0.set-header"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(352.5, 230)"
-                            />
-                            <g
-                              data-id="route-8888|route.from.steps.1.choice"
-                              data-kind="node"
-                              data-type="group"
-                            >
-                              <g
-                                data-id="route-8888|route.from.steps.1.choice.when"
-                                data-kind="node"
-                                data-type="node-placeholder"
-                                transform="translate(115, 692.5)"
-                              />
-                              <g
-                                data-id="route-8888|route.from.steps.1.choice.when.0"
-                                data-kind="node"
-                                data-type="group"
-                              >
-                                <g
-                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.0.log"
-                                  data-kind="node"
-                                  data-type="node"
-                                  transform="translate(300, 615)"
-                                />
-                                <g
-                                  data-id="route-8888|route.from.steps.1.choice.when.0.steps.1.placeholder"
-                                  data-kind="node"
-                                  data-type="node-placeholder"
-                                  transform="translate(315, 770)"
-                                />
-                              </g>
-                              <g
-                                data-id="route-8888|route.from.steps.1.choice.otherwise"
-                                data-kind="node"
-                                data-type="group"
-                              >
-                                <g
-                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.0.to"
-                                  data-kind="node"
-                                  data-type="node"
-                                  transform="translate(550, 460)"
-                                />
-                                <g
-                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.1.to"
-                                  data-kind="node"
-                                  data-type="node"
-                                  transform="translate(550, 615)"
-                                />
-                                <g
-                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.2.log"
-                                  data-kind="node"
-                                  data-type="node"
-                                  transform="translate(550, 770)"
-                                />
-                                <g
-                                  data-id="route-8888|route.from.steps.1.choice.otherwise.steps.3.placeholder"
-                                  data-kind="node"
-                                  data-type="node-placeholder"
-                                  transform="translate(565, 925)"
-                                />
-                              </g>
-                            </g>
-                            <g
-                              data-id="route-8888|route.from.steps.2.to"
-                              data-kind="node"
-                              data-type="node"
-                              transform="translate(352.5, 1135)"
-                            />
-                            <g
-                              data-id="route-8888|route.from.steps.3.placeholder"
-                              data-kind="node"
-                              data-type="node-placeholder"
-                              transform="translate(367.5, 1290)"
-                            />
-                          </g>
-                        </g>
-                        <g
-                          data-layer-id="top"
-                        />
-                      </g>
-                    </g>
-                  </svg>
-                </div>
-                <span
-                  class="pf-topology-control-bar"
-                >
-                  <div
-                    class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-2"
-                    data-ouia-component-type="PF6/Toolbar"
-                    data-ouia-safe="true"
-                    id="pf-topology-control-bar-2"
-                    style="background-color: transparent;"
-                  >
-                    <div
-                      class="pf-v6-c-toolbar__content"
-                    >
-                      <div
-                        class="pf-v6-c-toolbar__content-section"
-                      >
-                        <div
-                          class="pf-v6-c-toolbar__group pf-m-gap-none"
-                        >
-                          <div
-                            class="pf-v6-c-toolbar__item"
-                          >
-                            <div
-                              style="display: contents;"
-                            >
-                              <button
-                                aria-disabled="false"
-                                class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-6"
-                                data-ouia-component-type="PF6/Button"
-                                data-ouia-safe="true"
-                                id="zoom-in"
-                                type="button"
-                              >
-                                <span
-                                  class="pf-v6-c-button__text"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
-                                    role="img"
-                                    viewBox="0 0 512 512"
-                                    width="1em"
-                                  >
-                                    <path
-                                      d="M304 192v32c0 6.6-5.4 12-12 12h-56v56c0 6.6-5.4 12-12 12h-32c-6.6 0-12-5.4-12-12v-56h-56c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h56v-56c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v56h56c6.6 0 12 5.4 12 12zm201 284.7L476.7 505c-9.4 9.4-24.6 9.4-33.9 0L343 405.3c-4.5-4.5-7-10.6-7-17V372c-35.3 27.6-79.7 44-128 44C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208c0 48.3-16.4 92.7-44 128h16.3c6.4 0 12.5 2.5 17 7l99.7 99.7c9.3 9.4 9.3 24.6 0 34zM344 208c0-75.2-60.8-136-136-136S72 132.8 72 208s60.8 136 136 136 136-60.8 136-136z"
-                                    />
-                                  </svg>
-                                  <span
-                                    class="pf-v6-screen-reader"
-                                  >
-                                    Zoom In
-                                  </span>
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                          <div
-                            class="pf-v6-c-toolbar__item"
-                          >
-                            <div
-                              style="display: contents;"
-                            >
-                              <button
-                                aria-disabled="false"
-                                class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-7"
-                                data-ouia-component-type="PF6/Button"
-                                data-ouia-safe="true"
-                                id="zoom-out"
-                                type="button"
-                              >
-                                <span
-                                  class="pf-v6-c-button__text"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
-                                    role="img"
-                                    viewBox="0 0 512 512"
-                                    width="1em"
-                                  >
-                                    <path
-                                      d="M304 192v32c0 6.6-5.4 12-12 12H124c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12zm201 284.7L476.7 505c-9.4 9.4-24.6 9.4-33.9 0L343 405.3c-4.5-4.5-7-10.6-7-17V372c-35.3 27.6-79.7 44-128 44C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208c0 48.3-16.4 92.7-44 128h16.3c6.4 0 12.5 2.5 17 7l99.7 99.7c9.3 9.4 9.3 24.6 0 34zM344 208c0-75.2-60.8-136-136-136S72 132.8 72 208s60.8 136 136 136 136-60.8 136-136z"
-                                    />
-                                  </svg>
-                                  <span
-                                    class="pf-v6-screen-reader"
-                                  >
-                                    Zoom Out
-                                  </span>
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                          <div
-                            class="pf-v6-c-toolbar__item"
-                          >
-                            <div
-                              style="display: contents;"
-                            >
-                              <button
-                                aria-disabled="false"
-                                class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-8"
-                                data-ouia-component-type="PF6/Button"
-                                data-ouia-safe="true"
-                                id="reset-view"
-                                type="button"
-                              >
-                                <span
-                                  class="pf-v6-c-button__text"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
-                                    role="img"
-                                    viewBox="0 0 448 512"
-                                    width="1em"
-                                  >
-                                    <path
-                                      d="M0 180V56c0-13.3 10.7-24 24-24h124c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H64v84c0 6.6-5.4 12-12 12H12c-6.6 0-12-5.4-12-12zM288 44v40c0 6.6 5.4 12 12 12h84v84c0 6.6 5.4 12 12 12h40c6.6 0 12-5.4 12-12V56c0-13.3-10.7-24-24-24H300c-6.6 0-12 5.4-12 12zm148 276h-40c-6.6 0-12 5.4-12 12v84h-84c-6.6 0-12 5.4-12 12v40c0 6.6 5.4 12 12 12h124c13.3 0 24-10.7 24-24V332c0-6.6-5.4-12-12-12zM160 468v-40c0-6.6-5.4-12-12-12H64v-84c0-6.6-5.4-12-12-12H12c-6.6 0-12 5.4-12 12v124c0 13.3 10.7 24 24 24h124c6.6 0 12-5.4 12-12z"
-                                    />
-                                  </svg>
-                                  <span
-                                    class="pf-v6-screen-reader"
-                                  >
-                                    Reset View
-                                  </span>
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                          <div
-                            class="pf-v6-c-toolbar__item"
-                          >
-                            <div
-                              style="display: contents;"
-                            >
-                              <button
-                                class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-9"
-                                data-ouia-component-type="PF6/Button"
-                                data-ouia-safe="true"
-                                id="topology-control-bar-h_layout-button"
-                                type="button"
-                              >
-                                <span
-                                  class="pf-v6-c-button__text"
-                                >
-                                  <svg
-                                    aria-hidden="true"
-                                    class="pf-v6-svg"
-                                    fill="currentColor"
-                                    height="1em"
-                                    viewBox="0 0 512 512"
-                                    width="1em"
-                                  >
-                                    <path
-                                      d="m 432.86328,0 c -34.9234,-1e-5 -64.82625,23.168645 -75.20508,54.859375 h -78.69336 v 0.308594 h -13.1289 V 231.58984 H 148.05078 C 137.78436,201.61385 109.30753,179.7832 76.089844,179.7832 34.355088,179.7832 0,214.19584 0,256 c 0,41.80416 34.355088,76.2168 76.089844,76.2168 33.217686,0 61.694516,-21.83065 71.960936,-51.80664 H 265.83594 V 456.9082 h 13.1289 v 0.29688 h 78.7168 C 368.08021,488.86228 397.96389,512 432.86328,512 476.28035,512 512,476.21975 512,432.73047 c 0,-43.48927 -35.71965,-79.26562 -79.13672,-79.26563 -34.94712,0 -64.86922,23.19608 -75.22851,54.91993 H 314.57422 V 280.41016 h 43.08398 c 10.3789,31.69063 40.28175,54.85742 75.20508,54.85742 C 476.28035,335.26757 512,299.48927 512,256 c 0,-43.48927 -35.71965,-79.26757 -79.13672,-79.26758 -34.92333,0 -64.82618,23.16679 -75.20508,54.85742 H 314.57422 V 103.67773 h 43.08398 c 10.37889,31.69063 40.28175,54.85743 75.20508,54.85743 C 476.28035,158.53515 512.00001,122.75881 512,79.269531 512,35.780261 476.28035,0 432.86328,0 Z"
-                                    />
-                                  </svg>
-                                  <span
-                                    class="pf-v6-screen-reader"
-                                  >
-                                    Horizontal Layout
-                                  </span>
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                          <div
-                            class="pf-v6-c-toolbar__item"
-                          >
-                            <div
-                              style="display: contents;"
-                            >
-                              <button
-                                class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-10"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"

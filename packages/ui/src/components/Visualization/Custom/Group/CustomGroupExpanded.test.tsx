@@ -3,7 +3,7 @@ import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } 
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
-import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
 import { SettingsProvider } from '../../../../providers/settings.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -38,7 +38,7 @@ jest.mock('../../../../hooks/processor-icon.hook', () => ({
   useProcessorIcon: () => ({ Icon: null, description: '' }),
 }));
 
-jest.mock('../../../IconResolver/node-icon-resolver', () => ({
+jest.mock('../../../../icon-resolver/node-icon-resolver', () => ({
   NodeIconResolver: {
     getIcon: jest.fn(() => Promise.resolve('data:image/svg+xml;base64,test')),
     getDefaultCamelIcon: jest.fn(() => 'data:image/svg+xml;base64,default'),
@@ -108,9 +108,13 @@ describe('CustomGroupExpanded', () => {
 
   it('should render group container with data-testid when vizNode is provided', async () => {
     const vizNode = createVisualizationNode('choice-1', {
-      catalogKind: CatalogKind.Processor,
       name: 'choice',
       path: 'route.from.steps.0.choice',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -130,9 +134,13 @@ describe('CustomGroupExpanded', () => {
 
   it('should render icon placeholder when group has validation warnings', async () => {
     const vizNode = createVisualizationNode('choice-1', {
-      catalogKind: CatalogKind.Processor,
       name: 'choice',
       path: 'route.from.steps.0.choice',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -150,9 +158,13 @@ describe('CustomGroupExpanded', () => {
 
   it('should show toolbar when nodeToolbarTrigger is onSelection and group is selected (covers shouldShowToolbar branch)', async () => {
     const vizNode = createVisualizationNode('when-0', {
-      catalogKind: CatalogKind.Processor,
       name: 'when',
       path: 'route.from.steps.0.choice.when.0',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -179,9 +191,13 @@ describe('CustomGroupExpanded', () => {
 
   it('calls getNodeDragAndDropDirection when droppable, canDrop and hover are true (line 162)', async () => {
     const groupVizNode = createVisualizationNode('choice-1', {
-      catalogKind: CatalogKind.Processor,
       name: 'choice',
       path: 'route.from.steps.0.choice',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
     jest.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -189,9 +205,13 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(groupVizNode, 'getTooltipContent').mockReturnValue('Choice');
 
     const draggedVizNode = createVisualizationNode('when-0', {
-      catalogKind: CatalogKind.Processor,
       name: 'when',
       path: 'route.from.steps.0.choice.when.0',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     }) as IVisualizationNode;
 
     const mockDraggedNode = {

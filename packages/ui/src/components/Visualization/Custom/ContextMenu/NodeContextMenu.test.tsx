@@ -62,7 +62,14 @@ describe('NodeContextMenu', () => {
       canRemoveFlow: false,
       canBeDisabled: false,
     };
-    vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    vizNode = createVisualizationNode('test', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue(nodeInteractions);
     element = {
       getData: () => {
@@ -192,10 +199,10 @@ describe('NodeContextMenu', () => {
     expect(item).toBeInTheDocument();
   });
 
-  it('should render an ItemEnableAllSteps', () => {
+  it('should render an ItemEnableAllSteps', async () => {
     const camelResource = new CamelRouteResource([camelRouteWithDisabledSteps]);
     const visualEntity = camelResource.getVisualEntities()[0];
-    const { nodes, edges } = FlowService.getFlowDiagram('test', visualEntity.toVizNode());
+    const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 
     const model: Model = {
       nodes,

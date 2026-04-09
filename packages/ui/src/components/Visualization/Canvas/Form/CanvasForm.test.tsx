@@ -50,9 +50,9 @@ describe('CanvasForm', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!; // choice
   });
 
@@ -106,12 +106,15 @@ describe('CanvasForm', () => {
 
   it('should render nothing if no schema is available', async () => {
     const vizNode = createVisualizationNode('route', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
       isGroup: true,
       processorName: 'route',
+      iconUrl: '',
+      title: 'route',
+      description: '',
+      isPlaceholder: false,
     });
 
     const selectedNode: CanvasNode = {
@@ -144,12 +147,15 @@ describe('CanvasForm', () => {
 
   it('should render nothing if no schema and no definition is available', async () => {
     const vizNode = createVisualizationNode('route', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       path: CamelRouteVisualEntity.ROOT_PATH,
       entity: new CamelRouteVisualEntity(camelRouteJson),
       isGroup: true,
       processorName: 'route',
+      iconUrl: '',
+      title: 'route',
+      description: '',
+      isPlaceholder: false,
     });
 
     const selectedNode: CanvasNode = {
@@ -184,7 +190,7 @@ describe('CanvasForm', () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     await act(async () =>
@@ -225,7 +231,7 @@ describe('CanvasForm', () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     await act(async () =>
@@ -267,7 +273,7 @@ describe('CanvasForm', () => {
     const newName = 'MyNewId';
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     await act(async () =>
@@ -311,7 +317,7 @@ describe('CanvasForm', () => {
     const newName = 'MyNewName';
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
-    const { nodes } = FlowService.getFlowDiagram('test', kameletVisualEntity.toVizNode());
+    const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
     await act(async () =>
@@ -345,9 +351,9 @@ describe('CanvasForm', () => {
   });
 
   describe('should show the User-updated field under the modified tab', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
+      const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
       selectedNode = nodes[0]; // timer
     });
 
@@ -401,7 +407,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -468,7 +474,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -539,7 +545,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -592,9 +598,9 @@ describe('CanvasForm', () => {
   });
 
   describe('should show the Required field under the required tab', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const { nodes } = FlowService.getFlowDiagram('test', camelRouteVisualEntity.toVizNode());
+      const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
       selectedNode = nodes[0]; // timer
     });
 
@@ -644,7 +650,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -707,7 +713,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',
@@ -771,7 +777,7 @@ describe('CanvasForm', () => {
         },
       } as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
-      const rootNode: IVisualizationNode = entity.toVizNode();
+      const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
       const selectedNode = {
         id: '1',

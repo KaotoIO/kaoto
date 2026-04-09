@@ -164,9 +164,13 @@ describe('CamelRouteConfigurationVisualEntity', () => {
 
     expect(
       entity.getNodeInteraction({
-        catalogKind: CatalogKind.Entity,
         name: EntityType.RouteConfiguration,
         path: CamelRouteConfigurationVisualEntity.ROOT_PATH,
+        isPlaceholder: false,
+        isGroup: true,
+        iconUrl: '',
+        title: '',
+        description: '',
       }),
     ).toEqual({
       canHavePreviousStep: false,
@@ -197,9 +201,13 @@ describe('CamelRouteConfigurationVisualEntity', () => {
 
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
     const result = entity.getNodeInteraction({
-      catalogKind: CatalogKind.Entity,
       name: EntityType.RouteConfiguration,
       path: 'another path',
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
 
     expect(superGetNodeInteractionSpy).toHaveBeenCalled();
@@ -214,7 +222,15 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       entity.addStep({
         definedComponent: { type: CatalogKind.Processor, name: 'intercept' } as DefinedComponent,
         mode: AddStepMode.InsertSpecialChildStep,
-        data: { path: 'routeConfiguration.placeholder', catalogKind: CatalogKind.Entity, name: 'routeConfiguration' },
+        data: {
+          path: 'routeConfiguration.placeholder',
+          name: 'routeConfiguration',
+          isPlaceholder: true,
+          isGroup: true,
+          iconUrl: '',
+          title: '',
+          description: '',
+        },
         targetProperty: 'intercept',
       });
 
@@ -248,24 +264,28 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return visualization node', () => {
+    it('should return visualization node', async () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
         entity,
-        catalogKind: CatalogKind.Entity,
         name: 'routeConfiguration',
         isGroup: true,
         path: 'routeConfiguration',
         processorName: 'routeConfiguration',
+        iconAlt: 'Entity icon',
+        iconUrl: 'file-mock-data',
+        isPlaceholder: false,
+        title: '',
+        description: '',
       });
     });
 
-    it('should return hardcoded schema title', () => {
+    it('should return hardcoded schema title', async () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.getNodeTitle()).toEqual('Route Configuration');
     });

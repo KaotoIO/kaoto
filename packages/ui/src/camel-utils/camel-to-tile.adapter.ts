@@ -1,4 +1,5 @@
 import { ITile } from '../components/Catalog/Catalog.models';
+import { getIconRequest } from '../icon-resolver/getIconRequest';
 import {
   CatalogKind,
   ICamelComponentDefinition,
@@ -7,7 +8,7 @@ import {
   IKameletDefinition,
 } from '../models';
 
-export const camelComponentToTile = (componentDef: ICamelComponentDefinition): ITile => {
+export const camelComponentToTile = async (componentDef: ICamelComponentDefinition): Promise<ITile> => {
   const { name, title, description, supportLevel, label, provider, version } = componentDef.component;
   const headerTags: string[] = ['Component'];
   const tags: string[] = [];
@@ -27,6 +28,8 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
     tags.push('producerOnly');
   }
 
+  const { icon: iconUrl } = await getIconRequest(CatalogKind.Component, name);
+
   return {
     type: CatalogKind.Component,
     name,
@@ -36,10 +39,11 @@ export const camelComponentToTile = (componentDef: ICamelComponentDefinition): I
     tags,
     provider,
     version,
+    iconUrl,
   };
 };
 
-export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): ITile => {
+export const camelProcessorToTile = async (processorDef: ICamelProcessorDefinition): Promise<ITile> => {
   const { name, title, description, supportLevel, label, provider } = processorDef.model;
   const headerTags: string[] = ['Processor'];
   const tags = label.split(',');
@@ -47,6 +51,8 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
   if (supportLevel) {
     headerTags.push(supportLevel);
   }
+
+  const { icon: iconUrl } = await getIconRequest(CatalogKind.Processor, name);
 
   return {
     type: CatalogKind.Processor,
@@ -56,18 +62,22 @@ export const camelProcessorToTile = (processorDef: ICamelProcessorDefinition): I
     headerTags,
     tags,
     provider,
+    iconUrl,
   };
 };
 
-export const camelEntityToTile = (processorDef: ICamelProcessorDefinition): ITile => {
-  const entityTile = camelProcessorToTile(processorDef);
+export const camelEntityToTile = async (processorDef: ICamelProcessorDefinition): Promise<ITile> => {
+  const entityTile = await camelProcessorToTile(processorDef);
   entityTile.type = CatalogKind.Entity;
   entityTile.headerTags = ['Entity'];
+
+  const { icon: iconUrl } = await getIconRequest(CatalogKind.Entity, entityTile.name);
+  entityTile.iconUrl = iconUrl;
 
   return entityTile;
 };
 
-export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
+export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITile> => {
   const headerTags: string[] = ['Kamelet'];
   if (kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']) {
     headerTags.push(kameletDef.metadata.annotations['camel.apache.org/kamelet.support.level']);
@@ -83,6 +93,8 @@ export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
     version = kameletDef.metadata.annotations['camel.apache.org/catalog.version'];
   }
 
+  const { icon: iconUrl } = await getIconRequest(CatalogKind.Kamelet, kameletDef.metadata.name);
+
   return {
     type: CatalogKind.Kamelet,
     name: kameletDef.metadata.name,
@@ -91,14 +103,17 @@ export const kameletToTile = (kameletDef: IKameletDefinition): ITile => {
     headerTags,
     tags,
     version,
+    iconUrl,
   };
 };
 
-export const citrusComponentToTile = (componentDefinition: ICitrusComponentDefinition): ITile => {
+export const citrusComponentToTile = async (componentDefinition: ICitrusComponentDefinition): Promise<ITile> => {
   const { kind, version, name, title, description } = componentDefinition;
 
   const headerTags: string[] = [kind];
   const tags: string[] = [];
+
+  const { icon: iconUrl } = await getIconRequest(kind, name);
 
   return {
     type: kind,
@@ -108,5 +123,6 @@ export const citrusComponentToTile = (componentDefinition: ICitrusComponentDefin
     headerTags,
     tags,
     version,
+    iconUrl,
   };
 };

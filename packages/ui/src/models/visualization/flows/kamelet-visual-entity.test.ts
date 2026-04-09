@@ -145,17 +145,17 @@ describe('KameletVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should delegate to the super class toVizNode', () => {
+    it('should delegate to the super class toVizNode', async () => {
       const toVizNodeSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'toVizNode');
       const kamelet = new KameletVisualEntity(kameletDef);
-      kamelet.toVizNode();
+      await kamelet.toVizNode();
 
       expect(toVizNodeSpy).toHaveBeenCalled();
     });
 
-    it('should return a visualization node with title Kamelet', () => {
+    it('should return a visualization node with title Kamelet', async () => {
       const kamelet = new KameletVisualEntity(kameletDef);
-      const vizNode = kamelet.toVizNode();
+      const vizNode = await kamelet.toVizNode();
 
       expect(vizNode.getNodeTitle()).toEqual('Kamelet');
     });

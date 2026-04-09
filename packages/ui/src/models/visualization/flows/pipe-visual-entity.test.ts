@@ -259,8 +259,12 @@ describe('Pipe', () => {
         mode: AddStepMode.ReplaceStep,
         data: {
           path: 'source',
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -280,8 +284,12 @@ describe('Pipe', () => {
         mode: AddStepMode.AppendStep,
         data: {
           path: 'steps.0',
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -302,8 +310,12 @@ describe('Pipe', () => {
         mode: AddStepMode.PrependStep,
         data: {
           path: 'steps.0',
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -324,8 +336,12 @@ describe('Pipe', () => {
         mode: AddStepMode.PrependStep,
         data: {
           path: 'sink',
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -352,8 +368,12 @@ describe('Pipe', () => {
         mode: AddStepMode.AppendStep,
         data: {
           path: 'steps.0',
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 
@@ -438,8 +458,12 @@ describe('Pipe', () => {
       (path) => {
         const result = pipeVisualEntity.getNodeInteraction({
           path,
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
         });
         expect(result).toMatchSnapshot();
       },
@@ -471,15 +495,15 @@ describe('Pipe', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return the viz node and set the initial path to `#`', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should return the viz node and set the initial path to `#`', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
 
       expect(vizNode).toBeDefined();
       expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
     });
 
-    it('should use the path as the node id', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should use the path as the node id', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = sourceNode.getNextNode()!;
       const sinkNode = stepNode.getNextNode()!;
@@ -489,20 +513,20 @@ describe('Pipe', () => {
       expect(sinkNode.id).toEqual('sink');
     });
 
-    it('should use the uri as the node label', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should use the uri as the node label', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
 
       expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
     });
 
-    it('should set the title to `Pipe`', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should set the title to `Pipe`', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
 
       expect(vizNode.getNodeTitle()).toEqual('Pipe');
     });
 
-    it('should get the titles from children nodes', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should get the titles from children nodes', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
 
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = vizNode.getChildren()![1];
@@ -513,18 +537,19 @@ describe('Pipe', () => {
       expect(sinkNode.getNodeTitle()).toEqual('Log Sink');
     });
 
-    it('should set the node labels when the uri is not available', () => {
+    it('should set the node labels when the uri is not available', async () => {
       pipeVisualEntity = new PipeVisualEntity({});
 
-      const sourceNode = pipeVisualEntity.toVizNode().getChildren()![0];
+      const vizNode = await pipeVisualEntity.toVizNode();
+      const sourceNode = vizNode.getChildren()![0];
       const sinkNode = sourceNode.getNextNode();
 
       expect(sourceNode.getNodeLabel()).toEqual('source');
       expect(sinkNode!.getNodeLabel()).toEqual('sink');
     });
 
-    it('should populate the viz node chain with the steps', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should populate the viz node chain with the steps', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
 
       expect(vizNode.data.path).toEqual(PipeVisualEntity.ROOT_PATH);
       expect(vizNode.getNodeLabel()).toEqual('webhook-binding');
@@ -550,8 +575,8 @@ describe('Pipe', () => {
       expect(sink.getNextNode()).toBeUndefined();
     });
 
-    it('should include all steps as children of the Pipe group', () => {
-      const vizNode = pipeVisualEntity.toVizNode();
+    it('should include all steps as children of the Pipe group', async () => {
+      const vizNode = await pipeVisualEntity.toVizNode();
 
       const sourceNode = vizNode.getChildren()![0];
       const stepNode = vizNode.getChildren()![1];
@@ -569,7 +594,7 @@ describe('Pipe', () => {
       expect(sinkNode.getNextNode()).toBeUndefined();
     });
 
-    it('should handle pipe with multiple steps', () => {
+    it('should handle pipe with multiple steps', async () => {
       const pipeWithMultipleSteps = cloneDeep(pipeJson);
       pipeWithMultipleSteps.spec!.steps = [
         {
@@ -595,7 +620,7 @@ describe('Pipe', () => {
         },
       ];
       const entity = new PipeVisualEntity(pipeWithMultipleSteps);
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       // Should have source + 3 steps + sink = 5 children
       expect(vizNode.getChildren()).toHaveLength(5);
@@ -616,7 +641,7 @@ describe('Pipe', () => {
       expect(sinkNode.getPreviousNode()).toBe(step3Node);
     });
 
-    it('should create placeholder nodes when step ref name is undefined', () => {
+    it('should create placeholder nodes when step ref name is undefined', async () => {
       const pipeWithPlaceholder = cloneDeep(pipeJson);
       pipeWithPlaceholder.spec!.steps = [
         {
@@ -627,7 +652,7 @@ describe('Pipe', () => {
         },
       ];
       const entity = new PipeVisualEntity(pipeWithPlaceholder);
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       const stepNode = vizNode.getChildren()![1];
       expect(stepNode.data.isPlaceholder).toBe(true);
@@ -651,8 +676,12 @@ describe('Pipe', () => {
         mode: AddStepMode.AppendStep,
         data: {
           path: 'steps.0',
-          catalogKind: CatalogKind.Kamelet,
           name: 'log-action',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
         },
       });
 

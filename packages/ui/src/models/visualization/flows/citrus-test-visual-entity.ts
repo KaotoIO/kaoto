@@ -19,6 +19,7 @@ import {
 } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { CitrusTestDefaultService } from './support/citrus-test-default.service';
 import { CitrusTestContainerSettings, CitrusTestSchemaService } from './support/citrus-test-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
@@ -351,16 +352,21 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return [];
   }
 
-  toVizNode(): IVisualizationNode {
+  async toVizNode(): Promise<IVisualizationNode> {
     const testGroupNode = createVisualizationNode(this.id, {
-      catalogKind: CatalogKind.TestAction,
       name: this.type,
       path: this.getRootPath(),
       entity: this,
+      isPlaceholder: false,
       isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
 
-    const actionNodes = this.getVizNodesFromSteps(this.test.actions, this.getRootPath());
+    await NodeEnrichmentService.enrichNodeFromCatalog(testGroupNode, CatalogKind.TestAction);
+
+    const actionNodes = await this.getVizNodesFromSteps(this.test.actions, this.getRootPath());
     actionNodes.forEach((actionNode) => {
       testGroupNode.addChild(actionNode);
     });
@@ -429,22 +435,27 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
   }
 
-  private getVizNodeFromStep(action: TestActions, path: string): IVisualizationNode {
+  private async getVizNodeFromStep(action: TestActions, path: string): Promise<IVisualizationNode> {
     const actionName = CitrusTestSchemaService.getTestActionName(action);
     const data: IVisualizationNodeData = {
-      catalogKind: CatalogKind.TestAction,
       name: actionName,
       path,
       entity: this,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     };
 
     const vizNode = createVisualizationNode(path, data);
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.TestAction);
 
     const containerSettings = CitrusTestSchemaService.getTestContainerSettings(actionName);
     if (containerSettings) {
       vizNode.data.isGroup = true;
 
-      const childrenVizNodes = this.getVizNodesFromChildren(this.toModelPath(path), containerSettings);
+      const childrenVizNodes = await this.getVizNodesFromChildren(this.toModelPath(path), containerSettings);
 
       childrenVizNodes.forEach((childVizNode) => {
         vizNode.addChild(childVizNode);
@@ -454,32 +465,37 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return vizNode;
   }
 
-  private getVizNodesFromSteps(actions: TestActions[], path: string): IVisualizationNode[] {
+  private async getVizNodesFromSteps(actions: TestActions[], path: string): Promise<IVisualizationNode[]> {
     if (!Array.isArray(actions)) {
       return [];
     }
     const actionsPath = path === this.getRootPath() ? 'actions' : path;
-    const vizNodes = actions.reduce((acc, action, index) => {
-      const actionName = CitrusTestSchemaService.getTestActionName(action);
-      const vizNode = this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`);
 
-      const previousVizNode = acc[acc.length - 1];
-      if (previousVizNode !== undefined) {
+    const vizNodes: IVisualizationNode[] = [];
+    for (let index = 0; index < actions.length; index++) {
+      const action = actions[index];
+      const actionName = CitrusTestSchemaService.getTestActionName(action);
+      const vizNode = await this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`);
+
+      if (index > 0) {
+        const previousVizNode = vizNodes[index - 1];
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
 
-      acc.push(vizNode);
-      return acc;
-    }, [] as IVisualizationNode[]);
+      vizNodes.push(vizNode);
+    }
 
     /** Empty steps branch placeholder */
     const placeholderPath = `${actionsPath}.${vizNodes.length}.placeholder`;
     const previousNode = vizNodes[vizNodes.length - 1];
     const placeholderNode = createVisualizationNode(placeholderPath, {
-      catalogKind: CatalogKind.TestAction,
       name: 'placeholder',
       isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
       path: placeholderPath,
     });
     vizNodes.push(placeholderNode);
@@ -504,10 +520,10 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return schema;
   }
 
-  protected getVizNodesFromChildren(
+  protected async getVizNodesFromChildren(
     path: string,
     containerSettings: CitrusTestContainerSettings,
-  ): IVisualizationNode[] {
+  ): Promise<IVisualizationNode[]> {
     const subpath = `${path}.${containerSettings.name}`;
     switch (containerSettings.type) {
       case 'single-node':
@@ -524,55 +540,64 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
   }
 
-  protected getChildrenFromSingleClause(path: string): IVisualizationNode[] {
+  protected async getChildrenFromSingleClause(path: string): Promise<IVisualizationNode[]> {
     const action: TestActions = getValue(this.test, path);
     if (action === undefined) {
       /** Empty steps branch placeholder */
       const placeholderPath = `${path}.placeholder`;
       const placeholderNode = createVisualizationNode(placeholderPath, {
-        catalogKind: CatalogKind.TestAction,
         name: 'placeholder',
         isPlaceholder: true,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
         path: placeholderPath,
       });
       return [placeholderNode];
     }
 
     const actionName = CitrusTestSchemaService.getTestActionName(action);
-    return [this.getVizNodeFromStep(action, `${path}.${actionName}`)];
+    const stepVizNode = await this.getVizNodeFromStep(action, `${path}.${actionName}`);
+    return [stepVizNode];
   }
 
-  protected getChildrenFromBranch(path: string): IVisualizationNode[] {
+  protected async getChildrenFromBranch(path: string): Promise<IVisualizationNode[]> {
     const actions: TestActions[] = getValue(this.test, path, []);
     return this.getVizNodesFromSteps(actions, path);
   }
 
-  protected getChildrenFromArrayClause(path: string): IVisualizationNode[] {
+  protected async getChildrenFromArrayClause(path: string): Promise<IVisualizationNode[]> {
     const actions: TestActions[] = getValue(this.test, path, []);
-    const vizNodes = actions.reduce((acc, action, index) => {
+
+    const children: IVisualizationNode[] = [];
+    for (let index = 0; index < actions.length; index++) {
+      const action = actions[index];
       const actionName = CitrusTestSchemaService.getTestActionName(action);
-      const vizNode = this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`);
-      acc.push(vizNode);
-      return acc;
-    }, [] as IVisualizationNode[]);
+      const vizNode = await this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`);
+      children.push(vizNode);
+    }
 
     /** Empty steps branch placeholder */
-    const placeholderPath = `${path}.${vizNodes.length}.placeholder`;
-    const previousNode = vizNodes[vizNodes.length - 1];
+    const placeholderPath = `${path}.${children.length}.placeholder`;
+    const previousNode = children[children.length - 1];
     const placeholderNode = createVisualizationNode(placeholderPath, {
-      catalogKind: CatalogKind.TestAction,
       name: 'placeholder',
       isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
       path: placeholderPath,
     });
-    vizNodes.push(placeholderNode);
+    children.push(placeholderNode);
 
     if (previousNode) {
       previousNode.setNextNode(placeholderNode);
       placeholderNode.setPreviousNode(previousNode);
     }
 
-    return vizNodes;
+    return children;
   }
 
   private toModelPath(path: string) {

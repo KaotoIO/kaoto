@@ -42,38 +42,38 @@ describe('StepNodeMapper', () => {
                     message: \${body}`);
   });
 
-  it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+  it('should return children', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
     expect(vizNode.getChildren()).toHaveLength(2);
     expect(vizNode.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
-  it('should use path for viz node ID for non DataMapper step node', () => {
-    const vizNode1 = mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+  it('should use path for viz node ID for non DataMapper step node', async () => {
+    const vizNode1 = await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
     expect(vizNode1.id).toEqual('from.steps.0.step');
     expect(vizNode1.getChildren()).toHaveLength(2);
     expect(vizNode1.getChildren()?.[1].data.isPlaceholder).toBe(true);
-    const vizNode2 = mapper.getVizNodeFromProcessor(path2, { processorName: 'step' }, routeDefinition);
+    const vizNode2 = await mapper.getVizNodeFromProcessor(path2, { processorName: 'step' }, routeDefinition);
     expect(vizNode2.id).toEqual('from.steps.1.step');
     expect(vizNode2.getChildren()).toHaveLength(2);
     expect(vizNode2.getChildren()?.[1].data.isPlaceholder).toBe(true);
   });
 
-  it('should verify if this step node is a Kaoto DataMapper one', () => {
+  it('should verify if this step node is a Kaoto DataMapper one', async () => {
     const dataMapperNodeSpy = jest.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
 
-    mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
     expect(dataMapperNodeSpy).toHaveBeenCalledWith(routeDefinition.from.steps[0].step);
   });
 
-  it('should delegate to the rootNodeMapper if this step node is a Kaoto DataMapper one', () => {
+  it('should delegate to the rootNodeMapper if this step node is a Kaoto DataMapper one', async () => {
     const rootNodeMapperSpy = jest.spyOn(rootNodeMapper, 'getVizNodeFromProcessor');
     const dataMapperNodeSpy = jest.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
     dataMapperNodeSpy.mockReturnValue(true);
 
-    mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
+    await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
     expect(rootNodeMapperSpy).toHaveBeenCalledWith(path, { processorName: DATAMAPPER_ID_PREFIX }, routeDefinition);
   });

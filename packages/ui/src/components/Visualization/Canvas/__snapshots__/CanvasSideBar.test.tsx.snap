@@ -26,7 +26,7 @@ exports[`CanvasSideBar displays selected node information 1`] = `
               class="pf-v6-l-grid__item pf-m-11-col form-header"
             >
               <img
-                alt="component icon"
+                alt="timer"
                 class="form-header__icon-test|route.from"
                 src="file-mock-data"
               />

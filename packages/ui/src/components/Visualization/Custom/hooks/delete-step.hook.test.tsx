@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -47,7 +46,14 @@ describe('useDeleteStep', () => {
   };
 
   beforeEach(() => {
-    mockVizNode = createVisualizationNode('test-step', { catalogKind: CatalogKind.Entity, name: EntityType.Route });
+    mockVizNode = createVisualizationNode('test-step', {
+      name: EntityType.Route,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
     mockVizNode.removeChild = jest.fn();
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
     (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
@@ -99,9 +105,12 @@ describe('useDeleteStep', () => {
 
   it('should delete step without confirmation when only placeholder child', async () => {
     const placeholderChild = createVisualizationNode('placeholder', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: true,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([placeholderChild]);
 
@@ -116,9 +125,12 @@ describe('useDeleteStep', () => {
 
   it('should show confirmation modal when step has non-placeholder children', async () => {
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
@@ -139,9 +151,12 @@ describe('useDeleteStep', () => {
 
   it('should not delete step when modal is cancelled', async () => {
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
@@ -158,9 +173,12 @@ describe('useDeleteStep', () => {
 
   it('should not delete step when modal returns undefined', async () => {
     const nonPlaceholderChild = createVisualizationNode('child', {
-      catalogKind: CatalogKind.Entity,
       name: EntityType.Route,
       isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(undefined);

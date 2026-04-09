@@ -14,12 +14,12 @@ describe('CanvasSideBar', () => {
   let selectedNode: CanvasNode;
   let Provider: FunctionComponent<PropsWithChildren>;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     mockRandomValues();
     const camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     const visualEntity = camelResource.getVisualEntities()[0];
-    selectedNode = FlowService.getFlowDiagram('test', visualEntity.toVizNode()).nodes[0];
+    selectedNode = FlowService.getFlowDiagram('test', await visualEntity.toVizNode()).nodes[0];
     Provider = TestProvidersWrapper({ camelResource }).Provider;
   });
 

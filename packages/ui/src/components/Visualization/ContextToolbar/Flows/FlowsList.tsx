@@ -1,5 +1,6 @@
 import './FlowsList.scss';
 
+import { camelCaseToSpaces } from '@kaoto/forms';
 import { Button, Icon, SearchInput } from '@patternfly/react-core';
 import { EyeIcon, EyeSlashIcon, TrashIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
@@ -210,9 +211,9 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                       const isDeleteConfirmed = await deleteModalContext?.actionConfirmation({
                         title:
                           "Do you want to delete the '" +
-                          flow.toVizNode().getId() +
+                          flow.id +
                           "' " +
-                          flow.toVizNode().getNodeTitle() +
+                          camelCaseToSpaces(flow.getRootPath(), { capitalize: true }) +
                           '?',
                         text: 'All steps will be lost.',
                       });

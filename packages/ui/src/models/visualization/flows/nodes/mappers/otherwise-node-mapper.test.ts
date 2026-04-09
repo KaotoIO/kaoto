@@ -36,8 +36,8 @@ describe('OtherwiseNodeMapper', () => {
     };
   });
 
-  it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(
+  it('should return children', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(
       path,
       { processorName: 'otherwise' as keyof ProcessorDefinition },
       routeDefinition,

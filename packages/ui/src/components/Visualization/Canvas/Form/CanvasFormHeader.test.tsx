@@ -1,7 +1,6 @@
 import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { act, render } from '@testing-library/react';
 
-import { CatalogKind } from '../../../../models';
 import { CanvasFormHeader } from './CanvasFormHeader';
 
 describe('CanvasFormHeader', () => {
@@ -9,7 +8,7 @@ describe('CanvasFormHeader', () => {
     const { asFragment } = await act(async () =>
       render(
         <CanvasFormTabsProvider>
-          <CanvasFormHeader nodeId="nodeId" catalogKind={CatalogKind.Component} name="log" title="title" />
+          <CanvasFormHeader nodeId="nodeId" title="title" iconUrl="test" />
         </CanvasFormTabsProvider>,
       ),
     );

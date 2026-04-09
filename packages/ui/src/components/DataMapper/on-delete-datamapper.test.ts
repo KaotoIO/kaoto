@@ -1,4 +1,4 @@
-import { CatalogKind, createVisualizationNode } from '../../models';
+import { createVisualizationNode } from '../../models';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
@@ -31,7 +31,14 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step and file when modal answer is ACTION_ID_DELETE_STEP_AND_FILE', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
+    const vizNode = createVisualizationNode('test', {
+      name: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_AND_FILE);
 
@@ -41,7 +48,14 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step only when modal answer is ACTION_ID_DELETE_STEP_ONLY', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
+    const vizNode = createVisualizationNode('test', {
+      name: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_ONLY);
 
@@ -51,7 +65,14 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step only when modal answer is undefined', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
+    const vizNode = createVisualizationNode('test', {
+      name: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
 
     await onDeleteDataMapper(mockApi, vizNode, undefined);
 
@@ -61,7 +82,14 @@ describe('onDeleteDataMapper', () => {
   });
 
   it('should delete step only when modal answer is a different value', async () => {
-    const vizNode = createVisualizationNode('test', { catalogKind: CatalogKind.Component, name: 'log' });
+    const vizNode = createVisualizationNode('test', {
+      name: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
 
     await onDeleteDataMapper(mockApi, vizNode, 'some-other-action');
 

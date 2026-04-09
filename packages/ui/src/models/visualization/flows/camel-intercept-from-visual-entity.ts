@@ -90,8 +90,8 @@ export class CamelInterceptFromVisualEntity
     };
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const interceptFromGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
+    const interceptFromGroupNode = await NodeMapperService.getVizNode(
       CamelInterceptFromVisualEntity.ROOT_PATH,
       { processorName: CamelInterceptFromVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.interceptFromDef,

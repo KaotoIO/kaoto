@@ -39,8 +39,8 @@ describe('WhenNodeMapper', () => {
     };
   });
 
-  it('should return children', () => {
-    const vizNode = mapper.getVizNodeFromProcessor(
+  it('should return children', async () => {
+    const vizNode = await mapper.getVizNodeFromProcessor(
       path,
       { processorName: 'when' as keyof ProcessorDefinition },
       routeDefinition,

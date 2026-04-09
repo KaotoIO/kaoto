@@ -142,8 +142,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     return this.schemaValidator?.errors?.map((error) => `'${error.instancePath}' ${error.message}`).join(',\n');
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const restConfigurationGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
+    const restConfigurationGroupNode = await NodeMapperService.getVizNode(
       this.getRootPath(),
       { processorName: 'restConfiguration' as keyof ProcessorDefinition },
       this.restConfigurationDef,

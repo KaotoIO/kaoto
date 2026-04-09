@@ -7,7 +7,7 @@ import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
+import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { SettingsProvider } from '../../../providers/settings.provider';
@@ -27,7 +27,6 @@ import { applyCollapseState } from './apply-collapse-state';
 
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
-  const entity2 = { ...entity, id: 'route-9999' } as CamelRouteVisualEntity;
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -39,9 +38,8 @@ describe('Canvas', () => {
 
   it('should render correctly', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper({
-      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-    });
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
 
     let result: RenderResult | undefined;
 
@@ -49,34 +47,7 @@ describe('Canvas', () => {
       result = render(
         <Provider>
           <VisualizationProvider controller={ControllerService.createController()}>
-            <Canvas entities={[entity]} />
-          </VisualizationProvider>
-        </Provider>,
-      );
-    });
-
-    await act(async () => {
-      await jest.runAllTimersAsync();
-    });
-
-    await waitFor(async () => expect(screen.getByText('Reset View')).toBeInTheDocument());
-    expect(result?.asFragment()).toMatchSnapshot();
-  });
-
-  it('should render correctly with more routes ', async () => {
-    const { Provider } = TestProvidersWrapper({
-      visibleFlowsContext: {
-        visibleFlows: { ['route-8888']: true, ['route-9999']: false },
-      } as unknown as VisibleFlowsContextResult,
-    });
-
-    let result: RenderResult | undefined;
-
-    await act(async () => {
-      result = render(
-        <Provider>
-          <VisualizationProvider controller={ControllerService.createController()}>
-            <Canvas entities={[entity, entity2]} />
+            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
           </VisualizationProvider>
         </Provider>,
       );
@@ -92,9 +63,8 @@ describe('Canvas', () => {
 
   it('should schedule a graph.fit(80) upon loading', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper({
-      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-    });
+    const { Provider } = TestProvidersWrapper();
+    const vizNode = await entity.toVizNode();
     const controller = ControllerService.createController();
     const fromModelSpy = jest.spyOn(controller, 'fromModel');
 
@@ -102,7 +72,7 @@ describe('Canvas', () => {
       render(
         <Provider>
           <VisualizationProvider controller={controller}>
-            <Canvas entities={[entity]} />
+            <Canvas vizNodes={[vizNode]} entitiesCount={1} />
           </VisualizationProvider>
         </Provider>,
       );
@@ -130,20 +100,19 @@ describe('Canvas', () => {
 
   it('when initialized is true, runs fromModel(model, true), and applyCollapseState', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper({
-      visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-    });
+    const { Provider } = TestProvidersWrapper();
     const controller = ControllerService.createController();
     const fromModelSpy = jest.spyOn(controller, 'fromModel');
+    const vizNode = await entity.toVizNode();
 
     // Stateful child so we can update entities without re-rendering Provider
-    let setEntitiesState: (next: BaseVisualEntity[]) => void = () => {};
+    let setVizNodesState: (next: IVisualizationNode[]) => void = () => {};
     const Inner = () => {
-      const [entities, setEntities] = useState<BaseVisualEntity[]>([entity]);
-      setEntitiesState = setEntities;
+      const [vizNodes, setVizNodes] = useState<IVisualizationNode[]>([vizNode]);
+      setVizNodesState = setVizNodes;
       return (
         <VisualizationProvider controller={controller}>
-          <Canvas entities={entities} />
+          <Canvas vizNodes={vizNodes} entitiesCount={1} />
         </VisualizationProvider>
       );
     };
@@ -161,7 +130,7 @@ describe('Canvas', () => {
     fromModelSpy.mockClear();
 
     await act(async () => {
-      setEntitiesState([entity].slice());
+      setVizNodesState([vizNode].slice());
     });
     await act(async () => {
       await jest.runAllTimersAsync();
@@ -174,13 +143,11 @@ describe('Canvas', () => {
   it('should be able to delete the routes', async () => {
     const camelResource = new CamelRouteResource([camelRouteJson]);
     const routeEntities = camelResource.getVisualEntities();
+    const vizNode = await routeEntities[0].toVizNode();
     const removeSpy = jest.spyOn(camelResource, 'removeEntity');
 
     const { Provider } = TestProvidersWrapper({
       camelResource,
-      visibleFlowsContext: {
-        visibleFlows: { ['route-8888']: true },
-      } as unknown as VisibleFlowsContextResult,
     });
 
     let result: RenderResult | undefined;
@@ -190,7 +157,7 @@ describe('Canvas', () => {
         <ActionConfirmationModalContextProvider>
           <Provider>
             <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas entities={routeEntities} />
+              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
             </VisualizationProvider>
           </Provider>
         </ActionConfirmationModalContextProvider>,
@@ -235,13 +202,11 @@ describe('Canvas', () => {
   it('should be able to delete the kamelets', async () => {
     const kameletResource = new KameletResource(kameletJson);
     const kameletEntities = kameletResource.getVisualEntities();
+    const vizNode = await kameletEntities[0].toVizNode();
     const removeSpy = jest.spyOn(kameletResource, 'removeEntity');
 
     const { Provider } = TestProvidersWrapper({
       camelResource: kameletResource,
-      visibleFlowsContext: {
-        visibleFlows: { ['user-source']: true },
-      } as unknown as VisibleFlowsContextResult,
     });
 
     let result: RenderResult | undefined;
@@ -251,7 +216,7 @@ describe('Canvas', () => {
         <ActionConfirmationModalContextProvider>
           <Provider>
             <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas entities={kameletEntities} />
+              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
             </VisualizationProvider>
           </Provider>
         </ActionConfirmationModalContextProvider>,
@@ -294,9 +259,8 @@ describe('Canvas', () => {
 
   describe('Catalog button', () => {
     it('should be present if `CatalogModalContext` is provided', async () => {
-      const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-      });
+      const { Provider } = TestProvidersWrapper();
+      const vizNode = await entity.toVizNode();
 
       let result: RenderResult | undefined;
 
@@ -305,7 +269,7 @@ describe('Canvas', () => {
           <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), checkCompatibility: jest.fn() }}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas entities={[entity]} />
+                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
               </VisualizationProvider>
             </Provider>
           </CatalogModalContext.Provider>,
@@ -321,9 +285,8 @@ describe('Canvas', () => {
     });
 
     it('should NOT be present if `CatalogModalContext` is NOT provided', async () => {
-      const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-      });
+      const { Provider } = TestProvidersWrapper();
+      const vizNode = await entity.toVizNode();
 
       let result: RenderResult | undefined;
 
@@ -331,7 +294,7 @@ describe('Canvas', () => {
         result = render(
           <Provider>
             <VisualizationProvider controller={ControllerService.createController()}>
-              <Canvas entities={[entity]} />
+              <Canvas vizNodes={[vizNode]} entitiesCount={1} />
             </VisualizationProvider>
           </Provider>,
         );
@@ -347,7 +310,7 @@ describe('Canvas', () => {
   });
 
   describe('Empty state', () => {
-    it('should render empty state when there is no visual entity', async () => {
+    it('should render empty state when there is no visual viznode', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = TestProvidersWrapper({
         visibleFlowsContext: { visibleFlows: {} } as unknown as VisibleFlowsContextResult,
@@ -360,7 +323,7 @@ describe('Canvas', () => {
           <RuntimeProvider>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas entities={[]} />
+                <Canvas vizNodes={[]} entitiesCount={0} />
               </VisualizationProvider>
             </Provider>
           </RuntimeProvider>,
@@ -377,9 +340,7 @@ describe('Canvas', () => {
 
     it('should render empty state when there is no visible flows', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: false } } as unknown as VisibleFlowsContextResult,
-      });
+      const { Provider } = TestProvidersWrapper();
       let result: RenderResult | undefined;
 
       await act(async () => {
@@ -387,7 +348,7 @@ describe('Canvas', () => {
           <RuntimeProvider>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas entities={[entity]} />
+                <Canvas vizNodes={[]} entitiesCount={1} />
               </VisualizationProvider>
             </Provider>
           </RuntimeProvider>,
@@ -400,6 +361,29 @@ describe('Canvas', () => {
 
       await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
       expect(result?.container).toMatchSnapshot();
+    });
+
+    it('should not render all-flows-hidden empty state while viz nodes are still resolving', async () => {
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+      const { Provider } = TestProvidersWrapper();
+
+      await act(async () => {
+        render(
+          <RuntimeProvider>
+            <Provider>
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <Canvas vizNodes={[]} entitiesCount={1} isVizNodesResolving />
+              </VisualizationProvider>
+            </Provider>
+          </RuntimeProvider>,
+        );
+      });
+
+      await act(async () => {
+        await jest.runAllTimersAsync();
+      });
+
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
     });
   });
 
@@ -438,10 +422,9 @@ describe('Canvas', () => {
       async ({ canvasLayoutDirection, layout, activationFn }) => {
         activationFn();
         const settingsAdapter = new DefaultSettingsAdapter({ canvasLayoutDirection });
+        const vizNode = await entity.toVizNode();
 
-        const { Provider } = TestProvidersWrapper({
-          visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-        });
+        const { Provider } = TestProvidersWrapper();
 
         const controller = ControllerService.createController();
         const fromModelSpy = jest.spyOn(controller, 'fromModel');
@@ -451,7 +434,7 @@ describe('Canvas', () => {
             <SettingsProvider adapter={settingsAdapter}>
               <Provider>
                 <VisualizationProvider controller={controller}>
-                  <Canvas entities={[entity]} />
+                  <Canvas vizNodes={[vizNode]} entitiesCount={1} />
                 </VisualizationProvider>
               </Provider>
             </SettingsProvider>,
@@ -484,9 +467,8 @@ describe('Canvas', () => {
         canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       });
 
-      const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-      });
+      const { Provider } = TestProvidersWrapper();
+      const vizNode = await entity.toVizNode();
 
       const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
 
@@ -495,7 +477,7 @@ describe('Canvas', () => {
           <SettingsProvider adapter={settingsAdapter}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas entities={[entity]} />
+                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
               </VisualizationProvider>
             </Provider>
           </SettingsProvider>,
@@ -525,9 +507,8 @@ describe('Canvas', () => {
         canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       });
 
-      const { Provider } = TestProvidersWrapper({
-        visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-      });
+      const { Provider } = TestProvidersWrapper();
+      const vizNode = await entity.toVizNode();
 
       const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
 
@@ -536,7 +517,7 @@ describe('Canvas', () => {
           <SettingsProvider adapter={settingsAdapter}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
-                <Canvas entities={[entity]} />
+                <Canvas vizNodes={[vizNode]} entitiesCount={1} />
               </VisualizationProvider>
             </Provider>
           </SettingsProvider>,
@@ -566,16 +547,15 @@ describe('Canvas', () => {
       async (canvasLayoutDirection) => {
         const settingsAdapter = new DefaultSettingsAdapter({ canvasLayoutDirection });
 
-        const { Provider } = TestProvidersWrapper({
-          visibleFlowsContext: { visibleFlows: { ['route-8888']: true } } as unknown as VisibleFlowsContextResult,
-        });
+        const { Provider } = TestProvidersWrapper();
+        const vizNode = await entity.toVizNode();
 
         await act(async () => {
           render(
             <SettingsProvider adapter={settingsAdapter}>
               <Provider>
                 <VisualizationProvider controller={ControllerService.createController()}>
-                  <Canvas entities={[entity]} />
+                  <Canvas vizNodes={[vizNode]} entitiesCount={1} />
                 </VisualizationProvider>
               </Provider>
             </SettingsProvider>,

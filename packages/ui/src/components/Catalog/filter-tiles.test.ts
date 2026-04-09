@@ -10,6 +10,7 @@ describe('filterTiles', () => {
       description: 'Send messages to (or consume from) Apache ActiveMQ.',
       tags: ['messaging'],
       type: CatalogKind.Component,
+      iconUrl: 'test-icon-url',
     },
     cometd: {
       name: 'cometd',
@@ -18,6 +19,7 @@ describe('filterTiles', () => {
         'Offers publish/subscribe, peer-to-peer (via a server), and RPC style messaging using the CometD/Bayeux protocol.',
       tags: ['networking', 'messaging'],
       type: CatalogKind.Component,
+      iconUrl: 'test-icon-url',
     },
     cron: {
       name: 'cron',
@@ -26,6 +28,7 @@ describe('filterTiles', () => {
       tags: ['scheduling'],
       type: CatalogKind.Component,
       provider: 'Red Hat',
+      iconUrl: 'test-icon-url',
     },
     hazelcast: {
       name: 'hazelcast',
@@ -33,6 +36,7 @@ describe('filterTiles', () => {
       description: 'Perform operations on Hazelcast distributed queue.',
       tags: ['cache', 'clustering', 'messaging'],
       type: CatalogKind.Component,
+      iconUrl: 'test-icon-url',
     },
     setBody: {
       name: 'setBody',
@@ -40,6 +44,7 @@ describe('filterTiles', () => {
       description: 'Set the message body.',
       tags: ['eip', 'transformation'],
       type: CatalogKind.Pattern,
+      iconUrl: 'test-icon-url',
     },
     split: {
       name: 'split',
@@ -47,6 +52,7 @@ describe('filterTiles', () => {
       description: 'Split a message into parts.',
       tags: ['eip', 'routing'],
       type: CatalogKind.Pattern,
+      iconUrl: 'test-icon-url',
     },
     beerSource: {
       name: 'beerSource',
@@ -54,6 +60,7 @@ describe('filterTiles', () => {
       description: 'A source that emits beer.',
       tags: ['beer', 'source'],
       type: CatalogKind.Kamelet,
+      iconUrl: 'test-icon-url',
     },
     slackSource: {
       name: 'slackSource',
@@ -61,6 +68,7 @@ describe('filterTiles', () => {
       description: 'A source that emits messages from Slack.',
       tags: ['slack', 'source'],
       type: CatalogKind.Kamelet,
+      iconUrl: 'test-icon-url',
     },
   };
   const tiles = Object.values(tilesMap);

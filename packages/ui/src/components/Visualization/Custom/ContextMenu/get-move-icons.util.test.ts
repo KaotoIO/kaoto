@@ -10,8 +10,7 @@ import {
   ArrowUpIcon,
 } from '@patternfly/react-icons';
 
-import { CatalogKind } from '../../../../models/catalog-kind';
-import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { IVisualizationNode, IVisualizationNodeData } from '../../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { LayoutType } from '../../Canvas/canvas.models';
@@ -20,10 +19,14 @@ import { getMoveIcons } from './get-move-icons.util';
 describe('getMoveIcons', () => {
   const createMockVizNode = (processorName: string): IVisualizationNode => {
     const data: CamelRouteVisualEntityData = {
-      catalogKind: CatalogKind.Processor,
       name: processorName,
       path: `route.from.steps.0.${processorName}`,
       processorName: processorName as keyof ProcessorDefinition,
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
     };
     return createVisualizationNode(`test-${processorName}`, data);
   };
@@ -144,11 +147,15 @@ describe('getMoveIcons', () => {
     });
 
     it('should handle vizNode without processorName', () => {
-      const data = {
-        catalogKind: CatalogKind.Processor,
+      const data: IVisualizationNodeData = {
         name: 'unknown',
         path: 'route.from.steps.0',
-      } as CamelRouteVisualEntityData;
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      };
       const vizNode = createVisualizationNode('test-unknown', data);
 
       const icons = getMoveIcons(LayoutType.DagreVertical, vizNode);

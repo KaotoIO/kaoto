@@ -1,7 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -34,10 +33,14 @@ const mockGetPotentialPath = getPotentialPath as jest.MockedFunction<typeof getP
 describe('useMoveStep', () => {
   const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
   const vizNode = createVisualizationNode('test', {
-    catalogKind: CatalogKind.Processor,
     name: 'to',
     path: 'route.from.steps.1.to',
     entity: visualEntity,
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
   });
 
   const camelResource = new CamelRouteResource();
@@ -92,7 +95,15 @@ describe('useMoveStep', () => {
     it('should return true when target node is found for append mode', () => {
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
       mockGetVisualizationNodesFromGraph.mockReturnValue([
-        createVisualizationNode('target', { catalogKind: CatalogKind.Processor, name: 'target' }),
+        createVisualizationNode('target', {
+          name: 'target',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+          path: 'route.from.steps.2',
+        }),
       ]);
 
       const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.AppendStep), { wrapper });
@@ -104,7 +115,15 @@ describe('useMoveStep', () => {
     it('should return false when target node is found for append mode but is a placeholder node', () => {
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
       mockGetVisualizationNodesFromGraph.mockReturnValue([
-        createVisualizationNode('target', { catalogKind: CatalogKind.Processor, name: 'target', isPlaceholder: true }),
+        createVisualizationNode('target', {
+          name: 'target',
+          isPlaceholder: true,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+          path: 'route.from.steps.2',
+        }),
       ]);
 
       const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.AppendStep), { wrapper });
@@ -116,7 +135,15 @@ describe('useMoveStep', () => {
     it('should return true when target node is found for prepend mode', () => {
       mockGetPotentialPath.mockReturnValue('route.from.steps.0');
       mockGetVisualizationNodesFromGraph.mockReturnValue([
-        createVisualizationNode('target', { catalogKind: CatalogKind.Processor, name: 'target' }),
+        createVisualizationNode('target', {
+          name: 'target',
+          isPlaceholder: false,
+          isGroup: false,
+          iconUrl: '',
+          title: '',
+          description: '',
+          path: 'route.from.steps.0',
+        }),
       ]);
 
       const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.PrependStep), { wrapper });
@@ -144,14 +171,22 @@ describe('useMoveStep', () => {
 
     it('should find shortest path when multiple nodes match', () => {
       const longPathVizNode = createVisualizationNode('longPath', {
-        catalogKind: CatalogKind.Processor,
         name: 'when',
         path: 'route.from.steps.2.choice.when',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
       const shortPathVizNode = createVisualizationNode('shortPath', {
-        catalogKind: CatalogKind.Processor,
         name: 'choice',
         path: 'route.from.steps.2.choice',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
       const longPathVizNodeSpy = jest.spyOn(longPathVizNode, 'getCopiedContent');
       const shortPathVizNodeSpy = jest.spyOn(shortPathVizNode, 'getCopiedContent');
@@ -200,11 +235,14 @@ describe('useMoveStep', () => {
     it('should call getCopiedContent(), processOnCopyAddon(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource() in case of datamapper step', () => {
       const visualEntity = new CamelRouteVisualEntity(camelRouteJsonWithDM);
       const dataMapperVizNode = createVisualizationNode('test-DM', {
-        catalogKind: CatalogKind.Processor,
         name: 'step',
         path: 'route.from.steps.0.step',
         entity: visualEntity,
         isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
       });
 
       const dataMapperVizNodeCopiedContent = {

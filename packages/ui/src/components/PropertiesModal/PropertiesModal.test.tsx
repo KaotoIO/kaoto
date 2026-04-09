@@ -74,6 +74,7 @@ describe('PropertiesModal', () => {
       description: 'Poll Atom RSS feeds.',
       headerTags: ['Stable'],
       tags: ['document'],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders component properties table correctly', async () => {
@@ -176,6 +177,7 @@ describe('PropertiesModal', () => {
       description: 'Interact with Asterisk PBX Server (VoIP).',
       headerTags: ['Stable'],
       tags: ['document', '4.0.0'],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {
@@ -205,6 +207,7 @@ describe('PropertiesModal', () => {
       description: 'Rest security basic auth definition',
       headerTags: ['Stable'],
       tags: ['document'],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {
@@ -246,6 +249,7 @@ describe('PropertiesModal', () => {
       description: 'Encode and decode data structures using Abstract Syntax Notation One (ASN.1).',
       headerTags: ['Stable'],
       tags: ['document', '4.0.0'],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {
@@ -277,6 +281,7 @@ describe('PropertiesModal', () => {
       description: 'Receive events from Amazon DynamoDB Streams.',
       headerTags: ['Stable'],
       tags: ['source'],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {
@@ -331,6 +336,7 @@ describe('PropertiesModal', () => {
       description: 'Send data to NATS topics.',
       headerTags: ['Stable'],
       tags: ['source', '4.0.0-RC1'],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {
@@ -360,6 +366,7 @@ describe('PropertiesModal', () => {
       description: 'The print test action.',
       headerTags: [],
       tags: [],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {
@@ -397,6 +404,7 @@ describe('PropertiesModal', () => {
       description: 'The iterate test container.',
       headerTags: [],
       tags: [],
+      iconUrl: 'test-icon-url',
     };
 
     it('renders property modal correctly', async () => {

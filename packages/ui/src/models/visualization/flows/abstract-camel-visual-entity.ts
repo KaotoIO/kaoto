@@ -18,6 +18,7 @@ import {
 } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
@@ -256,17 +257,23 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return ModelValidationService.validateNodeStatus(schema, definition);
   }
 
-  toVizNode(): IVisualizationNode {
+  async toVizNode(): Promise<IVisualizationNode> {
     const routeGroupNode = createVisualizationNode(this.getRootPath(), {
-      catalogKind: CatalogKind.Entity,
       name: this.type,
       path: this.getRootPath(),
       entity: this,
+      isPlaceholder: false,
       isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
       processorName: 'route',
     });
 
-    const fromNode = NodeMapperService.getVizNode(
+    // Enrich route group node with catalog properties
+    await NodeEnrichmentService.enrichNodeFromCatalog(routeGroupNode, CatalogKind.Entity);
+
+    const fromNode = await NodeMapperService.getVizNode(
       `${this.getRootPath()}.from`,
       {
         processorName: 'from' as keyof ProcessorDefinition,

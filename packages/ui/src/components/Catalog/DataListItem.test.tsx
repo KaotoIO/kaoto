@@ -12,6 +12,7 @@ describe('DataListItem', () => {
     tags: ['tag1', 'tag2'],
     headerTags: ['header-tag1', 'header-tag2'],
     version: '1.0',
+    iconUrl: 'tile-icon-url',
   };
 
   it('renders correctly', async () => {

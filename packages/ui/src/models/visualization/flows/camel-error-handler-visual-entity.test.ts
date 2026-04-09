@@ -161,10 +161,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
   });
 
   describe('toVizNode', () => {
-    it('should return visualization node', () => {
+    it('should return visualization node', async () => {
       const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-      const vizNode = entity.toVizNode();
+      const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
@@ -178,13 +178,18 @@ describe('CamelErrorHandlerVisualEntity', () => {
         isGroup: true,
         path: 'errorHandler',
         processorName: 'errorHandler',
+        iconAlt: 'processor icon',
+        iconUrl: 'file-mock-data',
+        isPlaceholder: false,
+        title: '',
+        description: '',
       });
     });
   });
 
-  it('should return hardcoded schema title', () => {
+  it('should return hardcoded schema title', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
-    const vizNode = entity.toVizNode();
+    const vizNode = await entity.toVizNode();
 
     expect(vizNode.getNodeTitle()).toEqual('Error Handler');
   });

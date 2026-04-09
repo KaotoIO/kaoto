@@ -75,8 +75,8 @@ export class CamelOnExceptionVisualEntity
     };
   }
 
-  toVizNode(): IVisualizationNode<IVisualizationNodeData> {
-    const onExceptionGroupNode = NodeMapperService.getVizNode(
+  async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
+    const onExceptionGroupNode = await NodeMapperService.getVizNode(
       CamelOnExceptionVisualEntity.ROOT_PATH,
       { processorName: CamelOnExceptionVisualEntity.ROOT_PATH as keyof ProcessorDefinition },
       this.onExceptionDef,

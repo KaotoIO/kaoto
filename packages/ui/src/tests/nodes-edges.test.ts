@@ -8,11 +8,11 @@ describe('Nodes and Edges', () => {
     FlowService.edges = [];
   });
 
-  it('should generate edges for steps with branches', () => {
+  it('should generate edges for steps with branches', async () => {
     const camelResource = new CamelRouteResource(camelRouteBranch);
     const [camelRoute] = camelResource.getVisualEntities();
 
-    const rootVizNode = camelRoute.toVizNode();
+    const rootVizNode = await camelRoute.toVizNode();
     const { nodes, edges } = FlowService.getFlowDiagram('test', rootVizNode);
 
     expect(nodes).toMatchSnapshot();
