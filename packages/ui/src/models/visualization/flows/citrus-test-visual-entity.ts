@@ -215,6 +215,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
     if (path === this.getRootPath()) {
       this.id = this.test.name;
+      return;
     }
 
     setValue(this.test, this.toModelPath(path), value);
