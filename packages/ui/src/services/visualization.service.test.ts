@@ -1971,8 +1971,7 @@ describe('VisualizationService', () => {
         expect(contactEmailNode).toBeInstanceOf(FieldItemNodeData);
       });
 
-      it('FieldItemNodeData.path should match FieldItem.nodePath so mapping lines render correctly', () => {
-        // Create a mapping for a member field inside the choice wrapper
+      it('FieldItemNodeData.path should include choice wrapper segment while FieldItem.nodePath should not', () => {
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
         const sourceFieldNode = sourceDocChildren[0] as FieldNodeData;
         const sourceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceFieldNode);
@@ -1983,12 +1982,9 @@ describe('VisualizationService', () => {
 
         VisualizationService.engageMapping(tree, sourceChildren[0] as FieldNodeData, memberNode);
 
-        // Re-render the visual tree using FieldItemNodeData for the parent (as the
-        // real rendering pipeline would, since it has a mapping)
         const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         const parentItem = tree.children[0] as FieldItem;
         const freshParentNode = new FieldItemNodeData(freshTargetDocNode, parentItem);
-        // Override field to include the choice member
         freshParentNode.field = {
           ...freshParentNode.field,
           fields: [choiceField],
@@ -1998,11 +1994,13 @@ describe('VisualizationService', () => {
         const choiceChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshChoiceNode);
         const contactEmailNode = choiceChildren.find((c) => c.title === 'contactEmail') as FieldItemNodeData;
 
-        // The visual node path must match the mapping tree nodePath for line rendering
         const mappingFieldItem = parentItem.children.find(
           (c) => c instanceof FieldItem && c.field === memberField,
         ) as FieldItem;
-        expect(contactEmailNode.path.toString()).toEqual(mappingFieldItem.nodePath.toString());
+        // Visual path includes choice wrapper segment; mapping path does not.
+        // MappingLinksService.computeVisualTargetNodePath bridges this gap for line rendering.
+        expect(contactEmailNode.path.pathSegments).toContain(choiceField.id);
+        expect(mappingFieldItem.nodePath.pathSegments).not.toContain(choiceField.id);
       });
 
       it('should work for nested fields inside choice member (mapping + rendering + path)', () => {
@@ -2091,10 +2089,10 @@ describe('VisualizationService', () => {
         expect(freshEmailAddressNode).toBeDefined();
         expect(freshEmailAddressNode).toBeInstanceOf(FieldItemNodeData);
 
-        // Path must match mapping tree nodePath for line rendering
-        expect((freshEmailAddressNode as FieldItemNodeData).path.toString()).toEqual(
-          emailAddressItem.nodePath.toString(),
-        );
+        // Visual path includes choice wrapper segment; mapping path does not.
+        // MappingLinksService.computeVisualTargetNodePath bridges this gap for line rendering.
+        expect((freshEmailAddressNode as FieldItemNodeData).path.pathSegments).toContain(nestedChoiceField.id);
+        expect(emailAddressItem.nodePath.pathSegments).not.toContain(nestedChoiceField.id);
       });
     });
 
@@ -2196,10 +2194,12 @@ describe('VisualizationService', () => {
         expect(freshNestedDirect1).toBeDefined();
         expect(freshNestedDirect1).toBeInstanceOf(FieldItemNodeData);
 
-        // Path must match mapping tree nodePath
-        expect((freshNestedDirect1 as FieldItemNodeData).path.toString()).toEqual(
-          nestedDirect1Item.nodePath.toString(),
-        );
+        // Visual path includes both choice wrapper segments; mapping path includes neither.
+        // MappingLinksService.computeVisualTargetNodePath bridges this gap for line rendering.
+        expect((freshNestedDirect1 as FieldItemNodeData).path.pathSegments).toContain(freshOuterChoice.id);
+        expect((freshNestedDirect1 as FieldItemNodeData).path.pathSegments).toContain(freshInnerChoice.id);
+        expect(nestedDirect1Item.nodePath.pathSegments).not.toContain(freshOuterChoice.id);
+        expect(nestedDirect1Item.nodePath.pathSegments).not.toContain(freshInnerChoice.id);
       });
     });
   });

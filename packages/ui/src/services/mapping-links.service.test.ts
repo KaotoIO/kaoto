@@ -4,8 +4,9 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  IField,
 } from '../models/datamapper/document';
-import { MappingTree } from '../models/datamapper/mapping';
+import { FieldItem, MappingTree, ValueSelector } from '../models/datamapper/mapping';
 import { useDocumentTreeStore } from '../store';
 import { mockRandomValues } from '../stubs';
 import {
@@ -15,6 +16,7 @@ import {
   getMessage837Xsd,
   getOrgToContactsXslt,
   getOrgXsd,
+  getSchemaTestXsd,
   getShipOrderJsonSchema,
   getShipOrderToShipOrderCollectionIndexXslt,
   getShipOrderToShipOrderMultipleForEachXslt,
@@ -26,6 +28,7 @@ import {
   getX12850ForEachXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
+import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { MappingLinksService } from './mapping-links.service';
 import { MappingSerializerService } from './mapping-serializer.service';
@@ -282,6 +285,139 @@ describe('MappingLinksService', () => {
 
       expect(selectedLinks.length).toBeGreaterThan(0);
       expect(selectedLinks.every((l) => l.targetNodePath === firstTargetPath)).toBeTruthy();
+    });
+  });
+
+  describe('choice wrapper target paths', () => {
+    it('should include choice wrapper segments in target paths for fields inside choice', () => {
+      const targetDefinition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'schemaTest.xsd': getSchemaTestXsd() },
+      );
+      const choiceTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
+      const choiceTree = new MappingTree(
+        choiceTargetDoc.documentType,
+        choiceTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+
+      const rootField = choiceTargetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(rootField);
+      const personField = rootField.fields.find((f: IField) => f.name === 'person')!;
+      DocumentUtilService.resolveTypeFragment(personField);
+      const outerChoiceField = personField.fields.find((f: IField) => f.isChoice)!;
+      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.isChoice)!;
+      const emailField = innerChoiceField.fields.find((f: IField) => f.name === 'email')!;
+
+      outerChoiceField.id = 'outer-choice';
+      innerChoiceField.id = 'inner-choice';
+
+      choiceTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const rootItem = new FieldItem(choiceTree, rootField);
+      choiceTree.children.push(rootItem);
+      const personItem = new FieldItem(rootItem, personField);
+      rootItem.children.push(personItem);
+      const emailItem = new FieldItem(personItem, emailField);
+      personItem.children.push(emailItem);
+      const valueSelector = new ValueSelector(emailItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      emailItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].targetNodePath).toEqual(
+        `targetBody:Body://${rootItem.id}/${personItem.id}/outer-choice/inner-choice/${emailItem.id}`,
+      );
+      expect(emailItem.nodePath.toString()).not.toContain('outer-choice');
+    });
+
+    it('should exclude selected choice wrapper segments from target paths', () => {
+      const targetDefinition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'schemaTest.xsd': getSchemaTestXsd() },
+      );
+      const choiceTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
+      const choiceTree = new MappingTree(
+        choiceTargetDoc.documentType,
+        choiceTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+
+      const rootField = choiceTargetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(rootField);
+      const personField = rootField.fields.find((f: IField) => f.name === 'person')!;
+      DocumentUtilService.resolveTypeFragment(personField);
+      const outerChoiceField = personField.fields.find((f: IField) => f.isChoice)!;
+      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.isChoice)!;
+      const emailField = innerChoiceField.fields.find((f: IField) => f.name === 'email')!;
+
+      outerChoiceField.id = 'outer-choice';
+      innerChoiceField.id = 'inner-choice';
+      outerChoiceField.selectedMemberIndex = 0;
+      innerChoiceField.selectedMemberIndex = 0;
+
+      choiceTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const rootItem = new FieldItem(choiceTree, rootField);
+      choiceTree.children.push(rootItem);
+      const personItem = new FieldItem(rootItem, personField);
+      rootItem.children.push(personItem);
+      const emailItem = new FieldItem(personItem, emailField);
+      personItem.children.push(emailItem);
+      const valueSelector = new ValueSelector(emailItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      emailItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].targetNodePath).toEqual(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailItem.id}`);
+    });
+
+    it('should only include unselected choice wrapper segments when mixed', () => {
+      const targetDefinition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'schemaTest.xsd': getSchemaTestXsd() },
+      );
+      const choiceTargetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
+      const choiceTree = new MappingTree(
+        choiceTargetDoc.documentType,
+        choiceTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+
+      const rootField = choiceTargetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(rootField);
+      const personField = rootField.fields.find((f: IField) => f.name === 'person')!;
+      DocumentUtilService.resolveTypeFragment(personField);
+      const outerChoiceField = personField.fields.find((f: IField) => f.isChoice)!;
+      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.isChoice)!;
+      const emailField = innerChoiceField.fields.find((f: IField) => f.name === 'email')!;
+
+      outerChoiceField.id = 'outer-choice';
+      innerChoiceField.id = 'inner-choice';
+      outerChoiceField.selectedMemberIndex = 0;
+
+      choiceTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const rootItem = new FieldItem(choiceTree, rootField);
+      choiceTree.children.push(rootItem);
+      const personItem = new FieldItem(rootItem, personField);
+      rootItem.children.push(personItem);
+      const emailItem = new FieldItem(personItem, emailField);
+      personItem.children.push(emailItem);
+      const valueSelector = new ValueSelector(emailItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      emailItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].targetNodePath).toEqual(
+        `targetBody:Body://${rootItem.id}/${personItem.id}/inner-choice/${emailItem.id}`,
+      );
     });
   });
 
