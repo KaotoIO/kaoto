@@ -11,9 +11,12 @@ import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
+import { EndpointField } from './EndpointField/EndpointField';
+import { EndpointsField } from './EndpointField/EndpointsField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
+import { TextAreaField } from './TextAreaField/TextAreaField';
 import { UriField } from './UriField/UriField';
 
 describe('customFieldsFactoryfactory', () => {
@@ -160,5 +163,41 @@ describe('customFieldsFactoryfactory', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'object', title: 'Endpoint Properties' };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointPropertiesField);
+  });
+
+  it('returns EndpointField for string type with title "Endpoint"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Endpoint' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointField);
+  });
+
+  it('returns EndpointField for string type with title "Client"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Client' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointField);
+  });
+
+  it('returns EndpointField for string type with title "Server"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Server' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointField);
+  });
+
+  it('returns TextAreaField for string type with title "Data"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Data' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns TextAreaField for string type with title "Source"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Source' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns EndpointsField for array type with title "Endpoints"', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'array', title: 'Endpoints' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointsField);
   });
 });
