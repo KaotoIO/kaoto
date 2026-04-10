@@ -440,6 +440,73 @@ describe('DocumentTreeNode', () => {
     });
   });
 
+  describe('choice wrapper path uniqueness', () => {
+    it('should give choice wrapper nodes a unique path distinct from parent', () => {
+      const rootNode = new DocumentTreeNode(mockNodeData);
+
+      const parentData: NodeData = {
+        title: 'Parent',
+        id: 'parent-1',
+        path: NodePath.childOf(mockNodeData.path, 'parent-1'),
+        isSource: false,
+        isPrimitive: false,
+      };
+      const parentNode = rootNode.addChild(parentData);
+
+      const choiceData: NodeData = {
+        title: 'choice',
+        id: 'choice-1',
+        path: NodePath.childOf(parentData.path, 'choice-1'),
+        isSource: false,
+        isPrimitive: false,
+      };
+      const choiceNode = parentNode.addChild(choiceData);
+
+      expect(parentNode.path).not.toEqual(choiceNode.path);
+      expect(rootNode.findByPath(parentNode.path)).toBe(parentNode);
+      expect(rootNode.findByPath(choiceNode.path)).toBe(choiceNode);
+    });
+
+    it('should give nested choice wrappers unique paths at each level', () => {
+      const rootNode = new DocumentTreeNode(mockNodeData);
+
+      const parentData: NodeData = {
+        title: 'Parent',
+        id: 'parent-1',
+        path: NodePath.childOf(mockNodeData.path, 'parent-1'),
+        isSource: false,
+        isPrimitive: false,
+      };
+      const parentNode = rootNode.addChild(parentData);
+
+      const outerChoiceData: NodeData = {
+        title: 'outer-choice',
+        id: 'outer-choice-1',
+        path: NodePath.childOf(parentData.path, 'outer-choice-1'),
+        isSource: false,
+        isPrimitive: false,
+      };
+      const outerChoiceNode = parentNode.addChild(outerChoiceData);
+
+      const innerChoiceData: NodeData = {
+        title: 'inner-choice',
+        id: 'inner-choice-1',
+        path: NodePath.childOf(outerChoiceData.path, 'inner-choice-1'),
+        isSource: false,
+        isPrimitive: false,
+      };
+      const innerChoiceNode = outerChoiceNode.addChild(innerChoiceData);
+
+      expect(parentNode.path).not.toEqual(outerChoiceNode.path);
+      expect(outerChoiceNode.path).not.toEqual(innerChoiceNode.path);
+      expect(parentNode.path).not.toEqual(innerChoiceNode.path);
+
+      expect(rootNode.findByPath(parentNode.path)).toBe(parentNode);
+      expect(rootNode.findByPath(outerChoiceNode.path)).toBe(outerChoiceNode);
+      expect(rootNode.findByPath(innerChoiceNode.path)).toBe(innerChoiceNode);
+    });
+  });
+
   describe('edge cases', () => {
     it('should handle primitive document nodes', () => {
       const primitiveNodeData: NodeData = {
