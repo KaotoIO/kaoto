@@ -43,6 +43,7 @@ export abstract class MappingItem {
   /** The root {@link MappingTree} this item belongs to. */
   mappingTree: MappingTree;
   children: MappingItem[] = [];
+  comment?: string;
   get nodePath(): NodePath {
     return NodePath.childOf(this.parent.nodePath, this.id);
   }
@@ -59,6 +60,7 @@ export abstract class MappingItem {
       cc.parent = cloned;
       return cc;
     });
+    cloned.comment = this.comment;
     return cloned;
   }
 }

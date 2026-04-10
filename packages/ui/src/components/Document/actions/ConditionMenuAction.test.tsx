@@ -212,4 +212,195 @@ describe('ConditionMenuAction', () => {
 
     await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
   });
+
+  describe('Comment Functionality', () => {
+    describe('Comment Dropdown Item Rendering', () => {
+      it('should render comment dropdown item when nodeData has a mapping item', () => {
+        const nodeData = new TargetFieldNodeData(
+          documentNodeData,
+          targetDoc.fields[0],
+          new FieldItem(mappingTree, targetDoc.fields[0]),
+        );
+        const onUpdateMock = jest.fn();
+        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
+        });
+
+        // Comment item should be visible
+        expect(screen.getByTestId('transformation-actions-comment')).toBeInTheDocument();
+      });
+
+      it('should display "Edit Comment" when there is an existing comment', () => {
+        const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+        fieldItem.comment = 'Existing comment';
+        const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
+        const onUpdateMock = jest.fn();
+        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
+        });
+
+        const commentItem = screen.getByTestId('transformation-actions-comment');
+        expect(commentItem).toHaveTextContent('Edit Comment');
+      });
+    });
+
+    describe('Comment Modal Opening', () => {
+      it('should open CommentModal when comment dropdown item is clicked', async () => {
+        const nodeData = new TargetFieldNodeData(
+          documentNodeData,
+          targetDoc.fields[0],
+          new FieldItem(mappingTree, targetDoc.fields[0]),
+        );
+        const onUpdateMock = jest.fn();
+        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
+        });
+
+        // Click the comment item
+        const commentItem = screen.getByTestId('transformation-actions-comment');
+        act(() => {
+          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
+        });
+
+        // Modal should be open
+        await waitFor(() => {
+          expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+        });
+      });
+    });
+
+    describe('CommentModal Rendering', () => {
+      it('should render CommentModal when mappingItem exists', () => {
+        const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+        const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
+        const onUpdateMock = jest.fn();
+        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
+        });
+
+        // Click the comment item to open modal
+        const commentItem = screen.getByTestId('transformation-actions-comment');
+        act(() => {
+          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
+        });
+
+        // Modal should be rendered
+        expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+      });
+
+      it('should pass correct mapping to CommentModal', () => {
+        const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+        fieldItem.comment = 'Test comment';
+        const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
+        const onUpdateMock = jest.fn();
+        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
+        });
+
+        // Click the comment item to open modal
+        const commentItem = screen.getByTestId('transformation-actions-comment');
+        act(() => {
+          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
+        });
+
+        // Modal should display the comment
+        const textarea = screen.getByTestId('comment-textarea') as HTMLTextAreaElement;
+        expect(textarea.value).toBe('Test comment');
+      });
+    });
+
+    describe('CommentModal Closing', () => {
+      it('should close CommentModal when handleCloseCommentModal is called', async () => {
+        const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+        const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
+        const onUpdateMock = jest.fn();
+        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
+        });
+
+        // Click the comment item to open modal
+        const commentItem = screen.getByTestId('transformation-actions-comment');
+        act(() => {
+          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
+        });
+
+        expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+
+        // Close the modal
+        const cancelButton = screen.getByTestId('cancel-comment-btn');
+        act(() => {
+          fireEvent.click(cancelButton);
+        });
+
+        // Modal should be closed
+        await waitFor(() => {
+          expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+        });
+      });
+
+      describe('Comment Modal Integration', () => {
+        it('should update comment and close modal when Create is clicked', async () => {
+          const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+          const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
+          const onUpdateMock = jest.fn();
+          render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+          // Open the dropdown menu
+          const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+          act(() => {
+            fireEvent.click(actionToggle);
+          });
+
+          // Click the comment item to open modal
+          const commentItem = screen.getByTestId('transformation-actions-comment');
+          act(() => {
+            fireEvent.click(commentItem.getElementsByTagName('button')[0]);
+          });
+
+          // Add a comment
+          const textarea = screen.getByTestId('comment-textarea');
+          act(() => {
+            fireEvent.change(textarea, { target: { value: 'New test comment' } });
+          });
+
+          const createButton = screen.getByTestId('create-comment-btn');
+          act(() => {
+            fireEvent.click(createButton);
+          });
+
+          // Modal should close
+          await waitFor(() => {
+            expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+          });
+
+          // Comment should be set
+          expect(fieldItem.comment).toBe('New test comment');
+        });
+      });
+    });
+  });
 });
