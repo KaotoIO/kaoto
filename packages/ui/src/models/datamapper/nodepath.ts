@@ -1,13 +1,19 @@
 import { DocumentType } from './document';
 
 /**
- * The internal path representation which uses {@link IField.id} for source and {@link MappingItem.id} for target
- * to represent the node, and use '/' as a path separator.
- * In order to distinguish all the nodes at the target side, we needed to use ID. While document field nodes are all
- * unique with its path (when namespace is taken care) at the same level, e.g. it is guaranteed that `/ns0:ShipOrder/ns0:ShipTo`
- * is unique, it is not the case at the target side once the mappings are overlaid. For example there could be
- * multiple `for-each` element at the same level, for example `/ns0:ShipOrder/for-each` is ambiguous when there're
- * multiple `for-each` at the same level, such as `/ns0:ShipOrder/for-each[0]` and `/ns0:ShipOrder/for-each[1]`.
+ * Generic path identifier for a node within a tree structure, using '/' as a segment separator.
+ * Each segment is the node's `id`, which ensures uniqueness even when multiple mapping instructions
+ * (e.g. `for-each`) share the same name at the same level.
+ *
+ * `NodePath` is used in two distinct tree structures:
+ *
+ * - **Mapping tree** ({@link MappingItem.nodePath}): represents the node's position in the XSLT
+ *   output structure. `xs:choice` is a schema compositor with no XSLT counterpart, so choice
+ *   wrapper segments are absent from these paths.
+ *
+ * - **Visual document tree** ({@link NodeData.path}): represents the node's position among
+ *   rendered document nodes. Unselected choice wrappers ARE rendered nodes and therefore have
+ *   their own path segments, even though they won't appear in XPath or the XSLT output.
  */
 export class NodePath {
   documentType: DocumentType = DocumentType.SOURCE_BODY;

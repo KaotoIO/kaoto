@@ -43,6 +43,12 @@ export abstract class MappingItem {
   /** The root {@link MappingTree} this item belongs to. */
   mappingTree: MappingTree;
   children: MappingItem[] = [];
+  /**
+   * {@link NodePath} representing this item's position in the **mapping tree** (XSLT output
+   * structure). `xs:choice` is a schema compositor — not an XML element — so choice wrapper
+   * segments are never included. Use {@link MappingLinksService.computeVisualTargetNodePath}
+   * to obtain the corresponding visual document tree path that includes choice wrapper segments.
+   */
   get nodePath(): NodePath {
     return NodePath.childOf(this.parent.nodePath, this.id);
   }

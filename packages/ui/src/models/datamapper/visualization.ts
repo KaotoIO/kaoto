@@ -27,7 +27,13 @@ export interface NodeData {
   type?: Types;
   /** Stable identifier used for keying and DnD operations. */
   id: string;
-  /** Full path from the document root to this node. */
+  /**
+   * {@link NodePath} representing this node's position in the **visual document tree**.
+   * Unselected choice wrappers are rendered nodes and have their own path segment,
+   * unlike in the mapping tree where `xs:choice` has no counterpart.
+   * See {@link MappingLinksService.computeVisualTargetNodePath} for the bridge between
+   * mapping tree and visual tree paths.
+   */
   path: NodePath;
   /** `true` for source-side nodes, `false` for target-side nodes. */
   isSource: boolean;
@@ -147,19 +153,18 @@ export class ChoiceFieldNodeData extends FieldNodeData {
  * Target-side counterpart of {@link ChoiceFieldNodeData}.
  * Carries the same selected/unselected semantics; see that class for details.
  *
- * When unselected (`field.isChoice === true`), the wrapper is **path-transparent**:
- * its {@link path} equals its parent's path so that children compute paths matching
- * the mapping tree hierarchy (which has no choice wrapper nodes). This ensures
- * {@link MappingLinksService} can match visual node paths to mapping node paths
- * for line rendering.
+ * The {@link path} is a {@link NodePath} representing this node's position in the
+ * **visual document tree**. When unselected (`field.isChoice === true`), the choice
+ * wrapper IS a rendered node and therefore has its own path segment — even though
+ * `xs:choice` is a schema compositor (not an XML element) that won't appear in XPath
+ * or the XSLT output structure.
+ *
+ * Note: the mapping tree ({@link MappingItem.nodePath}) does not include choice wrapper
+ * segments because the mapping tree mirrors the XSLT output structure. The bridge between
+ * visual and mapping tree paths is handled by
+ * {@link MappingLinksService.computeVisualTargetNodePath}.
  */
 export class TargetChoiceFieldNodeData extends TargetFieldNodeData {
-  constructor(parent: TargetNodeData, field: IField, mapping?: FieldItem) {
-    super(parent, field, mapping);
-    if (field.isChoice) {
-      this.path = parent.path;
-    }
-  }
   /** The choice wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
   choiceField?: IField;
 }

@@ -4,10 +4,12 @@ import {
   FieldItem,
   IDocument,
   IExpressionHolder,
+  IField,
   IMappingLink,
   isExpressionHolder,
   MappingItem,
   MappingTree,
+  NodePath,
   PrimitiveDocument,
   ValueSelector,
 } from '../models/datamapper';
@@ -26,7 +28,7 @@ export class MappingLinksService {
     selectedNodeIsSource: boolean = false,
   ): IMappingLink[] {
     const answer = [] as IMappingLink[];
-    const targetNodePath = item.nodePath.toString();
+    const targetNodePath = MappingLinksService.computeVisualTargetNodePath(item).toString();
     if (item instanceof MappingItem && isExpressionHolder(item)) {
       const links = MappingLinksService.doExtractMappingLinks(
         item,
@@ -135,5 +137,51 @@ export class MappingLinksService {
     return !!mappingLinks
       .filter((link) => link.isSelected)
       .some((link) => link.sourceNodePath === nodePath || link.targetNodePath === nodePath);
+  }
+
+  /**
+   * Bridges a mapping tree {@link NodePath} (no choice wrapper segments) to the
+   * visual document tree {@link NodePath} (with choice wrapper segments) by inserting
+   * intermediate choice wrapper IDs from the {@link IField} parent chain.
+   *
+   * The mapping tree mirrors the XSLT output structure where `xs:choice` has no counterpart,
+   * while the visual tree renders choice wrappers as nodes with their own path segments.
+   * This method reconciles the two so that mapping link target paths match the connection
+   * port paths registered in the DOM.
+   */
+  private static computeVisualTargetNodePath(item: MappingTree | MappingItem): NodePath {
+    if (item instanceof MappingTree) {
+      return item.nodePath;
+    }
+    const parentPath = MappingLinksService.computeVisualTargetNodePath(item.parent);
+    if (item instanceof FieldItem) {
+      const choiceSegments = MappingLinksService.getIntermediateChoiceSegments(item.field);
+      let path = parentPath;
+      for (const segment of choiceSegments) {
+        path = NodePath.childOf(path, segment);
+      }
+      return NodePath.childOf(path, item.id);
+    }
+    return NodePath.childOf(parentPath, item.id);
+  }
+
+  /**
+   * Collects the IDs of consecutive `isChoice` ancestor fields, ordered from
+   * outermost to innermost. Only includes **unselected** choice wrappers
+   * (`selectedMemberIndex` is `undefined`) because selected wrappers are not
+   * rendered as visual nodes — the selected member replaces them in the tree.
+   * Returns an empty array when the field has no unselected choice wrapper ancestors.
+   */
+  private static getIntermediateChoiceSegments(field: IField): string[] {
+    const segments: string[] = [];
+    let current = field.parent;
+    while ('isChoice' in current && current.isChoice) {
+      if (current.selectedMemberIndex === undefined) {
+        segments.push(current.id);
+      }
+      current = current.parent;
+    }
+    segments.reverse();
+    return segments;
   }
 }
