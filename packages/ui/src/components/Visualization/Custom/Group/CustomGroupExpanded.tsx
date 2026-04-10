@@ -26,7 +26,7 @@ import {
   useHover,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, Suspense, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
@@ -224,11 +224,13 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 {doesHaveWarnings ? (
                   <div className="custom-group__container__icon-placeholder" />
                 ) : (
-                  <IconResolver
-                    alt={tooltipContent}
-                    catalogKind={groupVizNode.data.catalogKind}
-                    name={groupVizNode.data.name}
-                  />
+                  <Suspense fallback={null}>
+                    <IconResolver
+                      alt={tooltipContent}
+                      catalogKind={groupVizNode.data.catalogKind}
+                      name={groupVizNode.data.name}
+                    />
+                  </Suspense>
                 )}
                 <span title={label}>{label}</span>
 

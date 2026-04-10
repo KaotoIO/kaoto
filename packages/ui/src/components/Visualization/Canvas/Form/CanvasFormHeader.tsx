@@ -3,7 +3,7 @@ import './CanvasFormHeader.scss';
 import { CanvasFormTabsContext, FilteredFieldContext, FormTabsModes } from '@kaoto/forms';
 import { Button, Grid, GridItem, SearchInput, Title, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useContext } from 'react';
+import { FunctionComponent, Suspense, useContext } from 'react';
 
 import { CatalogKind } from '../../../../models';
 import { IconResolver } from '../../../IconResolver';
@@ -30,7 +30,9 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({
     <>
       <Grid hasGutter>
         <GridItem className="form-header" span={11}>
-          <IconResolver className={`form-header__icon-${nodeId}`} catalogKind={catalogKind} name={name} />
+          <Suspense fallback={null}>
+            <IconResolver className={`form-header__icon-${nodeId}`} catalogKind={catalogKind} name={name} />
+          </Suspense>
 
           <Title className="form-header__title" headingLevel="h2">
             {title}

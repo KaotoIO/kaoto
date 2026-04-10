@@ -1,7 +1,7 @@
 import { Icon } from '@patternfly/react-core';
 import { BanIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
-import { ElementType, FunctionComponent, Ref } from 'react';
+import { ElementType, FunctionComponent, Ref, Suspense } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { IconResolver } from '../../../IconResolver';
@@ -47,7 +47,9 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
       <div title={tooltipContent} className="custom-node__container__image">
-        <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
+        <Suspense fallback={null}>
+          <IconResolver alt={tooltipContent} catalogKind={vizNode.data.catalogKind} name={vizNode.data.name} />
+        </Suspense>
 
         {childCount > 0 && (
           <FloatingCircle className="step-icon step-icon__processor">
