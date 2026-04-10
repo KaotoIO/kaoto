@@ -3,9 +3,12 @@ import { CustomFieldsFactory, EnumField } from '@kaoto/forms';
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
+import { EndpointField } from './EndpointField/EndpointField';
+import { EndpointsField } from './EndpointField/EndpointsField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
+import { TextAreaField } from './TextAreaField/TextAreaField';
 import { UriField } from './UriField/UriField';
 
 const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
@@ -48,6 +51,20 @@ const isEndpointPropertiesField = (schema: Parameters<CustomFieldsFactory>[0]): 
   return schema.type === 'object' && schema.title === 'Endpoint Properties';
 };
 
+const isEndpointField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return (
+    schema.type === 'string' && (schema.title === 'Endpoint' || schema.title === 'Client' || schema.title === 'Server')
+  );
+};
+
+const isEndpointsField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'array' && schema.title === 'Endpoints';
+};
+
+const isTextAreaField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && (schema.title === 'Data' || schema.title === 'Source');
+};
+
 export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
   /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
@@ -88,6 +105,18 @@ export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
 
   if (isEndpointPropertiesField(schema)) {
     return EndpointPropertiesField;
+  }
+
+  if (isEndpointField(schema)) {
+    return EndpointField;
+  }
+
+  if (isEndpointsField(schema)) {
+    return EndpointsField;
+  }
+
+  if (isTextAreaField(schema)) {
+    return TextAreaField;
   }
 
   return undefined;
