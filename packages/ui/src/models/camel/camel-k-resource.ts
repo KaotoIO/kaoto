@@ -95,6 +95,11 @@ export abstract class CamelKResource implements KaotoResource {
   getCompatibleComponents(_mode: AddStepMode, _visualEntityData: IVisualizationNodeData): TileFilter | undefined {
     return undefined;
   }
+
+  getCompatibleRuntimes(): string[] {
+    return ['Main', 'Quarkus', 'Spring Boot'];
+  }
+
   getSerializerType() {
     return this.serializer.getType();
   }

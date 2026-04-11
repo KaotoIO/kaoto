@@ -12,7 +12,6 @@ import springBootLogo from '../../../../assets/springboot-logo.svg';
 import { useLocalStorage } from '../../../../hooks';
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { LocalStorageKeys } from '../../../../models';
-import { SourceSchemaType } from '../../../../models/camel';
 import { EntitiesContext } from '../../../../providers';
 
 const SPACE_REGEX = /\s/g;
@@ -56,20 +55,14 @@ export const RuntimeSelector: FunctionComponent = () => {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const runtimeContext = useRuntimeContext();
   const entitiesContext = useContext(EntitiesContext);
-  const currentSchemaType = entitiesContext?.currentSchemaType;
+  const compatibleRuntimes = entitiesContext?.camelResource.getCompatibleRuntimes() ?? [];
   const [_, setSelectedCatalogLocalStorage] = useLocalStorage(
     LocalStorageKeys.SelectedCatalog,
     runtimeContext.selectedCatalog,
   );
   const groupedRuntimes =
     runtimeContext.catalogLibrary?.definitions
-      .filter((catalog) => {
-        if (currentSchemaType && currentSchemaType === SourceSchemaType.Test) {
-          return catalog.runtime === 'Citrus';
-        } else {
-          return catalog.runtime !== 'Citrus';
-        }
-      })
+      .filter((catalog) => compatibleRuntimes.includes(catalog.runtime))
       .reduce(
         (acc, catalog) => {
           if (acc[catalog.runtime]) {
