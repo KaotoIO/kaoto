@@ -1,15 +1,19 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { TestRuntimeProviderWrapper } from '../../../../stubs';
+import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../stubs';
 import { RuntimeSelector } from './RuntimeSelector';
 
 describe('RuntimeSelector', () => {
   it('component renders', () => {
-    const { Provider } = TestRuntimeProviderWrapper();
+    const { Provider: RuntimeProvider } = TestRuntimeProviderWrapper();
+    const { Provider: EntitiesProvider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <RuntimeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <EntitiesProvider>
+          <RuntimeSelector />
+        </EntitiesProvider>
+      </RuntimeProvider>,
     );
 
     const toggle = wrapper.queryByTestId('runtime-selector-list-dropdown');
@@ -17,11 +21,14 @@ describe('RuntimeSelector', () => {
   });
 
   it('should call `setSelectedCatalog` when selecting an item', async () => {
-    const { Provider, setSelectedCatalog } = TestRuntimeProviderWrapper();
+    const { Provider: RuntimeProvider, setSelectedCatalog } = TestRuntimeProviderWrapper();
+    const { Provider: EntitiesProvider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <RuntimeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <EntitiesProvider>
+          <RuntimeSelector />
+        </EntitiesProvider>
+      </RuntimeProvider>,
     );
 
     /** Click on toggle */
@@ -50,11 +57,14 @@ describe('RuntimeSelector', () => {
   });
 
   it('should toggle list of Runtimes', async () => {
-    const { Provider } = TestRuntimeProviderWrapper();
+    const { Provider: RuntimeProvider } = TestRuntimeProviderWrapper();
+    const { Provider: EntitiesProvider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <RuntimeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <EntitiesProvider>
+          <RuntimeSelector />
+        </EntitiesProvider>
+      </RuntimeProvider>,
     );
 
     const toggle = await wrapper.findByTestId('runtime-selector-list-dropdown');
@@ -78,11 +88,14 @@ describe('RuntimeSelector', () => {
   });
 
   it('should close Select when pressing ESC', async () => {
-    const { Provider } = TestRuntimeProviderWrapper();
+    const { Provider: RuntimeProvider } = TestRuntimeProviderWrapper();
+    const { Provider: EntitiesProvider } = TestProvidersWrapper();
     const wrapper = render(
-      <Provider>
-        <RuntimeSelector />
-      </Provider>,
+      <RuntimeProvider>
+        <EntitiesProvider>
+          <RuntimeSelector />
+        </EntitiesProvider>
+      </RuntimeProvider>,
     );
 
     const toggle = await wrapper.findByTestId('runtime-selector-list-dropdown');
