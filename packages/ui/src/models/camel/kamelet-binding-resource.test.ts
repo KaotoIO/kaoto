@@ -14,6 +14,29 @@ describe('KameletBindingResource', () => {
     expect(resource.getEntities().length).toEqual(2);
   });
 
+  describe('getCompatibleRuntimes', () => {
+    it('should return the correct list of compatible runtimes', () => {
+      const resource = new KameletBindingResource();
+      const compatibleRuntimes = resource.getCompatibleRuntimes();
+
+      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
+    });
+
+    it('should return the same list regardless of resource content', () => {
+      const emptyResource = new KameletBindingResource();
+      const resourceWithBinding = new KameletBindingResource(kameletBindingJson);
+
+      expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithBinding.getCompatibleRuntimes());
+    });
+
+    it('should return an array with three runtime names', () => {
+      const resource = new KameletBindingResource();
+      const compatibleRuntimes = resource.getCompatibleRuntimes();
+
+      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
+    });
+  });
+
   it('should initialize KameletBinding if no args is specified', () => {
     const resource = new KameletBindingResource(undefined);
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
