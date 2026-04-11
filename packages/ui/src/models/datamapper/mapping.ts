@@ -249,12 +249,14 @@ export class ValueSelector extends MappingItem implements IExpressionHolder {
     super(parent, 'value', getCamelRandomId('value', 4));
   }
   expression = '';
+  isLiteral = false;
   doClone() {
     return new ValueSelector(this.parent, this.valueType);
   }
   clone() {
     const cloned = super.clone() as ValueSelector;
     cloned.expression = this.expression;
+    cloned.isLiteral = this.isLiteral;
     return cloned;
   }
 }
