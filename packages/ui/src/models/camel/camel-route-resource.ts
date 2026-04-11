@@ -279,6 +279,10 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     return CamelComponentFilterService.getCamelCompatibleComponents(mode, visualEntityData, definition);
   }
 
+  getCompatibleRuntimes(): string[] {
+    return ['Main', 'Quarkus', 'Spring Boot'];
+  }
+
   private getEntity(rawItem: unknown): BaseEntity | undefined {
     if (!isDefined(rawItem) || Array.isArray(rawItem)) {
       return undefined;
