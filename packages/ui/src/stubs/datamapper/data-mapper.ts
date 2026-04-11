@@ -280,6 +280,15 @@ export function getFieldSubstitutionXsd(): string {
 export function getFieldSubstitutionNoNsXsd(): string {
   return readStubFile('./xml/FieldSubstitutionNoNs.xsd');
 }
+export function getRawTextNodeXslt(): string {
+  return readStubFile('./xml/RawTextNode.xsl');
+}
+export function getXslTextNodeXslt(): string {
+  return readStubFile('./xml/XslTextNode.xsl');
+}
+export function getWhitespaceTextNodeXslt(): string {
+  return readStubFile('./xml/WhitespaceTextNode.xsl');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {

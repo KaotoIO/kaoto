@@ -19,6 +19,7 @@ import { NS_XSL } from '../models/datamapper/standard-namespaces';
 import { Types } from '../models/datamapper/types';
 import {
   getInvoice850Xsd,
+  getRawTextNodeXslt,
   getShipOrderToShipOrderCollectionIndexXslt,
   getShipOrderToShipOrderInvalidForEachXslt,
   getShipOrderToShipOrderMultipleForEachXslt,
@@ -26,7 +27,9 @@ import {
   getUnknownApplyTemplateAfterFieldXslt,
   getUnknownApplyTemplateBeforeFieldXslt,
   getUnknownApplyTemplateXslt,
+  getWhitespaceTextNodeXslt,
   getX12850ForEachXslt,
+  getXslTextNodeXslt,
   TestUtil,
 } from '../stubs/datamapper/data-mapper';
 import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
@@ -180,6 +183,57 @@ describe('MappingSerializerService', () => {
       expect(priceFieldItem.children.length).toEqual(1);
       selector = priceFieldItem.children[0] as ValueSelector;
       expect(selector.expression).toEqual('Price');
+    });
+
+    it('should deserialize a raw text node as a literal ValueSelector', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const result = MappingSerializerService.deserialize(
+        getRawTextNodeXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      expect(result.children.length).toEqual(1);
+      const selector = result.children[0] as ValueSelector;
+      expect(selector.expression).toEqual('TEST');
+      expect(selector.isLiteral).toBeTruthy();
+    });
+
+    it('should deserialize xsl:text as a literal ValueSelector', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const result = MappingSerializerService.deserialize(
+        getXslTextNodeXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      expect(result.children.length).toEqual(1);
+      const selector = result.children[0] as ValueSelector;
+      expect(selector.expression).toEqual('TEST');
+      expect(selector.isLiteral).toBeTruthy();
+    });
+
+    it('should ignore whitespace-only text nodes', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const result = MappingSerializerService.deserialize(
+        getWhitespaceTextNodeXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      expect(result.children.length).toEqual(0);
     });
 
     it('should deserialize incomplete XSLT', () => {
