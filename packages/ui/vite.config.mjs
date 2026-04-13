@@ -55,6 +55,7 @@ export default defineConfig(async () => {
       preprocessorOptions: {
         scss: {
           api: 'modern-compiler',
+          silenceDeprecations: ['mixed-decls'],
         },
       },
     },
