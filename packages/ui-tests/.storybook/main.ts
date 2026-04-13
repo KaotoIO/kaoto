@@ -48,22 +48,13 @@ const config: StorybookConfig = {
         __GIT_DATE: JSON.stringify('1970-01-01T00:00:00Z'),
         __KAOTO_VERSION: JSON.stringify(packageJson.version),
       },
-      css: {
-        preprocessorOptions: {
-          scss: {
-            api: 'modern-compiler',
-          },
-        },
-      },
       resolve: {
         ...config.resolve,
         alias: [
           ...(Array.isArray(config.resolve?.alias) ? config.resolve.alias : []),
           {
-            find: /^~.+/,
-            replacement: (val: string) => {
-              return val.replace(/^~/, '');
-            },
+            find: /^~/,
+            replacement: '',
           },
         ],
       },
