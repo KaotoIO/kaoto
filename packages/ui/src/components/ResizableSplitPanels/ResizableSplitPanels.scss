@@ -1,8 +1,11 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
 .resizable-split-panels {
   // CSS custom properties as single source of truth for handle dimensions
-  --resize-handle-width: 20px;
-  --resize-handle-margin: 10px;
-  --resize-handle-border-width: 1px;
+  --resize-handle-width: #{$spacing-05}; // 16px
+  --resize-handle-margin: #{$spacing-03}; // 8px
+  --resize-handle-transition: 200ms ease;
 
   display: flex;
   width: 100%;
@@ -26,19 +29,14 @@
     position: relative;
     margin-right: var(--resize-handle-margin);
     margin-left: var(--resize-handle-margin);
-    border-left: var(--resize-handle-border-width) solid rgb(0 0 0 / 10%);
-    border-right: var(--resize-handle-border-width) solid rgb(0 0 0 / 10%);
-
-    @media (prefers-color-scheme: dark) {
-      border-left: 1px solid rgb(255 255 255 / 30%);
-      border-right: 1px solid rgb(255 255 255 / 30%);
-    }
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
+    border-left: 1px solid $border-subtle;
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
+    border-right: 1px solid $border-subtle;
 
     svg {
-      width: 20px;
-      height: 20px;
       opacity: 0.6;
-      transition: opacity 0.2s ease;
+      transition: opacity var(--resize-handle-transition);
     }
 
     &:hover svg {
