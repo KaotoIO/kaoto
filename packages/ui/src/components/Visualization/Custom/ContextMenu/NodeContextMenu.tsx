@@ -18,6 +18,8 @@ import { ItemMoveStep } from './ItemMoveStep';
 import { ItemPasteStep } from './ItemPasteStep';
 import { ItemReplaceStep } from './ItemReplaceStep';
 
+export const NODE_CONTEXT_MENU_POPPER_CLASS = 'kaoto-node-context-menu-popper';
+
 export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode['data']>) => {
   const items: ReactElement[] = [];
   const vizNode = element.getData()?.vizNode;

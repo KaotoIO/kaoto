@@ -6,3 +6,10 @@
     border-radius: var(--pf-t--global--border--radius--medium);
   }
 }
+
+.kaoto-node-context-menu-popper {
+  .pf-topology-context-menu__c-dropdown__menu {
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+  }
+}

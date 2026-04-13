@@ -41,7 +41,7 @@ import { NodeInteractionAddonContext } from '../../../registers/interactions/nod
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { StepToolbar } from '../../Canvas/StepToolbar/StepToolbar';
-import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { NODE_CONTEXT_MENU_POPPER_CLASS, NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
@@ -395,4 +395,6 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: Cu
 
 export const CustomNodeObserver = observer(CustomNode);
 
-export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNode));
+export const CustomNodeWithSelection = withSelection()(
+  withContextMenu(NodeContextMenuFn, undefined, NODE_CONTEXT_MENU_POPPER_CLASS)(CustomNode),
+);
