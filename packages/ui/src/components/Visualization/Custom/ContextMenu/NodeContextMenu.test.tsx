@@ -257,4 +257,12 @@ describe('NodeContextMenu', () => {
 
     expect(item).toBeInTheDocument();
   });
+
+  it('should constrain context menu height and allow vertical scrolling', () => {
+    const wrapper = render(<NodeContextMenu element={element} />, { wrapper: TestWrapper });
+
+    const menu = wrapper.getByTestId('node-context-menu');
+
+    expect(menu).toHaveStyle({ maxHeight: 'calc(100vh - 16px)', overflowY: 'auto' });
+  });
 });

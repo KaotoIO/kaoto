@@ -160,7 +160,11 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
 export const NodeContextMenu = forwardRef<HTMLDivElement, { element: GraphElement<ElementModel, CanvasNode['data']> }>(
   ({ element }, forwardedRef) => {
     return (
-      <div data-testid="node-context-menu" ref={forwardedRef}>
+      <div
+        data-testid="node-context-menu"
+        ref={forwardedRef}
+        style={{ maxHeight: 'calc(100vh - 16px)', overflowY: 'auto' }}
+      >
         {NodeContextMenuFn(element)}
       </div>
     );

@@ -4,6 +4,7 @@ exports[`NodeContextMenu should render an empty component when there is no vizNo
 <div>
   <div
     data-testid="node-context-menu"
+    style="max-height: calc(100vh - 16px); overflow-y: auto;"
   />
 </div>
 `;
