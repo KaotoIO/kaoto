@@ -17,7 +17,7 @@ describe('FieldContextMenu', () => {
       />,
     );
 
-    expect(screen.getByText('Override Type...')).toBeInTheDocument();
+    expect(screen.getByText('Override Field...')).toBeInTheDocument();
   });
 
   it('should call onOverrideType and onClose when Override type is clicked', () => {
@@ -34,7 +34,7 @@ describe('FieldContextMenu', () => {
       />,
     );
 
-    const overrideButton = screen.getByText('Override Type...');
+    const overrideButton = screen.getByText('Override Field...');
     fireEvent.click(overrideButton);
 
     expect(onOverrideType).toHaveBeenCalled();

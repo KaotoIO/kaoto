@@ -1011,6 +1011,19 @@ describe('FieldTypeOverrideService', () => {
       expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
     });
 
+    it('should register missing namespace and prefix the key when namespace is not in map', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap: Record<string, string> = {};
+      const abstractAnimalField = doc.fields[0];
+
+      FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'ns0:Cat', namespaceMap);
+
+      expect(namespaceMap['ns0']).toBe(NS_SUBSTITUTION);
+      expect(doc.definition.fieldSubstitutions![0].name).toBe('ns0:Cat');
+      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(abstractAnimalField.name).toBe('Cat');
+    });
+
     it('should populate children when substituting with an element that has an anonymous complex type', () => {
       const doc = createSubstitutionDoc();
       const namespaceMap = { sub: NS_SUBSTITUTION };

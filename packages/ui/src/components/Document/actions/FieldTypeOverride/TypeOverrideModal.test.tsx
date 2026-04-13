@@ -58,7 +58,7 @@ describe('TypeOverrideModal', () => {
       />,
     );
 
-    expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+    expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
   });
 
   it('should display field name in modal title', () => {
@@ -73,7 +73,7 @@ describe('TypeOverrideModal', () => {
     );
 
     const fieldName = testField.displayName || testField.name;
-    expect(screen.getByText(new RegExp(`Type Override:.*${fieldName}`))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(`Field Override:.*${fieldName}`))).toBeInTheDocument();
   });
 
   it('should open type selector when toggle is clicked', () => {
@@ -279,7 +279,11 @@ describe('TypeOverrideModal', () => {
     });
 
     expect(onSaveMock).toHaveBeenCalledTimes(1);
-    expect(onSaveMock).toHaveBeenCalledWith(mockCandidates['xs:string']);
+    expect(onSaveMock).toHaveBeenCalledWith({
+      mode: 'type',
+      selectedType: mockCandidates['xs:string'],
+      selectedKey: 'xs:string',
+    });
   });
 
   it('should call onRemove when Remove Override button is clicked', () => {
@@ -436,6 +440,291 @@ describe('TypeOverrideModal', () => {
     );
 
     expect(screen.getByRole('button', { name: 'xs:int' })).toBeInTheDocument();
+  });
+
+  describe('Substitution mode', () => {
+    const mockSubstitutionCandidates: Record<string, { displayName: string; qname: QName }> = {
+      'sub:Cat': {
+        displayName: 'Cat',
+        qname: new QName('http://example.com/substitution', 'Cat'),
+      },
+      'sub:Dog': {
+        displayName: 'Dog',
+        qname: new QName('http://example.com/substitution', 'Dog'),
+      },
+    };
+
+    it('should load substitution candidates when Substitute Element radio is selected', () => {
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      const getSubstitutionSpy = jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      const substitutionRadio = screen.getByLabelText('Substitute Element');
+      act(() => {
+        fireEvent.click(substitutionRadio);
+      });
+
+      expect(getSubstitutionSpy).toHaveBeenCalledWith(testField, testMappingTree.namespaceMap);
+    });
+
+    it('should show substitution placeholder when mode is switched', () => {
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Substitute Element'));
+      });
+
+      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+    });
+
+    it('should call onSave with substitution payload when saving in substitution mode', async () => {
+      const onSaveMock = jest.fn();
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={onSaveMock}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // Switch to substitution mode
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Substitute Element'));
+      });
+
+      // Open dropdown and select Cat
+      const toggle = screen.getByRole('button', { name: 'Select a substitute element...' });
+      act(() => {
+        fireEvent.click(toggle);
+      });
+
+      const catOption = screen.getAllByText('Cat').find((el) => el.closest('[role="option"]'));
+      if (!catOption) throw new Error('Cat option not found');
+      act(() => {
+        fireEvent.click(catOption);
+      });
+
+      // Save
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+      });
+
+      expect(onSaveMock).toHaveBeenCalledTimes(1);
+      expect(onSaveMock).toHaveBeenCalledWith({ mode: 'substitution', selectedKey: 'sub:Cat' });
+    });
+
+    it('should clear selection when switching modes', async () => {
+      const mockTypeCandidates: Record<string, IFieldTypeInfo> = {
+        'xs:string': {
+          typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
+          displayName: 'string',
+          type: Types.String,
+          isBuiltIn: true,
+        },
+      };
+
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // Select a type in type mode
+      const typeToggle = screen.getByRole('button', { name: 'Select a new type...' });
+      act(() => {
+        fireEvent.click(typeToggle);
+      });
+      const stringOption = screen.getAllByText('string').find((el) => el.closest('[role="option"]'));
+      if (!stringOption) throw new Error('string option not found');
+      act(() => {
+        fireEvent.click(stringOption);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
+      });
+
+      // Switch to substitution mode — selection should reset, Save should be disabled
+      act(() => {
+        fireEvent.click(screen.getByLabelText('Substitute Element'));
+      });
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+    });
+
+    it('should start in substitution mode when field has existing substitution', () => {
+      testField.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // Should auto-select substitution radio and show substitution placeholder
+      expect(screen.getByLabelText('Substitute Element')).toBeChecked();
+      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+    });
+
+    it('should pre-select the active substitute element when field has existing substitution', () => {
+      const SUB_NS = 'http://example.com/substitution';
+      testMappingTree.namespaceMap = { sub: SUB_NS };
+      testField.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+      testField.name = 'Cat';
+      testField.namespaceURI = SUB_NS;
+
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // The active substitute 'sub:Cat' should be pre-selected in the dropdown toggle
+      expect(screen.getByRole('button', { name: 'Cat' })).toBeInTheDocument();
+    });
+
+    it('should disable Override Type radio when field has existing substitution', () => {
+      testField.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // Substitution mode is active, so Override Type radio should be disabled
+      expect(screen.getByLabelText('Override Type')).toBeDisabled();
+      // The active mode radio should remain enabled
+      expect(screen.getByLabelText('Substitute Element')).not.toBeDisabled();
+    });
+
+    it('should disable Substitute Element radio when field has existing type override', () => {
+      testField.typeOverride = FieldOverrideVariant.SAFE;
+
+      const mockTypeCandidates: Record<string, IFieldTypeInfo> = {
+        'xs:int': {
+          typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
+          displayName: 'int',
+          type: Types.Integer,
+          isBuiltIn: true,
+        },
+      };
+
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // Type mode is active, so Substitute Element radio should be disabled
+      expect(screen.getByLabelText('Substitute Element')).toBeDisabled();
+      // The active mode radio should remain enabled
+      expect(screen.getByLabelText('Override Type')).not.toBeDisabled();
+    });
+
+    it('should not disable radios when field has no existing override', () => {
+      testField.typeOverride = FieldOverrideVariant.NONE;
+
+      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest
+        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .mockReturnValue(mockSubstitutionCandidates as never);
+
+      render(
+        <TypeOverrideModal
+          onClose={jest.fn()}
+          onSave={jest.fn()}
+          onAttach={jest.fn()}
+          onRemove={jest.fn()}
+          field={testField}
+        />,
+      );
+
+      // Both radios should be enabled when there's no override
+      expect(screen.getByLabelText('Override Type')).not.toBeDisabled();
+      expect(screen.getByLabelText('Substitute Element')).not.toBeDisabled();
+    });
   });
 
   describe('Schema upload', () => {

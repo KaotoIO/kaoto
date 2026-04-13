@@ -6,7 +6,7 @@ import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import { VisualizationService } from '../../../../services/visualization.service';
 import { FieldContextMenu } from '../FieldContextMenu';
 import { FieldTypeOverride } from './FieldTypeOverride';
-import { revertTypeOverride } from './revert-type-override';
+import { revertOverride } from './revert-type-override';
 
 type WithTreeNode = {
   treeNode: DocumentTreeNode;
@@ -76,7 +76,7 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
 
     const handleResetOverride = useCallback(() => {
       if (field) {
-        revertTypeOverride(field, mappingTree.namespaceMap, updateDocument);
+        revertOverride(field, mappingTree.namespaceMap, updateDocument);
         refreshMappingTree();
       }
     }, [field, mappingTree.namespaceMap, updateDocument, refreshMappingTree]);

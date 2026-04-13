@@ -30,7 +30,7 @@ export const FieldContextMenu: FunctionComponent<IFieldContextMenuProps> = ({
     <Menu className="field-context-menu">
       <MenuContent>
         <MenuList>
-          <MenuItem onClick={handleOverrideType}>Override Type...</MenuItem>
+          <MenuItem onClick={handleOverrideType}>Override Field...</MenuItem>
 
           {hasOverride && (
             <>
