@@ -44,7 +44,7 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
     });
 
-    expect(screen.getByText('Override Type...')).toBeInTheDocument();
+    expect(screen.getByText('Override Field...')).toBeInTheDocument();
   });
 
   it('should not open context menu in read-only mode', () => {
@@ -64,7 +64,7 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
     });
 
-    expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
 
   it('should not open context menu for document nodes', () => {
@@ -86,7 +86,7 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.contextMenu(screen.getByTestId(`node-source-${documentNodeData.id}`));
     });
 
-    expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
 
   it('should close context menu when clicking outside', () => {
@@ -106,13 +106,13 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
     });
 
-    expect(screen.getByText('Override Type...')).toBeInTheDocument();
+    expect(screen.getByText('Override Field...')).toBeInTheDocument();
 
     act(() => {
       fireEvent.mouseDown(globalThis.document.body);
     });
 
-    expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
 
   it('should close context menu when pressing Escape', () => {
@@ -132,16 +132,16 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
     });
 
-    expect(screen.getByText('Override Type...')).toBeInTheDocument();
+    expect(screen.getByText('Override Field...')).toBeInTheDocument();
 
     act(() => {
       fireEvent.keyDown(globalThis.document, { key: 'Escape' });
     });
 
-    expect(screen.queryByText('Override Type...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Override Field...')).not.toBeInTheDocument();
   });
 
-  it('should open Type Override Modal when clicking Override Type menu item', () => {
+  it('should open Field Override Modal when clicking Override Field menu item', () => {
     const { documentNodeData, fieldNode } = createFieldNode();
 
     render(
@@ -159,10 +159,10 @@ describe('withFieldOverrideContextMenu', () => {
     });
 
     act(() => {
-      fireEvent.click(screen.getByText('Override Type...'));
+      fireEvent.click(screen.getByText('Override Field...'));
     });
 
-    expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+    expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
   });
 
   it('should show Reset Override menu item when field has type override', () => {
@@ -193,7 +193,7 @@ describe('withFieldOverrideContextMenu', () => {
       fireEvent.contextMenu(screen.getByTestId(`node-source-${fieldNode.nodeData.id}`));
     });
 
-    expect(screen.getByText('Override Type...')).toBeInTheDocument();
+    expect(screen.getByText('Override Field...')).toBeInTheDocument();
     expect(screen.getByText('Reset Override')).toBeInTheDocument();
   });
 
@@ -267,11 +267,11 @@ describe('withFieldOverrideContextMenu', () => {
     });
 
     act(() => {
-      fireEvent.click(screen.getByText('Override Type...'));
+      fireEvent.click(screen.getByText('Override Field...'));
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+      expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
     });
 
     act(() => {
@@ -323,11 +323,11 @@ describe('withFieldOverrideContextMenu', () => {
     });
 
     act(() => {
-      fireEvent.click(screen.getByText('Override Type...'));
+      fireEvent.click(screen.getByText('Override Field...'));
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Type Override:/)).toBeInTheDocument();
+      expect(screen.getByText(/Field Override:/)).toBeInTheDocument();
     });
 
     act(() => {
@@ -335,7 +335,7 @@ describe('withFieldOverrideContextMenu', () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByText(/Type Override:/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Field Override:/)).not.toBeInTheDocument();
     });
   });
 });

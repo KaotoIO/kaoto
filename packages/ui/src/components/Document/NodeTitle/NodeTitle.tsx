@@ -8,7 +8,6 @@ import { FunctionComponent } from 'react';
 import OptIcon from '../../../assets/data-mapper/field-icons/OptIcon';
 import Repeat0Icon from '../../../assets/data-mapper/field-icons/Repeat0Icon';
 import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
-import { FieldOverrideVariant } from '../../../models/datamapper/types';
 import {
   AddMappingNodeData,
   ChoiceFieldNodeData,
@@ -20,8 +19,8 @@ import {
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../../models/datamapper/visualization';
-import { formatQNameWithPrefix } from '../../../services/namespace-util';
 import { VisualizationService } from '../../../services/visualization.service';
+import { getOverrideDisplayInfo } from '../actions/FieldTypeOverride/override-util';
 import { UnknownMappingLabel } from './UnknownMappingLabel';
 
 interface INodeTitle {
@@ -79,15 +78,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
     const optionalField = nodeData.field.minOccurs === 0;
     const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
     const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
-    const hasTypeOverride = nodeData.field.typeOverride !== FieldOverrideVariant.NONE;
-
-    // Format type names with namespace prefixes for display
-    const originalTypeDisplay = hasTypeOverride
-      ? formatQNameWithPrefix(nodeData.field.originalField?.typeQName, namespaceMap, nodeData.field.originalField?.type)
-      : '';
-    const overriddenTypeDisplay = hasTypeOverride
-      ? formatQNameWithPrefix(nodeData.field.typeQName, namespaceMap, nodeData.field.type)
-      : '';
+    const overrideDisplay = getOverrideDisplayInfo(nodeData.field, namespaceMap);
 
     return (
       <Popover
@@ -104,15 +95,15 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
               <span className="popover__cell">maxOccurs :&nbsp;</span>
               <span className="popover__cell">{nodeData.field.maxOccurs}</span>
             </div>
-            {hasTypeOverride && (
+            {overrideDisplay && (
               <>
                 <div className="popover__row">
-                  <span className="popover__cell">Original type :&nbsp;</span>
-                  <span className="popover__cell">{originalTypeDisplay}</span>
+                  <span className="popover__cell">{overrideDisplay.originalLabel} :&nbsp;</span>
+                  <span className="popover__cell">{overrideDisplay.original}</span>
                 </div>
                 <div className="popover__row">
-                  <span className="popover__cell">Overridden type :&nbsp;</span>
-                  <span className="popover__cell">{overriddenTypeDisplay}</span>
+                  <span className="popover__cell">{overrideDisplay.currentLabel} :&nbsp;</span>
+                  <span className="popover__cell">{overrideDisplay.current}</span>
                 </div>
               </>
             )}
