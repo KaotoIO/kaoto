@@ -124,7 +124,7 @@ export const ResizableSplitPanels: FunctionComponent<ResizableSplitPanelsProps> 
         aria-label="Drag to resize panels"
         onMouseDown={handleMouseDown}
       >
-        <ArrowsHorizontal />
+        <ArrowsHorizontal size={20} />
       </button>
 
       <SplitPanel width={rightWidth} position="right">
