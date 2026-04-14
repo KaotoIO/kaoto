@@ -1,5 +1,12 @@
-import { isDefined } from '@kaoto/forms';
-import { ArrayFieldWrapper, FieldProps, KaotoForm, OneOfSchemas, SchemaList, useOneOfField } from '@kaoto/forms';
+import {
+  ArrayFieldWrapper,
+  FieldProps,
+  isDefined,
+  KaotoForm,
+  OneOfSchemas,
+  SchemaList,
+  useOneOfField,
+} from '@kaoto/forms';
 import { FunctionComponent, useEffect } from 'react';
 
 interface EndpointFieldProps extends FieldProps {

@@ -66,16 +66,15 @@ export const EndpointField: FunctionComponent<FieldProps> = ({ propName, require
   }, []);
 
   const handleCreate = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (type: string, model: any) => {
+    (type: string, model: Record<string, unknown>) => {
       if (!type || model === undefined || typeof model !== 'object' || model?.name === undefined) {
         return;
       }
 
-      endpointsHandler.addNewEndpoint(type, model as unknown as Record<string, unknown>);
+      endpointsHandler.addNewEndpoint(type, model);
 
       setIsOpen(false);
-      onChange(model.name);
+      onChange(model.name as string);
       setLastUpdated(Date.now());
     },
     [endpointsHandler, onChange],

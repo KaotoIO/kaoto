@@ -26,14 +26,13 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
   const confirmModalContext = useContext(ActionConfirmationModalContext);
 
   const handleCreateOrEdit = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (type: string, model: any) => {
+    async (type: string, model: Record<string, unknown>) => {
       if (!type || model === undefined || typeof model !== 'object' || model?.name === undefined) {
         return;
       }
 
       if (operation === 'Create') {
-        endpointsHandler.addNewEndpoint(type, model as unknown as Record<string, unknown>);
+        endpointsHandler.addNewEndpoint(type, model);
         setItems(endpointsHandler.getDefinedEndpointsNameAndType(value));
       } else if (operation === 'Update') {
         const prevName = editModel?.name as string;
@@ -47,7 +46,7 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
           if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
         }
 
-        endpointsHandler.updateEndpoint(type, model as unknown as Record<string, unknown>, prevName);
+        endpointsHandler.updateEndpoint(type, model, prevName);
         if (prevName !== model.name) {
           setItems(endpointsHandler.getDefinedEndpointsNameAndType(value));
         }
@@ -85,9 +84,10 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
 
       if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
 
-      value.splice(index, 1);
-      setItems(endpointsHandler.getDefinedEndpointsNameAndType(value));
-      onChange(value);
+      const updated = [...value];
+      updated.splice(index, 1);
+      setItems(endpointsHandler.getDefinedEndpointsNameAndType(updated));
+      onChange(updated);
     },
     [endpointsHandler, onChange, confirmModalContext, value],
   );
