@@ -32,8 +32,11 @@ describe('EndpointModal', () => {
       }
     }
 
+    const sortedEndpoints = [...endpoints];
+    sortedEndpoints.sort((a, b) => a.name?.localeCompare(b.name));
+
     endpointsSchema = {
-      oneOf: endpoints.sort((a, b) => a.name?.localeCompare(b.name)),
+      oneOf: sortedEndpoints,
     };
   });
 
