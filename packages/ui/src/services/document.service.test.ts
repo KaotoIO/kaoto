@@ -194,7 +194,7 @@ describe('DocumentService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const emailField = new XmlSchemaField(choiceField, 'email', false);
       choiceField.fields = [emailField];
       shipOrderField.fields.push(choiceField);
@@ -213,7 +213,7 @@ describe('DocumentService', () => {
 
       const tgtShipOrderField = tgtDoc.fields[0];
       const tgtChoiceField = new XmlSchemaField(tgtShipOrderField, 'choice', false);
-      tgtChoiceField.isChoice = true;
+      tgtChoiceField.wrapperKind = 'choice';
       const tgtEmailField = new XmlSchemaField(tgtChoiceField, 'email', false);
       tgtChoiceField.fields = [tgtEmailField];
       tgtShipOrderField.fields.push(tgtChoiceField);
@@ -232,9 +232,9 @@ describe('DocumentService', () => {
 
       const tgtShipOrderField = tgtDoc.fields[0];
       const outerChoice = new XmlSchemaField(tgtShipOrderField, 'choice', false);
-      outerChoice.isChoice = true;
+      outerChoice.wrapperKind = 'choice';
       const innerChoice = new XmlSchemaField(outerChoice, 'choice', false);
-      innerChoice.isChoice = true;
+      innerChoice.wrapperKind = 'choice';
       const tgtPayloadField = new XmlSchemaField(innerChoice, 'payload', false);
       innerChoice.fields = [tgtPayloadField];
       outerChoice.fields = [innerChoice];
@@ -251,20 +251,20 @@ describe('DocumentService', () => {
 
       const srcShipOrderField = srcDoc.fields[0];
       const srcChoice0 = new XmlSchemaField(srcShipOrderField, 'choice', false);
-      srcChoice0.isChoice = true;
+      srcChoice0.wrapperKind = 'choice';
       srcChoice0.fields = [new XmlSchemaField(srcChoice0, 'phone', false)];
       const srcChoice1 = new XmlSchemaField(srcShipOrderField, 'choice', false);
-      srcChoice1.isChoice = true;
+      srcChoice1.wrapperKind = 'choice';
       const srcEmailField = new XmlSchemaField(srcChoice1, 'email', false);
       srcChoice1.fields = [srcEmailField];
       srcShipOrderField.fields.push(srcChoice0, srcChoice1);
 
       const tgtShipOrderField = tgtDoc.fields[0];
       const tgtChoice0 = new XmlSchemaField(tgtShipOrderField, 'choice', false);
-      tgtChoice0.isChoice = true;
+      tgtChoice0.wrapperKind = 'choice';
       tgtChoice0.fields = [new XmlSchemaField(tgtChoice0, 'phone', false)];
       const tgtChoice1 = new XmlSchemaField(tgtShipOrderField, 'choice', false);
-      tgtChoice1.isChoice = true;
+      tgtChoice1.wrapperKind = 'choice';
       const tgtEmailField = new XmlSchemaField(tgtChoice1, 'email', false);
       tgtChoice1.fields = [tgtEmailField];
       tgtShipOrderField.fields.push(tgtChoice0, tgtChoice1);
@@ -280,17 +280,17 @@ describe('DocumentService', () => {
 
       const srcShipOrderField = srcDoc.fields[0];
       const srcChoice0 = new XmlSchemaField(srcShipOrderField, 'choice', false);
-      srcChoice0.isChoice = true;
+      srcChoice0.wrapperKind = 'choice';
       srcChoice0.fields = [new XmlSchemaField(srcChoice0, 'phone', false)];
       const srcChoice1 = new XmlSchemaField(srcShipOrderField, 'choice', false);
-      srcChoice1.isChoice = true;
+      srcChoice1.wrapperKind = 'choice';
       const srcEmailField = new XmlSchemaField(srcChoice1, 'email', false);
       srcChoice1.fields = [srcEmailField];
       srcShipOrderField.fields.push(srcChoice0, srcChoice1);
 
       const tgtShipOrderField = tgtDoc.fields[0];
       const tgtChoice0 = new XmlSchemaField(tgtShipOrderField, 'choice', false);
-      tgtChoice0.isChoice = true;
+      tgtChoice0.wrapperKind = 'choice';
       const tgtEmailField = new XmlSchemaField(tgtChoice0, 'email', false);
       tgtChoice0.fields = [tgtEmailField];
       tgtShipOrderField.fields.push(tgtChoice0);
@@ -312,7 +312,7 @@ describe('DocumentService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const emailField = new XmlSchemaField(choiceField, 'email', false);
       choiceField.fields = [emailField];
       shipOrderField.fields.push(choiceField);
@@ -327,9 +327,9 @@ describe('DocumentService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const outerChoice = new XmlSchemaField(shipOrderField, 'choice', false);
-      outerChoice.isChoice = true;
+      outerChoice.wrapperKind = 'choice';
       const innerChoice = new XmlSchemaField(outerChoice, 'choice', false);
-      innerChoice.isChoice = true;
+      innerChoice.wrapperKind = 'choice';
       const targetField = new XmlSchemaField(innerChoice, 'target', false);
       innerChoice.fields = [targetField];
       outerChoice.fields = [innerChoice];
@@ -339,6 +339,57 @@ describe('DocumentService', () => {
       const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
 
       expect(result?.name).toEqual('target');
+    });
+
+    it('should find a field nested directly inside an abstract wrapper', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const abstractField = new XmlSchemaField(shipOrderField, 'AbstractAnimal', false);
+      abstractField.wrapperKind = 'abstract';
+      const catField = new XmlSchemaField(abstractField, 'Cat', false);
+      abstractField.fields = [catField];
+      shipOrderField.fields.push(abstractField);
+
+      const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('Cat')];
+      const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
+
+      expect(result?.name).toEqual('Cat');
+    });
+
+    it('should find a field nested inside nested abstract wrappers', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const outerAbstract = new XmlSchemaField(shipOrderField, 'OuterAbstract', false);
+      outerAbstract.wrapperKind = 'abstract';
+      const innerAbstract = new XmlSchemaField(outerAbstract, 'InnerAbstract', false);
+      innerAbstract.wrapperKind = 'abstract';
+      const targetField = new XmlSchemaField(innerAbstract, 'target', false);
+      innerAbstract.fields = [targetField];
+      outerAbstract.fields = [innerAbstract];
+      shipOrderField.fields.push(outerAbstract);
+
+      const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('target')];
+      const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
+
+      expect(result?.name).toEqual('target');
+    });
+
+    it('should find a field inside an abstract wrapper nested in a choice compositor', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
+      choiceField.wrapperKind = 'choice';
+      const abstractField = new XmlSchemaField(choiceField, 'AbstractAnimal', false);
+      abstractField.wrapperKind = 'abstract';
+      const catField = new XmlSchemaField(abstractField, 'Cat', false);
+      abstractField.fields = [catField];
+      choiceField.fields = [abstractField];
+      shipOrderField.fields.push(choiceField);
+
+      const pathSegments = [new PathSegment('ShipOrder', false, 'kaoto'), new PathSegment('Cat')];
+      const result = DocumentService.getFieldFromPathSegments(namespaces, doc, pathSegments);
+
+      expect(result?.name).toEqual('Cat');
     });
 
     it('should navigate through multiple levels of unresolved namedTypeFragmentRefs', () => {

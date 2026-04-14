@@ -89,6 +89,7 @@ export class DocumentUtilService {
       typeQName: field.typeQName,
       namedTypeFragmentRefs: [...field.namedTypeFragmentRefs],
       fields: field.fields.length > 0 ? [...field.fields] : undefined,
+      isAbstractType: field.isAbstractType,
     };
   }
 
@@ -133,8 +134,10 @@ export class DocumentUtilService {
   }
 
   /**
-   * Apply a substitution's resolved info to a field, overwriting its wire name, type, and fragment refs.
-   * Captures the original field state before the first modification.
+   * Performs an in-place mutation of a non-abstract field, overwriting its wire name, type,
+   * namespace, and fragment refs with the substitute element's metadata.
+   * Only used for non-abstract fields — abstract wrapper fields use `selectedMemberIndex`
+   * instead. See {@link processFieldSubstitution} for the branching logic.
    *
    * @param field - The field to apply the substitution to
    * @param info - The resolved substitute element info
@@ -149,6 +152,7 @@ export class DocumentUtilService {
     field.typeQName = info.typeQName;
     field.namedTypeFragmentRefs = [...info.namedTypeFragmentRefs];
     field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
+    field.isAbstractType = undefined;
     field.fields = [];
 
     if (info.type === Types.Container && field.namedTypeFragmentRefs.length > 0) {
@@ -157,8 +161,16 @@ export class DocumentUtilService {
   }
 
   /**
-   * Low level API to apply a single field substitution to a document.
-   * Navigates to the field via schema path, resolves the substitute element, and applies it.
+   * Applies a single field substitution to a document.
+   *
+   * Two distinct paths exist depending on the target field:
+   * - **Abstract wrapper fields** (`wrapperKind='abstract'`): the wrapper already holds all concrete
+   *   substitution candidates as children (populated by the parser). Applying a substitution
+   *   finds the matching candidate by name and sets `selectedMemberIndex` on the wrapper —
+   *   the field tree is not mutated.
+   * - **Non-abstract fields**: the field is directly mutated via {@link applySubstitutionToField},
+   *   which replaces the field's name, type, namespace, and children with the substitute
+   *   element's metadata.
    *
    * @param document - The document to apply the substitution to
    * @param substitution - The substitution metadata
@@ -173,6 +185,20 @@ export class DocumentUtilService {
   ): void {
     const field = SchemaPathService.navigateToField(document, substitution.schemaPath, namespaceMap);
     if (!field) return;
+
+    if (field.wrapperKind === 'abstract') {
+      const info = resolveSubstituteFn(document, substitution, namespaceMap);
+      if (!info) return;
+      const candidateName = info.qname.getLocalPart();
+      const candidateIndex = field.fields.findIndex(
+        (f) => f.name === candidateName && f.namespaceURI === info.qname.getNamespaceURI(),
+      );
+      if (candidateIndex >= 0) {
+        field.selectedMemberIndex = candidateIndex;
+      }
+      return;
+    }
+
     const info = resolveSubstituteFn(document, substitution, namespaceMap);
     if (info) {
       DocumentUtilService.applySubstitutionToField(field, info);
@@ -371,6 +397,7 @@ export class DocumentUtilService {
     field.type = type;
     field.typeQName = typeQName;
     field.typeOverride = variant;
+    field.isAbstractType = undefined;
     field.fields = [];
 
     if (type === Types.Container) {
@@ -405,6 +432,7 @@ export class DocumentUtilService {
       field.displayName = field.originalField.displayName;
       field.namespaceURI = field.originalField.namespaceURI;
       field.namespacePrefix = field.originalField.namespacePrefix;
+      field.isAbstractType = field.originalField.isAbstractType;
     }
     field.typeOverride = FieldOverrideVariant.NONE;
     field.originalField = undefined;
@@ -464,8 +492,8 @@ export class DocumentUtilService {
     selection: IChoiceSelection,
     namespaceMap: Record<string, string>,
   ): boolean {
-    const choiceField = SchemaPathService.navigateToChoiceField(document, selection.schemaPath, namespaceMap);
-    if (!choiceField) return false;
+    const choiceField = SchemaPathService.navigateToField(document, selection.schemaPath, namespaceMap);
+    if (choiceField?.wrapperKind !== 'choice') return false;
 
     const applied = DocumentUtilService.applyChoiceSelectionToField(choiceField, selection.selectedMemberIndex);
     if (!applied) return false;
@@ -498,8 +526,8 @@ export class DocumentUtilService {
     const existingIndex = document.definition.choiceSelections.findIndex((s) => s.schemaPath === schemaPath);
     if (existingIndex < 0) return false;
 
-    const choiceField = SchemaPathService.navigateToChoiceField(document, schemaPath, namespaceMap);
-    if (choiceField) {
+    const choiceField = SchemaPathService.navigateToField(document, schemaPath, namespaceMap);
+    if (choiceField?.wrapperKind === 'choice') {
       choiceField.selectedMemberIndex = undefined;
     }
 

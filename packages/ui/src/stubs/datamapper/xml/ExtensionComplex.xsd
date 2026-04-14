@@ -64,6 +64,39 @@
         </xsd:sequence>
     </xsd:complexType>
 
+    <xsd:element name="TestAbstractType">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="msg" type="Message"/>
+                <xsd:element name="req" type="BaseRequest"/>
+                <xsd:element name="concreteReq" type="ConcreteRequest"/>
+                <xsd:element name="simpleField" type="xsd:string"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="ConcreteRequest">
+        <xsd:annotation>
+            <xsd:documentation>A concrete request type extending BaseRequest.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="BaseRequest">
+                <xsd:sequence>
+                    <xsd:element name="priority" type="xsd:int"/>
+                </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:complexType name="SimpleResponse">
+        <xsd:annotation>
+            <xsd:documentation>A standalone response type.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="status" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
     <xsd:simpleType name="ShortString">
         <xsd:restriction base="xsd:string">
             <xsd:maxLength value="50"/>

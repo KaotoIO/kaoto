@@ -339,7 +339,8 @@ export class MappingSerializerService {
 
     parentMapping.children.push(result.mappingItem);
 
-    if (!(result.mappingItem instanceof UnknownMappingItem) && element.localName !== 'text') {
+    const isXslText = element.namespaceURI === NS_XSL && element.localName === 'text';
+    if (!(result.mappingItem instanceof UnknownMappingItem) && !isXslText) {
       Array.from(element.childNodes).forEach((childItem) =>
         MappingSerializerService.restoreMapping(childItem, result.fieldItem ?? parentField, result.mappingItem),
       );

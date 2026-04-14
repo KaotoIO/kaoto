@@ -454,7 +454,7 @@ export class XPathService {
     const parentAbsPath = contextPath && XPathService.toAbsolutePath(contextPath);
     const fieldStack = DocumentUtilService.getFieldStack(source, true)
       .reverse()
-      .filter((f) => !f.isChoice);
+      .filter((f) => !f.wrapperKind);
 
     if (!parentAbsPath) {
       return fieldStack.reduce((acc, field) => {

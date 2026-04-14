@@ -11,6 +11,7 @@ import { useDocumentTreeStore } from '../store';
 import { mockRandomValues } from '../stubs';
 import {
   getContactsXsd,
+  getFieldSubstitutionXsd,
   getInvoice850Xsd,
   getJsonBodyToShipOrderXslt,
   getMessage837Xsd,
@@ -307,8 +308,8 @@ describe('MappingLinksService', () => {
       DocumentUtilService.resolveTypeFragment(rootField);
       const personField = rootField.fields.find((f: IField) => f.name === 'person')!;
       DocumentUtilService.resolveTypeFragment(personField);
-      const outerChoiceField = personField.fields.find((f: IField) => f.isChoice)!;
-      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.isChoice)!;
+      const outerChoiceField = personField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
+      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
       const emailField = innerChoiceField.fields.find((f: IField) => f.name === 'email')!;
 
       outerChoiceField.id = 'outer-choice';
@@ -351,8 +352,8 @@ describe('MappingLinksService', () => {
       DocumentUtilService.resolveTypeFragment(rootField);
       const personField = rootField.fields.find((f: IField) => f.name === 'person')!;
       DocumentUtilService.resolveTypeFragment(personField);
-      const outerChoiceField = personField.fields.find((f: IField) => f.isChoice)!;
-      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.isChoice)!;
+      const outerChoiceField = personField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
+      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
       const emailField = innerChoiceField.fields.find((f: IField) => f.name === 'email')!;
 
       outerChoiceField.id = 'outer-choice';
@@ -373,7 +374,7 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
       expect(links.length).toEqual(1);
-      expect(links[0].targetNodePath).toEqual(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailItem.id}`);
+      expect(links[0].targetNodePath).toEqual(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailField.id}`);
     });
 
     it('should only include unselected choice wrapper segments when mixed', () => {
@@ -394,8 +395,8 @@ describe('MappingLinksService', () => {
       DocumentUtilService.resolveTypeFragment(rootField);
       const personField = rootField.fields.find((f: IField) => f.name === 'person')!;
       DocumentUtilService.resolveTypeFragment(personField);
-      const outerChoiceField = personField.fields.find((f: IField) => f.isChoice)!;
-      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.isChoice)!;
+      const outerChoiceField = personField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
+      const innerChoiceField = outerChoiceField.fields.find((f: IField) => f.wrapperKind === 'choice')!;
       const emailField = innerChoiceField.fields.find((f: IField) => f.name === 'email')!;
 
       outerChoiceField.id = 'outer-choice';
@@ -418,6 +419,122 @@ describe('MappingLinksService', () => {
       expect(links[0].targetNodePath).toEqual(
         `targetBody:Body://${rootItem.id}/${personItem.id}/inner-choice/${emailItem.id}`,
       );
+    });
+  });
+
+  describe('abstract field mapping paths', () => {
+    const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+
+    const createZooDoc = (docType: DocumentType) => {
+      const definition = new DocumentDefinition(docType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+        'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
+      });
+      definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'Zoo' };
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const document = result.document!;
+      const zooField = document.fields[0];
+      const abstractAnimalField = zooField.fields.find(
+        (f: IField) => f.wrapperKind === 'abstract' && f.name === 'AbstractAnimal',
+      )!;
+      const catIndex = abstractAnimalField.fields.findIndex((f: IField) => f.name === 'Cat');
+      abstractAnimalField.selectedMemberIndex = catIndex;
+      const catField = abstractAnimalField.fields[catIndex];
+      DocumentUtilService.resolveTypeFragment(catField);
+      const indoorField = catField.fields.find((f: IField) => f.name === 'indoor')!;
+      return { document, zooField, abstractAnimalField, catField, indoorField };
+    };
+
+    it('should exclude selected abstract wrapper segments from source paths', () => {
+      const { document: zooDoc, abstractAnimalField, catField, indoorField } = createZooDoc(DocumentType.SOURCE_BODY);
+
+      const abstractTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      abstractTree.namespaceMap = { ns0: NS_SUBSTITUTION };
+
+      const targetRootField = targetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(targetRootField);
+      const orderIdField = targetRootField.fields.find((f: IField) => f.name === 'OrderId')!;
+      const rootItem = new FieldItem(abstractTree, targetRootField);
+      abstractTree.children.push(rootItem);
+      const orderIdItem = new FieldItem(rootItem, orderIdField);
+      rootItem.children.push(orderIdItem);
+      const valueSelector = new ValueSelector(orderIdItem);
+      valueSelector.expression = '/ns0:Zoo/ns0:Cat/ns0:indoor';
+      orderIdItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(abstractTree, paramsMap, zooDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].sourceNodePath).toContain(catField.id);
+      expect(links[0].sourceNodePath).toContain(indoorField.id);
+      expect(links[0].sourceNodePath).not.toContain(abstractAnimalField.id);
+    });
+
+    it('should exclude selected abstract wrapper segments from target paths', () => {
+      const {
+        document: zooTargetDoc,
+        zooField,
+        abstractAnimalField,
+        catField,
+        indoorField,
+      } = createZooDoc(DocumentType.TARGET_BODY);
+
+      const zooTree = new MappingTree(
+        zooTargetDoc.documentType,
+        zooTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      zooTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const rootItem = new FieldItem(zooTree, zooField);
+      zooTree.children.push(rootItem);
+      const catItem = new FieldItem(rootItem, catField);
+      rootItem.children.push(catItem);
+      const indoorItem = new FieldItem(catItem, indoorField);
+      catItem.children.push(indoorItem);
+      const valueSelector = new ValueSelector(indoorItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      indoorItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].targetNodePath).toContain(catField.id);
+      expect(links[0].targetNodePath).toContain(indoorField.id);
+      expect(links[0].targetNodePath).not.toContain(abstractAnimalField.id);
+    });
+
+    it('should include unselected abstract wrapper segments in target paths', () => {
+      const {
+        document: zooTargetDoc,
+        zooField,
+        abstractAnimalField,
+        catField,
+        indoorField,
+      } = createZooDoc(DocumentType.TARGET_BODY);
+      abstractAnimalField.selectedMemberIndex = undefined;
+
+      const zooTree = new MappingTree(
+        zooTargetDoc.documentType,
+        zooTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      zooTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const rootItem = new FieldItem(zooTree, zooField);
+      zooTree.children.push(rootItem);
+      const catItem = new FieldItem(rootItem, catField);
+      rootItem.children.push(catItem);
+      const indoorItem = new FieldItem(catItem, indoorField);
+      catItem.children.push(indoorItem);
+      const valueSelector = new ValueSelector(indoorItem);
+      valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      indoorItem.children.push(valueSelector);
+
+      const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
+      expect(links.length).toEqual(1);
+      expect(links[0].targetNodePath).toContain(abstractAnimalField.id);
     });
   });
 

@@ -8,7 +8,7 @@ export interface DnDResult {
 }
 
 export interface DnDHandler {
-  handleDragStart(event: DragStartEvent): void;
+  handleDragStart(event: DragStartEvent): DnDResult;
   handleDragOver(event: DragOverEvent): void;
   handleDragEnd(event: DragEndEvent, mappingTree: MappingTree, onUpdate: () => void): DnDResult;
 }

@@ -12,12 +12,13 @@ export function revertOverride(
   namespaceMap: Record<string, string>,
   updateDocument: (document: IDocument, definition: DocumentDefinition, previousRefId: string) => void,
 ): void {
-  if (field.typeOverride === FieldOverrideVariant.NONE) return;
+  const hasAbstractSubstitution = field.wrapperKind === 'abstract' && field.selectedMemberIndex !== undefined;
+  if (field.typeOverride === FieldOverrideVariant.NONE && !hasAbstractSubstitution) return;
 
   const document = field.ownerDocument;
   const previousRefId = document.getReferenceId(namespaceMap);
 
-  if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
+  if (hasAbstractSubstitution || field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
     FieldTypeOverrideService.revertFieldSubstitution(field, namespaceMap);
   } else {
     FieldTypeOverrideService.revertFieldTypeOverride(field, namespaceMap);

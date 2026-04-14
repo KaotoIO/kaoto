@@ -8,9 +8,21 @@ describe('SchemaPathService', () => {
 
   function makeChoiceField(parent: XmlSchemaField, memberNames: string[]) {
     const choiceField = new XmlSchemaField(parent, 'choice', false);
-    choiceField.isChoice = true;
+    choiceField.wrapperKind = 'choice';
     choiceField.fields = memberNames.map((n) => new XmlSchemaField(choiceField, n, false));
     return choiceField;
+  }
+
+  function makeAbstractField(parent: XmlSchemaField, candidateNames: string[]) {
+    const abstractField = new XmlSchemaField(parent, 'AbstractElement', false);
+    abstractField.wrapperKind = 'abstract';
+    abstractField.namespaceURI = 'io.kaoto.datamapper.poc.test';
+    abstractField.fields = candidateNames.map((n) => {
+      const f = new XmlSchemaField(abstractField, n, false);
+      f.namespaceURI = 'io.kaoto.datamapper.poc.test';
+      return f;
+    });
+    return abstractField;
   }
 
   describe('parse()', () => {
@@ -125,7 +137,7 @@ describe('SchemaPathService', () => {
       const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
 
       expect(result).toBeDefined();
-      expect(result?.isChoice).toBeFalsy();
+      expect(result?.wrapperKind).toBeFalsy();
     });
 
     it('should navigate to a choice field', () => {
@@ -136,7 +148,7 @@ describe('SchemaPathService', () => {
 
       const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/{choice:0}', namespaceMap);
 
-      expect(result?.isChoice).toBe(true);
+      expect(result?.wrapperKind).toBe('choice');
     });
 
     it('should return undefined for empty path', () => {
@@ -176,40 +188,13 @@ describe('SchemaPathService', () => {
     });
   });
 
-  describe('navigateToChoiceField()', () => {
-    it('should navigate to a choice field', () => {
-      const doc = TestUtil.createSourceOrderDoc();
-      const shipOrderField = doc.fields[0];
-      const choiceField = makeChoiceField(shipOrderField, ['email', 'phone']);
-      shipOrderField.fields.push(choiceField);
-
-      const result = SchemaPathService.navigateToChoiceField(doc, '/ns0:ShipOrder/{choice:0}', namespaceMap);
-
-      expect(result?.isChoice).toBe(true);
-    });
-
-    it('should return undefined for empty path', () => {
-      const doc = TestUtil.createSourceOrderDoc();
-
-      const result = SchemaPathService.navigateToChoiceField(doc, '', namespaceMap);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined when terminal field is not a choice', () => {
-      const doc = TestUtil.createSourceOrderDoc();
-
-      const result = SchemaPathService.navigateToChoiceField(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should resolve namedTypeFragmentRefs in findChoiceChildByIndex', () => {
+  describe('navigateToField() with namedTypeFragmentRefs', () => {
+    it('should resolve namedTypeFragmentRefs in findIndexedChild', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const intermediateField = new XmlSchemaField(shipOrderField, 'intermediate', false);
       const choiceField = new XmlSchemaField(intermediateField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       doc.namedTypeFragments['fragId'] = {
         type: Types.Container,
         fields: [choiceField],
@@ -218,13 +203,9 @@ describe('SchemaPathService', () => {
       intermediateField.namedTypeFragmentRefs = ['fragId'];
       shipOrderField.fields.push(intermediateField);
 
-      const result = SchemaPathService.navigateToChoiceField(
-        doc,
-        '/ns0:ShipOrder/intermediate/{choice:0}',
-        namespaceMap,
-      );
+      const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/intermediate/{choice:0}', namespaceMap);
 
-      expect(result?.isChoice).toBe(true);
+      expect(result?.wrapperKind).toBe('choice');
     });
 
     it('should resolve namedTypeFragmentRefs in findElementChild', () => {
@@ -233,7 +214,7 @@ describe('SchemaPathService', () => {
       const intermediateField = new XmlSchemaField(shipOrderField, 'intermediate', false);
       const innerField = new XmlSchemaField(intermediateField, 'innerField', false);
       const choiceField = new XmlSchemaField(innerField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       innerField.fields = [choiceField];
       doc.namedTypeFragments['fragId'] = {
         type: Types.Container,
@@ -243,13 +224,13 @@ describe('SchemaPathService', () => {
       intermediateField.namedTypeFragmentRefs = ['fragId'];
       shipOrderField.fields.push(intermediateField);
 
-      const result = SchemaPathService.navigateToChoiceField(
+      const result = SchemaPathService.navigateToField(
         doc,
         '/ns0:ShipOrder/intermediate/innerField/{choice:0}',
         namespaceMap,
       );
 
-      expect(result?.isChoice).toBe(true);
+      expect(result?.wrapperKind).toBe('choice');
     });
   });
 
@@ -301,6 +282,131 @@ describe('SchemaPathService', () => {
       const original = SchemaPathService.buildOriginal(field, namespaceMap);
 
       expect(original).toBe('/ns0:ShipOrder/ns0:@AbstractAnimal');
+    });
+
+    it('should produce {abstract:N} for abstract ancestor in the path', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const root = doc.fields[0];
+      const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
+      root.fields.push(abstractField);
+      const catField = abstractField.fields[0];
+      catField.originalField = {
+        name: 'OrigCat',
+        displayName: 'OrigCat',
+        namespaceURI: 'io.kaoto.datamapper.poc.test',
+        namespacePrefix: 'ns0',
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      const original = SchemaPathService.buildOriginal(catField, namespaceMap);
+
+      expect(original).toBe('/ns0:ShipOrder/{abstract:0}/ns0:OrigCat');
+    });
+  });
+
+  describe('abstract segments', () => {
+    it('parse() should parse {abstract:N} segments', () => {
+      const result = SchemaPathService.parse('/ns0:Root/{abstract:0}/ns0:Cat');
+      expect(result).toEqual<SchemaPathSegment[]>([
+        { kind: 'element', segment: 'ns0:Root' },
+        { kind: 'abstract', index: 0 },
+        { kind: 'element', segment: 'ns0:Cat' },
+      ]);
+    });
+
+    it('parse() should handle sibling abstract indices', () => {
+      const result = SchemaPathService.parse('/ns0:Root/{abstract:0}/{abstract:1}');
+      expect(result).toEqual<SchemaPathSegment[]>([
+        { kind: 'element', segment: 'ns0:Root' },
+        { kind: 'abstract', index: 0 },
+        { kind: 'abstract', index: 1 },
+      ]);
+    });
+
+    it('build() should produce {abstract:N} for abstract wrapper fields', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
+      root.fields.push(abstractField);
+
+      const path = SchemaPathService.build(abstractField, namespaceMap);
+      expect(path).toBe('/ns0:ShipOrder/{abstract:0}');
+    });
+
+    it('build() should index sibling abstract fields correctly', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const abstract0 = makeAbstractField(root, ['A']);
+      const abstract1 = makeAbstractField(root, ['B']);
+      root.fields.push(abstract0, abstract1);
+
+      expect(SchemaPathService.build(abstract0, namespaceMap)).toBe('/ns0:ShipOrder/{abstract:0}');
+      expect(SchemaPathService.build(abstract1, namespaceMap)).toBe('/ns0:ShipOrder/{abstract:1}');
+    });
+
+    it('navigateToField() should traverse {abstract:N} segments', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
+      root.fields.push(abstractField);
+
+      const found = SchemaPathService.navigateToField(document, '/ns0:ShipOrder/{abstract:0}', namespaceMap);
+      expect(found).toBe(abstractField);
+    });
+  });
+
+  describe('formatDisplayPath()', () => {
+    it('should collapse non-terminal abstract with its candidate child', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
+      root.fields.push(abstractField);
+      const catField = abstractField.fields[0];
+
+      const path = SchemaPathService.formatDisplayPath(catField, namespaceMap);
+      expect(path).toBe('/ns0:ShipOrder/ns0:Cat');
+    });
+
+    it('should show abstract element name when it is the terminal segment and unselected', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
+      root.fields.push(abstractField);
+
+      const path = SchemaPathService.formatDisplayPath(abstractField, namespaceMap);
+      expect(path).toBe('/ns0:ShipOrder/ns0:AbstractElement');
+    });
+
+    it('should show selected candidate name when terminal abstract has selectedMemberIndex', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const abstractField = makeAbstractField(root, ['Cat', 'Dog']);
+      abstractField.selectedMemberIndex = 1;
+      root.fields.push(abstractField);
+
+      const path = SchemaPathService.formatDisplayPath(abstractField, namespaceMap);
+      expect(path).toBe('/ns0:ShipOrder/ns0:Dog');
+    });
+
+    it('should produce same output as build() for non-abstract fields', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const field = document.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+
+      const displayPath = SchemaPathService.formatDisplayPath(field, namespaceMap);
+      const buildPath = SchemaPathService.build(field, namespaceMap);
+      expect(displayPath).toBe(buildPath);
+    });
+
+    it('should keep {choice:N} segments unchanged', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const choiceField = makeChoiceField(root, ['email', 'phone']);
+      root.fields.push(choiceField);
+
+      const path = SchemaPathService.formatDisplayPath(choiceField, namespaceMap);
+      expect(path).toBe('/ns0:ShipOrder/{choice:0}');
     });
   });
 });

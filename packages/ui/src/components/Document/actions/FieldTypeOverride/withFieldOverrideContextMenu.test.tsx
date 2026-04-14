@@ -1,14 +1,16 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { DocumentTree } from '../../../../models/datamapper/document-tree';
 import { FieldOverrideVariant, Types } from '../../../../models/datamapper/types';
-import { DocumentNodeData, FieldNodeData } from '../../../../models/datamapper/visualization';
+import { AbstractFieldNodeData, DocumentNodeData, FieldNodeData } from '../../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
 import { TreeParsingService } from '../../../../services/tree-parsing.service';
-import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { XmlSchemaDocumentService } from '../../../../services/xml-schema-document.service';
+import { getFieldSubstitutionXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';
 
@@ -336,6 +338,108 @@ describe('withFieldOverrideContextMenu', () => {
 
     await waitFor(() => {
       expect(screen.queryByText(/Field Override:/)).not.toBeInTheDocument();
+    });
+  });
+
+  describe('abstract field substitution', () => {
+    const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+
+    const createAbstractFieldNode = (selectCandidate = true) => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { 'FieldSubstitution.xsd': getFieldSubstitutionXsd() },
+      );
+      definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'Zoo' };
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      if (result.validationStatus !== 'success' || !result.document) {
+        throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+      }
+      const document = result.document;
+      const abstractAnimalField = document.fields[0].fields.find((f) => f.wrapperKind === 'abstract')!;
+      if (selectCandidate) {
+        const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
+        abstractAnimalField.selectedMemberIndex = catIndex;
+      }
+
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const zooNode = tree.root.children[0];
+      const abstractNode = zooNode.children.find((c) => c.nodeData instanceof AbstractFieldNodeData)!;
+      return { document, documentNodeData, abstractNode, abstractAnimalField };
+    };
+
+    it('should show Reset Override for a selected abstract field substitution', () => {
+      const { documentNodeData, abstractNode } = createAbstractFieldNode();
+      expect(abstractNode.nodeData).toBeInstanceOf(AbstractFieldNodeData);
+      expect((abstractNode.nodeData as AbstractFieldNodeData).abstractField).toBeDefined();
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={abstractNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
+      });
+
+      expect(screen.getByText('Override Field...')).toBeInTheDocument();
+      expect(screen.getByText('Reset Override')).toBeInTheDocument();
+    });
+
+    it('should not show Reset Override for an unselected abstract field', () => {
+      const { documentNodeData, abstractNode } = createAbstractFieldNode(false);
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={abstractNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
+      });
+
+      expect(screen.getByText('Override Field...')).toBeInTheDocument();
+      expect(screen.queryByText('Reset Override')).not.toBeInTheDocument();
+    });
+
+    it('should call revertFieldSubstitution when clicking Reset Override on a selected abstract field', () => {
+      const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode();
+
+      const revertSpy = jest.spyOn(FieldTypeOverrideService, 'revertFieldSubstitution');
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={abstractNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${abstractNode.nodeData.id}`));
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByText('Reset Override'));
+      });
+
+      expect(revertSpy).toHaveBeenCalledWith(abstractAnimalField, expect.any(Object));
+      revertSpy.mockRestore();
     });
   });
 });

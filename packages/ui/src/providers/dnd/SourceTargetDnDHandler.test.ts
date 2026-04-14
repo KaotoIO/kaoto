@@ -1,4 +1,4 @@
-import { DragEndEvent } from '@dnd-kit/core';
+import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { NodeData } from '../../models/datamapper/visualization';
@@ -9,6 +9,7 @@ import { SourceTargetDnDHandler } from './SourceTargetDnDHandler';
 jest.mock('../../services/mapping-validation.service', () => ({
   MappingValidationService: {
     validateMappingPair: jest.fn(),
+    isDraggable: jest.fn(),
   },
 }));
 
@@ -30,6 +31,7 @@ describe('SourceTargetDnDHandler', () => {
   let mockOnUpdate: jest.Mock;
   let mockValidateMappingPair: jest.Mock;
   let mockEngageMapping: jest.Mock;
+  let mockIsDraggable: jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -38,6 +40,7 @@ describe('SourceTargetDnDHandler', () => {
     mockOnUpdate = jest.fn();
     mockValidateMappingPair = MappingValidationService.validateMappingPair as jest.Mock;
     mockEngageMapping = VisualizationService.engageMapping as jest.Mock;
+    mockIsDraggable = MappingValidationService.isDraggable as jest.Mock;
   });
 
   describe('handleDragEnd', () => {
@@ -80,6 +83,30 @@ describe('SourceTargetDnDHandler', () => {
       expect(mockEngageMapping).toHaveBeenCalledWith(mockMappingTree, fromNode, toNode);
       expect(mockOnUpdate).toHaveBeenCalled();
       expect(result).toEqual({ success: true });
+    });
+  });
+
+  describe('handleDragStart', () => {
+    it('should return { success: false } when node data is undefined', () => {
+      const result = handler.handleDragStart(makeDragEvent() as unknown as DragStartEvent);
+      expect(result).toEqual({ success: false });
+      expect(mockIsDraggable).not.toHaveBeenCalled();
+    });
+
+    it('should return { success: true } when isDraggable returns true', () => {
+      const node = { isSource: true } as unknown as NodeData;
+      mockIsDraggable.mockReturnValue(true);
+      const result = handler.handleDragStart(makeDragEvent(node) as unknown as DragStartEvent);
+      expect(result).toEqual({ success: true });
+      expect(mockIsDraggable).toHaveBeenCalledWith(node);
+    });
+
+    it('should return { success: false } when isDraggable returns false', () => {
+      const node = { isSource: true } as unknown as NodeData;
+      mockIsDraggable.mockReturnValue(false);
+      const result = handler.handleDragStart(makeDragEvent(node) as unknown as DragStartEvent);
+      expect(result).toEqual({ success: false });
+      expect(mockIsDraggable).toHaveBeenCalledWith(node);
     });
   });
 });

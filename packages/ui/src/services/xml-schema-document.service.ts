@@ -429,6 +429,13 @@ export class XmlSchemaDocumentService {
    * Populates an XML element as an {@link XmlSchemaField} into the given fields array.
    * Skips elements that already exist in fields (by name, namespace, and isAttribute). Resolves element references
    * and delegates to schema type handling to populate child fields and type metadata.
+   *
+   * Per the XSD spec, `abstract` is only valid on global element declarations — element
+   * references (`<xs:element ref="..."/>`) cannot carry it. Therefore abstract detection
+   * always checks `resolvedElement` (the ref target or the element itself), not the particle.
+   * When abstract, delegates to {@link populateAbstractElement} which creates a wrapper
+   * field with concrete substitution candidates as children.
+   *
    * @param parent - The parent document or field that owns the fields array
    * @param fields - The target array to append the new field to
    * @param element - The XML schema element to convert into a field
@@ -442,6 +449,11 @@ export class XmlSchemaDocumentService {
 
     const existing = fields.find((f) => f.name === name && !f.isAttribute && f.namespaceURI === namespaceURI);
     if (existing) {
+      return;
+    }
+
+    if (resolvedElement.isAbstract()) {
+      XmlSchemaDocumentService.populateAbstractElement(parent, fields, element, resolvedElement);
       return;
     }
 
@@ -541,6 +553,9 @@ export class XmlSchemaDocumentService {
     }
 
     field.type = Types.Container;
+    if (schemaType.isAbstract()) {
+      field.isAbstractType = true;
+    }
     const typeQName = schemaType.getQName();
     if (typeQName) {
       field.typeQName = typeQName;
@@ -747,11 +762,11 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Creates a choice wrapper {@link XmlSchemaField} with {@link XmlSchemaField.isChoice} set to true,
+   * Creates a choice wrapper {@link XmlSchemaField} with {@link XmlSchemaField.wrapperKind} set to `'choice'`,
    * preserving minOccurs/maxOccurs from the xs:choice particle, and populates its children
    * from the choice's member items. The `{choice:N}` path index is derived at runtime by
    * {@link SchemaPathService.getChoiceSiblingIndex} from the field's position among sibling
-   * isChoice fields — no explicit index is stored on the field.
+   * `wrapperKind === 'choice'` fields — no explicit index is stored on the field.
    */
   private static populateChoice(
     parent: XmlSchemaParentType,
@@ -761,7 +776,7 @@ export class XmlSchemaDocumentService {
   ) {
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     const choiceField = new XmlSchemaField(parent, '__choice__', false);
-    choiceField.isChoice = true;
+    choiceField.wrapperKind = 'choice';
     choiceField.minOccurs = choice.getMinOccurs();
     choiceField.maxOccurs = choice.getMaxOccurs();
     choiceField.minOccursExplicit = choice.isMinOccursExplicit();
@@ -772,6 +787,46 @@ export class XmlSchemaDocumentService {
       XmlSchemaDocumentService.populateSequenceMember(choiceField, choiceField.fields, member, visitedGroupRefs);
     }
     choiceField.displayName = 'choice';
+  }
+
+  /**
+   * Creates an abstract element wrapper {@link XmlSchemaField} with {@link XmlSchemaField.wrapperKind}
+   * set to `'abstract'`, and populates its children from the concrete substitution group members.
+   *
+   * Unlike {@link populateChoice} which uses the synthetic name `__choice__`, the abstract wrapper
+   * uses the actual element name since abstract elements ARE real XML elements — they just cannot
+   * be instantiated directly. The `{abstract:N}` path index is derived at runtime by
+   * {@link SchemaPathService.getAbstractSiblingIndex}, analogous to `{choice:N}`.
+   *
+   * @param parent - The parent document or field that owns the fields array
+   * @param fields - The target array to append the new field to
+   * @param element - The element particle providing minOccurs/maxOccurs (cardinality from context)
+   * @param resolvedElement - The resolved (possibly ref-target) abstract element providing name and namespace
+   */
+  private static populateAbstractElement(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    element: XmlSchemaElement,
+    resolvedElement: XmlSchemaElement,
+  ) {
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const name = resolvedElement.getWireName()!.getLocalPart()!;
+    const abstractField = new XmlSchemaField(parent, name, false);
+    abstractField.wrapperKind = 'abstract';
+    abstractField.namespaceURI = resolvedElement.getWireName()!.getNamespaceURI();
+    abstractField.namespacePrefix = resolvedElement.getWireName()!.getPrefix();
+    abstractField.minOccurs = element.getMinOccurs();
+    abstractField.maxOccurs = element.getMaxOccurs();
+    abstractField.minOccursExplicit = element.isMinOccursExplicit();
+    abstractField.maxOccursExplicit = element.isMaxOccursExplicit();
+    abstractField.displayName = name;
+    fields.push(abstractField);
+    ownerDoc.totalFieldCount++;
+
+    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(resolvedElement, ownerDoc.xmlSchemaCollection);
+    for (const member of members) {
+      XmlSchemaDocumentService.populateElement(abstractField, abstractField.fields, member);
+    }
   }
 
   private static populateGroupRef(

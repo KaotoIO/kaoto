@@ -52,9 +52,13 @@ export interface TargetNodeData extends NodeData {
 }
 
 /** Union of all valid source-side node types. */
-export type SourceNodeDataType = DocumentNodeData | FieldNodeData | ChoiceFieldNodeData;
+export type SourceNodeDataType = DocumentNodeData | FieldNodeData | ChoiceFieldNodeData | AbstractFieldNodeData;
 /** Union of all valid target-side node types. */
-export type TargetNodeDataType = TargetDocumentNodeData | TargetFieldNodeData | TargetChoiceFieldNodeData;
+export type TargetNodeDataType =
+  | TargetDocumentNodeData
+  | TargetFieldNodeData
+  | TargetChoiceFieldNodeData
+  | TargetAbstractFieldNodeData;
 
 /**
  * Visualization node for a source or target document root.
@@ -136,7 +140,7 @@ export class TargetFieldNodeData extends FieldNodeData implements TargetNodeData
  * Visualization node for a source xs:choice field.
  *
  * When `choiceField` is `undefined`, this node represents an **unselected** choice wrapper:
- * `field` is the choice wrapper itself (`isChoice: true`) and {@link VisualizationService.createNodeTitle}
+ * `field` is the choice wrapper itself (`wrapperKind: 'choice'`) and {@link VisualizationService.createNodeTitle}
  * returns the member list label (e.g. `"(email | phone)"`). {@link NodeTitle} renders a
  * `<Label>choice</Label>` badge alongside the italic member list in this state.
  *
@@ -154,7 +158,7 @@ export class ChoiceFieldNodeData extends FieldNodeData {
  * Carries the same selected/unselected semantics; see that class for details.
  *
  * The {@link path} is a {@link NodePath} representing this node's position in the
- * **visual document tree**. When unselected (`field.isChoice === true`), the choice
+ * **visual document tree**. When unselected (`field.wrapperKind === 'choice'`), the choice
  * wrapper IS a rendered node and therefore has its own path segment — even though
  * `xs:choice` is a schema compositor (not an XML element) that won't appear in XPath
  * or the XSLT output structure.
@@ -167,6 +171,31 @@ export class ChoiceFieldNodeData extends FieldNodeData {
 export class TargetChoiceFieldNodeData extends TargetFieldNodeData {
   /** The choice wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
   choiceField?: IField;
+}
+
+/**
+ * Visualization node for a source abstract element wrapper field.
+ *
+ * When `abstractField` is `undefined`, this node represents an **unselected** abstract wrapper:
+ * `field` is the abstract wrapper itself (`wrapperKind: 'abstract'`) and
+ * {@link VisualizationService.createNodeTitle} returns the candidate list label
+ * (e.g. `"(Cat | Dog | Fish)"`).
+ *
+ * When `abstractField` is set, a candidate has been selected: `field` is the selected
+ * candidate and `abstractField` holds the abstract wrapper.
+ */
+export class AbstractFieldNodeData extends FieldNodeData {
+  /** The abstract wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
+  abstractField?: IField;
+}
+
+/**
+ * Target-side counterpart of {@link AbstractFieldNodeData}.
+ * Carries the same selected/unselected semantics.
+ */
+export class TargetAbstractFieldNodeData extends TargetFieldNodeData {
+  /** The abstract wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
+  abstractField?: IField;
 }
 
 /**

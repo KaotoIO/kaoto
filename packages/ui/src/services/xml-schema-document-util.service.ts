@@ -48,8 +48,8 @@ export class XmlSchemaDocumentUtilService {
     if (directChild) return directChild;
 
     for (const field of resolvedParent.fields) {
-      if (field.isChoice) {
-        const found = XmlSchemaDocumentUtilService.findInChoiceByNameAndNamespace(field, name, namespaceURI);
+      if (field.wrapperKind) {
+        const found = XmlSchemaDocumentUtilService.findInWrapperByNameAndNamespace(field, name, namespaceURI);
         if (found) return found;
       }
     }
@@ -57,17 +57,17 @@ export class XmlSchemaDocumentUtilService {
     return undefined;
   }
 
-  private static findInChoiceByNameAndNamespace(
-    choiceField: IField,
+  private static findInWrapperByNameAndNamespace(
+    wrapperField: IField,
     name: string,
     namespaceURI: string,
   ): IField | undefined {
-    for (const choiceMember of choiceField.fields) {
-      if (choiceMember.name === name && choiceMember.namespaceURI === namespaceURI) {
-        return choiceMember;
+    for (const member of wrapperField.fields) {
+      if (member.name === name && member.namespaceURI === namespaceURI) {
+        return member;
       }
-      if (choiceMember.isChoice) {
-        const nested = XmlSchemaDocumentUtilService.getChildField(choiceMember, name, namespaceURI);
+      if (member.wrapperKind) {
+        const nested = XmlSchemaDocumentUtilService.getChildField(member, name, namespaceURI);
         if (nested) return nested;
       }
     }

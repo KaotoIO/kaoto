@@ -55,7 +55,7 @@
   }
 
   &__expand {
-    left: var(--pf-t--global--spacer--sm);
+    margin-left: var(--pf-t--global--spacer--sm);
 
     svg {
       width: calc(1rem * var(--datamapper-scale-factor, 1));

@@ -346,7 +346,7 @@ describe('JsonSchemaTypesService', () => {
 
       const allTypes = JsonSchemaTypesService.getAllJsonSchemaTypes(doc);
 
-      expect(Object.values(allTypes).every((t) => !t.typeQName.getNamespaceURI())).toBe(true);
+      expect(Object.values(allTypes).every((t) => t.typeQName.getNamespaceURI() === '')).toBe(true);
     });
   });
 

@@ -22,6 +22,14 @@ import { XmlSchemaTypesService } from './xml-schema-types.service';
  *
  * Note: Choice selection operations have been moved to {@link ChoiceSelectionService}.
  *
+ * **Design constraint:** Field Type Override and Field Substitution are mutually exclusive.
+ * A field can have at most one active: either a Field Type Override (`SAFE`/`FORCE`) or a
+ * Field Substitution (`SUBSTITUTION` / `selectedMemberIndex`), never both. The `TypeOverrideModal`
+ * enforces this by disabling the inactive radio when an override exists. Service methods
+ * `applyFieldTypeOverride` and `applyFieldSubstitution` also guard against conflicting state.
+ * For abstract wrappers, `withFieldOverrideContextMenu` redirects UI actions to the wrapper
+ * field so the selected member cannot receive a separate override.
+ *
  * @example
  * ```typescript
  * // Get safe type override candidates for a field
@@ -250,6 +258,13 @@ export class FieldTypeOverrideService {
       throw new TypeError('Field type override is not supported for primitive documents');
     }
 
+    if (
+      field.typeOverride === FieldOverrideVariant.SUBSTITUTION ||
+      (field.wrapperKind === 'abstract' && field.selectedMemberIndex !== undefined)
+    ) {
+      return;
+    }
+
     let parseTypeOverrideFn: ParseTypeOverrideFn;
     if (document instanceof XmlSchemaDocument) {
       parseTypeOverrideFn = XmlSchemaTypesService.parseTypeOverride;
@@ -409,6 +424,9 @@ export class FieldTypeOverrideService {
     );
     const candidate = candidates[substituteElementQName];
     if (!candidate) return;
+    if (field.typeOverride === FieldOverrideVariant.SAFE || field.typeOverride === FieldOverrideVariant.FORCE) {
+      return;
+    }
     const originalNsURI = field.originalField?.namespaceURI ?? field.namespaceURI;
     const originalNsPrefix = field.originalField?.namespacePrefix ?? field.namespacePrefix ?? undefined;
     ensureNamespaceRegistered(originalNsURI, namespaceMap, originalNsPrefix);
@@ -430,11 +448,21 @@ export class FieldTypeOverrideService {
     } else {
       document.definition.fieldSubstitutions.push(entry);
     }
-    const livePath = SchemaPathService.build(field, namespaceMap);
-    DocumentUtilService.applySubstitutionToField(field, candidate);
-    DocumentUtilService.invalidateDescendants(document, schemaPath);
-    if (livePath !== schemaPath) {
-      DocumentUtilService.invalidateDescendants(document, livePath);
+    if (field.wrapperKind === 'abstract') {
+      const candidateName = candidate.qname.getLocalPart();
+      const candidateIndex = field.fields.findIndex(
+        (f) => f.name === candidateName && f.namespaceURI === candidate.qname.getNamespaceURI(),
+      );
+      if (candidateIndex >= 0) {
+        field.selectedMemberIndex = candidateIndex;
+      }
+    } else {
+      const livePath = SchemaPathService.build(field, namespaceMap);
+      DocumentUtilService.applySubstitutionToField(field, candidate);
+      DocumentUtilService.invalidateDescendants(document, schemaPath);
+      if (livePath !== schemaPath) {
+        DocumentUtilService.invalidateDescendants(document, livePath);
+      }
     }
   }
 
@@ -459,7 +487,9 @@ export class FieldTypeOverrideService {
     document.definition.fieldSubstitutions = document.definition.fieldSubstitutions.filter(
       (s) => s.schemaPath !== originalPath,
     );
-    if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
+    if (field.wrapperKind === 'abstract') {
+      field.selectedMemberIndex = undefined;
+    } else if (field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
       DocumentUtilService.restoreOriginalField(field);
       DocumentUtilService.invalidateDescendants(document, originalPath);
       if (livePath !== originalPath) {

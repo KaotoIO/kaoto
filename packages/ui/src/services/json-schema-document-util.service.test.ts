@@ -67,7 +67,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       const regularField = new JsonSchemaField(doc, 'regularField', Types.String);
 
       const choiceField = new JsonSchemaField(doc, 'contactChoice', Types.Container);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const emailField = new JsonSchemaField(doc, 'email', Types.String);
       const phoneField = new JsonSchemaField(doc, 'phone', Types.String);
       choiceField.fields.push(emailField, phoneField);
@@ -88,7 +88,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       const directEmail = new JsonSchemaField(doc, 'email', Types.String);
 
       const choiceField = new JsonSchemaField(doc, 'contactChoice', Types.Container);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const choiceEmail = new JsonSchemaField(doc, 'email', Types.Integer);
       choiceField.fields.push(choiceEmail);
 
@@ -107,10 +107,10 @@ describe('JsonSchemaDocumentUtilService', () => {
       const parent = new JsonSchemaField(doc, 'parent', Types.Container);
 
       const outerChoice = new JsonSchemaField(doc, 'outerChoice', Types.Container);
-      outerChoice.isChoice = true;
+      outerChoice.wrapperKind = 'choice';
 
       const innerChoice = new JsonSchemaField(doc, 'innerChoice', Types.Container);
-      innerChoice.isChoice = true;
+      innerChoice.wrapperKind = 'choice';
 
       const deepField = new JsonSchemaField(doc, 'deepField', Types.String);
       innerChoice.fields.push(deepField);
@@ -131,7 +131,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       const regularField = new JsonSchemaField(doc, 'regularField', Types.String);
 
       const choiceField = new JsonSchemaField(doc, 'contactChoice', Types.Container);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const emailField = new JsonSchemaField(doc, 'email', Types.String);
       choiceField.fields.push(emailField);
 
@@ -155,7 +155,7 @@ describe('JsonSchemaDocumentUtilService', () => {
       const regularField = new JsonSchemaField(doc, 'regularField', Types.String);
 
       const emptyChoice = new JsonSchemaField(doc, 'emptyChoice', Types.Container);
-      emptyChoice.isChoice = true;
+      emptyChoice.wrapperKind = 'choice';
 
       parent.fields.push(regularField, emptyChoice);
 
@@ -171,13 +171,13 @@ describe('JsonSchemaDocumentUtilService', () => {
       const parent = new JsonSchemaField(doc, 'parent', Types.Container);
 
       const contactChoice = new JsonSchemaField(doc, 'contactChoice', Types.Container);
-      contactChoice.isChoice = true;
+      contactChoice.wrapperKind = 'choice';
       const emailField = new JsonSchemaField(doc, 'email', Types.String);
       const phoneField = new JsonSchemaField(doc, 'phone', Types.String);
       contactChoice.fields.push(emailField, phoneField);
 
       const addressChoice = new JsonSchemaField(doc, 'addressChoice', Types.Container);
-      addressChoice.isChoice = true;
+      addressChoice.wrapperKind = 'choice';
       const streetField = new JsonSchemaField(doc, 'street', Types.String);
       const cityField = new JsonSchemaField(doc, 'city', Types.String);
       addressChoice.fields.push(streetField, cityField);

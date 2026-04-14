@@ -29,7 +29,7 @@ export class ExpressionEditorDnDHandler implements DnDHandler {
   handleDragOver(_event: DragOverEvent): void {
     // no-op ATM
   }
-  handleDragStart(_event: DragStartEvent): void {
-    // no-op ATM
+  handleDragStart(_event: DragStartEvent): DnDResult {
+    return { success: true };
   }
 }

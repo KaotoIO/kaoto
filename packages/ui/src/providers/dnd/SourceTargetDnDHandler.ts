@@ -24,5 +24,10 @@ export class SourceTargetDnDHandler implements DnDHandler {
   }
 
   handleDragOver(_event: DragOverEvent): void {}
-  handleDragStart(_event: DragStartEvent): void {}
+
+  handleDragStart(event: DragStartEvent): DnDResult {
+    const node = event.active.data.current as NodeData;
+    if (!node) return { success: false };
+    return { success: MappingValidationService.isDraggable(node) };
+  }
 }

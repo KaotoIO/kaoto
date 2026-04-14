@@ -581,6 +581,7 @@ export class XmlSchemaTypesService {
 
     for (const schema of collection.getUserSchemas()) {
       for (const type of schema.getSchemaTypes().values()) {
+        if (type instanceof XmlSchemaComplexType && type.isAbstract()) continue;
         const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(type, true);
         if (typeInfo) {
           results[formatQNameWithPrefix(typeInfo.typeQName, namespaceMap)] = typeInfo;
@@ -721,6 +722,7 @@ export class XmlSchemaTypesService {
     const results: Record<string, IFieldTypeInfo> = {};
 
     for (const derivedType of derivedTypes) {
+      if (derivedType instanceof XmlSchemaComplexType && derivedType.isAbstract()) continue;
       const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(derivedType, true);
       if (typeInfo) {
         ensureNamespaceRegistered(typeInfo.typeQName.getNamespaceURI(), namespaceMap);

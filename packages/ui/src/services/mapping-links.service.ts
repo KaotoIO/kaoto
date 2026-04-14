@@ -6,6 +6,7 @@ import {
   IExpressionHolder,
   IField,
   IMappingLink,
+  IParentType,
   isExpressionHolder,
   MappingItem,
   MappingTree,
@@ -91,8 +92,11 @@ export class MappingLinksService {
             (doc: IDocument) => doc.getReferenceId(namespaces) === absolutePath.documentReferenceName,
           )
         : sourceBody;
-      const sourceNodePath =
-        document && DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments)?.path;
+      const sourceResult = document
+        ? DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments)
+        : undefined;
+      const sourceField = sourceResult && 'parent' in sourceResult ? sourceResult : undefined;
+      const sourceNodePath = sourceField && MappingLinksService.computeVisualSourceNodePath(sourceField);
 
       if (sourceNodePath) {
         const sourceNodePathString = sourceNodePath.toString();
@@ -134,20 +138,20 @@ export class MappingLinksService {
   }
 
   static isNodeInSelectedMapping(mappingLinks: IMappingLink[], nodePath: string): boolean {
-    return !!mappingLinks
+    return mappingLinks
       .filter((link) => link.isSelected)
       .some((link) => link.sourceNodePath === nodePath || link.targetNodePath === nodePath);
   }
 
   /**
-   * Bridges a mapping tree {@link NodePath} (no choice wrapper segments) to the
-   * visual document tree {@link NodePath} (with choice wrapper segments) by inserting
-   * intermediate choice wrapper IDs from the {@link IField} parent chain.
+   * Bridges a mapping tree {@link NodePath} (no choice/abstract wrapper segments) to the
+   * visual document tree {@link NodePath} (with wrapper segments) by inserting
+   * intermediate wrapper IDs from the {@link IField} parent chain.
    *
-   * The mapping tree mirrors the XSLT output structure where `xs:choice` has no counterpart,
-   * while the visual tree renders choice wrappers as nodes with their own path segments.
-   * This method reconciles the two so that mapping link target paths match the connection
-   * port paths registered in the DOM.
+   * The mapping tree mirrors the XSLT output structure where `xs:choice` and abstract
+   * element wrappers have no counterpart, while the visual tree renders these wrappers
+   * as nodes with their own path segments. This method reconciles the two so that
+   * mapping link target paths match the connection port paths registered in the DOM.
    */
   private static computeVisualTargetNodePath(item: MappingTree | MappingItem): NodePath {
     if (item instanceof MappingTree) {
@@ -155,28 +159,61 @@ export class MappingLinksService {
     }
     const parentPath = MappingLinksService.computeVisualTargetNodePath(item.parent);
     if (item instanceof FieldItem) {
-      const choiceSegments = MappingLinksService.getIntermediateChoiceSegments(item.field);
+      const wrapperSegments = MappingLinksService.getIntermediateWrapperSegments(item.field);
       let path = parentPath;
-      for (const segment of choiceSegments) {
+      for (const segment of wrapperSegments) {
         path = NodePath.childOf(path, segment);
       }
-      return NodePath.childOf(path, item.id);
+      const nodeId = MappingLinksService.isSelectedWrapperMember(item.field) ? item.field.id : item.id;
+      return NodePath.childOf(path, nodeId);
     }
     return NodePath.childOf(parentPath, item.id);
   }
 
+  private static isWrapperField(node: IParentType): node is IField {
+    return 'wrapperKind' in node && !!node.wrapperKind;
+  }
+
+  private static isSelectedWrapperField(node: IParentType): boolean {
+    return (
+      MappingLinksService.isWrapperField(node) &&
+      'selectedMemberIndex' in node &&
+      node.selectedMemberIndex !== undefined
+    );
+  }
+
+  private static isSelectedWrapperMember(field: IField): boolean {
+    return MappingLinksService.isSelectedWrapperField(field.parent);
+  }
+
   /**
-   * Collects the IDs of consecutive `isChoice` ancestor fields, ordered from
-   * outermost to innermost. Only includes **unselected** choice wrappers
-   * (`selectedMemberIndex` is `undefined`) because selected wrappers are not
-   * rendered as visual nodes — the selected member replaces them in the tree.
-   * Returns an empty array when the field has no unselected choice wrapper ancestors.
+   * Collects the IDs of consecutive `wrapperKind` ancestor wrapper
+   * fields, ordered from outermost to innermost. Only includes **unselected**
+   * wrappers (`selectedMemberIndex` is `undefined`) because selected wrappers are
+   * not rendered as visual nodes — the selected member replaces them in the tree.
+   * Returns an empty array when the field has no unselected wrapper ancestors.
    */
-  private static getIntermediateChoiceSegments(field: IField): string[] {
+  private static computeVisualSourceNodePath(field: IField): NodePath {
+    const segments: string[] = [];
+    let current: IParentType = field;
+    while ('parent' in current && current.parent !== current) {
+      if (!MappingLinksService.isSelectedWrapperField(current)) {
+        segments.unshift(current.id);
+      }
+      current = current.parent;
+    }
+    let path = NodePath.fromDocument(field.path.documentType, field.path.documentId);
+    for (const seg of segments) {
+      path = NodePath.childOf(path, seg);
+    }
+    return path;
+  }
+
+  private static getIntermediateWrapperSegments(field: IField): string[] {
     const segments: string[] = [];
     let current = field.parent;
-    while ('isChoice' in current && current.isChoice) {
-      if (current.selectedMemberIndex === undefined) {
+    while (MappingLinksService.isWrapperField(current)) {
+      if (!MappingLinksService.isSelectedWrapperField(current)) {
         segments.push(current.id);
       }
       current = current.parent;

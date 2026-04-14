@@ -3,6 +3,7 @@ import { ComponentType, MouseEvent, useCallback, useEffect, useRef, useState } f
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../../../models/datamapper/document-tree-node';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
+import { AbstractFieldNodeData, TargetAbstractFieldNodeData } from '../../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../../services/visualization.service';
 import { FieldContextMenu } from '../FieldContextMenu';
 import { FieldTypeOverride } from './FieldTypeOverride';
@@ -31,8 +32,13 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
     const { treeNode, isReadOnly } = props;
     const { mappingTree, updateDocument, refreshMappingTree } = useDataMapper();
 
-    const field = VisualizationService.getField(treeNode.nodeData);
-    const hasTypeOverride = !!field && field.typeOverride !== FieldOverrideVariant.NONE;
+    const nodeData = treeNode.nodeData;
+    const field = VisualizationService.getField(nodeData);
+    const abstractWrapperField =
+      nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData
+        ? nodeData.abstractField
+        : undefined;
+    const hasFieldOverride = !!field && (field.typeOverride !== FieldOverrideVariant.NONE || !!abstractWrapperField);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -75,11 +81,12 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
     }, []);
 
     const handleResetOverride = useCallback(() => {
-      if (field) {
-        revertOverride(field, mappingTree.namespaceMap, updateDocument);
+      const revertTarget = abstractWrapperField ?? field;
+      if (revertTarget) {
+        revertOverride(revertTarget, mappingTree.namespaceMap, updateDocument);
         refreshMappingTree();
       }
-    }, [field, mappingTree.namespaceMap, updateDocument, refreshMappingTree]);
+    }, [abstractWrapperField, field, mappingTree.namespaceMap, updateDocument, refreshMappingTree]);
 
     return (
       <>
@@ -96,7 +103,7 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
             }}
           >
             <FieldContextMenu
-              hasOverride={hasTypeOverride}
+              hasOverride={hasFieldOverride}
               onOverrideType={handleOverrideType}
               onResetOverride={handleResetOverride}
               onClose={() => setIsMenuOpen(false)}
@@ -107,7 +114,7 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
         {isModalOpen && field && (
           <FieldTypeOverride
             isOpen={isModalOpen}
-            field={field}
+            field={abstractWrapperField ?? field}
             onComplete={refreshMappingTree}
             onClose={() => setIsModalOpen(false)}
           />

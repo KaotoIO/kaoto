@@ -7,12 +7,8 @@ import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, use
 
 import { IDataTestID } from '../../../models';
 import { MappingItem } from '../../../models/datamapper/mapping';
-import {
-  AddMappingNodeData,
-  NodeData,
-  UnknownMappingNodeData,
-  VariableNodeData,
-} from '../../../models/datamapper/visualization';
+import { NodeData, VariableNodeData } from '../../../models/datamapper/visualization';
+import { MappingValidationService } from '../../../services/mapping-validation.service';
 import { VisualizationService } from '../../../services/visualization.service';
 import { CommentModal } from '../actions/Comment/CommentModal';
 import { FieldIcon } from '../FieldIcon';
@@ -70,13 +66,10 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const iconType = field?.type ?? nodeData.type;
   const isCollectionField = VisualizationService.isCollectionField(nodeData);
   const isChoiceField = VisualizationService.isChoiceField(nodeData);
+  const isAbstractField = VisualizationService.isAbstractField(nodeData);
   const isAttributeField = VisualizationService.isAttributeField(nodeData);
   const isVariableNode = nodeData instanceof VariableNodeData;
-  const isDocument = VisualizationService.isDocumentNode(nodeData);
-  const isDraggable =
-    !(nodeData instanceof UnknownMappingNodeData) &&
-    !(nodeData instanceof AddMappingNodeData) &&
-    (!isDocument || VisualizationService.isPrimitiveDocumentNode(nodeData));
+  const isDraggable = MappingValidationService.isDraggable(nodeData);
   const isSource = nodeData.isSource;
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
@@ -131,6 +124,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       )}
       {isChoiceField && (
         <Icon className="node__spacer" data-testid="choice-field-icon">
+          <Choices />
+        </Icon>
+      )}
+      {isAbstractField && (
+        <Icon className="node__spacer" data-testid="abstract-field-icon">
           <Choices />
         </Icon>
       )}

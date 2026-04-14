@@ -10,6 +10,7 @@ import {
 } from '../../../models/datamapper/document';
 import { IfItem, MappingTree, UnknownMappingItem } from '../../../models/datamapper/mapping';
 import {
+  AbstractFieldNodeData,
   ChoiceFieldNodeData,
   DocumentNodeData,
   FieldNodeData,
@@ -239,7 +240,7 @@ describe('NodeTitle', () => {
       ...baseField,
       name: '__choice__',
       displayName: 'choice',
-      isChoice: true,
+      wrapperKind: 'choice' as const,
       fields: memberFields,
     } as unknown as typeof baseField;
     const choiceNodeData = new ChoiceFieldNodeData(documentNodeData, choiceField);
@@ -250,6 +251,31 @@ describe('NodeTitle', () => {
     const memberText = screen.getByText('(email | phone)');
     expect(memberText).toBeInTheDocument();
     expect(memberText).toHaveClass('node-title__text__choice');
+  });
+
+  it('should render abstract wrapper with Label badge and italic member text', () => {
+    const shipOrderDoc = TestUtil.createSourceOrderDoc();
+    const documentNodeData = new DocumentNodeData(shipOrderDoc);
+    const baseField = shipOrderDoc.fields[0];
+    const memberFields = [
+      { ...baseField, name: 'Cat', displayName: 'Cat', fields: [] },
+      { ...baseField, name: 'Dog', displayName: 'Dog', fields: [] },
+    ];
+    const abstractField = {
+      ...baseField,
+      name: 'AbstractAnimal',
+      displayName: 'abstract',
+      wrapperKind: 'abstract' as const,
+      fields: memberFields,
+    } as unknown as typeof baseField;
+    const abstractNodeData = new AbstractFieldNodeData(documentNodeData, abstractField);
+
+    render(<NodeTitle nodeData={abstractNodeData} isDocument={false} rank={0} />);
+
+    expect(screen.getByText('abstract')).toBeInTheDocument();
+    const memberText = screen.getByText('(Cat | Dog)');
+    expect(memberText).toBeInTheDocument();
+    expect(memberText).toHaveClass('node-title__text__abstract');
   });
 
   it('should not display popover for MappingNodeData', async () => {
