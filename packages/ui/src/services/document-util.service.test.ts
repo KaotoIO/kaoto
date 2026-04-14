@@ -435,7 +435,7 @@ describe('DocumentUtilService', () => {
       const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const emailField = new XmlSchemaField(choiceField, 'email', false);
       const emailAddressField = new XmlSchemaField(emailField, 'emailAddress', false);
       emailAddressField.type = Types.String;
@@ -462,9 +462,9 @@ describe('DocumentUtilService', () => {
       const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
       const shipOrderField = doc.fields[0];
       const outerChoice = new XmlSchemaField(shipOrderField, 'choice', false);
-      outerChoice.isChoice = true;
+      outerChoice.wrapperKind = 'choice';
       const innerChoice = new XmlSchemaField(outerChoice, 'choice', false);
-      innerChoice.isChoice = true;
+      innerChoice.wrapperKind = 'choice';
       const targetField = new XmlSchemaField(innerChoice, 'targetField', false);
       targetField.type = Types.String;
       innerChoice.fields = [targetField];
@@ -832,6 +832,28 @@ describe('DocumentUtilService', () => {
       expect(mixedField.namedTypeFragmentRefs).toEqual(['someRef']);
       expect(mixedField.originalField).toBeUndefined();
     });
+
+    it('should clear isAbstractType on type override and restore on revert', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      field.isAbstractType = true;
+
+      const override: IFieldTypeOverride = {
+        schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+        type: 'ns0:CustomType',
+        originalType: 'xs:string',
+        variant: FieldOverrideVariant.SAFE,
+      };
+      DocumentUtilService.processTypeOverride(doc, override, namespaceMap, XmlSchemaTypesService.parseTypeOverride);
+
+      expect(field.isAbstractType).toBeUndefined();
+      expect(field.originalField?.isAbstractType).toBe(true);
+
+      DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ns0:OrderPerson', namespaceMap);
+
+      expect(field.isAbstractType).toBe(true);
+      expect(field.originalField).toBeUndefined();
+    });
   });
 
   describe('processOverrides()', () => {
@@ -841,7 +863,7 @@ describe('DocumentUtilService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const memberEmail = new XmlSchemaField(choiceField, 'email', false);
       const emailAddressField = new XmlSchemaField(memberEmail, 'emailAddress', false);
       emailAddressField.type = Types.String;
@@ -881,7 +903,7 @@ describe('DocumentUtilService', () => {
       const namespaceMap2 = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       choiceField.fields = [
         new XmlSchemaField(choiceField, 'optA', false),
         new XmlSchemaField(choiceField, 'optB', false),
@@ -1017,7 +1039,7 @@ describe('DocumentUtilService', () => {
     function addChoiceFieldToShipOrder(doc: ReturnType<typeof TestUtil.createSourceOrderDoc>) {
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       const memberEmail = new XmlSchemaField(choiceField, 'email', false);
       const memberPhone = new XmlSchemaField(choiceField, 'phone', false);
       choiceField.fields = [memberEmail, memberPhone];
@@ -1038,10 +1060,10 @@ describe('DocumentUtilService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const choice0 = new XmlSchemaField(shipOrderField, 'choice', false);
-      choice0.isChoice = true;
+      choice0.wrapperKind = 'choice';
       choice0.fields = [new XmlSchemaField(choice0, 'email', false), new XmlSchemaField(choice0, 'phone', false)];
       const choice1 = new XmlSchemaField(shipOrderField, 'choice', false);
-      choice1.isChoice = true;
+      choice1.wrapperKind = 'choice';
       choice1.fields = [new XmlSchemaField(choice1, 'fax', false), new XmlSchemaField(choice1, 'mobile', false)];
       shipOrderField.fields.push(choice0, choice1);
 
@@ -1062,7 +1084,7 @@ describe('DocumentUtilService', () => {
 
     function makeChoiceField(parent: XmlSchemaField, memberNames: string[]) {
       const choiceField = new XmlSchemaField(parent, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       choiceField.fields = memberNames.map((n) => new XmlSchemaField(choiceField, n, false));
       return choiceField;
     }
@@ -1267,7 +1289,7 @@ describe('DocumentUtilService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const shipOrderField = doc.fields[0];
       const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
-      choiceField.isChoice = true;
+      choiceField.wrapperKind = 'choice';
       choiceField.fields = [
         new XmlSchemaField(choiceField, 'email', false),
         new XmlSchemaField(choiceField, 'phone', false),
@@ -1359,6 +1381,25 @@ describe('DocumentUtilService', () => {
 
       expect(field.originalField.name).toBe('OriginalName');
     });
+
+    it('should clear isAbstractType after substitution and capture in originalField', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      field.isAbstractType = true;
+
+      const info: IFieldSubstituteInfo = {
+        qname: new QName(null, 'Cat'),
+        displayName: 'Cat',
+        type: Types.Container,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      DocumentUtilService.applySubstitutionToField(field, info);
+
+      expect(field.isAbstractType).toBeUndefined();
+      expect(field.originalField?.isAbstractType).toBe(true);
+    });
   });
 
   describe('restoreOriginalField() - recursive child revert', () => {
@@ -1446,6 +1487,30 @@ describe('DocumentUtilService', () => {
       expect(refField.name).toBe('refField');
       expect(refField.fields).toHaveLength(1);
       expect(refField.fields[0].name).toBe('fragmentChild');
+    });
+
+    it('should restore isAbstractType after substitution revert', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      field.isAbstractType = true;
+
+      const substituteInfo: IFieldSubstituteInfo = {
+        qname: new QName(null, 'Cat'),
+        displayName: 'Cat',
+        type: Types.String,
+        typeQName: null,
+        namedTypeFragmentRefs: [],
+      };
+
+      DocumentUtilService.applySubstitutionToField(field, substituteInfo);
+      expect(field.isAbstractType).toBeUndefined();
+
+      DocumentUtilService.restoreOriginalField(field);
+
+      expect(field.name).toBe('OrderPerson');
+      expect(field.isAbstractType).toBe(true);
+      expect(field.typeOverride).toBe(FieldOverrideVariant.NONE);
+      expect(field.originalField).toBeUndefined();
     });
   });
 

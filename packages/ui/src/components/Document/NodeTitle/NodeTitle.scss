@@ -10,6 +10,10 @@
     &__choice {
       font-style: italic;
     }
+
+    &__abstract {
+      font-style: italic;
+    }
   }
 }
 
@@ -26,6 +30,8 @@
 div.node-title-container {
   display: flex;
   align-items: center;
+  overflow: hidden;
+  min-width: 0;
 }
 
 .datamapper-marker-field {

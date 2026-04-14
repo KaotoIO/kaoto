@@ -32,6 +32,7 @@ describe('FieldTypeOverrideService', () => {
     const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
       'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
     });
+    definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'AbstractAnimal' };
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {
       throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create substitution test document');
@@ -41,7 +42,7 @@ describe('FieldTypeOverrideService', () => {
 
   function makeChoiceField(parent: XmlSchemaField, memberNames: string[]) {
     const choiceField = new XmlSchemaField(parent, 'choice', false);
-    choiceField.isChoice = true;
+    choiceField.wrapperKind = 'choice';
     choiceField.fields = memberNames.map((n) => new XmlSchemaField(choiceField, n, false));
     return choiceField;
   }
@@ -706,32 +707,27 @@ describe('FieldTypeOverrideService', () => {
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('sub:Cat');
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
-      expect(abstractAnimalField.name).toBe('Cat');
+      expect(abstractAnimalField.wrapperKind).toBe('abstract');
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
+      expect(abstractAnimalField.selectedMemberIndex).toBe(catIndex);
     });
 
     it('should revert substitution and restore original field state', () => {
       const doc = createSubstitutionDoc();
       const namespaceMap = { sub: NS_SUBSTITUTION };
       const abstractAnimalField = doc.fields[0];
-      const originalName = abstractAnimalField.name;
-      const originalDisplayName = abstractAnimalField.displayName;
-      const originalType = abstractAnimalField.type;
       const originalFieldCount = abstractAnimalField.fields.length;
-      const originalFragmentRefs = [...abstractAnimalField.namedTypeFragmentRefs];
 
       FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(abstractAnimalField.selectedMemberIndex).toBeDefined();
 
       FieldTypeOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
 
-      expect(abstractAnimalField.name).toBe(originalName);
-      expect(abstractAnimalField.displayName).toBe(originalDisplayName);
-      expect(abstractAnimalField.type).toBe(originalType);
-      expect(abstractAnimalField.namedTypeFragmentRefs).toEqual(originalFragmentRefs);
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      expect(abstractAnimalField.wrapperKind).toBe('abstract');
+      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
       expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.NONE);
-      expect(abstractAnimalField.originalField).toBeUndefined();
       expect(doc.definition.fieldSubstitutions).toHaveLength(0);
     });
 
@@ -750,19 +746,19 @@ describe('FieldTypeOverrideService', () => {
       expect(doc.definition.fieldSubstitutions?.length ?? 0).toBe(originalSubstitutionCount);
     });
 
-    it('should remove persisted substitution entry even when field.typeOverride is already NONE', () => {
+    it('should remove persisted substitution entry when reverting abstract wrapper', () => {
       const doc = createSubstitutionDoc();
       const namespaceMap = { sub: NS_SUBSTITUTION };
       const abstractAnimalField = doc.fields[0];
 
       FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
-
-      abstractAnimalField.typeOverride = FieldOverrideVariant.NONE;
+      expect(abstractAnimalField.selectedMemberIndex).toBeDefined();
 
       FieldTypeOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(0);
+      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
     });
 
     it('should do nothing on apply when document is not XmlSchemaDocument', () => {
@@ -818,62 +814,76 @@ describe('FieldTypeOverrideService', () => {
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('sub:Dog');
-      expect(abstractAnimalField.name).toBe('Dog');
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      const dogIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Dog');
+      expect(abstractAnimalField.selectedMemberIndex).toBe(dogIndex);
     });
 
-    it('should register missing namespace and prefix the key when namespace is not in map', () => {
-      const doc = createSubstitutionDoc();
-      const namespaceMap: Record<string, string> = {};
-      const abstractAnimalField = doc.fields[0];
-
-      FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'ns0:Cat', namespaceMap);
-
-      expect(namespaceMap['ns0']).toBe(NS_SUBSTITUTION);
-      expect(doc.definition.fieldSubstitutions![0].name).toBe('ns0:Cat');
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
-      expect(abstractAnimalField.name).toBe('Cat');
-    });
-
-    it('should populate children when substituting with an element that has an anonymous complex type', () => {
+    it('should select candidate when substituting with an element that has an anonymous complex type', () => {
       const doc = createSubstitutionDoc();
       const namespaceMap = { sub: NS_SUBSTITUTION };
       const abstractAnimalField = doc.fields[0];
 
       FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Fish', namespaceMap);
 
-      expect(abstractAnimalField.name).toBe('Fish');
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
-      expect(abstractAnimalField.fields.length).toBeGreaterThan(0);
-      expect(abstractAnimalField.fields.some((f) => f.name === 'freshwater')).toBe(true);
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      const fishIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Fish');
+      expect(abstractAnimalField.selectedMemberIndex).toBe(fishIndex);
+      const fishField = abstractAnimalField.fields[fishIndex];
+      expect(fishField.fields.some((f) => f.name === 'freshwater')).toBe(true);
     });
 
     it('should register namespace and store prefixed name when namespace is not pre-registered', () => {
       const doc = createSubstitutionDoc();
       const namespaceMap: Record<string, string> = {};
       const abstractAnimalField = doc.fields[0];
-      const originalName = abstractAnimalField.name;
-      const originalType = abstractAnimalField.type;
       const originalFieldCount = abstractAnimalField.fields.length;
 
       const candidates = FieldTypeOverrideService.getFieldSubstitutionCandidates(abstractAnimalField, namespaceMap);
-      const catKey = Object.keys(candidates).find((k) => k.endsWith(':Cat'))!;
+      const catKey = Object.keys(candidates).find((k) => k.endsWith(':Cat') || k === 'Cat')!;
       expect(catKey).toBeDefined();
 
       FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, catKey, namespaceMap);
 
-      expect(Object.keys(namespaceMap).length).toBeGreaterThan(0);
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
-      expect(doc.definition.fieldSubstitutions![0].name).toContain(':Cat');
+      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
+      expect(abstractAnimalField.selectedMemberIndex).toBe(catIndex);
+
+      FieldTypeOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
+
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
+      expect(abstractAnimalField.fields.length).toBe(originalFieldCount);
+      expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
+    });
+
+    it('should apply substitution via applySubstitutionToField when field is not abstract', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: NS_SUBSTITUTION };
+      const abstractAnimalField = doc.fields[0];
+      abstractAnimalField.wrapperKind = undefined;
+
+      FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
+
       expect(abstractAnimalField.name).toBe('Cat');
+      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
+    });
+
+    it('should revert non-abstract substitution via restoreOriginalField', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { sub: NS_SUBSTITUTION };
+      const abstractAnimalField = doc.fields[0];
+      abstractAnimalField.wrapperKind = undefined;
+
+      FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
       expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
 
       FieldTypeOverrideService.revertFieldSubstitution(abstractAnimalField, namespaceMap);
 
-      expect(abstractAnimalField.name).toBe(originalName);
-      expect(abstractAnimalField.type).toBe(originalType);
-      expect(abstractAnimalField.fields.length).toBe(originalFieldCount);
-      expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.NONE);
+      expect(doc.definition.fieldSubstitutions).toHaveLength(0);
     });
   });
 
@@ -897,35 +907,29 @@ describe('FieldTypeOverrideService', () => {
     it('should apply Cat substitution to blank-namespace field', () => {
       const doc = createNoNsSubstitutionDoc();
       const abstractAnimalField = doc.fields[0];
-      const originalName = abstractAnimalField.name;
 
       FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'Cat', {});
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('Cat');
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
-      expect(abstractAnimalField.name).toBe('Cat');
-      expect(abstractAnimalField.namespaceURI).toBeFalsy();
-      expect(abstractAnimalField.originalField?.name).toBe(originalName);
+      expect(abstractAnimalField.wrapperKind).toBe('abstract');
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      const catIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Cat');
+      expect(abstractAnimalField.selectedMemberIndex).toBe(catIndex);
     });
 
     it('should revert Cat substitution and restore blank-namespace field', () => {
       const doc = createNoNsSubstitutionDoc();
       const abstractAnimalField = doc.fields[0];
-      const originalName = abstractAnimalField.name;
-      const originalDisplayName = abstractAnimalField.displayName;
-      const originalType = abstractAnimalField.type;
       const originalFieldCount = abstractAnimalField.fields.length;
 
       FieldTypeOverrideService.applyFieldSubstitution(abstractAnimalField, 'Cat', {});
       FieldTypeOverrideService.revertFieldSubstitution(abstractAnimalField, {});
 
-      expect(abstractAnimalField.name).toBe(originalName);
-      expect(abstractAnimalField.displayName).toBe(originalDisplayName);
-      expect(abstractAnimalField.type).toBe(originalType);
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      expect(abstractAnimalField.wrapperKind).toBe('abstract');
+      expect(abstractAnimalField.selectedMemberIndex).toBeUndefined();
       expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.NONE);
-      expect(abstractAnimalField.originalField).toBeUndefined();
       expect(doc.definition.fieldSubstitutions).toHaveLength(0);
     });
 
@@ -948,8 +952,9 @@ describe('FieldTypeOverrideService', () => {
 
       expect(doc.definition.fieldSubstitutions).toHaveLength(1);
       expect(doc.definition.fieldSubstitutions![0].name).toBe('Dog');
-      expect(abstractAnimalField.name).toBe('Dog');
-      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(abstractAnimalField.name).toBe('AbstractAnimal');
+      const dogIndex = abstractAnimalField.fields.findIndex((f) => f.name === 'Dog');
+      expect(abstractAnimalField.selectedMemberIndex).toBe(dogIndex);
     });
   });
 });

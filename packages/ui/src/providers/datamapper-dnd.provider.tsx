@@ -147,7 +147,10 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
 
   const handleDragStart = useCallback(
     (event: DragStartEvent) => {
-      props.handler && props.handler.handleDragStart(event);
+      if (props.handler) {
+        const result = props.handler.handleDragStart(event);
+        if (!result.success) return;
+      }
       setActiveData(event.active.data as DataRef<NodeData>);
 
       // Determine which side we're dragging FROM using the node data
@@ -161,7 +164,7 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
 
   const handleDragOver = useCallback(
     (event: DragOverEvent) => {
-      props.handler && props.handler.handleDragOver(event);
+      props.handler?.handleDragOver(event);
     },
     [props.handler],
   );

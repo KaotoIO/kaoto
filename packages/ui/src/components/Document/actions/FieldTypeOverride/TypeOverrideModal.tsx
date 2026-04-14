@@ -54,7 +54,9 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
 }) => {
   const api = useContext(MetadataContext)!;
   const { mappingTree } = useDataMapper();
-  const initialMode: OverrideMode = field.typeOverride === FieldOverrideVariant.SUBSTITUTION ? 'substitution' : 'type';
+  const isAbstractWrapper = field.wrapperKind === 'abstract';
+  const initialMode: OverrideMode =
+    field.typeOverride === FieldOverrideVariant.SUBSTITUTION || isAbstractWrapper ? 'substitution' : 'type';
   const initialCandidates = getOverrideCandidates(field, initialMode, mappingTree.namespaceMap);
   const [overrideMode, setOverrideMode] = useState<OverrideMode>(initialMode);
   const [selectedKey, setSelectedKey] = useState<string | null>(initialCandidates.selectedKey);
@@ -194,7 +196,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     [candidates],
   );
 
-  const hasExistingOverride = field?.typeOverride !== FieldOverrideVariant.NONE;
+  const hasExistingOverride = field?.typeOverride !== FieldOverrideVariant.NONE || isAbstractWrapper;
 
   const originalTypeDisplay = formatQNameWithPrefix(
     field?.originalField?.typeQName ?? field?.typeQName,
@@ -202,7 +204,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
     field?.originalField?.type ?? field?.type ?? 'Unknown',
   );
   const fieldName = field?.displayName || field?.name || 'Field';
-  const fieldPath = SchemaPathService.build(field, mappingTree.namespaceMap);
+  const fieldPath = SchemaPathService.formatDisplayPath(field, mappingTree.namespaceMap);
   const modalTitle = (
     <>
       <Icon size="md" status="warning" isInline>

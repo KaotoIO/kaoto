@@ -270,9 +270,9 @@ export class DocumentService {
     const fieldStack = DocumentUtilService.getFieldStack(field, true);
     for (const right of fieldStack.slice().reverse()) {
       const parent: IParentType = left ?? document;
-      if (right.isChoice) {
-        const rightChoices: IField[] = right.parent.fields.filter((f) => f.isChoice);
-        const leftChoices: IField[] = parent.fields.filter((f) => f.isChoice);
+      if (right.wrapperKind === 'choice') {
+        const rightChoices: IField[] = right.parent.fields.filter((f) => f.wrapperKind === 'choice');
+        const leftChoices: IField[] = parent.fields.filter((f) => f.wrapperKind === 'choice');
         const choiceIndex: number = rightChoices.indexOf(right);
         const choiceFound: IField | undefined = choiceIndex >= 0 ? leftChoices[choiceIndex] : undefined;
         if (!choiceFound) return undefined;
@@ -298,16 +298,16 @@ export class DocumentService {
     if (directChild) return directChild;
 
     for (const parentField of parent.fields) {
-      if (parentField.isChoice) {
-        const found = DocumentService.findCompatibleFieldInChoice(parentField, right);
+      if (parentField.wrapperKind) {
+        const found = DocumentService.findCompatibleFieldInWrapper(parentField, right);
         if (found) return found;
       }
     }
     return undefined;
   }
 
-  private static findCompatibleFieldInChoice(choiceField: IField, target: IField): IField | undefined {
-    for (const member of choiceField.fields) {
+  private static findCompatibleFieldInWrapper(wrapperField: IField, target: IField): IField | undefined {
+    for (const member of wrapperField.fields) {
       const isAttributeOrElementMatching = member.isAttribute === target.isAttribute;
       const isNamespaceMatching =
         !member.ownerDocument.isNamespaceAware ||
@@ -316,8 +316,8 @@ export class DocumentService {
       if (isAttributeOrElementMatching && isNamespaceMatching && member.name === target.name) {
         return member;
       }
-      if (member.isChoice) {
-        const nested = this.findCompatibleFieldInChoice(member, target);
+      if (member.wrapperKind) {
+        const nested = this.findCompatibleFieldInWrapper(member, target);
         if (nested) return nested;
       }
     }
@@ -362,26 +362,26 @@ export class DocumentService {
     if (directChild) return directChild;
 
     for (const field of parent.fields) {
-      if (field.isChoice) {
-        const found = DocumentService.findFieldInChoiceBySegment(namespaces, field, segment);
+      if (field.wrapperKind) {
+        const found = DocumentService.findFieldInWrapperBySegment(namespaces, field, segment);
         if (found) return found;
       }
     }
     return undefined;
   }
 
-  private static findFieldInChoiceBySegment(
+  private static findFieldInWrapperBySegment(
     namespaces: { [p: string]: string },
-    choiceField: IField,
+    wrapperField: IField,
     segment: PathSegment,
   ): IField | undefined {
-    for (const member of choiceField.fields) {
+    for (const member of wrapperField.fields) {
       const resolvedField = DocumentUtilService.resolveTypeFragment(member);
       if (XPathService.matchSegment(namespaces, resolvedField, segment)) {
         return member;
       }
-      if (member.isChoice) {
-        const nested = this.findFieldInChoiceBySegment(namespaces, member, segment);
+      if (member.wrapperKind) {
+        const nested = this.findFieldInWrapperBySegment(namespaces, member, segment);
         if (nested) return nested;
       }
     }

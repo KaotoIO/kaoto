@@ -84,11 +84,11 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should find field inside choice member', () => {
       const mockParent = {
         fields: [
-          { name: 'RegularField', namespaceURI: '', isChoice: false, fields: [] },
+          { name: 'RegularField', namespaceURI: '', fields: [] },
           {
             name: 'ContactChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [
               { name: 'email', namespaceURI: '', fields: [] },
               { name: 'phone', namespaceURI: '', fields: [] },
@@ -109,7 +109,7 @@ describe('XmlSchemaDocumentUtilService', () => {
           {
             name: 'ContactChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [
               { name: 'email', namespaceURI: 'http://www.kaoto.io/contact', fields: [] },
               { name: 'phone', namespaceURI: 'http://www.kaoto.io/contact', fields: [] },
@@ -128,11 +128,11 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should prefer direct child over choice member with same name', () => {
       const mockParent = {
         fields: [
-          { name: 'email', namespaceURI: '', isChoice: false, fields: [] },
+          { name: 'email', namespaceURI: '', fields: [] },
           {
             name: 'ContactChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [{ name: 'email', namespaceURI: 'http://different.com', fields: [] }],
           },
         ],
@@ -149,12 +149,12 @@ describe('XmlSchemaDocumentUtilService', () => {
           {
             name: 'OuterChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [
               {
                 name: 'InnerChoice',
                 namespaceURI: '',
-                isChoice: true,
+                wrapperKind: 'choice',
                 fields: [{ name: 'deepField', namespaceURI: '', fields: [] }],
               },
             ],
@@ -171,11 +171,11 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should return undefined when field not found in choice or regular fields', () => {
       const mockParent = {
         fields: [
-          { name: 'RegularField', namespaceURI: '', isChoice: false, fields: [] },
+          { name: 'RegularField', namespaceURI: '', fields: [] },
           {
             name: 'ContactChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [
               { name: 'email', namespaceURI: '', fields: [] },
               { name: 'phone', namespaceURI: '', fields: [] },
@@ -192,11 +192,11 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should handle empty choice', () => {
       const mockParent = {
         fields: [
-          { name: 'RegularField', namespaceURI: '', isChoice: false, fields: [] },
+          { name: 'RegularField', namespaceURI: '', fields: [] },
           {
             name: 'EmptyChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [],
           },
         ],
@@ -213,7 +213,7 @@ describe('XmlSchemaDocumentUtilService', () => {
           {
             name: 'ContactChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [
               { name: 'email', namespaceURI: '', fields: [] },
               { name: 'phone', namespaceURI: '', fields: [] },
@@ -222,7 +222,7 @@ describe('XmlSchemaDocumentUtilService', () => {
           {
             name: 'AddressChoice',
             namespaceURI: '',
-            isChoice: true,
+            wrapperKind: 'choice',
             fields: [
               { name: 'street', namespaceURI: '', fields: [] },
               { name: 'city', namespaceURI: '', fields: [] },

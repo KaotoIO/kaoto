@@ -321,9 +321,10 @@ describe('XmlSchemaTypesService', () => {
 
       expect(Object.keys(userTypes).length).toBeGreaterThan(0);
       expect(Object.values(userTypes).every((t) => !t.isBuiltIn)).toBe(true);
-      expect(Object.values(userTypes).every((t) => t.type === Types.Container)).toBe(true);
-      expect(Object.values(userTypes).some((t) => t.displayName.includes('Message'))).toBe(true);
-      expect(Object.values(userTypes).some((t) => t.displayName.includes('BaseRequest'))).toBe(true);
+      expect(Object.values(userTypes).some((t) => t.displayName === 'ConcreteRequest')).toBe(true);
+      expect(Object.values(userTypes).some((t) => t.displayName === 'SimpleResponse')).toBe(true);
+      expect(Object.values(userTypes).some((t) => t.displayName === 'Message')).toBe(false);
+      expect(Object.values(userTypes).some((t) => t.displayName === 'BaseRequest')).toBe(false);
     });
 
     it('should use correct namespace prefixes', () => {
@@ -344,6 +345,29 @@ describe('XmlSchemaTypesService', () => {
 
       expect(Object.keys(userTypes).length).toBeGreaterThan(0);
       expect(Object.keys(userTypes).every((k) => k.startsWith('myprefix:') || !k.includes(':'))).toBe(true);
+    });
+
+    it('should exclude abstract complexTypes from results', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { 'extension.xsd': getExtensionComplexXsd() },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document as XmlSchemaDocument;
+      const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
+
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const displayNames = Object.values(userTypes).map((t) => t.displayName);
+
+      expect(displayNames).not.toContain('Message');
+      expect(displayNames).not.toContain('BaseRequest');
+      expect(displayNames).toContain('ConcreteRequest');
+      expect(displayNames).toContain('SimpleResponse');
+      expect(displayNames).toContain('ShortString');
     });
   });
 
@@ -444,7 +468,8 @@ describe('XmlSchemaTypesService', () => {
       );
 
       expect(Object.keys(candidates).length).toBeGreaterThan(0);
-      expect(Object.values(candidates).some((c) => c.displayName === 'BaseRequest')).toBe(true);
+      expect(Object.values(candidates).some((c) => c.displayName === 'ConcreteRequest')).toBe(true);
+      expect(Object.values(candidates).some((c) => c.displayName === 'BaseRequest')).toBe(false);
     });
 
     it('should return empty when field has no typeQName', () => {
@@ -474,6 +499,34 @@ describe('XmlSchemaTypesService', () => {
       );
 
       expect(candidates).toEqual({});
+    });
+
+    it('should exclude abstract complexTypes from override candidates', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { 'extension.xsd': getExtensionComplexXsd() },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document as XmlSchemaDocument;
+      const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
+
+      const messageQName = new QName('http://www.example.com/TEST', 'Message');
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.typeQName = messageQName;
+
+      const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
+        field,
+        doc.xmlSchemaCollection,
+        namespaceMap,
+      );
+      const displayNames = Object.values(candidates).map((c) => c.displayName);
+
+      expect(displayNames).not.toContain('BaseRequest');
+      expect(displayNames).toContain('ConcreteRequest');
     });
   });
 
@@ -538,10 +591,10 @@ describe('XmlSchemaTypesService', () => {
 
       const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
 
-      const baseRequest = Object.values(userTypes).find((t) => t.displayName === 'BaseRequest');
-      expect(baseRequest).toBeDefined();
-      expect(baseRequest!.baseQName?.getLocalPart()).toContain('Message');
-      expect(baseRequest!.derivation).toBe(TypeDerivation.EXTENSION);
+      const concreteRequest = Object.values(userTypes).find((t) => t.displayName === 'ConcreteRequest');
+      expect(concreteRequest).toBeDefined();
+      expect(concreteRequest!.baseQName?.getLocalPart()).toBe('BaseRequest');
+      expect(concreteRequest!.derivation).toBe(TypeDerivation.EXTENSION);
     });
 
     it('should include description from type annotation', () => {
@@ -559,9 +612,9 @@ describe('XmlSchemaTypesService', () => {
 
       const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
 
-      const message = Object.values(userTypes).find((t) => t.displayName === 'Message');
-      expect(message).toBeDefined();
-      expect(message!.description).toBe('The base message type.');
+      const concreteRequest = Object.values(userTypes).find((t) => t.displayName === 'ConcreteRequest');
+      expect(concreteRequest).toBeDefined();
+      expect(concreteRequest!.description).toBe('A concrete request type extending BaseRequest.');
     });
 
     it('should not include base for root types', () => {
@@ -579,10 +632,10 @@ describe('XmlSchemaTypesService', () => {
 
       const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
 
-      const message = Object.values(userTypes).find((t) => t.displayName === 'Message');
-      expect(message).toBeDefined();
-      expect(message!.baseQName).toBeUndefined();
-      expect(message!.derivation).toBeUndefined();
+      const simpleResponse = Object.values(userTypes).find((t) => t.displayName === 'SimpleResponse');
+      expect(simpleResponse).toBeDefined();
+      expect(simpleResponse!.baseQName).toBeUndefined();
+      expect(simpleResponse!.derivation).toBeUndefined();
     });
 
     it('should include simpleType with restriction derivation', () => {

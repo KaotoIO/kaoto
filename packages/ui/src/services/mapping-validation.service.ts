@@ -1,14 +1,19 @@
 import { IField, PrimitiveDocument } from '../models/datamapper/document';
 import { Types } from '../models/datamapper/types';
 import {
+  AbstractFieldNodeData,
+  AddMappingNodeData,
   ChoiceFieldNodeData,
+  DocumentNodeData,
   FieldItemNodeData,
   MappingNodeData,
   NodeData,
   SourceNodeDataType,
+  TargetAbstractFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  UnknownMappingNodeData,
 } from '../models/datamapper/visualization';
 
 /**
@@ -34,22 +39,70 @@ export interface ValidationResult {
 }
 
 /**
- * Stateless service that validates drag-and-drop mapping pairs in the DataMapper.
+ * Stateless service that governs drag-and-drop operations in the DataMapper.
  *
- * Validation is split into two levels:
- * - **Node-level** ({@link validateMappingPair}): determines which node is source/target,
- *   and short-circuits when the target is not a field (e.g. a document root drop).
- * - **Field-level** ({@link validateFieldPair}): applies ordered schema rules
- *   (choice selection, container compatibility) to the underlying `IField` values.
+ * Methods follow a naming convention that reflects their role in the DnD pipeline:
+ *
+ * - **`is*()`** methods return a plain `boolean` and are used to **disable** DnD
+ *   at the structural level. When they return `false`, the drag or drop is silently
+ *   prevented — no hover effect, no error feedback.
+ *   - {@link isDraggable} — gates whether a node can initiate a drag.
+ *   - {@link isDroppable} — gates whether a node can accept a drop.
+ *
+ * - **`validate*()`** methods return a {@link ValidationResult} and are used when
+ *   DnD is **enabled** but the operation may be invalid. They provide an
+ *   `errorMessage` for user-facing feedback (e.g. invalid-drop hover effect,
+ *   error toast on drop).
+ *   - {@link validateMappingPair} — validates a specific drag-and-drop pair.
+ *   - {@link validateFieldPair} — validates the underlying schema fields.
  */
 export class MappingValidationService {
+  /**
+   * Whether the given node can initiate a drag operation.
+   *
+   * Returns `false` for nodes that should never be dragged: placeholder nodes
+   * ({@link UnknownMappingNodeData}, {@link AddMappingNodeData}), unselected
+   * abstract wrappers, and non-primitive document roots. Selected abstract
+   * candidates (with {@link AbstractFieldNodeData.abstractField} set) remain
+   * draggable.
+   *
+   * @param node - The node to check.
+   */
+  static isDraggable(node: NodeData): boolean {
+    if (node instanceof UnknownMappingNodeData) return false;
+    if (node instanceof AddMappingNodeData) return false;
+    if ((node instanceof AbstractFieldNodeData || node instanceof TargetAbstractFieldNodeData) && !node.abstractField)
+      return false;
+    if (node instanceof DocumentNodeData && !node.isPrimitive) return false;
+    return true;
+  }
+
+  /**
+   * Whether the target node can accept a drop from the active node.
+   *
+   * Returns `false` for placeholder nodes and for same-side drops
+   * (source-to-source or target-to-target), which are silently ignored.
+   * When no drag is active ({@link activeNode} is `undefined`), all
+   * non-placeholder nodes are droppable.
+   *
+   * @param activeNode - The currently dragged node, or `undefined` if no drag is active.
+   * @param targetNode - The potential drop target.
+   */
+  static isDroppable(activeNode: NodeData | undefined, targetNode: NodeData): boolean {
+    if (targetNode instanceof UnknownMappingNodeData) return false;
+    if (targetNode instanceof AddMappingNodeData) return false;
+    if (activeNode?.isSource === targetNode.isSource) return false;
+    return true;
+  }
+
   /**
    * Validates a drag-and-drop pair at the node level.
    *
    * Rejects same-side drops silently (no `errorMessage`). For cross-side pairs,
    * identifies which node is source and which is target, then delegates to
    * {@link validateFieldPair} when both sides resolve to concrete fields.
-   * Document-root targets bypass field-level validation and are always accepted.
+   * Document-root and mapping-node targets bypass field-level validation and
+   * are always accepted.
    *
    * @param fromNode - The node being dragged.
    * @param toNode - The node being dropped onto.
@@ -91,8 +144,9 @@ export class MappingValidationService {
     return { ...fieldValidation, sourceNode, targetNode };
   }
 
-  private static readonly validationRules: ReadonlyArray<(source: IField, target: IField) => ValidationResult> = [
+  private static readonly pairValidationRules: ReadonlyArray<(source: IField, target: IField) => ValidationResult> = [
     MappingValidationService.validateChoiceRules,
+    MappingValidationService.validateAbstractRules,
     MappingValidationService.validateContainerRules,
   ];
 
@@ -109,7 +163,7 @@ export class MappingValidationService {
    * @returns A {@link ValidationResult} with `isValid: true` when all rules pass.
    */
   static validateFieldPair(sourceField: IField, targetField: IField): ValidationResult {
-    for (const rule of MappingValidationService.validationRules) {
+    for (const rule of MappingValidationService.pairValidationRules) {
       const result = rule(sourceField, targetField);
       if (!result.isValid) return result;
     }
@@ -117,8 +171,7 @@ export class MappingValidationService {
   }
 
   private static validateContainerRules(source: IField, target: IField): ValidationResult {
-    /** While choice node is also a container, it has its own rule in {@link validateChoiceRules()} */
-    if (source.isChoice) return { isValid: true };
+    if (source.wrapperKind) return { isValid: true };
 
     if (MappingValidationService.isContainer(source) !== MappingValidationService.isContainer(target)) {
       return {
@@ -134,10 +187,20 @@ export class MappingValidationService {
   }
 
   private static validateChoiceRules(_source: IField, target: IField): ValidationResult {
-    if (target.isChoice === true && target.selectedMemberIndex === undefined) {
+    if (target.wrapperKind === 'choice' && target.selectedMemberIndex === undefined) {
       return {
         isValid: false,
         errorMessage: 'Cannot map to an unselected choice. Please select a specific choice member first.',
+      };
+    }
+    return { isValid: true };
+  }
+
+  private static validateAbstractRules(_source: IField, target: IField): ValidationResult {
+    if (target.wrapperKind === 'abstract' && target.selectedMemberIndex === undefined) {
+      return {
+        isValid: false,
+        errorMessage: 'Cannot map to an unselected abstract element. Please select a concrete candidate first.',
       };
     }
     return { isValid: true };

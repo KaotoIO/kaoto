@@ -3,6 +3,17 @@
            xmlns="http://www.example.com/SUBSTITUTION"
            elementFormDefault="qualified">
 
+  <xs:element name="Zoo">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="AbstractAnimal" maxOccurs="unbounded"/>
+        <xs:element ref="AbstractLabel"/>
+        <xs:element ref="AbstractCount"/>
+        <xs:element name="capacity" type="xs:int"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="AbstractAnimal" type="Animal_t" abstract="true"/>
   <xs:element name="Cat" type="Cat_t" substitutionGroup="AbstractAnimal"/>
   <xs:element name="Dog" type="Dog_t" substitutionGroup="AbstractAnimal"/>

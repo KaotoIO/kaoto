@@ -1,4 +1,4 @@
-import { DragEndEvent } from '@dnd-kit/core';
+import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { DocumentType, IField } from '../../models/datamapper/document';
 import { IExpressionHolder, IFunctionDefinition, MappingItem, MappingTree } from '../../models/datamapper/mapping';
@@ -98,6 +98,13 @@ describe('ExpressionEditorDnDHandler', () => {
       const result = handler.handleDragEnd(makeDragEvent(funcNode, editorNode), mockMappingTree, mockOnUpdate);
       expect(mockWrapWithFunction).toHaveBeenCalledWith(mockMapping, mockFunctionDef);
       expect(mockOnUpdate).toHaveBeenCalled();
+      expect(result).toEqual({ success: true });
+    });
+  });
+
+  describe('handleDragStart', () => {
+    it('should always return { success: true }', () => {
+      const result = handler.handleDragStart(makeDragEvent() as unknown as DragStartEvent);
       expect(result).toEqual({ success: true });
     });
   });

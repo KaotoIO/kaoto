@@ -11,7 +11,7 @@ describe('ChoiceSelectionService', () => {
 
   function makeChoiceField(parent: XmlSchemaField, memberNames: string[]): XmlSchemaField {
     const choiceField = new XmlSchemaField(parent, 'choice', false);
-    choiceField.isChoice = true;
+    choiceField.wrapperKind = 'choice';
     choiceField.fields = memberNames.map((name) => {
       const member = new XmlSchemaField(choiceField, name, false);
       return member;

@@ -179,7 +179,7 @@ describe('SourceDocumentNode', () => {
       ...baseField,
       name: 'choice',
       displayName: 'choice',
-      isChoice: true,
+      wrapperKind: 'choice' as const,
       fields: memberFields,
     } as unknown as typeof baseField;
     const choiceNodeData = new ChoiceFieldNodeData(documentNodeData, choiceField);

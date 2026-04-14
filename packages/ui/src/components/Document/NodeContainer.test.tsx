@@ -20,6 +20,8 @@ jest.mock('@dnd-kit/core', () => ({
 jest.mock('../../services/mapping-validation.service', () => ({
   MappingValidationService: {
     validateMappingPair: jest.fn().mockReturnValue({ isValid: true }),
+    isDraggable: jest.fn().mockReturnValue(true),
+    isDroppable: jest.fn().mockReturnValue(true),
   },
 }));
 
@@ -43,6 +45,8 @@ describe('DroppableContainer', () => {
   beforeEach(() => {
     (useDroppable as jest.Mock).mockReturnValue({ isOver: false, setNodeRef: jest.fn() });
     (MappingValidationService.validateMappingPair as jest.Mock).mockReturnValue({ isValid: true });
+    (MappingValidationService.isDraggable as jest.Mock).mockReturnValue(true);
+    (MappingValidationService.isDroppable as jest.Mock).mockReturnValue(true);
   });
 
   it('should call useDroppable with disabled: false when there is no active node', () => {
@@ -56,7 +60,8 @@ describe('DroppableContainer', () => {
     expect(useDroppable).toHaveBeenCalledWith(expect.objectContaining({ disabled: false }));
   });
 
-  it('should call useDroppable with disabled: true when the active node is on the same side', () => {
+  it('should call useDroppable with disabled: true when isDroppable returns false', () => {
+    (MappingValidationService.isDroppable as jest.Mock).mockReturnValue(false);
     const sameSideNode = { ...mockNodeData, id: 'same-side', isSource: false } as unknown as NodeData;
     render(
       <DataMapperDndContext.Provider value={{ activeNode: sameSideNode }}>

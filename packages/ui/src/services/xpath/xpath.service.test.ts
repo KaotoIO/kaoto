@@ -875,7 +875,7 @@ describe('XPathService', () => {
       );
       const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
       const rootField = doc.fields.find((f) => f.name === 'Root')!;
-      const choiceWrapper = rootField.fields.find((f) => f.isChoice)!;
+      const choiceWrapper = rootField.fields.find((f) => f.wrapperKind === 'choice')!;
       const optionA = choiceWrapper.fields.find((f) => f.name === 'OptionA')!;
 
       const result = XPathService.toPathExpression({}, optionA);
@@ -906,7 +906,7 @@ describe('XPathService', () => {
       );
       const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
       const rootField = doc.fields.find((f) => f.name === 'Root')!;
-      const choiceWrapper = rootField.fields.find((f) => f.isChoice)!;
+      const choiceWrapper = rootField.fields.find((f) => f.wrapperKind === 'choice')!;
       const optionA = choiceWrapper.fields.find((f) => f.name === 'OptionA')!;
 
       const contextPath = new PathExpression();

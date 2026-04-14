@@ -45,8 +45,8 @@ export class JsonSchemaDocumentUtilService {
     if (directChild) return directChild;
 
     for (const field of resolvedParent.fields) {
-      if (field.isChoice) {
-        const found = JsonSchemaDocumentUtilService.findInChoiceByKeyAndType(field, type, fieldKey, namespaceURI);
+      if (field.wrapperKind) {
+        const found = JsonSchemaDocumentUtilService.findInWrapperByKeyAndType(field, type, fieldKey, namespaceURI);
         if (found) return found;
       }
     }
@@ -54,24 +54,24 @@ export class JsonSchemaDocumentUtilService {
     return undefined;
   }
 
-  private static findInChoiceByKeyAndType(
-    choiceField: IField,
+  private static findInWrapperByKeyAndType(
+    wrapperField: IField,
     type: Types,
     fieldKey: string,
     namespaceURI: string,
   ): IField | undefined {
-    for (const choiceMember of choiceField.fields) {
+    for (const member of wrapperField.fields) {
       if (
-        'key' in choiceMember &&
-        choiceMember.key === fieldKey &&
-        JsonSchemaDocumentUtilService.toXsltTypeName(choiceMember.type) ===
+        'key' in member &&
+        member.key === fieldKey &&
+        JsonSchemaDocumentUtilService.toXsltTypeName(member.type) ===
           JsonSchemaDocumentUtilService.toXsltTypeName(type) &&
-        ((!namespaceURI && !choiceMember.namespaceURI) || choiceMember.namespaceURI === namespaceURI)
+        ((!namespaceURI && !member.namespaceURI) || member.namespaceURI === namespaceURI)
       ) {
-        return choiceMember;
+        return member;
       }
-      if (choiceMember.isChoice) {
-        const nested = JsonSchemaDocumentUtilService.getChildField(choiceMember, type, fieldKey, namespaceURI);
+      if (member.wrapperKind) {
+        const nested = JsonSchemaDocumentUtilService.getChildField(member, type, fieldKey, namespaceURI);
         if (nested) return nested;
       }
     }

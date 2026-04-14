@@ -504,7 +504,7 @@ export class JsonSchemaField extends BaseField {
     for (const ref of this.namedTypeFragmentRefs) {
       !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
     }
-    if (this.isChoice !== undefined) existing.isChoice = this.isChoice;
+    if (this.wrapperKind !== undefined) existing.wrapperKind = this.wrapperKind;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
     for (const child of this.fields) child.adopt(existing);
     return existing;
@@ -520,7 +520,7 @@ export class JsonSchemaField extends BaseField {
     to.typeOverride = this.typeOverride;
     to.originalField = this.originalField;
     to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
-    to.isChoice = this.isChoice;
+    to.wrapperKind = this.wrapperKind;
     to.selectedMemberIndex = this.selectedMemberIndex;
     to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
     return to;

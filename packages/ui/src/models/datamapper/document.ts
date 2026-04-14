@@ -14,6 +14,13 @@ import { Predicate } from './xpath';
 export type IParentType = IDocument | IField;
 
 /**
+ * Discriminator for synthetic wrapper fields that group selectable candidates.
+ * - `'choice'` — xs:choice compositor wrapping mutually exclusive element alternatives
+ * - `'abstract'` — abstract element wrapper holding concrete substitution group members
+ */
+export type WrapperKind = 'choice' | 'abstract';
+
+/**
  * Immutable snapshot of a field's identity and structure taken lazily on first expansion
  * (e.g. when resolving children via `resolveTypeFragment`) or just before the first type override
  * or substitution is applied. Stored on {@link IField.originalField} and cleared when the
@@ -50,6 +57,8 @@ export interface IOriginalFieldState {
   namespacePrefix: string | null;
   type: Types;
   typeQName: QName | null;
+  /** Whether the field's declared type was an abstract xs:complexType at snapshot time. */
+  isAbstractType?: boolean;
   /** Original `namedTypeFragmentRefs` at snapshot time. Set at field expansion for named types; empty for inline types. */
   namedTypeFragmentRefs: string[];
   /**
@@ -114,10 +123,12 @@ export interface IField {
   namedTypeFragmentRefs: string[];
   /** XPath predicates for filtering this field */
   predicates: Predicate[];
-  /** Whether this field represents a choice compositor */
-  isChoice?: boolean;
+  /** Discriminator for synthetic wrapper fields: `'choice'` for xs:choice compositors, `'abstract'` for abstract element wrappers */
+  wrapperKind?: WrapperKind;
   /** Index of selected member (0-based), undefined = show all */
   selectedMemberIndex?: number;
+  /** Whether the field's declared type is an abstract xs:complexType */
+  isAbstractType?: boolean;
 
   /**
    * Adopts itself to a passed-in parent {@link IField} as a child. This method is also responsible for inheritance.
@@ -309,8 +320,9 @@ export class BaseField implements IField {
   namespaceURI: string = '';
   namedTypeFragmentRefs: string[] = [];
   predicates: Predicate[] = [];
-  isChoice?: boolean;
+  wrapperKind?: WrapperKind;
   selectedMemberIndex?: number;
+  isAbstractType?: boolean;
   originalField?: IOriginalFieldState;
 
   protected mergeInto(existing: IField): void {
@@ -320,8 +332,9 @@ export class BaseField implements IField {
     for (const ref of this.namedTypeFragmentRefs) {
       !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
     }
-    if (this.isChoice !== undefined) existing.isChoice = this.isChoice;
+    if (this.wrapperKind !== undefined) existing.wrapperKind = this.wrapperKind;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
+    if (this.isAbstractType !== undefined) existing.isAbstractType = this.isAbstractType;
     for (const child of this.fields) child.adopt(existing);
   }
 
@@ -345,8 +358,9 @@ export class BaseField implements IField {
     adopted.namespacePrefix = this.namespacePrefix;
     adopted.namespaceURI = this.namespaceURI;
     adopted.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
-    adopted.isChoice = this.isChoice;
+    adopted.wrapperKind = this.wrapperKind;
     adopted.selectedMemberIndex = this.selectedMemberIndex;
+    adopted.isAbstractType = this.isAbstractType;
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
     parent.fields.push(adopted);
     parent.ownerDocument.totalFieldCount++;

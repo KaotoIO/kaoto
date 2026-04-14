@@ -36,7 +36,7 @@ export class ChoiceSelectionService {
    * `dataMapperProvider.updateDocument()` to persist changes and trigger re-visualization.
    *
    * @param document - The document containing the choice field
-   * @param choiceField - The choice field to set selection on (must have isChoice === true)
+   * @param choiceField - The choice field to set selection on (must have wrapperKind === 'choice')
    * @param selectedMemberIndex - 0-based index of the choice member to select
    * @param namespaceMap - Namespace prefix to URI mapping for path generation
    *
@@ -57,7 +57,7 @@ export class ChoiceSelectionService {
     selectedMemberIndex: number,
     namespaceMap: Record<string, string>,
   ): void {
-    if (!choiceField.isChoice) {
+    if (choiceField.wrapperKind !== 'choice') {
       throw new TypeError('Field is not a choice compositor');
     }
 
@@ -109,7 +109,7 @@ export class ChoiceSelectionService {
    * @see setChoiceSelection
    */
   static clearChoiceSelection(document: IDocument, choiceField: IField, namespaceMap: Record<string, string>): void {
-    if (!choiceField.isChoice) {
+    if (choiceField.wrapperKind !== 'choice') {
       throw new TypeError('Field is not a choice compositor');
     }
 
@@ -145,7 +145,7 @@ export class ChoiceSelectionService {
       [];
 
     for (const path of descendantPaths) {
-      const field = SchemaPathService.navigateToChoiceField(document, path, namespaceMap);
+      const field = SchemaPathService.navigateToField(document, path, namespaceMap);
       if (field) {
         field.selectedMemberIndex = undefined;
       }

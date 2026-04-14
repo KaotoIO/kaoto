@@ -17,6 +17,7 @@ import {
   WhenItem,
 } from '../models/datamapper/mapping';
 import {
+  AbstractFieldNodeData,
   AddMappingNodeData,
   ChoiceFieldNodeData,
   DocumentNodeData,
@@ -25,6 +26,7 @@ import {
   MappingNodeData,
   NodeData,
   SourceNodeDataType,
+  TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
@@ -35,6 +37,34 @@ import {
 import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
 import { MappingService } from './mapping.service';
+
+interface WrapperSpec {
+  createSourceNode: (parent: NodeData, field: IField) => FieldNodeData;
+  createTargetNode: (parent: TargetNodeData, field: IField, mapping?: FieldItem) => TargetFieldNodeData;
+  setWrapperRef: (node: FieldNodeData, wrapperField: IField) => void;
+  isTargetWrapper: (node: NodeData) => boolean;
+  hasWrapperRef: (node: NodeData) => boolean;
+}
+
+const CHOICE_WRAPPER: WrapperSpec = {
+  createSourceNode: (parent, field) => new ChoiceFieldNodeData(parent, field),
+  createTargetNode: (parent, field, mapping) => new TargetChoiceFieldNodeData(parent, field, mapping),
+  setWrapperRef: (node, wrapperField) => {
+    (node as ChoiceFieldNodeData | TargetChoiceFieldNodeData).choiceField = wrapperField;
+  },
+  isTargetWrapper: (node) => node instanceof TargetChoiceFieldNodeData,
+  hasWrapperRef: (node) => !!(node as TargetChoiceFieldNodeData).choiceField,
+};
+
+const ABSTRACT_WRAPPER: WrapperSpec = {
+  createSourceNode: (parent, field) => new AbstractFieldNodeData(parent, field),
+  createTargetNode: (parent, field, mapping) => new TargetAbstractFieldNodeData(parent, field, mapping),
+  setWrapperRef: (node, wrapperField) => {
+    (node as AbstractFieldNodeData | TargetAbstractFieldNodeData).abstractField = wrapperField;
+  },
+  isTargetWrapper: (node) => node instanceof TargetAbstractFieldNodeData,
+  hasWrapperRef: (node) => !!(node as TargetAbstractFieldNodeData).abstractField,
+};
 
 // Regex patterns for DnD ID generation
 const FORWARD_SLASH_REGEX = /\//g;
@@ -105,26 +135,27 @@ export class VisualizationService {
    * is set to the choice wrapper. {@link createNodeTitle} returns the member's own display name in
    * that case, and {@link NodeTitle} renders it as a plain field title without the choice badge.
    */
-  private static doGenerateNodeDataFromChoiceField(
+  private static doGenerateNodeDataFromWrapperField(
     parent: NodeData,
     field: IField,
-    mappings?: MappingItem[],
+    mappings: MappingItem[] | undefined,
+    spec: WrapperSpec,
   ): NodeData {
     const selectedMember =
       field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
     const nodeField = selectedMember ?? field;
     if (parent.isSource) {
-      const choiceNodeData = new ChoiceFieldNodeData(parent, nodeField);
-      if (selectedMember) choiceNodeData.choiceField = field;
-      return choiceNodeData;
+      const node = spec.createSourceNode(parent, nodeField);
+      if (selectedMember) spec.setWrapperRef(node, field);
+      return node;
     }
 
     const mappingsForMember =
       selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
     const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
-    const choiceNodeData = new TargetChoiceFieldNodeData(parent as TargetNodeData, nodeField, mapping);
-    if (selectedMember) choiceNodeData.choiceField = field;
-    return choiceNodeData;
+    const node = spec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
+    if (selectedMember) spec.setWrapperRef(node, field);
+    return node;
   }
 
   private static doGenerateNodeDataFromFields(
@@ -144,8 +175,12 @@ export class VisualizationService {
     }
 
     return fields.reduce((acc, field) => {
-      if (field.isChoice) {
-        acc.push(VisualizationService.doGenerateNodeDataFromChoiceField(parent, field, mappings));
+      if (field.wrapperKind === 'choice') {
+        acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, CHOICE_WRAPPER));
+        return acc;
+      }
+      if (field.wrapperKind === 'abstract') {
+        acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, ABSTRACT_WRAPPER));
         return acc;
       }
 
@@ -173,8 +208,8 @@ export class VisualizationService {
     return nodes.some((node) => 'mapping' in node && node.mapping === mapping);
   }
 
-  private static resolveChoiceNodeFields(field: IField): IField[] {
-    if (!field.isChoice) {
+  private static resolveWrapperNodeFields(field: IField): IField[] {
+    if (!field.wrapperKind) {
       DocumentUtilService.resolveTypeFragment(field);
       return field.fields;
     }
@@ -183,20 +218,25 @@ export class VisualizationService {
     return selectedMember ? [field] : field.fields;
   }
 
+  private static isUnselectedTargetWrapper(node: NodeData): boolean {
+    return (
+      (node instanceof TargetChoiceFieldNodeData && !node.choiceField) ||
+      (node instanceof TargetAbstractFieldNodeData && !node.abstractField)
+    );
+  }
+
   /**
-   * Resolves mapping children for a choice wrapper node. Unselected target choice wrappers
-   * have no mapping tree counterpart, so we walk up through any nested unselected choice
+   * Resolves mapping children for a wrapper node. Unselected target wrappers
+   * have no mapping tree counterpart, so we walk up through any nested unselected
    * wrappers to find the nearest real ancestor that carries mapping children.
    */
-  private static resolveChoiceNodeMappings(
-    parent: ChoiceFieldNodeData | TargetChoiceFieldNodeData,
-  ): MappingItem[] | undefined {
-    if (!(parent instanceof TargetChoiceFieldNodeData) || parent.choiceField) {
-      return 'mapping' in parent ? parent.mapping?.children : undefined;
+  private static resolveWrapperNodeMappings(parent: NodeData, spec: WrapperSpec): MappingItem[] | undefined {
+    if (!spec.isTargetWrapper(parent) || spec.hasWrapperRef(parent)) {
+      return 'mapping' in parent ? (parent as TargetNodeData).mapping?.children : undefined;
     }
-    let ancestor: TargetNodeData = parent.parent;
-    while (ancestor instanceof TargetChoiceFieldNodeData && !ancestor.choiceField) {
-      ancestor = ancestor.parent;
+    let ancestor: TargetNodeData = (parent as TargetFieldNodeData).parent;
+    while (VisualizationService.isUnselectedTargetWrapper(ancestor)) {
+      ancestor = (ancestor as TargetFieldNodeData).parent;
     }
     return ancestor.mapping?.children;
   }
@@ -211,8 +251,15 @@ export class VisualizationService {
     if (parent instanceof ChoiceFieldNodeData || parent instanceof TargetChoiceFieldNodeData) {
       return VisualizationService.doGenerateNodeDataFromFields(
         parent,
-        VisualizationService.resolveChoiceNodeFields(parent.field),
-        VisualizationService.resolveChoiceNodeMappings(parent),
+        VisualizationService.resolveWrapperNodeFields(parent.field),
+        VisualizationService.resolveWrapperNodeMappings(parent, CHOICE_WRAPPER),
+      );
+    }
+    if (parent instanceof AbstractFieldNodeData || parent instanceof TargetAbstractFieldNodeData) {
+      return VisualizationService.doGenerateNodeDataFromFields(
+        parent,
+        VisualizationService.resolveWrapperNodeFields(parent.field),
+        VisualizationService.resolveWrapperNodeMappings(parent, ABSTRACT_WRAPPER),
       );
     }
     if (parent instanceof FieldNodeData || parent instanceof FieldItemNodeData) {
@@ -273,6 +320,11 @@ export class VisualizationService {
     return nodeData instanceof FieldNodeData && nodeData.field?.isAttribute;
   }
 
+  /**
+   * Returns the underlying {@link IField} for field-backed nodes, or `undefined` for
+   * document and pure mapping nodes.
+   * @param nodeData - The node to extract the field from.
+   */
   static getField(nodeData: NodeData): IField | undefined {
     if (nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData) {
       return nodeData.field;
@@ -286,6 +338,14 @@ export class VisualizationService {
    */
   static isChoiceField(nodeData: NodeData) {
     return nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData;
+  }
+
+  /**
+   * Returns `true` if the node is an abstract field, on either source or target side.
+   * @param nodeData - The node to test.
+   */
+  static isAbstractField(nodeData: NodeData) {
+    return nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData;
   }
 
   /**
@@ -623,10 +683,18 @@ export class VisualizationService {
     if (fieldNodeData instanceof TargetChoiceFieldNodeData && !fieldNodeData.choiceField) {
       return VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
     }
+    if (fieldNodeData instanceof TargetAbstractFieldNodeData && !fieldNodeData.abstractField) {
+      return VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
+    }
     const parentItem = VisualizationService.getOrCreateFieldItem(fieldNodeData.parent);
     return MappingService.createFieldItem(parentItem, fieldNodeData.field);
   }
 
+  /**
+   * Serializes a DOM {@link Element} to a pretty-printed XML string.
+   * Falls back to the raw serialized output when formatting fails.
+   * @param element - The DOM element to serialize.
+   */
   static formatXml(element: Element): string {
     const rawXml = new XMLSerializer().serializeToString(element);
     try {
@@ -644,10 +712,10 @@ export class VisualizationService {
    */
   static getChoiceMemberLabel(node: ChoiceFieldNodeData | TargetChoiceFieldNodeData): string {
     const members = node.field.fields ?? [];
-    const nestedChoiceCount = members.filter((m) => m.isChoice).length;
+    const nestedChoiceCount = members.filter((m) => m.wrapperKind === 'choice').length;
     let choiceIndex = 0;
     const labels = members.map((m) => {
-      if (!m.isChoice) return m.displayName ?? m.name;
+      if (m.wrapperKind !== 'choice') return m.displayName ?? m.name;
       return nestedChoiceCount > 1 ? `choice${++choiceIndex}` : 'choice';
     });
     if (labels.length === 0) return '(empty)';
@@ -659,8 +727,26 @@ export class VisualizationService {
   }
 
   /**
-   * Returns the display title for a node, delegating to {@link getChoiceMemberLabel} for
-   * unselected choice wrapper nodes so the member list is rendered separately from the label.
+   * Returns the candidate label string (e.g. `"(Cat | Dog | Fish)"`) for an unselected
+   * abstract wrapper node. Returns `"(no candidates)"` when the wrapper has zero candidates.
+   * @param node - The abstract wrapper node whose candidates should be described.
+   */
+  static getAbstractMemberLabel(node: AbstractFieldNodeData | TargetAbstractFieldNodeData): string {
+    const members = node.field.fields ?? [];
+    const labels = members.map((m) => m.displayName ?? m.name);
+    if (labels.length === 0) return '(no candidates)';
+    const maxVisible = 3;
+    if (labels.length > maxVisible) {
+      return `(${labels.slice(0, maxVisible).join(' | ')} | +${labels.length - maxVisible} more)`;
+    }
+    return `(${labels.join(' | ')})`;
+  }
+
+  /**
+   * Returns the display title for a node. Unselected choice wrappers delegate to
+   * {@link getChoiceMemberLabel} and unselected abstract wrappers delegate to
+   * {@link getAbstractMemberLabel} so the candidate list is rendered separately
+   * from the badge label. All other nodes return {@link NodeData.title}.
    * @param nodeData - The node whose title should be resolved.
    */
   static createNodeTitle(nodeData: NodeData): string {
@@ -669,6 +755,12 @@ export class VisualizationService {
       !nodeData.choiceField
     ) {
       return VisualizationService.getChoiceMemberLabel(nodeData);
+    }
+    if (
+      (nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData) &&
+      !nodeData.abstractField
+    ) {
+      return VisualizationService.getAbstractMemberLabel(nodeData);
     }
     return nodeData.title;
   }

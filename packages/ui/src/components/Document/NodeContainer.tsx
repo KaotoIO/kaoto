@@ -23,21 +23,17 @@ type BaseContainerProps = PropsWithChildren & {
 export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ className, id, nodeData, children }) => {
   const { activeNode } = useContext(DataMapperDndContext);
 
-  const isInvalidDrop = useMemo(() => {
-    if (!activeNode) return false;
-    if (activeNode.isSource === nodeData.isSource) return false;
-    return !MappingValidationService.validateMappingPair(activeNode, nodeData).isValid;
-  }, [activeNode, nodeData]);
+  const droppable = MappingValidationService.isDroppable(activeNode, nodeData);
 
-  // unlike `isInvalidDrop` which shows disabled hover effect and show an error toast if it's dropped,
-  // if it's same side (source<->source / target<->target), disable DnDKit to show no hover effect
-  // nor error, but just silently ignore it
-  const isSameSide = !!activeNode && activeNode.isSource === nodeData.isSource;
+  const isInvalidDrop = useMemo(() => {
+    if (!activeNode || !droppable) return false;
+    return !MappingValidationService.validateMappingPair(activeNode, nodeData).isValid;
+  }, [activeNode, nodeData, droppable]);
 
   const { isOver, setNodeRef: setDroppableNodeRef } = useDroppable({
     id: `droppable-${id}`,
     data: nodeData,
-    disabled: isSameSide,
+    disabled: !droppable,
   });
 
   return (
@@ -58,6 +54,7 @@ export const DroppableContainer: FunctionComponent<BaseContainerProps> = ({ clas
 };
 
 export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, nodeData, children }) => {
+  const draggable = MappingValidationService.isDraggable(nodeData);
   const {
     isDragging,
     attributes,
@@ -67,6 +64,7 @@ export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, 
   } = useDraggable({
     id: `draggable-${id}`,
     data: nodeData,
+    disabled: !draggable,
   });
 
   return (
