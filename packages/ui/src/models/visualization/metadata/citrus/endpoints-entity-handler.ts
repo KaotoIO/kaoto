@@ -8,7 +8,7 @@ import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { CamelCatalogService } from '../../flows/camel-catalog.service';
 
 export class EndpointsEntityHandler {
-  constructor(private testResource?: CitrusTestResource | undefined) {
+  constructor(readonly testResource?: CitrusTestResource | undefined) {
     if (!this.testResource) return;
   }
 
@@ -25,8 +25,11 @@ export class EndpointsEntityHandler {
       }
     }
 
+    const sortedEndpoints = [...endpoints];
+    sortedEndpoints.sort((a, b) => a.name?.localeCompare(b.name));
+
     return {
-      oneOf: endpoints.sort((a, b) => a.name?.localeCompare(b.name)),
+      oneOf: sortedEndpoints,
     };
   }
 
@@ -34,13 +37,12 @@ export class EndpointsEntityHandler {
     return this.testResource?.toJSON() as Test | undefined;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getDefinedEndpointsNameAndType(endpoints: Record<string, any>[]): { name: string; type: string }[] {
+  getDefinedEndpointsNameAndType(endpoints: Record<string, unknown>[]): { name: string; type: string }[] {
     const definedEndpoints: { name: string; type: string }[] = [];
 
     for (const endpoint of endpoints) {
-      if (endpoint.type !== undefined) {
-        definedEndpoints.push({ name: endpoint.name ?? ('' as string), type: endpoint.type ?? ('unknown' as string) });
+      if (isDefined(endpoint.type)) {
+        definedEndpoints.push({ name: (endpoint.name as string) ?? '', type: (endpoint.type as string) ?? 'unknown' });
       } else {
         const type = this.getEndpointType(endpoint);
         if (type) {
@@ -66,7 +68,7 @@ export class EndpointsEntityHandler {
     );
 
     for (const action of testEntity.actions ?? []) {
-      if (action.createEndpoint != undefined) {
+      if (action.createEndpoint !== undefined) {
         const jsonRecord = action.createEndpoint as Record<string, unknown>;
         const type = this.getEndpointType(jsonRecord);
         if (type) {
@@ -92,7 +94,7 @@ export class EndpointsEntityHandler {
         return endpoint[key] as string;
       }
 
-      if (endpoint[key] !== undefined && typeof endpoint[key] === 'object') {
+      if (isDefined(endpoint[key]) && typeof endpoint[key] === 'object') {
         endpointType = key;
         break;
       }
@@ -101,7 +103,7 @@ export class EndpointsEntityHandler {
     const subType = endpoint[endpointType] as Record<string, unknown>;
     if (isDefined(subType)) {
       for (const key in subType) {
-        if (subType[key] !== undefined && typeof subType[key] === 'object') {
+        if (isDefined(subType[key]) && typeof subType[key] === 'object') {
           endpointType = `${endpointType}.${key}`;
         }
       }
@@ -133,13 +135,14 @@ export class EndpointsEntityHandler {
     const endpointName = prevName || model['name'];
     if (endpointName) {
       const index = test.endpoints.findIndex((endpoint) => {
-        const type = this.getEndpointType(endpoint);
-        if (type) {
-          const name = this.findEndpointName(type, endpoint);
+        const foundType = this.getEndpointType(endpoint);
+        if (foundType) {
+          const name = this.findEndpointName(foundType, endpoint);
           if (name && name === endpointName) {
             return true;
           }
         }
+        return false;
       });
 
       if (index > -1) {
@@ -156,10 +159,7 @@ export class EndpointsEntityHandler {
       return;
     }
 
-    if (!test.endpoints) {
-      test.endpoints = [];
-    }
-
+    test.endpoints ??= [];
     test.endpoints.push(this.createEndpoint(type, model));
   }
 

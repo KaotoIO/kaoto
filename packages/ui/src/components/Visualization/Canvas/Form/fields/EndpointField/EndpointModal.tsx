@@ -1,7 +1,12 @@
-import { isDefined } from '@kaoto/forms';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, ModelContextProvider, SchemaProvider } from '@kaoto/forms';
+import {
+  CanvasFormTabsContext,
+  CanvasFormTabsContextResult,
+  isDefined,
+  ModelContextProvider,
+  SchemaProvider,
+} from '@kaoto/forms';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
@@ -14,7 +19,7 @@ export type EndpointModalProps = {
   endpoint?: unknown;
   type?: string;
   endpointsSchema?: KaotoSchemaDefinition['schema'];
-  onConfirm: (type: string, model: unknown) => void;
+  onConfirm: (type: string, model: Record<string, unknown>) => void;
   onCancel: () => void;
 };
 
@@ -30,9 +35,10 @@ export const EndpointModal: FunctionComponent<EndpointModalProps> = ({
     () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
     [],
   );
-  const [endpointModel = endpoint, setEndpointModel] = useState<unknown>();
+  const [endpointModel, setEndpointModel] = useState<unknown>(endpoint);
   const [endpointType, setEndpointType] = useState<string | undefined>(type);
   const catalogModalContext = useContext(CatalogModalContext);
+  const hasSelectedEndpoint = useRef(false);
 
   const selectEndpoint = useCallback(async () => {
     /** Open Catalog modal, filtering the compatible nodes */
@@ -44,7 +50,7 @@ export const EndpointModal: FunctionComponent<EndpointModalProps> = ({
   }, [catalogModalContext]);
 
   const onEndpointModelChange = (_propName: string, model: unknown) => {
-    const jsonRecord = model as Record<string, unknown>;
+    const jsonRecord = { ...(model as Record<string, unknown>) };
     // sanitize generated endpoint model
     for (const key in jsonRecord) {
       if (typeof jsonRecord[key] === 'object') {
@@ -55,30 +61,28 @@ export const EndpointModal: FunctionComponent<EndpointModalProps> = ({
     setEndpointModel(jsonRecord);
   };
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     if (!endpointType || endpointModel === undefined || typeof endpointModel !== 'object') {
       return;
     }
 
-    onConfirm(endpointType, endpointModel);
+    onConfirm(endpointType, endpointModel as Record<string, unknown>);
   }, [endpointType, endpointModel, onConfirm]);
 
   useEffect(() => {
-    if (isDefined(endpointModel) || !isDefined(endpointsSchema)) {
-      return;
+    if (!isDefined(endpointModel) && !hasSelectedEndpoint.current) {
+      hasSelectedEndpoint.current = true;
+      selectEndpoint()
+        .then((selectedType) => {
+          if (selectedType) {
+            setEndpointType(selectedType);
+            setEndpointModel({});
+          }
+        })
+        .catch(() => {
+          /* catalog modal was dismissed */
+        });
     }
-
-    let isActive = true;
-    void selectEndpoint().then((selectedType) => {
-      if (isActive && selectedType) {
-        setEndpointType(selectedType);
-        setEndpointModel({});
-      }
-    });
-
-    return () => {
-      isActive = false;
-    };
   }, [endpointModel, endpointsSchema, selectEndpoint]);
 
   return (
