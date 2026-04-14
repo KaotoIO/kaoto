@@ -415,7 +415,7 @@ describe('CstVisitor', () => {
 
 describe('Logical expressions in if-then-else', () => {
   it('should handle if with logical condition and traverse all path expressions', () => {
-    const xpath = 'if (status = "active" and verified = true) then "ok" else "nok"';
+    const xpath = 'if (status = "active" and verified = true()) then "ok" else "nok"';
     const ast = XPathService.parse(xpath).exprNode;
     expect(ast).toBeDefined();
     if (!ast) return;
