@@ -22,9 +22,7 @@ const main = async () => {
 
   const VERSION_FILE_CONTENT = JSON.stringify(VERSION_OBJECT, null, 4);
 
-  /** Write the VERSION_FILE_CONTENT into the `lib/XXX/version.json file */
-  await writeFile('lib/esm/version.json', VERSION_FILE_CONTENT);
-  await writeFile('lib/cjs/version.json', VERSION_FILE_CONTENT);
+  await writeFile('lib/version.json', VERSION_FILE_CONTENT);
 };
 
 main();
