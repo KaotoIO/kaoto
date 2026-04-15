@@ -70,6 +70,11 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
       [toggleSelectedNode, nodePathString],
     );
 
+    const handleDoubleClickField = useCallback(() => {
+      VisualizationService.applyValueSelector(nodeData as TargetNodeData);
+      handleUpdate();
+    }, [nodeData, handleUpdate]);
+
     const handleKeyDown = useCallback(
       (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, false)),
       [nodePathString, toggleSelectedNode],
@@ -88,6 +93,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
         data-selected={isSelected}
         className="node__container"
         onClick={handleClickField}
+        onDoubleClick={handleDoubleClickField}
         onKeyDown={handleKeyDown}
         onContextMenu={onContextMenu}
       >
