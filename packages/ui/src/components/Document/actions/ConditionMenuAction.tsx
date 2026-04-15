@@ -35,7 +35,8 @@ export const ConditionMenuAction: FunctionComponent<ConditionMenuProps> = ({ dro
   const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 
   const onToggleActionMenu = useCallback(
-    (_event: MouseEvent | undefined) => {
+    (event: MouseEvent | undefined) => {
+      event?.stopPropagation();
       setIsActionMenuOpen(!isActionMenuOpen);
     },
     [isActionMenuOpen],
