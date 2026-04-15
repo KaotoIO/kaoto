@@ -13,7 +13,9 @@
     "isolatedModules": true,
     "noEmit": false,
     "sourceMap": true,
+    "inlineSources": true,
     "declaration": true,
+    "declarationMap": true,
     "jsx": "react-jsx",
     "outDir": "lib/esm",
 
