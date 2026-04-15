@@ -1,5 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
+import { LocalStorageKeys } from '../../../../models';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../stubs';
 import { RuntimeSelector } from './RuntimeSelector';
 
@@ -53,6 +54,14 @@ describe('RuntimeSelector', () => {
     await waitFor(async () => {
       expect(setSelectedCatalog).toHaveBeenCalled();
     });
+
+    const raw = localStorage.getItem(LocalStorageKeys.SelectedCatalog);
+    if (raw !== null) {
+      const parsed = JSON.parse(raw);
+      expect(parsed).toEqual(expect.any(Object));
+      expect((parsed as Record<string, unknown>).name).toBeUndefined();
+      expect((parsed as Record<string, unknown>).version).toBeUndefined();
+    }
   });
 
   it('should toggle list of Runtimes', async () => {

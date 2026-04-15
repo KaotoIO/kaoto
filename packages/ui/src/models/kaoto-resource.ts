@@ -28,13 +28,6 @@ export interface KaotoResource {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     definition?: any,
   ): TileFilter | undefined;
-
-  /**
-   * Returns the list of compatible runtime catalog names for this resource type.
-   * For example, CamelRouteResource returns ["Main", "Quarkus", "Spring Boot"],
-   * while CitrusTestResource returns ["Citrus"].
-   */
-  getCompatibleRuntimes(): string[];
 }
 
 export enum SerializerType {
