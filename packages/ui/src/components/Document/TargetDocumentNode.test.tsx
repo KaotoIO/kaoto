@@ -760,6 +760,32 @@ describe('TargetDocumentNode', () => {
       // Node should be selected
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
+
+    it('should call applyValueSelector and handleUpdate on double click', () => {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      });
+
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
+      expect(nodeContainer).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.doubleClick(nodeContainer);
+      });
+
+      expect(applyValueSelectorSpy).toHaveBeenCalledWith(documentNodeData);
+      expect(applyValueSelectorSpy).toHaveBeenCalledTimes(1);
+
+      applyValueSelectorSpy.mockRestore();
+    });
   });
 
   describe('Keyboard Selection', () => {
