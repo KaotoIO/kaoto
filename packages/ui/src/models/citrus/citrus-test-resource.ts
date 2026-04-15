@@ -219,10 +219,6 @@ export class CitrusTestResource implements KaotoResource {
     };
   }
 
-  getCompatibleRuntimes(): string[] {
-    return ['Citrus'];
-  }
-
   /**
    * Converts a raw item to a BaseCamelEntity.
    *

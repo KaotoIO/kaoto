@@ -820,29 +820,6 @@ describe('CamelRouteResource', () => {
     });
   });
 
-  describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
-      const resource = new CamelRouteResource();
-      const compatibleRuntimes = resource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
-    });
-
-    it('should return the same list regardless of resource content', () => {
-      const emptyResource = new CamelRouteResource();
-      const resourceWithRoutes = new CamelRouteResource([camelRouteJson, camelFromJson]);
-
-      expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithRoutes.getCompatibleRuntimes());
-    });
-
-    it('should return an array with three runtime names', () => {
-      const resource = new CamelRouteResource();
-      const compatibleRuntimes = resource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
-    });
-  });
-
   describe('edge cases and error handling', () => {
     it('should handle empty entities array in constructor', () => {
       const resource = new CamelRouteResource([]);

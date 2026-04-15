@@ -3,7 +3,6 @@ import { FunctionComponent } from 'react';
 
 interface ChangeIntegrationTypeModalProps {
   isOpen: boolean;
-  changesCatalog?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
@@ -14,8 +13,7 @@ export const ChangeIntegrationTypeModal: FunctionComponent<ChangeIntegrationType
       <ModalHeader title="Warning" titleIconVariant="warning" />
       <ModalBody>
         <p data-testid={'confirmation-modal-text'}>
-          Changing the source type will remove any existing integration and you will lose your current work.{' '}
-          {props.changesCatalog && 'This will also change the current selected catalog.'}
+          Changing the source type will remove any existing integration and you will lose your current work.
         </p>
         <p>Are you sure you would like to proceed?</p>
       </ModalBody>

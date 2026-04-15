@@ -55,6 +55,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     camelResource?: KaotoResource,
   ) => {
     const mockSetSelectedCatalog = jest.fn();
+    const mockSetCodeAndNotify = jest.fn();
     const { Provider } = TestProvidersWrapper({ camelResource });
 
     return {
@@ -67,7 +68,7 @@ describe('IntegrationTypeSelector.tsx', () => {
             setSelectedCatalog: mockSetSelectedCatalog,
           }}
         >
-          <SourceCodeApiContext.Provider value={{ setCodeAndNotify: jest.fn() }}>
+          <SourceCodeApiContext.Provider value={{ setCodeAndNotify: mockSetCodeAndNotify }}>
             <Provider>
               <IntegrationTypeSelector />
             </Provider>
@@ -75,6 +76,7 @@ describe('IntegrationTypeSelector.tsx', () => {
         </RuntimeContext.Provider>,
       ),
       mockSetSelectedCatalog,
+      mockSetCodeAndNotify,
     };
   };
 
@@ -159,8 +161,9 @@ describe('IntegrationTypeSelector.tsx', () => {
     expect(modalText.textContent).not.toContain('This will also change the current selected catalog');
   });
 
-  it('should warn the user when selected flow changes the catalog', async () => {
-    const { findByTestId, getByTestId, mockSetSelectedCatalog } = renderWithCustomRuntime(mockCamelCatalog);
+  it('should warn the user when selecting a flow type that previously changed the catalog', async () => {
+    const { findByTestId, getByTestId, mockSetSelectedCatalog, mockSetCodeAndNotify } =
+      renderWithCustomRuntime(mockCamelCatalog);
 
     const trigger = await findByTestId('integration-type-list-dropdown');
 
@@ -181,7 +184,7 @@ describe('IntegrationTypeSelector.tsx', () => {
 
     const modalText = await findByTestId('confirmation-modal-text');
     expect(modalText).toBeInTheDocument();
-    expect(modalText.textContent).toContain('This will also change the current selected catalog');
+    expect(modalText.textContent).not.toContain('This will also change the current selected catalog');
 
     /** Confirm **/
     const confirmButton = await findByTestId('confirmation-modal-confirm');
@@ -191,11 +194,8 @@ describe('IntegrationTypeSelector.tsx', () => {
     });
 
     await waitFor(() => {
-      expect(mockSetSelectedCatalog).toHaveBeenCalledWith(
-        expect.objectContaining({
-          runtime: 'Citrus',
-        }),
-      );
+      expect(mockSetCodeAndNotify).toHaveBeenCalled();
+      expect(mockSetSelectedCatalog).not.toHaveBeenCalled();
     });
   });
 });
