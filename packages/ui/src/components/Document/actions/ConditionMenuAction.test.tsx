@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
@@ -24,7 +24,11 @@ describe('ConditionMenuAction', () => {
     documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
   });
 
-  it('should apply ValueSelector', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it('should apply ValueSelector', async () => {
     const nodeData = new TargetFieldNodeData(
       documentNodeData,
       targetDoc.fields[0],
@@ -41,12 +45,14 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(selectorItem.getElementsByTagName('button')[0]);
     });
-    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+    await waitFor(() =>
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+    );
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
 
-  it('should apply If', () => {
+  it('should apply If', async () => {
     const nodeData = new TargetFieldNodeData(
       documentNodeData,
       targetDoc.fields[0],
@@ -63,12 +69,14 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(ifItem.getElementsByTagName('button')[0]);
     });
-    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+    await waitFor(() =>
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+    );
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
 
-  it('should apply choose', () => {
+  it('should apply choose', async () => {
     const nodeData = new TargetFieldNodeData(
       documentNodeData,
       targetDoc.fields[0],
@@ -85,12 +93,14 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(chooseItem.getElementsByTagName('button')[0]);
     });
-    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+    await waitFor(() =>
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+    );
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
 
-  it('should apply when', () => {
+  it('should apply when', async () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(MappingService, 'addWhen');
@@ -103,13 +113,15 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(whenItem.getElementsByTagName('button')[0]);
     });
-    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+    await waitFor(() =>
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+    );
 
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
 
-  it('should apply otherwise', () => {
+  it('should apply otherwise', async () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(MappingService, 'addOtherwise');
@@ -122,13 +134,15 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(otherwiseItem.getElementsByTagName('button')[0]);
     });
-    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+    await waitFor(() =>
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+    );
 
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
 
-  it('should apply for-each', () => {
+  it('should apply for-each', async () => {
     const nodeData = new TargetFieldNodeData(
       documentNodeData,
       targetDoc.fields[0].fields[3],
@@ -145,13 +159,14 @@ describe('ConditionMenuAction', () => {
     act(() => {
       fireEvent.click(foreachItem.getElementsByTagName('button')[0]);
     });
-    waitFor(() => screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded') === 'false');
+    await waitFor(() =>
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toEqual('false'),
+    );
     expect(onUpdateMock.mock.calls.length).toEqual(1);
     expect(spyOnApply.mock.calls.length).toEqual(1);
   });
 
-  it('should stop event propagation upon context menu toggle', () => {
-    const stopPropagationSpy = jest.fn();
+  it('should stop event propagation upon context menu toggle', async () => {
     const nodeData = new TargetFieldNodeData(
       documentNodeData,
       targetDoc.fields[0].fields[3],
@@ -160,16 +175,18 @@ describe('ConditionMenuAction', () => {
 
     const wrapper = render(<ConditionMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
+    const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+    const clickEvent = createEvent.click(actionToggle);
+    const stopPropagationSpy = jest.spyOn(clickEvent, 'stopPropagation');
+
     act(() => {
-      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      fireEvent.click(actionToggle, { stopPropagation: stopPropagationSpy });
+      fireEvent(actionToggle, clickEvent);
     });
 
-    waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+    await waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
   });
 
-  it('should stop event propagation upon selecting a menu option', () => {
-    const stopPropagationSpy = jest.fn();
+  it('should stop event propagation upon selecting a menu option', async () => {
     const nodeData = new TargetFieldNodeData(
       documentNodeData,
       targetDoc.fields[0].fields[3],
@@ -179,16 +196,18 @@ describe('ConditionMenuAction', () => {
     const wrapper = render(<ConditionMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
     act(() => {
-      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
-      fireEvent.click(actionToggle, { stopPropagation: jest.fn() });
+      fireEvent.click(wrapper.getByTestId('transformation-actions-menu-toggle'));
     });
+
+    const selectorButton = wrapper.getByTestId('transformation-actions-selector').getElementsByTagName('button')[0];
+    const clickEvent = createEvent.click(selectorButton);
+    const stopPropagationSpy = jest.spyOn(clickEvent, 'stopPropagation');
 
     act(() => {
-      const selectorOption = wrapper.getByTestId('transformation-actions-selector');
-      fireEvent.click(selectorOption, { stopPropagation: stopPropagationSpy });
+      fireEvent(selectorButton, clickEvent);
     });
 
-    waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
+    await waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
   });
 
   it('should render Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
