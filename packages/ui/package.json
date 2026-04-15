@@ -10,27 +10,30 @@
     "access": "public"
   },
   "license": "Apache License v2.0",
-  "types": "./lib/esm/public-api.d.ts",
-  "module": "./lib/esm/public-api.js",
-  "main": "./lib/cjs/public-api.js",
+  "types": "./lib/public-api.d.ts",
+  "module": "./lib/public-api.js",
   "exports": {
     ".": {
-      "import": "./lib/esm/public-api.js",
-      "require": "./lib/cjs/public-api.js"
+      "types": "./lib/public-api.d.ts",
+      "import": "./lib/public-api.js"
     },
     "./components": {
-      "import": "./lib/esm/components-api.js",
-      "require": "./lib/cjs/components-api.js"
+      "types": "./lib/components-api.d.ts",
+      "import": "./lib/components-api.js"
     },
     "./models": {
-      "import": "./lib/esm/models-api.js",
-      "require": "./lib/cjs/models-api.js"
+      "types": "./lib/models-api.d.ts",
+      "import": "./lib/models-api.js"
     },
     "./testing": {
-      "import": "./lib/esm/testing-api.js",
-      "require": "./lib/cjs/testing-api.js"
+      "types": "./lib/testing-api.d.ts",
+      "import": "./lib/testing-api.js"
     }
   },
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
   "files": [
     "lib"
   ],
@@ -38,9 +41,7 @@
     "start": "vite --mode=dev",
     "build": "tsc && vite build --config vite.config.mjs",
     "build:dev": "tsc && vite build --mode=dev --config vite.config.mjs",
-    "build:lib": "yarn rimraf ./lib && yarn build:esm && yarn build:cjs && yarn write-version",
-    "build:esm": "tsc --project tsconfig.esm.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/esm",
-    "build:cjs": "tsc --project tsconfig.cjs.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib/cjs",
+    "build:lib": "yarn rimraf ./lib && tsc --project tsconfig.lib.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib && yarn write-version",
     "write-version": "node ./scripts/write-version-file.mjs",
     "preview": "vite preview",
     "test": "jest",

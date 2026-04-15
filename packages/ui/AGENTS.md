@@ -66,4 +66,4 @@ yarn workspace @kaoto/kaoto lint:style:fix
 
 ### Notes on publishing
 
-This package exposes ESM and CJS builds under `lib/esm` and `lib/cjs`, driven by `build:lib` (which runs `copy-catalog`, `build:esm`, `build:cjs`, and `write-version`). Consumers import from `@kaoto/kaoto`, `@kaoto/kaoto/components`, `@kaoto/kaoto/models`, and `@kaoto/kaoto/testing` via the defined exports map.
+This package ships an ESM-only build under `lib/`, driven by `build:lib` (which runs `tsc --project tsconfig.lib.json`, copies SCSS/assets, and runs `write-version`). Consumers import from `@kaoto/kaoto`, `@kaoto/kaoto/components`, `@kaoto/kaoto/models`, and `@kaoto/kaoto/testing` via the defined exports map.
