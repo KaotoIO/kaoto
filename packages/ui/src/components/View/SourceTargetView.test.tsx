@@ -74,6 +74,8 @@ describe('SourceTargetView', () => {
 
       const shipTo = await screen.findByText('ShipTo');
       expect(shipTo).toBeTruthy();
+      expect(screen.queryByTestId('node-source-doc-sourceBody-Body')).toBeFalsy();
+      expect(screen.getAllByTestId('detach-schema-sourceBody-Body-button')).toHaveLength(1);
       const detachButton = screen.getByTestId('detach-schema-sourceBody-Body-button');
       act(() => {
         fireEvent.click(detachButton);
@@ -151,9 +153,11 @@ describe('SourceTargetView', () => {
 
       const shipTo = await screen.findByText('ShipTo');
       expect(shipTo).toBeTruthy();
-      const detachButtons = screen.getAllByTestId('detach-schema-targetBody-Body-button');
+      expect(screen.queryByTestId('node-target-doc-targetBody-Body')).toBeFalsy();
+      expect(screen.getAllByTestId('detach-schema-targetBody-Body-button')).toHaveLength(1);
+      const detachButton = screen.getByTestId('detach-schema-targetBody-Body-button');
       act(() => {
-        fireEvent.click(detachButtons[0]);
+        fireEvent.click(detachButton);
       });
       const detachConfirmButton = screen.getByTestId('detach-schema-modal-confirm-btn');
       act(() => {
@@ -206,8 +210,9 @@ describe('SourceTargetView', () => {
 
       const shipTo = await screen.findByText('map [@key = ShipTo]');
       expect(shipTo).toBeTruthy();
-      const detachButtons = screen.getAllByTestId('detach-schema-targetBody-Body-button');
-      const detachButton = detachButtons[0];
+      expect(screen.queryByTestId('node-target-doc-targetBody-Body')).toBeFalsy();
+      expect(screen.getAllByTestId('detach-schema-targetBody-Body-button')).toHaveLength(1);
+      const detachButton = screen.getByTestId('detach-schema-targetBody-Body-button');
       act(() => {
         fireEvent.click(detachButton);
       });
