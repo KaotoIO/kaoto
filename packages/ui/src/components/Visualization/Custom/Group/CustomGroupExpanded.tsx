@@ -254,6 +254,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
                 dataTestId={groupVizNode.id}
                 vizNode={groupVizNode}
+                isCollapsed={element.isCollapsed()}
                 childCount={childCount}
                 containerClassNames={{
                   'custom-node__container__draggedNode': true,
