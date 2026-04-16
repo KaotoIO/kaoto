@@ -1,3 +1,4 @@
+import { Layers } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import { BanIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
@@ -15,7 +16,9 @@ export interface CustomNodeContainerProps {
   dataTestId: string;
   containerClassNames?: Record<string, boolean>;
   vizNode: IVisualizationNode;
+  isCollapsed: boolean;
   childCount: number;
+  hasGroupChildren?: boolean;
   ProcessorIcon: ElementType | null;
   processorDescription: string;
   isDisabled: boolean;
@@ -30,7 +33,9 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   dataTestId,
   containerClassNames = {},
   vizNode,
+  isCollapsed,
   childCount,
+  hasGroupChildren,
   ProcessorIcon,
   processorDescription,
   isDisabled,
@@ -46,8 +51,15 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
       <div title={vizNode.data.description} className="custom-node__container__image">
         <img src={vizNode.data.iconUrl} alt={vizNode.data.description?.trim() || (vizNode.data.iconAlt as string)} />
 
-        {childCount > 0 && (
-          <FloatingCircle className="step-icon step-icon__processor">
+        {isCollapsed && childCount > 0 && (
+          <FloatingCircle
+            className={clsx('step-icon step-icon__processor', { 'step-icon__collection': hasGroupChildren })}
+          >
+            {hasGroupChildren && (
+              <Icon size="sm">
+                <Layers />
+              </Icon>
+            )}
             <span title={`${childCount}`}>{childCount}</span>
           </FloatingCircle>
         )}

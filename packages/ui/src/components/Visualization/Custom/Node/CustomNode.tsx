@@ -136,6 +136,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       CanvasDefaults.HOVER_DELAY_OUT,
     );
     const childCount = element.getAllNodeChildren().length;
+    const hasGroupChildren = element.getAllNodeChildren().some((node) => node.getData()?.vizNode?.data?.isGroup);
     const shouldShowToolbar = getShouldShowToolbar(
       settingsAdapter.getSettings().nodeToolbarTrigger,
       isGHover,
@@ -303,7 +304,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               dataTestId={vizNode.id}
               containerClassNames={mainContainerClassNames}
               vizNode={vizNode}
+              isCollapsed={element.isCollapsed()}
               childCount={childCount}
+              hasGroupChildren={hasGroupChildren}
               ProcessorIcon={ProcessorIcon}
               processorDescription={processorDescription}
               isDisabled={isDisabled}
@@ -320,7 +323,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               dataTestId={`${vizNode.id}-dummy`}
               containerClassNames={{ 'custom-node__container__draggedNode': isDraggedNode }}
               vizNode={vizNode}
+              isCollapsed={element.isCollapsed()}
               childCount={childCount}
+              hasGroupChildren={hasGroupChildren}
               ProcessorIcon={ProcessorIcon}
               processorDescription={processorDescription}
               isDisabled={isDisabled}
