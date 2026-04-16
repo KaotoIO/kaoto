@@ -152,7 +152,7 @@ export const TargetPanel: FunctionComponent = () => {
               documentType={DocumentType.TARGET_BODY}
               isReadOnly={false}
               additionalActions={documentActions}
-              enableDnD={true}
+              enableDnD={!hasSchema}
               nodeData={targetBodyNodeData}
             />
           }
