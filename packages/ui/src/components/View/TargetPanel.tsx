@@ -52,15 +52,11 @@ export const TargetPanel: FunctionComponent = () => {
 
   const hasSchema = !targetBodyNodeData.isPrimitive;
 
-  const visibleNodes = useMemo(() => {
-    return hasSchema ? flattenedNodes.slice(1) : flattenedNodes;
-  }, [flattenedNodes, hasSchema]);
-
   // Recalculate connection ports when flattened nodes change (expand/collapse)
   // Also sync when mappingTree changes (new mappings added/removed)
   useEffect(() => {
     syncConnectionPorts();
-  }, [visibleNodes.length, mappingTree, syncConnectionPorts]);
+  }, [flattenedNodes.length, mappingTree, syncConnectionPorts]);
 
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
@@ -95,17 +91,17 @@ export const TargetPanel: FunctionComponent = () => {
 
   const renderTargetItem = useCallback(
     (index: number) => {
-      const flattenedNode = visibleNodes[index];
+      const flattenedNode = flattenedNodes[index];
       return (
         <TargetDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
           documentId={targetBodyNodeData.id}
-          rank={hasSchema ? flattenedNode.depth : flattenedNode.depth + 1}
+          rank={flattenedNode.depth + 1}
         />
       );
     },
-    [hasSchema, targetBodyNodeData.id, visibleNodes],
+    [targetBodyNodeData.id, flattenedNodes],
   );
 
   // Actions for target body document
@@ -164,7 +160,7 @@ export const TargetPanel: FunctionComponent = () => {
         >
           {hasSchema && targetBodyTree && (
             <Virtuoso
-              totalCount={visibleNodes.length}
+              totalCount={flattenedNodes.length}
               components={virtuosoComponents}
               itemContent={renderTargetItem}
               overscan={VIRTUOSO_OVERSCAN}

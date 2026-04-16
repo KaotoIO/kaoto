@@ -47,32 +47,28 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     if (!sourceBodyTree) return [];
     return sourceBodyTree.flatten(documentExpansionState);
   }, [sourceBodyTree, documentExpansionState]);
-  
-  const hasSchema = !sourceBodyNodeData.isPrimitive;
 
-  const visibleNodes = useMemo(() => {
-    return hasSchema ? flattenedNodes.slice(1) : flattenedNodes;
-  }, [flattenedNodes, hasSchema]);
+  const hasSchema = !sourceBodyNodeData.isPrimitive;
 
   // Recalculate connection ports when flattened nodes change (expand/collapse)
   useEffect(() => {
     syncConnectionPorts();
-  }, [visibleNodes.length, syncConnectionPorts]);
+  }, [flattenedNodes.length, syncConnectionPorts]);
 
   const renderSourceItem = useCallback(
     (index: number) => {
-      const flattenedNode = visibleNodes[index];
+      const flattenedNode = flattenedNodes[index];
       return (
         <SourceDocumentNodeWithContextMenu
           key={flattenedNode.path}
           treeNode={flattenedNode.treeNode}
           documentId={sourceBodyNodeData.id}
           isReadOnly={isReadOnly}
-          rank={hasSchema ? flattenedNode.depth : flattenedNode.depth + 1}
+          rank={flattenedNode.depth + 1}
         />
       );
     },
-    [hasSchema, sourceBodyNodeData.id, isReadOnly, visibleNodes],
+    [sourceBodyNodeData.id, isReadOnly, flattenedNodes],
   );
 
   // Edge markers for virtual scroll connection ports
@@ -124,7 +120,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           {/* Only render children if body has schema */}
           {hasSchema && sourceBodyTree && (
             <Virtuoso
-              totalCount={visibleNodes.length}
+              totalCount={flattenedNodes.length}
               components={virtuosoComponents}
               itemContent={renderSourceItem}
               overscan={VIRTUOSO_OVERSCAN}

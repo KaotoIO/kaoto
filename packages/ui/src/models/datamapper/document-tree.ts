@@ -50,20 +50,29 @@ export class DocumentTree {
     const result: FlattenedNode[] = [];
 
     const traverse = (node: DocumentTreeNode, depth: number) => {
-      // Always add current node to result
-      result.push({
-        treeNode: node,
-        depth,
-        index: result.length,
-        path: node.path,
-      });
+      const isRoot = node === this.root;
+      const isStructured = !this.root.nodeData.isPrimitive;
+
+      // Always add current node to result, EXCEPT for the root node when it has a schema
+      if (!(isRoot && isStructured)) {
+        result.push({
+          treeNode: node,
+          depth,
+          index: result.length,
+          path: node.path,
+        });
+      }
 
       // Only traverse children if:
       // 1. Node has children
       // 2. Node is expanded (checked via expansion state)
-      if (node.children.length > 0 && (expansionState[node.path] ?? false)) {
+      // OR Node is the structured root node (we always show its children)
+      const isExpanded = expansionState[node.path] ?? false;
+      const shouldTraverse = (isRoot && isStructured) || isExpanded;
+
+      if (node.children.length > 0 && shouldTraverse) {
         node.children.forEach((child) => {
-          traverse(child, depth + 1);
+          traverse(child, isRoot && isStructured ? depth : depth + 1);
         });
       }
     };
