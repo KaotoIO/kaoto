@@ -254,6 +254,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 dataTestId={groupVizNode.id}
                 vizNode={groupVizNode}
                 tooltipContent={tooltipContent}
+                isCollapsed={element.isCollapsed()}
                 childCount={childCount}
                 containerClassNames={{
                   'custom-node__container__draggedNode': true,
