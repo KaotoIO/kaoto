@@ -13,7 +13,7 @@ import { JsonSchemaDocument } from './json-schema-document.model';
  *
  * @see JsonSchemaDocumentService
  * @see JsonSchemaDocumentUtilService
- * @see FieldTypeOverrideService
+ * @see FieldOverrideService
  */
 export class JsonSchemaTypesService {
   /**

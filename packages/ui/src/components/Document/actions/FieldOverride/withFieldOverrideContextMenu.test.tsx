@@ -7,7 +7,7 @@ import { FieldOverrideVariant, Types } from '../../../../models/datamapper/types
 import { AbstractFieldNodeData, DocumentNodeData, FieldNodeData } from '../../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { FieldOverrideService } from '../../../../services/field-override.service';
 import { TreeParsingService } from '../../../../services/tree-parsing.service';
 import { XmlSchemaDocumentService } from '../../../../services/xml-schema-document.service';
 import { getFieldSubstitutionXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
@@ -213,7 +213,7 @@ describe('withFieldOverrideContextMenu', () => {
       namedTypeFragmentRefs: [],
     };
 
-    const revertSpy = jest.spyOn(FieldTypeOverrideService, 'revertFieldTypeOverride');
+    const revertSpy = jest.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -240,7 +240,7 @@ describe('withFieldOverrideContextMenu', () => {
   it('should call applyFieldTypeOverride when saving type override', async () => {
     const { documentNodeData, fieldNode } = createFieldNode();
 
-    const applySpy = jest.spyOn(FieldTypeOverrideService, 'applyFieldTypeOverride');
+    const applySpy = jest.spyOn(FieldOverrideService, 'applyFieldTypeOverride');
     const mockCandidates = {
       'xs:int': {
         typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
@@ -250,9 +250,7 @@ describe('withFieldOverrideContextMenu', () => {
         isBuiltIn: true,
       },
     };
-    const getSafeSpy = jest
-      .spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates')
-      .mockReturnValue(mockCandidates);
+    const getSafeSpy = jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
       <SourceDocumentNodeWithContextMenu

@@ -31,7 +31,7 @@ export type SchemaPathSegment =
  * - `/ns0:Root/{abstract:0}/ns0:Cat` — concrete candidate under abstract wrapper
  *
  * @see DocumentUtilService for choice/abstract selection processing and mutation
- * @see FieldTypeOverrideService for high-level orchestration
+ * @see FieldOverrideService for high-level orchestration
  * @see IChoiceSelection holds schema path to persist choice selection into DataMapper Metadata
  */
 export class SchemaPathService {

@@ -5,17 +5,17 @@ import { MappingTree } from '../../../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
 import { IMetadataApi, MetadataContext } from '../../../../providers';
 import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
-import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { FieldOverrideService } from '../../../../services/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
-import { TypeOverrideModal } from './TypeOverrideModal';
+import { FieldOverrideModal } from './FieldOverrideModal';
 
 // Mock useDataMapper hook
 jest.mock('../../../../hooks/useDataMapper', () => ({
   useDataMapper: jest.fn(),
 }));
 
-describe('TypeOverrideModal', () => {
+describe('FieldOverrideModal', () => {
   let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let testMappingTree: MappingTree;
   let testField: IField;
@@ -49,7 +49,7 @@ describe('TypeOverrideModal', () => {
 
   it('should render modal when isOpen is true', () => {
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -63,7 +63,7 @@ describe('TypeOverrideModal', () => {
 
   it('should display field name in modal title', () => {
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -78,7 +78,7 @@ describe('TypeOverrideModal', () => {
 
   it('should open type selector when toggle is clicked', () => {
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -113,10 +113,10 @@ describe('TypeOverrideModal', () => {
       },
     };
 
-    jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -160,10 +160,10 @@ describe('TypeOverrideModal', () => {
       },
     };
 
-    jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -196,7 +196,7 @@ describe('TypeOverrideModal', () => {
     testField.typeOverride = FieldOverrideVariant.NONE;
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -212,7 +212,7 @@ describe('TypeOverrideModal', () => {
     const onCloseMock = jest.fn();
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={onCloseMock}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -242,10 +242,10 @@ describe('TypeOverrideModal', () => {
       },
     };
 
-    jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={onSaveMock}
         onAttach={jest.fn()}
@@ -301,7 +301,7 @@ describe('TypeOverrideModal', () => {
     const onRemoveMock = jest.fn();
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -329,12 +329,10 @@ describe('TypeOverrideModal', () => {
       },
     };
 
-    const getSafeSpy = jest
-      .spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates')
-      .mockReturnValue(mockCandidates);
+    const getSafeSpy = jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -347,10 +345,10 @@ describe('TypeOverrideModal', () => {
   });
 
   it('should show empty dropdown when safe candidates are empty', () => {
-    jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -374,10 +372,10 @@ describe('TypeOverrideModal', () => {
       },
     };
 
-    jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -424,13 +422,13 @@ describe('TypeOverrideModal', () => {
       },
     };
 
-    jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     testField.typeOverride = FieldOverrideVariant.SAFE;
     testField.typeQName = new QName(NS_XML_SCHEMA, 'int');
 
     render(
-      <TypeOverrideModal
+      <FieldOverrideModal
         onClose={jest.fn()}
         onSave={jest.fn()}
         onAttach={jest.fn()}
@@ -455,13 +453,13 @@ describe('TypeOverrideModal', () => {
     };
 
     it('should load substitution candidates when Substitute Element radio is selected', () => {
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       const getSubstitutionSpy = jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -479,13 +477,13 @@ describe('TypeOverrideModal', () => {
     });
 
     it('should show substitution placeholder when mode is switched', () => {
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -503,13 +501,13 @@ describe('TypeOverrideModal', () => {
 
     it('should call onSave with substitution payload when saving in substitution mode', async () => {
       const onSaveMock = jest.fn();
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={onSaveMock}
           onAttach={jest.fn()}
@@ -558,13 +556,13 @@ describe('TypeOverrideModal', () => {
         },
       };
 
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -600,13 +598,13 @@ describe('TypeOverrideModal', () => {
     it('should start in substitution mode when field has existing substitution', () => {
       testField.typeOverride = FieldOverrideVariant.SUBSTITUTION;
 
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -627,13 +625,13 @@ describe('TypeOverrideModal', () => {
       testField.name = 'Cat';
       testField.namespaceURI = SUB_NS;
 
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -649,13 +647,13 @@ describe('TypeOverrideModal', () => {
     it('should disable Override Type radio when field has existing substitution', () => {
       testField.typeOverride = FieldOverrideVariant.SUBSTITUTION;
 
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -682,13 +680,13 @@ describe('TypeOverrideModal', () => {
         },
       };
 
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockTypeCandidates);
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -706,13 +704,13 @@ describe('TypeOverrideModal', () => {
     it('should not disable radios when field has no existing override', () => {
       testField.typeOverride = FieldOverrideVariant.NONE;
 
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
       jest
-        .spyOn(FieldTypeOverrideService, 'getFieldSubstitutionCandidates')
+        .spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates')
         .mockReturnValue(mockSubstitutionCandidates as never);
 
       render(
-        <TypeOverrideModal
+        <FieldOverrideModal
           onClose={jest.fn()}
           onSave={jest.fn()}
           onAttach={jest.fn()}
@@ -740,10 +738,10 @@ describe('TypeOverrideModal', () => {
       onStepUpdated: jest.fn(),
     };
 
-    const renderWithContext = (props: Partial<React.ComponentProps<typeof TypeOverrideModal>> = {}) => {
+    const renderWithContext = (props: Partial<React.ComponentProps<typeof FieldOverrideModal>> = {}) => {
       return render(
         <MetadataContext.Provider value={mockApi}>
-          <TypeOverrideModal
+          <FieldOverrideModal
             onClose={jest.fn()}
             onSave={jest.fn()}
             onAttach={jest.fn()}
@@ -756,7 +754,7 @@ describe('TypeOverrideModal', () => {
     };
 
     beforeEach(() => {
-      jest.spyOn(FieldTypeOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
+      jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue({});
     });
 
     it('should show validation error for invalid file extension', async () => {

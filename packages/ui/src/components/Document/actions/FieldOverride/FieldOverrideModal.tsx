@@ -37,7 +37,7 @@ export type OverrideSavePayload =
   | { mode: 'type'; selectedType: IFieldTypeInfo; selectedKey: string }
   | { mode: 'substitution'; selectedKey: string };
 
-export type TypeOverrideModalProps = {
+export type FieldOverrideModalProps = {
   onClose: () => void;
   onSave: (payload: OverrideSavePayload) => void;
   onAttach: (schemas: Record<string, string>) => void;
@@ -45,7 +45,7 @@ export type TypeOverrideModalProps = {
   field: IField;
 };
 
-export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
+export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
   onClose,
   onSave,
   onAttach,
@@ -220,7 +220,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       isOpen
       onClose={onClose}
       appendTo={() => document.body}
-      className="type-override-modal"
+      className="field-override-modal"
     >
       <ModalHeader title={modalTitle} />
       <ModalBody>

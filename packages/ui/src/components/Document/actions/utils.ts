@@ -110,7 +110,7 @@ export type PickSchemaFilesResult = {
  * Prompts user to select schema files, normalizes the result to an array,
  * and validates file extensions and type consistency.
  *
- * This consolidates the common pattern used in both TypeOverrideModal and AttachSchemaModal:
+ * This consolidates the common pattern used in both FieldOverrideModal and AttachSchemaModal:
  * - Call DataMapperMetadataService.selectDocumentSchema
  * - Normalize result to array
  * - Validate file extension

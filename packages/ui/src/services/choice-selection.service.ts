@@ -8,7 +8,7 @@ import { SchemaPathService } from './schema-path.service';
  * Provides high-level orchestration for setting and managing choice selections.
  *
  * This service consolidates choice selection functionality, similar to
- * FieldTypeOverrideService for type overrides.
+ * FieldOverrideService for type overrides.
  *
  * Note: Batch application of saved selections is handled by DocumentUtilService.processOverrides()
  * which applies choice selections together with field type overrides and substitutions in the

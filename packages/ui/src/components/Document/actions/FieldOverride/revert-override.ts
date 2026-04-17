@@ -1,6 +1,6 @@
 import { DocumentDefinition, IDocument, IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { FieldOverrideService } from '../../../../services/field-override.service';
 
 /**
  * Revert a field override (type override or substitution) without opening the modal.
@@ -19,9 +19,9 @@ export function revertOverride(
   const previousRefId = document.getReferenceId(namespaceMap);
 
   if (hasAbstractSubstitution || field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
-    FieldTypeOverrideService.revertFieldSubstitution(field, namespaceMap);
+    FieldOverrideService.revertFieldSubstitution(field, namespaceMap);
   } else {
-    FieldTypeOverrideService.revertFieldTypeOverride(field, namespaceMap);
+    FieldOverrideService.revertFieldTypeOverride(field, namespaceMap);
   }
 
   updateDocument(document, document.definition, previousRefId);

@@ -9,8 +9,8 @@ import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
-import { TypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
-import { withFieldOverrideContextMenu } from './actions/FieldTypeOverride/withFieldOverrideContextMenu';
+import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
+import { withFieldOverrideContextMenu } from './actions/FieldOverride/withFieldOverrideContextMenu';
 import { TargetNodeActions } from './actions/TargetNodeActions';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
@@ -116,7 +116,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
                 nodePath={nodePathString}
                 documentId={documentId}
               >
-                <TypeOverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />
+                <OverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />
                 {showNodeActions ? (
                   <TargetNodeActions
                     className="node__target__actions"

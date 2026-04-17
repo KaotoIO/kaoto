@@ -6,8 +6,8 @@ import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import { AbstractFieldNodeData, TargetAbstractFieldNodeData } from '../../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../../services/visualization.service';
 import { FieldContextMenu } from '../FieldContextMenu';
-import { FieldTypeOverride } from './FieldTypeOverride';
-import { revertOverride } from './revert-type-override';
+import { FieldOverride } from './FieldOverride';
+import { revertOverride } from './revert-override';
 
 type WithTreeNode = {
   treeNode: DocumentTreeNode;
@@ -15,7 +15,7 @@ type WithTreeNode = {
 };
 
 /**
- * HOC that adds a field type override context menu to a document node component.
+ * HOC that adds a field override context menu to a document node component.
  *
  * Injects an `onContextMenu` prop into the wrapped component. The component
  * only needs to forward it to its container element — no context menu logic inside.
@@ -112,7 +112,7 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
         )}
 
         {isModalOpen && field && (
-          <FieldTypeOverride
+          <FieldOverride
             isOpen={isModalOpen}
             field={abstractWrapperField ?? field}
             onComplete={refreshMappingTree}

@@ -36,7 +36,7 @@ import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service
  *
  * @see XmlSchemaDocumentService
  * @see XmlSchemaDocumentUtilService
- * @see FieldTypeOverrideService
+ * @see FieldOverrideService
  */
 export class XmlSchemaTypesService {
   /**
