@@ -45,7 +45,12 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
-import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from './CustomNodeUtils';
+import {
+  checkNodeDropCompatibility,
+  getNodeDragAndDropDirection,
+  getVizNodeChildrenInfo,
+  handleValidNodeDrop,
+} from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
@@ -135,8 +140,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       CanvasDefaults.HOVER_DELAY_IN,
       CanvasDefaults.HOVER_DELAY_OUT,
     );
-    const childCount = element.getAllNodeChildren().length;
-    const hasGroupChildren = element.getAllNodeChildren().some((node) => node.getData()?.vizNode?.data?.isGroup);
+    const { childCount, hasGroupChildren, isCollapsedGroup } = getVizNodeChildrenInfo(vizNode);
     const shouldShowToolbar = getShouldShowToolbar(
       settingsAdapter.getSettings().nodeToolbarTrigger,
       isGHover,
@@ -304,7 +308,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               dataTestId={vizNode.id}
               containerClassNames={mainContainerClassNames}
               vizNode={vizNode}
-              isCollapsed={element.isCollapsed()}
+              isCollapsed={element.isCollapsed() || isCollapsedGroup}
               childCount={childCount}
               hasGroupChildren={hasGroupChildren}
               ProcessorIcon={ProcessorIcon}
@@ -323,7 +327,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
               dataTestId={`${vizNode.id}-dummy`}
               containerClassNames={{ 'custom-node__container__draggedNode': isDraggedNode }}
               vizNode={vizNode}
-              isCollapsed={element.isCollapsed()}
+              isCollapsed={element.isCollapsed() || isCollapsedGroup}
               childCount={childCount}
               hasGroupChildren={hasGroupChildren}
               ProcessorIcon={ProcessorIcon}
@@ -377,7 +381,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
                 <StepToolbar
                   data-testid="step-toolbar"
                   vizNode={vizNode}
-                  isCollapsed={element.isCollapsed()}
+                  isCollapsed={element.isCollapsed() || isCollapsedGroup}
                   onCollapseToggle={onCollapseToggle}
                 />
               </foreignObject>

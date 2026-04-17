@@ -242,7 +242,7 @@ describe('CustomNodeContainer', () => {
       />,
     );
 
-    expect(container.querySelector('.step-icon__collection')).toBeInTheDocument();
+    expect(container.querySelector('.step-icon-collection')).toBeInTheDocument();
     // Carbon icon is rendered inside PF Icon
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
