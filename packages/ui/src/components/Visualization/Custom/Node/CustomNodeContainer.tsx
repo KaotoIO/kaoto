@@ -53,10 +53,10 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
 
         {isCollapsed && childCount > 0 && (
           <FloatingCircle
-            className={clsx('step-icon step-icon__processor', { 'step-icon__collection': hasGroupChildren })}
+            className={clsx('step-icon step-icon__processor', { 'step-icon-collection': hasGroupChildren })}
           >
             {hasGroupChildren && (
-              <Icon size="sm">
+              <Icon size="sm" aria-label="contains nested collections">
                 <Layers />
               </Icon>
             )}
