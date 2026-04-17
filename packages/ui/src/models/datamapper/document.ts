@@ -46,7 +46,7 @@ export type IParentType = IDocument | IField;
 export interface IOriginalFieldState {
   name: string;
   displayName: string;
-  namespaceURI: string | null;
+  namespaceURI: string;
   namespacePrefix: string | null;
   type: Types;
   typeQName: QName | null;
@@ -109,7 +109,7 @@ export interface IField {
   /** Namespace prefix for this field */
   namespacePrefix: string | null;
   /** Namespace URI for this field */
-  namespaceURI: string | null;
+  namespaceURI: string;
   /** References to named type fragments used by this field */
   namedTypeFragmentRefs: string[];
   /** XPath predicates for filtering this field */
@@ -256,7 +256,7 @@ export class PrimitiveDocument extends BaseDocument implements IField {
   maxOccurs: MaxOccursType = 1;
   minOccurs: number = 0;
   namespacePrefix: string | null = null;
-  namespaceURI: string | null = null;
+  namespaceURI: string = '';
   parent: IParentType = this;
   type = Types.AnyType;
   typeQName: QName | null = null;
@@ -306,7 +306,7 @@ export class BaseField implements IField {
   defaultValue: string | null = null;
   nillable: boolean = false;
   namespacePrefix: string | null = null;
-  namespaceURI: string | null = null;
+  namespaceURI: string = '';
   namedTypeFragmentRefs: string[] = [];
   predicates: Predicate[] = [];
   isChoice?: boolean;

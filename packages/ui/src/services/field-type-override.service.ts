@@ -413,12 +413,12 @@ export class FieldTypeOverrideService {
     const originalNsPrefix = field.originalField?.namespacePrefix ?? field.namespacePrefix ?? undefined;
     ensureNamespaceRegistered(originalNsURI, namespaceMap, originalNsPrefix);
     ensureNamespaceRegistered(candidate.qname.getNamespaceURI(), namespaceMap);
-    ensureNamespaceRegistered(candidate.typeQName?.getNamespaceURI() ?? null, namespaceMap);
+    ensureNamespaceRegistered(candidate.typeQName?.getNamespaceURI() ?? '', namespaceMap);
     const schemaPath = SchemaPathService.buildOriginal(field, namespaceMap);
     const origName = field.originalField?.name ?? field.name;
     const originalName = formatWithPrefix(originalNsURI, origName, namespaceMap);
     const canonicalName = formatWithPrefix(
-      candidate.qname.getNamespaceURI() || null,
+      candidate.qname.getNamespaceURI(),
       candidate.qname.getLocalPart()!,
       namespaceMap,
     );

@@ -31,7 +31,7 @@ describe('getOverrideDisplayInfo', () => {
       originalField: {
         name: 'fieldA',
         displayName: 'fieldA',
-        namespaceURI: null,
+        namespaceURI: '',
         namespacePrefix: null,
         type: Types.String,
         typeQName: new QName(NS, 'string'),
@@ -54,7 +54,7 @@ describe('getOverrideDisplayInfo', () => {
       originalField: {
         name: 'AbstractAnimal',
         displayName: 'AbstractAnimal',
-        namespaceURI: null,
+        namespaceURI: '',
         namespacePrefix: null,
         type: Types.Container,
         typeQName: null,

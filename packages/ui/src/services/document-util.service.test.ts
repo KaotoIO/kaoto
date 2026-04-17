@@ -122,7 +122,7 @@ describe('DocumentUtilService', () => {
       const existingOriginalField = {
         name: 'testRefField',
         displayName: 'testRefField',
-        namespaceURI: null,
+        namespaceURI: '',
         namespacePrefix: null,
         type: Types.String,
         typeQName: null,
@@ -154,7 +154,7 @@ describe('DocumentUtilService', () => {
       refField.originalField = {
         name: 'testRefField',
         displayName: 'testRefField',
-        namespaceURI: null,
+        namespaceURI: '',
         namespacePrefix: null,
         type: Types.String,
         typeQName: null,
@@ -780,7 +780,7 @@ describe('DocumentUtilService', () => {
       const doc = TestUtil.createSourceOrderDoc();
       const namespaceMap2 = { ns0: 'io.kaoto.datamapper.poc.test', xs: NS_XML_SCHEMA };
       const shipTo = doc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-      shipTo.namespaceURI = null;
+      shipTo.namespaceURI = '';
       shipTo.namespacePrefix = null;
 
       const override: IFieldTypeOverride = {
@@ -791,12 +791,12 @@ describe('DocumentUtilService', () => {
       };
       DocumentUtilService.processTypeOverride(doc, override, namespaceMap2, XmlSchemaTypesService.parseTypeOverride);
 
-      expect(shipTo.originalField!.namespaceURI).toBeNull();
+      expect(shipTo.originalField!.namespaceURI).toBe('');
       expect(shipTo.originalField!.namespacePrefix).toBeNull();
 
       DocumentUtilService.removeTypeOverride(doc, '/ns0:ShipOrder/ShipTo', namespaceMap2);
 
-      expect(shipTo.namespaceURI).toBeNull();
+      expect(shipTo.namespaceURI).toBe('');
       expect(shipTo.namespacePrefix).toBeNull();
     });
 
@@ -1341,7 +1341,7 @@ describe('DocumentUtilService', () => {
       field.originalField = {
         name: 'OriginalName',
         displayName: 'OriginalName',
-        namespaceURI: null,
+        namespaceURI: '',
         namespacePrefix: null,
         type: Types.String,
         typeQName: null,

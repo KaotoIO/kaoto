@@ -11,7 +11,7 @@
  * @returns Formatted string like "xs:string" or "ns0:EmployeeType"
  */
 export function formatWithPrefix(
-  namespaceURI: string | null,
+  namespaceURI: string,
   localPart: string,
   namespaceMap: Record<string, string>,
 ): string {
@@ -49,7 +49,7 @@ export function formatQNameWithPrefix(
  * @param preferredPrefix - Optional preferred prefix to use when available
  */
 export function ensureNamespaceRegistered(
-  namespaceURI: string | null,
+  namespaceURI: string,
   namespaceMap: Record<string, string>,
   preferredPrefix?: string,
 ): void {
@@ -74,10 +74,7 @@ export function ensureNamespaceRegistered(
  * @param namespaceMap - Map of namespace prefixes to URIs
  * @returns The prefix string, or `''` when the URI is not registered
  */
-export function getPrefixForNamespaceURI(
-  namespaceURI: string | null | undefined,
-  namespaceMap: Record<string, string>,
-): string {
+export function getPrefixForNamespaceURI(namespaceURI: string, namespaceMap: Record<string, string>): string {
   if (!namespaceURI) return '';
   return Object.entries(namespaceMap).find(([, uri]) => uri === namespaceURI)?.[0] ?? '';
 }

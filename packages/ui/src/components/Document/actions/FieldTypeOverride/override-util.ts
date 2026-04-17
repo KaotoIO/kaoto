@@ -54,7 +54,7 @@ export function derivePreselectedKey(
   candidates: Record<string, CandidateDisplay>,
 ): string | null {
   if (mode === 'substitution' && field.typeOverride === FieldOverrideVariant.SUBSTITUTION) {
-    const key = formatWithPrefix(field.namespaceURI ?? null, field.name, namespaceMap);
+    const key = formatWithPrefix(field.namespaceURI, field.name, namespaceMap);
     return key in candidates ? key : null;
   }
   if (

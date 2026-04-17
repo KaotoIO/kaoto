@@ -35,12 +35,12 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should find child field by name', () => {
       const mockParent = {
         fields: [
-          { name: 'OrderPerson', namespaceURI: null },
-          { name: 'ShipTo', namespaceURI: null },
+          { name: 'OrderPerson', namespaceURI: '' },
+          { name: 'ShipTo', namespaceURI: '' },
         ],
       } as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'OrderPerson');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'OrderPerson', '');
 
       expect(result).toBeDefined();
       expect(result?.name).toBe('OrderPerson');
@@ -63,10 +63,10 @@ describe('XmlSchemaDocumentUtilService', () => {
 
     it('should return undefined when name does not match', () => {
       const mockParent = {
-        fields: [{ name: 'ShipTo', namespaceURI: null }],
+        fields: [{ name: 'ShipTo', namespaceURI: '' }],
       } as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'NonExistentField');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'NonExistentField', '');
 
       expect(result).toBeUndefined();
     });
@@ -84,20 +84,20 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should find field inside choice member', () => {
       const mockParent = {
         fields: [
-          { name: 'RegularField', namespaceURI: null, isChoice: false, fields: [] },
+          { name: 'RegularField', namespaceURI: '', isChoice: false, fields: [] },
           {
             name: 'ContactChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [
-              { name: 'email', namespaceURI: null, fields: [] },
-              { name: 'phone', namespaceURI: null, fields: [] },
+              { name: 'email', namespaceURI: '', fields: [] },
+              { name: 'phone', namespaceURI: '', fields: [] },
             ],
           },
         ],
       } as unknown as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email', '');
 
       expect(result).toBeDefined();
       expect(result?.name).toBe('email');
@@ -108,7 +108,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         fields: [
           {
             name: 'ContactChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [
               { name: 'email', namespaceURI: 'http://www.kaoto.io/contact', fields: [] },
@@ -128,19 +128,19 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should prefer direct child over choice member with same name', () => {
       const mockParent = {
         fields: [
-          { name: 'email', namespaceURI: null, isChoice: false, fields: [] },
+          { name: 'email', namespaceURI: '', isChoice: false, fields: [] },
           {
             name: 'ContactChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [{ name: 'email', namespaceURI: 'http://different.com', fields: [] }],
           },
         ],
       } as unknown as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email', '');
 
-      expect(result?.namespaceURI).toBeNull();
+      expect(result?.namespaceURI).toBe('');
     });
 
     it('should find field in nested choice', () => {
@@ -148,21 +148,21 @@ describe('XmlSchemaDocumentUtilService', () => {
         fields: [
           {
             name: 'OuterChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [
               {
                 name: 'InnerChoice',
-                namespaceURI: null,
+                namespaceURI: '',
                 isChoice: true,
-                fields: [{ name: 'deepField', namespaceURI: null, fields: [] }],
+                fields: [{ name: 'deepField', namespaceURI: '', fields: [] }],
               },
             ],
           },
         ],
       } as unknown as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'deepField');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'deepField', '');
 
       expect(result).toBeDefined();
       expect(result?.name).toBe('deepField');
@@ -171,20 +171,20 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should return undefined when field not found in choice or regular fields', () => {
       const mockParent = {
         fields: [
-          { name: 'RegularField', namespaceURI: null, isChoice: false, fields: [] },
+          { name: 'RegularField', namespaceURI: '', isChoice: false, fields: [] },
           {
             name: 'ContactChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [
-              { name: 'email', namespaceURI: null, fields: [] },
-              { name: 'phone', namespaceURI: null, fields: [] },
+              { name: 'email', namespaceURI: '', fields: [] },
+              { name: 'phone', namespaceURI: '', fields: [] },
             ],
           },
         ],
       } as unknown as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'nonexistent');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'nonexistent', '');
 
       expect(result).toBeUndefined();
     });
@@ -192,17 +192,17 @@ describe('XmlSchemaDocumentUtilService', () => {
     it('should handle empty choice', () => {
       const mockParent = {
         fields: [
-          { name: 'RegularField', namespaceURI: null, isChoice: false, fields: [] },
+          { name: 'RegularField', namespaceURI: '', isChoice: false, fields: [] },
           {
             name: 'EmptyChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [],
           },
         ],
       } as unknown as BaseDocument;
 
-      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email');
+      const result = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email', '');
 
       expect(result).toBeUndefined();
     });
@@ -212,30 +212,30 @@ describe('XmlSchemaDocumentUtilService', () => {
         fields: [
           {
             name: 'ContactChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [
-              { name: 'email', namespaceURI: null, fields: [] },
-              { name: 'phone', namespaceURI: null, fields: [] },
+              { name: 'email', namespaceURI: '', fields: [] },
+              { name: 'phone', namespaceURI: '', fields: [] },
             ],
           },
           {
             name: 'AddressChoice',
-            namespaceURI: null,
+            namespaceURI: '',
             isChoice: true,
             fields: [
-              { name: 'street', namespaceURI: null, fields: [] },
-              { name: 'city', namespaceURI: null, fields: [] },
+              { name: 'street', namespaceURI: '', fields: [] },
+              { name: 'city', namespaceURI: '', fields: [] },
             ],
           },
         ],
       } as unknown as BaseDocument;
 
-      const emailResult = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email');
+      const emailResult = XmlSchemaDocumentUtilService.getChildField(mockParent, 'email', '');
       expect(emailResult).toBeDefined();
       expect(emailResult?.name).toBe('email');
 
-      const streetResult = XmlSchemaDocumentUtilService.getChildField(mockParent, 'street');
+      const streetResult = XmlSchemaDocumentUtilService.getChildField(mockParent, 'street', '');
       expect(streetResult).toBeDefined();
       expect(streetResult?.name).toBe('street');
     });

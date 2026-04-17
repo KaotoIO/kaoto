@@ -72,7 +72,7 @@ export class XmlSchemaTypesService {
     }
     const type = XmlSchemaTypesService.mapTypeStringToEnum(namespaceURI || '', localPart);
 
-    const typeQName = new QName(namespaceURI || null, localPart);
+    const typeQName = new QName(namespaceURI, localPart);
 
     const variant = XmlSchemaTypesService.determineOverrideVariant(field, type, typeQName, namespaceURI);
 
@@ -723,7 +723,7 @@ export class XmlSchemaTypesService {
     for (const derivedType of derivedTypes) {
       const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(derivedType, true);
       if (typeInfo) {
-        ensureNamespaceRegistered(typeInfo.typeQName.getNamespaceURI() || null, namespaceMap);
+        ensureNamespaceRegistered(typeInfo.typeQName.getNamespaceURI(), namespaceMap);
         results[formatQNameWithPrefix(typeInfo.typeQName, namespaceMap)] = typeInfo;
       }
     }
@@ -749,10 +749,7 @@ export class XmlSchemaTypesService {
       } else {
         const wireName = element.getWireName()!;
         namedTypeFragmentRefs = [
-          XmlSchemaDocumentUtilService.buildElementFragmentKey(
-            wireName.getNamespaceURI() || null,
-            wireName.getLocalPart()!,
-          ),
+          XmlSchemaDocumentUtilService.buildElementFragmentKey(wireName.getNamespaceURI(), wireName.getLocalPart()!),
         ];
       }
     } else if (schemaType instanceof XmlSchemaSimpleType) {
@@ -789,7 +786,7 @@ export class XmlSchemaTypesService {
     if (!localPart || localPart.includes(':')) return undefined;
     const nsURI = prefix ? namespaceMap[prefix] : '';
     if (prefix && nsURI === undefined) return undefined;
-    const qname = new QName(nsURI || null, localPart);
+    const qname = new QName(nsURI, localPart);
 
     const element = xmlDoc.xmlSchemaCollection.getElementByQName(qname);
     if (!element) return undefined;
@@ -875,7 +872,7 @@ export class XmlSchemaTypesService {
     const isSubstituted = field.typeOverride === FieldOverrideVariant.SUBSTITUTION;
     if (isSubstituted && !field.originalField) return {};
     const headName = isSubstituted ? field.originalField!.name : field.name;
-    const headNamespaceURI = isSubstituted ? (field.originalField!.namespaceURI ?? '') : (field.namespaceURI ?? '');
+    const headNamespaceURI = isSubstituted ? field.originalField!.namespaceURI : field.namespaceURI;
 
     const headElement = collection.getElementByQName(new QName(headNamespaceURI, headName));
     if (!headElement) return {};
@@ -887,7 +884,7 @@ export class XmlSchemaTypesService {
     for (const el of members) {
       const wireName = el.getWireName();
       if (!wireName?.getLocalPart()) continue;
-      ensureNamespaceRegistered(wireName.getNamespaceURI() || null, namespaceMap);
+      ensureNamespaceRegistered(wireName.getNamespaceURI(), namespaceMap);
       const key = formatQNameWithPrefix(wireName, namespaceMap);
       results[key] = {
         qname: wireName,

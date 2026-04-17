@@ -32,17 +32,17 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
-   * Finds a child field by name and optional namespace URI.
+   * Finds a child field by name and namespace URI.
    * @param parent - The parent field or document to search
    * @param name - The field name to match
-   * @param namespaceURI - Optional namespace URI to match
+   * @param namespaceURI - Namespace URI to match (empty string for no-namespace fields)
    * @returns The matching child field, or undefined if not found
    */
-  static getChildField(parent: IParentType, name: string, namespaceURI?: string | null): IField | undefined {
+  static getChildField(parent: IParentType, name: string, namespaceURI: string): IField | undefined {
     const resolvedParent = 'parent' in parent ? DocumentUtilService.resolveTypeFragment(parent) : parent;
 
     const directChild = resolvedParent.fields.find((f) => {
-      return f.name === name && ((!namespaceURI && !f.namespaceURI) || f.namespaceURI === namespaceURI);
+      return f.name === name && f.namespaceURI === namespaceURI;
     });
 
     if (directChild) return directChild;
@@ -60,13 +60,10 @@ export class XmlSchemaDocumentUtilService {
   private static findInChoiceByNameAndNamespace(
     choiceField: IField,
     name: string,
-    namespaceURI?: string | null,
+    namespaceURI: string,
   ): IField | undefined {
     for (const choiceMember of choiceField.fields) {
-      if (
-        choiceMember.name === name &&
-        ((!namespaceURI && !choiceMember.namespaceURI) || choiceMember.namespaceURI === namespaceURI)
-      ) {
+      if (choiceMember.name === name && choiceMember.namespaceURI === namespaceURI) {
         return choiceMember;
       }
       if (choiceMember.isChoice) {
@@ -166,12 +163,12 @@ export class XmlSchemaDocumentUtilService {
    * Builds the key used to store an anonymous global element's type fragment in {@link IDocument.namedTypeFragments}.
    * The `__elem:` prefix distinguishes element fragments from named type fragments.
    *
-   * @param namespaceURI - Namespace URI of the element (null or empty for no-namespace elements)
+   * @param namespaceURI - Namespace URI of the element (empty string for no-namespace elements)
    * @param localPart - Local name of the element
    * @returns Fragment key string in the form `__elem:<namespaceURI>:<localPart>`
    */
-  static buildElementFragmentKey(namespaceURI: string | null, localPart: string): string {
-    return `__elem:${namespaceURI ?? ''}:${localPart}`;
+  static buildElementFragmentKey(namespaceURI: string, localPart: string): string {
+    return `__elem:${namespaceURI}:${localPart}`;
   }
 
   /**

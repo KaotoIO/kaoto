@@ -1766,9 +1766,7 @@ describe('XmlSchemaDocumentService', () => {
 
     const document = result.document as XmlSchemaDocument;
     for (const name of ['TypeA01', 'TypeB01', 'TypeC01', 'TypeD01', 'TypeE01', 'TypeF01']) {
-      expect(
-        document.namedTypeFragments[XmlSchemaDocumentUtilService.buildElementFragmentKey(null, name)],
-      ).toBeDefined();
+      expect(document.namedTypeFragments[XmlSchemaDocumentUtilService.buildElementFragmentKey('', name)]).toBeDefined();
     }
 
     const bigContainerFragment = document.namedTypeFragments['BigContainer'];
