@@ -3,17 +3,17 @@ import { render } from '@testing-library/react';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { MappingTree } from '../../../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
-import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { FieldOverrideService } from '../../../../services/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
-import { FieldTypeOverride, revertOverride } from './FieldTypeOverride';
+import { FieldOverride, revertOverride } from './FieldOverride';
 
-// Mock TypeOverrideModal to expose the onSave/onAttach/onRemove callbacks
-jest.mock('./TypeOverrideModal', () => ({
-  TypeOverrideModal: jest.fn(({ isOpen, onSave, onAttach, onRemove }) => {
+// Mock FieldOverrideModal to expose the onSave/onAttach/onRemove callbacks
+jest.mock('./FieldOverrideModal', () => ({
+  FieldOverrideModal: jest.fn(({ isOpen, onSave, onAttach, onRemove }) => {
     if (!isOpen) return null;
     return (
-      <div data-testid="type-override-modal">
+      <div data-testid="field-override-modal">
         <button
           data-testid="mock-save"
           onClick={() => onSave({ mode: 'type', selectedType: mockSelectedType, selectedKey: 'xs:int' })}
@@ -31,9 +31,9 @@ jest.mock('./TypeOverrideModal', () => ({
   }),
 }));
 
-// Mock FieldTypeOverrideService
-jest.mock('../../../../services/field-type-override.service', () => ({
-  FieldTypeOverrideService: {
+// Mock FieldOverrideService
+jest.mock('../../../../services/field-override.service', () => ({
+  FieldOverrideService: {
     applyFieldTypeOverride: jest.fn(),
     applyFieldSubstitution: jest.fn(),
     revertFieldTypeOverride: jest.fn(),
@@ -54,7 +54,7 @@ const mockSelectedType: IFieldTypeInfo = {
   isBuiltIn: true,
 };
 
-describe('FieldTypeOverride', () => {
+describe('FieldOverride', () => {
   let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let testMappingTree: MappingTree;
   const mockUpdateDocument = jest.fn();
@@ -72,34 +72,34 @@ describe('FieldTypeOverride', () => {
     });
   });
 
-  it('should pass field to TypeOverrideModal when open', () => {
+  it('should pass field to FieldOverrideModal when open', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     expect(lastCall[0].field).toBe(field);
   });
 
-  it('should not render TypeOverrideModal when closed', () => {
+  it('should not render FieldOverrideModal when closed', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldTypeOverride isOpen={false} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={false} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    expect(TypeOverrideModalMock).not.toHaveBeenCalled();
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    expect(FieldOverrideModalMock).not.toHaveBeenCalled();
   });
 
   it('should call applyFieldTypeOverride and updateDocument on save', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     const onSaveCallback = lastCall[0].onSave;
 
     onSaveCallback({ mode: 'type', selectedType: mockSelectedType, selectedKey: 'xs:int' });
 
-    expect(FieldTypeOverrideService.applyFieldTypeOverride).toHaveBeenCalledWith(
+    expect(FieldOverrideService.applyFieldTypeOverride).toHaveBeenCalledWith(
       field,
       mockSelectedType,
       testMappingTree.namespaceMap,
@@ -113,31 +113,31 @@ describe('FieldTypeOverride', () => {
   it('should not call addSchemaFilesForTypeOverride on save', () => {
     const field = testTargetDoc.fields[0];
 
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     const onSaveCallback = lastCall[0].onSave;
 
     onSaveCallback({ mode: 'type', selectedType: mockSelectedType, selectedKey: 'xs:int' });
 
-    expect(FieldTypeOverrideService.addSchemaFilesForTypeOverride).not.toHaveBeenCalled();
-    expect(FieldTypeOverrideService.applyFieldTypeOverride).toHaveBeenCalled();
+    expect(FieldOverrideService.addSchemaFilesForTypeOverride).not.toHaveBeenCalled();
+    expect(FieldOverrideService.applyFieldTypeOverride).toHaveBeenCalled();
   });
 
   it('should call addSchemaFilesForTypeOverride and updateDocument on attach', () => {
     const field = testTargetDoc.fields[0];
     const schemas = { 'custom.xsd': '<xs:schema/>' };
 
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     const onAttachCallback = lastCall[0].onAttach;
 
     onAttachCallback(schemas);
 
-    expect(FieldTypeOverrideService.addSchemaFilesForTypeOverride).toHaveBeenCalledWith(field.ownerDocument, schemas);
+    expect(FieldOverrideService.addSchemaFilesForTypeOverride).toHaveBeenCalledWith(field.ownerDocument, schemas);
     expect(mockUpdateDocument).toHaveBeenCalled();
     // Attach should not trigger onComplete or onClose
     expect(mockOnComplete).not.toHaveBeenCalled();
@@ -146,20 +146,20 @@ describe('FieldTypeOverride', () => {
 
   it('should call applyFieldSubstitution on save with substitution mode', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     const onSaveCallback = lastCall[0].onSave;
 
     onSaveCallback({ mode: 'substitution', selectedKey: 'sub:Cat' });
 
-    expect(FieldTypeOverrideService.applyFieldSubstitution).toHaveBeenCalledWith(
+    expect(FieldOverrideService.applyFieldSubstitution).toHaveBeenCalledWith(
       field,
       'sub:Cat',
       testMappingTree.namespaceMap,
     );
-    expect(FieldTypeOverrideService.applyFieldTypeOverride).not.toHaveBeenCalled();
+    expect(FieldOverrideService.applyFieldTypeOverride).not.toHaveBeenCalled();
     expect(mockUpdateDocument).toHaveBeenCalled();
     expect(mockOnComplete).toHaveBeenCalled();
     expect(mockOnClose).toHaveBeenCalled();
@@ -168,26 +168,26 @@ describe('FieldTypeOverride', () => {
   it('should call revertFieldTypeOverride and updateDocument on remove', () => {
     const field = testTargetDoc.fields[0];
     field.typeOverride = FieldOverrideVariant.SAFE;
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     const onRemoveCallback = lastCall[0].onRemove;
 
     onRemoveCallback();
 
-    expect(FieldTypeOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, testMappingTree.namespaceMap);
+    expect(FieldOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, testMappingTree.namespaceMap);
     expect(mockUpdateDocument).toHaveBeenCalled();
     expect(mockOnComplete).toHaveBeenCalled();
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it('should pass onClose to TypeOverrideModal', () => {
+  it('should pass onClose to FieldOverrideModal', () => {
     const field = testTargetDoc.fields[0];
-    render(<FieldTypeOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
+    render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const TypeOverrideModalMock = jest.requireMock('./TypeOverrideModal').TypeOverrideModal;
-    const lastCall = TypeOverrideModalMock.mock.calls[TypeOverrideModalMock.mock.calls.length - 1];
+    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
+    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
     const onCloseCallback = lastCall[0].onClose;
 
     onCloseCallback();
@@ -212,8 +212,8 @@ describe('revertOverride', () => {
 
     revertOverride(field, namespaceMap, mockUpdateDocument);
 
-    expect(FieldTypeOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(field, namespaceMap);
-    expect(FieldTypeOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
+    expect(FieldOverrideService.revertFieldSubstitution).toHaveBeenCalledWith(field, namespaceMap);
+    expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
     expect(mockUpdateDocument).toHaveBeenCalled();
   });
 
@@ -226,8 +226,8 @@ describe('revertOverride', () => {
 
     revertOverride(field, namespaceMap, mockUpdateDocument);
 
-    expect(FieldTypeOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
-    expect(FieldTypeOverrideService.revertFieldSubstitution).not.toHaveBeenCalled();
+    expect(FieldOverrideService.revertFieldTypeOverride).not.toHaveBeenCalled();
+    expect(FieldOverrideService.revertFieldSubstitution).not.toHaveBeenCalled();
     expect(mockUpdateDocument).not.toHaveBeenCalled();
   });
 
@@ -240,7 +240,7 @@ describe('revertOverride', () => {
 
     revertOverride(field, namespaceMap, mockUpdateDocument);
 
-    expect(FieldTypeOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, namespaceMap);
+    expect(FieldOverrideService.revertFieldTypeOverride).toHaveBeenCalledWith(field, namespaceMap);
     expect(mockUpdateDocument).toHaveBeenCalledWith(
       field.ownerDocument,
       field.ownerDocument.definition,

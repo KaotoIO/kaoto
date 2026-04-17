@@ -207,7 +207,7 @@ export class DocumentUtilService {
 
   /**
    * Low level API to apply multiple field type overrides to a document.
-   * UI component should use {@link FieldTypeOverrideService.applyFieldTypeOverride()}.
+   * UI component should use {@link FieldOverrideService.applyFieldTypeOverride()}.
    *
    * Iterates through all provided overrides and applies them to the document.
    * Each override modifies both the field in the document tree and updates
@@ -255,7 +255,7 @@ export class DocumentUtilService {
 
   /**
    * Low level API to apply a field type override to a document.
-   * UI component should use {@link FieldTypeOverrideService.applyFieldTypeOverride()}.
+   * UI component should use {@link FieldOverrideService.applyFieldTypeOverride()}.
    *
    * Navigates to the specified field using schema path and changes its type. Also updates
    * the DocumentDefinition.fieldTypeOverrides to keep the definition in sync with
@@ -289,13 +289,13 @@ export class DocumentUtilService {
    * 1. Runtime: Changes field.type, field.typeQName, field.typeOverride, clears field.fields
    * 2. Definition: Adds/updates override in document.definition.fieldTypeOverrides
    *
-   * For retrieving type override candidates, use {@link FieldTypeOverrideService.getSafeOverrideCandidates}
-   * or {@link FieldTypeOverrideService.getAllOverrideCandidates}.
+   * For retrieving type override candidates, use {@link FieldOverrideService.getSafeOverrideCandidates}
+   * or {@link FieldOverrideService.getAllOverrideCandidates}.
    *
    * @see processTypeOverrides
    * @see removeTypeOverride
-   * @see FieldTypeOverrideService.getSafeOverrideCandidates
-   * @see FieldTypeOverrideService.getAllOverrideCandidates
+   * @see FieldOverrideService.getSafeOverrideCandidates
+   * @see FieldOverrideService.getAllOverrideCandidates
    */
   static processTypeOverride(
     document: IDocument,
@@ -324,7 +324,7 @@ export class DocumentUtilService {
 
   /**
    * Low level API to remove a field type override from a document.
-   * UI component should use {@link FieldTypeOverrideService.revertFieldTypeOverride()}.
+   * UI component should use {@link FieldOverrideService.revertFieldTypeOverride()}.
    *
    * Removes the override for the specified field path and restores the field to its
    * original type in the live document. Also updates the DocumentDefinition to keep

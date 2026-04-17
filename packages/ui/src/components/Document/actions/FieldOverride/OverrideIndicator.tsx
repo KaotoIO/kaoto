@@ -6,13 +6,13 @@ import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import { getOverrideDisplayInfo } from './override-util';
 
-interface TypeOverrideIndicatorProps {
+interface OverrideIndicatorProps {
   field: IField | undefined;
   namespaceMap?: Record<string, string>;
 }
 
 /** Icon indicator for a field with an override (type or substitution). Renders nothing if no override. */
-export const TypeOverrideIndicator: FunctionComponent<TypeOverrideIndicatorProps> = ({ field, namespaceMap = {} }) => {
+export const OverrideIndicator: FunctionComponent<OverrideIndicatorProps> = ({ field, namespaceMap = {} }) => {
   if (!field) return null;
 
   const displayInfo = getOverrideDisplayInfo(field, namespaceMap);
@@ -23,7 +23,7 @@ export const TypeOverrideIndicator: FunctionComponent<TypeOverrideIndicatorProps
 
   return (
     <Icon
-      className="node__spacer node__type-override-indicator"
+      className="node__spacer node__override-indicator"
       size="md"
       status={isSubstitution ? 'info' : 'warning'}
       isInline

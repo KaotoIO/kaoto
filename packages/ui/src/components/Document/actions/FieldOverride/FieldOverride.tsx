@@ -3,14 +3,14 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
-import { revertOverride } from './revert-type-override';
-import { OverrideSavePayload, TypeOverrideModal } from './TypeOverrideModal';
+import { FieldOverrideService } from '../../../../services/field-override.service';
+import { FieldOverrideModal, OverrideSavePayload } from './FieldOverrideModal';
+import { revertOverride } from './revert-override';
 
-export { revertOverride } from './revert-type-override';
-export { TypeOverrideIndicator } from './TypeOverrideIndicator';
+export { OverrideIndicator } from './OverrideIndicator';
+export { revertOverride } from './revert-override';
 
-type FieldTypeOverrideProps = {
+type FieldOverrideProps = {
   field: IField;
   isOpen: boolean;
   onClose: () => void;
@@ -19,16 +19,11 @@ type FieldTypeOverrideProps = {
 
 /**
  * Dedicated component for field override operations (type override and element substitution).
- * Wraps TypeOverrideModal with save/remove handlers, consolidating
+ * Wraps FieldOverrideModal with save/remove handlers, consolidating
  * the override logic that was previously duplicated across
  * SourceDocumentNode, TargetNodeActions, and ConditionMenuAction.
  */
-export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
-  field,
-  isOpen,
-  onClose,
-  onComplete,
-}) => {
+export const FieldOverride: FunctionComponent<FieldOverrideProps> = ({ field, isOpen, onClose, onComplete }) => {
   const { mappingTree, updateDocument } = useDataMapper();
 
   const handleAttach = useCallback(
@@ -36,7 +31,7 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
       const document = field.ownerDocument;
       const namespaceMap = mappingTree.namespaceMap;
       const previousRefId = document.getReferenceId(namespaceMap);
-      FieldTypeOverrideService.addSchemaFilesForTypeOverride(document, schemas);
+      FieldOverrideService.addSchemaFilesForTypeOverride(document, schemas);
       updateDocument(document, document.definition, previousRefId);
     },
     [field, mappingTree.namespaceMap, updateDocument],
@@ -49,14 +44,9 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
       const previousRefId = document.getReferenceId(namespaceMap);
 
       if (payload.mode === 'substitution') {
-        FieldTypeOverrideService.applyFieldSubstitution(field, payload.selectedKey, namespaceMap);
+        FieldOverrideService.applyFieldSubstitution(field, payload.selectedKey, namespaceMap);
       } else {
-        FieldTypeOverrideService.applyFieldTypeOverride(
-          field,
-          payload.selectedType,
-          namespaceMap,
-          FieldOverrideVariant.SAFE,
-        );
+        FieldOverrideService.applyFieldTypeOverride(field, payload.selectedType, namespaceMap, FieldOverrideVariant.SAFE);
       }
 
       updateDocument(document, document.definition, previousRefId);
@@ -75,7 +65,7 @@ export const FieldTypeOverride: FunctionComponent<FieldTypeOverrideProps> = ({
   if (!isOpen) return null;
 
   return (
-    <TypeOverrideModal
+    <FieldOverrideModal
       field={field}
       onSave={handleSave}
       onAttach={handleAttach}

@@ -6,8 +6,8 @@ import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { TreeUIService } from '../../services/tree-ui.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
-import { TypeOverrideIndicator } from './actions/FieldTypeOverride/FieldTypeOverride';
-import { withFieldOverrideContextMenu } from './actions/FieldTypeOverride/withFieldOverrideContextMenu';
+import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
+import { withFieldOverrideContextMenu } from './actions/FieldOverride/withFieldOverrideContextMenu';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
@@ -98,7 +98,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
                 nodePath={nodePathString}
                 documentId={documentId}
               >
-                <TypeOverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />
+                <OverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />
               </BaseNode>
             </NodeContainer>
           </div>

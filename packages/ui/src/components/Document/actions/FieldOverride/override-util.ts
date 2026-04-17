@@ -1,6 +1,6 @@
 import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { FieldTypeOverrideService } from '../../../../services/field-type-override.service';
+import { FieldOverrideService } from '../../../../services/field-override.service';
 import { formatQNameWithPrefix, formatWithPrefix } from '../../../../services/namespace-util';
 
 export interface OverrideDisplayInfo {
@@ -79,8 +79,8 @@ export function getOverrideCandidates(
 ): { candidates: Record<string, CandidateDisplay>; selectedKey: string | null } {
   const candidates =
     mode === 'substitution'
-      ? FieldTypeOverrideService.getFieldSubstitutionCandidates(field, namespaceMap)
-      : FieldTypeOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+      ? FieldOverrideService.getFieldSubstitutionCandidates(field, namespaceMap)
+      : FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
   const selectedKey = derivePreselectedKey(field, mode, namespaceMap, candidates);
   return { candidates, selectedKey };
 }

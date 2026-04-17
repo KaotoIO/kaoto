@@ -12,11 +12,11 @@ import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 /**
- * Service for field type override and element substitution operations.
+ * Service for field override operations (type overrides and element substitutions).
  * Provides high-level orchestration for applying, removing, and managing type overrides
  * and element substitutions (apply/revert).
  *
- * This service consolidates all field type override functionality in one place, reducing
+ * This service consolidates all field override functionality in one place, reducing
  * code duplication and improving maintainability by eliminating if-XML/if-JSON patterns
  * scattered across multiple services.
  *
@@ -33,10 +33,10 @@ import { XmlSchemaTypesService } from './xml-schema-types.service';
  * @example
  * ```typescript
  * // Get safe type override candidates for a field
- * const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+ * const candidates = FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
  *
  * // Apply a type override
- * FieldTypeOverrideService.applyFieldTypeOverride(
+ * FieldOverrideService.applyFieldTypeOverride(
  *   field,
  *   selectedCandidate,
  *   namespaceMap,
@@ -44,10 +44,10 @@ import { XmlSchemaTypesService } from './xml-schema-types.service';
  * );
  *
  * // Remove a type override
- * FieldTypeOverrideService.revertFieldTypeOverride(field, namespaceMap);
+ * FieldOverrideService.revertFieldTypeOverride(field, namespaceMap);
  * ```
  */
-export class FieldTypeOverrideService {
+export class FieldOverrideService {
   /**
    * Get safe type override candidates for a field.
    *
@@ -64,7 +64,7 @@ export class FieldTypeOverrideService {
    *
    * @example
    * ```typescript
-   * const candidates = FieldTypeOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+   * const candidates = FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
    * // For xs:anyType field, returns all built-in + user-defined types
    * // For other XML types, returns extensions/restrictions of that type
    * // For JSON Schema types, returns empty Record
@@ -79,7 +79,7 @@ export class FieldTypeOverrideService {
     namespaceMap: Record<string, string>,
   ): Record<string, IFieldTypeInfo> {
     if ((field.originalField?.type ?? field.type) === Types.AnyType) {
-      return FieldTypeOverrideService.getAllOverrideCandidates(field.ownerDocument, namespaceMap);
+      return FieldOverrideService.getAllOverrideCandidates(field.ownerDocument, namespaceMap);
     }
 
     if (field.ownerDocument instanceof XmlSchemaDocument) {
@@ -113,7 +113,7 @@ export class FieldTypeOverrideService {
    *
    * @example
    * ```typescript
-   * const allTypes = FieldTypeOverrideService.getAllOverrideCandidates(document, namespaceMap);
+   * const allTypes = FieldOverrideService.getAllOverrideCandidates(document, namespaceMap);
    * // For XML Schema: Returns all xs:* types + all user-defined complexTypes and simpleTypes
    * // For JSON Schema: Returns all built-in types (string, number, etc.) + all $defs types
    * ```
@@ -162,7 +162,7 @@ export class FieldTypeOverrideService {
    *   isBuiltIn: true
    * };
    *
-   * const override = FieldTypeOverrideService.createFieldTypeOverride(
+   * const override = FieldOverrideService.createFieldTypeOverride(
    *   orderPersonField,
    *   candidate,
    *   namespaceMap,
@@ -231,7 +231,7 @@ export class FieldTypeOverrideService {
    *   isBuiltIn: true,
    * };
    *
-   * FieldTypeOverrideService.applyFieldTypeOverride(
+   * FieldOverrideService.applyFieldTypeOverride(
    *   field,
    *   candidate,
    *   namespaceMap,
@@ -275,7 +275,7 @@ export class FieldTypeOverrideService {
     }
 
     ensureNamespaceRegistered(candidate.typeQName.getNamespaceURI(), namespaceMap);
-    const override = FieldTypeOverrideService.createFieldTypeOverride(field, candidate, namespaceMap, variant);
+    const override = FieldOverrideService.createFieldTypeOverride(field, candidate, namespaceMap, variant);
     const changed = DocumentUtilService.processTypeOverride(document, override, namespaceMap, parseTypeOverrideFn);
     if (changed) {
       DocumentUtilService.invalidateDescendants(document, override.schemaPath);
@@ -295,7 +295,7 @@ export class FieldTypeOverrideService {
    *
    * @example
    * ```typescript
-   * FieldTypeOverrideService.revertFieldTypeOverride(field, namespaceMap);
+   * FieldOverrideService.revertFieldTypeOverride(field, namespaceMap);
    *
    * // Persist changes via provider
    * const document = field.ownerDocument;
@@ -340,7 +340,7 @@ export class FieldTypeOverrideService {
    *   'CustomTypes.xsd': schemaContent,
    * };
    *
-   * FieldTypeOverrideService.addSchemaFilesForTypeOverride(targetDocument, additionalFiles);
+   * FieldOverrideService.addSchemaFilesForTypeOverride(targetDocument, additionalFiles);
    *
    * // Apply via provider - triggers full namespace synchronization
    * dataMapperProvider.updateDocument(
