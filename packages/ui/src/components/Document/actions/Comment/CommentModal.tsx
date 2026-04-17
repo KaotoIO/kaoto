@@ -1,16 +1,8 @@
-import {
-  Button,
-  FormGroup,
-  Modal,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  ModalVariant,
-  TextArea,
-} from '@patternfly/react-core';
-import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useState } from 'react';
+import { Button, FormGroup, ModalBody, ModalFooter, ModalHeader, ModalVariant, TextArea } from '@patternfly/react-core';
+import { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 
 import { MappingItem } from '../../../../models/datamapper/mapping';
+import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
 
 interface CommentModalProps {
   /** Controls whether the modal is open */
@@ -64,31 +56,6 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
     onUpdate();
     handleClose();
   }, [mapping, onUpdate, handleClose]);
-
-  const stopPropagation = useCallback((event: MouseEvent) => {
-    event.stopPropagation();
-  }, []);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleMouseDownCapture = (e: Event) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
-      // Stop propagation for any click on backdrop or modal content
-      if (target.closest('.pf-v6-c-backdrop') || target.closest('.pf-v6-c-modal-box')) {
-        e.stopPropagation();
-      }
-    };
-
-    // Capture phase (third parameter = true) runs before React synthetic events
-    document.addEventListener('mousedown', handleMouseDownCapture, true);
-    document.addEventListener('pointerdown', handleMouseDownCapture, true);
-
-    return () => {
-      document.removeEventListener('mousedown', handleMouseDownCapture, true);
-      document.removeEventListener('pointerdown', handleMouseDownCapture, true);
-    };
-  }, [isOpen]);
 
   const textAreaElement = (
     <TextArea
@@ -147,7 +114,7 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
   };
 
   return (
-    <Modal
+    <DataMapperModal
       isOpen={isOpen}
       variant={ModalVariant.small}
       onClose={handleClose}
@@ -155,7 +122,7 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
       aria-label="Comment Editor Modal"
     >
       <ModalHeader title={isEditingExistingComment ? 'Edit Comment' : 'Add Comment'} />
-      <ModalBody onClick={stopPropagation}>
+      <ModalBody>
         {withFormGroup ? (
           <FormGroup label="Comment" fieldId="comment-textarea">
             {textAreaElement}
@@ -165,6 +132,6 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
         )}
       </ModalBody>
       <ModalFooter>{renderFooterButtons()}</ModalFooter>
-    </Modal>
+    </DataMapperModal>
   );
 };

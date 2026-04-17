@@ -5,7 +5,6 @@ import {
   ButtonVariant,
   List,
   ListItem,
-  Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -19,6 +18,7 @@ import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 're
 import { IExpressionHolder, MappingItem } from '../../models/datamapper';
 import { XPathService } from '../../services/xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../../services/xpath/xpath-model';
+import { DataMapperModal } from '../DataMapper/DataMapperModal';
 import { XPathEditorLayout } from './XPathEditorLayout';
 
 type XPathEditorModalProps = {
@@ -92,7 +92,7 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   );
 
   return (
-    <Modal
+    <DataMapperModal
       aria-label="XPath Editor Modal"
       className="xpath-editor-modal"
       position="top"
@@ -111,6 +111,6 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
           Close
         </Button>
       </ModalFooter>
-    </Modal>
+    </DataMapperModal>
   );
 };
