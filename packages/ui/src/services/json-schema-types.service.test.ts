@@ -30,7 +30,7 @@ describe('JsonSchemaTypesService', () => {
       expect(parseResult.type).toBe(Types.String);
       expect(parseResult.typeQName.getLocalPart()).toBe('string');
       const namespaceURI = parseResult.typeQName.getNamespaceURI();
-      expect(namespaceURI === null || namespaceURI === '').toBe(true);
+      expect(namespaceURI).toBe('');
     });
 
     it('should parse number type', () => {
@@ -333,7 +333,7 @@ describe('JsonSchemaTypesService', () => {
       expect(userDefinedTypes.every((t) => t.type === Types.Container)).toBe(true);
     });
 
-    it('should have null namespaceURI for JSON Schema types', () => {
+    it('should have empty namespaceURI for JSON Schema types', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.JSON_SCHEMA,

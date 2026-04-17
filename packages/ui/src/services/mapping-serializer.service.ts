@@ -434,7 +434,7 @@ export class MappingSerializerService {
   }
 
   private static getOrCreateAttributeField(item: Element, parentField: IParentType): IField | null {
-    const namespace = item.getAttribute('namespace');
+    const namespace = item.getAttribute('namespace') ?? '';
     const name = item.getAttribute('name');
     if (!name) return null;
     const existing = XmlSchemaDocumentUtilService.getChildField(parentField, name, namespace);
@@ -445,7 +445,7 @@ export class MappingSerializerService {
       name,
     );
     field.isAttribute = true;
-    field.namespaceURI = namespace;
+    field.namespaceURI = namespace || '';
     parentField.fields.push(field);
     return field;
   }
@@ -454,7 +454,7 @@ export class MappingSerializerService {
     const jsonField = MappingSerializerJsonAddon.getOrCreateJsonField(item, parentField);
     if (jsonField) return jsonField;
 
-    const namespace = item.namespaceURI;
+    const namespace = item.namespaceURI || '';
     const name = item.localName;
     const existing = XmlSchemaDocumentUtilService.getChildField(parentField, name, namespace);
     if (existing) return existing;

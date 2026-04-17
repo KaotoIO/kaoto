@@ -60,7 +60,7 @@ export type XmlSchemaParentType = XmlSchemaDocument | XmlSchemaField;
  */
 export class XmlSchemaField extends BaseField {
   fields: XmlSchemaField[] = [];
-  namespaceURI: string | null = null;
+  namespaceURI: string = '';
   namespacePrefix: string | null = null;
   minOccursExplicit: boolean = false;
   maxOccursExplicit: boolean = false;

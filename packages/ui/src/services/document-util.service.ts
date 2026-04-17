@@ -143,7 +143,7 @@ export class DocumentUtilService {
     field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
     field.name = info.qname.getLocalPart()!;
     field.displayName = info.displayName;
-    field.namespaceURI = info.qname.getNamespaceURI() || null;
+    field.namespaceURI = info.qname.getNamespaceURI();
     field.namespacePrefix = info.qname.getPrefix();
     field.type = info.type;
     field.typeQName = info.typeQName;
