@@ -8,7 +8,6 @@ import {
   Icon,
   MenuToggle,
   MenuToggleElement,
-  Modal,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -29,6 +28,7 @@ import { FieldOverrideVariant, IFieldTypeInfo } from '../../../../models/datamap
 import { MetadataContext } from '../../../../providers';
 import { formatQNameWithPrefix } from '../../../../services/namespace-util';
 import { SchemaPathService } from '../../../../services/schema-path.service';
+import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
 import { getFileName, pickAndValidateSchemaFiles } from '../utils';
 import { CandidateDisplay, getOverrideCandidates, OverrideMode } from './override-util';
 import { SchemaFileList } from './SchemaFileList';
@@ -92,30 +92,6 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
       setSelectedKey(null);
       setIsSelectOpen(false);
       setUploadedSchemas({});
-    };
-  }, []);
-
-  // Prevent @dnd-kit drag activation when modal is open.
-  // React synthetic events from portals bubble through the React tree, not DOM tree.
-  // Since this modal is rendered inside a draggable component, mousedown events
-  // would bubble to the useDraggable listeners. We use native capture-phase listeners
-  // to intercept events BEFORE they reach React's synthetic event system.
-  useEffect(() => {
-    const handleMouseDownCapture = (e: Event) => {
-      const target = e.target as HTMLElement;
-      // Stop propagation for any click on backdrop or modal content
-      if (target.closest('.pf-v6-c-backdrop') || target.closest('.pf-v6-c-modal-box')) {
-        e.stopPropagation();
-      }
-    };
-
-    // Capture phase (third parameter = true) runs before React synthetic events
-    document.addEventListener('mousedown', handleMouseDownCapture, true);
-    document.addEventListener('pointerdown', handleMouseDownCapture, true);
-
-    return () => {
-      document.removeEventListener('mousedown', handleMouseDownCapture, true);
-      document.removeEventListener('pointerdown', handleMouseDownCapture, true);
     };
   }, []);
 
@@ -237,7 +213,7 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
   );
 
   return (
-    <Modal
+    <DataMapperModal
       variant={ModalVariant.medium}
       isOpen
       onClose={onClose}
@@ -349,6 +325,6 @@ export const TypeOverrideModal: FunctionComponent<TypeOverrideModalProps> = ({
           Save
         </Button>
       </ModalFooter>
-    </Modal>
+    </DataMapperModal>
   );
 };
