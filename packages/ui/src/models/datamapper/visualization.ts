@@ -39,6 +39,8 @@ export interface NodeData {
   isSource: boolean;
   /** `true` when the owning document is a {@link PrimitiveDocument}. */
   isPrimitive: boolean;
+  /** `true` when this node represents a top-level document (source or target body). */
+  isDocument: boolean;
 }
 
 /**
@@ -80,6 +82,7 @@ export class DocumentNodeData implements NodeData {
   path: NodePath;
   isSource: boolean;
   isPrimitive: boolean;
+  isDocument = true;
 }
 
 /**
@@ -119,6 +122,7 @@ export class FieldNodeData implements NodeData {
   path: NodePath;
   isSource: boolean;
   isPrimitive: boolean;
+  isDocument = false;
 }
 
 /**
@@ -219,6 +223,7 @@ export class MappingNodeData implements TargetNodeData {
   path: NodePath;
   isSource = false;
   isPrimitive: boolean;
+  isDocument = false;
   mappingTree: MappingTree;
 }
 
@@ -281,6 +286,7 @@ export class AddMappingNodeData implements TargetNodeData {
   id: string;
   isPrimitive: boolean;
   isSource = false;
+  isDocument = false;
   mappingTree: MappingTree;
   path: NodePath;
   title: string;
@@ -304,6 +310,7 @@ export class EditorNodeData implements NodeData {
   id: string = 'editor';
   isPrimitive: boolean = false;
   isSource: boolean = false;
+  isDocument: boolean = false;
   path: NodePath = new SimpleNodePath('Editor');
   title: string = 'Editor';
 }
@@ -322,6 +329,7 @@ export class FunctionNodeData implements NodeData {
   id: string;
   isPrimitive: boolean = false;
   isSource: boolean = true;
+  isDocument: boolean = false;
   path: NodePath;
   title: string;
 }
@@ -355,3 +363,52 @@ export type LineProps = LineCoord & {
 
 /** Props passed to the alert notification handler. */
 export type SendAlertProps = Partial<AlertProps & { description: string }>;
+
+/**
+ * Enumeration of actions that can be performed on a target mapping node.
+ * Used as keys returned by {@link MappingActionService.getAllowedActions} to
+ * drive which UI controls are rendered for a given node.
+ */
+export enum MappingActionKind {
+  ContextMenu = 'conditionMenu',
+  ValueSelector = 'valueSelector',
+  If = 'if',
+  Choose = 'choose',
+  ForEach = 'forEach',
+  Delete = 'delete',
+  When = 'when',
+  Otherwise = 'otherwise',
+  Comment = 'comment',
+}
+
+/**
+ * Callbacks passed to {@link IMappingContextMenuAction.apply} so that action
+ * handlers can trigger side effects uniformly — both immediate actions
+ * (call service + `onUpdate`) and modal-based actions (`openModal`).
+ */
+export interface IMappingActionCallbacks {
+  onUpdate: () => void;
+  openModal: (kind: MappingActionKind) => void;
+}
+
+/**
+ * Base definition for a mapping action in the action registry.
+ * UI-only controls such as `ContextMenu` and `Delete` use this interface
+ * directly; context menu items extend it via {@link IMappingContextMenuAction}.
+ */
+export interface IMappingAction {
+  key: MappingActionKind;
+  isAllowed: (nodeData: TargetNodeData) => boolean;
+  isDisabled?: (nodeData: TargetNodeData) => boolean;
+}
+
+/**
+ * Extended action definition for items that appear in the mapping context menu.
+ * Each entry carries its own label, test ID, and apply callback so that the
+ * full action definition lives in one place in the registry.
+ */
+export interface IMappingContextMenuAction extends IMappingAction {
+  testId: string;
+  getLabel: (nodeData: TargetNodeData) => string;
+  apply: (nodeData: TargetNodeData, callbacks: IMappingActionCallbacks) => void;
+}

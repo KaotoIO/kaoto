@@ -33,6 +33,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
     const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
     const nodeData = treeNode.nodeData;
 
+    const isDocument = nodeData.isDocument;
     const hasChildren = VisualizationService.hasChildren(nodeData);
 
     const handleClickToggle = useCallback(
@@ -55,7 +56,6 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
       [toggleSelectedNode, nodePathString],
     );
 
-    const isDocument = VisualizationService.isDocumentNode(nodeData);
     const field = VisualizationService.getField(nodeData);
 
     const handleKeyDown = useCallback(

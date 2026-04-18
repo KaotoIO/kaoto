@@ -11,9 +11,9 @@ import {
 import { MappingService } from '../../../services/mapping.service';
 import { VisualizationService } from '../../../services/visualization.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
-import { ConditionMenuAction } from './ConditionMenuAction';
+import { MappingContextMenuAction } from './MappingContextMenuAction';
 
-describe('ConditionMenuAction', () => {
+describe('MappingContextMenuAction', () => {
   let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let mappingTree: MappingTree;
   let documentNodeData: TargetDocumentNodeData;
@@ -36,7 +36,7 @@ describe('ConditionMenuAction', () => {
     );
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(VisualizationService, 'applyValueSelector');
-    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
       fireEvent.click(actionToggle);
@@ -60,7 +60,7 @@ describe('ConditionMenuAction', () => {
     );
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(VisualizationService, 'applyIf');
-    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
       fireEvent.click(actionToggle);
@@ -84,7 +84,7 @@ describe('ConditionMenuAction', () => {
     );
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(VisualizationService, 'applyChooseWhenOtherwise');
-    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
       fireEvent.click(actionToggle);
@@ -104,7 +104,7 @@ describe('ConditionMenuAction', () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(MappingService, 'addWhen');
-    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
       fireEvent.click(actionToggle);
@@ -125,7 +125,7 @@ describe('ConditionMenuAction', () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(MappingService, 'addOtherwise');
-    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
       fireEvent.click(actionToggle);
@@ -150,7 +150,7 @@ describe('ConditionMenuAction', () => {
     );
     const onUpdateMock = jest.fn();
     const spyOnApply = jest.spyOn(VisualizationService, 'applyForEach');
-    render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
       fireEvent.click(actionToggle);
@@ -173,7 +173,7 @@ describe('ConditionMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
 
-    const wrapper = render(<ConditionMenuAction nodeData={nodeData} onUpdate={() => {}} />);
+    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
     const clickEvent = createEvent.click(actionToggle);
@@ -193,7 +193,7 @@ describe('ConditionMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
 
-    const wrapper = render(<ConditionMenuAction nodeData={nodeData} onUpdate={() => {}} />);
+    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
     act(() => {
       fireEvent.click(wrapper.getByTestId('transformation-actions-menu-toggle'));
@@ -214,7 +214,7 @@ describe('ConditionMenuAction', () => {
     const onUpdateSpy = jest.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const wrapper = render(
-      <ConditionMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
     );
 
     act(() => {
@@ -232,6 +232,52 @@ describe('ConditionMenuAction', () => {
     await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
   });
 
+  it('should apply If from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
+    const onUpdateSpy = jest.fn();
+    const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
+    const spyOnApply = jest.spyOn(VisualizationService, 'applyIf');
+    const wrapper = render(
+      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+    );
+
+    act(() => {
+      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+    });
+
+    act(() => {
+      const ifItem = wrapper.getByTestId('transformation-actions-if');
+      const ifButton = ifItem.getElementsByTagName('button');
+      fireEvent.click(ifButton[0]);
+    });
+
+    await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
+    expect(spyOnApply).toHaveBeenCalledWith(nodeData);
+  });
+
+  it('should apply Choose from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
+    const onUpdateSpy = jest.fn();
+    const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
+    const spyOnApply = jest.spyOn(VisualizationService, 'applyChooseWhenOtherwise');
+    const wrapper = render(
+      <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
+    );
+
+    act(() => {
+      const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
+      fireEvent.click(actionToggle);
+    });
+
+    act(() => {
+      const chooseItem = wrapper.getByTestId('transformation-actions-choose');
+      const chooseButton = chooseItem.getElementsByTagName('button');
+      fireEvent.click(chooseButton[0]);
+    });
+
+    await waitFor(() => expect(onUpdateSpy).toHaveBeenCalled());
+    expect(spyOnApply).toHaveBeenCalledWith(nodeData);
+  });
+
   describe('Comment Functionality', () => {
     describe('Comment Dropdown Item Rendering', () => {
       it('should render comment dropdown item when nodeData has a mapping item', () => {
@@ -241,7 +287,7 @@ describe('ConditionMenuAction', () => {
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
         const onUpdateMock = jest.fn();
-        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -258,7 +304,7 @@ describe('ConditionMenuAction', () => {
         fieldItem.comment = 'Existing comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = jest.fn();
-        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -279,7 +325,7 @@ describe('ConditionMenuAction', () => {
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
         const onUpdateMock = jest.fn();
-        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -301,11 +347,11 @@ describe('ConditionMenuAction', () => {
     });
 
     describe('CommentModal Rendering', () => {
-      it('should render CommentModal when mappingItem exists', () => {
+      it('should render CommentModal when mappingItem exists', async () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = jest.fn();
-        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -319,8 +365,9 @@ describe('ConditionMenuAction', () => {
           fireEvent.click(commentItem.getElementsByTagName('button')[0]);
         });
 
-        // Modal should be rendered
-        expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
+        });
       });
 
       it('should pass correct mapping to CommentModal', () => {
@@ -328,7 +375,7 @@ describe('ConditionMenuAction', () => {
         fieldItem.comment = 'Test comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = jest.fn();
-        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -353,7 +400,7 @@ describe('ConditionMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = jest.fn();
-        render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -380,45 +427,45 @@ describe('ConditionMenuAction', () => {
           expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
         });
       });
+    });
 
-      describe('Comment Modal Integration', () => {
-        it('should update comment and close modal when Create is clicked', async () => {
-          const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-          const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
-          const onUpdateMock = jest.fn();
-          render(<ConditionMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+    describe('Comment Modal Integration', () => {
+      it('should update comment and close modal when Create is clicked', async () => {
+        const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+        const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
+        const onUpdateMock = jest.fn();
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
-          // Open the dropdown menu
-          const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-          act(() => {
-            fireEvent.click(actionToggle);
-          });
-
-          // Click the comment item to open modal
-          const commentItem = screen.getByTestId('transformation-actions-comment');
-          act(() => {
-            fireEvent.click(commentItem.getElementsByTagName('button')[0]);
-          });
-
-          // Add a comment
-          const textarea = screen.getByTestId('comment-textarea');
-          act(() => {
-            fireEvent.change(textarea, { target: { value: 'New test comment' } });
-          });
-
-          const createButton = screen.getByTestId('create-comment-btn');
-          act(() => {
-            fireEvent.click(createButton);
-          });
-
-          // Modal should close
-          await waitFor(() => {
-            expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
-          });
-
-          // Comment should be set
-          expect(fieldItem.comment).toBe('New test comment');
+        // Open the dropdown menu
+        const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+        act(() => {
+          fireEvent.click(actionToggle);
         });
+
+        // Click the comment item to open modal
+        const commentItem = screen.getByTestId('transformation-actions-comment');
+        act(() => {
+          fireEvent.click(commentItem.getElementsByTagName('button')[0]);
+        });
+
+        // Add a comment
+        const textarea = screen.getByTestId('comment-textarea');
+        act(() => {
+          fireEvent.change(textarea, { target: { value: 'New test comment' } });
+        });
+
+        const createButton = screen.getByTestId('create-comment-btn');
+        act(() => {
+          fireEvent.click(createButton);
+        });
+
+        // Modal should close
+        await waitFor(() => {
+          expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+        });
+
+        // Comment should be set
+        expect(fieldItem.comment).toBe('New test comment');
       });
     });
   });

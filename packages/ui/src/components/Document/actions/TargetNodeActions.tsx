@@ -3,10 +3,10 @@ import './TargetNodeActions.scss';
 import { ActionListGroup } from '@patternfly/react-core';
 import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
 
-import { TargetNodeData } from '../../../models/datamapper/visualization';
-import { VisualizationService } from '../../../services/visualization.service';
-import { ConditionMenuAction } from './ConditionMenuAction';
+import { MappingActionKind, TargetNodeData } from '../../../models/datamapper/visualization';
+import { MappingActionService, VisualizationService } from '../../../services/visualization.service';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
+import { MappingContextMenuAction } from './MappingContextMenuAction';
 import { XPathEditorAction } from './XPathEditorAction';
 import { XPathInputAction } from './XPathInputAction';
 
@@ -18,8 +18,7 @@ type TargetNodeActionsProps = {
 
 export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ className, nodeData, onUpdate }) => {
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
-  const allowConditionMenu = VisualizationService.allowConditionMenu(nodeData);
-  const isDeletable = VisualizationService.isDeletableNode(nodeData);
+  const allowedActions = new Set(MappingActionService.getAllowedActions(nodeData));
 
   const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
     event.stopPropagation();
@@ -33,8 +32,12 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
           <XPathEditorAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
         </>
       )}
-      {allowConditionMenu && <ConditionMenuAction nodeData={nodeData} onUpdate={onUpdate} />}
-      {isDeletable && <DeleteMappingItemAction nodeData={nodeData} onDelete={onUpdate} />}
+      {allowedActions.has(MappingActionKind.ContextMenu) && (
+        <MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdate} />
+      )}
+      {allowedActions.has(MappingActionKind.Delete) && (
+        <DeleteMappingItemAction nodeData={nodeData} onDelete={onUpdate} />
+      )}
     </ActionListGroup>
   );
 };

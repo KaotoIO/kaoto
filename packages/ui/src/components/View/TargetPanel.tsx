@@ -7,12 +7,12 @@ import { useConnectionPortSync } from '../../hooks/useConnectionPortSync.hook';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
-import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
+import { MappingActionKind, TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingActionService, VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
-import { ConditionMenuAction } from '../Document/actions/ConditionMenuAction';
 import { DeleteMappingItemAction } from '../Document/actions/DeleteMappingItemAction';
+import { MappingContextMenuAction } from '../Document/actions/MappingContextMenuAction';
 import { XPathEditorAction } from '../Document/actions/XPathEditorAction';
 import { XPathInputAction } from '../Document/actions/XPathInputAction';
 import { DocumentHeader } from '../Document/BaseDocument';
@@ -107,6 +107,7 @@ export const TargetPanel: FunctionComponent = () => {
   // Actions for target body document
   const documentActions = useMemo(() => {
     const actions = [...edgeMarkers];
+    const allowedActions = new Set(MappingActionService.getAllowedActions(targetBodyNodeData));
 
     // XPath actions for primitive target body with mapping
     if (expressionItem) {
@@ -122,12 +123,14 @@ export const TargetPanel: FunctionComponent = () => {
     }
 
     // Condition menu (kebab menu) before delete
-    if (VisualizationService.allowConditionMenu(targetBodyNodeData)) {
-      actions.push(<ConditionMenuAction key="condition-menu" nodeData={targetBodyNodeData} onUpdate={handleUpdate} />);
+    if (allowedActions.has(MappingActionKind.ContextMenu)) {
+      actions.push(
+        <MappingContextMenuAction key="condition-menu" nodeData={targetBodyNodeData} onUpdate={handleUpdate} />,
+      );
     }
 
     // Delete action comes last (bin icon at the end)
-    if (expressionItem && VisualizationService.isDeletableNode(targetBodyNodeData)) {
+    if (expressionItem && allowedActions.has(MappingActionKind.Delete)) {
       actions.push(
         <DeleteMappingItemAction key="delete-mapping" nodeData={targetBodyNodeData} onDelete={handleUpdate} />,
       );

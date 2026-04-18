@@ -21,7 +21,7 @@ type FieldOverrideProps = {
  * Dedicated component for field override operations (type override and element substitution).
  * Wraps FieldOverrideModal with save/remove handlers, consolidating
  * the override logic that was previously duplicated across
- * SourceDocumentNode, TargetNodeActions, and ConditionMenuAction.
+ * SourceDocumentNode, TargetNodeActions, and MappingContextMenuAction.
  */
 export const FieldOverride: FunctionComponent<FieldOverrideProps> = ({ field, isOpen, onClose, onComplete }) => {
   const { mappingTree, updateDocument } = useDataMapper();

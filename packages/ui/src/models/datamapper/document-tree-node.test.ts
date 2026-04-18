@@ -13,6 +13,7 @@ describe('DocumentTreeNode', () => {
       path: new NodePath('sourceBody:docId://'),
       isSource: true,
       isPrimitive: false,
+      isDocument: false,
     };
 
     mockChildNodeData = {
@@ -21,6 +22,7 @@ describe('DocumentTreeNode', () => {
       path: NodePath.childOf(mockNodeData.path, 'child-1'),
       isSource: true,
       isPrimitive: false,
+      isDocument: false,
     };
   });
 
@@ -54,6 +56,7 @@ describe('DocumentTreeNode', () => {
         path: nodePath,
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
 
       const node = new DocumentTreeNode(nodeData);
@@ -93,6 +96,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
 
       const childNodeData3: NodeData = {
@@ -101,6 +105,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-3'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
 
       const child1 = parentNode.addChild(mockChildNodeData);
@@ -141,6 +146,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const child2 = parentNode.addChild(childNodeData2);
 
@@ -197,6 +203,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'level1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const level1Node = rootNode.addChild(level1NodeData);
 
@@ -206,6 +213,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(level1NodeData.path, 'level2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const level2Node = level1Node.addChild(level2NodeData);
 
@@ -215,6 +223,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(level2NodeData.path, 'level3'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const level3Node = level2Node.addChild(level3NodeData);
 
@@ -231,6 +240,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'level1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       rootNode.addChild(level1NodeData);
 
@@ -248,6 +258,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       parentNode.addChild(child1Data);
 
@@ -257,6 +268,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const child2 = parentNode.addChild(child2Data);
 
@@ -266,6 +278,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-3'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       parentNode.addChild(child3Data);
 
@@ -284,6 +297,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'branch1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const branch1 = rootNode.addChild(branch1Data);
 
@@ -293,6 +307,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(branch1Data.path, 'leaf1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       branch1.addChild(leaf1Data);
 
@@ -303,6 +318,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'branch2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const branch2 = rootNode.addChild(branch2Data);
 
@@ -312,6 +328,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(branch2Data.path, 'leaf2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const leaf2 = branch2.addChild(leaf2Data);
 
@@ -327,6 +344,7 @@ describe('DocumentTreeNode', () => {
         path: new NodePath('targetBody:targetDoc://'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const targetNode = new DocumentTreeNode(targetNodeData);
 
@@ -373,6 +391,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'child-2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       node.addChild(child2Data);
 
@@ -397,6 +416,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'level1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const level1 = root.addChild(level1Data);
 
@@ -406,6 +426,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(level1Data.path, 'level2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const level2 = level1.addChild(level2Data);
 
@@ -422,6 +443,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'level1'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const level1 = root.addChild(level1Data);
 
@@ -431,6 +453,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(level1Data.path, 'level2'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       level1.addChild(level2Data);
 
@@ -450,6 +473,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'parent-1'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const parentNode = rootNode.addChild(parentData);
 
@@ -459,6 +483,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(parentData.path, 'choice-1'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const choiceNode = parentNode.addChild(choiceData);
 
@@ -476,6 +501,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(mockNodeData.path, 'parent-1'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const parentNode = rootNode.addChild(parentData);
 
@@ -485,6 +511,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(parentData.path, 'outer-choice-1'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const outerChoiceNode = parentNode.addChild(outerChoiceData);
 
@@ -494,6 +521,7 @@ describe('DocumentTreeNode', () => {
         path: NodePath.childOf(outerChoiceData.path, 'inner-choice-1'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const innerChoiceNode = outerChoiceNode.addChild(innerChoiceData);
 
@@ -515,6 +543,7 @@ describe('DocumentTreeNode', () => {
         path: new NodePath('sourceBody:primitiveDoc://'),
         isSource: true,
         isPrimitive: true,
+        isDocument: false,
       };
       const node = new DocumentTreeNode(primitiveNodeData);
 
@@ -528,6 +557,7 @@ describe('DocumentTreeNode', () => {
         path: new NodePath('targetBody:targetDoc://'),
         isSource: false,
         isPrimitive: false,
+        isDocument: false,
       };
       const node = new DocumentTreeNode(targetNodeData);
 
@@ -541,6 +571,7 @@ describe('DocumentTreeNode', () => {
         path: new NodePath('param:globalVar://'),
         isSource: true,
         isPrimitive: false,
+        isDocument: false,
       };
       const node = new DocumentTreeNode(paramNodeData);
 
