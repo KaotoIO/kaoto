@@ -37,8 +37,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     const isExpanded = useDocumentTreeStore((state) => state.isExpanded(documentId, treeNode.path));
     const nodeData = treeNode.nodeData as TargetDocumentNodeData;
 
-    const isPrimitive = useMemo(() => VisualizationService.isPrimitiveDocumentNode(nodeData), [nodeData]);
-    const hasChildren = useMemo(() => VisualizationService.hasChildren(nodeData), [nodeData]);
+    const isDocument = nodeData.isDocument;
+    const isPrimitive = nodeData.isDocument && nodeData.isPrimitive;
+    const hasChildren = VisualizationService.hasChildren(nodeData);
 
     const handleClickToggle = useCallback(
       (event: MouseEvent) => {
@@ -50,7 +51,6 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     );
 
     const nodePathString = nodeData.path.toString();
-    const isDocument = VisualizationService.isDocumentNode(nodeData);
     const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
     const field = VisualizationService.getField(nodeData);
     const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;

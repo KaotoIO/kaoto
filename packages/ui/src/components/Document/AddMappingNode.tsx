@@ -7,7 +7,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { AddMappingNodeData } from '../../models/datamapper/visualization';
 import { VisualizationService } from '../../services/visualization.service';
-import { ConditionMenuAction } from './actions/ConditionMenuAction';
+import { MappingContextMenuAction } from './actions/MappingContextMenuAction';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle/NodeTitle';
 
@@ -54,7 +54,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
                 Add Mapping
               </Button>
             </ActionListItem>
-            <ConditionMenuAction
+            <MappingContextMenuAction
               nodeData={nodeData}
               dropdownLabel="Add Conditional Mapping"
               onUpdate={refreshMappingTree}

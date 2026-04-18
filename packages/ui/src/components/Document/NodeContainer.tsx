@@ -5,7 +5,7 @@ import { isDefined } from '@kaoto/forms';
 import clsx from 'clsx';
 import { forwardRef, FunctionComponent, PropsWithChildren, useContext, useMemo } from 'react';
 
-import { DocumentNodeData, NodeData } from '../../models/datamapper/visualization';
+import { NodeData } from '../../models/datamapper/visualization';
 import { DataMapperDndContext } from '../../providers/datamapper-dnd.provider';
 import { MappingValidationService } from '../../services/mapping-validation.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -100,7 +100,7 @@ type NodeContainerProps = PropsWithChildren & {
 
 export const NodeContainer = forwardRef<HTMLDivElement, NodeContainerProps>(
   ({ children, className, nodeData, enableDnD = true }, forwardedRef) => {
-    return enableDnD && nodeData && !(nodeData instanceof DocumentNodeData && !nodeData.isPrimitive) ? (
+    return enableDnD && nodeData && !(nodeData.isDocument && !nodeData.isPrimitive) ? (
       <div ref={forwardedRef} className={className}>
         <DnDContainer nodeData={nodeData}>{children}</DnDContainer>
       </div>
