@@ -25,27 +25,41 @@ import { JsonSchemaDocumentService } from './json-schema-document.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 
+const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+
+function createSubstitutionDoc() {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
+  });
+  definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'AbstractAnimal' };
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create substitution test document');
+  }
+  return result.document;
+}
+
+function makeChoiceField(parent: XmlSchemaField, memberNames: string[]) {
+  const choiceField = new XmlSchemaField(parent, 'choice', false);
+  choiceField.wrapperKind = 'choice';
+  choiceField.fields = memberNames.map((n) => new XmlSchemaField(choiceField, n, false));
+  return choiceField;
+}
+
+function createNoNsSubstitutionDoc() {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'FieldSubstitutionNoNs.xsd': getFieldSubstitutionNoNsXsd(),
+  });
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(
+      result.errors?.map((e) => e.message).join('; ') || 'Failed to create no-namespace substitution test document',
+    );
+  }
+  return result.document;
+}
+
 describe('FieldOverrideService', () => {
-  const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
-
-  function createSubstitutionDoc() {
-    const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
-      'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
-    });
-    definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'AbstractAnimal' };
-    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-    if (result.validationStatus !== 'success' || !result.document) {
-      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create substitution test document');
-    }
-    return result.document;
-  }
-
-  function makeChoiceField(parent: XmlSchemaField, memberNames: string[]) {
-    const choiceField = new XmlSchemaField(parent, 'choice', false);
-    choiceField.wrapperKind = 'choice';
-    choiceField.fields = memberNames.map((n) => new XmlSchemaField(choiceField, n, false));
-    return choiceField;
-  }
   describe('getSafeOverrideCandidates()', () => {
     it('should return all types for xs:anyType fields', () => {
       const doc = TestUtil.createSourceOrderDoc();
@@ -895,22 +909,6 @@ describe('FieldOverrideService', () => {
   });
 
   describe('applyFieldSubstitution() and revertFieldSubstitution() - blank namespace', () => {
-    function createNoNsSubstitutionDoc() {
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.XML_SCHEMA,
-        'test-doc',
-        { 'FieldSubstitutionNoNs.xsd': getFieldSubstitutionNoNsXsd() },
-      );
-      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      if (result.validationStatus !== 'success' || !result.document) {
-        throw new Error(
-          result.errors?.map((e) => e.message).join('; ') || 'Failed to create no-namespace substitution test document',
-        );
-      }
-      return result.document;
-    }
-
     it('should apply Cat substitution to blank-namespace field', () => {
       const doc = createNoNsSubstitutionDoc();
       const abstractAnimalField = doc.fields[0];

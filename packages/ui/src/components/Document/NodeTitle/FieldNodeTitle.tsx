@@ -15,7 +15,7 @@ import {
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
 } from '../../../models/datamapper/visualization';
-import { getOverrideDisplayInfo } from '../actions/FieldTypeOverride/override-util';
+import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
 
 type FieldNodeTitleProps = {
   className?: string;
