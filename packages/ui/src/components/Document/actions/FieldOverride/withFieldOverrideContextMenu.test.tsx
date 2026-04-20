@@ -416,7 +416,7 @@ describe('withFieldOverrideContextMenu', () => {
     it('should call revertFieldSubstitution when clicking Reset Override on a selected abstract field', () => {
       const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode();
 
-      const revertSpy = jest.spyOn(FieldTypeOverrideService, 'revertFieldSubstitution');
+      const revertSpy = jest.spyOn(FieldOverrideService, 'revertFieldSubstitution');
 
       render(
         <SourceDocumentNodeWithContextMenu

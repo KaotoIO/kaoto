@@ -46,7 +46,12 @@ export const FieldOverride: FunctionComponent<FieldOverrideProps> = ({ field, is
       if (payload.mode === 'substitution') {
         FieldOverrideService.applyFieldSubstitution(field, payload.selectedKey, namespaceMap);
       } else {
-        FieldOverrideService.applyFieldTypeOverride(field, payload.selectedType, namespaceMap, FieldOverrideVariant.SAFE);
+        FieldOverrideService.applyFieldTypeOverride(
+          field,
+          payload.selectedType,
+          namespaceMap,
+          FieldOverrideVariant.SAFE,
+        );
       }
 
       updateDocument(document, document.definition, previousRefId);
