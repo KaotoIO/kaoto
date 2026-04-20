@@ -768,6 +768,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
+      const allowSpy = jest.spyOn(VisualizationService, 'allowValueSelector').mockReturnValue(true);
       const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
 
       act(() => {
@@ -781,9 +782,39 @@ describe('TargetDocumentNode', () => {
         fireEvent.doubleClick(nodeContainer);
       });
 
+      expect(allowSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).toHaveBeenCalledTimes(1);
 
+      allowSpy.mockRestore();
+      applyValueSelectorSpy.mockRestore();
+    });
+
+    it('should not call applyValueSelector when allowValueSelector is false', () => {
+      const document = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+
+      const allowSpy = jest.spyOn(VisualizationService, 'allowValueSelector').mockReturnValue(false);
+      const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
+      });
+
+      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
+      expect(nodeContainer).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.doubleClick(nodeContainer);
+      });
+
+      expect(allowSpy).toHaveBeenCalledWith(documentNodeData);
+      expect(applyValueSelectorSpy).not.toHaveBeenCalled();
+
+      allowSpy.mockRestore();
       applyValueSelectorSpy.mockRestore();
     });
   });

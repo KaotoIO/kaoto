@@ -44,4 +44,56 @@ describe('XPathInputAction', () => {
 
     waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
   });
+
+  it('should focus input on mount when expression is empty', async () => {
+    const emptyMapping = { ...mapping, expression: '' };
+    render(<XPathInputAction mapping={emptyMapping} onUpdate={jest.fn()} />);
+
+    const input = await screen.findByTestId('transformation-xpath-input');
+
+    expect(input).toHaveFocus();
+  });
+
+  it('should NOT focus input on mount if expression already exists', async () => {
+    const filledMapping = { ...mapping, expression: 'existing/xpath' };
+    render(<XPathInputAction mapping={filledMapping} onUpdate={jest.fn()} />);
+
+    const input = await screen.findByTestId('transformation-xpath-input');
+
+    expect(input).not.toHaveFocus();
+  });
+
+  it('should only focus once and respect the hasFocusedRef guard', async () => {
+    const emptyMapping = { ...mapping, expression: '' };
+    const { rerender } = render(<XPathInputAction mapping={emptyMapping} onUpdate={jest.fn()} />);
+
+    const input = await screen.findByTestId('transformation-xpath-input');
+    expect(input).toHaveFocus();
+
+    act(() => {
+      input.blur();
+    });
+    expect(input).not.toHaveFocus();
+
+    rerender(<XPathInputAction mapping={emptyMapping} onUpdate={jest.fn()} />);
+
+    expect(input).not.toHaveFocus();
+  });
+
+  it('should not focus when expression changes if already focused once', async () => {
+    const emptyMapping = { ...mapping, expression: '' };
+    const { rerender } = render(<XPathInputAction mapping={emptyMapping} onUpdate={jest.fn()} />);
+
+    const input = await screen.findByTestId('transformation-xpath-input');
+    expect(input).toHaveFocus();
+
+    act(() => {
+      input.blur();
+    });
+
+    const newMapping = { ...mapping, expression: 'new/path' };
+    rerender(<XPathInputAction mapping={newMapping} onUpdate={jest.fn()} />);
+
+    expect(input).not.toHaveFocus();
+  });
 });

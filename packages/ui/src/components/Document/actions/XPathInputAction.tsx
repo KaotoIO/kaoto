@@ -13,7 +13,7 @@ import {
   TextInput,
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../../models/datamapper/mapping';
 import { XPathService } from '../../../services/xpath/xpath.service';
@@ -25,6 +25,8 @@ type XPathInputProps = {
 };
 export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, onUpdate }) => {
   const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const hasFocusedRef = useRef(false);
 
   const validateXPath = useCallback(() => {
     const result = XPathService.validate(mapping.expression);
@@ -34,6 +36,20 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
   useEffect(() => {
     validateXPath();
   }, [validateXPath]);
+
+  // Focus on creation of mapping input field (only once on mount and if mapping.expression is empty)
+  useEffect(() => {
+    if (hasFocusedRef.current) {
+      return;
+    }
+
+    if (mapping.expression && mapping.expression.length > 0) {
+      return;
+    }
+
+    inputRef.current?.focus();
+    hasFocusedRef.current = true;
+  }, [mapping.expression]);
 
   const handleXPathChange = useCallback(
     (event: FormEvent, value: string) => {
@@ -68,6 +84,7 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
       <InputGroup>
         <InputGroupItem className="input-group__text">
           <TextInput
+            ref={inputRef}
             data-testid="transformation-xpath-input"
             id="xpath"
             type="text"
