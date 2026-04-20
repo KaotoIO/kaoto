@@ -94,3 +94,50 @@ describe('SplitPanel - Width Constraints', () => {
     expect(maxPanel).toHaveStyle({ width: '90%' });
   });
 });
+
+describe('SplitPanel - Accessibility', () => {
+  it('should render as semantic section element', () => {
+    const { container } = render(
+      <SplitPanel width={30} position="left">
+        <div>Test Content</div>
+      </SplitPanel>,
+    );
+
+    const panel = container.querySelector('.split-panel');
+    expect(panel?.tagName).toBe('SECTION');
+  });
+
+  it('should have default aria-label and id based on position', () => {
+    const { container: leftContainer } = render(
+      <SplitPanel width={30} position="left">
+        <div>Left Content</div>
+      </SplitPanel>,
+    );
+
+    const leftPanel = leftContainer.querySelector('.split-panel');
+    expect(leftPanel).toHaveAttribute('aria-label', 'Left panel');
+    expect(leftPanel).toHaveAttribute('id', 'left-panel');
+
+    const { container: rightContainer } = render(
+      <SplitPanel width={70} position="right">
+        <div>Right Content</div>
+      </SplitPanel>,
+    );
+
+    const rightPanel = rightContainer.querySelector('.split-panel');
+    expect(rightPanel).toHaveAttribute('aria-label', 'Right panel');
+    expect(rightPanel).toHaveAttribute('id', 'right-panel');
+  });
+
+  it('should accept custom aria-label and id', () => {
+    const { container } = render(
+      <SplitPanel width={30} position="left" ariaLabel="Custom panel label" id="custom-panel-id">
+        <div>Test Content</div>
+      </SplitPanel>,
+    );
+
+    const panel = container.querySelector('.split-panel');
+    expect(panel).toHaveAttribute('aria-label', 'Custom panel label');
+    expect(panel).toHaveAttribute('id', 'custom-panel-id');
+  });
+});
