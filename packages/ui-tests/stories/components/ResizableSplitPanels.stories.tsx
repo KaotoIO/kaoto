@@ -7,11 +7,42 @@ export default {
   component: ResizableSplitPanels,
   parameters: {
     layout: 'fullscreen',
+    docs: {
+      description: {
+        component: `
+ResizableSplitPanels provides a two-panel layout with a draggable resize handle.
+
+## Accessibility Features
+
+- **Keyboard accessible**: Use arrow keys to resize panels, Tab to focus the handle
+- **Screen reader support**: Proper ARIA labels and live region announcements
+- **Focus visible**: Clear focus indicators for keyboard navigation
+
+Supports mouse drag and keyboard resize with Home/End for min/max widths.
+        `,
+      },
+    },
   },
   argTypes: {
     defaultLeftWidth: {
       control: { type: 'range', min: 10, max: 90, step: 5 },
       description: 'Default width percentage for the left panel (10-90)',
+    },
+    leftPanelId: {
+      control: 'text',
+      description: 'Custom ID for the left panel',
+    },
+    rightPanelId: {
+      control: 'text',
+      description: 'Custom ID for the right panel',
+    },
+    leftPanelLabel: {
+      control: 'text',
+      description: 'Custom aria-label for the left panel',
+    },
+    rightPanelLabel: {
+      control: 'text',
+      description: 'Custom aria-label for the right panel',
     },
   },
 } as Meta<typeof ResizableSplitPanels>;
@@ -22,7 +53,6 @@ const Template: StoryFn<typeof ResizableSplitPanels> = (args) => (
   </div>
 );
 
-// Default - Basic two-panel layout
 export const Default = Template.bind({});
 Default.args = {
   leftPanel: (
@@ -42,7 +72,6 @@ Default.args = {
   defaultLeftWidth: 30,
 };
 
-// Equal Split - 50/50 layout
 export const EqualSplit = Template.bind({});
 EqualSplit.args = {
   leftPanel: (
@@ -60,7 +89,6 @@ EqualSplit.args = {
   defaultLeftWidth: 50,
 };
 
-// With Scrollable Content
 export const WithScrollableContent = Template.bind({});
 WithScrollableContent.args = {
   leftPanel: (

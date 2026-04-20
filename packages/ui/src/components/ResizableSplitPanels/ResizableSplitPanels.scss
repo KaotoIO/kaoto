@@ -1,6 +1,19 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
 
+// Screen reader only utility class
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 .resizable-split-panels {
   // CSS custom properties as single source of truth for handle dimensions
   --resize-handle-width: #{$spacing-05}; // 16px
@@ -19,7 +32,7 @@
     padding: 0;
     font: inherit;
     color: inherit;
-    outline: inherit;
+    outline: none;
     width: var(--resize-handle-width);
     flex-shrink: 0;
     display: flex;
@@ -47,6 +60,29 @@
     [data-resizing] & {
       svg {
         opacity: 1;
+      }
+    }
+
+    // Focus indicator for keyboard navigation
+    &:focus-visible {
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
+      outline: 2px solid $focus;
+      outline-offset: 2px;
+      /* stylelint-disable declaration-property-value-no-unknown */
+      box-shadow:
+        inset 0 0 0 2px $background,
+        inset 0 0 0 4px $focus;
+      /* stylelint-enable declaration-property-value-no-unknown */
+
+      svg {
+        opacity: 1;
+      }
+    }
+
+    // Respect reduced motion preferences
+    @media (prefers-reduced-motion: reduce) {
+      svg {
+        transition: none;
       }
     }
   }
