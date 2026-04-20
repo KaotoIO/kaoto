@@ -59,6 +59,40 @@ function createNoNsSubstitutionDoc() {
   return result.document;
 }
 
+const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+
+function createSubstitutionDoc() {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'FieldSubstitution.xsd': getFieldSubstitutionXsd(),
+  });
+  definition.rootElementChoice = { namespaceUri: NS_SUBSTITUTION, name: 'AbstractAnimal' };
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create substitution test document');
+  }
+  return result.document;
+}
+
+function makeChoiceField(parent: XmlSchemaField, memberNames: string[]) {
+  const choiceField = new XmlSchemaField(parent, 'choice', false);
+  choiceField.wrapperKind = 'choice';
+  choiceField.fields = memberNames.map((n) => new XmlSchemaField(choiceField, n, false));
+  return choiceField;
+}
+
+function createNoNsSubstitutionDoc() {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'FieldSubstitutionNoNs.xsd': getFieldSubstitutionNoNsXsd(),
+  });
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(
+      result.errors?.map((e) => e.message).join('; ') || 'Failed to create no-namespace substitution test document',
+    );
+  }
+  return result.document;
+}
+
 describe('FieldOverrideService', () => {
   describe('getSafeOverrideCandidates()', () => {
     it('should return all types for xs:anyType fields', () => {
