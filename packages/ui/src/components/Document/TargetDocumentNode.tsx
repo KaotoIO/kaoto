@@ -71,7 +71,13 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     );
 
     const handleDoubleClickField = useCallback(() => {
-      VisualizationService.applyValueSelector(nodeData as TargetNodeData);
+      const allowValueSelector = VisualizationService.allowValueSelector(nodeData);
+
+      if (!allowValueSelector) {
+        return;
+      }
+
+      VisualizationService.applyValueSelector(nodeData);
       handleUpdate();
     }, [nodeData, handleUpdate]);
 
