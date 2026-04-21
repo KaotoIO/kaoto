@@ -28,7 +28,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
     <ActionListGroup key={`target-node-actions-${nodeData.id}`} onKeyDown={handleStopPropagation} className={className}>
       {expressionItem && (
         <>
-          <XPathInputAction mapping={expressionItem} onUpdate={onUpdate} />
+          <XPathInputAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
           <XPathEditorAction nodeData={nodeData} mapping={expressionItem} onUpdate={onUpdate} />
         </>
       )}

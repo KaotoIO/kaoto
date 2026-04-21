@@ -112,7 +112,12 @@ export const TargetPanel: FunctionComponent = () => {
     // XPath actions for primitive target body with mapping
     if (expressionItem) {
       actions.push(
-        <XPathInputAction key="xpath-input" mapping={expressionItem} onUpdate={handleUpdate} />,
+        <XPathInputAction
+          key="xpath-input"
+          nodeData={targetBodyNodeData}
+          mapping={expressionItem}
+          onUpdate={handleUpdate}
+        />,
         <XPathEditorAction
           key="xpath-editor"
           nodeData={targetBodyNodeData}
