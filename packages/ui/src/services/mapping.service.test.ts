@@ -300,6 +300,18 @@ describe('MappingService', () => {
       consoleSpy.mockRestore();
       extractSpy.mockRestore();
     });
+
+    it("should not remove for-each targeted field when it doesn't have children", () => {
+      const shipOrderItem = tree.children[0];
+      const forEachItem = shipOrderItem.children[3];
+      expect(forEachItem).toBeInstanceOf(ForEachItem);
+      shipOrderItem.children = [forEachItem];
+      const itemItem = forEachItem.children[0];
+      itemItem.children = [];
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'newParam');
+      expect(forEachItem.children.length).toEqual(1);
+      expect(forEachItem.children[0]).toBe(itemItem);
+    });
   });
 
   describe('renameParameterInMappings()', () => {

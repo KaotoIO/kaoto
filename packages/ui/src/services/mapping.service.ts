@@ -102,7 +102,8 @@ export class MappingService {
       ) {
         return acc;
       }
-      if (child instanceof FieldItem && child.children.length === 0) return acc;
+      if (!(child.parent instanceof InstructionItem) && child instanceof FieldItem && child.children.length === 0)
+        return acc;
       acc.push(child);
       return acc;
     }, [] as MappingItem[]);
