@@ -16,6 +16,7 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { AlertVariant, Label } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef, useState } from 'react';
 
@@ -212,14 +213,8 @@ export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps>
         onDragCancel={clearActiveDrag}
       >
         {props.children}
-        <DragOverlay dropAnimation={null}>
-          <div
-            className={'pf-v6-c-draggable node__row dragging-container'}
-            data-dnd-dragging={draggingLabel}
-            style={{ pointerEvents: 'none' }}
-          >
-            <Label>{draggingLabel}</Label>
-          </div>
+        <DragOverlay className="drag-overlay" modifiers={[snapCenterToCursor]} dropAnimation={null}>
+          <Label data-dnd-dragging={draggingLabel}>{draggingLabel}</Label>
         </DragOverlay>
       </DndContext>
     </DataMapperDndContext.Provider>
