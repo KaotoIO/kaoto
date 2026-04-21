@@ -37,6 +37,7 @@ import {
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../models/datamapper/visualization';
+import { useDocumentTreeStore } from '../store/document-tree.store';
 import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
 import { MappingService } from './mapping.service';
@@ -505,6 +506,7 @@ export class VisualizationService {
     if (!mapping.children.some((c: MappingItem) => c instanceof ValueSelector)) {
       const valueSelector = MappingService.createValueSelector(mapping);
       mapping.children.push(valueSelector);
+      useDocumentTreeStore.getState().requestXPathInputFocus(nodeData.path.toString());
     }
   }
 

@@ -16,17 +16,24 @@ import { ExclamationCircleIcon, ExclamationTriangleIcon } from '@patternfly/reac
 import { FormEvent, FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../../models/datamapper/mapping';
+import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { XPathService } from '../../../services/xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../../../services/xpath/xpath-model';
+import { useDocumentTreeStore } from '../../../store/document-tree.store';
 
 type XPathInputProps = {
+  nodeData: TargetNodeData;
   mapping: IExpressionHolder;
   onUpdate: () => void;
 };
-export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, onUpdate }) => {
+export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData, mapping, onUpdate }) => {
   const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
   const inputRef = useRef<HTMLInputElement>(null);
-  const hasFocusedRef = useRef(false);
+  const nodePathString = nodeData.path.toString();
+
+  // Check if this mapping should receive focus from the store
+  const shouldFocus = useDocumentTreeStore((state) => state.shouldFocusXPathInput(nodePathString));
+  const clearFocusRequest = useDocumentTreeStore((state) => state.clearXPathInputFocusRequest);
 
   const validateXPath = useCallback(() => {
     const result = XPathService.validate(mapping.expression);
@@ -37,19 +44,13 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ mapping, 
     validateXPath();
   }, [validateXPath]);
 
-  // Focus on creation of mapping input field (only once on mount and if mapping.expression is empty)
+  // Focus input field when store indicates this mapping should be focused
   useEffect(() => {
-    if (hasFocusedRef.current) {
-      return;
+    if (shouldFocus && inputRef.current) {
+      inputRef.current.focus();
+      clearFocusRequest();
     }
-
-    if (mapping.expression && mapping.expression.length > 0) {
-      return;
-    }
-
-    inputRef.current?.focus();
-    hasFocusedRef.current = true;
-  }, [mapping.expression]);
+  }, [shouldFocus, clearFocusRequest]);
 
   const handleXPathChange = useCallback(
     (event: FormEvent, value: string) => {

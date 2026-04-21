@@ -29,6 +29,7 @@ describe('useDocumentTreeStore', () => {
       nodesConnectionPorts: {},
       selectedNodePath: null,
       selectedNodeIsSource: false,
+      targetXPathInputForFocus: null,
     });
   });
 
@@ -229,6 +230,61 @@ describe('useDocumentTreeStore', () => {
       const state = useDocumentTreeStore.getState();
 
       expect(state.expansionState[documentId][nodePath]).toBe(true);
+    });
+  });
+
+  describe('XPath input focus management', () => {
+    it('should match XPath input focus paths with different random suffixes', () => {
+      useDocumentTreeStore
+        .getState()
+        .requestXPathInputFocus('targetBody:Body://fj-map-1255-2922/fj-map-Address-6894-3031/fj-string-City-1404-3876');
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(
+        'targetBody:Body://fj-map-1255/fj-map-Address-6894/fj-string-City-1404',
+      );
+      expect(
+        useDocumentTreeStore
+          .getState()
+          .shouldFocusXPathInput(
+            'targetBody:Body://fj-map-1255-9999/fj-map-Address-6894-1111/fj-string-City-1404-2222',
+          ),
+      ).toBe(true);
+    });
+
+    it('should match target field and field item paths for the same field', () => {
+      useDocumentTreeStore
+        .getState()
+        .requestXPathInputFocus('targetBody:Body://fj-map-Address-6894/fj-string-City-8276');
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(
+        'targetBody:Body://fj-map-Address-6894/fj-string-City-8276',
+      );
+      expect(
+        useDocumentTreeStore
+          .getState()
+          .shouldFocusXPathInput('targetBody:Body://fj-map-Address-6894/fj-string-City-8276-4288'),
+      ).toBe(true);
+    });
+
+    it('should clear XPath input focus request', () => {
+      useDocumentTreeStore
+        .getState()
+        .requestXPathInputFocus('targetBody:Body://fj-map-1255-2922/fj-map-Address-6894-3031/fj-string-City-1404-3876');
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(
+        'targetBody:Body://fj-map-1255/fj-map-Address-6894/fj-string-City-1404',
+      );
+
+      useDocumentTreeStore.getState().clearXPathInputFocusRequest();
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
+      expect(
+        useDocumentTreeStore
+          .getState()
+          .shouldFocusXPathInput(
+            'targetBody:Body://fj-map-1255-9999/fj-map-Address-6894-1111/fj-string-City-1404-2222',
+          ),
+      ).toBe(false);
     });
   });
 
