@@ -184,6 +184,17 @@ export class OtherwiseItem extends InstructionItem {
   }
 }
 
+const extractContextPath = (item: ForEachItem | ForEachGroupItem) => {
+  const answer = XPathService.extractFieldPaths(item.expression)[0];
+  if (answer) {
+    const pathExpr = new PathExpression(item.parent.contextPath, answer.isRelative);
+    pathExpr.pathSegments = answer.pathSegments;
+    pathExpr.documentReferenceName = answer.documentReferenceName;
+    return pathExpr;
+  }
+  return item.parent.contextPath;
+};
+
 /**
  * Represents an `xsl:for-each` instruction.
  * {@link expression} selects the node-set to iterate over.
@@ -198,14 +209,7 @@ export class ForEachItem extends InstructionItem implements IExpressionHolder {
   expression = '';
 
   get contextPath(): PathExpression | undefined {
-    const answer = XPathService.extractFieldPaths(this.expression)[0];
-    if (answer) {
-      const pathExpr = new PathExpression(this.parent.contextPath, answer.isRelative);
-      pathExpr.pathSegments = answer.pathSegments;
-      pathExpr.documentReferenceName = answer.documentReferenceName;
-      return pathExpr;
-    }
-    return this.parent.contextPath;
+    return extractContextPath(this);
   }
 
   sortItems: SortItem[] = [];
@@ -224,6 +228,56 @@ export class ForEachItem extends InstructionItem implements IExpressionHolder {
   clone() {
     const cloned = super.clone() as ForEachItem;
     cloned.expression = this.expression;
+    return cloned;
+  }
+}
+
+/** Selects which grouping attribute is emitted on `xsl:for-each-group`. */
+export enum GroupingStrategy {
+  GROUP_BY = 'group-by',
+  GROUP_ADJACENT = 'group-adjacent',
+  GROUP_STARTING_WITH = 'group-starting-with',
+  GROUP_ENDING_WITH = 'group-ending-with',
+}
+
+/**
+ * Represents an `xsl:for-each-group` instruction.
+ * {@link expression} selects the population to group; {@link groupingStrategy}
+ * and {@link groupingExpression} control the grouping attribute.
+ * Overrides {@link contextPath} so that descendant XPath expressions
+ * are evaluated relative to each group.
+ */
+export class ForEachGroupItem extends InstructionItem implements IExpressionHolder {
+  constructor(public parent: MappingParentType) {
+    super(parent, 'for-each-group');
+  }
+
+  expression = '';
+  groupingStrategy: GroupingStrategy = GroupingStrategy.GROUP_BY;
+  groupingExpression = '';
+
+  get contextPath(): PathExpression | undefined {
+    return extractContextPath(this);
+  }
+
+  sortItems: SortItem[] = [];
+
+  doClone() {
+    const cloned = new ForEachGroupItem(this.parent);
+    cloned.sortItems = this.sortItems.map((sort) => {
+      return {
+        expression: sort.expression,
+        order: sort.order,
+      } as SortItem;
+    });
+    return cloned;
+  }
+
+  clone() {
+    const cloned = super.clone() as ForEachGroupItem;
+    cloned.expression = this.expression;
+    cloned.groupingStrategy = this.groupingStrategy;
+    cloned.groupingExpression = this.groupingExpression;
     return cloned;
   }
 }
