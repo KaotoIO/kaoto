@@ -1,6 +1,6 @@
 import { PathExpression, PathSegment } from '../models/datamapper';
 import { IDocument, IField } from '../models/datamapper/document';
-import { DocumentUtilService } from './document-util.service';
+import { DocumentUtilService } from './document/document-util.service';
 import { ensureNamespaceRegistered, getPrefixForNamespaceURI } from './namespace-util';
 import { XPathService } from './xpath/xpath.service';
 

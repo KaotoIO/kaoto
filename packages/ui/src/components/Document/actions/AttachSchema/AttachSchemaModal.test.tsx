@@ -12,7 +12,7 @@ import {
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { DocumentService } from '../../../../services/document.service';
+import { DocumentService } from '../../../../services/document/document.service';
 import { BrowserFilePickerMetadataProvider } from '../../../../stubs/BrowserFilePickerMetadataProvider';
 import {
   getMultiIncludeComponentAXsd,

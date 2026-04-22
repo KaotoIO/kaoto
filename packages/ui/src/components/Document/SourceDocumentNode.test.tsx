@@ -13,9 +13,9 @@ import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { ChoiceFieldNodeData, DocumentNodeData } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { TreeParsingService } from '../../services/tree-parsing.service';
-import { TreeUIService } from '../../services/tree-ui.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
+import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { SourceDocumentNode } from './SourceDocumentNode';
@@ -104,7 +104,7 @@ describe('SourceDocumentNode', () => {
     TreeParsingService.parseTree(tree);
 
     const findCollectionField = (node: typeof tree.root): typeof tree.root | undefined => {
-      if (VisualizationService.isCollectionField(node.nodeData)) {
+      if (VisualizationUtilService.isCollectionField(node.nodeData)) {
         return node;
       }
       for (const child of node.children) {
@@ -139,7 +139,7 @@ describe('SourceDocumentNode', () => {
     TreeParsingService.parseTree(tree);
 
     const findAttributeField = (node: typeof tree.root): typeof tree.root | undefined => {
-      if (VisualizationService.isAttributeField(node.nodeData)) {
+      if (VisualizationUtilService.isAttributeField(node.nodeData)) {
         return node;
       }
       for (const child of node.children) {

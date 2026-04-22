@@ -1,6 +1,6 @@
 import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { FieldOverrideService } from '../../../../services/field-override.service';
+import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { formatQNameWithPrefix, formatWithPrefix } from '../../../../services/namespace-util';
 
 export interface OverrideDisplayInfo {

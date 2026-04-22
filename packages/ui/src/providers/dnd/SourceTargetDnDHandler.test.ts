@@ -2,19 +2,19 @@ import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { NodeData } from '../../models/datamapper/visualization';
-import { MappingValidationService } from '../../services/mapping-validation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
 import { SourceTargetDnDHandler } from './SourceTargetDnDHandler';
 
-jest.mock('../../services/mapping-validation.service', () => ({
+jest.mock('../../services/visualization/mapping-validation.service', () => ({
   MappingValidationService: {
     validateMappingPair: jest.fn(),
     isDraggable: jest.fn(),
   },
 }));
 
-jest.mock('../../services/visualization.service', () => ({
-  VisualizationService: {
+jest.mock('../../services/visualization/mapping-action.service', () => ({
+  MappingActionService: {
     engageMapping: jest.fn(),
   },
 }));
@@ -39,7 +39,7 @@ describe('SourceTargetDnDHandler', () => {
     mockMappingTree = {} as MappingTree;
     mockOnUpdate = jest.fn();
     mockValidateMappingPair = MappingValidationService.validateMappingPair as jest.Mock;
-    mockEngageMapping = VisualizationService.engageMapping as jest.Mock;
+    mockEngageMapping = MappingActionService.engageMapping as jest.Mock;
     mockIsDraggable = MappingValidationService.isDraggable as jest.Mock;
   });
 

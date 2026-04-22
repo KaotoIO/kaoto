@@ -11,19 +11,20 @@ import {
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingTree, VariableItem } from '../../models/datamapper/mapping';
+import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
   DocumentNodeData,
-  MappingActionKind,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { TreeParsingService } from '../../services/tree-parsing.service';
-import { TreeUIService } from '../../services/tree-ui.service';
-import { MappingActionService, VisualizationService } from '../../services/visualization.service';
+import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
+import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { TargetDocumentNode } from './TargetDocumentNode';
@@ -112,7 +113,7 @@ describe('TargetDocumentNode', () => {
     TreeParsingService.parseTree(tree);
 
     const findCollectionField = (node: typeof tree.root): typeof tree.root | undefined => {
-      if (VisualizationService.isCollectionField(node.nodeData)) {
+      if (VisualizationUtilService.isCollectionField(node.nodeData)) {
         return node;
       }
       for (const child of node.children) {
@@ -142,7 +143,7 @@ describe('TargetDocumentNode', () => {
     TreeParsingService.parseTree(tree);
 
     const findAttributeField = (node: typeof tree.root): typeof tree.root | undefined => {
-      if (VisualizationService.isAttributeField(node.nodeData)) {
+      if (VisualizationUtilService.isAttributeField(node.nodeData)) {
         return node;
       }
       for (const child of node.children) {
@@ -772,7 +773,7 @@ describe('TargetDocumentNode', () => {
       const getAllowedActionsSpy = jest
         .spyOn(MappingActionService, 'getAllowedActions')
         .mockReturnValue([MappingActionKind.ValueSelector]);
-      const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
+      const applyValueSelectorSpy = jest.spyOn(MappingActionService, 'applyValueSelector');
 
       act(() => {
         render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
@@ -801,7 +802,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
 
       const getAllowedActionsSpy = jest.spyOn(MappingActionService, 'getAllowedActions').mockReturnValue([]);
-      const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
+      const applyValueSelectorSpy = jest.spyOn(MappingActionService, 'applyValueSelector');
 
       act(() => {
         render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });

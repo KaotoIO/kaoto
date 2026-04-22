@@ -1,6 +1,6 @@
 import { DocumentDefinition, IDocument, IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { FieldOverrideService } from '../../../../services/field-override.service';
+import { FieldOverrideService } from '../../../../services/document/field-override.service';
 
 /**
  * Revert a field override (type override or substitution) without opening the modal.

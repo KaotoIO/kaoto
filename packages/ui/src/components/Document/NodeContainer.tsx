@@ -7,8 +7,8 @@ import { forwardRef, FunctionComponent, PropsWithChildren, useContext, useMemo }
 
 import { NodeData } from '../../models/datamapper/visualization';
 import { DataMapperDndContext } from '../../providers/datamapper-dnd.provider';
-import { MappingValidationService } from '../../services/mapping-validation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
+import { VisualizationService } from '../../services/visualization/visualization.service';
 
 type DnDContainerProps = PropsWithChildren & {
   nodeData: NodeData;

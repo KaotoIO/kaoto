@@ -7,7 +7,7 @@ import {
   PredicateOperator,
   PredicateOperatorSymbol,
 } from '../../models/datamapper/xpath';
-import { DocumentUtilService } from '../document-util.service';
+import { DocumentUtilService } from '../document/document-util.service';
 import { getPrefixForNamespaceURI } from '../namespace-util';
 import { XPATH_2_0_FUNCTIONS } from './2.0/xpath-2.0-functions';
 import { XPath2Parser } from './2.0/xpath-2.0-parser';

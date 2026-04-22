@@ -3,8 +3,9 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, MouseEventHandler, 
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { TreeUIService } from '../../services/tree-ui.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
+import { VisualizationService } from '../../services/visualization/visualization.service';
+import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
 import { withFieldOverrideContextMenu } from './actions/FieldOverride/withFieldOverrideContextMenu';
@@ -56,7 +57,7 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
       [toggleSelectedNode, nodePathString],
     );
 
-    const field = VisualizationService.getField(nodeData);
+    const field = VisualizationUtilService.getField(nodeData);
 
     const handleKeyDown = useCallback(
       (event: KeyboardEvent) => handleNodeKeyDown(event, () => toggleSelectedNode(nodePathString, true)),

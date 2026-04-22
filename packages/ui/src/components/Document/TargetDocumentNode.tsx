@@ -4,14 +4,12 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, MouseEventHandler, 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingItem } from '../../models/datamapper/mapping';
-import {
-  AddMappingNodeData,
-  MappingActionKind,
-  TargetDocumentNodeData,
-  TargetNodeData,
-} from '../../models/datamapper/visualization';
-import { TreeUIService } from '../../services/tree-ui.service';
-import { MappingActionService, VisualizationService } from '../../services/visualization.service';
+import { MappingActionKind } from '../../models/datamapper/mapping-action';
+import { AddMappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
+import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
+import { VisualizationService } from '../../services/visualization/visualization.service';
+import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
@@ -57,7 +55,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
 
     const nodePathString = nodeData.path.toString();
     const showNodeActions = useMemo(() => (isDocument && isPrimitive) || !isDocument, [isDocument, isPrimitive]);
-    const field = VisualizationService.getField(nodeData);
+    const field = VisualizationUtilService.getField(nodeData);
     const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 
     const { mappingTree, refreshMappingTree } = useDataMapper();
@@ -84,7 +82,7 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
         return;
       }
 
-      VisualizationService.applyValueSelector(nodeData);
+      MappingActionService.applyValueSelector(nodeData);
       handleUpdate();
     }, [nodeData, handleUpdate]);
 

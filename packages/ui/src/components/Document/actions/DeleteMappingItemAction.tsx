@@ -13,7 +13,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useToggle } from '../../../hooks/useToggle';
 import { InstructionItem } from '../../../models/datamapper/mapping';
 import { TargetNodeData, VariableNodeData } from '../../../models/datamapper/visualization';
-import { VisualizationService } from '../../../services/visualization.service';
+import { MappingActionService } from '../../../services/visualization/mapping-action.service';
 
 type DeleteItemProps = {
   nodeData: TargetNodeData;
@@ -24,7 +24,7 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   const { state: isModalOpen, toggleOn: openModal, toggleOff: closeModal } = useToggle(false);
 
   const onConfirmDelete = useCallback(() => {
-    VisualizationService.deleteMappingItem(nodeData);
+    MappingActionService.deleteMappingItem(nodeData);
     onDelete();
     closeModal();
   }, [closeModal, nodeData, onDelete]);

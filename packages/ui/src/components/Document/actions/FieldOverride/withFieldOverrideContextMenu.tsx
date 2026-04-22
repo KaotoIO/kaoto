@@ -4,7 +4,7 @@ import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../../../models/datamapper/document-tree-node';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
 import { AbstractFieldNodeData, TargetAbstractFieldNodeData } from '../../../../models/datamapper/visualization';
-import { VisualizationService } from '../../../../services/visualization.service';
+import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { FieldContextMenu } from '../FieldContextMenu';
 import { FieldOverride } from './FieldOverride';
 import { revertOverride } from './revert-override';
@@ -33,7 +33,7 @@ export function withFieldOverrideContextMenu<P extends WithTreeNode>(
     const { mappingTree, updateDocument, refreshMappingTree } = useDataMapper();
 
     const nodeData = treeNode.nodeData;
-    const field = VisualizationService.getField(nodeData);
+    const field = VisualizationUtilService.getField(nodeData);
     const abstractWrapperField =
       nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData
         ? nodeData.abstractField

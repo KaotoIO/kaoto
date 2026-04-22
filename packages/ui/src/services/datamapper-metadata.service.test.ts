@@ -9,8 +9,8 @@ import { FieldOverrideVariant } from '../models/datamapper/types';
 import { IMetadataApi } from '../providers';
 import { getCommonTypesJsonSchema, getCustomerJsonSchema, getOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
-import { JsonSchemaDocumentService } from './json-schema-document.service';
-import { EMPTY_XSL } from './mapping-serializer.service';
+import { JsonSchemaDocumentService } from './document/json-schema/json-schema-document.service';
+import { EMPTY_XSL } from './mapping/mapping-serializer.service';
 
 describe('DataMapperMetadataService', () => {
   let mockApi: jest.Mocked<IMetadataApi>;

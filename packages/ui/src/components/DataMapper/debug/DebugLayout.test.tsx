@@ -8,8 +8,8 @@ import { MappingLinksProvider } from '../../../providers/data-mapping-links.prov
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DatamapperDndProvider } from '../../../providers/datamapper-dnd.provider';
 import { SourceTargetDnDHandler } from '../../../providers/dnd/SourceTargetDnDHandler';
-import { MappingLinksService } from '../../../services/mapping-links.service';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
+import { MappingLinksService } from '../../../services/visualization/mapping-links.service';
 import { useDocumentTreeStore } from '../../../store';
 import { getShipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DebugLayout } from './DebugLayout';

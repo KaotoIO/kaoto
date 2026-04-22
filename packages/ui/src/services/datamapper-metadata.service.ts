@@ -12,7 +12,7 @@ import {
   IFieldTypeOverride,
 } from '../models/datamapper/metadata';
 import { IMetadataApi } from '../providers';
-import { EMPTY_XSL } from './mapping-serializer.service';
+import { EMPTY_XSL } from './mapping/mapping-serializer.service';
 
 /**
  * Service for managing DataMapper metadata  {@link IDataMapperMetadata} stored in the .kaoto file.

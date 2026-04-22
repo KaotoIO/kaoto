@@ -3,8 +3,10 @@ import './TargetNodeActions.scss';
 import { ActionListGroup } from '@patternfly/react-core';
 import { FunctionComponent, KeyboardEvent, MouseEvent, useCallback } from 'react';
 
-import { MappingActionKind, TargetNodeData } from '../../../models/datamapper/visualization';
-import { MappingActionService, VisualizationService } from '../../../services/visualization.service';
+import { MappingActionKind } from '../../../models/datamapper/mapping-action';
+import { TargetNodeData } from '../../../models/datamapper/visualization';
+import { MappingActionService } from '../../../services/visualization/mapping-action.service';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
 import { XPathEditorAction } from './XPathEditorAction';

@@ -13,7 +13,7 @@ import {
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../../models/datamapper/visualization';
-import { VisualizationService } from '../../../services/visualization.service';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { FieldNodeTitle } from './FieldNodeTitle';
 import { UnknownMappingLabel } from './UnknownMappingLabel';
 

@@ -20,7 +20,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { DocumentService } from '../../../services/document.service';
+import { DocumentService } from '../../../services/document/document.service';
 
 type DeleteSchemaProps = {
   documentType: DocumentType;

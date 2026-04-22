@@ -8,7 +8,7 @@ import {
 } from '../../models/datamapper/document';
 import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
 import { getCartXsd, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
-import { XmlSchemaDocumentService } from '../xml-schema-document.service';
+import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { LiteralNode, XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
 import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
 import { XPathService } from './xpath.service';

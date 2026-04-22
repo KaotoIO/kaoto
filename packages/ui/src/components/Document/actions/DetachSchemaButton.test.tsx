@@ -5,7 +5,7 @@ import { useDataMapper } from '../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DocumentService } from '../../../services/document.service';
+import { DocumentService } from '../../../services/document/document.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DetachSchemaButton } from './DetachSchemaButton';
 

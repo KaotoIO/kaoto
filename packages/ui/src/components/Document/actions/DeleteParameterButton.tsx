@@ -5,7 +5,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { useToggle } from '../../../hooks/useToggle';
 import { DocumentType } from '../../../models/datamapper/document';
-import { MappingService } from '../../../services/mapping.service';
+import { MappingService } from '../../../services/mapping/mapping.service';
 
 type DeleteParameterProps = {
   parameterName: string;

@@ -3,7 +3,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { IField } from '../../../../models/datamapper/document';
 import { FieldOverrideVariant } from '../../../../models/datamapper/types';
-import { FieldOverrideService } from '../../../../services/field-override.service';
+import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { FieldOverrideModal, OverrideSavePayload } from './FieldOverrideModal';
 import { revertOverride } from './revert-override';
 

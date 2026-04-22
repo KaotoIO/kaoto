@@ -13,8 +13,8 @@ import {
 } from '../models/datamapper/document';
 import { FieldItem, ForEachItem, MappingTree, ValueSelector } from '../models/datamapper/mapping';
 import { CanvasView } from '../models/datamapper/view';
-import { DocumentService } from '../services/document.service';
-import { MappingService } from '../services/mapping.service';
+import { DocumentService } from '../services/document/document.service';
+import { MappingService } from '../services/mapping/mapping.service';
 import {
   getAccountJsonSchema,
   getCartJsonSchema,
