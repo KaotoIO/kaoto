@@ -506,7 +506,7 @@ export class VisualizationService {
     if (!mapping.children.some((c: MappingItem) => c instanceof ValueSelector)) {
       const valueSelector = MappingService.createValueSelector(mapping);
       mapping.children.push(valueSelector);
-      useDocumentTreeStore.getState().requestXPathInputFocus(nodeData.path.toString());
+      useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
     }
   }
 

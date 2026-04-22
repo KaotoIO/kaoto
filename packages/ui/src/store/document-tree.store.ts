@@ -3,7 +3,6 @@ import { shallow } from 'zustand/shallow';
 import { createWithEqualityFn } from 'zustand/traditional';
 
 import { DocumentTree } from '../models/datamapper/document-tree';
-import { PathUtil } from '../services/path-util';
 import { processTreeNode } from '../utils';
 
 /** [NodePath]: expansion state */
@@ -26,9 +25,9 @@ export interface DocumentTreeState {
   selectedNodeIsSource: boolean;
 
   /**
-   * Stable node path of the XPath input field that should receive focus.
-   * Uses stable paths (via PathUtil.toStableNodePath) to match nodes reliably
-   * across re-renders. Automatically cleared after the input receives focus.
+   * Mapping-tree node path of the XPath input field that should receive focus.
+   * Matched by exact equality against the mapping's {@link MappingItem.nodePath}.
+   * Automatically cleared after the input receives focus.
    */
   targetXPathInputForFocus: string | null;
 
@@ -50,23 +49,13 @@ export interface DocumentTreeState {
   clearSelection: () => void;
   isNodeSelected: (nodePath: string, isSource: boolean) => boolean;
 
-  /**
-   * Request focus on the XPath input field for the specified target node.
-   * Converts the node path to a stable identifier to ensure reliable matching
-   * even if the component re-renders with different random suffixes.
-   */
+  /** Request focus on the XPath input for the given mapping-tree node path. */
   requestXPathInputFocus: (nodePath: string) => void;
 
-  /**
-   * Clear the XPath input focus request after it has been applied.
-   * Should be called immediately after the input field receives focus.
-   */
+  /** Clear the focus request after the input has received focus. */
   clearXPathInputFocusRequest: () => void;
 
-  /**
-   * Check if the XPath input for this node path should receive focus.
-   * Compares stable node paths to handle random suffix variations.
-   */
+  /** Check if the XPath input for this mapping-tree node path should receive focus. */
   shouldFocusXPathInput: (nodePath: string) => boolean;
 }
 
@@ -152,18 +141,16 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         return get().selectedNodePath === nodePath && get().selectedNodeIsSource === isSource;
       },
 
-      requestXPathInputFocus: (nodePath: string) => {
-        set({ targetXPathInputForFocus: PathUtil.toStableNodePath(nodePath) });
+      requestXPathInputFocus: (mappingNodePath: string) => {
+        set({ targetXPathInputForFocus: mappingNodePath });
       },
 
       clearXPathInputFocusRequest: () => {
         set({ targetXPathInputForFocus: null });
       },
 
-      shouldFocusXPathInput: (nodePath: string) => {
-        const storedPath = get().targetXPathInputForFocus;
-        if (!storedPath) return false;
-        return PathUtil.isSameStableNodePath(storedPath, nodePath);
+      shouldFocusXPathInput: (mappingNodePath: string) => {
+        return get().targetXPathInputForFocus === mappingNodePath;
       },
     }),
     { name: 'Document Tree Store' },
