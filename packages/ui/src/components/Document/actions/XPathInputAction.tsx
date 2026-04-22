@@ -29,10 +29,10 @@ type XPathInputProps = {
 export const XPathInputAction: FunctionComponent<XPathInputProps> = ({ nodeData, mapping, onUpdate }) => {
   const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
   const inputRef = useRef<HTMLInputElement>(null);
-  const nodePathString = nodeData.path.toString();
+  const mappingNodePath = nodeData.mapping?.nodePath.toString() ?? '';
 
   // Check if this mapping should receive focus from the store
-  const shouldFocus = useDocumentTreeStore((state) => state.shouldFocusXPathInput(nodePathString));
+  const shouldFocus = useDocumentTreeStore((state) => state.shouldFocusXPathInput(mappingNodePath));
   const clearFocusRequest = useDocumentTreeStore((state) => state.clearXPathInputFocusRequest);
 
   const validateXPath = useCallback(() => {

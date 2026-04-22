@@ -234,57 +234,37 @@ describe('useDocumentTreeStore', () => {
   });
 
   describe('XPath input focus management', () => {
-    it('should match XPath input focus paths with different random suffixes', () => {
-      useDocumentTreeStore
-        .getState()
-        .requestXPathInputFocus('targetBody:Body://fj-map-1255-2922/fj-map-Address-6894-3031/fj-string-City-1404-3876');
+    it('should request focus for exact mapping node path', () => {
+      const mappingNodePath = 'targetBody:Body://fj-map-1255/fj-map-Address-6894/fj-string-City-1404';
 
-      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(
-        'targetBody:Body://fj-map-1255/fj-map-Address-6894/fj-string-City-1404',
-      );
-      expect(
-        useDocumentTreeStore
-          .getState()
-          .shouldFocusXPathInput(
-            'targetBody:Body://fj-map-1255-9999/fj-map-Address-6894-1111/fj-string-City-1404-2222',
-          ),
-      ).toBe(true);
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath);
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(mappingNodePath);
+      expect(useDocumentTreeStore.getState().shouldFocusXPathInput(mappingNodePath)).toBe(true);
     });
 
-    it('should match target field and field item paths for the same field', () => {
-      useDocumentTreeStore
-        .getState()
-        .requestXPathInputFocus('targetBody:Body://fj-map-Address-6894/fj-string-City-8276');
+    it('should not match different mapping node paths', () => {
+      const mappingNodePath1 = 'targetBody:Body://fj-map-Address-6894/fj-string-City-8276';
+      const mappingNodePath2 = 'targetBody:Body://fj-map-Address-6894/fj-string-Name-1234';
 
-      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(
-        'targetBody:Body://fj-map-Address-6894/fj-string-City-8276',
-      );
-      expect(
-        useDocumentTreeStore
-          .getState()
-          .shouldFocusXPathInput('targetBody:Body://fj-map-Address-6894/fj-string-City-8276-4288'),
-      ).toBe(true);
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath1);
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(mappingNodePath1);
+      expect(useDocumentTreeStore.getState().shouldFocusXPathInput(mappingNodePath1)).toBe(true);
+      expect(useDocumentTreeStore.getState().shouldFocusXPathInput(mappingNodePath2)).toBe(false);
     });
 
     it('should clear XPath input focus request', () => {
-      useDocumentTreeStore
-        .getState()
-        .requestXPathInputFocus('targetBody:Body://fj-map-1255-2922/fj-map-Address-6894-3031/fj-string-City-1404-3876');
+      const mappingNodePath = 'targetBody:Body://fj-map-1255/fj-map-Address-6894/fj-string-City-1404';
 
-      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(
-        'targetBody:Body://fj-map-1255/fj-map-Address-6894/fj-string-City-1404',
-      );
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath);
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(mappingNodePath);
 
       useDocumentTreeStore.getState().clearXPathInputFocusRequest();
 
       expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
-      expect(
-        useDocumentTreeStore
-          .getState()
-          .shouldFocusXPathInput(
-            'targetBody:Body://fj-map-1255-9999/fj-map-Address-6894-1111/fj-string-City-1404-2222',
-          ),
-      ).toBe(false);
+      expect(useDocumentTreeStore.getState().shouldFocusXPathInput(mappingNodePath)).toBe(false);
     });
   });
 

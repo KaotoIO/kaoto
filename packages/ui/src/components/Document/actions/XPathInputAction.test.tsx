@@ -55,42 +55,11 @@ describe('XPathInputAction', () => {
     waitFor(() => expect(stopPropagationSpy).toHaveBeenCalled());
   });
 
-  it('should focus input when store indicates focus is needed for nodeData path', async () => {
+  it('should focus input when store indicates focus is needed for mapping node path', async () => {
     mapping.expression = '';
 
-    useDocumentTreeStore.getState().requestXPathInputFocus(docData.path.toString());
-
-    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
-
-    const input = await screen.findByTestId('transformation-xpath-input');
-
-    expect(input).toHaveFocus();
-    expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
-  });
-
-  it('should focus input when stored path matches nodeData path after stable normalization', async () => {
-    mapping.expression = '';
-
-    useDocumentTreeStore
-      .getState()
-      .requestXPathInputFocus('targetBody:Body://fj-map-1255-2922/fj-map-Address-6894-3031/fj-string-City-1404-3876');
-
-    docData.path.pathSegments = ['fj-map-1255-1111', 'fj-map-Address-6894-3333', 'fj-string-City-1404-5555'];
-
-    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
-
-    const input = await screen.findByTestId('transformation-xpath-input');
-
-    expect(input).toHaveFocus();
-    expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
-  });
-
-  it('should focus input when stored target field path matches field item path for the same field', async () => {
-    mapping.expression = '';
-
-    useDocumentTreeStore.getState().requestXPathInputFocus('targetBody:Body://fj-map-Address-6894/fj-string-City-8276');
-
-    docData.path.pathSegments = ['fj-map-Address-6894', 'fj-string-City-8276-4288'];
+    // Request focus using the tree's nodePath (which is what nodeData.mapping.nodePath refers to)
+    useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
 
     render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
 
@@ -113,7 +82,7 @@ describe('XPathInputAction', () => {
   it('should only focus when store flag is set', async () => {
     mapping.expression = '';
 
-    useDocumentTreeStore.getState().requestXPathInputFocus(docData.path.toString());
+    useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
 
     const { rerender } = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
 
@@ -133,7 +102,7 @@ describe('XPathInputAction', () => {
   it('should not focus when expression changes without store flag', async () => {
     mapping.expression = '';
 
-    useDocumentTreeStore.getState().requestXPathInputFocus(docData.path.toString());
+    useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
 
     const { rerender } = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
 

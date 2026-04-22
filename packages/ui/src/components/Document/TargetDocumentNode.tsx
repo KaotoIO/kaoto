@@ -4,9 +4,14 @@ import { FunctionComponent, KeyboardEvent, memo, MouseEvent, MouseEventHandler, 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingItem } from '../../models/datamapper/mapping';
-import { AddMappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
+import {
+  AddMappingNodeData,
+  MappingActionKind,
+  TargetDocumentNodeData,
+  TargetNodeData,
+} from '../../models/datamapper/visualization';
 import { TreeUIService } from '../../services/tree-ui.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingActionService, VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
@@ -71,7 +76,9 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
     );
 
     const handleDoubleClickField = useCallback(() => {
-      const allowValueSelector = VisualizationService.allowValueSelector(nodeData);
+      const allowValueSelector = MappingActionService.getAllowedActions(nodeData).includes(
+        MappingActionKind.ValueSelector,
+      );
 
       if (!allowValueSelector) {
         return;

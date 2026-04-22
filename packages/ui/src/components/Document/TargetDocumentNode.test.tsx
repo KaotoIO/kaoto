@@ -14,6 +14,7 @@ import { MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   DocumentNodeData,
+  MappingActionKind,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   VariableNodeData,
@@ -22,7 +23,7 @@ import { MappingLinksProvider } from '../../providers/data-mapping-links.provide
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { TreeParsingService } from '../../services/tree-parsing.service';
 import { TreeUIService } from '../../services/tree-ui.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingActionService, VisualizationService } from '../../services/visualization.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { TargetDocumentNode } from './TargetDocumentNode';
@@ -768,7 +769,9 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const allowSpy = jest.spyOn(VisualizationService, 'allowValueSelector').mockReturnValue(true);
+      const getAllowedActionsSpy = jest
+        .spyOn(MappingActionService, 'getAllowedActions')
+        .mockReturnValue([MappingActionKind.ValueSelector]);
       const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
 
       act(() => {
@@ -782,11 +785,11 @@ describe('TargetDocumentNode', () => {
         fireEvent.doubleClick(nodeContainer);
       });
 
-      expect(allowSpy).toHaveBeenCalledWith(documentNodeData);
+      expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).toHaveBeenCalledTimes(1);
 
-      allowSpy.mockRestore();
+      getAllowedActionsSpy.mockRestore();
       applyValueSelectorSpy.mockRestore();
     });
 
@@ -797,7 +800,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const allowSpy = jest.spyOn(VisualizationService, 'allowValueSelector').mockReturnValue(false);
+      const getAllowedActionsSpy = jest.spyOn(MappingActionService, 'getAllowedActions').mockReturnValue([]);
       const applyValueSelectorSpy = jest.spyOn(VisualizationService, 'applyValueSelector');
 
       act(() => {
@@ -811,10 +814,10 @@ describe('TargetDocumentNode', () => {
         fireEvent.doubleClick(nodeContainer);
       });
 
-      expect(allowSpy).toHaveBeenCalledWith(documentNodeData);
+      expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
       expect(applyValueSelectorSpy).not.toHaveBeenCalled();
 
-      allowSpy.mockRestore();
+      getAllowedActionsSpy.mockRestore();
       applyValueSelectorSpy.mockRestore();
     });
   });
