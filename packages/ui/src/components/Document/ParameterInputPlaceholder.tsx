@@ -5,7 +5,7 @@ import { qname } from 'xml-name-validator';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
-import { DocumentService } from '../../services/document.service';
+import { DocumentService } from '../../services/document/document.service';
 import { ParameterInput } from './ParameterInput';
 
 enum ParameterNameValidation {

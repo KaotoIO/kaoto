@@ -26,7 +26,7 @@ import {
 } from '../../../../models/datamapper/document';
 import { MetadataContext } from '../../../../providers';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
-import { DocumentService } from '../../../../services/document.service';
+import { DocumentService } from '../../../../services/document/document.service';
 import { createSchemaFileItems, getFileExtension, isJsonExtension, pickAndValidateSchemaFiles } from '../utils';
 import { RootElementSelect } from './RootElementSelect';
 import { SchemaFileDataList } from './SchemaFileDataList';

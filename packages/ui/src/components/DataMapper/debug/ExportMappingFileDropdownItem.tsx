@@ -6,7 +6,7 @@ import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
 import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
 
 export const ExportMappingFileDropdownItem: FunctionComponent<{

@@ -11,8 +11,8 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
-import { JsonSchemaDocumentService } from '../../services/json-schema-document.service';
-import { XmlSchemaDocumentService } from '../../services/xml-schema-document.service';
+import { JsonSchemaDocumentService } from '../../services/document/json-schema/json-schema-document.service';
+import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
 
 export const datamapperRouteDefinitionStub = parse(`

@@ -7,9 +7,9 @@ import { FieldOverrideVariant, Types } from '../../../../models/datamapper/types
 import { AbstractFieldNodeData, DocumentNodeData, FieldNodeData } from '../../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
-import { FieldOverrideService } from '../../../../services/field-override.service';
-import { TreeParsingService } from '../../../../services/tree-parsing.service';
-import { XmlSchemaDocumentService } from '../../../../services/xml-schema-document.service';
+import { FieldOverrideService } from '../../../../services/document/field-override.service';
+import { XmlSchemaDocumentService } from '../../../../services/document/xml-schema/xml-schema-document.service';
+import { TreeParsingService } from '../../../../services/visualization/tree-parsing.service';
 import { getFieldSubstitutionXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { SourceDocumentNodeWithContextMenu } from '../../SourceDocumentNode';

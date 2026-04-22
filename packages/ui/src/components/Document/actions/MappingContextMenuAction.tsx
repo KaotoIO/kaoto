@@ -10,9 +10,10 @@ import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, Ref, useCallback, useMemo, useState } from 'react';
 
 import { MappingItem } from '../../../models/datamapper/mapping';
-import { IMappingActionCallbacks, MappingActionKind, TargetNodeData } from '../../../models/datamapper/visualization';
+import { IMappingActionCallbacks, MappingActionKind } from '../../../models/datamapper/mapping-action';
+import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { DEFAULT_POPPER_PROPS } from '../../../models/popper-default';
-import { MappingActionService } from '../../../services/visualization.service';
+import { MappingActionService } from '../../../services/visualization/mapping-action.service';
 import { CommentModal } from './Comment/CommentModal';
 
 type MappingContextMenuProps = {

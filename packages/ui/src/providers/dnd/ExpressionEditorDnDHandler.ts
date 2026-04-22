@@ -1,7 +1,7 @@
 import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { EditorNodeData, FieldNodeData, FunctionNodeData, MappingTree, NodeData } from '../../models/datamapper';
-import { MappingService } from '../../services/mapping.service';
+import { MappingService } from '../../services/mapping/mapping.service';
 import { DnDHandler, DnDResult } from './DnDHandler';
 
 export class ExpressionEditorDnDHandler implements DnDHandler {

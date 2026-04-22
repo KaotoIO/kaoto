@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 
 import { NodeData } from '../../models/datamapper/visualization';
 import { DataMapperDndContext } from '../../providers/datamapper-dnd.provider';
-import { MappingValidationService } from '../../services/mapping-validation.service';
+import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
 import { DroppableContainer } from './NodeContainer';
 
 jest.mock('@dnd-kit/core', () => ({
@@ -17,7 +17,7 @@ jest.mock('@dnd-kit/core', () => ({
   }),
 }));
 
-jest.mock('../../services/mapping-validation.service', () => ({
+jest.mock('../../services/visualization/mapping-validation.service', () => ({
   MappingValidationService: {
     validateMappingPair: jest.fn().mockReturnValue({ isValid: true }),
     isDraggable: jest.fn().mockReturnValue(true),

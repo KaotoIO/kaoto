@@ -6,7 +6,7 @@ import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { AddMappingNodeData } from '../../models/datamapper/visualization';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingActionService } from '../../services/visualization/mapping-action.service';
 import { MappingContextMenuAction } from './actions/MappingContextMenuAction';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle/NodeTitle';
@@ -18,7 +18,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
   const { mappingTree, refreshMappingTree } = useDataMapper();
 
   const handleAddMapping = useCallback(() => {
-    VisualizationService.addMapping(nodeData);
+    MappingActionService.addMapping(nodeData);
     refreshMappingTree();
   }, [nodeData, refreshMappingTree]);
 

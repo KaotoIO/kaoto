@@ -1,4 +1,4 @@
-import { XmlSchemaDocument, XmlSchemaField } from '../../services/xml-schema-document.model';
+import { XmlSchemaDocument, XmlSchemaField } from '../../services/document/xml-schema/xml-schema-document.model';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { BaseField, DocumentDefinition, DocumentDefinitionType, DocumentType } from './document';
 

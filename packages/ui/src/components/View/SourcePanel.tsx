@@ -8,7 +8,7 @@ import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
-import { TreeUIService } from '../../services/tree-ui.service';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentHeader } from '../Document/BaseDocument';
 import { ParametersSection } from '../Document/Parameters';

@@ -3,7 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
-import { XmlSchemaDocument } from '../../../services/xml-schema-document.model';
+import { XmlSchemaDocument } from '../../../services/document/xml-schema/xml-schema-document.model';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { XPathInputAction } from './XPathInputAction';

@@ -12,7 +12,7 @@ import {
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { IMappingLink } from '../models/datamapper';
-import { MappingLinksService } from '../services/mapping-links.service';
+import { MappingLinksService } from '../services/visualization/mapping-links.service';
 import { useDocumentTreeStore } from '../store';
 
 export interface IMappingLinksContext {

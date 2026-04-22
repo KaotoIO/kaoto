@@ -8,8 +8,8 @@ import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, use
 import { IDataTestID } from '../../../models';
 import { MappingItem } from '../../../models/datamapper/mapping';
 import { NodeData, VariableNodeData } from '../../../models/datamapper/visualization';
-import { MappingValidationService } from '../../../services/mapping-validation.service';
-import { VisualizationService } from '../../../services/visualization.service';
+import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
+import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { CommentModal } from '../actions/Comment/CommentModal';
 import { FieldIcon } from '../FieldIcon';
 
@@ -62,12 +62,12 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   children,
 }) => {
   // Derive properties from nodeData
-  const field = VisualizationService.getField(nodeData);
+  const field = VisualizationUtilService.getField(nodeData);
   const iconType = field?.type ?? nodeData.type;
-  const isCollectionField = VisualizationService.isCollectionField(nodeData);
-  const isChoiceField = VisualizationService.isChoiceField(nodeData);
-  const isAbstractField = VisualizationService.isAbstractField(nodeData);
-  const isAttributeField = VisualizationService.isAttributeField(nodeData);
+  const isCollectionField = VisualizationUtilService.isCollectionField(nodeData);
+  const isChoiceField = VisualizationUtilService.isChoiceField(nodeData);
+  const isAbstractField = VisualizationUtilService.isAbstractField(nodeData);
+  const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isVariableNode = nodeData instanceof VariableNodeData;
   const isDraggable = MappingValidationService.isDraggable(nodeData);
   const isSource = nodeData.isSource;

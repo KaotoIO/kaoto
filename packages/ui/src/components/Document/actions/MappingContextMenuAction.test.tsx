@@ -8,8 +8,8 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
 } from '../../../models/datamapper/visualization';
-import { MappingService } from '../../../services/mapping.service';
-import { VisualizationService } from '../../../services/visualization.service';
+import { MappingService } from '../../../services/mapping/mapping.service';
+import { MappingActionService } from '../../../services/visualization/mapping-action.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
 
@@ -35,7 +35,7 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
     const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(VisualizationService, 'applyValueSelector');
+    const spyOnApply = jest.spyOn(MappingActionService, 'applyValueSelector');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -59,7 +59,7 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
     const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(VisualizationService, 'applyIf');
+    const spyOnApply = jest.spyOn(MappingActionService, 'applyIf');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -83,7 +83,7 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
     const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(VisualizationService, 'applyChooseWhenOtherwise');
+    const spyOnApply = jest.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -149,7 +149,7 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
     const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(VisualizationService, 'applyForEach');
+    const spyOnApply = jest.spyOn(MappingActionService, 'applyForEach');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -235,7 +235,7 @@ describe('MappingContextMenuAction', () => {
   it('should apply If from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
     const onUpdateSpy = jest.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
-    const spyOnApply = jest.spyOn(VisualizationService, 'applyIf');
+    const spyOnApply = jest.spyOn(MappingActionService, 'applyIf');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
     );
@@ -258,7 +258,7 @@ describe('MappingContextMenuAction', () => {
   it('should apply Choose from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
     const onUpdateSpy = jest.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
-    const spyOnApply = jest.spyOn(VisualizationService, 'applyChooseWhenOtherwise');
+    const spyOnApply = jest.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
     );

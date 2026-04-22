@@ -1,7 +1,7 @@
 import { Types } from '../models/datamapper';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
+import { XmlSchemaField } from './document/xml-schema/xml-schema-document.model';
 import { SchemaPathSegment, SchemaPathService } from './schema-path.service';
-import { XmlSchemaField } from './xml-schema-document.model';
 
 describe('SchemaPathService', () => {
   const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };

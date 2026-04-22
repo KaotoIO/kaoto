@@ -30,9 +30,9 @@ import {
 import { MappingTree } from '../models/datamapper/mapping';
 import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
-import { DocumentService } from '../services/document.service';
-import { MappingService } from '../services/mapping.service';
-import { MappingSerializerService } from '../services/mapping-serializer.service';
+import { DocumentService } from '../services/document/document.service';
+import { MappingService } from '../services/mapping/mapping.service';
+import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
 
 export interface IDataMapperContext {
   isLoading: boolean;

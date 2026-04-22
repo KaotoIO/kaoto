@@ -2,8 +2,8 @@ import { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { NodeData } from '../../models/datamapper/visualization';
-import { MappingValidationService } from '../../services/mapping-validation.service';
-import { VisualizationService } from '../../services/visualization.service';
+import { MappingActionService } from '../../services/visualization/mapping-action.service';
+import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
 import { DnDHandler, DnDResult } from './DnDHandler';
 
 export class SourceTargetDnDHandler implements DnDHandler {
@@ -18,7 +18,7 @@ export class SourceTargetDnDHandler implements DnDHandler {
     }
 
     if (!validation.sourceNode || !validation.targetNode) return { success: false };
-    VisualizationService.engageMapping(mappingTree, validation.sourceNode, validation.targetNode);
+    MappingActionService.engageMapping(mappingTree, validation.sourceNode, validation.targetNode);
     onUpdate();
     return { success: true };
   }

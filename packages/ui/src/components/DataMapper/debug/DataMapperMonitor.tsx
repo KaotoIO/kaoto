@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { MappingLinksService } from '../../../services/mapping-links.service';
+import { MappingLinksService } from '../../../services/visualization/mapping-links.service';
 import { useDocumentTreeStore } from '../../../store';
 
 export const DataMapperMonitor = () => {

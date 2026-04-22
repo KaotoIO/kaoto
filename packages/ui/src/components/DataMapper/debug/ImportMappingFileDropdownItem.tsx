@@ -3,7 +3,7 @@ import { ImportIcon } from '@patternfly/react-icons';
 import { ChangeEvent, createRef, FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
 import { readFileAsString } from '../../../stubs/read-file-as-string';
 
 type ImportMappingFileDropdownItemProps = {

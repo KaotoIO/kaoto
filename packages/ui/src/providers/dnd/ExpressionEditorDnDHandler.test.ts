@@ -5,10 +5,10 @@ import { IExpressionHolder, IFunctionDefinition, MappingItem, MappingTree } from
 import { NodePath } from '../../models/datamapper/nodepath';
 import { Types } from '../../models/datamapper/types';
 import { EditorNodeData, FieldNodeData, FunctionNodeData, NodeData } from '../../models/datamapper/visualization';
-import { MappingService } from '../../services/mapping.service';
+import { MappingService } from '../../services/mapping/mapping.service';
 import { ExpressionEditorDnDHandler } from './ExpressionEditorDnDHandler';
 
-jest.mock('../../services/mapping.service', () => ({
+jest.mock('../../services/mapping/mapping.service', () => ({
   MappingService: {
     mapToCondition: jest.fn(),
     wrapWithFunction: jest.fn(),

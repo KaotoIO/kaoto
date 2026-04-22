@@ -3,7 +3,7 @@ import { WarningTriangleIcon } from '@patternfly/react-icons';
 import { FunctionComponent, ReactNode } from 'react';
 
 import { UnknownMappingNodeData } from '../../../models/datamapper';
-import { VisualizationService } from '../../../services/visualization.service';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
 
 export const UnknownMappingLabel: FunctionComponent<{ nodeData: UnknownMappingNodeData; content: ReactNode }> = ({
   nodeData,

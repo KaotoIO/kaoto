@@ -5,7 +5,7 @@ import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamap
 import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { MappingSerializerService } from '../../../services/mapping-serializer.service';
+import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
 import { getConditionalMappingsToShipOrderXslt, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
 

@@ -5,7 +5,7 @@ import { MappingTree } from '../../../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
 import { IMetadataApi, MetadataContext } from '../../../../providers';
 import { DataMapperMetadataService } from '../../../../services/datamapper-metadata.service';
-import { FieldOverrideService } from '../../../../services/field-override.service';
+import { FieldOverrideService } from '../../../../services/document/field-override.service';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { FieldOverrideModal } from './FieldOverrideModal';

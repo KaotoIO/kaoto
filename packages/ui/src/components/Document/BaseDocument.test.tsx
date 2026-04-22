@@ -10,7 +10,7 @@ import {
 import { MappingTree } from '../../models/datamapper/mapping';
 import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { TreeUIService } from '../../services/tree-ui.service';
+import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentContent, DocumentHeader } from './BaseDocument';
