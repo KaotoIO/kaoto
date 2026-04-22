@@ -1,7 +1,9 @@
 import { DocumentDefinitionType, DocumentType } from './document';
 import {
   ChooseItem,
+  ForEachGroupItem,
   ForEachItem,
+  GroupingStrategy,
   IfItem,
   isExpressionHolder,
   MappingTree,
@@ -25,6 +27,7 @@ describe('mapping.ts', () => {
       expect(isExpressionHolder(new IfItem(tree))).toBe(true);
       expect(isExpressionHolder(new WhenItem(tree))).toBe(true);
       expect(isExpressionHolder(new ForEachItem(tree))).toBe(true);
+      expect(isExpressionHolder(new ForEachGroupItem(tree))).toBe(true);
       expect(isExpressionHolder(new ValueSelector(tree))).toBe(true);
       expect(isExpressionHolder(new VariableItem(tree, 'myVar'))).toBe(true);
     });
@@ -137,17 +140,71 @@ describe('mapping.ts', () => {
       const item = new ForEachItem(tree);
       item.expression = '/Order/Items/Item';
 
-      // Get contextPath twice
       const firstCall = item.contextPath;
       const secondCall = item.contextPath;
 
-      // Both calls should return different object instances (not mutated)
       expect(firstCall).not.toBe(secondCall);
 
-      // But they should have the same values
-      if (firstCall && secondCall) {
-        expect(firstCall.contextPath).toEqual(secondCall.contextPath);
-      }
+      expect(firstCall?.pathSegments).toEqual(secondCall?.pathSegments);
+      expect(firstCall?.isRelative).toBe(secondCall?.isRelative);
+      expect(firstCall?.documentReferenceName).toBe(secondCall?.documentReferenceName);
+    });
+  });
+
+  describe('ForEachGroupItem', () => {
+    it('should default to GROUP_BY strategy with empty expressions', () => {
+      const item = new ForEachGroupItem(tree);
+      expect(item.groupingStrategy).toBe(GroupingStrategy.GROUP_BY);
+      expect(item.groupingExpression).toBe('');
+      expect(item.expression).toBe('');
+    });
+
+    it('doClone() should copy sortItems', () => {
+      const item = new ForEachGroupItem(tree);
+      const sort = new SortItem();
+      sort.expression = '@price';
+      sort.order = 'descending';
+      item.sortItems = [sort];
+
+      const cloned = item.clone();
+
+      expect(cloned.sortItems).toHaveLength(1);
+      expect(cloned.sortItems[0].expression).toBe('@price');
+      expect(cloned.sortItems[0].order).toBe('descending');
+      expect(cloned.sortItems[0]).not.toBe(sort);
+    });
+
+    it('clone() should copy expression, groupingStrategy, groupingExpression, and children', () => {
+      const item = new ForEachGroupItem(tree);
+      item.expression = '/Order/Items/Item';
+      item.groupingStrategy = GroupingStrategy.GROUP_ADJACENT;
+      item.groupingExpression = 'Category';
+      const child = new ValueSelector(item);
+      child.expression = 'ItemId';
+      item.children = [child];
+
+      const cloned = item.clone();
+
+      expect(cloned.expression).toBe('/Order/Items/Item');
+      expect(cloned.groupingStrategy).toBe(GroupingStrategy.GROUP_ADJACENT);
+      expect(cloned.groupingExpression).toBe('Category');
+      expect(cloned.children).toHaveLength(1);
+      expect((cloned.children[0] as ValueSelector).expression).toBe('ItemId');
+      expect(cloned).not.toBe(item);
+    });
+
+    it('contextPath getter should not mutate the original PathExpression', () => {
+      const item = new ForEachGroupItem(tree);
+      item.expression = '/Order/Items/Item';
+
+      const firstCall = item.contextPath;
+      const secondCall = item.contextPath;
+
+      expect(firstCall).not.toBe(secondCall);
+
+      expect(firstCall?.pathSegments).toEqual(secondCall?.pathSegments);
+      expect(firstCall?.isRelative).toBe(secondCall?.isRelative);
+      expect(firstCall?.documentReferenceName).toBe(secondCall?.documentReferenceName);
     });
   });
 
