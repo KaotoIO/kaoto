@@ -7,3 +7,4 @@ export * from './view';
 export * from './visualization';
 export { PathExpression } from './xpath';
 export { PathSegment } from './xpath';
+export * from './xslt-item-handler';
