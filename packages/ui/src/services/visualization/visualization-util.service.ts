@@ -22,13 +22,16 @@ import { DocumentService } from '../document/document.service';
 export class VisualizationUtilService {
   /**
    * Returns `true` if the node's field is a collection (array/repeating element).
+   * Also checks the choice wrapper field for collection status when the node is a selected choice member.
    * @param nodeData - The node to test.
    */
   static isCollectionField(nodeData: NodeData) {
-    return (
-      (nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData) &&
-      DocumentService.isCollectionField(nodeData.field)
-    );
+    if (!(nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData)) return false;
+    if (DocumentService.isCollectionField(nodeData.field)) return true;
+    if (VisualizationUtilService.isChoiceField(nodeData)) {
+      return !!nodeData.choiceField && DocumentService.isCollectionField(nodeData.choiceField);
+    }
+    return false;
   }
 
   /**
@@ -43,8 +46,45 @@ export class VisualizationUtilService {
    * Returns `true` if the node is a choice field (union/anyOf member selection), on either source or target side.
    * @param nodeData - The node to test.
    */
-  static isChoiceField(nodeData: NodeData) {
+  /**
+   * Type predicate — enables TypeScript to narrow `nodeData` to
+   * `ChoiceFieldNodeData | TargetChoiceFieldNodeData` in the calling scope,
+   * eliminating the need for unsafe `as` casts after the check.
+   */
+  static isChoiceField(nodeData: NodeData): nodeData is ChoiceFieldNodeData | TargetChoiceFieldNodeData {
     return nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData;
+  }
+
+  /**
+   * Returns `true` if the node is a choice field with a selected member (choiceField is set).
+   * Delegates to {@link isChoiceField} for the type check to avoid duplicating `instanceof` guards.
+   * @param nodeData - The node to test.
+   */
+  static isSelectedChoiceField(nodeData: NodeData): nodeData is ChoiceFieldNodeData | TargetChoiceFieldNodeData {
+    return VisualizationUtilService.isChoiceField(nodeData) && !!nodeData.choiceField;
+  }
+
+  /**
+   * Returns `true` if the node is a choice field without a selected member — i.e. the wrapper
+   * is showing all choice options. Used by the context menu to decide which actions to offer.
+   * @param nodeData - The node to test.
+   */
+  static isUnselectedChoiceField(nodeData: NodeData): nodeData is ChoiceFieldNodeData | TargetChoiceFieldNodeData {
+    return VisualizationUtilService.isChoiceField(nodeData) && !nodeData.choiceField;
+  }
+
+  /**
+   * Returns `true` if the node is a selected choice whose selected member is itself
+   * a choice wrapper (nested choice). This occurs when an `xs:choice` contains another
+   * `xs:choice` as one of its members — the outer wrapper has a selected member
+   * (`choiceField` is set), and that member's `wrapperKind` is `'choice'`, meaning
+   * it is an inner choice that can be further expanded. Used by {@link FieldNodeTitle}
+   * to show a green "choice" badge, distinguishing this state from a plain selected
+   * member (which only shows the green choice icon).
+   * @param nodeData - The node to test.
+   */
+  static isSelectedNestedChoice(nodeData: NodeData): boolean {
+    return VisualizationUtilService.isSelectedChoiceField(nodeData) && nodeData.field.wrapperKind === 'choice';
   }
 
   /**

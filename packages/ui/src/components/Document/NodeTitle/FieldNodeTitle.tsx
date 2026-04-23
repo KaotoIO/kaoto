@@ -1,5 +1,6 @@
 import { NullSign } from '@carbon/icons-react';
 import { Label, Popover } from '@patternfly/react-core';
+import { CheckIcon } from '@patternfly/react-icons';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
@@ -9,12 +10,11 @@ import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
 import {
   AbstractFieldNodeData,
   AddMappingNodeData,
-  ChoiceFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
   TargetAbstractFieldNodeData,
-  TargetChoiceFieldNodeData,
 } from '../../../models/datamapper/visualization';
+import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
 
 type FieldNodeTitleProps = {
@@ -32,8 +32,8 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({
   nodeData,
   namespaceMap = {},
 }) => {
-  const isChoiceWrapper =
-    (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) && !nodeData.choiceField;
+  const isChoiceWrapper = VisualizationUtilService.isUnselectedChoiceField(nodeData);
+  const isSelectedChoiceWrapper = VisualizationUtilService.isSelectedNestedChoice(nodeData);
   const isAbstractWrapper =
     (nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData) &&
     !nodeData.abstractField;
@@ -75,6 +75,11 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({
     >
       <div className="node-title-container">
         {isChoiceWrapper && <Label>choice</Label>}
+        {isSelectedChoiceWrapper && (
+          <Label color="green" icon={<CheckIcon />}>
+            choice
+          </Label>
+        )}
         {isAbstractWrapper && (
           <Label color={hasNoCandidates ? 'red' : undefined}>
             {hasNoCandidates ? 'abstract (no candidates)' : 'abstract'}

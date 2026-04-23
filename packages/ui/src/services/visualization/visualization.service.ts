@@ -169,7 +169,7 @@ export class VisualizationService {
       }
     }
 
-    return fields.reduce((acc, field) => {
+    const result = fields.reduce((acc, field) => {
       if (field.wrapperKind === 'choice') {
         acc.push(VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, CHOICE_WRAPPER));
         return acc;
@@ -197,6 +197,23 @@ export class VisualizationService {
       }
       return acc;
     }, answer);
+
+    if (mappings && !VisualizationService.isUnselectedTargetWrapper(parent)) {
+      const rendered = new Set(result.filter((n): n is TargetNodeData => 'mapping' in n).map((n) => n.mapping));
+      for (const m of mappings) {
+        if (
+          !rendered.has(m) &&
+          !(m instanceof FieldItem) &&
+          !(m instanceof ValueSelector) &&
+          !(m instanceof VariableItem) &&
+          !(m instanceof UnknownMappingItem)
+        ) {
+          result.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
+        }
+      }
+    }
+
+    return result;
   }
 
   private static isExistingMapping(nodes: TargetNodeData[], mapping: MappingItem) {
@@ -347,13 +364,13 @@ export class VisualizationService {
   }
 
   /**
-   * Returns the member label string (e.g. `"(email | phone | fax)"`) for a choice wrapper node.
+   * Returns the member label string (e.g. `"(email | phone | fax)"`) for a choice wrapper field.
    * Nested choice members are labeled `'choice'` when there is only one nested choice sibling,
    * or `'choice1'`, `'choice2'`, ... when there are multiple.
-   * @param node - The choice wrapper node whose members should be described.
+   * @param field - The choice wrapper field whose members should be described.
    */
-  static getChoiceMemberLabel(node: ChoiceFieldNodeData | TargetChoiceFieldNodeData): string {
-    const members = node.field.fields ?? [];
+  static getChoiceMemberLabel(field: IField): string {
+    const members = field.fields ?? [];
     const nestedChoiceCount = members.filter((m) => m.wrapperKind === 'choice').length;
     let choiceIndex = 0;
     const labels = members.map((m) => {
@@ -396,7 +413,7 @@ export class VisualizationService {
       (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
       !nodeData.choiceField
     ) {
-      return VisualizationService.getChoiceMemberLabel(nodeData);
+      return VisualizationService.getChoiceMemberLabel(nodeData.field);
     }
     if (
       (nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData) &&
