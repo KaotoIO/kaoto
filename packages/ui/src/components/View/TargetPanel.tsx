@@ -59,6 +59,8 @@ export const TargetPanel: FunctionComponent = () => {
   }, [flattenedNodes.length, mappingTree, syncConnectionPorts]);
 
   const hasSchema = !targetBodyNodeData.isPrimitive;
+  const hasTreeContent = (targetBodyTree?.contentRoots.length ?? 0) > 0;
+  const shouldRenderTree = hasSchema || hasTreeContent;
 
   const handleUpdate = useCallback(() => {
     refreshMappingTree();
@@ -151,8 +153,8 @@ export const TargetPanel: FunctionComponent = () => {
       <ExpansionPanels lastPanelId="target-body">
         <ExpansionPanel
           id="target-body"
-          defaultExpanded={hasSchema}
-          defaultHeight={hasSchema ? TARGET_PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
+          defaultExpanded={shouldRenderTree}
+          defaultHeight={shouldRenderTree ? TARGET_PANEL_DEFAULT_HEIGHT : PANEL_COLLAPSED_HEIGHT}
           minHeight={TARGET_PANEL_MIN_HEIGHT}
           collapsible={false}
           summary={
@@ -168,7 +170,7 @@ export const TargetPanel: FunctionComponent = () => {
           }
           onLayoutChange={syncConnectionPorts}
         >
-          {hasSchema && targetBodyTree && (
+          {shouldRenderTree && targetBodyTree && (
             <Virtuoso
               totalCount={flattenedNodes.length}
               components={virtuosoComponents}

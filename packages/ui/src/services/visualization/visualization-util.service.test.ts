@@ -1,9 +1,10 @@
-import { DocumentDefinitionType } from '../../models/datamapper/document';
-import { MappingTree } from '../../models/datamapper/mapping';
+import { DocumentDefinitionType, IField } from '../../models/datamapper/document';
+import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   ChoiceFieldNodeData,
   DocumentNodeData,
+  FieldItemNodeData,
   FieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
@@ -38,7 +39,7 @@ describe('VisualizationUtilService', () => {
           { ...sourceDoc.fields[0], name: 'email' },
           { ...sourceDoc.fields[0], name: 'phone' },
         ],
-      } as unknown as (typeof sourceDoc.fields)[0];
+      } as unknown as IField;
       const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
       expect(VisualizationUtilService.isChoiceField(choiceNode)).toBe(true);
     });
@@ -53,7 +54,7 @@ describe('VisualizationUtilService', () => {
           { ...sourceDoc.fields[0], name: 'email' },
           { ...sourceDoc.fields[0], name: 'phone' },
         ],
-      } as unknown as (typeof sourceDoc.fields)[0];
+      } as unknown as IField;
       const choiceNode = new TargetChoiceFieldNodeData(targetDocNode, choiceField);
       expect(VisualizationUtilService.isChoiceField(choiceNode)).toBe(true);
     });
@@ -79,7 +80,7 @@ describe('VisualizationUtilService', () => {
           { ...sourceDoc.fields[0], name: 'Cat' },
           { ...sourceDoc.fields[0], name: 'Dog' },
         ],
-      } as unknown as (typeof sourceDoc.fields)[0];
+      } as unknown as IField;
       const abstractNode = new AbstractFieldNodeData(sourceDocNode, abstractField);
       expect(VisualizationUtilService.isAbstractField(abstractNode)).toBe(true);
     });
@@ -94,7 +95,7 @@ describe('VisualizationUtilService', () => {
           { ...sourceDoc.fields[0], name: 'Cat' },
           { ...sourceDoc.fields[0], name: 'Dog' },
         ],
-      } as unknown as (typeof sourceDoc.fields)[0];
+      } as unknown as IField;
       const abstractNode = new TargetAbstractFieldNodeData(targetDocNode, abstractField);
       expect(VisualizationUtilService.isAbstractField(abstractNode)).toBe(true);
     });
@@ -106,6 +107,83 @@ describe('VisualizationUtilService', () => {
 
     it('should return false for DocumentNodeData', () => {
       expect(VisualizationUtilService.isAbstractField(sourceDocNode)).toBe(false);
+    });
+  });
+
+  describe('isCollectionField', () => {
+    it('should return false for non-collection FieldNodeData', () => {
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.isCollectionField(fieldNode)).toBe(false);
+    });
+
+    it('should return false for DocumentNodeData', () => {
+      expect(VisualizationUtilService.isCollectionField(sourceDocNode)).toBe(false);
+    });
+  });
+
+  describe('isAttributeField', () => {
+    it('should return true for FieldNodeData with attribute field', () => {
+      const attrField = { ...sourceDoc.fields[0], isAttribute: true } as unknown as IField;
+      const fieldNode = new FieldNodeData(sourceDocNode, attrField);
+      expect(VisualizationUtilService.isAttributeField(fieldNode)).toBe(true);
+    });
+
+    it('should return false for FieldNodeData with non-attribute field', () => {
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.isAttributeField(fieldNode)).toBe(false);
+    });
+
+    it('should return true for FieldItemNodeData with attribute field', () => {
+      const attrField = { ...sourceDoc.fields[0], isAttribute: true } as unknown as IField;
+      const fieldItem = new FieldItem(targetDocNode.mappingTree, attrField);
+      const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
+      expect(VisualizationUtilService.isAttributeField(fieldItemNode)).toBe(true);
+    });
+
+    it('should return false for FieldItemNodeData with non-attribute field', () => {
+      const fieldItem = new FieldItem(targetDocNode.mappingTree, sourceDoc.fields[0]);
+      const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
+      expect(VisualizationUtilService.isAttributeField(fieldItemNode)).toBe(false);
+    });
+
+    it('should return false for DocumentNodeData', () => {
+      expect(VisualizationUtilService.isAttributeField(sourceDocNode)).toBe(false);
+    });
+  });
+
+  describe('isRecursiveField', () => {
+    it('should return false for non-recursive FieldNodeData', () => {
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.isRecursiveField(fieldNode)).toBe(false);
+    });
+
+    it('should return false for non-recursive FieldItemNodeData', () => {
+      const fieldItem = new FieldItem(targetDocNode.mappingTree, sourceDoc.fields[0]);
+      const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
+      expect(VisualizationUtilService.isRecursiveField(fieldItemNode)).toBe(false);
+    });
+
+    it('should return false for DocumentNodeData', () => {
+      expect(VisualizationUtilService.isRecursiveField(sourceDocNode)).toBe(false);
+    });
+  });
+
+  describe('getField', () => {
+    it('should return field for FieldNodeData', () => {
+      const field = sourceDoc.fields[0];
+      const fieldNode = new FieldNodeData(sourceDocNode, field);
+      expect(VisualizationUtilService.getField(fieldNode)).toBe(field);
+    });
+
+    it('should return field for FieldItemNodeData', () => {
+      const field = sourceDoc.fields[0];
+      const fieldItem = new FieldItem(targetDocNode.mappingTree, field);
+      const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
+      expect(VisualizationUtilService.getField(fieldItemNode)).toBe(field);
+    });
+
+    it('should return undefined for DocumentNodeData', () => {
+      expect(VisualizationUtilService.getField(sourceDocNode)).toBeUndefined();
     });
   });
 });

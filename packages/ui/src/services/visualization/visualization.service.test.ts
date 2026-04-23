@@ -289,7 +289,7 @@ describe('VisualizationService', () => {
     const forEach1Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Node);
     expect(forEach1Children.length).toEqual(1);
     expect(forEach1Children[0].title).toEqual('Item');
-    expect(VisualizationUtilService.isCollectionField(forEach1Children[0]));
+    expect(VisualizationUtilService.isCollectionField(forEach1Children[0])).toBeTruthy();
     const forEach1ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach1Children[0]);
     expect(forEach1ItemChildren.length).toEqual(4);
     expect(forEach1ItemChildren[0].title).toEqual('Title');
@@ -301,7 +301,7 @@ describe('VisualizationService', () => {
     const forEach2Children = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Node);
     expect(forEach2Children.length).toEqual(1);
     expect(forEach2Children[0].title).toEqual('Item');
-    expect(VisualizationUtilService.isCollectionField(forEach2Children[0]));
+    expect(VisualizationUtilService.isCollectionField(forEach2Children[0])).toBeTruthy();
     const forEach2ItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEach2Children[0]);
     expect(forEach2ItemChildren.length).toEqual(4);
     expect(forEach2ItemChildren[0].title).toEqual('Title');

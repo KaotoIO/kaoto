@@ -31,8 +31,10 @@ describe('document-tree.ts', () => {
 
         expect(tree).toBeInstanceOf(DocumentTree);
         expect(tree.documentId).toEqual(mockDocumentNodeData.id);
+        expect(tree.documentNodeData).toBe(mockDocumentNodeData);
         expect(tree.root).toBeInstanceOf(DocumentTreeNode);
         expect(tree.root.nodeData).toBe(mockDocumentNodeData);
+        expect(tree.contentRoots).toEqual([]);
       });
 
       it('should initialize root node with correct properties', () => {
@@ -334,51 +336,18 @@ describe('document-tree.ts', () => {
     });
 
     describe('flatten', () => {
-      it('should flatten a tree with only root node', () => {
+      it('should return empty array for tree with no content roots', () => {
         const tree = new DocumentTree(mockDocumentNodeData);
 
         const flattened = tree.flatten({});
 
-        expect(flattened).toHaveLength(1);
-        expect(flattened[0].treeNode).toBe(tree.root);
-        expect(flattened[0].depth).toBe(0);
-        expect(flattened[0].index).toBe(0);
-        expect(flattened[0].path).toBe('sourceBody:testDoc://');
+        expect(flattened).toHaveLength(0);
       });
 
-      it('should only include root when no nodes are expanded', () => {
+      it('should include content roots at depth 0', () => {
         const tree = new DocumentTree(mockDocumentNodeData);
 
         // Add children
-        const child1NodeData = {
-          title: 'Child 1',
-          id: 'child-1',
-          path: NodePath.childOf(mockDocumentNodeData.path, 'child-1'),
-          isSource: true,
-          isPrimitive: false,
-          isDocument: false,
-        };
-        tree.root.addChild(child1NodeData);
-
-        const child2NodeData = {
-          title: 'Child 2',
-          id: 'child-2',
-          path: NodePath.childOf(mockDocumentNodeData.path, 'child-2'),
-          isSource: true,
-          isPrimitive: false,
-          isDocument: false,
-        };
-        tree.root.addChild(child2NodeData);
-
-        const flattened = tree.flatten({});
-
-        expect(flattened).toHaveLength(1);
-        expect(flattened[0].treeNode).toBe(tree.root);
-      });
-
-      it('should include children when root is expanded', () => {
-        const tree = new DocumentTree(mockDocumentNodeData);
-
         const child1NodeData = {
           title: 'Child 1',
           id: 'child-1',
@@ -399,19 +368,49 @@ describe('document-tree.ts', () => {
         };
         const child2 = tree.root.addChild(child2NodeData);
 
+        const flattened = tree.flatten({});
+
+        expect(flattened).toHaveLength(2);
+        expect(flattened[0].treeNode).toBe(child1);
+        expect(flattened[0].depth).toBe(0);
+        expect(flattened[1].treeNode).toBe(child2);
+        expect(flattened[1].depth).toBe(0);
+      });
+
+      it('should include grandchildren when content root is expanded', () => {
+        const tree = new DocumentTree(mockDocumentNodeData);
+
+        const child1NodeData = {
+          title: 'Child 1',
+          id: 'child-1',
+          path: NodePath.childOf(mockDocumentNodeData.path, 'child-1'),
+          isSource: true,
+          isPrimitive: false,
+          isDocument: false,
+        };
+        const child1 = tree.root.addChild(child1NodeData);
+
+        const grandchildNodeData = {
+          title: 'Grandchild',
+          id: 'grandchild-1',
+          path: NodePath.childOf(child1NodeData.path, 'grandchild-1'),
+          isSource: true,
+          isPrimitive: false,
+          isDocument: false,
+        };
+        const grandchild = child1.addChild(grandchildNodeData);
+
         const expansionState = {
-          'sourceBody:testDoc://': true,
+          'sourceBody:testDoc://child-1': true,
         };
 
         const flattened = tree.flatten(expansionState);
 
-        expect(flattened).toHaveLength(3);
-        expect(flattened[0].treeNode).toBe(tree.root);
+        expect(flattened).toHaveLength(2);
+        expect(flattened[0].treeNode).toBe(child1);
         expect(flattened[0].depth).toBe(0);
-        expect(flattened[1].treeNode).toBe(child1);
+        expect(flattened[1].treeNode).toBe(grandchild);
         expect(flattened[1].depth).toBe(1);
-        expect(flattened[2].treeNode).toBe(child2);
-        expect(flattened[2].depth).toBe(1);
       });
 
       it('should handle nested expansion correctly', () => {
@@ -448,22 +447,19 @@ describe('document-tree.ts', () => {
         const level3 = level2.addChild(level3NodeData);
 
         const expansionState = {
-          'sourceBody:testDoc://': true,
           'sourceBody:testDoc://level1': true,
           'sourceBody:testDoc://level1/level2': true,
         };
 
         const flattened = tree.flatten(expansionState);
 
-        expect(flattened).toHaveLength(4);
-        expect(flattened[0].treeNode).toBe(tree.root);
+        expect(flattened).toHaveLength(3);
+        expect(flattened[0].treeNode).toBe(level1);
         expect(flattened[0].depth).toBe(0);
-        expect(flattened[1].treeNode).toBe(level1);
+        expect(flattened[1].treeNode).toBe(level2);
         expect(flattened[1].depth).toBe(1);
-        expect(flattened[2].treeNode).toBe(level2);
+        expect(flattened[2].treeNode).toBe(level3);
         expect(flattened[2].depth).toBe(2);
-        expect(flattened[3].treeNode).toBe(level3);
-        expect(flattened[3].depth).toBe(3);
       });
 
       it('should stop at collapsed nodes', () => {
@@ -499,20 +495,18 @@ describe('document-tree.ts', () => {
         };
         level2.addChild(level3NodeData);
 
-        // Expand root and level1, but NOT level2
+        // Expand level1, but NOT level2
         const expansionState = {
-          'sourceBody:testDoc://': true,
           'sourceBody:testDoc://level1': true,
           'sourceBody:testDoc://level1/level2': false,
         };
 
         const flattened = tree.flatten(expansionState);
 
-        // Should only include root, level1, and level2 (but not level3)
-        expect(flattened).toHaveLength(3);
-        expect(flattened[0].treeNode).toBe(tree.root);
-        expect(flattened[1].treeNode).toBe(level1);
-        expect(flattened[2].treeNode).toBe(level2);
+        // Should include level1 and level2 (but not level3)
+        expect(flattened).toHaveLength(2);
+        expect(flattened[0].treeNode).toBe(level1);
+        expect(flattened[1].treeNode).toBe(level2);
       });
 
       it('should handle mixed expansion states with siblings', () => {
@@ -558,44 +552,18 @@ describe('document-tree.ts', () => {
         };
         branch2.addChild(leaf2NodeData);
 
-        // Expand root and branch1, but NOT branch2
+        // Expand branch1, but NOT branch2
         const expansionState = {
-          'sourceBody:testDoc://': true,
           'sourceBody:testDoc://branch1': true,
           'sourceBody:testDoc://branch2': false,
         };
 
         const flattened = tree.flatten(expansionState);
 
-        expect(flattened).toHaveLength(4);
-        expect(flattened[0].treeNode).toBe(tree.root);
-        expect(flattened[1].treeNode).toBe(branch1);
-        expect(flattened[2].treeNode).toBe(leaf1);
-        expect(flattened[3].treeNode).toBe(branch2);
-      });
-
-      it('should use custom startDepth parameter', () => {
-        const tree = new DocumentTree(mockDocumentNodeData);
-
-        const childNodeData = {
-          title: 'Child',
-          id: 'child-1',
-          path: NodePath.childOf(mockDocumentNodeData.path, 'child-1'),
-          isSource: true,
-          isPrimitive: false,
-          isDocument: false,
-        };
-        tree.root.addChild(childNodeData);
-
-        const expansionState = {
-          'sourceBody:testDoc://': true,
-        };
-
-        const flattened = tree.flatten(expansionState, 5);
-
-        expect(flattened).toHaveLength(2);
-        expect(flattened[0].depth).toBe(5);
-        expect(flattened[1].depth).toBe(6);
+        expect(flattened).toHaveLength(3);
+        expect(flattened[0].treeNode).toBe(branch1);
+        expect(flattened[1].treeNode).toBe(leaf1);
+        expect(flattened[2].treeNode).toBe(branch2);
       });
 
       it('should assign correct index values', () => {
@@ -621,18 +589,13 @@ describe('document-tree.ts', () => {
         };
         tree.root.addChild(child2NodeData);
 
-        const expansionState = {
-          'sourceBody:testDoc://': true,
-        };
-
-        const flattened = tree.flatten(expansionState);
+        const flattened = tree.flatten({});
 
         expect(flattened[0].index).toBe(0);
         expect(flattened[1].index).toBe(1);
-        expect(flattened[2].index).toBe(2);
       });
 
-      it('should handle undefined expansion state (defaults to false)', () => {
+      it('should not include grandchildren when content root is collapsed', () => {
         const tree = new DocumentTree(mockDocumentNodeData);
 
         const childNodeData = {
@@ -643,16 +606,22 @@ describe('document-tree.ts', () => {
           isPrimitive: false,
           isDocument: false,
         };
-        tree.root.addChild(childNodeData);
+        const child = tree.root.addChild(childNodeData);
 
-        // Pass expansion state without the root path
-        const expansionState = {};
+        const grandchildNodeData = {
+          title: 'Grandchild',
+          id: 'grandchild-1',
+          path: NodePath.childOf(childNodeData.path, 'grandchild-1'),
+          isSource: true,
+          isPrimitive: false,
+          isDocument: false,
+        };
+        child.addChild(grandchildNodeData);
 
-        const flattened = tree.flatten(expansionState);
+        const flattened = tree.flatten({});
 
-        // Should only include root since expansion state defaults to false
         expect(flattened).toHaveLength(1);
-        expect(flattened[0].treeNode).toBe(tree.root);
+        expect(flattened[0].treeNode).toBe(child);
       });
 
       it('should preserve path strings in flattened nodes', () => {
@@ -668,14 +637,33 @@ describe('document-tree.ts', () => {
         };
         tree.root.addChild(childNodeData);
 
+        const flattened = tree.flatten({});
+
+        expect(flattened[0].path).toBe('sourceBody:testDoc://child-1');
+      });
+
+      it('should not include document root node in flattened result', () => {
+        const tree = new DocumentTree(mockDocumentNodeData);
+
+        const childNodeData = {
+          title: 'Child',
+          id: 'child-1',
+          path: NodePath.childOf(mockDocumentNodeData.path, 'child-1'),
+          isSource: true,
+          isPrimitive: false,
+          isDocument: false,
+        };
+        tree.root.addChild(childNodeData);
+
         const expansionState = {
           'sourceBody:testDoc://': true,
+          'sourceBody:testDoc://child-1': true,
         };
 
         const flattened = tree.flatten(expansionState);
 
-        expect(flattened[0].path).toBe('sourceBody:testDoc://');
-        expect(flattened[1].path).toBe('sourceBody:testDoc://child-1');
+        const rootInResult = flattened.find((f) => f.treeNode === tree.root);
+        expect(rootInResult).toBeUndefined();
       });
     });
 

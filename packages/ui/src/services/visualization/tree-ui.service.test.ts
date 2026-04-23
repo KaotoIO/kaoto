@@ -50,7 +50,7 @@ describe('TreeUIService', () => {
       const expansionState = store.expansionState[documentId];
 
       expect(expansionState).toBeDefined();
-      expect(expansionState[tree.root.path]).toBe(true);
+      expect(expansionState[tree.contentRoots[0].path]).toBe(true);
     });
 
     it('should initialize expansion state for all nodes up to INITIAL_PARSE_DEPTH', () => {
@@ -61,9 +61,9 @@ describe('TreeUIService', () => {
       const expansionState = store.expansionState[documentId];
 
       const expandedNodeCount = Object.keys(expansionState).length;
-      expect(expandedNodeCount).toBeGreaterThan(1); // At least root and some children
+      expect(expandedNodeCount).toBeGreaterThan(1); // At least content root and some children
 
-      expect(store.isExpanded(documentId, tree.root.path)).toBe(true);
+      expect(store.isExpanded(documentId, tree.contentRoots[0].path)).toBe(true);
     });
 
     it('should store the tree internally and make it accessible via toggleNode', () => {
@@ -263,20 +263,21 @@ describe('TreeUIService', () => {
     const documentId = sourceDocNode.id;
     const store = useDocumentTreeStore.getState();
 
-    // Initial state: root should be expanded
-    expect(store.isExpanded(documentId, tree.root.path)).toBe(true);
+    // Initial state: first content root should be expanded
+    const firstContentRoot = tree.contentRoots[0];
+    expect(store.isExpanded(documentId, firstContentRoot.path)).toBe(true);
 
-    // Toggle root
-    TreeUIService.toggleNode(documentId, tree.root.path);
-    expect(store.isExpanded(documentId, tree.root.path)).toBe(false);
+    // Toggle content root
+    TreeUIService.toggleNode(documentId, firstContentRoot.path);
+    expect(store.isExpanded(documentId, firstContentRoot.path)).toBe(false);
 
-    // Toggle root again
-    TreeUIService.toggleNode(documentId, tree.root.path);
-    expect(store.isExpanded(documentId, tree.root.path)).toBe(true);
+    // Toggle content root again
+    TreeUIService.toggleNode(documentId, firstContentRoot.path);
+    expect(store.isExpanded(documentId, firstContentRoot.path)).toBe(true);
 
-    // Toggle a child - we know tree has children from our fixture
-    expect(tree.root.children.length).toBeGreaterThan(0);
-    const firstChildPath = tree.root.children[0].path;
+    // Toggle a child - we know content root has children from our fixture
+    expect(firstContentRoot.children.length).toBeGreaterThan(0);
+    const firstChildPath = firstContentRoot.children[0].path;
     const initialChildState = store.isExpanded(documentId, firstChildPath);
 
     TreeUIService.toggleNode(documentId, firstChildPath);
@@ -293,23 +294,25 @@ describe('TreeUIService', () => {
     const targetDocId = targetDocNode.id;
     const store = useDocumentTreeStore.getState();
 
-    // Both roots should be expanded initially
-    expect(store.isExpanded(sourceDocId, sourceTree.root.path)).toBe(true);
-    expect(store.isExpanded(targetDocId, targetTree.root.path)).toBe(true);
+    // Both content roots should be expanded initially
+    const sourceContentRoot = sourceTree.contentRoots[0];
+    const targetContentRoot = targetTree.contentRoots[0];
+    expect(store.isExpanded(sourceDocId, sourceContentRoot.path)).toBe(true);
+    expect(store.isExpanded(targetDocId, targetContentRoot.path)).toBe(true);
 
-    // Toggle source root
-    TreeUIService.toggleNode(sourceDocId, sourceTree.root.path);
-    expect(store.isExpanded(sourceDocId, sourceTree.root.path)).toBe(false);
-    expect(store.isExpanded(targetDocId, targetTree.root.path)).toBe(true);
+    // Toggle source content root
+    TreeUIService.toggleNode(sourceDocId, sourceContentRoot.path);
+    expect(store.isExpanded(sourceDocId, sourceContentRoot.path)).toBe(false);
+    expect(store.isExpanded(targetDocId, targetContentRoot.path)).toBe(true);
 
-    // Toggle target root
-    TreeUIService.toggleNode(targetDocId, targetTree.root.path);
-    expect(store.isExpanded(sourceDocId, sourceTree.root.path)).toBe(false);
-    expect(store.isExpanded(targetDocId, targetTree.root.path)).toBe(false);
+    // Toggle target content root
+    TreeUIService.toggleNode(targetDocId, targetContentRoot.path);
+    expect(store.isExpanded(sourceDocId, sourceContentRoot.path)).toBe(false);
+    expect(store.isExpanded(targetDocId, targetContentRoot.path)).toBe(false);
   });
 
   it('should handle creating tree, toggling, and verifying expansion state', () => {
-    expect.assertions(6);
+    expect.assertions(5);
     TreeUIService.createTree(sourceDocNode);
     const documentId = sourceDocNode.id;
     const store = useDocumentTreeStore.getState();
@@ -318,13 +321,13 @@ describe('TreeUIService', () => {
     const initialExpansionState = { ...store.expansionState[documentId] };
 
     const initialKeys = Object.keys(initialExpansionState);
-    expect(initialKeys.length).toEqual(14);
+    expect(initialKeys.length).toEqual(13);
 
     const expandedPaths = Object.entries(initialExpansionState).reduce((acc, [path, isExpanded]) => {
       if (isExpanded) acc.push(path);
       return acc;
     }, [] as string[]);
-    expect(expandedPaths.length).toEqual(4);
+    expect(expandedPaths.length).toEqual(3);
 
     // Toggle all initially expanded nodes
     for (const nodePath of expandedPaths) {

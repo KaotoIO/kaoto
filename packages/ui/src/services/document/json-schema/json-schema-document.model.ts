@@ -17,8 +17,9 @@ import {
 import { NodePath } from '../../../models/datamapper/nodepath';
 import { NS_XPATH_FUNCTIONS } from '../../../models/datamapper/standard-namespaces';
 import { Predicate, PredicateOperator } from '../../../models/datamapper/xpath';
-import { FROM_JSON_SOURCE_SUFFIX } from '../../mapping/mapping-serializer-json-addon';
 import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
+
+export const FROM_JSON_SOURCE_SUFFIX = '-x';
 
 export interface CreateJsonSchemaDocumentResult extends CreateDocumentResult {
   document?: JsonSchemaDocument;

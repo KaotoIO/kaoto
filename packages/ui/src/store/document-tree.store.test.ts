@@ -6,8 +6,10 @@ import {
   PrimitiveDocument,
 } from '../models/datamapper/document';
 import { DocumentTree } from '../models/datamapper/document-tree';
-import { DocumentNodeData } from '../models/datamapper/visualization';
+import { MappingTree } from '../models/datamapper/mapping';
+import { DocumentNodeData, TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { XmlSchemaDocument } from '../services/document/xml-schema/xml-schema-document.model';
+import { MappingActionService } from '../services/visualization/mapping-action.service';
 import { TreeParsingService } from '../services/visualization/tree-parsing.service';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { TreeConnectionPorts, useDocumentTreeStore } from './document-tree.store';
@@ -40,14 +42,12 @@ describe('useDocumentTreeStore', () => {
   });
 
   describe('updateTreeExpansion', () => {
-    it('should set first level state to false for an unparsed tree', () => {
+    it('should produce empty expansion state for an unparsed tree', () => {
       useDocumentTreeStore.getState().updateTreeExpansion(tree);
       const state = useDocumentTreeStore.getState().expansionState;
 
       expect(state).toEqual({
-        ['doc-sourceBody-Body']: {
-          ['sourceBody:Body://']: false,
-        },
+        ['doc-sourceBody-Body']: {},
       });
       expect(Object.keys(state)).toHaveLength(1);
     });
@@ -63,8 +63,7 @@ describe('useDocumentTreeStore', () => {
       const keys = Object.keys(state[tree.documentId]);
 
       expect(keys).toEqual([
-        // DFS order: Root -> ShipOrder -> children -> grandchildren (maxFields extends beyond maxDepth)
-        'targetBody:Body://',
+        // DFS order: ShipOrder -> children -> grandchildren (maxFields extends beyond maxDepth)
         expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}$/),
         expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-OrderId-\d{4}$/),
         expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-OrderPerson-\d{4}$/),
@@ -81,7 +80,7 @@ describe('useDocumentTreeStore', () => {
         expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}\/fx-Quantity-\d{4}$/),
         expect.stringMatching(/^targetBody:Body:\/\/fx-ShipOrder-\d{4}\/fx-Item-\d{4}\/fx-Price-\d{4}$/),
       ]);
-      expect(keys).toHaveLength(14);
+      expect(keys).toHaveLength(13);
     });
 
     it('should not include primitive nodes in expansion state', () => {
@@ -93,11 +92,41 @@ describe('useDocumentTreeStore', () => {
 
       TreeParsingService.parseTree(primitiveTree);
 
-      useDocumentTreeStore.getState().updateTreeExpansion(tree);
+      useDocumentTreeStore.getState().updateTreeExpansion(primitiveTree);
       const state = useDocumentTreeStore.getState().expansionState;
-      const keys = Object.keys(state[tree.documentId]);
+      const keys = Object.keys(state[primitiveTree.documentId]);
 
-      expect(keys).toEqual(['sourceBody:Body://']);
+      expect(keys).toEqual([]);
+    });
+
+    it('should track expansion state for primitive target document with instruction items', () => {
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const mappingTree = new MappingTree(
+        primitiveDoc.documentType,
+        primitiveDoc.documentId,
+        DocumentDefinitionType.Primitive,
+      );
+      const targetDocNode = new TargetDocumentNodeData(primitiveDoc, mappingTree);
+
+      // Add an 'if' instruction item to the primitive target
+      MappingActionService.applyIf(targetDocNode);
+
+      const primitiveTree = new DocumentTree(targetDocNode);
+      TreeParsingService.parseTree(primitiveTree);
+
+      useDocumentTreeStore.getState().updateTreeExpansion(primitiveTree);
+      const state = useDocumentTreeStore.getState().expansionState;
+      const keys = Object.keys(state[primitiveTree.documentId]);
+
+      // The 'if' instruction item and its ValueSelector child should appear in expansion state
+      expect(keys.length).toBeGreaterThan(0);
+
+      // Content roots should be flattened for rendering
+      const flattened = primitiveTree.flatten(state[primitiveTree.documentId]);
+      expect(flattened.length).toBeGreaterThan(0);
+      expect(flattened[0].treeNode.nodeData.title).toBe('if');
     });
 
     it('should keep the existing expansion state for matching keys', () => {
@@ -109,16 +138,15 @@ describe('useDocumentTreeStore', () => {
       const initialState = useDocumentTreeStore.getState().expansionState[tree.documentId];
       const paths = Object.keys(initialState);
 
-      // Find a path that has children (not root or leaf)
-      const rootPath = paths[0]; // 'sourceBody:Body://'
-      const childPath = paths[1]; // First child path (with random ID)
+      const firstContentRoot = paths[0];
+      const secondPath = paths[1];
 
-      // Set custom expansion state: root expanded (true), child collapsed (false)
+      // Set custom expansion state: first content root expanded (true), second collapsed (false)
       useDocumentTreeStore.setState({
         expansionState: {
           [tree.documentId]: {
-            [rootPath]: true,
-            [childPath]: false,
+            [firstContentRoot]: true,
+            [secondPath]: false,
           },
         },
       });
@@ -127,9 +155,8 @@ describe('useDocumentTreeStore', () => {
       useDocumentTreeStore.getState().updateTreeExpansion(tree);
       const state = useDocumentTreeStore.getState().expansionState[tree.documentId];
 
-      // Verify that the custom states were preserved for matching keys
-      expect(state[rootPath]).toBe(true);
-      expect(state[childPath]).toBe(false);
+      expect(state[firstContentRoot]).toBe(true);
+      expect(state[secondPath]).toBe(false);
     });
   });
 
