@@ -1,6 +1,7 @@
 import './XPathEditorLayout.scss';
 
 import {
+  Button,
   Grid,
   GridItem,
   Menu,
@@ -13,6 +14,7 @@ import {
   Tabs,
   TabTitleText,
 } from '@patternfly/react-core';
+import { AngleDownIcon, AngleRightIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EditorNodeData, FunctionNodeData, IExpressionHolder, MappingItem } from '../../models/datamapper';
@@ -48,9 +50,25 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
   };
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchValue, setSearchValue] = useState('');
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    // Initialize with all groups expanded
+    return new Set(Object.keys(functionDefinitions));
+  });
 
   const handleOnSearchChange = useCallback((_event: unknown, value: string) => {
     setSearchValue(value);
+  }, []);
+
+  const toggleGroup = useCallback((groupName: string) => {
+    setExpandedGroups((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(groupName)) {
+        newSet.delete(groupName);
+      } else {
+        newSet.add(groupName);
+      }
+      return newSet;
+    });
   }, []);
 
   useEffect(() => {
@@ -95,35 +113,51 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
                 />
                 <Menu className="xpath-editor__tab__functions-list">
                   <MenuContent>
-                    {Object.keys(functionDefinitions).map((value) => (
-                      <MenuGroup
-                        key={value}
-                        label={value}
-                        hidden={
-                          !functionDefinitions[value as FunctionGroup].some((func) =>
-                            func.displayName.toLocaleLowerCase().includes(getSearchValue),
-                          )
-                        }
-                      >
-                        {functionDefinitions[value as FunctionGroup]
-                          .filter((func) => func.displayName.toLocaleLowerCase().includes(getSearchValue))
-                          .map((func) => (
-                            <DraggableContainer
-                              key={`${value}-${func.name}`}
-                              id={`${value}-${func.name}`}
-                              nodeData={new FunctionNodeData(func)}
+                    {Object.keys(functionDefinitions).map((value) => {
+                      const isExpanded = expandedGroups.has(value);
+                      const hasVisibleItems = functionDefinitions[value as FunctionGroup].some((func) =>
+                        func.displayName.toLocaleLowerCase().includes(getSearchValue),
+                      );
+
+                      if (!hasVisibleItems) return null;
+
+                      return (
+                        <MenuGroup
+                          key={value}
+                          label={
+                            <Button
+                              aria-expanded={isExpanded}
+                              variant="plain"
+                              onClick={() => toggleGroup(value)}
+                              className="xpath-editor__tab__functions-list__group-toggle"
+                              icon={isExpanded ? <AngleDownIcon /> : <AngleRightIcon />}
+                              data-testid={`function-group-toggle-${value}`}
                             >
-                              <MenuItem
-                                className="menu-item-drag"
-                                key={`${value}-${func.name}`}
-                                description={func.description}
-                              >
-                                {func.displayName}
-                              </MenuItem>
-                            </DraggableContainer>
-                          ))}
-                      </MenuGroup>
-                    ))}
+                              {value}
+                            </Button>
+                          }
+                        >
+                          {isExpanded &&
+                            functionDefinitions[value as FunctionGroup]
+                              .filter((func) => func.displayName.toLocaleLowerCase().includes(getSearchValue))
+                              .map((func) => (
+                                <DraggableContainer
+                                  key={`${value}-${func.name}`}
+                                  id={`${value}-${func.name}`}
+                                  nodeData={new FunctionNodeData(func)}
+                                >
+                                  <MenuItem
+                                    className="menu-item-drag"
+                                    key={`${value}-${func.name}`}
+                                    description={func.description}
+                                  >
+                                    {func.displayName}
+                                  </MenuItem>
+                                </DraggableContainer>
+                              ))}
+                        </MenuGroup>
+                      );
+                    })}
                   </MenuContent>
                 </Menu>
               </TabContent>

@@ -15,6 +15,18 @@
       display: block;
       flex: 1 1 auto;
       overflow: scroll;
+
+      &__group-toggle {
+        width: 100%;
+        justify-content: flex-start;
+        text-align: left;
+        font-weight: var(--pf-t--global--font--weight--body--bold);
+        padding: var(--pf-t--global--spacer--sm) var(--pf-t--global--spacer--md);
+
+        &:hover {
+          background-color: var(--pf-t--global--background--color--action--hover--default);
+        }
+      }
     }
   }
 
