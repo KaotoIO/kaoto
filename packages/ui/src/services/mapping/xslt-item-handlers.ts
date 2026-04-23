@@ -1,0 +1,272 @@
+import { BaseField, IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
+import {
+  ChooseItem,
+  FieldItem,
+  ForEachGroupItem,
+  ForEachItem,
+  GroupingStrategy,
+  IfItem,
+  MappingParentType,
+  OtherwiseItem,
+  UnknownMappingItem,
+  ValueSelector,
+  ValueType,
+  WhenItem,
+} from '../../models/datamapper/mapping';
+import { NS_XSL } from '../../models/datamapper/standard-namespaces';
+import { DeserializeResult, MappingItemClass, XsltItemHandler } from '../../models/datamapper/xslt-item-handler';
+import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
+import { MappingSerializerJsonAddon } from './mapping-serializer-json-addon';
+
+/** Handles {@link ValueSelector} — maps to `xsl:copy-of`, `xsl:value-of`, or `xsl:text`. */
+export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
+  readonly itemClass = ValueSelector;
+  readonly xsltElementNames = ['copy-of', 'value-of', 'text'];
+
+  serialize(parent: Element, mapping: ValueSelector): Element {
+    const doc = parent.ownerDocument;
+    if (mapping.valueType === ValueType.CONTAINER) {
+      const copyOf = doc.createElementNS(NS_XSL, 'copy-of');
+      copyOf.setAttribute('select', mapping.expression);
+      parent.appendChild(copyOf);
+      return copyOf;
+    }
+    const valueOf = doc.createElementNS(NS_XSL, 'value-of');
+    valueOf.setAttribute('select', mapping.expression);
+    parent.appendChild(valueOf);
+    return valueOf;
+  }
+
+  deserialize(element: Element, parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    switch (element.localName) {
+      case 'copy-of': {
+        const selector = new ValueSelector(parentMapping, ValueType.CONTAINER);
+        selector.expression = element.getAttribute('select') || '';
+        return { mappingItem: selector, fieldItem: null };
+      }
+      case 'text': {
+        const selector = new ValueSelector(parentMapping, ValueType.VALUE);
+        selector.expression = element.textContent || '';
+        selector.isLiteral = true;
+        return { mappingItem: selector, fieldItem: null };
+      }
+      default: {
+        const valueType =
+          'isAttribute' in parentField && parentField.isAttribute ? ValueType.ATTRIBUTE : ValueType.VALUE;
+        const selector = new ValueSelector(parentMapping, valueType);
+        selector.expression = element.getAttribute('select') || '';
+        return { mappingItem: selector, fieldItem: null };
+      }
+    }
+  }
+}
+
+/** Handles {@link FieldItem} — serializes target element or `xsl:attribute`, deserializes `xsl:attribute`. */
+export class FieldItemHandler implements XsltItemHandler<FieldItem> {
+  readonly itemClass = FieldItem;
+  readonly xsltElementNames = ['attribute'];
+
+  serialize(parent: Element, mapping: FieldItem): Element {
+    const doc = parent.ownerDocument;
+    if (mapping.field.isAttribute) {
+      const xslAttribute = doc.createElementNS(NS_XSL, 'attribute');
+      xslAttribute.setAttribute('name', mapping.field.name);
+      mapping.field.namespaceURI && xslAttribute.setAttribute('namespace', mapping.field.namespaceURI);
+      parent.appendChild(xslAttribute);
+      return xslAttribute;
+    }
+
+    const jsonElement = MappingSerializerJsonAddon.populateFieldItem(parent, mapping);
+    if (jsonElement) return jsonElement;
+
+    const element = mapping.field.namespaceURI
+      ? doc.createElementNS(mapping.field.namespaceURI, mapping.field.name)
+      : doc.createElement(mapping.field.name);
+    parent.appendChild(element);
+    return element;
+  }
+
+  deserialize(element: Element, parentField: IParentType, parentMapping: MappingParentType): DeserializeResult | null {
+    if (parentField instanceof PrimitiveDocument) return null;
+    const field = FieldItemHandler.getOrCreateAttributeField(element, parentField);
+    if (!field) return null;
+    return { mappingItem: new FieldItem(parentMapping, field), fieldItem: field };
+  }
+
+  private static getOrCreateAttributeField(item: Element, parentField: IParentType): IField | null {
+    const namespace = item.getAttribute('namespace') ?? '';
+    const name = item.getAttribute('name');
+    if (!name) return null;
+    const existing = XmlSchemaDocumentUtilService.getChildField(parentField, name, namespace);
+    if (existing) return existing;
+    const field = new BaseField(
+      parentField,
+      'ownerDocument' in parentField ? parentField.ownerDocument : parentField,
+      name,
+    );
+    field.isAttribute = true;
+    field.namespaceURI = namespace || '';
+    parentField.fields.push(field);
+    return field;
+  }
+}
+
+/** Handles {@link IfItem} — maps to `xsl:if`. */
+export class IfItemHandler implements XsltItemHandler<IfItem> {
+  readonly itemClass = IfItem;
+  readonly xsltElementNames = ['if'];
+
+  serialize(parent: Element, mapping: IfItem): Element {
+    const xslIf = parent.ownerDocument.createElementNS(NS_XSL, 'if');
+    xslIf.setAttribute('test', mapping.expression);
+    parent.appendChild(xslIf);
+    return xslIf;
+  }
+
+  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    const ifItem = new IfItem(parentMapping);
+    ifItem.expression = element.getAttribute('test') || '';
+    return { mappingItem: ifItem, fieldItem: null };
+  }
+}
+
+/** Handles {@link ChooseItem} — maps to `xsl:choose`. */
+export class ChooseItemHandler implements XsltItemHandler<ChooseItem> {
+  readonly itemClass = ChooseItem;
+  readonly xsltElementNames = ['choose'];
+
+  serialize(parent: Element, _mapping: ChooseItem): Element {
+    const xslChoose = parent.ownerDocument.createElementNS(NS_XSL, 'choose');
+    parent.appendChild(xslChoose);
+    return xslChoose;
+  }
+
+  deserialize(_element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    return { mappingItem: new ChooseItem(parentMapping), fieldItem: null };
+  }
+}
+
+/** Handles {@link WhenItem} — maps to `xsl:when`. */
+export class WhenItemHandler implements XsltItemHandler<WhenItem> {
+  readonly itemClass = WhenItem;
+  readonly xsltElementNames = ['when'];
+
+  serialize(parent: Element, mapping: WhenItem): Element {
+    const xslWhen = parent.ownerDocument.createElementNS(NS_XSL, 'when');
+    xslWhen.setAttribute('test', mapping.expression);
+    parent.appendChild(xslWhen);
+    return xslWhen;
+  }
+
+  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    const whenItem = new WhenItem(parentMapping);
+    whenItem.expression = element.getAttribute('test') || '';
+    return { mappingItem: whenItem, fieldItem: null };
+  }
+}
+
+/** Handles {@link OtherwiseItem} — maps to `xsl:otherwise`. */
+export class OtherwiseItemHandler implements XsltItemHandler<OtherwiseItem> {
+  readonly itemClass = OtherwiseItem;
+  readonly xsltElementNames = ['otherwise'];
+
+  serialize(parent: Element, _mapping: OtherwiseItem): Element {
+    const xslOtherwise = parent.ownerDocument.createElementNS(NS_XSL, 'otherwise');
+    parent.appendChild(xslOtherwise);
+    return xslOtherwise;
+  }
+
+  deserialize(_element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    return { mappingItem: new OtherwiseItem(parentMapping), fieldItem: null };
+  }
+}
+
+/** Handles {@link ForEachItem} — maps to `xsl:for-each`. */
+export class ForEachItemHandler implements XsltItemHandler<ForEachItem> {
+  readonly itemClass = ForEachItem;
+  readonly xsltElementNames = ['for-each'];
+
+  serialize(parent: Element, mapping: ForEachItem): Element {
+    const xslForEach = parent.ownerDocument.createElementNS(NS_XSL, 'for-each');
+    xslForEach.setAttribute('select', mapping.expression);
+    parent.appendChild(xslForEach);
+    return xslForEach;
+  }
+
+  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    const forEachItem = new ForEachItem(parentMapping);
+    forEachItem.expression = element.getAttribute('select') || '';
+    return { mappingItem: forEachItem, fieldItem: null };
+  }
+}
+
+/** Handles {@link ForEachGroupItem} — maps to `xsl:for-each-group` with a grouping strategy attribute. */
+export class ForEachGroupItemHandler implements XsltItemHandler<ForEachGroupItem> {
+  readonly itemClass = ForEachGroupItem;
+  readonly xsltElementNames = ['for-each-group'];
+
+  serialize(parent: Element, mapping: ForEachGroupItem): Element {
+    const el = parent.ownerDocument.createElementNS(NS_XSL, 'for-each-group');
+    el.setAttribute('select', mapping.expression);
+    el.setAttribute(mapping.groupingStrategy, mapping.groupingExpression);
+    parent.appendChild(el);
+    return el;
+  }
+
+  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    const item = new ForEachGroupItem(parentMapping);
+    item.expression = element.getAttribute('select') || '';
+    for (const strategy of Object.values(GroupingStrategy)) {
+      const val = element.getAttribute(strategy);
+      if (val != null) {
+        item.groupingStrategy = strategy;
+        item.groupingExpression = val;
+        break;
+      }
+    }
+    return { mappingItem: item, fieldItem: null };
+  }
+}
+
+/**
+ * Fallback handler for unrecognized XSL elements — round-trips the raw DOM node via {@link UnknownMappingItem}.
+ * {@link deserialize()} is never actually used as the fallback decision is directly made in
+ * {@link MappingSerializerService.deserialize()}.
+ * */
+export class UnknownMappingItemHandler implements XsltItemHandler<UnknownMappingItem> {
+  readonly itemClass = UnknownMappingItem;
+  readonly xsltElementNames: string[] = [];
+
+  serialize(parent: Element, mapping: UnknownMappingItem): Element {
+    const imported = parent.ownerDocument.importNode(mapping.element, true);
+    parent.appendChild(imported);
+    return imported;
+  }
+
+  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+    return { mappingItem: new UnknownMappingItem(parentMapping, element), fieldItem: null };
+  }
+}
+
+/** Single source of truth — every {@link XsltItemHandler} instance. Lookup maps are derived from this array. */
+export const allHandlers: XsltItemHandler[] = [
+  new ValueSelectorHandler(),
+  new FieldItemHandler(),
+  new IfItemHandler(),
+  new ChooseItemHandler(),
+  new WhenItemHandler(),
+  new OtherwiseItemHandler(),
+  new ForEachItemHandler(),
+  new ForEachGroupItemHandler(),
+  new UnknownMappingItemHandler(),
+];
+
+/** Serialize direction: dispatch by {@link MappingItem} constructor. */
+export const serializeHandlers: ReadonlyMap<MappingItemClass, XsltItemHandler> = new Map(
+  allHandlers.map((h) => [h.itemClass, h]),
+);
+
+/** Deserialize direction: dispatch by XSLT element `localName`. */
+export const deserializeHandlers: ReadonlyMap<string, XsltItemHandler> = new Map(
+  allHandlers.flatMap((h) => h.xsltElementNames.map((name) => [name, h] as const)),
+);

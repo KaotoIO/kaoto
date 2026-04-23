@@ -97,6 +97,9 @@ export function getShipOrderEmptyFirstLineXsd(): string {
 export function getShipOrderToShipOrderMultipleForEachXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrderMultipleForEach.xsl');
 }
+export function getForEachGroupToShipOrderXslt(): string {
+  return readStubFile('./xml/ForEachGroupToShipOrder.xsl');
+}
 export function getShipOrderToShipOrderCollectionIndexXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrderCollectionIndex.xsl');
 }
