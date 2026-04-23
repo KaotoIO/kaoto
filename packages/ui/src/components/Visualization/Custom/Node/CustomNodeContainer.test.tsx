@@ -26,6 +26,7 @@ describe('CustomNodeContainer', () => {
     width: 90,
     height: 75,
     dataTestId: 'test-node',
+    isCollapsed: true,
   };
 
   it('should render IconResolver with correct props', () => {
@@ -59,6 +60,7 @@ describe('CustomNodeContainer', () => {
         {...defaultContainerProps}
         vizNode={vizNode}
         tooltipContent={undefined}
+        isCollapsed={true}
         childCount={5}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -69,6 +71,25 @@ describe('CustomNodeContainer', () => {
     const childCountElement = screen.getByTitle('5');
     expect(childCountElement).toBeInTheDocument();
     expect(childCountElement).toHaveTextContent('5');
+  });
+
+  it('should not render child count when isCollapsed is false', () => {
+    const vizNode = createMockVizNode();
+
+    render(
+      <CustomNodeContainer
+        {...defaultContainerProps}
+        vizNode={vizNode}
+        tooltipContent={undefined}
+        isCollapsed={false}
+        childCount={5}
+        ProcessorIcon={null}
+        processorDescription={undefined}
+        isDisabled={false}
+      />,
+    );
+
+    expect(screen.queryByTitle('5')).not.toBeInTheDocument();
   });
 
   it('should not render child count when childCount is 0', () => {
@@ -206,5 +227,27 @@ describe('CustomNodeContainer', () => {
     expect(screen.getByTitle('3')).toBeInTheDocument();
     expect(screen.getByTestId('processor-icon')).toBeInTheDocument();
     expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
+  });
+
+  it('should render Layers icon when hasGroupChildren is true', () => {
+    const vizNode = createMockVizNode();
+
+    const { container } = render(
+      <CustomNodeContainer
+        {...defaultContainerProps}
+        vizNode={vizNode}
+        tooltipContent={undefined}
+        isCollapsed={true}
+        childCount={1}
+        hasGroupChildren={true}
+        ProcessorIcon={null}
+        processorDescription={undefined}
+        isDisabled={false}
+      />,
+    );
+
+    expect(container.querySelector('.step-icon-collection')).toBeInTheDocument();
+    // Carbon icon is rendered inside PF Icon
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 });
