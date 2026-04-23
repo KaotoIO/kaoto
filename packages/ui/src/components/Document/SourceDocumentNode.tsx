@@ -8,7 +8,7 @@ import { VisualizationService } from '../../services/visualization/visualization
 import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
-import { withFieldOverrideContextMenu } from './actions/FieldOverride/withFieldOverrideContextMenu';
+import { withFieldContextMenu } from './actions/withFieldContextMenu';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
@@ -111,4 +111,4 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
 
 SourceDocumentNode.displayName = 'SourceDocumentNode';
 
-export const SourceDocumentNodeWithContextMenu = withFieldOverrideContextMenu(SourceDocumentNode);
+export const SourceDocumentNodeWithContextMenu = withFieldContextMenu(SourceDocumentNode);

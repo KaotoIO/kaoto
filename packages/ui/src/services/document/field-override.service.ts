@@ -27,7 +27,7 @@ import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
  * Field Substitution (`SUBSTITUTION` / `selectedMemberIndex`), never both. The {@link FieldOverrideModal}
  * enforces this by disabling the inactive radio when an override exists. Service methods
  * `applyFieldTypeOverride` and `applyFieldSubstitution` also guard against conflicting state.
- * For abstract wrappers, `withFieldOverrideContextMenu` redirects UI actions to the wrapper
+ * For abstract wrappers, `withFieldContextMenu` redirects UI actions to the wrapper
  * field so the selected member cannot receive a separate override.
  *
  * @example

@@ -108,6 +108,28 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <!-- Collection choice: maxOccurs="unbounded" with few members -->
+                <xs:element name="CollectionChoiceElement">
+                    <xs:complexType>
+                        <xs:choice maxOccurs="unbounded">
+                            <xs:element name="Email" type="xs:string"/>
+                            <xs:element name="Phone" type="xs:string"/>
+                            <xs:element name="Fax" type="xs:string"/>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <!-- Collection choice nested: unbounded choice containing a nested choice -->
+                <xs:element name="CollectionNestedChoiceElement">
+                    <xs:complexType>
+                        <xs:choice maxOccurs="unbounded">
+                            <xs:element name="Letter" type="xs:string"/>
+                            <xs:choice>
+                                <xs:element name="SMS" type="xs:string"/>
+                                <xs:element name="MMS" type="xs:string"/>
+                            </xs:choice>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="AllElement">
                     <xs:complexType>
                         <xs:all>

@@ -34,6 +34,10 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({
 }) => {
   const isChoiceWrapper =
     (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) && !nodeData.choiceField;
+  const isSelectedChoiceWrapper =
+    (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
+    !!nodeData.choiceField &&
+    nodeData.field.wrapperKind === 'choice';
   const isAbstractWrapper =
     (nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData) &&
     !nodeData.abstractField;
@@ -75,6 +79,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({
     >
       <div className="node-title-container">
         {isChoiceWrapper && <Label>choice</Label>}
+        {isSelectedChoiceWrapper && <Label color="green">choice</Label>}
         {isAbstractWrapper && (
           <Label color={hasNoCandidates ? 'red' : undefined}>
             {hasNoCandidates ? 'abstract (no candidates)' : 'abstract'}
