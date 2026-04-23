@@ -14,39 +14,59 @@ export interface FlattenedNode {
 }
 
 /**
- * Document tree for managing pre-parsed schema structure
- * Handles the root node and provides tree-level operations
+ * Pre-parsed tree structure for a document in the DataMapper.
+ *
+ * A document tree separates the document identity from its internal structure:
+ * - {@link documentNodeData} represents the document itself (name, type, schema attachment)
+ *   and is rendered by the panel header ({@link DocumentHeader}).
+ * - {@link contentRoots} / {@link flatten} represent the document's internal structure
+ *   (schema fields, mapping items) and are rendered in the panel's virtual-scroll tree.
+ *
+ * The internal {@link root} `DocumentTreeNode` remains the structural parent of all nodes
+ * and is used by {@link TreeParsingService} for tree construction and by
+ * {@link TreeUIService} for node lookup and invalidation. It is intentionally excluded
+ * from {@link flatten} output to avoid duplicating the panel header in the tree.
  */
 export class DocumentTree {
-  public readonly documentId: string;
-  public root: DocumentTreeNode;
+  readonly documentId: string;
+  readonly documentNodeData: DocumentNodeData;
+  readonly root: DocumentTreeNode;
 
   constructor(documentNodeData: DocumentNodeData) {
+    this.documentNodeData = documentNodeData;
     this.documentId = documentNodeData.id;
     this.root = new DocumentTreeNode(documentNodeData);
   }
 
   /**
-   * Find a node by path in the entire tree
+   * The first-level content nodes (schema fields for structured documents,
+   * mapping items for primitive documents). These are the roots of the
+   * renderable tree content.
    */
+  get contentRoots(): readonly DocumentTreeNode[] {
+    return this.root.children;
+  }
+
+  /** Find a node by path in the entire tree */
   findNodeByPath(path: string): DocumentTreeNode | undefined {
     return this.root.findByPath(path);
   }
 
   /**
-   * Flattens the tree into an array of visible nodes based on expansion state
+   * Flattens the content tree into an array of visible nodes for virtual-scroll rendering.
+   *
+   * Starts from {@link contentRoots} (not the document root), since the document node
+   * is represented by the panel header.
    *
    * Key behavior:
-   * - Always includes the root node
    * - Only includes children if parent is expanded
    * - Recursively checks expansion state down the tree
    * - Calculates correct depth for indentation
    *
    * @param expansionState - Record mapping node paths to their expansion state
-   * @param startDepth - Starting depth for the root node (default: 0)
    * @returns Array of flattened nodes with depth and index information
    */
-  flatten(expansionState: Record<string, boolean>, startDepth = 0): FlattenedNode[] {
+  flatten(expansionState: Record<string, boolean>): FlattenedNode[] {
     const result: FlattenedNode[] = [];
 
     const traverse = (node: DocumentTreeNode, depth: number) => {
@@ -62,13 +82,16 @@ export class DocumentTree {
       // 1. Node has children
       // 2. Node is expanded (checked via expansion state)
       if (node.children.length > 0 && (expansionState[node.path] ?? false)) {
-        node.children.forEach((child) => {
+        for (const child of node.children) {
           traverse(child, depth + 1);
-        });
+        }
       }
     };
 
-    traverse(this.root, startDepth);
+    for (const contentRoot of this.contentRoots) {
+      traverse(contentRoot, 0);
+    }
+
     return result;
   }
 }

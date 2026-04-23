@@ -9,15 +9,15 @@ import {
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentType } from '../../models/datamapper/document';
 import { NS_XPATH_FUNCTIONS } from '../../models/datamapper/standard-namespaces';
 import { getCartToShipOrderJsonXslt, getShipOrderXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
-import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
+import {
+  FROM_JSON_SOURCE_SUFFIX,
+  JsonSchemaDocument,
+  JsonSchemaField,
+} from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingSerializerService } from './mapping-serializer.service';
-import {
-  FROM_JSON_SOURCE_SUFFIX,
-  MappingSerializerJsonAddon,
-  TO_JSON_TARGET_VARIABLE,
-} from './mapping-serializer-json-addon';
+import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 describe('mappingSerializerJsonAddon', () => {
   describe('populateXmlToJsonVariable()', () => {

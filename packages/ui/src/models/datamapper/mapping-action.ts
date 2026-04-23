@@ -1,4 +1,4 @@
-import { TargetNodeData } from './visualization';
+import type { TargetNodeData } from './visualization';
 
 /**
  * Enumeration of actions that can be performed on a target mapping node.

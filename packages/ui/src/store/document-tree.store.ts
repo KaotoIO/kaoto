@@ -100,10 +100,12 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentId] ?? {};
         const newExpansionState: TreeExpansionState = {};
 
-        processTreeNode(documentTree.root, (treeNode) => {
-          const isNodeParsed = treeNode.isParsed;
-          newExpansionState[treeNode.path] = isNodeParsed && (currentExpansionState[treeNode.path] ?? true);
-        });
+        for (const contentRoot of documentTree.contentRoots) {
+          processTreeNode(contentRoot, (treeNode) => {
+            const isNodeParsed = treeNode.isParsed;
+            newExpansionState[treeNode.path] = isNodeParsed && (currentExpansionState[treeNode.path] ?? true);
+          });
+        }
 
         set((state) => ({
           expansionState: {

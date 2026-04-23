@@ -36,7 +36,7 @@ export class VisualizationUtilService {
    * @param nodeData - The node to test.
    */
   static isAttributeField(nodeData: NodeData) {
-    return nodeData instanceof FieldNodeData && nodeData.field.isAttribute;
+    return VisualizationUtilService.getField(nodeData)?.isAttribute ?? false;
   }
 
   /**
@@ -60,7 +60,8 @@ export class VisualizationUtilService {
    * @param nodeData - The node to test.
    */
   static isRecursiveField(nodeData: NodeData) {
-    return nodeData instanceof FieldNodeData && DocumentService.isRecursiveField(nodeData.field);
+    const field = VisualizationUtilService.getField(nodeData);
+    return field ? DocumentService.isRecursiveField(field) : false;
   }
 
   /**

@@ -8,9 +8,16 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree, INITIAL_PARSE_DEPTH } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { DocumentNodeData, FieldNodeData } from '../../models/datamapper/visualization';
+import { MappingTree } from '../../models/datamapper/mapping';
+import {
+  DocumentNodeData,
+  FieldNodeData,
+  MappingNodeData,
+  TargetDocumentNodeData,
+} from '../../models/datamapper/visualization';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
+import { MappingActionService } from './mapping-action.service';
 import { TreeParsingService } from './tree-parsing.service';
 import { VisualizationService } from './visualization.service';
 
@@ -57,6 +64,33 @@ describe('TreeParsingService', () => {
 
       expect(primitiveTree.root.isParsed).toBe(false);
       expect(primitiveTree.root.children).toHaveLength(0);
+    });
+
+    it('should parse primitive target document with instruction items into content roots', () => {
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const mappingTree = new MappingTree(
+        primitiveDoc.documentType,
+        primitiveDoc.documentId,
+        DocumentDefinitionType.Primitive,
+      );
+      const targetDocNode = new TargetDocumentNodeData(primitiveDoc, mappingTree);
+
+      // Add an 'if' instruction item to the primitive target
+      MappingActionService.applyIf(targetDocNode);
+
+      const primitiveTree = new DocumentTree(targetDocNode);
+      TreeParsingService.parseTree(primitiveTree);
+
+      // The 'if' instruction item should appear as a content root
+      expect(primitiveTree.contentRoots.length).toBe(1);
+      expect(primitiveTree.contentRoots[0].nodeData).toBeInstanceOf(MappingNodeData);
+      expect(primitiveTree.contentRoots[0].nodeData.title).toBe('if');
+
+      // The content root should be parsed and have its own children (ValueSelector)
+      expect(primitiveTree.contentRoots[0].isParsed).toBe(true);
+      expect(primitiveTree.contentRoots[0].children.length).toBeGreaterThan(0);
     });
 
     it('should handle empty document (no fields)', () => {

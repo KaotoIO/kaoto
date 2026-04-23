@@ -18,7 +18,7 @@ export const processTreeNode = (
   let totalFieldsProcessed = 0;
 
   const visit = (node: DocumentTreeNode, depth: number): void => {
-    if ((depth >= maxDepth && totalFieldsProcessed >= maxFields) || node.nodeData.isPrimitive) {
+    if (depth >= maxDepth && totalFieldsProcessed >= maxFields) {
       return;
     }
 

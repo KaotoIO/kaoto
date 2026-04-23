@@ -10,13 +10,12 @@ import {
 } from '../../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../../models/datamapper/standard-namespaces';
 import {
+  FROM_JSON_SOURCE_SUFFIX,
   JsonSchemaDocument,
   JsonSchemaField,
   JsonSchemaParentType,
 } from '../document/json-schema/json-schema-document.model';
 import { JsonSchemaDocumentUtilService } from '../document/json-schema/json-schema-document-util.service';
-
-export const FROM_JSON_SOURCE_SUFFIX = '-x';
 export const TO_JSON_TARGET_VARIABLE = 'mapped-xml';
 
 /**
