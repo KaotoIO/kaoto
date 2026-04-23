@@ -82,7 +82,6 @@ import icon_component_debezium from '../assets/components/debezium.svg';
 import icon_component_dhis2 from '../assets/components/dhis2.svg';
 import icon_component_direct from '../assets/components/direct.svg';
 import icon_component_djl from '../assets/components/djl.png';
-import icon_action_docker from '../assets/components/docker.svg';
 import icon_component_docker from '../assets/components/docker.svg';
 import icon_component_drill from '../assets/components/drill.svg';
 import icon_component_dropbox from '../assets/components/dropbox.svg';
@@ -129,11 +128,9 @@ import icon_component_jetty from '../assets/components/jetty.svg';
 import icon_component_jira from '../assets/components/jira.svg';
 import icon_component_jms from '../assets/components/jms.png';
 import icon_component_jte from '../assets/components/jte.svg';
-import icon_action_kafka from '../assets/components/kafka.svg';
 import icon_component_kafka from '../assets/components/kafka.svg';
 import icon_component_keycloak from '../assets/components/keycloak.svg';
 import icon_component_kserve from '../assets/components/kserve.svg';
-import icon_action_kubernetes from '../assets/components/kubernetes.svg';
 import icon_component_kubernetes_generic from '../assets/components/kubernetes.svg';
 import icon_component_kubernetes_config_maps from '../assets/components/kubernetes-config-maps.svg';
 import icon_component_kubernetes_cronjob from '../assets/components/kubernetes-cronjob.svg';
@@ -167,7 +164,6 @@ import icon_component_neo4j from '../assets/components/neo4j.svg';
 import icon_component_netty from '../assets/components/netty.png';
 import icon_component_nitrite from '../assets/components/nitrite.svg';
 import icon_component_odata from '../assets/components/odata.svg';
-import icon_action_openapi from '../assets/components/openapi.svg';
 import icon_component_openapi from '../assets/components/openapi.svg';
 import icon_component_opensearch from '../assets/components/opensearch.svg';
 import icon_component_openshift from '../assets/components/openshift.svg';
@@ -192,7 +188,6 @@ import icon_component_slack from '../assets/components/slack.svg';
 import icon_component_smooks from '../assets/components/smooks.svg';
 import icon_component_snmp from '../assets/components/snmp.png';
 import icon_component_splunk from '../assets/components/splunk.svg';
-import icon_action_spring from '../assets/components/spring.svg';
 import icon_component_spring from '../assets/components/spring.svg';
 import icon_component_sql from '../assets/components/sql_db.png';
 import icon_component_stitch from '../assets/components/stitch.svg';
@@ -204,7 +199,6 @@ import icon_component_timer from '../assets/components/timer.svg';
 import icon_component_twilio from '../assets/components/twilio.svg';
 import icon_component_twitter from '../assets/components/twitter.svg';
 import icon_component_velocity from '../assets/components/velocity.png';
-import icon_action_vertx from '../assets/components/vertx.svg';
 import icon_component_vertx from '../assets/components/vertx.svg';
 import icon_component_wasm from '../assets/components/wasm.svg';
 import icon_component_weather from '../assets/components/weather.svg';
@@ -335,19 +329,19 @@ export class NodeIconResolver {
     ['camel', icon_action_camel],
     ['direct', icon_action_direct],
     ['http', icon_action_http],
-    ['kafka', icon_action_kafka],
+    ['kafka', icon_component_kafka],
     ['mail', icon_action_mail],
     ['soap', icon_action_soap],
-    ['docker', icon_action_docker],
-    ['kubernetes', icon_action_kubernetes],
-    ['k8s', icon_action_kubernetes],
+    ['docker', icon_component_docker],
+    ['kubernetes', icon_component_kubernetes_generic],
+    ['k8s', icon_component_kubernetes_generic],
     ['knative', icon_action_knative],
-    ['openapi', icon_action_openapi],
+    ['openapi', icon_component_openapi],
     ['testcontainers', icon_action_testcontainers],
     ['selenium', icon_action_selenium],
-    ['spring', icon_action_spring],
-    ['channel', icon_action_spring],
-    ['vertx', icon_action_vertx],
+    ['spring', icon_component_spring],
+    ['channel', icon_component_spring],
+    ['vertx', icon_component_vertx],
     ['websocket', icon_action_websocket],
   ];
 
