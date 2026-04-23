@@ -205,7 +205,7 @@ export class MappingActionService {
     const targetItem = MappingActionService.getOrCreateFieldItem(targetNode);
     if (targetItem.children.some((c) => c instanceof ChooseItem)) return;
     targetItem.children = targetItem.children.filter((c) => !(c instanceof ValueSelector));
-    const chooseItem = new ChooseItem(targetItem);
+    const chooseItem = new ChooseItem(targetItem, targetItem instanceof FieldItem ? targetItem.field : undefined);
 
     for (const member of sourceField.fields ?? []) {
       const whenItem = MappingService.addWhen(chooseItem);

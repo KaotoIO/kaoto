@@ -66,6 +66,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const iconType = field?.type ?? nodeData.type;
   const isCollectionField = VisualizationUtilService.isCollectionField(nodeData);
   const isChoiceField = VisualizationUtilService.isChoiceField(nodeData);
+  const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
   const isAbstractField = VisualizationUtilService.isAbstractField(nodeData);
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isVariableNode = nodeData instanceof VariableNodeData;
@@ -123,7 +124,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Icon>
       )}
       {isChoiceField && (
-        <Icon className="node__spacer" data-testid="choice-field-icon">
+        <Icon
+          className="node__spacer"
+          status={isSelectedChoice ? 'success' : undefined}
+          data-testid="choice-field-icon"
+        >
           <Choices />
         </Icon>
       )}

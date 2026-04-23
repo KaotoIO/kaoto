@@ -4,7 +4,14 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../../models/datamapper/document';
-import { ChooseItem, FieldItem, MappingTree, OtherwiseItem, ValueSelector } from '../../models/datamapper/mapping';
+import {
+  ChooseItem,
+  FieldItem,
+  ForEachItem,
+  MappingTree,
+  OtherwiseItem,
+  ValueSelector,
+} from '../../models/datamapper/mapping';
 import {
   ChoiceFieldNodeData,
   DocumentNodeData,
@@ -16,6 +23,7 @@ import {
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { getTestDocumentXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import { DocumentService } from '../document/document.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingActionService } from './mapping-action.service';
@@ -37,7 +45,7 @@ describe('VisualizationService / choice fields', () => {
     targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
   });
 
-  function createMockChoiceField(members: { name: string }[], selectedMemberIndex?: number) {
+  function createMockChoiceField(members: { name: string }[], selectedMemberIndex?: number, maxOccurs?: 'unbounded') {
     const baseField = sourceDoc.fields[0];
     const memberFields = members.map((m) => ({
       ...baseField,
@@ -51,6 +59,7 @@ describe('VisualizationService / choice fields', () => {
       displayName: 'choice',
       wrapperKind: 'choice' as const,
       selectedMemberIndex,
+      ...(maxOccurs === undefined ? {} : { maxOccurs }),
       fields: memberFields,
     } as unknown as typeof baseField;
   }
@@ -513,14 +522,12 @@ describe('VisualizationService / choice fields', () => {
   describe('getChoiceMemberLabel', () => {
     it('should return member names joined with | in parentheses', () => {
       const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }, { name: 'fax' }]);
-      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
-      expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(email | phone | fax)');
+      expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(email | phone | fax)');
     });
 
     it('should return "(empty)" for a choice with no members', () => {
       const choiceField = createMockChoiceField([]);
-      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
-      expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(empty)');
+      expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(empty)');
     });
 
     it('should label a single nested choice member as "choice"', () => {
@@ -539,8 +546,7 @@ describe('VisualizationService / choice fields', () => {
         wrapperKind: 'choice' as const,
         fields: [innerChoice, { ...baseField, name: 'direct', displayName: 'direct', fields: [] }],
       } as unknown as typeof baseField;
-      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
-      expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(choice | direct)');
+      expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(choice | direct)');
     });
 
     it('should distinguish multiple nested choices with numbered labels', () => {
@@ -566,15 +572,13 @@ describe('VisualizationService / choice fields', () => {
         wrapperKind: 'choice' as const,
         fields: [inner1, inner2],
       } as unknown as typeof baseField;
-      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
-      expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(choice1 | choice2)');
+      expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(choice1 | choice2)');
     });
 
     it('should truncate long member lists showing first 3 and count', () => {
       const members = Array.from({ length: 10 }, (_, i) => ({ name: `member${i}` }));
       const choiceField = createMockChoiceField(members);
-      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
-      expect(VisualizationService.getChoiceMemberLabel(choiceNode)).toEqual('(member0 | member1 | member2 | +7 more)');
+      expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(member0 | member1 | member2 | +7 more)');
     });
   });
 
@@ -731,6 +735,92 @@ describe('VisualizationService / choice fields', () => {
       const targetFieldItem = tree.children[0];
       const chooseItems = targetFieldItem.children.filter((c) => c instanceof ChooseItem);
       expect(chooseItems.length).toEqual(1);
+    });
+  });
+
+  describe('mapping collection choice (maxOccurs > 1)', () => {
+    let localTargetDocNode: TargetDocumentNodeData;
+
+    beforeEach(() => {
+      const localTargetDoc = TestUtil.createTargetOrderDoc();
+      const localTree = new MappingTree(
+        localTargetDoc.documentType,
+        localTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      localTargetDocNode = new TargetDocumentNodeData(localTargetDoc, localTree);
+    });
+
+    it('should create ChooseItem for collection choice (same as non-collection)', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+      const localTree = localTargetDocNode.mappingTree;
+
+      MappingActionService.engageMapping(localTree, choiceNode, targetFieldNode);
+
+      expect(localTree.children.length).toEqual(1);
+      const targetFieldItem = localTree.children[0];
+      expect(targetFieldItem).toBeInstanceOf(FieldItem);
+      expect(targetFieldItem.children.length).toEqual(1);
+
+      const chooseItem = targetFieldItem.children[0] as ChooseItem;
+      expect(chooseItem).toBeInstanceOf(ChooseItem);
+      expect(chooseItem.when.length).toEqual(2);
+      expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
+    });
+
+    it('should create ChooseItem with correct when expressions for collection choice', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+      const localTree = localTargetDocNode.mappingTree;
+
+      MappingActionService.engageMapping(localTree, choiceNode, targetFieldNode);
+
+      const chooseItem = localTree.children[0].children[0] as ChooseItem;
+      expect(chooseItem.when[0].expression).toEqual('/ns0:email');
+      expect(chooseItem.when[1].expression).toEqual('/ns0:phone');
+    });
+
+    it('should create ValueSelectors inside when branches for collection choice', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+      const localTree = localTargetDocNode.mappingTree;
+
+      MappingActionService.engageMapping(localTree, choiceNode, targetFieldNode);
+
+      const chooseItem = localTree.children[0].children[0] as ChooseItem;
+      const emailSelector = chooseItem.when[0].children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      const phoneSelector = chooseItem.when[1].children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      expect(emailSelector.expression).toEqual('/ns0:email');
+      expect(phoneSelector.expression).toEqual('/ns0:phone');
+    });
+
+    it('should verify collection choice field is detected as collection', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }], undefined, 'unbounded');
+      expect(DocumentService.isCollectionField(choiceField)).toBe(true);
+    });
+
+    it('should not create ForEachItem for non-collection choice (maxOccurs=1)', () => {
+      const choiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, targetDoc.fields[0]);
+      const localTree = localTargetDocNode.mappingTree;
+
+      MappingActionService.engageMapping(localTree, choiceNode, targetFieldNode);
+
+      expect(localTree.children.length).toEqual(1);
+      const targetFieldItem = localTree.children[0];
+      expect(targetFieldItem).toBeInstanceOf(FieldItem);
+      expect(targetFieldItem.children.length).toEqual(1);
+
+      const chooseItem = targetFieldItem.children[0];
+      expect(chooseItem).toBeInstanceOf(ChooseItem);
+      // Verify no ForEachItem exists anywhere in the subtree (not just the direct child,
+      // since ChooseItem and ForEachItem are disjoint classes making instanceof tautological)
+      expect(targetFieldItem.children.some((c) => c instanceof ForEachItem)).toBe(false);
     });
   });
 
