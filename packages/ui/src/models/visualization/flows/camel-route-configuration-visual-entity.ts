@@ -96,14 +96,6 @@ export class CamelRouteConfigurationVisualEntity
     }
   }
 
-  getTooltipContent(path?: string): string {
-    if (path === this.getRootPath()) {
-      return 'routeConfiguration';
-    }
-
-    return super.getTooltipContent(path);
-  }
-
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (path === this.getRootPath()) {
       const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeConfiguration');

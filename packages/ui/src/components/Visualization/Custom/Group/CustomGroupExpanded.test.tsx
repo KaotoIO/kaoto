@@ -119,7 +119,6 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
     jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Choice');
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -145,7 +144,6 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
     jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue('Some validation warning');
-    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('Choice');
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -169,7 +167,6 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
     jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getTooltipContent').mockReturnValue('When setHeader');
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -202,7 +199,6 @@ describe('CustomGroupExpanded', () => {
     jest.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
     jest.spyOn(groupVizNode, 'getNodeValidationText').mockReturnValue(undefined);
-    jest.spyOn(groupVizNode, 'getTooltipContent').mockReturnValue('Choice');
 
     const draggedVizNode = createVisualizationNode('when-0', {
       name: 'when',

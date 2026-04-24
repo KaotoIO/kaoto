@@ -27,13 +27,4 @@ export class KameletSchemaService {
 
     return kameletDefinition?.spec.definition.title ?? step?.ref?.name ?? '';
   }
-
-  static getTooltipContent(step: PipeStep, path: string): string {
-    const schema = this.getKameletCatalogEntry(step)?.propertiesSchema;
-    if (schema?.description !== undefined) {
-      return schema.description;
-    }
-
-    return step?.ref?.name ?? `${path}: Unknown`;
-  }
 }

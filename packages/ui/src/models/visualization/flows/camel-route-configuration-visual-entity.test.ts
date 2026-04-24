@@ -81,22 +81,6 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     expect(entity.getNodeLabel('routeConfiguration.placeholder')).toEqual('Add configuration');
   });
 
-  it('should return tooltip content', () => {
-    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-
-    expect(entity.getTooltipContent(CamelRouteConfigurationVisualEntity.ROOT_PATH)).toEqual('routeConfiguration');
-  });
-
-  it('should delegate to super to return tooltip content', () => {
-    const superGetTooltipContentSpy = jest
-      .spyOn(AbstractCamelVisualEntity.prototype, 'getTooltipContent')
-      .mockReturnValueOnce('tooltip');
-    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-
-    expect(entity.getTooltipContent()).toEqual('tooltip');
-    expect(superGetTooltipContentSpy).toHaveBeenCalled();
-  });
-
   it('should return entity current definition', () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
@@ -279,7 +263,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: '',
+        description: 'routeConfiguration',
       });
     });
 

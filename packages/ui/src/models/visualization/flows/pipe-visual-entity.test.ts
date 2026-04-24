@@ -125,18 +125,6 @@ describe('Pipe', () => {
     });
   });
 
-  describe('getTooltipContent', () => {
-    it('should return empty string if no path is provided', () => {
-      expect(pipeVisualEntity.getTooltipContent()).toBe('');
-    });
-
-    it('should delegate to KameletSchemaService for step paths', () => {
-      const spy = jest.spyOn(KameletSchemaService, 'getTooltipContent');
-      pipeVisualEntity.getTooltipContent('source');
-      expect(spy).toHaveBeenCalledWith(expect.anything(), 'source');
-    });
-  });
-
   describe('getNodeSchema', () => {
     it('should return undefined if no path is provided', () => {
       expect(pipeVisualEntity.getNodeSchema()).toBeUndefined();

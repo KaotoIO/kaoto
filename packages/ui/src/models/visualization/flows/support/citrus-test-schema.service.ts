@@ -39,25 +39,6 @@ export class CitrusTestSchemaService {
   }
 
   /**
-   * Gets the tooltip content for a test action node.
-   *
-   * Prefers the description from the action instance if available,
-   * otherwise falls back to the catalog definition.
-   *
-   * @param name - The name of the test action
-   * @param action - The test action instance
-   * @returns The description text for the tooltip
-   */
-  static getTooltipContent(name: string, action: TestAction): string {
-    const description = action?.description;
-    if (description) {
-      return description;
-    }
-
-    return this.getTestActionDefinition(name)?.description ?? name;
-  }
-
-  /**
    * Extracts the test action name from a test action object.
    *
    * Searches through the action's properties to find a matching catalog definition.

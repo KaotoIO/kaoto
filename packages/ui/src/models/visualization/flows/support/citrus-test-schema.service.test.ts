@@ -127,27 +127,4 @@ describe('CitrusTestSchemaService', () => {
       expect(CitrusTestSchemaService.extractTestActionName(path)).toEqual(expected);
     });
   });
-
-  describe('getTooltipContent', () => {
-    it('should return the action schema description', () => {
-      const tooltip = CitrusTestSchemaService.getTooltipContent('print', {});
-
-      expect(tooltip).toEqual('Print test action.');
-    });
-
-    it('should fallback to the action name', () => {
-      const tooltip = CitrusTestSchemaService.getTooltipContent('custom', {});
-
-      expect(tooltip).toEqual('custom');
-    });
-
-    it('should return the action model description if present', () => {
-      const tooltip = CitrusTestSchemaService.getTooltipContent('custom', {
-        name: 'custom',
-        description: 'This is a custom test description',
-      });
-
-      expect(tooltip).toEqual('This is a custom test description');
-    });
-  });
 });

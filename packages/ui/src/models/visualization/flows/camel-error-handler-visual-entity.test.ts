@@ -82,12 +82,6 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  it('should return tooltip content', () => {
-    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
-
-    expect(entity.getTooltipContent()).toEqual('errorHandler');
-  });
-
   it('should return entity current definition', () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
@@ -182,7 +176,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: '',
+        description: 'errorHandler',
       });
     });
   });

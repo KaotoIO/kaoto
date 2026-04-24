@@ -92,16 +92,6 @@ describe('CamelRestVisualEntity', () => {
     expect(entity.getNodeLabel('rest.placeholder')).toEqual('verb');
   });
 
-  it('should delegate to super return node tooltip', () => {
-    const superGetNodeLabelSpy = jest
-      .spyOn(AbstractCamelVisualEntity.prototype, 'getTooltipContent')
-      .mockReturnValueOnce('tooltip');
-    const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getTooltipContent()).toEqual('tooltip');
-    expect(superGetNodeLabelSpy).toHaveBeenCalled();
-  });
-
   it('should return entity current definition', () => {
     const entity = new CamelRestVisualEntity(restDef);
 
@@ -478,7 +468,7 @@ describe('CamelRestVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: '',
+        description: 'rest',
       });
     });
   });

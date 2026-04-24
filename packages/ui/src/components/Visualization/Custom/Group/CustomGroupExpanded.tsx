@@ -69,7 +69,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const isDisabled = !!groupVizNode?.getNodeDefinition()?.disabled;
     const validationText = groupVizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
-    const tooltipContent = groupVizNode?.getTooltipContent();
     const childCount = element.getAllNodeChildren().length;
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
@@ -218,7 +217,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 className={clsx('custom-group__container__text', {
                   'custom-group__container__text__draggable': canDragGroup(groupVizNode),
                 })}
-                title={tooltipContent}
+                title={groupVizNode.data.description}
               >
                 {doesHaveWarnings ? (
                   <div className="custom-group__container__icon-placeholder" />
@@ -226,7 +225,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                   <img
                     src={groupVizNode.data.iconUrl}
                     alt={
-                      tooltipContent || (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
+                      groupVizNode.data.description ||
+                      (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
                     }
                   />
                 )}
@@ -253,7 +253,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
                 dataTestId={groupVizNode.id}
                 vizNode={groupVizNode}
-                tooltipContent={tooltipContent}
                 childCount={childCount}
                 containerClassNames={{
                   'custom-node__container__draggedNode': true,
