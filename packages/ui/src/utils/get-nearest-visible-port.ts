@@ -1,3 +1,4 @@
+import { DocumentType } from '../models/datamapper/document';
 import { NodePath } from '../models/datamapper/nodepath';
 import { TreeConnectionPorts, TreeExpansionState } from '../store/document-tree.store';
 
@@ -48,6 +49,14 @@ export function getNearestVisiblePort(
     if (nodesConnectionPorts[parentPath] && !expansionState[parentPath]) {
       return { connectionTarget: 'parent', position: nodesConnectionPorts[parentPath] };
     }
+  }
+
+  if (
+    nodePath.documentType === DocumentType.PARAM &&
+    nodesConnectionPortsArray.length === 0 &&
+    expansionStateArray.length === 0
+  ) {
+    return { connectionTarget: 'node', position: nodesConnectionPorts[edgeBottomKey] };
   }
 
   const firstVisiblePath = nodesConnectionPortsArray.at(0);
