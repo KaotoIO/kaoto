@@ -22,13 +22,14 @@ import { DocumentService } from '../document/document.service';
 export class VisualizationUtilService {
   /**
    * Returns `true` if the node's field is a collection (array/repeating element).
+   * Also checks the choice wrapper field for collection status when the node is a selected choice member.
    * @param nodeData - The node to test.
    */
   static isCollectionField(nodeData: NodeData) {
-    return (
-      (nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData) &&
-      DocumentService.isCollectionField(nodeData.field)
-    );
+    if (!(nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData)) return false;
+    if (DocumentService.isCollectionField(nodeData.field)) return true;
+    const choiceField = (nodeData as ChoiceFieldNodeData | TargetChoiceFieldNodeData).choiceField;
+    return !!choiceField && DocumentService.isCollectionField(choiceField);
   }
 
   /**
@@ -45,6 +46,17 @@ export class VisualizationUtilService {
    */
   static isChoiceField(nodeData: NodeData) {
     return nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData;
+  }
+
+  /**
+   * Returns `true` if the node is a choice field with a selected member (choiceField is set).
+   * @param nodeData - The node to test.
+   */
+  static isSelectedChoiceField(nodeData: NodeData) {
+    return (
+      (nodeData instanceof ChoiceFieldNodeData || nodeData instanceof TargetChoiceFieldNodeData) &&
+      !!nodeData.choiceField
+    );
   }
 
   /**

@@ -1,43 +1,49 @@
 import './FieldContextMenu.scss';
 
 import { Divider, Menu, MenuContent, MenuItem, MenuList } from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import { Fragment, FunctionComponent, ReactNode } from 'react';
+
+export interface MenuAction {
+  label: string;
+  onClick: () => void;
+  icon?: ReactNode;
+  testId?: string;
+}
+
+export interface MenuGroup {
+  actions: MenuAction[];
+}
 
 export interface IFieldContextMenuProps {
-  hasOverride?: boolean;
-  onOverrideType?: () => void;
-  onResetOverride?: () => void;
+  groups: MenuGroup[];
   onClose?: () => void;
 }
 
-export const FieldContextMenu: FunctionComponent<IFieldContextMenuProps> = ({
-  hasOverride = false,
-  onOverrideType,
-  onResetOverride,
-  onClose,
-}) => {
-  const handleOverrideType = () => {
-    onOverrideType?.();
-    onClose?.();
-  };
-
-  const handleResetOverride = () => {
-    onResetOverride?.();
-    onClose?.();
-  };
+export const FieldContextMenu: FunctionComponent<IFieldContextMenuProps> = ({ groups, onClose }) => {
+  const nonEmptyGroups = groups.filter((g) => g.actions.length > 0);
 
   return (
     <Menu className="field-context-menu">
       <MenuContent>
         <MenuList>
-          <MenuItem onClick={handleOverrideType}>Override Field...</MenuItem>
-
-          {hasOverride && (
-            <>
-              <Divider />
-              <MenuItem onClick={handleResetOverride}>Reset Override</MenuItem>
-            </>
-          )}
+          {nonEmptyGroups.map((group, groupIndex) => (
+            <Fragment key={group.actions[0]?.testId ?? group.actions[0]?.label ?? groupIndex}>
+              {groupIndex > 0 && <Divider />}
+              {group.actions.map((action) => (
+                <MenuItem
+                  key={action.testId ?? action.label}
+                  onClick={() => {
+                    action.onClick();
+                    onClose?.();
+                  }}
+                  icon={action.icon}
+                  data-testid={action.testId}
+                >
+                  {action.label}
+                </MenuItem>
+              ))}
+            </Fragment>
+          ))}
         </MenuList>
       </MenuContent>
     </Menu>

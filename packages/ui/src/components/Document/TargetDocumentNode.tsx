@@ -13,8 +13,8 @@ import { VisualizationUtilService } from '../../services/visualization/visualiza
 import { useDocumentTreeStore } from '../../store';
 import { DocumentActions } from './actions/DocumentActions';
 import { OverrideIndicator } from './actions/FieldOverride/OverrideIndicator';
-import { withFieldOverrideContextMenu } from './actions/FieldOverride/withFieldOverrideContextMenu';
 import { TargetNodeActions } from './actions/TargetNodeActions';
+import { withFieldContextMenu } from './actions/withFieldContextMenu';
 import { AddMappingNode } from './AddMappingNode';
 import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
@@ -156,4 +156,4 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
 
 TargetDocumentNode.displayName = 'TargetDocumentNode';
 
-export const TargetDocumentNodeWithContextMenu = withFieldOverrideContextMenu(TargetDocumentNode);
+export const TargetDocumentNodeWithContextMenu = withFieldContextMenu(TargetDocumentNode);
