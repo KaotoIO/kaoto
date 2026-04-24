@@ -11,6 +11,9 @@ describe('CustomNodeContainer', () => {
         catalogKind: CatalogKind.Component,
         name: 'log',
         path: 'route.from.steps.0.log',
+        description: 'Log component description',
+        iconUrl: 'data:image/svg+xml;base64,test',
+        iconAlt: 'log icon',
       },
     }) as unknown as IVisualizationNode;
 
@@ -24,13 +27,11 @@ describe('CustomNodeContainer', () => {
 
   it('should render the CustomNodeContainer correctly', () => {
     const vizNode = createMockVizNode();
-    const tooltipContent = 'Test tooltip';
 
     const { container } = render(
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={tooltipContent}
         childCount={1}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -48,7 +49,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         childCount={5}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -68,7 +68,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         childCount={0}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -87,7 +86,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         childCount={0}
         ProcessorIcon={MockProcessorIcon}
         processorDescription={processorDescription}
@@ -107,7 +105,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         childCount={0}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -125,7 +122,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         childCount={0}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -143,7 +139,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         childCount={0}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -154,15 +149,13 @@ describe('CustomNodeContainer', () => {
     expect(container.querySelector('.step-icon__disabled')).not.toBeInTheDocument();
   });
 
-  it('should apply tooltipContent as title attribute on content', () => {
+  it('should apply vizNode.data.description as title attribute on content', () => {
     const vizNode = createMockVizNode();
-    const tooltipContent = 'Custom tooltip text';
 
     const { container } = render(
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={tooltipContent}
         childCount={0}
         ProcessorIcon={null}
         processorDescription={undefined}
@@ -171,7 +164,7 @@ describe('CustomNodeContainer', () => {
     );
 
     const contentElement = container.querySelector('.custom-node__container__image');
-    expect(contentElement).toHaveAttribute('title', tooltipContent);
+    expect(contentElement).toHaveAttribute('title', 'Log component description');
   });
 
   it('should render container with dataTestId and content together', () => {
@@ -181,7 +174,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent="Full tooltip"
         childCount={3}
         ProcessorIcon={MockProcessorIcon}
         processorDescription="Processor desc"

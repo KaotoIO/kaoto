@@ -172,29 +172,6 @@ export class CamelComponentSchemaService {
     return catalogLookup?.model.title ?? camelElementLookup.processorName;
   }
 
-  static getTooltipContent(camelElementLookup: ICamelElementLookupResult): string {
-    if (camelElementLookup.componentName !== undefined) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      if (catalogLookup.catalogKind === CatalogKind.Component) {
-        return catalogLookup.definition?.component.description ?? camelElementLookup.componentName;
-      }
-
-      if (catalogLookup.catalogKind === CatalogKind.Kamelet) {
-        return (
-          (catalogLookup.definition as unknown as IKameletDefinition)?.spec.definition.description ??
-          camelElementLookup.componentName
-        );
-      }
-    }
-
-    const schema = this.getSchema(camelElementLookup);
-    if (schema.description !== undefined) {
-      return schema.description;
-    }
-
-    return camelElementLookup.processorName;
-  }
-
   static canHavePreviousStep(processorName: keyof ProcessorDefinition): boolean {
     return !this.DISABLED_SIBLING_STEPS.includes(processorName);
   }
