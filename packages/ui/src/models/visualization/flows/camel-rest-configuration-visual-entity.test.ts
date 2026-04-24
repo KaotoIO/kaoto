@@ -70,12 +70,6 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getNodeLabel()).toEqual('restConfiguration');
   });
 
-  it('should return tooltip content', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getTooltipContent()).toEqual('restConfiguration');
-  });
-
   it('should return entity current definition', () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
@@ -207,7 +201,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: '',
+        description: 'restConfiguration',
       });
     });
 

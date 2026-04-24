@@ -51,10 +51,6 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeLabel(this.data.path, labelType) ?? this.id;
   }
 
-  getTooltipContent(): string {
-    return this.getBaseEntity()?.getTooltipContent(this.data.path) ?? this.id;
-  }
-
   getNodeTitle(): string {
     return this.getBaseEntity()?.getNodeTitle(this.data.path) ?? this.id;
   }

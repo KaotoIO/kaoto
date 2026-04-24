@@ -164,18 +164,6 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return CitrusTestSchemaService.getNodeTitle(actionName);
   }
 
-  getTooltipContent(path?: string): string {
-    if (!path) return '';
-
-    if (path === this.getRootPath()) {
-      return 'Test';
-    }
-
-    const actionName = CitrusTestSchemaService.extractTestActionName(path);
-    const actionModel: TestAction = getValue(this.test, this.toModelPath(path));
-    return CitrusTestSchemaService.getTooltipContent(actionName, actionModel);
-  }
-
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (!path) return undefined;
     if (path === this.getRootPath()) {

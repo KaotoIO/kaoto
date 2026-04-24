@@ -76,17 +76,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return title;
   }
 
-  getTooltipContent(path?: string): string {
-    if (!path) return '';
-    const componentModel = getValue(this.entityDef, path);
-
-    const content = CamelComponentSchemaService.getTooltipContent(
-      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
-    );
-
-    return content;
-  }
-
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (!path) return undefined;
 

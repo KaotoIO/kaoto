@@ -134,22 +134,6 @@ describe('CitrusTestVisualEntity', () => {
     });
   });
 
-  describe('getTooltipContent', () => {
-    it('should return an empty string if path is not provided', () => {
-      expect(citrusTestEntity.getTooltipContent()).toEqual('');
-    });
-
-    it('should get the tooltip for root path', () => {
-      const title = citrusTestEntity.getTooltipContent('test');
-      expect(title).toEqual('Test');
-    });
-
-    it('should get the tooltip from given node path', () => {
-      const title = citrusTestEntity.getTooltipContent('actions.0.print');
-      expect(title).toEqual('Print test action.');
-    });
-  });
-
   describe('getNodeSchema', () => {
     it('should return undefined if no path is provided', () => {
       expect(citrusTestEntity.getNodeSchema()).toBeUndefined();

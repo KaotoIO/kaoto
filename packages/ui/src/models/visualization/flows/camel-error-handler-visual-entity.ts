@@ -81,10 +81,6 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return 'Error Handler';
   }
 
-  getTooltipContent(): string {
-    return 'errorHandler';
-  }
-
   addStep(): void {
     return;
   }

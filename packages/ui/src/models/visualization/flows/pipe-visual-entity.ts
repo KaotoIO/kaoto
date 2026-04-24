@@ -83,13 +83,6 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return KameletSchemaService.getNodeTitle(stepModel);
   }
 
-  getTooltipContent(path?: string): string {
-    if (!path) return '';
-
-    const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return KameletSchemaService.getTooltipContent(stepModel, path);
-  }
-
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (!path) return undefined;
     if (path === this.getRootPath()) {

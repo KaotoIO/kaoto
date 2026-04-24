@@ -61,10 +61,6 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     return 'Rest Configuration';
   }
 
-  getTooltipContent(): string {
-    return 'restConfiguration';
-  }
-
   addStep(): void {
     return;
   }

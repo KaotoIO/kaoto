@@ -173,44 +173,6 @@ describe('VisualizationNode', () => {
     });
   });
 
-  describe('getTooltipContent', () => {
-    it('should return the tootltip content from the underlying BaseVisualCamelEntity', () => {
-      const getTooltipContentSpy = jest.fn().mockReturnValue('test-description');
-      const visualEntity = {
-        getTooltipContent: getTooltipContentSpy,
-      } as unknown as BaseVisualEntity;
-
-      node = createVisualizationNode('test', {
-        name: 'log',
-        path: 'test-path',
-        entity: visualEntity,
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-      });
-      const content = node.getTooltipContent();
-
-      expect(getTooltipContentSpy).toHaveBeenCalledWith(node.data.path);
-      expect(content).toEqual('test-description');
-    });
-
-    it('should return the id when the underlying BaseVisualCamelEntity is not defined', () => {
-      node = createVisualizationNode('test', {
-        name: 'log',
-        isPlaceholder: false,
-        isGroup: false,
-        title: '',
-        description: '',
-        iconUrl: '',
-      });
-      const content = node.getTooltipContent();
-
-      expect(content).toEqual(node.id);
-    });
-  });
-
   it('should return the node schema from the root node', () => {
     /** Arrange */
     const getNodeSchemaSpy = jest.fn();

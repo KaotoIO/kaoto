@@ -28,9 +28,6 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, get the component title from the catalog */
   getNodeTitle: (path?: string) => string;
 
-  /** Given a path, get the component tooltip content */
-  getTooltipContent: (path?: string) => string;
-
   /** Given a path, returns the node's associated schema used for the configuration form */
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
 
@@ -107,9 +104,6 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** This method returns the label to be used by the canvas nodes */
   getNodeLabel(labelType?: NodeLabelType): string;
-
-  /** This method returns the tooltip content to be used by the canvas nodes */
-  getTooltipContent(): string;
 
   /** This method returns the title used by the CanvasForm component */
   getNodeTitle(): string;
