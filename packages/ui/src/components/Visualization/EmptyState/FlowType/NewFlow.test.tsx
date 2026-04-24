@@ -55,6 +55,7 @@ describe('NewFlow.tsx', () => {
     sourceSchemaType: SourceSchemaType = SourceSchemaType.Integration,
   ) => {
     const mockSetSelectedCatalog = jest.fn();
+    const mockSetCodeAndNotify = jest.fn();
     const defaultRuntimeContext: IRuntimeContext = {
       basePath: '',
       selectedCatalog: mockCamelCatalog,
@@ -69,7 +70,7 @@ describe('NewFlow.tsx', () => {
         <RuntimeContext.Provider value={mergedRuntimeContext}>
           <SourceCodeApiContext.Provider
             value={{
-              setCodeAndNotify: jest.fn(),
+              setCodeAndNotify: mockSetCodeAndNotify,
             }}
           >
             <EntitiesContext.Provider
@@ -89,6 +90,7 @@ describe('NewFlow.tsx', () => {
         </RuntimeContext.Provider>,
       ),
       mockSetSelectedCatalog,
+      mockSetCodeAndNotify,
     };
   };
 
@@ -128,13 +130,11 @@ describe('NewFlow.tsx', () => {
     expect(modal).toBeInTheDocument();
   });
 
-  it('should update catalog when switching to Citrus test', async () => {
-    const mockSetSelectedCatalog = jest.fn();
-    const { findByTestId, getByText } = renderWithContext(
+  it('should call setCodeAndNotify and not directly call setSelectedCatalog when switching flow types', async () => {
+    const { findByTestId, getByText, mockSetCodeAndNotify, mockSetSelectedCatalog } = renderWithContext(
       {
         selectedCatalog: mockCamelCatalog,
         catalogLibrary: mockCatalogLibrary,
-        setSelectedCatalog: mockSetSelectedCatalog,
       },
       SourceSchemaType.Route,
     );
@@ -158,41 +158,8 @@ describe('NewFlow.tsx', () => {
       fireEvent.click(confirmButton);
     });
 
-    /** Verify catalog was updated to Citrus */
-    expect(mockSetSelectedCatalog).toHaveBeenCalledWith(mockCitrusCatalog);
-  });
-
-  it('should not update catalog when switching between Camel flow types', async () => {
-    const mockSetSelectedCatalog = jest.fn();
-    const { findByTestId, getByText } = renderWithContext(
-      {
-        selectedCatalog: mockCamelCatalog,
-        catalogLibrary: mockCatalogLibrary,
-        setSelectedCatalog: mockSetSelectedCatalog,
-      },
-      SourceSchemaType.Route,
-    );
-
-    const trigger = await findByTestId('viz-dsl-list-dropdown');
-
-    /** Open Select */
-    act(() => {
-      fireEvent.click(trigger);
-    });
-
-    /** Select Pipe option (another Camel type) */
-    act(() => {
-      const element = getByText('Pipe');
-      fireEvent.click(element);
-    });
-
-    /** Confirm the modal */
-    const confirmButton = await findByTestId('confirmation-modal-confirm');
-    act(() => {
-      fireEvent.click(confirmButton);
-    });
-
-    /** Verify catalog was NOT updated since both are Camel types */
+    /** Verify the reactive chain is triggered via setCodeAndNotify, not directly via setSelectedCatalog */
+    expect(mockSetCodeAndNotify).toHaveBeenCalled();
     expect(mockSetSelectedCatalog).not.toHaveBeenCalled();
   });
 });

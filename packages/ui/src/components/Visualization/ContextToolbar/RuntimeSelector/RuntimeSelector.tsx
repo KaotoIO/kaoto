@@ -9,9 +9,9 @@ import citrusLogo from '../../../../assets/citrus-logo.png';
 import quarkusLogo from '../../../../assets/quarkus-logo.svg';
 import redhatLogo from '../../../../assets/redhat-logo.svg';
 import springBootLogo from '../../../../assets/springboot-logo.svg';
-import { useLocalStorage } from '../../../../hooks';
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
-import { LocalStorageKeys } from '../../../../models';
+import { SourceSchemaType } from '../../../../models/camel';
+import { COMPATIBLE_RUNTIMES_BY_SCHEMA_TYPE } from '../../../../models/camel/compatible-runtimes';
 import { EntitiesContext } from '../../../../providers';
 
 const SPACE_REGEX = /\s/g;
@@ -55,11 +55,8 @@ export const RuntimeSelector: FunctionComponent = () => {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const runtimeContext = useRuntimeContext();
   const entitiesContext = useContext(EntitiesContext);
-  const compatibleRuntimes = entitiesContext?.camelResource.getCompatibleRuntimes() ?? [];
-  const [_, setSelectedCatalogLocalStorage] = useLocalStorage(
-    LocalStorageKeys.SelectedCatalog,
-    runtimeContext.selectedCatalog,
-  );
+  const currentSchemaType = entitiesContext?.currentSchemaType ?? SourceSchemaType.Route;
+  const compatibleRuntimes = COMPATIBLE_RUNTIMES_BY_SCHEMA_TYPE[currentSchemaType];
   const groupedRuntimes =
     runtimeContext.catalogLibrary?.definitions
       .filter((catalog) => compatibleRuntimes.includes(catalog.runtime))
@@ -88,12 +85,11 @@ export const RuntimeSelector: FunctionComponent = () => {
 
       if (isDefined(selectedCatalog)) {
         runtimeContext.setSelectedCatalog(selectedCatalog);
-        setSelectedCatalogLocalStorage(selectedCatalog);
       }
 
       setIsOpen(false);
     },
-    [runtimeContext, setSelectedCatalogLocalStorage],
+    [runtimeContext],
   );
 
   const getMenuItem = useCallback(
