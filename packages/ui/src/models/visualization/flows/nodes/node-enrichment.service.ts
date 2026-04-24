@@ -1,4 +1,5 @@
 import { getIconRequest } from '../../../../icon-resolver/getIconRequest';
+import { getTooltipRequest } from '../../../../tooltip-resolver/getTooltipRequest';
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
 
@@ -16,5 +17,6 @@ export class NodeEnrichmentService {
     const { icon, alt } = await getIconRequest(catalogKind, vizNode.data.name);
     vizNode.data.iconUrl = icon;
     vizNode.data.iconAlt = alt;
+    vizNode.data.description = await getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description);
   }
 }

@@ -12,10 +12,11 @@ exports[`CustomNodeContainer should render the CustomNodeContainer correctly 1`]
     >
       <div
         class="custom-node__container__image"
-        title="Test tooltip"
+        title="Log component description"
       >
         <img
-          alt="Test tooltip"
+          alt="Log component description"
+          src="data:image/svg+xml;base64,test"
         />
         <div
           class="floating-circle step-icon step-icon__processor"

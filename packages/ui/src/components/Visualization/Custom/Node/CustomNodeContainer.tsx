@@ -15,7 +15,6 @@ export interface CustomNodeContainerProps {
   dataTestId: string;
   containerClassNames?: Record<string, boolean>;
   vizNode: IVisualizationNode;
-  tooltipContent: string | undefined;
   childCount: number;
   ProcessorIcon: ElementType | null;
   processorDescription: string | undefined;
@@ -31,7 +30,6 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   dataTestId,
   containerClassNames = {},
   vizNode,
-  tooltipContent,
   childCount,
   ProcessorIcon,
   processorDescription,
@@ -45,8 +43,8 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
     {...(transform !== undefined && { transform })}
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
-      <div title={tooltipContent} className="custom-node__container__image">
-        <img src={vizNode.data.iconUrl} alt={tooltipContent ?? (vizNode.data.iconAlt as string)} />
+      <div title={vizNode.data.description} className="custom-node__container__image">
+        <img src={vizNode.data.iconUrl} alt={vizNode.data.description ?? (vizNode.data.iconAlt as string)} />
 
         {childCount > 0 && (
           <FloatingCircle className="step-icon step-icon__processor">
