@@ -133,6 +133,22 @@ describe('getNearestVisiblePort', () => {
     expect(result).toEqual({ connectionTarget: 'parent', position: [120, 220] });
   });
 
+  it('should return node for primitive parameter without child attachment', () => {
+    const options: NearestVisiblePortOptions = {
+      nodesConnectionPorts: {
+        'p:EDGE:top': [0, 0],
+        'p:EDGE:bottom': [0, 500],
+      },
+      nodesConnectionPortsArray: [],
+      expansionState: {},
+      expansionStateArray: [],
+    };
+
+    const result = getNearestVisiblePort('param:p://', options);
+
+    expect(result).toEqual({ connectionTarget: 'node', position: [0, 500] });
+  });
+
   it('should prefer closer ancestors over distant ones', () => {
     const options: NearestVisiblePortOptions = {
       nodesConnectionPorts: {
