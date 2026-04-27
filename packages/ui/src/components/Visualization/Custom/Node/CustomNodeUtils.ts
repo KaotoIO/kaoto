@@ -48,7 +48,7 @@ export const handleValidNodeDrop = (
   nodeInteractionAddonContext: INodeInteractionAddonContext,
 ) => {
   const draggedVizNode = draggedElement.getData()?.vizNode;
-  if (!isDefined(draggedVizNode)) return;
+  if (!isDefined(draggedVizNode) || entitiesContext.isLoading) return;
 
   let droppedVizNode: IVisualizationNode;
   let droppedIntoEdge = false;
@@ -103,8 +103,8 @@ export const handleValidNodeDrop = (
     nodes: [],
     edges: [],
   });
-  requestAnimationFrame(() => {
-    entitiesContext.updateEntitiesFromCamelResource();
+  requestAnimationFrame(async () => {
+    await entitiesContext.updateEntitiesFromCamelResource();
   });
 };
 
@@ -162,6 +162,8 @@ const performForwardDrop = (
   droppedIntoEdge: boolean,
   entitiesContext: EntitiesContextResult,
 ) => {
+  if (entitiesContext.isLoading) return;
+
   droppedVizNode.pasteBaseEntityStep(
     draggedNodeContent,
     droppedIntoEdge ? AddStepMode.PrependStep : AddStepMode.AppendStep,
@@ -171,6 +173,8 @@ const performForwardDrop = (
     draggedVizNode.removeChild();
   } else if (draggedVizNodeinteraction.canRemoveFlow) {
     const flowId = draggedVizNode?.getId();
-    entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
+    if (entitiesContext.camelResource && flowId) {
+      entitiesContext.camelResource.removeEntity([flowId]);
+    }
   }
 };

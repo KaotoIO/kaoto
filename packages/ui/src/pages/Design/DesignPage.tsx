@@ -9,7 +9,7 @@ import { EntitiesContext } from '../../providers/entities.provider';
 
 export const DesignPage: FunctionComponent<{ fallback?: ReactNode; contextToolbar?: ReactNode }> = (props) => {
   const entitiesContext = useContext(EntitiesContext);
-  const visualEntities = entitiesContext?.visualEntities ?? [];
+  const visualEntities = entitiesContext && !entitiesContext.isLoading ? entitiesContext.visualEntities : [];
 
   return (
     <CatalogModalProvider>

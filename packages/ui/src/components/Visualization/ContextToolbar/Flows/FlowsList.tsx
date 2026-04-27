@@ -24,7 +24,7 @@ interface IFlowsList {
 }
 
 export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
-  const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
+  const { visualEntities, camelResource, updateEntitiesFromCamelResource, isLoading } = useContext(EntitiesContext)!;
   const { visibleFlows, allFlowsVisible, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const deleteModalContext = useContext(ActionConfirmationModalContext);
   const controller = useVisualizationController();
@@ -89,11 +89,16 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
       if (filteredIds.length === 0) {
         return;
       }
-      camelResource.removeEntity(filteredIds);
-      updateEntitiesFromCamelResource();
+      camelResource!.removeEntity(filteredIds);
+      await updateEntitiesFromCamelResource();
     },
     [onClose, deleteModalContext, filteredIds, camelResource, updateEntitiesFromCamelResource],
   );
+
+  if (isLoading || !camelResource) {
+    return null;
+  }
+
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
   ) : (
@@ -160,10 +165,10 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                     onClick={() => {
                       onSelectFlow(flow.id);
                     }}
-                    onChange={(name) => {
+                    onChange={async (name) => {
                       visualFlowsApi.renameFlow(flow.id, name);
                       flow.setId(name);
-                      updateEntitiesFromCamelResource();
+                      await updateEntitiesFromCamelResource();
                     }}
                   />
                   {/*TODO add description*/}
@@ -220,7 +225,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                       if (isDeleteConfirmed !== ACTION_ID_CONFIRM) return;
 
                       camelResource.removeEntity([flow.id]);
-                      updateEntitiesFromCamelResource();
+                      await updateEntitiesFromCamelResource();
                     }}
                   />
                 </Td>

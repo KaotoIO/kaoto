@@ -78,6 +78,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
     () => ({
       accept: [NODE_DRAG_TYPE, GROUP_DRAG_TYPE],
       canDrop: (item, _monitor, _props) =>
+        !entitiesContext.isLoading &&
         canDropOnEdge(item.getData().vizNode, element, entitiesContext.camelResource, catalogModalContext),
       collect: (monitor) => ({
         droppable: monitor.isDragging(),
@@ -87,7 +88,7 @@ export const CustomEdge: FunctionComponent<CustomEdgeProps> = observer(({ elemen
         canDrop: monitor.canDrop(),
       }),
     }),
-    [catalogModalContext, element, entitiesContext.camelResource],
+    [catalogModalContext, element, entitiesContext],
   );
 
   const [dndDropProps, dndDropRef] = useDndDrop(customNodeDropTargetSpec);

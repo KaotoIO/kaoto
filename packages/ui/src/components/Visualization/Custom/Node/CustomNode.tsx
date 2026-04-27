@@ -177,10 +177,10 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
       () => ({
         item: { type: NODE_DRAG_TYPE },
         canDrag: () => {
-          return canDragNode;
+          return !entitiesContext.isLoading && canDragNode;
         },
         end(dropResult, monitor) {
-          if (monitor.didDrop() && dropResult) {
+          if (!entitiesContext.isLoading && monitor.didDrop() && dropResult) {
             // handle successful drop
             handleValidNodeDrop(element, dropResult, entitiesContext, nodeInteractionAddonContext);
           } else {
@@ -216,7 +216,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
             draggedNode.getData()?.vizNode,
             vizNode,
             (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => {
-              const filter = entitiesContext.camelResource.getCompatibleComponents(
+              const filter = entitiesContext.camelResource?.getCompatibleComponents(
                 mode,
                 filterNode.data,
                 filterNode.getNodeDefinition(),

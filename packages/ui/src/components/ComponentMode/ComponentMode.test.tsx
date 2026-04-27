@@ -6,7 +6,11 @@ import { ComponentMode } from './ComponentMode';
 
 let mockUpdateSourceCodeFromEntities: jest.Mock;
 jest.mock('../../hooks/useEntityContext/useEntityContext', () => ({
-  useEntityContext: () => ({ updateSourceCodeFromEntities: mockUpdateSourceCodeFromEntities }),
+  useEntityContext: () => ({
+    camelResource: {},
+    isLoading: false,
+    updateSourceCodeFromEntities: mockUpdateSourceCodeFromEntities,
+  }),
 }));
 
 jest.mock('../../hooks/use-processor-tooltips.hook', () => ({
@@ -17,7 +21,7 @@ const mockUseProcessorTooltips = useProcessorTooltips as jest.MockedFunction<typ
 
 describe('ComponentMode', () => {
   beforeEach(() => {
-    mockUpdateSourceCodeFromEntities = jest.fn();
+    mockUpdateSourceCodeFromEntities = jest.fn().mockResolvedValue(undefined);
     // Set default tooltips before each test
     mockUseProcessorTooltips.mockReturnValue({
       to: 'To: Sends messages to an endpoint',

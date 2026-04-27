@@ -25,19 +25,19 @@ const DEFAULT_REST_METHOD_URI = 'direct';
  * Supports adding/editing REST configurations, REST services, and REST methods.
  */
 export const RestDslEditorPage: FunctionComponent = () => {
-  const { entities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities } = useEntityContext();
+  const { entities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities, isLoading } =
+    useEntityContext();
   const [selectedElement, setSelectedElement] = useState<IRestTreeSelection | undefined>();
+  const [treeVersion, setTreeVersion] = useState(0);
   const restRelatedEntities = useMemo(() => getRestEntities(entities), [entities]);
 
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === selectedElement?.entityId);
   const schema = selectedEntity?.getNodeSchema(selectedElement?.modelPath);
   const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
 
-  const [treeVersion, setTreeVersion] = useState(0);
-
   /** Handles changes to individual properties in the form editor */
   const handleOnChangeIndividualProp = useCallback(
-    (path: string, value: unknown) => {
+    async (path: string, value: unknown) => {
       if (!selectedElement || !selectedEntity) return;
 
       let updatedValue = value;
@@ -47,31 +47,39 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
       const fullPath = `${selectedElement.modelPath}.${path}`;
       selectedEntity.updateModel(fullPath, updatedValue);
-      updateSourceCodeFromEntities();
+      await updateSourceCodeFromEntities();
       setTreeVersion((version) => version + 1);
     },
     [selectedElement, selectedEntity, updateSourceCodeFromEntities],
   );
 
   /** Adds a new REST configuration entity to the resource */
-  const handleAddRestConfiguration = useCallback(() => {
+  const handleAddRestConfiguration = useCallback(async () => {
+    if (!camelResource) return;
+
     const newId = camelResource.addNewEntity(EntityType.RestConfiguration);
-    updateEntitiesFromCamelResource();
+    if (!newId) return;
+
+    await updateEntitiesFromCamelResource();
     setSelectedElement({ modelPath: 'restConfiguration', entityId: newId });
     setTreeVersion((version) => version + 1);
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST service entity to the resource */
-  const handleAddRest = useCallback(() => {
+  const handleAddRest = useCallback(async () => {
+    if (!camelResource) return;
+
     const newId = camelResource.addNewEntity(EntityType.Rest);
+    if (!newId) return;
+
     setSelectedElement({ modelPath: 'rest', entityId: newId });
-    updateEntitiesFromCamelResource();
+    await updateEntitiesFromCamelResource();
     setTreeVersion((version) => version + 1);
   }, [camelResource, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST method to the selected REST service */
   const handleAddMethod: RestTreeToolbarProps['onAddMethod'] = useCallback(
-    (model) => {
+    async (model) => {
       if (!selectedEntity || !(selectedEntity instanceof CamelRestVisualEntity)) return;
 
       const restDefinition = selectedEntity.toJSON().rest;
@@ -90,7 +98,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
         },
       });
 
-      updateEntitiesFromCamelResource();
+      await updateEntitiesFromCamelResource();
       setSelectedElement({ entityId: selectedEntity.id, modelPath: `rest.${model.method}.${methodsArray.length - 1}` });
       setTreeVersion((version) => version + 1);
     },
@@ -98,8 +106,8 @@ export const RestDslEditorPage: FunctionComponent = () => {
   );
 
   /** Deletes the selected REST entity or method */
-  const handleDelete = useCallback(() => {
-    if (!selectedEntity || !selectedElement) return;
+  const handleDelete = useCallback(async () => {
+    if (!selectedEntity || !selectedElement || !camelResource) return;
 
     if (selectedElement.modelPath === selectedEntity.getRootPath()) {
       /* Remove the entire Rest or RestConfiguration */
@@ -110,8 +118,12 @@ export const RestDslEditorPage: FunctionComponent = () => {
     }
 
     setSelectedElement(undefined);
-    updateEntitiesFromCamelResource();
+    await updateEntitiesFromCamelResource();
   }, [selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
+
+  if (isLoading || !camelResource) {
+    return <Loading />;
+  }
 
   return (
     <ResizableSplitPanels

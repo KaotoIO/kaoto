@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
 import { EntitiesProvider } from '../../providers/entities.provider';
@@ -13,9 +13,11 @@ describe('useEntityContext', () => {
     (console.error as jest.Mock).mockRestore();
   });
 
-  it('should return EntityContext', () => {
+  it('should return EntityContext', async () => {
     const { result } = renderHook(() => useEntityContext(), { wrapper });
 
-    expect(result.current).not.toBe(null);
+    await waitFor(() => {
+      expect(result.current).not.toBe(null);
+    });
   });
 });

@@ -8,12 +8,14 @@ export const useDisableStep = (vizNode: IVisualizationNode) => {
   const entitiesContext = useContext(EntitiesContext);
   const isDisabled = !!vizNode.getNodeDefinition()?.disabled;
 
-  const onToggleDisableNode = useCallback(() => {
+  const onToggleDisableNode = useCallback(async () => {
+    if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
+
     const newModel = vizNode.getNodeDefinition() || {};
     setValue(newModel, 'disabled', !isDisabled);
     vizNode.updateModel(newModel);
 
-    entitiesContext?.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
   }, [entitiesContext, isDisabled, vizNode]);
 
   const value = useMemo(

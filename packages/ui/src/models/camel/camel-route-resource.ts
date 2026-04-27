@@ -246,7 +246,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     return this.entities.map((entity) => entity.toJSON());
   }
 
-  toString() {
+  async toStringAsync(): Promise<string> {
     return this.serializer.serialize(this);
   }
 

@@ -1,6 +1,6 @@
 import { To } from '@kaoto/camel-catalog/types';
 
-import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelUriHelper } from '../../../utils/camel-uri-helper';
 import { CatalogKind } from '../../catalog-kind';
 

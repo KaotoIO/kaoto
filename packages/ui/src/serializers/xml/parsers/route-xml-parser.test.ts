@@ -17,7 +17,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelProcessorDefinition } from '../../../models';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { KaotoXmlParser } from '../kaoto-xml-parser';
 import { RouteXmlParser } from './route-xml-parser';
@@ -31,10 +33,30 @@ export const getElementFromXml = (xml: string): Element => {
 describe('RouteXmlParser', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+    // Set up DynamicCatalogRegistry for async catalog lookups
+    const registry = DynamicCatalogRegistry.get();
+
+    // Create processor catalog from catalogsMap.modelCatalogMap
+    const processorProvider = {
+      id: 'test-processor-provider',
+      fetch: async (key: string) => {
+        return catalogsMap.modelCatalogMap[key];
+      },
+      fetchAll: async () => {
+        return catalogsMap.modelCatalogMap;
+      },
+    };
+
+    const processorCatalog = new DynamicCatalog<ICamelProcessorDefinition>(processorProvider);
+    registry.setCatalog(CatalogKind.Processor, processorCatalog);
   });
 
-  it('transforms intercept element correctly', () => {
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
+  it('transforms intercept element correctly', async () => {
     const interceptElement = getElementFromXml(` <intercept id="intercept1">
       <onWhen>
           <simple>\${in.body} contains 'Hello'</simple>
@@ -42,7 +64,7 @@ describe('RouteXmlParser', () => {
       <to uri="mock:intercepted"/>
   </intercept>`);
 
-    const result = RouteXmlParser.parseRouteConfigurationElement(interceptElement, 'intercept');
+    const result = await RouteXmlParser.parseRouteConfigurationElement(interceptElement, 'intercept');
     expect(result).toEqual({
       intercept: {
         id: 'intercept1',
@@ -52,11 +74,11 @@ describe('RouteXmlParser', () => {
     });
   });
 
-  it('transforms interceptFrom element correctly', () => {
+  it('transforms interceptFrom element correctly', async () => {
     const interceptFromElement = getElementFromXml(`<interceptFrom id="interceptFrom1" uri="jms*">
     <to uri="log:incoming"/>
   </interceptFrom>`);
-    const result = RouteXmlParser.parseRouteConfigurationElement(interceptFromElement, 'interceptFrom');
+    const result = await RouteXmlParser.parseRouteConfigurationElement(interceptFromElement, 'interceptFrom');
     expect(result).toEqual({
       interceptFrom: {
         id: 'interceptFrom1',
@@ -66,14 +88,14 @@ describe('RouteXmlParser', () => {
     });
   });
 
-  it('transforms interceptSendToEndpoint element correctly', () => {
+  it('transforms interceptSendToEndpoint element correctly', async () => {
     const interceptSendToEndpointElement = getElementFromXml(`
       <interceptSendToEndpoint uri="kafka*" afterUri="bean:afterKafka">
     <to uri="bean:beforeKafka"/>
       </interceptSendToEndpoint>
     `);
 
-    const result = RouteXmlParser.parseRouteConfigurationElement(
+    const result = await RouteXmlParser.parseRouteConfigurationElement(
       interceptSendToEndpointElement,
       'interceptSendToEndpoint',
     );
@@ -92,7 +114,7 @@ describe('RouteXmlParser', () => {
     });
   });
 
-  it('transforms xpath with namespaces set', () => {
+  it('transforms xpath with namespaces set', async () => {
     const parser = new KaotoXmlParser();
     const namespaceDocument = new DOMParser().parseFromString(
       `
@@ -113,7 +135,7 @@ describe('RouteXmlParser', () => {
       'application/xml',
     );
 
-    const result = parser.parseFromXmlDocument(namespaceDocument);
+    const result = await parser.parseFromXmlDocument(namespaceDocument);
     expect(result).toEqual([
       {
         route: {

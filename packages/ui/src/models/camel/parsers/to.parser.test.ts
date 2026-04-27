@@ -1,8 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
 
-import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { IDynamicCatalogRegistry } from '../../../dynamic-catalog/models';
 import { CamelComponentsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';

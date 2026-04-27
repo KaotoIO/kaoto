@@ -34,7 +34,8 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   }, [pipeResource]);
 
   const onChangeModel = useCallback(
-    (model: Record<string, unknown>) => {
+    async (model: Record<string, unknown>) => {
+      if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
       if (Object.keys(model).length > 0) {
         let entity = pipeResource.getErrorHandlerEntity();
         if (!entity) {
@@ -44,7 +45,7 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
       } else {
         pipeResource!.deleteErrorHandlerEntity();
       }
-      entitiesContext!.updateSourceCodeFromEntities();
+      await entitiesContext.updateSourceCodeFromEntities();
     },
     [entitiesContext, pipeResource],
   );

@@ -18,7 +18,7 @@ import { NodeInteractionAddonContext } from '../../../registers/interactions/nod
 import { processOnPasteAddon } from '../ContextMenu/item-interaction-helper';
 
 export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => {
-  const entitiesContext = useContext(EntitiesContext)!;
+  const entitiesContext = useContext(EntitiesContext);
   const catalogModalContext = useContext(CatalogModalContext);
   const pasteModalContext = useContext(ActionConfirmationModalContext);
   const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
@@ -28,10 +28,11 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
   /** validate compatibility of the clipboard node */
   const checkClipboardCompatibility = useCallback(
     (pastedNodeValue: IClipboardCopyObject | null): boolean => {
-      if (!pastedNodeValue) return false;
+      if (!pastedNodeValue || !entitiesContext || entitiesContext.isLoading || !entitiesContext.camelResource)
+        return false;
 
       const pastedNodeType = pastedNodeValue.type;
-      const baseNodeType = entitiesContext.camelResource.getType();
+      const baseNodeType = entitiesContext.camelResource?.getType();
       const isSameType = pastedNodeType === baseNodeType;
       // Allow Route <-> Kamelet pasting
       const isCompatibleType =
@@ -41,7 +42,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
       /** Validate the pasted node */
       if (!isSameType && !isCompatibleType) return false;
       /** Get compatible nodes and the location where can be introduced */
-      const filter = entitiesContext.camelResource.getCompatibleComponents(
+      const filter = entitiesContext.camelResource?.getCompatibleComponents(
         mode,
         vizNode.data,
         vizNode.getNodeDefinition(),
@@ -73,7 +74,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
 
   const onPasteStep = useCallback(async () => {
     const pastedNodeValue = await ClipboardManager.paste();
-    if (!vizNode || !entitiesContext || !pastedNodeValue) return;
+    if (!vizNode || !entitiesContext?.camelResource || entitiesContext.isLoading || !pastedNodeValue) return;
 
     const compatible = checkClipboardCompatibility(pastedNodeValue);
     if (!compatible) {
@@ -120,7 +121,7 @@ export const usePasteStep = (vizNode: IVisualizationNode, mode: AddStepMode) => 
     }
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
   }, [
     checkClipboardCompatibility,
     controller,

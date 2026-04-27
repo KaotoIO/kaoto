@@ -24,7 +24,9 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
   const model = vizNode.getNodeDefinition();
 
   const handleOnChangeIndividualProp = useCallback(
-    (path: string, value: unknown) => {
+    async (path: string, value: unknown) => {
+      if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
+
       let updatedValue = value;
       if (typeof value === 'string' && value.trim() === '') {
         updatedValue = undefined;
@@ -33,7 +35,8 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
       const newModel = vizNode.getNodeDefinition() ?? {};
       setValue(newModel, path, updatedValue);
       vizNode.updateModel(newModel);
-      entitiesContext?.updateSourceCodeFromEntities();
+
+      await entitiesContext.updateSourceCodeFromEntities();
     },
     [entitiesContext, vizNode],
   );

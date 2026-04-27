@@ -28,7 +28,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onReplaceNode = useCallback(async () => {
-    if (!entitiesContext) return;
+    if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
 
     const modalCustoms = findOnDeleteModalCustomizationRecursively(
       vizNode,
@@ -66,7 +66,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     vizNode.addBaseEntityStep(definedComponent, AddStepMode.ReplaceStep);
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
 
     /** Notify VS Code host about the new step */
     metadataContext?.onStepUpdated?.(StepUpdateAction.Replace, definedComponent.type, definedComponent.name);

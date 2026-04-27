@@ -173,7 +173,7 @@ describe('useRestDslImportWizard', () => {
     });
   });
 
-  it('does not create duplicate route when operation direct route already exists (direct:operationId format)', () => {
+  it('does not create duplicate route when operation direct route already exists (direct:operationId format)', async () => {
     const camelResource = new CamelRouteResource([
       {
         route: {
@@ -223,8 +223,8 @@ describe('useRestDslImportWizard', () => {
     });
 
     let imported = false;
-    act(() => {
-      imported = result.current.handleImportOpenApi();
+    await act(async () => {
+      imported = await result.current.handleImportOpenApi();
     });
 
     expect(imported).toBe(false);
@@ -232,7 +232,7 @@ describe('useRestDslImportWizard', () => {
     expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
   });
 
-  it('does not create duplicate route when operation direct route already exists (parameters.name format)', () => {
+  it('does not create duplicate route when operation direct route already exists (parameters.name format)', async () => {
     const camelResource = new CamelRouteResource([
       {
         route: {
@@ -283,8 +283,8 @@ describe('useRestDslImportWizard', () => {
     });
 
     let imported = false;
-    act(() => {
-      imported = result.current.handleImportOpenApi();
+    await act(async () => {
+      imported = await result.current.handleImportOpenApi();
     });
 
     expect(imported).toBe(false);
@@ -538,7 +538,7 @@ describe('useRestDslImportWizard', () => {
       );
     });
 
-    it('returns false when neither REST nor routes are selected', () => {
+    it('returns false when neither REST nor routes are selected', async () => {
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
 
       act(() => {
@@ -555,8 +555,8 @@ describe('useRestDslImportWizard', () => {
       });
 
       let imported = false;
-      act(() => {
-        imported = result.current.handleImportOpenApi();
+      await act(async () => {
+        imported = await result.current.handleImportOpenApi();
       });
 
       expect(imported).toBe(false);
@@ -566,7 +566,7 @@ describe('useRestDslImportWizard', () => {
       });
     });
 
-    it('returns false when no operations are selected', () => {
+    it('returns false when no operations are selected', async () => {
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
 
       act(() => {
@@ -582,8 +582,8 @@ describe('useRestDslImportWizard', () => {
       });
 
       let imported = false;
-      act(() => {
-        imported = result.current.handleImportOpenApi();
+      await act(async () => {
+        imported = await result.current.handleImportOpenApi();
       });
 
       expect(imported).toBe(false);
@@ -593,7 +593,7 @@ describe('useRestDslImportWizard', () => {
       });
     });
 
-    it('creates routes when importCreateRoutes is enabled', () => {
+    it('creates routes when importCreateRoutes is enabled', async () => {
       const mockRouteEntity = {
         id: 'new-route-1',
         type: 'route',
@@ -613,8 +613,8 @@ describe('useRestDslImportWizard', () => {
       });
 
       let imported = false;
-      act(() => {
-        imported = result.current.handleImportOpenApi();
+      await act(async () => {
+        imported = await result.current.handleImportOpenApi();
       });
 
       expect(imported).toBe(true);
@@ -628,7 +628,7 @@ describe('useRestDslImportWizard', () => {
       });
     });
 
-    it('creates REST definition when importCreateRest is enabled', () => {
+    it('creates REST definition when importCreateRest is enabled', async () => {
       const mockRestEntity = {
         id: 'new-rest-1',
         type: 'rest',
@@ -654,8 +654,8 @@ describe('useRestDslImportWizard', () => {
       });
 
       let imported = false;
-      act(() => {
-        imported = result.current.handleImportOpenApi();
+      await act(async () => {
+        imported = await result.current.handleImportOpenApi();
       });
 
       expect(imported).toBe(true);
@@ -664,7 +664,7 @@ describe('useRestDslImportWizard', () => {
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     });
 
-    it('creates both routes and REST definitions when both are enabled', () => {
+    it('creates both routes and REST definitions when both are enabled', async () => {
       const mockRouteEntity = { id: 'new-route-1', type: 'route', updateModel: jest.fn() };
       const mockRestEntity = {
         id: 'new-rest-1',
@@ -693,8 +693,8 @@ describe('useRestDslImportWizard', () => {
       });
 
       let imported = false;
-      act(() => {
-        imported = result.current.handleImportOpenApi();
+      await act(async () => {
+        imported = await result.current.handleImportOpenApi();
       });
 
       expect(imported).toBe(true);
@@ -703,7 +703,7 @@ describe('useRestDslImportWizard', () => {
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     });
 
-    it('reports plural message for multiple operations', () => {
+    it('reports plural message for multiple operations', async () => {
       const mockRouteEntity1 = { id: 'new-route-1', type: 'route', updateModel: jest.fn() };
       const mockRouteEntity2 = { id: 'new-route-2', type: 'route', updateModel: jest.fn() };
       let routeCount = 0;
@@ -735,8 +735,8 @@ describe('useRestDslImportWizard', () => {
       });
 
       let imported = false;
-      act(() => {
-        imported = result.current.handleImportOpenApi();
+      await act(async () => {
+        imported = await result.current.handleImportOpenApi();
       });
 
       expect(imported).toBe(true);

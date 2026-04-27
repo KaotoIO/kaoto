@@ -12,6 +12,7 @@ import {
   ICamelProcessorDefinition,
   IKameletDefinition,
 } from '../../../../models';
+import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
@@ -24,6 +25,17 @@ describe('CanvasFormBody', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
   let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
   let kameletCatalogMap: Record<string, IKameletDefinition>;
+
+  const camelResource = new CamelRouteResource();
+  const mockEntitiesContext = {
+    camelResource,
+    entities: camelResource.getEntities(),
+    visualEntities: camelResource.getVisualEntities(),
+    currentSchemaType: camelResource.getType(),
+    updateSourceCodeFromEntities: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
+    isLoading: false,
+  };
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -67,7 +79,7 @@ describe('CanvasFormBody', () => {
       const setHeaderNode = rootNode.getChildren()![1];
 
       render(
-        <EntitiesContext.Provider value={null}>
+        <EntitiesContext.Provider value={mockEntitiesContext}>
           <VisibleFlowsProvider>
             <SuggestionRegistryProvider>
               <CanvasFormTabsContext.Provider
@@ -121,7 +133,7 @@ describe('CanvasFormBody', () => {
       const setHeaderNode = rootNode.getChildren()![1];
 
       render(
-        <EntitiesContext.Provider value={null}>
+        <EntitiesContext.Provider value={mockEntitiesContext}>
           <VisibleFlowsProvider>
             <SuggestionRegistryProvider>
               <CanvasFormTabsContext.Provider
@@ -180,7 +192,7 @@ describe('CanvasFormBody', () => {
       const marshalNode = rootNode.getChildren()![1];
 
       render(
-        <EntitiesContext.Provider value={null}>
+        <EntitiesContext.Provider value={mockEntitiesContext}>
           <VisibleFlowsProvider>
             <SuggestionRegistryProvider>
               <CanvasFormTabsContext.Provider
@@ -231,7 +243,7 @@ describe('CanvasFormBody', () => {
       const marshalNode = rootNode.getChildren()![1];
 
       render(
-        <EntitiesContext.Provider value={null}>
+        <EntitiesContext.Provider value={mockEntitiesContext}>
           <VisibleFlowsProvider>
             <SuggestionRegistryProvider>
               <CanvasFormTabsContext.Provider
@@ -287,7 +299,7 @@ describe('CanvasFormBody', () => {
       const loadBalanceNode = rootNode.getChildren()![1];
 
       render(
-        <EntitiesContext.Provider value={null}>
+        <EntitiesContext.Provider value={mockEntitiesContext}>
           <VisibleFlowsProvider>
             <SuggestionRegistryProvider>
               <CanvasFormTabsContext.Provider
@@ -338,7 +350,7 @@ describe('CanvasFormBody', () => {
       const loadBalanceNode = rootNode.getChildren()![1];
 
       render(
-        <EntitiesContext.Provider value={null}>
+        <EntitiesContext.Provider value={mockEntitiesContext}>
           <VisibleFlowsProvider>
             <SuggestionRegistryProvider>
               <CanvasFormTabsContext.Provider

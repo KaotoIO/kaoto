@@ -19,7 +19,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onDeleteStep = useCallback(async () => {
-    if (!vizNode) return;
+    if (!vizNode || !entitiesContext?.camelResource || entitiesContext.isLoading) return;
 
     const modalCustoms = findOnDeleteModalCustomizationRecursively(
       vizNode,
@@ -48,7 +48,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
     );
 
     vizNode.removeChild();
-    entitiesContext?.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
   }, [deleteModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, isPlaceholderNode, vizNode]);
 
   const value = useMemo(

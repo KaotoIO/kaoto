@@ -16,7 +16,8 @@
 
 import { Param, ResponseMessage, Rest, RestSecurity, SecurityDefinitions } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind } from '../../../models';
 import { REST_DSL_VERBS } from '../../../models/special-processors.constants';
 import { extractAttributesFromXmlElement } from '../utils/xml-utils';
 import { RouteXmlParser } from './route-xml-parser';
@@ -26,105 +27,117 @@ export class RestXmlParser {
   routeXmlParser = new RouteXmlParser();
 
   // Main transformation for <rest> elements
-  static parse(restElement: Element): Rest {
-    const properties = CamelCatalogService.getComponent(CatalogKind.Processor, 'rest')?.properties;
+  static async parse(restElement: Element): Promise<Rest> {
+    const properties = (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'rest'))?.properties;
 
+    const rest = await this.parseRestVerbs(restElement);
     return {
       ...extractAttributesFromXmlElement(restElement, properties),
-      ...this.parseRestVerbs(restElement),
-      securityDefinitions: this.parseSecurityDefinitions(restElement) as unknown as SecurityDefinitions,
-      securityRequirements: this.parseSecurityRequirements(restElement),
+      ...rest,
+      securityDefinitions: (await this.parseSecurityDefinitions(restElement)) as unknown as SecurityDefinitions,
+      securityRequirements: await this.parseSecurityRequirements(restElement),
     };
   }
 
   // Transform verbs like <get>, <post>, etc.
-  private static parseRestVerbs(restElement: Element): Rest {
+  private static async parseRestVerbs(restElement: Element): Promise<Rest> {
     const verbs: { [key: string]: unknown } = {};
 
     // For each verb, look for its elements and transform them
-    REST_DSL_VERBS.forEach((verb) => {
+    for (const verb of REST_DSL_VERBS) {
       const verbInstances = Array.from(restElement.getElementsByTagName(verb));
       if (verbInstances.length > 0) {
-        verbs[verb] = verbInstances.map((verbElement: Element) => this.parseRestVerb(verbElement));
+        verbs[verb] = await Promise.all(verbInstances.map((verbElement: Element) => this.parseRestVerb(verbElement)));
       }
-    });
+    }
 
     return verbs as unknown as Rest;
   }
 
-  static parseRestVerb(verbElement: Element) {
-    const verb = StepParser.parseElement(verbElement) as { [key: string]: unknown };
+  static async parseRestVerb(verbElement: Element) {
+    const verb = (await StepParser.parseElement(verbElement)) as { [key: string]: unknown };
     //in older catalogs (in 4.9) are missing properites: param, security, responseMessage
-    this.decorateVerb(verb, verbElement);
+    await this.decorateVerb(verb, verbElement);
 
     return verb;
   }
 
-  static decorateVerb(partial: { [key: string]: unknown }, verbElement: Element) {
-    const param = this.parseParams(verbElement);
+  static async decorateVerb(partial: { [key: string]: unknown }, verbElement: Element) {
+    const param = await this.parseParams(verbElement);
     if (param.length > 0) {
       partial['param'] = param;
     }
 
-    const security = this.transformSecurity(verbElement);
+    const security = await this.transformSecurity(verbElement);
     if (security.length > 0) {
       partial['security'] = security;
     }
 
-    const responseMessages = this.parseResponseMessages(verbElement);
+    const responseMessages = await this.parseResponseMessages(verbElement);
     if (responseMessages.length > 0) {
       partial['responseMessage'] = responseMessages;
     }
   }
 
   // Transform the <param> elements inside each verb
-  static parseParams(verbElement: Element): Param[] {
-    return Array.from(verbElement.getElementsByTagName('param')).map(
-      (paramElement) => StepParser.parseElement(paramElement) as Param,
+  static async parseParams(verbElement: Element): Promise<Param[]> {
+    return Promise.all(
+      Array.from(verbElement.getElementsByTagName('param')).map(
+        async (paramElement) => (await StepParser.parseElement(paramElement)) as Param,
+      ),
     );
   }
 
   // New: Transform <security> elements inside verbs
-  static transformSecurity(verbElement: Element): RestSecurity[] {
-    return Array.from(verbElement.getElementsByTagName('security')).map(
-      (securityElement) => StepParser.parseElement(securityElement) as RestSecurity,
+  static async transformSecurity(verbElement: Element): Promise<RestSecurity[]> {
+    return Promise.all(
+      Array.from(verbElement.getElementsByTagName('security')).map(
+        async (securityElement) => (await StepParser.parseElement(securityElement)) as RestSecurity,
+      ),
     );
   }
 
   // New: Transform <responseMessage> elements inside verbs
-  private static parseResponseMessages(verbElement: Element): ResponseMessage[] {
-    return Array.from(verbElement.getElementsByTagName('responseMessage')).map((responseMessageElement) => {
-      return StepParser.parseElement(responseMessageElement) as ResponseMessage;
-    });
+  private static async parseResponseMessages(verbElement: Element): Promise<ResponseMessage[]> {
+    return Promise.all(
+      Array.from(verbElement.getElementsByTagName('responseMessage')).map(async (responseMessageElement) => {
+        return (await StepParser.parseElement(responseMessageElement)) as ResponseMessage;
+      }),
+    );
   }
 
-  private static parseSecurityDefinitions(restElement: Element): SecurityDefinitions | undefined {
+  private static async parseSecurityDefinitions(restElement: Element): Promise<SecurityDefinitions | undefined> {
     const securityDefinitionsElements = Array.from(
       restElement.getElementsByTagName('securityDefinitions')[0]?.children || [],
     );
 
-    const properties = CamelCatalogService.getComponent(CatalogKind.Processor, 'securityDefinitions')?.properties
-      .securityDefinitions;
+    const properties = (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'securityDefinitions'))
+      ?.properties?.securityDefinitions;
 
+    if (securityDefinitionsElements.length === 0 || !properties?.oneOf) return undefined;
     let securityDefinitions: SecurityDefinitions = {};
-    if (securityDefinitionsElements.length === 0) return undefined;
-    securityDefinitionsElements
-      .filter((el) => properties?.oneOf?.includes(el.tagName))
-      .forEach((securityDefinition) => {
-        securityDefinitions = {
-          ...securityDefinitions,
-          [securityDefinition.tagName]: StepParser.parseElement(securityDefinition),
-        };
-      });
+
+    for (const securityDefinition of securityDefinitionsElements.filter((el) =>
+      properties?.oneOf?.includes(el.tagName),
+    )) {
+      securityDefinitions = {
+        ...securityDefinitions,
+        [securityDefinition.tagName]: await StepParser.parseElement(securityDefinition),
+      };
+    }
     return securityDefinitions;
   }
 
-  private static parseSecurityRequirements(restElement: Element): RestSecurity[] | undefined {
+  private static async parseSecurityRequirements(restElement: Element): Promise<RestSecurity[] | undefined> {
     const securityRequirements = restElement.getElementsByTagName('securityRequirements')[0];
-    const properties = CamelCatalogService.getComponent(CatalogKind.Processor, 'rest')?.properties;
+    const properties = (await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'rest'))?.properties;
 
-    if (securityRequirements) {
-      StepParser.parseElementsArray('security', restElement, properties!.securityRequirements);
+    if (securityRequirements && properties?.securityRequirements) {
+      return (await StepParser.parseElementsArray(
+        'security',
+        restElement,
+        properties.securityRequirements,
+      )) as RestSecurity[];
     }
     return undefined;
   }

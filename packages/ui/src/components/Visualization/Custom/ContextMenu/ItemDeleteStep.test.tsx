@@ -1,11 +1,13 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
+import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../models/entities';
 import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
   IOnDeleteAddon,
@@ -18,6 +20,17 @@ describe('ItemDeleteStep', () => {
   let vizNode: IVisualizationNode;
   const mockDeleteModalContext = {
     actionConfirmation: jest.fn(),
+  };
+
+  const camelResource = new CamelRouteResource();
+  const mockEntitiesContext = {
+    camelResource,
+    entities: camelResource.getEntities(),
+    visualEntities: camelResource.getVisualEntities(),
+    currentSchemaType: camelResource.getType(),
+    updateSourceCodeFromEntities: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
+    isLoading: false,
   };
 
   beforeEach(() => {
@@ -53,9 +66,11 @@ describe('ItemDeleteStep', () => {
     vizNode.addChild(childNode);
 
     const wrapper = render(
-      <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <ItemDeleteStep vizNode={vizNode} />
-      </ActionConfirmationModalContext.Provider>,
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+          <ItemDeleteStep vizNode={vizNode} />
+        </ActionConfirmationModalContext.Provider>
+      </EntitiesContext.Provider>,
     );
 
     fireEvent.click(wrapper.getByText('Delete'));
@@ -70,9 +85,11 @@ describe('ItemDeleteStep', () => {
     const removeChildSpy = jest.spyOn(vizNode, 'removeChild');
     mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
     const wrapper = render(
-      <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <ItemDeleteStep vizNode={vizNode} />
-      </ActionConfirmationModalContext.Provider>,
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+          <ItemDeleteStep vizNode={vizNode} />
+        </ActionConfirmationModalContext.Provider>
+      </EntitiesContext.Provider>,
     );
     fireEvent.click(wrapper.getByText('Delete'));
 
@@ -97,11 +114,13 @@ describe('ItemDeleteStep', () => {
         ] as IRegisteredInteractionAddon[],
     };
     const wrapper = render(
-      <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
-          <ItemDeleteStep vizNode={vizNode} />
-        </NodeInteractionAddonContext.Provider>
-      </ActionConfirmationModalContext.Provider>,
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+          <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+            <ItemDeleteStep vizNode={vizNode} />
+          </NodeInteractionAddonContext.Provider>
+        </ActionConfirmationModalContext.Provider>
+      </EntitiesContext.Provider>,
     );
     act(() => {
       fireEvent.click(wrapper.getByText('Delete'));

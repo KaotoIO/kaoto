@@ -746,21 +746,21 @@ describe('CamelRouteResource', () => {
     });
   });
 
-  describe('toString', () => {
-    it('should delegate to serializer serialize method', () => {
+  describe('toStringAsync', () => {
+    it('should delegate to serializer serialize method', async () => {
       const resource = new CamelRouteResource([camelRouteJson]);
-      const serialized = resource.toString();
+      const serialized = await resource.toStringAsync();
 
       expect(typeof serialized).toBe('string');
       expect(serialized.length).toBeGreaterThan(0);
     });
 
-    it('should support switching between serializer types', () => {
+    it('should support switching between serializer types', async () => {
       const resource = new CamelRouteResource([camelRouteJson]);
 
       // Test YAML serializer
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
-      const yamlOutput = resource.toString();
+      const yamlOutput = await resource.toStringAsync();
       expect(yamlOutput).toContain('from:');
 
       // Test XML serializer type change
@@ -770,10 +770,10 @@ describe('CamelRouteResource', () => {
   });
 
   describe('getCompatibleComponents', () => {
-    it('should delegate to the CamelComponentFilterService', () => {
+    it('should delegate to the CamelComponentFilterService', async () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
 
-      const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
+      const resource = await CamelResourceFactory.createCamelResource(camelRouteYaml);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
         name: 'from',
         path: 'from',

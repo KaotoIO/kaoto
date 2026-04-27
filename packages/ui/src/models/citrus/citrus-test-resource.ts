@@ -189,10 +189,10 @@ export class CitrusTestResource implements KaotoResource {
   }
 
   /**
-   * Converts this resource to a string representation using the configured serializer.
+   * Converts this resource to a string representation using the configured serializer asynchronously.
    */
-  toString() {
-    return this.serializer.serialize(this);
+  async toStringAsync(): Promise<string> {
+    return await this.serializer.serialize(this);
   }
 
   /**

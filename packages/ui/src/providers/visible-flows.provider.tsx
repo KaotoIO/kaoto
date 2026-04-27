@@ -29,6 +29,10 @@ export const VisibleFlowsProvider: FunctionComponent<PropsWithChildren> = (props
   const visibleFlowsIds = useMemo(() => Object.keys(visibleFlows), [visibleFlows]);
 
   useEffect(() => {
+    if (entitiesContext?.isLoading) {
+      return;
+    }
+
     const hasSameIds = isSameArray(visualEntitiesIds, visibleFlowsIds);
 
     /**

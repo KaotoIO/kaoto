@@ -18,7 +18,7 @@ export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onDeleteGroup = useCallback(async () => {
-    if (!vizNode) return;
+    if (!vizNode || !entitiesContext?.camelResource || entitiesContext.isLoading) return;
     const modalCustoms = findOnDeleteModalCustomizationRecursively(
       vizNode,
       (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
@@ -41,8 +41,8 @@ export const useDeleteGroup = (vizNode: IVisualizationNode | undefined) => {
       (vn) => getRegisteredInteractionAddons(IInteractionType.ON_DELETE, vn) as IOnDeleteAddon[],
     );
 
-    entitiesContext?.camelResource.removeEntity(flowId ? [flowId] : undefined);
-    entitiesContext?.updateEntitiesFromCamelResource();
+    entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
+    await entitiesContext.updateEntitiesFromCamelResource();
   }, [deleteModalContext, entitiesContext, flowId, getRegisteredInteractionAddons, vizNode]);
 
   const value = useMemo(

@@ -161,7 +161,7 @@ const PlaceholderNodeInner: FunctionComponent<PlaceholderNodeInnerProps> = obser
           (item as Node).getData()?.vizNode,
           vizNode,
           (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => {
-            const filter = entitiesContext.camelResource.getCompatibleComponents(
+            const filter = entitiesContext.camelResource?.getCompatibleComponents(
               mode,
               filterNode.data,
               filterNode.getNodeDefinition(),

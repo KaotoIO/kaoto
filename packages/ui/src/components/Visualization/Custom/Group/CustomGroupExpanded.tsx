@@ -100,10 +100,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       () => ({
         item: { type: GROUP_DRAG_TYPE },
         canDrag: () => {
-          return canDragGroup(groupVizNode);
+          return !entitiesContext.isLoading && canDragGroup(groupVizNode);
         },
         end(dropResult, monitor) {
-          if (monitor.didDrop() && dropResult) {
+          if (!entitiesContext.isLoading && monitor.didDrop() && dropResult) {
             // handle successful drop
             handleValidNodeDrop(element, dropResult, entitiesContext, nodeInteractionAddonContext);
           } else {
@@ -134,7 +134,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
             item.getData()?.vizNode,
             groupVizNode,
             (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => {
-              const filter = entitiesContext.camelResource.getCompatibleComponents(
+              const filter = entitiesContext.camelResource?.getCompatibleComponents(
                 mode,
                 filterNode.data,
                 filterNode.getNodeDefinition(),

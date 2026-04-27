@@ -14,7 +14,7 @@ export const NewEntity: FunctionComponent = () => {
   const { commonEntities, groupedEntities, createEntity } = useCanvasEntities();
 
   const onSelect = useCallback(
-    (event: unknown, entityType: string | number | undefined) => {
+    async (event: unknown, entityType: string | number | undefined) => {
       // Prevent event bubbling to avoid context menu auto-close
       if (event && typeof event === 'object' && 'stopPropagation' in event) {
         (event as Event).stopPropagation();
@@ -24,7 +24,7 @@ export const NewEntity: FunctionComponent = () => {
         return;
       }
 
-      createEntity(entityType as EntityType);
+      await createEntity(entityType as EntityType);
       setIsOpen(false);
     },
     [createEntity],

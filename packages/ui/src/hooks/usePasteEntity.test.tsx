@@ -37,6 +37,7 @@ describe('usePasteEntity', () => {
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
+    isLoading: false,
   };
 
   const mockVisibleFlowsContext = {
@@ -380,6 +381,6 @@ describe('usePasteEntity', () => {
 
     expect(addNewEntitySpy).toHaveBeenCalled();
     expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).not.toHaveBeenCalled();
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
   });
 });

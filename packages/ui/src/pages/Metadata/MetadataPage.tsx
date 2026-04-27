@@ -27,7 +27,8 @@ export const MetadataPage: FunctionComponent = () => {
   }, [camelkResource]);
 
   const onChangeModel = useCallback(
-    (model: Record<string, unknown>) => {
+    async (model: Record<string, unknown>) => {
+      if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
       if (Object.keys(model).length > 0) {
         let entity = camelkResource.getMetadataEntity();
         if (!entity) {
@@ -39,7 +40,7 @@ export const MetadataPage: FunctionComponent = () => {
       } else {
         camelkResource.deleteMetadataEntity();
       }
-      entitiesContext?.updateEntitiesFromCamelResource();
+      await entitiesContext.updateEntitiesFromCamelResource();
     },
     [camelkResource, entitiesContext],
   );

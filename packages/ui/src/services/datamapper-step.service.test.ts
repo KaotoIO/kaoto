@@ -13,7 +13,9 @@ describe('DataMapperStepService', () => {
 
   beforeEach(() => {
     mockEntitiesContext = {
-      updateSourceCodeFromEntities: jest.fn(),
+      camelResource: {} as EntitiesContextResult['camelResource'],
+      isLoading: false,
+      updateSourceCodeFromEntities: jest.fn().mockResolvedValue(undefined),
     } as unknown as jest.Mocked<EntitiesContextResult>;
   });
 
@@ -54,7 +56,7 @@ describe('DataMapperStepService', () => {
       });
     });
 
-    it('should initialize XSLT step with document name based on metadata ID', () => {
+    it('should initialize XSLT step with document name based on metadata ID', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -69,7 +71,7 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      const documentName = DataMapperStepService.initializeXsltStep(vizNode, metadataId, mockEntitiesContext);
+      const documentName = await DataMapperStepService.initializeXsltStep(vizNode, metadataId, mockEntitiesContext);
 
       expect(documentName).toBe('test-metadata-id.xsl');
       expect(updateModelSpy).toHaveBeenCalledWith(model);
@@ -80,7 +82,7 @@ describe('DataMapperStepService', () => {
       }
     });
 
-    it('should always set URI even when already set', () => {
+    it('should always set URI even when already set', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -95,7 +97,7 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      const documentName = DataMapperStepService.initializeXsltStep(vizNode, metadataId, mockEntitiesContext);
+      const documentName = await DataMapperStepService.initializeXsltStep(vizNode, metadataId, mockEntitiesContext);
 
       expect(documentName).toBe('test-metadata-id.xsl');
       expect(updateModelSpy).toHaveBeenCalledWith(model);
@@ -219,7 +221,7 @@ describe('DataMapperStepService', () => {
       });
     });
 
-    it('should set useJsonBody parameter when isUseJsonBody is true', () => {
+    it('should set useJsonBody parameter when isUseJsonBody is true', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -235,7 +237,7 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
+      await DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
 
       expect(updateModelSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -253,7 +255,7 @@ describe('DataMapperStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
     });
 
-    it('should remove useJsonBody parameter when isUseJsonBody is false', () => {
+    it('should remove useJsonBody parameter when isUseJsonBody is false', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -271,7 +273,7 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.setUseJsonBody(vizNode, false, mockEntitiesContext);
+      await DataMapperStepService.setUseJsonBody(vizNode, false, mockEntitiesContext);
 
       expect(updateModelSpy).toHaveBeenCalled();
       const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
@@ -282,7 +284,7 @@ describe('DataMapperStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
     });
 
-    it('should create parameters object if it does not exist', () => {
+    it('should create parameters object if it does not exist', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -297,7 +299,7 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
+      await DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
 
       expect(updateModelSpy).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -314,7 +316,7 @@ describe('DataMapperStepService', () => {
       );
     });
 
-    it('should not update when XSLT step is not found', () => {
+    it('should not update when XSLT step is not found', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -329,13 +331,13 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
+      await DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
 
       expect(updateModelSpy).not.toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
     });
 
-    it('should not update when to is not an object', () => {
+    it('should not update when to is not an object', async () => {
       const model = {
         id: 'step-id',
         steps: [
@@ -348,7 +350,7 @@ describe('DataMapperStepService', () => {
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
       const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
+      await DataMapperStepService.setUseJsonBody(vizNode, true, mockEntitiesContext);
 
       expect(updateModelSpy).not.toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();

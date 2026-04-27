@@ -42,7 +42,8 @@ describe('useReplaceStep', () => {
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
+    isLoading: false,
   };
 
   const mockCatalogModalContext = {

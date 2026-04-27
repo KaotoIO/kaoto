@@ -7,7 +7,7 @@ import { AddStepMode } from '../../../../models/visualization/base-visual-entity
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows/camel-route-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
-import { EntitiesContext } from '../../../../providers/entities.provider';
+import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { camelRouteJson } from '../../../../stubs/camel-route';
 import { updateIds } from '../../../../utils/update-ids';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
@@ -87,7 +87,8 @@ describe('useDuplicateStep', () => {
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
+    isLoading: false,
   };
 
   // Mock CatalogModalContext
@@ -111,17 +112,28 @@ describe('useDuplicateStep', () => {
     } as never,
   };
 
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>
-        <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
-          <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
-            {children}
-          </NodeInteractionAddonContext.Provider>
-        </VisibleFlowsContext.Provider>
-      </CatalogModalContext.Provider>
-    </EntitiesContext.Provider>
-  );
+  const createWrapper = (entitiesContext: EntitiesContextResult): FunctionComponent<PropsWithChildren> => {
+    const Wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <EntitiesContext.Provider value={entitiesContext}>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>
+          <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
+            <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+              {children}
+            </NodeInteractionAddonContext.Provider>
+          </VisibleFlowsContext.Provider>
+        </CatalogModalContext.Provider>
+      </EntitiesContext.Provider>
+    );
+
+    return Wrapper;
+  };
+
+  const wrapper = createWrapper(mockEntitiesContext);
+  const loadingWrapper = createWrapper({
+    ...mockEntitiesContext,
+    isLoading: true,
+    camelResource: undefined,
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -156,6 +168,12 @@ describe('useDuplicateStep', () => {
       const { result } = renderHook(() => useDuplicateStep(routeVizNode), { wrapper });
 
       expect(result.current.canDuplicate).toBe(true);
+    });
+
+    it('should return false while entities are loading', () => {
+      const { result } = renderHook(() => useDuplicateStep(routeVizNode), { wrapper: loadingWrapper });
+
+      expect(result.current.canDuplicate).toBe(false);
     });
 
     it('should return false when no previous conditions match', () => {
@@ -232,6 +250,18 @@ describe('useDuplicateStep', () => {
         edges: [],
       });
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not duplicate while entities are loading', async () => {
+      const camelResourceAddNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
+      const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
+
+      const { result } = renderHook(() => useDuplicateStep(vizNode), { wrapper: loadingWrapper });
+      await result.current.onDuplicate();
+
+      expect(VizNodePasteBaseEntityStepSpy).not.toHaveBeenCalled();
+      expect(camelResourceAddNewEntitySpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).not.toHaveBeenCalled();
     });
   });
 });

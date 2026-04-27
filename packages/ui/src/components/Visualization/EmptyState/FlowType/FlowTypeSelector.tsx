@@ -20,16 +20,8 @@ interface ISourceTypeSelector extends PropsWithChildren {
 }
 
 export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) => {
-  const { currentSchemaType, visualEntities, camelResource } = useContext(EntitiesContext)!;
-  const totalFlowsCount = visualEntities.length;
-  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
-  const dslList = getSupportedDsls(camelResource);
+  const { currentSchemaType, visualEntities, camelResource, isLoading } = useContext(EntitiesContext)!;
   const [isOpen, setIsOpen] = useState(false);
-
-  /** Toggle the DSL dropdown */
-  const onToggleClick = () => {
-    setIsOpen(!isOpen);
-  };
 
   /** Selecting a DSL checking the existing flows */
   const onSelect = useCallback(
@@ -48,8 +40,23 @@ export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) 
 
   /** Selecting the same DSL directly*/
   const onNewSameTypeRoute = useCallback(() => {
-    onSelect(undefined, currentSchemaType);
+    if (currentSchemaType) {
+      onSelect(undefined, currentSchemaType);
+    }
   }, [onSelect, currentSchemaType]);
+
+  if (isLoading || !camelResource || !currentSchemaType) {
+    return null;
+  }
+
+  const totalFlowsCount = visualEntities.length;
+  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
+  const dslList = getSupportedDsls(camelResource);
+
+  /** Toggle the DSL dropdown */
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
 
   /** Override function to provide more useful help texts than available via schema */
   const getDescriptionForType = (type: string) => {

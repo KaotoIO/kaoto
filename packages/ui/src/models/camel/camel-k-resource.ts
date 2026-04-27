@@ -5,7 +5,7 @@ import {
 } from '@kaoto/camel-catalog/types';
 
 import { TileFilter } from '../../components/Catalog';
-import { YamlCamelResourceSerializer } from '../../serializers';
+import { YamlCamelResourceSerializer } from '../../serializers/yaml-camel-resource-serializer';
 import { BaseEntity } from '../entities';
 import { BaseVisualEntityDefinition, KaotoResource, KaotoResourceSerializer, SerializerType } from '../kaoto-resource';
 import { AddStepMode, BaseVisualEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
@@ -108,7 +108,7 @@ export abstract class CamelKResource implements KaotoResource {
     /** Not supported by default */
   }
 
-  toString(): string {
-    return this.serializer.serialize(this);
+  async toStringAsync(): Promise<string> {
+    return await this.serializer.serialize(this);
   }
 }

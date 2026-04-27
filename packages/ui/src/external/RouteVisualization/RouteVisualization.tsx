@@ -18,7 +18,7 @@ import { EventNotifier } from '../../utils';
 const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ className = '' }) => {
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const entitiesContext = useContext(EntitiesContext);
-  const visualEntities = entitiesContext?.visualEntities ?? [];
+  const visualEntities = entitiesContext && !entitiesContext.isLoading ? entitiesContext.visualEntities : [];
 
   useEffect(() => {
     visualFlowsApi.showFlows();

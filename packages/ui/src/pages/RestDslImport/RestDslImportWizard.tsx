@@ -27,7 +27,7 @@ type ImportWizardFooterProps = {
   importCreateRoutes: boolean;
   onBack: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
   onNext: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
-  onFinish: () => boolean;
+  onFinish: () => boolean | Promise<boolean>;
   onFinishSuccess: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
   onClose: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
   onGoToDesigner: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
@@ -56,7 +56,7 @@ const ImportWizardFooter: FunctionComponent<ImportWizardFooterProps> = ({
 }) => {
   const handleNextClick = async (event: MouseEvent<HTMLButtonElement>) => {
     if (isOperationsStep) {
-      const ok = onFinish();
+      const ok = await onFinish();
       if (ok) {
         await onFinishSuccess(event);
       }
@@ -114,7 +114,7 @@ const renderImportWizardFooter = (
     | 'onClose'
     | 'onFinishSuccess'
   > & {
-    onFinish: () => boolean;
+    onFinish: () => boolean | Promise<boolean>;
     onClose: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
     onGoToDesigner: (event: MouseEvent<HTMLButtonElement>) => void | Promise<void>;
   },

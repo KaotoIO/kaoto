@@ -2,12 +2,25 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
+import { EntitiesContext } from '../../providers';
 import { RuntimeProvider } from '../../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { errorMessage, useRuntimeContext } from './useRuntimeContext';
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>{children}</RuntimeProvider>
+  <EntitiesContext.Provider
+    value={{
+      entities: [],
+      currentSchemaType: undefined,
+      visualEntities: [],
+      camelResource: undefined,
+      isLoading: false,
+      updateSourceCodeFromEntities: jest.fn(),
+      updateEntitiesFromCamelResource: jest.fn(),
+    }}
+  >
+    <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>{children}</RuntimeProvider>
+  </EntitiesContext.Provider>
 );
 
 describe('useRuntimeContext', () => {

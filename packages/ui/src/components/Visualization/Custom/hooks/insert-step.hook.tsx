@@ -24,7 +24,7 @@ export const useInsertStep = (
   const controller = useVisualizationController();
 
   const onInsertStep = useCallback(async () => {
-    if (!vizNode || !entitiesContext) return;
+    if (!vizNode || !entitiesContext?.camelResource || entitiesContext.isLoading) return;
 
     let definedComponent: DefinedComponent | undefined = options?.predefinedComponent;
     if (!definedComponent) {
@@ -64,7 +64,7 @@ export const useInsertStep = (
     }
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
   }, [catalogModalContext, controller, entitiesContext, mode, options, vizNode]);
 
   const value = useMemo(

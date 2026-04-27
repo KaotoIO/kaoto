@@ -14,49 +14,53 @@
  * limitations under the License.
  */
 
-import { DoCatch, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel-catalog/types';
+import { DoCatch, DoFinally, DoTry, ProcessorDefinition, When1 as When } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind, ICamelProcessorDefinition, ICamelProcessorProperty } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelProcessorDefinition, ICamelProcessorProperty } from '../../../models';
 import { CamelComponentSchemaService } from '../../../models/visualization/flows/support/camel-component-schema.service';
 import { ARRAY_TYPE_NAMES, extractAttributesFromXmlElement, PROCESSOR_NAMES } from '../utils/xml-utils';
 import { ExpressionParser } from './expression-parser';
 
-export type ElementTransformer = (element: Element) => unknown;
+export type ElementTransformer = (element: Element) => Promise<unknown>;
 
 export class StepParser {
   private static readonly SKIP_KEYS = ['doCatch', 'doFinally', 'onFallback', 'when', 'onWhen'];
 
-  static parseSteps(parentElement: Element, processorKeys: string[]): ProcessorDefinition[] {
-    return Array.from(parentElement.children)
-      .filter((child) => {
-        // onFallback is listed as a processor in the catalog, but it is not a processor. RouteXmlParser. is already fixed in the main branch of the camel
-        return processorKeys.includes(child.tagName) && !this.SKIP_KEYS.includes(child.tagName); // Filter out elements not needed
-      })
-      .map((child) => {
+  static async parseSteps(parentElement: Element, processorKeys: string[]): Promise<ProcessorDefinition[]> {
+    const children = Array.from(parentElement.children).filter((child) => {
+      // onFallback is listed as a processor in the catalog, but it is not a processor. RouteXmlParser. is already fixed in the main branch of the camel
+      return processorKeys.includes(child.tagName) && !this.SKIP_KEYS.includes(child.tagName); // Filter out elements not needed
+    });
+
+    return Promise.all(
+      children.map(async (child) => {
+        const element = await this.parseElement(child);
         const step: ProcessorDefinition = {
-          [child.tagName as keyof ProcessorDefinition]: this.parseElement(child),
+          [child.tagName as keyof ProcessorDefinition]: element,
         };
         return step;
-      });
+      }),
+    );
   }
 
-  static getProcessorModel(element: Element): {
+  static async getProcessorModel(element: Element): Promise<{
     processorName: string;
     processorModel: ICamelProcessorDefinition | undefined;
-  } {
+  }> {
     let processorName = PROCESSOR_NAMES.get(element.tagName) ?? element.tagName;
-    let processorModel = CamelCatalogService.getComponent(CatalogKind.Processor, processorName);
+    let processorModel = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, processorName);
     if (processorName === 'onWhen' && !processorModel) {
-      processorModel = CamelCatalogService.getComponent(CatalogKind.Processor, 'when');
+      processorModel = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'when');
       processorName = 'when';
     }
     return { processorName, processorModel };
   }
 
-  static parseElement(element: Element, transformer?: ElementTransformer): unknown {
+  static async parseElement(element: Element, transformer?: ElementTransformer): Promise<unknown> {
     if (!element) return {};
 
-    const { processorName, processorModel } = this.getProcessorModel(element);
+    const { processorName, processorModel } = await this.getProcessorModel(element);
 
     //Some elements are not defined in the catalog even if they are defined in the schemas, so we need to extract them as plain objects
     if (!processorModel) {
@@ -65,7 +69,7 @@ export class StepParser {
 
     let processor: { [key: string]: unknown } = {};
 
-    Object.entries(processorModel.properties).forEach(([name, properties]) => {
+    for (const [name, properties] of Object.entries(processorModel.properties)) {
       switch (properties.kind) {
         case 'value':
           processor[name] = element.textContent;
@@ -77,38 +81,41 @@ export class StepParser {
           break;
         case 'expression':
           if (name === 'expression') {
-            processor = { ...processor, ...ExpressionParser.parse(element, properties) };
-          } else processor[name] = ExpressionParser.parse(element, properties, name);
+            const expression = await ExpressionParser.parse(element, properties);
+            processor = { ...processor, ...expression };
+          } else processor[name] = await ExpressionParser.parse(element, properties, name);
           break;
 
         case 'element':
           {
-            const elementType = this.parseElementType(name, element, properties, transformer);
+            const elementType = await this.parseElementType(name, element, properties, transformer);
             if (elementType) {
               processor[elementType.key] = elementType.value;
             }
           }
           break;
       }
-    });
+    }
 
     // handle cases that aren't defined in catalog or are defined incorrectly
-    this.handleSpecialCases(processorName, element, processor, processorModel.properties);
+    await this.handleSpecialCases(processorName, element, processor, processorModel.properties);
 
     return processor;
   }
 
-  static parseElementType(
+  static async parseElementType(
     name: string,
     element: Element,
     properties: ICamelProcessorProperty,
     transformer?: ElementTransformer,
-  ): { key: string; value: unknown } | undefined {
+  ): Promise<{ key: string; value: unknown } | undefined> {
     if (properties.type === 'object') {
-      return this.parseObjectType(name, element, properties);
+      const result = await this.parseObjectType(name, element, properties);
+      return result;
     }
     if (properties.type === 'array') {
-      return this.parseArrayType(name, element, properties, transformer);
+      const result = await this.parseArrayType(name, element, properties, transformer);
+      return result;
     }
 
     return undefined;
@@ -137,45 +144,45 @@ export class StepParser {
     return element.getElementsByTagName(name)[0];
   }
 
-  private static parseObjectType(
+  private static async parseObjectType(
     name: string,
     element: Element,
     properties: ICamelProcessorProperty,
-  ): { key: string; value: unknown } | undefined {
+  ): Promise<{ key: string; value: unknown } | undefined> {
     const singleElement = this.findSingleElement(element, properties, name);
 
     return singleElement
       ? {
           key: singleElement.tagName,
-          value: this.parseElement(singleElement),
+          value: await this.parseElement(singleElement),
         }
       : undefined;
   }
 
-  private static parseArrayType(
+  private static async parseArrayType(
     name: string,
     element: Element,
     properties: ICamelProcessorProperty,
     transformer?: ElementTransformer,
-  ): { key: string; value: unknown } {
+  ): Promise<{ key: string; value: unknown }> {
     if (name === 'outputs') {
       // if outputs is specified then the processor has steps
 
-      const steps = this.parseSteps(element, properties.oneOf!);
+      const steps = await this.parseSteps(element, properties.oneOf!);
       if (steps.length > 0 || properties.required) return { key: 'steps', value: steps };
     }
-    const arrayClause = this.parseElementsArray(name, element, properties, transformer);
+    const arrayClause = await this.parseElementsArray(name, element, properties, transformer);
 
     if (arrayClause.length > 0) return { key: name, value: arrayClause };
     return { key: name, value: properties.required ? [] : undefined };
   }
 
-  static parseElementsArray(
+  static async parseElementsArray(
     name: string,
     element: Element,
     properties: ICamelProcessorProperty,
     transformer = (el: Element) => this.parseElement(el),
-  ): unknown[] {
+  ): Promise<unknown[]> {
     const arrayElementName = ARRAY_TYPE_NAMES.get(name) ?? name;
     let children;
     if (properties.oneOf) {
@@ -188,33 +195,35 @@ export class StepParser {
 
     if (!children) return [];
 
-    return Array.from(children).map((el) =>
-      properties.javaType === 'java.util.List<java.lang.String>' ? el.textContent : transformer(el),
+    return Promise.all(
+      Array.from(children).map(async (el) =>
+        properties.javaType === 'java.util.List<java.lang.String>' ? el.textContent : await transformer(el),
+      ),
     );
   }
 
-  static decorateDoTry(doTryElement: Element, processor: DoTry) {
+  static async decorateDoTry(doTryElement: Element, processor: DoTry) {
     const doCatchArray: DoCatch[] = [];
     let doFinallyElement = undefined;
 
-    Array.from(doTryElement.children).forEach((child) => {
+    for (const child of Array.from(doTryElement.children)) {
       const tagNameLower = child.tagName;
-      const element = this.parseElement(child);
+      const element = await this.parseElement(child);
 
       if (child.tagName === 'doCatch') {
         //set to undefined because onWhen definition doesn't have steps. It's a special case
         this.checkOnWhen(element);
         doCatchArray.push(element as DoCatch);
       } else if (tagNameLower === 'doFinally') {
-        doFinallyElement = element;
+        doFinallyElement = element as DoFinally;
       }
-    });
+    }
 
     processor['doCatch'] = doCatchArray;
     processor['doFinally'] = doFinallyElement;
   }
 
-  private static handleSpecialCases(
+  private static async handleSpecialCases(
     processorName: string,
     element: Element,
     processor: { [p: string]: unknown },
@@ -222,20 +231,20 @@ export class StepParser {
   ) {
     //  doTry properties are missing in the catalog up to 4.9
     if (processorName === 'doTry' && !processorProperties['doCatch'] && !processorProperties['doFinally']) {
-      this.decorateDoTry(element, processor);
+      await this.decorateDoTry(element, processor);
     }
     if (processorName.includes('intercept') && !processorProperties['onWhen']) {
-      this.decorateIntercept(element, processor);
+      await this.decorateIntercept(element, processor);
     }
   }
 
-  private static decorateIntercept(element: Element, processor: { [p: string]: unknown }) {
+  private static async decorateIntercept(element: Element, processor: { [p: string]: unknown }) {
     //if when is defined or newer catalog is used, we don't need to parse it again
     if (processor['when'] || processor['onWhen']) return;
 
     const whenElement = element.getElementsByTagName('when')[0];
     if (whenElement) {
-      const when = this.parseElement(whenElement) as { [key: string]: unknown; steps?: [] };
+      const when = (await this.parseElement(whenElement)) as { [key: string]: unknown; steps?: [] };
       when['steps'] = undefined;
       processor['when'] = when;
     }

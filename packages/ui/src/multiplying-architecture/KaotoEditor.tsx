@@ -37,6 +37,7 @@ const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
 export const KaotoEditor = () => {
   const entitiesContext = useContext(EntitiesContext);
   const resource = entitiesContext?.camelResource;
+  const isLoading = entitiesContext?.isLoading;
   const inset = useRef<TabsProps['inset']>({ default: 'insetSm' });
   const currentLocation = useLocation();
   const secondSlashIndex = currentLocation.pathname.indexOf('/', 1);
@@ -46,7 +47,7 @@ export const KaotoEditor = () => {
     : Links.DataMapper;
 
   const availableTabs = useMemo(() => {
-    if (!resource) {
+    if (isLoading || !resource) {
       return {
         design: false,
         beans: false,
@@ -67,7 +68,7 @@ export const KaotoEditor = () => {
       kaotoDataMapper: SCHEMA_TABS[resource.getType()].includes(TabList.KaotoDataMapper),
       about: SCHEMA_TABS[resource.getType()].includes(TabList.About),
     };
-  }, [resource]);
+  }, [isLoading, resource]);
 
   return (
     <div className="shell" data-envelope-context="vscode">

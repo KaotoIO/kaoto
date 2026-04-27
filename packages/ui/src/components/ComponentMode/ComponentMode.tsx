@@ -12,14 +12,14 @@ import { CamelRouteVisualEntityData } from '../../models/visualization/flows/sup
 import { getProcessorIcon } from '../../utils/processor-icon';
 
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
-  const { updateSourceCodeFromEntities } = useEntityContext();
+  const { updateSourceCodeFromEntities, isLoading, camelResource } = useEntityContext();
   const [processorName, setProcessorName] = useState<keyof ProcessorDefinition>(
     (vizNode?.data as CamelRouteVisualEntityData)?.processorName,
   );
 
   const switchComponentMode = useCallback(
-    (newProcessorName: keyof ProcessorDefinition) => {
-      if (!vizNode || newProcessorName === processorName) return;
+    async (newProcessorName: keyof ProcessorDefinition) => {
+      if (!vizNode || newProcessorName === processorName || isLoading || !camelResource) return;
 
       const path = vizNode.data.path;
       const rootEipPath = path?.split('.').slice(0, -1).join('.');
@@ -35,10 +35,10 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
 
       vizNode.data = { ...vizNode.data, path: `${rootEipPath}.${newProcessorName}`, processorName: newProcessorName };
       vizNode.updateModel(definition);
-      updateSourceCodeFromEntities();
+      await updateSourceCodeFromEntities();
       setProcessorName(newProcessorName);
     },
-    [vizNode, processorName, updateSourceCodeFromEntities],
+    [vizNode, processorName, updateSourceCodeFromEntities, isLoading, camelResource],
   );
 
   const ToIcon = getProcessorIcon('to');

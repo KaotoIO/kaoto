@@ -48,18 +48,21 @@ export class DataMapperStepService {
    * @param entitiesContext The entities context for updating source code
    * @returns The document name
    */
-  static initializeXsltStep(
+  static async initializeXsltStep(
     vizNode: IVisualizationNode,
     metadataId: string,
     entitiesContext: EntitiesContextResult,
-  ): string {
+  ): Promise<string> {
+    if (!entitiesContext.camelResource || entitiesContext.isLoading) {
+      return `${metadataId}.xsl`;
+    }
     const model = vizNode.getNodeDefinition();
     const xsltStep = (model.steps as ProcessorDefinition[]).find(isXSLTComponent)!;
     const documentName = `${metadataId}.xsl`;
 
     xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${documentName}`;
     vizNode.updateModel(model);
-    entitiesContext.updateSourceCodeFromEntities();
+    await entitiesContext.updateSourceCodeFromEntities();
 
     return documentName;
   }
@@ -93,11 +96,12 @@ export class DataMapperStepService {
    * @param isUseJsonBody The DataMapper metadata
    * @param entitiesContext The entities context for updating source code
    */
-  static setUseJsonBody(
+  static async setUseJsonBody(
     vizNode: IVisualizationNode,
     isUseJsonBody: boolean,
     entitiesContext: EntitiesContextResult,
-  ): void {
+  ): Promise<void> {
+    if (!entitiesContext.camelResource || entitiesContext.isLoading) return;
     const model = vizNode.getNodeDefinition();
     const xsltStep = (model.steps as ProcessorDefinition[])?.find(isXSLTComponent);
 
@@ -116,7 +120,7 @@ export class DataMapperStepService {
     }
 
     vizNode.updateModel(model);
-    entitiesContext.updateSourceCodeFromEntities();
+    await entitiesContext.updateSourceCodeFromEntities();
   }
 
   static updateXsltFileName(

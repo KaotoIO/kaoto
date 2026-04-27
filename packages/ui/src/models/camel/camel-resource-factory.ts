@@ -18,11 +18,11 @@ export class CamelResourceFactory {
    * @param type
    * @param source
    */
-  static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): KaotoResource {
+  static async createCamelResource(source?: string, options: Partial<{ path: string }> = {}): Promise<KaotoResource> {
     const pathResourceType = getResourceTypeFromPath(options.path);
 
     const serializer = this.initSerializer(source, options.path);
-    const parsedCode = typeof source === 'string' ? serializer.parse(source) : source;
+    const parsedCode = typeof source === 'string' ? await serializer.parse(source) : source;
 
     const testResource = CitrusTestResourceFactory.getCitrusTestResource(parsedCode as Test, pathResourceType);
 

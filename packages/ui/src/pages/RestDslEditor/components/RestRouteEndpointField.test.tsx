@@ -5,8 +5,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { JSONSchema4 } from 'json-schema';
 import { Suspense } from 'react';
 
-import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelComponentsProvider } from '../../../dynamic-catalog/providers/camel-components.provider';
 import { CamelRouteResource } from '../../../models/camel/camel-route-resource';
 import { CatalogKind } from '../../../models/catalog-kind';

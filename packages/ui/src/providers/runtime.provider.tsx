@@ -27,7 +27,11 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
   const entitiesContext = useContext(EntitiesContext);
-  const currentSchemaType = entitiesContext?.currentSchemaType || SourceSchemaType.Route;
+  const isEntitiesLoading = entitiesContext && !entitiesContext.isLoading;
+  const currentSchemaType =
+    isEntitiesLoading || !entitiesContext?.camelResource
+      ? SourceSchemaType.Route
+      : (entitiesContext.currentSchemaType ?? SourceSchemaType.Route);
   let localSelectedCatalog: CatalogLibraryEntry | undefined = undefined;
 
   try {

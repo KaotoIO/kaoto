@@ -22,7 +22,8 @@ describe('useDisableStep', () => {
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
+    isLoading: false,
   };
 
   beforeEach(() => {

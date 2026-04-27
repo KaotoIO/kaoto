@@ -27,10 +27,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseRouteEntity()', () => {
-    it('should parse route', () => {
-      const routeEntity = CamelResourceFactory.createCamelResource(
-        camelRouteYaml,
-      ).getVisualEntities()[0] as CamelRouteVisualEntity;
+    it('should parse route', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(camelRouteYaml);
+      const routeEntity = kaotoResource.getVisualEntities()[0] as CamelRouteVisualEntity;
       const parsed = RouteParser.parseRouteEntity(routeEntity);
 
       expect(parsed.title).toEqual('route-8888');
@@ -51,12 +50,10 @@ describe('RouteParser', () => {
     });
   });
 
-  const rcEntity = CamelResourceFactory.createCamelResource(
-    routeConfigurationFullYaml,
-  ).getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
-
   describe('parseRouteConfigurationEntity()', () => {
-    it('should parse route configuration', () => {
+    it('should parse route configuration', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const parsed = RouteParser.parseRouteConfigurationEntity(rcEntity);
 
       expect(parsed.length).toEqual(7);
@@ -90,7 +87,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseErrorHandlerEntity()', () => {
-    it('should parse error handler', () => {
+    it('should parse error handler', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const entity = new CamelErrorHandlerVisualEntity({
         errorHandler: rcEntity.entityDef.routeConfiguration.errorHandler as ErrorHandlerDeserializer,
       });
@@ -108,7 +107,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseInterceptEntity()', () => {
-    it('should parse intercept', () => {
+    it('should parse intercept', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const entity = new CamelInterceptVisualEntity({
         intercept: rcEntity.entityDef.routeConfiguration.intercept as Intercept,
       });
@@ -135,7 +136,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseInterceptFromEntity()', () => {
-    it('should parse interceptFrom', () => {
+    it('should parse interceptFrom', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const entity = new CamelInterceptFromVisualEntity({
         interceptFrom: rcEntity.entityDef.routeConfiguration.interceptFrom as InterceptFrom,
       });
@@ -162,7 +165,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseInterceptSendToEndpointEntity()', () => {
-    it('should parse interceptSendToEndpoint', () => {
+    it('should parse interceptSendToEndpoint', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const entity = new CamelInterceptSendToEndpointVisualEntity({
         interceptSendToEndpoint: rcEntity.entityDef.routeConfiguration
           .interceptSendToEndpoint as InterceptSendToEndpoint,
@@ -190,7 +195,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseOnCompletionEntity()', () => {
-    it('should parse onCompletion', () => {
+    it('should parse onCompletion', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const entity = new CamelOnCompletionVisualEntity({
         onCompletion: rcEntity.entityDef.routeConfiguration.onCompletion as OnCompletion,
       });
@@ -217,7 +224,9 @@ describe('RouteParser', () => {
   });
 
   describe('parseOnExceptionEntity()', () => {
-    it('should parse onException', () => {
+    it('should parse onException', async () => {
+      const kaotoResource = await CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+      const rcEntity = kaotoResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
       const entity = new CamelOnExceptionVisualEntity({
         onException: rcEntity.entityDef.routeConfiguration.onException as OnException,
       });

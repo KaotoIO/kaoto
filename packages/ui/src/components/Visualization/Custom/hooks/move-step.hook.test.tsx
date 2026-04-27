@@ -50,7 +50,8 @@ describe('useMoveStep', () => {
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
     updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
+    isLoading: false,
   };
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -169,7 +170,7 @@ describe('useMoveStep', () => {
       expect(result.current.canBeMoved).toBe(false);
     });
 
-    it('should find shortest path when multiple nodes match', () => {
+    it('should find shortest path when multiple nodes match', async () => {
       const longPathVizNode = createVisualizationNode('longPath', {
         name: 'when',
         path: 'route.from.steps.2.choice.when',
@@ -195,7 +196,7 @@ describe('useMoveStep', () => {
       mockGetVisualizationNodesFromGraph.mockReturnValue([longPathVizNode, shortPathVizNode]);
 
       const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.AppendStep), { wrapper });
-      result.current.onMoveStep();
+      await result.current.onMoveStep();
 
       // shortPathVizNode.getCopiedContent() call indicates that it was chosen as the target node
       expect(shortPathVizNodeSpy).toHaveBeenCalled();
@@ -204,7 +205,7 @@ describe('useMoveStep', () => {
   });
 
   describe('onMoveStep functionality', () => {
-    it('should return without calling pasteBaseEntityStep() and updateEntitiesFromCamelResource()', () => {
+    it('should return without calling pasteBaseEntityStep() and updateEntitiesFromCamelResource()', async () => {
       const VizNodeGetCopiedContentSpy = jest
         .spyOn(vizNode, 'getCopiedContent')
         .mockReturnValueOnce(vizNodeCopiedContent);
@@ -221,7 +222,7 @@ describe('useMoveStep', () => {
       mockGetVisualizationNodesFromGraph.mockReturnValue([targetVizNode]);
 
       const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.AppendStep), { wrapper });
-      result.current.onMoveStep();
+      await result.current.onMoveStep();
 
       expect(VizNodeGetCopiedContentSpy).toHaveBeenCalledTimes(1);
       expect(targetVizNode.getCopiedContent).toHaveBeenCalledTimes(1);
@@ -232,7 +233,7 @@ describe('useMoveStep', () => {
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).not.toHaveBeenCalled();
     });
 
-    it('should call getCopiedContent(), processOnCopyAddon(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource() in case of datamapper step', () => {
+    it('should call getCopiedContent(), processOnCopyAddon(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource() in case of datamapper step', async () => {
       const visualEntity = new CamelRouteVisualEntity(camelRouteJsonWithDM);
       const dataMapperVizNode = createVisualizationNode('test-DM', {
         name: 'step',
@@ -297,7 +298,7 @@ describe('useMoveStep', () => {
       mockGetVisualizationNodesFromGraph.mockReturnValue([targetVizNode]);
 
       const { result } = renderHook(() => useMoveStep(dataMapperVizNode, AddStepMode.AppendStep), { wrapper });
-      result.current.onMoveStep();
+      await result.current.onMoveStep();
 
       expect(dataMapperVizNodeGetCopiedContentSpy).toHaveBeenCalledTimes(1);
       expect(dataMapperVizNodeGetCopiedContentSpy).toHaveReturnedWith(dataMapperVizNodeCopiedContent);
@@ -312,7 +313,7 @@ describe('useMoveStep', () => {
       expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
     });
 
-    it('should call getCopiedContent(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource()', () => {
+    it('should call getCopiedContent(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource()', async () => {
       const VizNodeGetCopiedContentSpy = jest
         .spyOn(vizNode, 'getCopiedContent')
         .mockReturnValueOnce(vizNodeCopiedContent);
@@ -329,7 +330,7 @@ describe('useMoveStep', () => {
       mockGetVisualizationNodesFromGraph.mockReturnValue([targetVizNode]);
 
       const { result } = renderHook(() => useMoveStep(vizNode, AddStepMode.AppendStep), { wrapper });
-      result.current.onMoveStep();
+      await result.current.onMoveStep();
 
       expect(VizNodeGetCopiedContentSpy).toHaveBeenCalledTimes(1);
       expect(targetVizNode.getCopiedContent).toHaveBeenCalledTimes(1);

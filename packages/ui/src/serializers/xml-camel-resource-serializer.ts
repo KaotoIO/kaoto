@@ -1,6 +1,7 @@
 import { CamelYamlDsl, Integration, Kamelet, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
 import xmlFormat from 'xml-formatter';
 
+import { Test } from '../models/citrus/entities/Test';
 import { EntityType } from '../models/entities';
 import { KaotoResource, KaotoResourceSerializer, Metadata, SerializerType } from '../models/kaoto-resource';
 import { isXML, KaotoXmlParser } from './xml/kaoto-xml-parser';
@@ -28,26 +29,26 @@ export class XmlCamelResourceSerializer implements KaotoResourceSerializer {
     return isXML(code as string);
   }
 
-  parse(code: unknown): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
+  async parse(code: string): Promise<CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined> {
     const xmlParser = new KaotoXmlParser();
 
-    this.metadata.xmlDeclaration = this.parseXmlDeclaration(code as string);
+    this.metadata.xmlDeclaration = this.parseXmlDeclaration(code);
 
-    const codeWithoutDeclaration = (code as string).replace(this.metadata.xmlDeclaration, '');
+    const codeWithoutDeclaration = code.replace(this.metadata.xmlDeclaration, '');
     this.extractComments(codeWithoutDeclaration);
     this.metadata.rootElementDefinitions = xmlParser.parseRootElementDefinitions(codeWithoutDeclaration);
-    const entities = xmlParser.parseXML(codeWithoutDeclaration as string);
+    const entities = await xmlParser.parseXML(codeWithoutDeclaration);
 
     return entities as CamelYamlDsl;
   }
 
-  serialize(resource: KaotoResource): string {
+  async serialize(resource: KaotoResource): Promise<string> {
     const entities: EntityDefinition[] = resource
       .getEntities()
       .filter((entity) => entity.type === EntityType.Beans) as EntityDefinition[];
     entities.push(...(resource.getVisualEntities() as EntityDefinition[]));
 
-    const xmlDocument = KaotoXmlSerializer.serialize(entities, this.metadata.rootElementDefinitions);
+    const xmlDocument = await KaotoXmlSerializer.serialize(entities, this.metadata.rootElementDefinitions);
     const xmlString = this.xmlSerializer.serializeToString(xmlDocument);
     const formattedString = xmlFormat(xmlString);
     return this.getXmlDeclaration() + this.insertComments(formattedString);

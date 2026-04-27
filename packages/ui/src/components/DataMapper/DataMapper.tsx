@@ -47,9 +47,12 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   const [initialXsltFile, setInitialXsltFile] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const dndHandler = useMemo(() => new SourceTargetDnDHandler(), []);
+  const isWaitingForEntities = Boolean(
+    entitiesContext && (entitiesContext.isLoading || !entitiesContext.camelResource),
+  );
 
   useEffect(() => {
-    if (!metadataId) return;
+    if (!metadataId || isWaitingForEntities) return;
     const initialize = async () => {
       let meta = await ctx.getMetadata<IDataMapperMetadata>(metadataId);
       if (meta) {
@@ -60,7 +63,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
           await ctx.saveResourceContent(meta.xsltPath, EMPTY_XSL);
         }
       } else {
-        const xsltPath = DataMapperStepService.initializeXsltStep(vizNode, metadataId, entitiesContext);
+        const xsltPath = await DataMapperStepService.initializeXsltStep(vizNode, metadataId, entitiesContext);
         meta = await DataMapperMetadataService.initializeDataMapperMetadata(ctx, metadataId, xsltPath);
       }
       setMetadata(meta);
@@ -71,16 +74,16 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     };
     initialize().then(() => setIsLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isWaitingForEntities]);
 
   const onUpdateDocument = useCallback(
-    (definition: DocumentDefinition) => {
+    async (definition: DocumentDefinition) => {
       if (!metadataId || !metadata) return;
       switch (definition.documentType) {
         case DocumentType.SOURCE_BODY:
           DataMapperMetadataService.updateSourceBodyMetadata(ctx, metadataId, metadata, definition);
           if (vizNode) {
-            DataMapperStepService.setUseJsonBody(
+            await DataMapperStepService.setUseJsonBody(
               vizNode,
               definition.definitionType === DocumentDefinitionType.JSON_SCHEMA,
               entitiesContext,
@@ -139,7 +142,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     return <>No associated DataMapper step was provided.</>;
   }
 
-  if (isLoading) {
+  if (isWaitingForEntities || isLoading) {
     return <Loading />;
   }
 

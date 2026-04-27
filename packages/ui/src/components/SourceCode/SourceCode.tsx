@@ -31,9 +31,15 @@ const options: CodeEditorProps['options'] = {
 export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
   const editorRef = useRef<Parameters<EditorDidMount>[0] | null>(null);
   const entityContext = useContext(EntitiesContext);
+  const isEntitiesLoading = entityContext && !entityContext.isLoading;
   const isDarkMode = isDarkModeEnabled();
-  const schemaType: SourceSchemaType = entityContext?.currentSchemaType ?? SourceSchemaType.Route;
+  const schemaType: SourceSchemaType =
+    isEntitiesLoading || !entityContext?.camelResource
+      ? SourceSchemaType.Route
+      : (entityContext.currentSchemaType ?? SourceSchemaType.Route);
+
   const currentSchema = sourceSchemaConfig.config[schemaType].schema;
+
   const monacoYamlHandlerRef: RefObject<ReturnType<typeof configureMonacoYaml> | undefined> = useRef(undefined);
 
   const editorProps: Ref<CodeEditorProps['editorProps']> = useRef({

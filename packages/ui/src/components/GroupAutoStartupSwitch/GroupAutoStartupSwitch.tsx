@@ -36,8 +36,9 @@ export const GroupAutoStartupSwitch: FunctionComponent<IGroupAutoStartupSwitchPr
   const isAutoStartup = autoStartupValue !== false;
   const title = isAutoStartup ? 'Auto Startup Enabled' : 'Auto Startup Disabled';
 
-  const handleToggle = (event: React.FormEvent<HTMLInputElement>) => {
+  const handleToggle = async (event: React.FormEvent<HTMLInputElement>) => {
     event.stopPropagation();
+    if (entitiesContext.isLoading || !entitiesContext.camelResource) return;
 
     // Only toggle if the value is boolean or undefined; preserve string values
     if (typeof autoStartupValue === 'string') {
@@ -57,7 +58,7 @@ export const GroupAutoStartupSwitch: FunctionComponent<IGroupAutoStartupSwitchPr
 
     // Use updateModel to modify the route configuration
     vizNode.updateModel(updatedRoute);
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
   };
 
   return (

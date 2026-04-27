@@ -71,12 +71,13 @@ describe('DirectEndpointNameField hooks', () => {
   });
 
   describe('useCreateDirectRoute', () => {
-    it('creates a route for a new direct name', () => {
+    it('creates a route for a new direct name', async () => {
       const onChange = jest.fn();
       const addNewEntity = jest.fn().mockReturnValue('new-route-id');
       const toggleFlowVisible = jest.fn();
-      const updateEntitiesFromCamelResource = jest.fn();
+      const updateEntitiesFromCamelResource = jest.fn().mockResolvedValue(undefined);
       const entitiesContext = {
+        isLoading: false,
         camelResource: { addNewEntity },
         updateEntitiesFromCamelResource,
       } as unknown as EntitiesContextResult;
@@ -97,7 +98,9 @@ describe('DirectEndpointNameField hooks', () => {
 
       expect(result.current.canCreateRoute).toBe(true);
 
-      act(() => result.current.onCreateRoute());
+      await act(async () => {
+        await result.current.onCreateRoute();
+      });
 
       expect(addNewEntity).toHaveBeenCalledWith('route', {
         from: { uri: 'direct', parameters: { name: 'new-route' }, steps: [] },
@@ -125,18 +128,44 @@ describe('DirectEndpointNameField hooks', () => {
 
     it('allows route creation when the name is only referenced but has no direct from route', () => {
       const onChange = jest.fn();
+      const entitiesContext = {
+        isLoading: false,
+        camelResource: { addNewEntity: jest.fn() },
+        updateEntitiesFromCamelResource: jest.fn(),
+      } as unknown as EntitiesContextResult;
       const { result } = renderHook(() =>
         useCreateDirectRoute({
           disabled: false,
           typedName: 'orders',
           existingDirectRouteNames: ['start'],
           onChange,
-          entitiesContext: null,
+          entitiesContext,
           visibleFlowsContext: undefined,
         }),
       );
 
       expect(result.current.canCreateRoute).toBe(true);
+    });
+
+    it('disables route creation while entities are loading', () => {
+      const onChange = jest.fn();
+      const entitiesContext = {
+        isLoading: true,
+        camelResource: undefined,
+        updateEntitiesFromCamelResource: jest.fn(),
+      } as unknown as EntitiesContextResult;
+      const { result } = renderHook(() =>
+        useCreateDirectRoute({
+          disabled: false,
+          typedName: 'new-route',
+          existingDirectRouteNames: [],
+          onChange,
+          entitiesContext,
+          visibleFlowsContext: undefined,
+        }),
+      );
+
+      expect(result.current.canCreateRoute).toBe(false);
     });
   });
 });

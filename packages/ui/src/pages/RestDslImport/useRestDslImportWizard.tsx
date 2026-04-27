@@ -157,8 +157,8 @@ export const useRestDslImportWizard = () => {
     });
   }, []);
 
-  const handleImportOpenApi = useCallback((): boolean => {
-    if (!entitiesContext || (!importCreateRest && !importCreateRoutes)) {
+  const handleImportOpenApi = useCallback(async (): Promise<boolean> => {
+    if (!entitiesContext?.camelResource || entitiesContext.isLoading || (!importCreateRest && !importCreateRoutes)) {
       setImportStatus({
         type: 'error',
         message: 'Import failed. Choose at least one option to generate.',
@@ -174,10 +174,7 @@ export const useRestDslImportWizard = () => {
       return false;
     }
 
-    const camelResource = entitiesContext.camelResource as {
-      addNewEntity: (type?: EntityType) => string;
-      getVisualEntities: () => Array<{ id: string; type: EntityType }>;
-    };
+    const camelResource = entitiesContext.camelResource;
 
     if (importCreateRoutes) {
       selectedOperations.forEach((operation) => {
@@ -221,7 +218,7 @@ export const useRestDslImportWizard = () => {
       }
     }
 
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
     setImportStatus({
       type: 'success',
       message: `Import succeeded. ${selectedOperations.length} operation${selectedOperations.length === 1 ? '' : 's'} added.`,

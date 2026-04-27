@@ -41,7 +41,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
   const canBeMoved = isDefined(targetNode);
 
   const onMoveStep = useCallback(async () => {
-    if (!vizNode || !entitiesContext || !targetNode) return;
+    if (!vizNode || !entitiesContext?.camelResource || entitiesContext.isLoading || !targetNode) return;
 
     let currentNodeContent = vizNode.getCopiedContent();
     currentNodeContent = processOnCopyAddon(
@@ -66,7 +66,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
     targetNode?.pasteBaseEntityStep(currentNodeContent, AddStepMode.ReplaceStep);
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entitiesContext, targetNode, vizNode]);
 

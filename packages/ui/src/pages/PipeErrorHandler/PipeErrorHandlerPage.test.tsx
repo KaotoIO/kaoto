@@ -17,6 +17,7 @@ const mockEntitiesContext = {
   currentSchemaType: camelResource.getType(),
   updateSourceCodeFromEntities: jest.fn(),
   updateEntitiesFromCamelResource: jest.fn(),
+  isLoading: false,
 };
 
 describe('PipeErrorHandlerPage', () => {

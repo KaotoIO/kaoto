@@ -15,7 +15,7 @@ export const useAddStep = (
   const metadataContext = useContext(MetadataContext);
 
   const onAddStep = useCallback(async () => {
-    if (!entitiesContext) return;
+    if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
 
     /** Get compatible nodes and the location where can be introduced */
     const compatibleNodes = entitiesContext.camelResource.getCompatibleComponents(mode, vizNode.data);
@@ -28,7 +28,7 @@ export const useAddStep = (
     vizNode.addBaseEntityStep(definedComponent, mode);
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
 
     /** Notify VS Code host about the new step */
     metadataContext?.onStepUpdated?.(StepUpdateAction.Add, definedComponent.type, definedComponent.name);

@@ -24,8 +24,8 @@ describe('RestTreeToolbar', () => {
   });
 
   describe('Add RestConfiguration button', () => {
-    it('should be disabled when RestConfiguration already exists', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be disabled when RestConfiguration already exists', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
     port: "8080"
@@ -52,8 +52,8 @@ describe('RestTreeToolbar', () => {
       expect(addRestConfigButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when no RestConfiguration exists', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be enabled when no RestConfiguration exists', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
@@ -116,8 +116,8 @@ describe('RestTreeToolbar', () => {
       expect(addRestButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled even with entities present', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be enabled even with entities present', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
 - restConfiguration:
@@ -182,8 +182,8 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be disabled when RestConfiguration is selected', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be disabled when RestConfiguration is selected', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
     port: "8080"
@@ -210,8 +210,8 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when Rest entity root is selected', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be enabled when Rest entity root is selected', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -241,8 +241,8 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when a Rest method is selected', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be enabled when a Rest method is selected', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -272,8 +272,8 @@ describe('RestTreeToolbar', () => {
       expect(addMethodButton).not.toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be disabled when a non-Rest path is selected', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be disabled when a non-Rest path is selected', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -329,8 +329,8 @@ describe('RestTreeToolbar', () => {
       expect(deleteButton).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('should be enabled when an element is selected', () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+    it('should be enabled when an element is selected', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
@@ -356,7 +356,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should fire callback when clicked', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
@@ -381,7 +381,7 @@ describe('RestTreeToolbar', () => {
 
   describe('AddMethodModal', () => {
     it('should open when Add Method button is clicked', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
@@ -408,7 +408,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should close when cancel button is clicked', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);
@@ -439,7 +439,7 @@ describe('RestTreeToolbar', () => {
     });
 
     it('should receive onAddMethod callback prop', async () => {
-      const camelResource = CamelResourceFactory.createCamelResource(`
+      const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
       `);

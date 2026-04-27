@@ -23,9 +23,11 @@ export const BeansPage: FunctionComponent = () => {
   }, [beansHandler]);
 
   const handleChangeModel = useCallback(
-    (model: BeansDeserializer | BeanFactory[]) => {
+    async (model: BeansDeserializer | BeanFactory[]) => {
+      if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
+
       beansHandler.setBeansModel(model);
-      entitiesContext?.updateSourceCodeFromEntities();
+      await entitiesContext.updateSourceCodeFromEntities();
     },
     [beansHandler, entitiesContext],
   );

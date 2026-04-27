@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, render, screen } from '@testing-library/react';
 
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
+import { EntitiesContext } from './entities.provider';
 import { ReloadContext } from './reload.provider';
 import { RuntimeProvider } from './runtime.provider';
 
@@ -9,6 +10,15 @@ describe('RuntimeProvider', () => {
   let fetchMock: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
+  const mockEntities = {
+    entities: [],
+    currentSchemaType: undefined,
+    visualEntities: [],
+    camelResource: undefined,
+    isLoading: false,
+    updateSourceCodeFromEntities: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn(),
+  };
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
@@ -34,9 +44,11 @@ describe('RuntimeProvider', () => {
   it('should start in loading mode', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl="">
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
+        <EntitiesContext.Provider value={mockEntities}>
+          <RuntimeProvider catalogUrl="">
+            <span data-testid="library-loaded">Loaded</span>
+          </RuntimeProvider>
+        </EntitiesContext.Provider>,
       );
     });
 
@@ -47,11 +59,13 @@ describe('RuntimeProvider', () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     await act(async () => {
       render(
-        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
-          <RuntimeProvider catalogUrl="">
-            <span data-testid="library-loaded">Loaded</span>
-          </RuntimeProvider>
-        </ReloadContext.Provider>,
+        <EntitiesContext.Provider value={mockEntities}>
+          <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+            <RuntimeProvider catalogUrl="">
+              <span data-testid="library-loaded">Loaded</span>
+            </RuntimeProvider>
+          </ReloadContext.Provider>
+        </EntitiesContext.Provider>,
       );
     });
 
@@ -65,9 +79,11 @@ describe('RuntimeProvider', () => {
   it('should fetch the index.json catalog file', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
+        <EntitiesContext.Provider value={mockEntities}>
+          <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+            <span data-testid="library-loaded">Loaded</span>
+          </RuntimeProvider>
+        </EntitiesContext.Provider>,
       );
     });
 
@@ -81,9 +97,11 @@ describe('RuntimeProvider', () => {
   it('should render children when the index.json file is loaded', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
+        <EntitiesContext.Provider value={mockEntities}>
+          <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+            <span data-testid="library-loaded">Loaded</span>
+          </RuntimeProvider>
+        </EntitiesContext.Provider>,
       );
     });
 

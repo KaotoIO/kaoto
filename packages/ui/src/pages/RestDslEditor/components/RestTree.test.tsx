@@ -12,8 +12,8 @@ describe('RestTree', () => {
     jest.clearAllMocks();
   });
 
-  it('should render tree structure with RestConfiguration, Rest entities, and methods', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should render tree structure with RestConfiguration, Rest entities, and methods', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
     port: "8080"
@@ -56,8 +56,8 @@ describe('RestTree', () => {
     expect(screen.getByText('/items/{id}')).toBeInTheDocument();
   });
 
-  it('should fire selection callback with correct entityId and modelPath when node clicked', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should fire selection callback with correct entityId and modelPath when node clicked', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -99,8 +99,8 @@ describe('RestTree', () => {
     expect(screen.queryAllByRole('treeitem')).toHaveLength(0);
   });
 
-  it('should render children prop (toolbar area)', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should render children prop (toolbar area)', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     `);
@@ -116,8 +116,8 @@ describe('RestTree', () => {
     expect(screen.getByText('Toolbar Content')).toBeInTheDocument();
   });
 
-  it('should highlight selected Rest entity node', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should highlight selected Rest entity node', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -142,8 +142,8 @@ describe('RestTree', () => {
     expect(activeNode).toBeInTheDocument();
   });
 
-  it('should highlight selected method node', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should highlight selected method node', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -169,8 +169,8 @@ describe('RestTree', () => {
     expect(activeNode).toBeInTheDocument();
   });
 
-  it('should handle undefined selected prop', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should handle undefined selected prop', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     `);
@@ -183,8 +183,8 @@ describe('RestTree', () => {
     expect(screen.getByText('rest-1234')).toBeInTheDocument();
   });
 
-  it('should update selection when selected prop changes', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should update selection when selected prop changes', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -213,8 +213,8 @@ describe('RestTree', () => {
     expect(activeNode).toBeInTheDocument();
   });
 
-  it('should display "not specified" when method path is undefined', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should display "not specified" when method path is undefined', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:
@@ -229,8 +229,8 @@ describe('RestTree', () => {
     expect(screen.getByText('not specified')).toBeInTheDocument();
   });
 
-  it('should display "not specified" when method path is empty', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should display "not specified" when method path is empty', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
     get:

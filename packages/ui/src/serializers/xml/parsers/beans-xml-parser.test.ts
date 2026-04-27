@@ -17,7 +17,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelProcessorDefinition } from '../../../models';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { BeansXmlParser } from './beans-xml-parser';
 
@@ -28,9 +30,27 @@ export const getElementFromXml = (xml: string): Element => {
 };
 
 describe('BeanXmlParser', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    const registry = DynamicCatalogRegistry.get();
+
+    // Create processor catalog from catalogsMap.modelCatalogMap
+    const processorProvider = {
+      id: 'test-processor-provider',
+      fetch: async (key: string) => {
+        return catalogsMap.modelCatalogMap[key];
+      },
+      fetchAll: async () => {
+        return catalogsMap.modelCatalogMap;
+      },
+    };
+
+    const processorCatalog = new DynamicCatalog<ICamelProcessorDefinition>(processorProvider);
+    registry.setCatalog(CatalogKind.Processor, processorCatalog);
+  });
+
+  afterEach(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   it('parse bean constructors properly', () => {
@@ -81,5 +101,40 @@ describe('BeanXmlParser', () => {
       'nested.field1': 'nf1_p',
       'nested.field2': 'nf2_p',
     });
+  });
+
+  it('transformBeanFactory should return a promise when using async DynamicCatalog', async () => {
+    const beanElement = getElementFromXml(`
+        <bean id="myBean" class="com.example.MyClass">
+        <constructors>
+            <constructor index="0" value="true"/>
+        </constructors>
+        </bean>`);
+
+    const result = BeansXmlParser.transformBeanFactory(beanElement);
+    expect(result).toBeInstanceOf(Promise);
+
+    const bean = await result;
+    expect(bean).toBeDefined();
+    expect(bean.name).toEqual('myBean');
+    expect(bean.type).toEqual('com.example.MyClass');
+  });
+
+  it('transformBeansSection should return a promise when using async DynamicCatalog', async () => {
+    const parser = new BeansXmlParser();
+    const beansElement = getElementFromXml(`
+        <beans>
+          <bean id="bean1" class="com.example.Bean1"/>
+          <bean id="bean2" class="com.example.Bean2"/>
+        </beans>`);
+
+    const result = parser.transformBeansSection(beansElement);
+    expect(result).toBeInstanceOf(Promise);
+
+    const beans = await result;
+    expect(beans).toBeDefined();
+    expect(beans.length).toBe(2);
+    expect(beans[0].name).toEqual('bean1');
+    expect(beans[1].name).toEqual('bean2');
   });
 });

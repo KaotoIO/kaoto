@@ -26,10 +26,10 @@ export const usePasteEntity = () => {
    */
   const checkClipboardCompatibility = useCallback(
     (pastedEntityValue: IClipboardCopyObject | null): boolean => {
-      if (!pastedEntityValue || !entitiesContext) return false;
+      if (!pastedEntityValue || !entitiesContext || entitiesContext.isLoading) return false;
 
       const pastedEntityType = pastedEntityValue.type;
-      const resourceType = entitiesContext.camelResource.getType();
+      const resourceType = entitiesContext.camelResource?.getType();
       const isSameType = pastedEntityType === resourceType;
 
       if (
@@ -65,7 +65,7 @@ export const usePasteEntity = () => {
    * Paste entity from clipboard
    */
   const onPasteEntity = useCallback(async () => {
-    if (!entitiesContext) return;
+    if (!entitiesContext?.camelResource || entitiesContext.isLoading) return;
     const clipboardContent = await ClipboardManager.paste();
 
     if (!clipboardContent) {
@@ -93,8 +93,8 @@ export const usePasteEntity = () => {
 
     // For single-entity resources (Kamelet, Pipe), ask if user wants to replace
     if (!supportsMultiple) {
-      const existingEntities = camelResource.getVisualEntities();
-      if (existingEntities.length > 0) {
+      const existingEntities = camelResource?.getVisualEntities();
+      if (existingEntities && existingEntities.length > 0) {
         const result = await actionConfirmationContext?.actionConfirmation({
           title: 'Replace Existing Entity?',
           text: 'This resource type supports only one entity. Do you want to replace the existing entity?',
@@ -123,14 +123,11 @@ export const usePasteEntity = () => {
     const newId = camelResource.addNewEntity(updatedContent.name as EntityType, {
       [updatedContent.name]: updatedContent.definition,
     });
+    if (!newId) return;
 
-    // Make the new entity visible
-    if (newId) {
-      visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
-    }
+    visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
 
-    // Update entities in context
-    entitiesContext.updateEntitiesFromCamelResource();
+    await entitiesContext.updateEntitiesFromCamelResource();
   }, [actionConfirmationContext, checkClipboardCompatibility, entitiesContext, visibleFlowsContext.visualFlowsApi]);
 
   return useMemo(

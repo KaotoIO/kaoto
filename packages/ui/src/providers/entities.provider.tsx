@@ -4,6 +4,7 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -19,9 +20,10 @@ import { SourceCodeContext } from './source-code.provider';
 
 export interface EntitiesContextResult {
   entities: BaseEntity[];
-  currentSchemaType: SourceSchemaType;
+  currentSchemaType: SourceSchemaType | undefined;
   visualEntities: BaseVisualEntity[];
-  camelResource: KaotoResource;
+  camelResource: KaotoResource | undefined;
+  isLoading: boolean;
 
   /**
    * Notify that a property in an entity has changed, hence the source
@@ -30,7 +32,7 @@ export interface EntitiesContextResult {
    * NOTE: This process shouldn't recreate the CamelResource neither
    * the entities, just the source code
    */
-  updateSourceCodeFromEntities: () => void;
+  updateSourceCodeFromEntities: () => Promise<void>;
 
   /**
    * Refresh the entities from the Camel Resource, and
@@ -39,7 +41,7 @@ export interface EntitiesContextResult {
    * NOTE: This process shouldn't recreate the CamelResource,
    * just the entities
    */
-  updateEntitiesFromCamelResource: () => void;
+  updateEntitiesFromCamelResource: () => Promise<void>;
 }
 
 export const EntitiesContext = createContext<EntitiesContextResult | null>(null);
@@ -52,38 +54,87 @@ export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fil
   const eventNotifier = EventNotifier.getInstance();
   const initialSourceCode = useContext(SourceCodeContext);
 
-  let initialCamelResource: KaotoResource;
-  try {
-    initialCamelResource = CamelResourceFactory.createCamelResource(initialSourceCode, { path: fileExtension });
-  } catch (error) {
-    initialCamelResource = CamelResourceFactory.createCamelResource('', { path: fileExtension });
-  }
+  const [camelResource, setCamelResource] = useState<KaotoResource | undefined>(undefined);
+  const [entities, setEntities] = useState<BaseEntity[]>([]);
+  const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [camelResource, setCamelResource] = useState<KaotoResource>(initialCamelResource);
-  const [entities, setEntities] = useState<BaseEntity[]>(camelResource.getEntities());
-  const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>(camelResource.getVisualEntities());
+  /**
+   * Load resource asynchronously on mount
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initializeResource() {
+      setIsLoading(true);
+      try {
+        const resource = await CamelResourceFactory.createCamelResource(initialSourceCode, { path: fileExtension });
+        if (!cancelled) {
+          setCamelResource(resource);
+          setEntities(resource.getEntities());
+          setVisualEntities(resource.getVisualEntities());
+        }
+      } catch (error) {
+        console.error('Error creating initial resource:', error);
+        try {
+          const emptyResource = await CamelResourceFactory.createCamelResource('', { path: fileExtension });
+          if (!cancelled) {
+            setCamelResource(emptyResource);
+            setEntities(emptyResource.getEntities());
+            setVisualEntities(emptyResource.getVisualEntities());
+          }
+        } catch (fallbackError) {
+          console.error('Error creating empty resource:', fallbackError);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    initializeResource();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialSourceCode, fileExtension]);
 
   /**
    * Subscribe to the `code:updated` event to recreate the CamelResource
    */
   useLayoutEffect(() => {
-    return eventNotifier.subscribe('code:updated', ({ code, path }) => {
-      const camelResource = CamelResourceFactory.createCamelResource(code, { path });
-      const entities = camelResource.getEntities();
-      const visualEntities = camelResource.getVisualEntities();
+    return eventNotifier.subscribe('code:updated', async ({ code, path }) => {
+      setIsLoading(true);
+      try {
+        const camelResource = await CamelResourceFactory.createCamelResource(code, { path });
+        const entities = camelResource.getEntities();
+        const visualEntities = camelResource.getVisualEntities();
 
-      setCamelResource(camelResource);
-      setEntities(entities);
-      setVisualEntities(visualEntities);
+        setCamelResource(camelResource);
+        setEntities(entities);
+        setVisualEntities(visualEntities);
+      } catch (error) {
+        console.error('Error updating resource from code:', error);
+      } finally {
+        setIsLoading(false);
+      }
     });
   }, [eventNotifier]);
 
-  const updateSourceCodeFromEntities = useCallback(() => {
-    const code = camelResource.toString();
-    eventNotifier.next('entities:updated', code);
+  const updateSourceCodeFromEntities = useCallback(async () => {
+    if (!camelResource) return;
+
+    try {
+      const code = await camelResource.toStringAsync();
+      eventNotifier.next('entities:updated', code);
+    } catch (error) {
+      console.error('Error serializing resource from entities:', error);
+    }
   }, [camelResource, eventNotifier]);
 
-  const updateEntitiesFromCamelResource = useCallback(() => {
+  const updateEntitiesFromCamelResource = useCallback(async () => {
+    if (!camelResource) return;
     const entities = camelResource.getEntities();
     const visualEntities = camelResource.getVisualEntities();
     setEntities(entities);
@@ -92,7 +143,7 @@ export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fil
     /**
      * Notify consumers that entities has been refreshed, hence the code needs to be updated
      */
-    updateSourceCodeFromEntities();
+    await updateSourceCodeFromEntities();
   }, [camelResource, updateSourceCodeFromEntities]);
 
   const value = useMemo(
@@ -101,10 +152,11 @@ export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fil
       visualEntities,
       currentSchemaType: camelResource?.getType(),
       camelResource,
+      isLoading,
       updateEntitiesFromCamelResource,
       updateSourceCodeFromEntities,
     }),
-    [entities, visualEntities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
+    [entities, visualEntities, camelResource, isLoading, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
   );
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;

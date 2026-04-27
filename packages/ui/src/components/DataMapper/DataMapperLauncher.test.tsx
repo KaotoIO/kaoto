@@ -163,6 +163,7 @@ describe('DataMapperLauncher', () => {
     setSerializer: jest.fn(),
     getCompatibleComponents: jest.fn().mockReturnValue([]),
     getCompatibleRuntimes: jest.fn().mockReturnValue([]),
+    toStringAsync: jest.fn(),
   };
 
   const mockEntitiesContext = {
@@ -175,6 +176,7 @@ describe('DataMapperLauncher', () => {
     updateEntitiesFromSource: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
     setCurrentEntity: jest.fn(),
+    isLoading: false,
   };
 
   const createMockVizNode = (xsltDocument?: string): IVisualizationNode => {

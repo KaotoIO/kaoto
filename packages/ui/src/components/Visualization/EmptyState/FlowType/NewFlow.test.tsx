@@ -78,6 +78,8 @@ describe('NewFlow.tsx', () => {
                   currentSchemaType: sourceSchemaType,
                   visualEntities: visualEntities,
                   camelResource: new CamelRouteResource(),
+                  isLoading: false,
+                  updateEntitiesFromCamelResource: jest.fn().mockResolvedValue(undefined),
                 } as unknown as EntitiesContextResult
               }
             >

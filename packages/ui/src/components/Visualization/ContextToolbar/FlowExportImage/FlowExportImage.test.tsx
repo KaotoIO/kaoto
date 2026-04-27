@@ -94,15 +94,15 @@ describe('FlowExportImage', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the export button', () => {
+  it('renders the export button', async () => {
     render(<FlowExportImage />, { wrapper });
-    expect(screen.getByTestId('exportImageButton')).toBeInTheDocument();
+    expect(await screen.findByTestId('exportImageButton')).toBeInTheDocument();
   });
 
   it('runs full export flow', async () => {
     render(<FlowExportImage />, { wrapper });
 
-    const button = screen.getByTestId('exportImageButton');
+    const button = await screen.findByTestId('exportImageButton');
     fireEvent.click(button);
 
     // Button should be disabled while exporting
@@ -129,7 +129,7 @@ describe('FlowExportImage', () => {
 
     render(<FlowExportImage />, { wrapper });
 
-    fireEvent.click(screen.getByTestId('exportImageButton'));
+    fireEvent.click(await screen.findByTestId('exportImageButton'));
 
     // Wait a bit to ensure the export attempt completes
     await waitFor(() => {
