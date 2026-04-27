@@ -1,4 +1,3 @@
-import { DocumentType } from '../models/datamapper/document';
 import { NodePath } from '../models/datamapper/nodepath';
 import { TreeConnectionPorts, TreeExpansionState } from '../store/document-tree.store';
 
@@ -51,11 +50,8 @@ export function getNearestVisiblePort(
     }
   }
 
-  if (
-    nodePath.documentType === DocumentType.PARAM &&
-    nodesConnectionPortsArray.length === 0 &&
-    expansionStateArray.length === 0
-  ) {
+  // no ports && no expansion states, means it's a primitive document (including header and params)
+  if (nodesConnectionPortsArray.length === 0 && expansionStateArray.length === 0) {
     return { connectionTarget: 'node', position: nodesConnectionPorts[edgeBottomKey] };
   }
 
