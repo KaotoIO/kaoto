@@ -1,7 +1,12 @@
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IParentType } from '../../models/datamapper/document';
 import { ForEachGroupItem, GroupingStrategy, MappingTree, UnknownMappingItem } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
-import { getForEachGroupToShipOrderXslt, TestUtil } from '../../stubs/datamapper/data-mapper';
+import {
+  getForEachGroupEndingWithToShipOrderXslt,
+  getForEachGroupStartingWithToShipOrderXslt,
+  getForEachGroupToShipOrderXslt,
+  TestUtil,
+} from '../../stubs/datamapper/data-mapper';
 import { MappingSerializerService } from './mapping-serializer.service';
 import * as handlerModule from './xslt-item-handlers';
 import {
@@ -126,7 +131,77 @@ describe('ForEachGroupItemHandler', () => {
     expect(item.groupingExpression).toBe('@type');
   });
 
-  it('should round-trip for-each-group through serialize/deserialize', () => {
+  it('should serialize for-each-group with group-starting-with', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const item = new ForEachGroupItem(mappingTree);
+    item.expression = '/data/record';
+    item.groupingStrategy = GroupingStrategy.GROUP_STARTING_WITH;
+    item.groupingExpression = 'self::ns0:Header';
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, item);
+    expect(el.getAttribute('select')).toBe('/data/record');
+    expect(el.getAttribute('group-starting-with')).toBe('self::ns0:Header');
+  });
+
+  it('should serialize for-each-group with group-ending-with', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const item = new ForEachGroupItem(mappingTree);
+    item.expression = '/data/record';
+    item.groupingStrategy = GroupingStrategy.GROUP_ENDING_WITH;
+    item.groupingExpression = 'self::ns0:Footer';
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, item);
+    expect(el.getAttribute('select')).toBe('/data/record');
+    expect(el.getAttribute('group-ending-with')).toBe('self::ns0:Footer');
+  });
+
+  it('should round-trip for-each-group with group-starting-with', () => {
+    let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    mappingTree = MappingSerializerService.deserialize(
+      getForEachGroupStartingWithToShipOrderXslt(),
+      targetDoc,
+      mappingTree,
+      sourceParameterMap,
+    );
+    const forEachGroup = mappingTree.children[0].children[0] as ForEachGroupItem;
+    expect(forEachGroup.expression).toBe('/ns0:ShipOrder/Item');
+    expect(forEachGroup.groupingStrategy).toBe(GroupingStrategy.GROUP_STARTING_WITH);
+    expect(forEachGroup.groupingExpression).toBe('self::*[Note]');
+
+    const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+    const dom = new DOMParser().parseFromString(serialized, 'application/xml');
+    const el = dom.getElementsByTagNameNS(NS_XSL, 'for-each-group')[0];
+    expect(el).toBeTruthy();
+    expect(el.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
+    expect(el.getAttribute('group-starting-with')).toBe('self::*[Note]');
+  });
+
+  it('should round-trip for-each-group with group-ending-with', () => {
+    let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    mappingTree = MappingSerializerService.deserialize(
+      getForEachGroupEndingWithToShipOrderXslt(),
+      targetDoc,
+      mappingTree,
+      sourceParameterMap,
+    );
+    const forEachGroup = mappingTree.children[0].children[0] as ForEachGroupItem;
+    expect(forEachGroup.expression).toBe('/ns0:ShipOrder/Item');
+    expect(forEachGroup.groupingStrategy).toBe(GroupingStrategy.GROUP_ENDING_WITH);
+    expect(forEachGroup.groupingExpression).toBe('self::*[Price > 100]');
+
+    const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+    const dom = new DOMParser().parseFromString(serialized, 'application/xml');
+    const el = dom.getElementsByTagNameNS(NS_XSL, 'for-each-group')[0];
+    expect(el).toBeTruthy();
+    expect(el.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
+    expect(el.getAttribute('group-ending-with')).toBe('self::*[Price > 100]');
+  });
+
+  it('should round-trip for-each-group with group-by', () => {
     let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     mappingTree = MappingSerializerService.deserialize(
       getForEachGroupToShipOrderXslt(),
