@@ -53,16 +53,29 @@ const isEndpointPropertiesField = (schema: Parameters<CustomFieldsFactory>[0]): 
 
 const isEndpointField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return (
-    schema.type === 'string' && (schema.title === 'Endpoint' || schema.title === 'Client' || schema.title === 'Server')
+    schema.type === 'string' &&
+    (schema.title === 'Endpoint' ||
+      schema.title === 'Browser' ||
+      schema.title === 'Client' ||
+      schema.title === 'Server') &&
+    (schema.description || '').includes('references an endpoint')
   );
 };
 
 const isEndpointsField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
-  return schema.type === 'array' && schema.title === 'Endpoints';
+  return (
+    schema.type === 'array' &&
+    schema.title === 'Endpoints' &&
+    (schema.description || '').includes('endpoints for this test')
+  );
 };
 
 const isTextAreaField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
-  return schema.type === 'string' && (schema.title === 'Data' || schema.title === 'Source');
+  return (
+    schema.type === 'string' &&
+    (schema.title === 'Data' || schema.title === 'Value' || schema.title === 'Source') &&
+    (schema.description || '').includes('inline data')
+  );
 };
 
 export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {

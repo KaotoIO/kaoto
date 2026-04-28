@@ -165,38 +165,72 @@ describe('customFieldsFactoryfactory', () => {
     expect(result).toBe(EndpointPropertiesField);
   });
 
-  it('returns EndpointField for string type with title "Endpoint"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Endpoint' };
+  it('returns EndpointField for string type with title "Endpoint" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Endpoint',
+      description: 'Uses an endpoint URI or references an endpoint name.',
+    };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointField);
   });
 
-  it('returns EndpointField for string type with title "Client"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Client' };
+  it('returns EndpointField for string type with title "Client" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Client',
+      description: 'Uses an endpoint URI or references an endpoint name.',
+    };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointField);
   });
 
-  it('returns EndpointField for string type with title "Server"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Server' };
+  it('returns EndpointField for string type with title "Server" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Server',
+      description: 'Uses an endpoint URI or references an endpoint name.',
+    };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointField);
   });
 
-  it('returns TextAreaField for string type with title "Data"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Data' };
+  it('returns TextAreaField for string type with title "Data" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Data',
+      description: 'Message body as inline data.',
+    };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(TextAreaField);
   });
 
-  it('returns TextAreaField for string type with title "Source"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Source' };
+  it('returns TextAreaField for string type with title "Value" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Value',
+      description: 'Message body as inline data.',
+    };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(TextAreaField);
   });
 
-  it('returns EndpointsField for array type with title "Endpoints"', () => {
-    const schema: KaotoSchemaDefinition['schema'] = { type: 'array', title: 'Endpoints' };
+  it('returns TextAreaField for string type with title "Source" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Source',
+      description: 'Message body as inline data.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns EndpointsField for array type with title "Endpoints" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'array',
+      title: 'Endpoints',
+      description: 'List of endpoints for this test.',
+    };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointsField);
   });
