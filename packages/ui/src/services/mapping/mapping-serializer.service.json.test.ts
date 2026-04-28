@@ -58,12 +58,12 @@ describe('MappingSerializerService / JSON', () => {
   describe('deserialize()', () => {
     it('should deserialize XSLT', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-      mappingTree = MappingSerializerService.deserialize(
+      ({ mappingTree } = MappingSerializerService.deserialize(
         getShipOrderJsonXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
-      );
+      ));
       expect(targetDoc.fields[0].fields[3].fields[0].fields.length).toEqual(3);
       const namespaces = mappingTree.namespaceMap;
       expect(mappingTree.children.length).toBe(1);
@@ -205,12 +205,12 @@ describe('MappingSerializerService / JSON', () => {
 
     it('should serialize JSON mappings', () => {
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-      mappingTree = MappingSerializerService.deserialize(
+      ({ mappingTree } = MappingSerializerService.deserialize(
         getShipOrderJsonXslt(),
         targetDoc,
         mappingTree,
         sourceParameterMap,
-      );
+      ));
       const xsltString = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       const xsltDocument = domParser.parseFromString(xsltString, 'text/xml');
 

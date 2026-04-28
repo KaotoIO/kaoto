@@ -161,12 +161,12 @@ describe('ForEachGroupItemHandler', () => {
 
   it('should round-trip for-each-group with group-starting-with', () => {
     let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    mappingTree = MappingSerializerService.deserialize(
+    ({ mappingTree } = MappingSerializerService.deserialize(
       getForEachGroupStartingWithToShipOrderXslt(),
       targetDoc,
       mappingTree,
       sourceParameterMap,
-    );
+    ));
     const forEachGroup = mappingTree.children[0].children[0] as ForEachGroupItem;
     expect(forEachGroup.expression).toBe('/ns0:ShipOrder/Item');
     expect(forEachGroup.groupingStrategy).toBe(GroupingStrategy.GROUP_STARTING_WITH);
@@ -182,12 +182,12 @@ describe('ForEachGroupItemHandler', () => {
 
   it('should round-trip for-each-group with group-ending-with', () => {
     let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    mappingTree = MappingSerializerService.deserialize(
+    ({ mappingTree } = MappingSerializerService.deserialize(
       getForEachGroupEndingWithToShipOrderXslt(),
       targetDoc,
       mappingTree,
       sourceParameterMap,
-    );
+    ));
     const forEachGroup = mappingTree.children[0].children[0] as ForEachGroupItem;
     expect(forEachGroup.expression).toBe('/ns0:ShipOrder/Item');
     expect(forEachGroup.groupingStrategy).toBe(GroupingStrategy.GROUP_ENDING_WITH);
@@ -203,12 +203,12 @@ describe('ForEachGroupItemHandler', () => {
 
   it('should round-trip for-each-group with group-by', () => {
     let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    mappingTree = MappingSerializerService.deserialize(
+    ({ mappingTree } = MappingSerializerService.deserialize(
       getForEachGroupToShipOrderXslt(),
       targetDoc,
       mappingTree,
       sourceParameterMap,
-    );
+    ));
     const forEachGroup = mappingTree.children[0].children[0] as ForEachGroupItem;
     expect(forEachGroup.expression).toBe('/ns0:ShipOrder/Item');
     expect(forEachGroup.groupingStrategy).toBe(GroupingStrategy.GROUP_BY);

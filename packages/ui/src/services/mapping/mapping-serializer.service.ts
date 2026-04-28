@@ -19,9 +19,11 @@ import {
   UnknownMappingItem,
   ValueSelector,
   ValueType,
+  VariableItem,
 } from '../../models/datamapper/mapping';
+import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
-import { MappingItemClass } from '../../models/datamapper/xslt-item-handler';
+import { SendAlertProps } from '../../models/datamapper/visualization';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon } from './mapping-serializer-json-addon';
@@ -45,14 +47,18 @@ export class MappingSerializerService {
   }
 
   private static sortMappingItem(left: MappingItem, right: MappingItem) {
+    if (left instanceof VariableItem && right instanceof VariableItem) return 0;
+    if (left instanceof VariableItem) return -1;
+    if (right instanceof VariableItem) return 1;
     if (left instanceof UnknownMappingItem || right instanceof UnknownMappingItem) return 0;
     const leftFields =
       left instanceof FieldItem ? [left.field] : MappingService.getInstructionFields(left as InstructionItem);
-    if (leftFields.length === 0) return 1;
-    if (leftFields.find((f) => f.isAttribute)) return -1;
     const rightFields =
       right instanceof FieldItem ? [right.field] : MappingService.getInstructionFields(right as InstructionItem);
+    if (leftFields.length === 0 && rightFields.length === 0) return 0;
+    if (leftFields.length === 0) return 1;
     if (rightFields.length === 0) return -1;
+    if (leftFields.find((f) => f.isAttribute)) return -1;
     if (rightFields.find((f) => f.isAttribute)) return 1;
     const leftFirst = leftFields.sort(MappingSerializerService.sortFields)[0];
     const rightFirst = rightFields.sort(MappingSerializerService.sortFields)[0];
@@ -159,18 +165,19 @@ export class MappingSerializerService {
     targetDocument: IDocument,
     mappingTree: MappingTree,
     sourceParameterMap: Map<string, IDocument>,
-  ): MappingTree {
+  ): DeserializeResult {
     mappingTree.children = [];
+    const messages: SendAlertProps[] = [];
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
-    if (!template?.children) return mappingTree;
+    if (!template?.children) return { mappingTree, messages };
     MappingSerializerService.restoreNamespaces(xsltDoc, mappingTree);
     MappingSerializerService.restoreParam(xsltDoc, sourceParameterMap);
     const root = MappingSerializerJsonAddon.getJsonTargetBase(xsltDoc, mappingTree) ?? template;
-    Array.from(root.childNodes).forEach((item) =>
-      MappingSerializerService.restoreMapping(item, targetDocument, mappingTree),
-    );
-    return mappingTree;
+    for (const item of Array.from(root.childNodes)) {
+      MappingSerializerService.restoreMapping(item, targetDocument, mappingTree, messages);
+    }
+    return { mappingTree, messages };
   }
 
   private static restoreNamespaces(xsltDocument: Document, mappingTree: MappingTree) {
@@ -204,11 +211,16 @@ export class MappingSerializerService {
     }
   }
 
-  private static restoreMapping(item: Node, parentField: IParentType, parentMapping: MappingParentType) {
+  private static restoreMapping(
+    item: Node,
+    parentField: IParentType,
+    parentMapping: MappingParentType,
+    messages: SendAlertProps[],
+  ) {
     if (item.nodeType === Node.TEXT_NODE) {
       MappingSerializerService.restoreTextNode(item, parentMapping);
     } else if (item.nodeType === Node.ELEMENT_NODE) {
-      MappingSerializerService.restoreElementNode(item as Element, parentField, parentMapping);
+      MappingSerializerService.restoreElementNode(item as Element, parentField, parentMapping, messages);
     }
   }
 
@@ -232,21 +244,31 @@ export class MappingSerializerService {
     }
   }
 
-  private static restoreElementNode(element: Element, parentField: IParentType, parentMapping: MappingParentType) {
+  private static restoreElementNode(
+    element: Element,
+    parentField: IParentType,
+    parentMapping: MappingParentType,
+    messages: SendAlertProps[],
+  ) {
     const result =
       element.namespaceURI === NS_XSL
-        ? MappingSerializerService.restoreXslElement(element, parentField, parentMapping)
+        ? MappingSerializerService.restoreXslElement(element, parentField, parentMapping, messages)
         : MappingSerializerService.restoreNonXslElement(element, parentField, parentMapping);
 
-    if (!result) return;
+    if (!result?.mappingItem) return;
 
     parentMapping.children.push(result.mappingItem);
 
     const isXslText = element.namespaceURI === NS_XSL && element.localName === 'text';
     if (!(result.mappingItem instanceof UnknownMappingItem) && !isXslText) {
-      Array.from(element.childNodes).forEach((childItem) =>
-        MappingSerializerService.restoreMapping(childItem, result.fieldItem ?? parentField, result.mappingItem),
-      );
+      for (const childItem of Array.from(element.childNodes)) {
+        MappingSerializerService.restoreMapping(
+          childItem,
+          result.fieldItem ?? parentField,
+          result.mappingItem,
+          messages,
+        );
+      }
     }
   }
 
@@ -267,13 +289,32 @@ export class MappingSerializerService {
     element: Element,
     parentField: IParentType,
     parentMapping: MappingParentType,
-  ): { mappingItem: MappingItem; fieldItem: IParentType | null } | null {
+    messages: SendAlertProps[],
+  ): DeserializeItemResult<MappingItem> | null {
     const handler = deserializeHandlers.get(element.localName);
-    const result = handler
-      ? handler.deserialize(element, parentField, parentMapping)
-      : { mappingItem: new UnknownMappingItem(parentMapping, element), fieldItem: null };
+    let result: DeserializeItemResult<MappingItem> | null;
+    if (handler) {
+      result = handler.deserialize(element, parentField, parentMapping);
+    } else {
+      result = {
+        mappingItem: new UnknownMappingItem(parentMapping, element),
+        fieldItem: null,
+        messages: [
+          {
+            variant: 'warning',
+            title: `Unrecognized XSLT element: "xsl:${element.localName}"`,
+            description: new XMLSerializer().serializeToString(element),
+          },
+        ],
+      };
+    }
     if (!result) return null;
-    MappingSerializerService.restoreCommentFromPreviousSibling(element, result.mappingItem);
+    if (result.messages) {
+      messages.push(...result.messages);
+    }
+    if (result.mappingItem) {
+      MappingSerializerService.restoreCommentFromPreviousSibling(element, result.mappingItem);
+    }
     return result;
   }
 
