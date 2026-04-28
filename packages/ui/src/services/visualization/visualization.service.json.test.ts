@@ -148,12 +148,12 @@ describe('VisualizationService / JSON', () => {
 
   it('should render deserialized mappings', () => {
     let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
-    mappingTree = MappingSerializerService.deserialize(
+    ({ mappingTree } = MappingSerializerService.deserialize(
       getShipOrderJsonXslt(),
       targetDoc,
       mappingTree,
       sourceParameterMap,
-    );
+    ));
     expect(mappingTree.children.length).toEqual(1);
 
     targetDocNode = new TargetDocumentNodeData(targetDoc, mappingTree);

@@ -11,12 +11,14 @@ import {
   UnknownMappingItem,
   ValueSelector,
   ValueType,
+  VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
+import { DeserializeItemResult, MappingItemClass, XsltItemHandler } from '../../models/datamapper/serialization';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
-import { DeserializeResult, MappingItemClass, XsltItemHandler } from '../../models/datamapper/xslt-item-handler';
+import { FROM_JSON_SOURCE_SUFFIX } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
-import { MappingSerializerJsonAddon } from './mapping-serializer-json-addon';
+import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 /** Handles {@link ValueSelector} — maps to `xsl:copy-of`, `xsl:value-of`, or `xsl:text`. */
 export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
@@ -37,7 +39,11 @@ export class ValueSelectorHandler implements XsltItemHandler<ValueSelector> {
     return valueOf;
   }
 
-  deserialize(element: Element, parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    element: Element,
+    parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<ValueSelector> {
     switch (element.localName) {
       case 'copy-of': {
         const selector = new ValueSelector(parentMapping, ValueType.CONTAINER);
@@ -86,7 +92,11 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
     return element;
   }
 
-  deserialize(element: Element, parentField: IParentType, parentMapping: MappingParentType): DeserializeResult | null {
+  deserialize(
+    element: Element,
+    parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<FieldItem> | null {
     if (parentField instanceof PrimitiveDocument) return null;
     const field = FieldItemHandler.getOrCreateAttributeField(element, parentField);
     if (!field) return null;
@@ -123,7 +133,11 @@ export class IfItemHandler implements XsltItemHandler<IfItem> {
     return xslIf;
   }
 
-  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<IfItem> {
     const ifItem = new IfItem(parentMapping);
     ifItem.expression = element.getAttribute('test') || '';
     return { mappingItem: ifItem, fieldItem: null };
@@ -141,7 +155,11 @@ export class ChooseItemHandler implements XsltItemHandler<ChooseItem> {
     return xslChoose;
   }
 
-  deserialize(_element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    _element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<ChooseItem> {
     return { mappingItem: new ChooseItem(parentMapping), fieldItem: null };
   }
 }
@@ -158,7 +176,11 @@ export class WhenItemHandler implements XsltItemHandler<WhenItem> {
     return xslWhen;
   }
 
-  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<WhenItem> {
     const whenItem = new WhenItem(parentMapping);
     whenItem.expression = element.getAttribute('test') || '';
     return { mappingItem: whenItem, fieldItem: null };
@@ -176,7 +198,11 @@ export class OtherwiseItemHandler implements XsltItemHandler<OtherwiseItem> {
     return xslOtherwise;
   }
 
-  deserialize(_element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    _element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<OtherwiseItem> {
     return { mappingItem: new OtherwiseItem(parentMapping), fieldItem: null };
   }
 }
@@ -193,7 +219,11 @@ export class ForEachItemHandler implements XsltItemHandler<ForEachItem> {
     return xslForEach;
   }
 
-  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<ForEachItem> {
     const forEachItem = new ForEachItem(parentMapping);
     forEachItem.expression = element.getAttribute('select') || '';
     return { mappingItem: forEachItem, fieldItem: null };
@@ -213,7 +243,11 @@ export class ForEachGroupItemHandler implements XsltItemHandler<ForEachGroupItem
     return el;
   }
 
-  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<ForEachGroupItem> {
     const item = new ForEachGroupItem(parentMapping);
     item.expression = element.getAttribute('select') || '';
     for (const strategy of Object.values(GroupingStrategy)) {
@@ -225,6 +259,55 @@ export class ForEachGroupItemHandler implements XsltItemHandler<ForEachGroupItem
       }
     }
     return { mappingItem: item, fieldItem: null };
+  }
+}
+
+/** Handles {@link VariableItem} — maps to `xsl:variable` with a `select` XPath expression. */
+export class VariableItemHandler implements XsltItemHandler<VariableItem> {
+  readonly itemClass = VariableItem;
+  readonly xsltElementNames = ['variable'];
+
+  serialize(parent: Element, mapping: VariableItem): Element {
+    const xslVariable = parent.ownerDocument.createElementNS(NS_XSL, 'variable');
+    xslVariable.setAttribute('name', mapping.name);
+    xslVariable.setAttribute('select', mapping.expression);
+    parent.appendChild(xslVariable);
+    return xslVariable;
+  }
+
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<VariableItem> | null {
+    const varName = element.getAttribute('name')?.trim() || '';
+    if (!varName) {
+      return {
+        fieldItem: null,
+        messages: [
+          {
+            variant: 'danger',
+            title: 'Skipping xsl:variable without a name',
+            description: new XMLSerializer().serializeToString(element),
+          },
+        ],
+      };
+    }
+    if (varName.endsWith(FROM_JSON_SOURCE_SUFFIX) || varName === TO_JSON_TARGET_VARIABLE) {
+      return {
+        fieldItem: null,
+        messages: [
+          {
+            variant: 'danger',
+            title: `Skipping reserved variable name: "${varName}"`,
+            description: new XMLSerializer().serializeToString(element),
+          },
+        ],
+      };
+    }
+    const variableItem = new VariableItem(parentMapping, varName);
+    variableItem.expression = element.getAttribute('select') || '';
+    return { mappingItem: variableItem, fieldItem: null };
   }
 }
 
@@ -243,7 +326,11 @@ export class UnknownMappingItemHandler implements XsltItemHandler<UnknownMapping
     return imported;
   }
 
-  deserialize(element: Element, _parentField: IParentType, parentMapping: MappingParentType): DeserializeResult {
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<UnknownMappingItem> {
     return { mappingItem: new UnknownMappingItem(parentMapping, element), fieldItem: null };
   }
 }
@@ -258,6 +345,7 @@ export const allHandlers: XsltItemHandler[] = [
   new OtherwiseItemHandler(),
   new ForEachItemHandler(),
   new ForEachGroupItemHandler(),
+  new VariableItemHandler(),
   new UnknownMappingItemHandler(),
 ];
 

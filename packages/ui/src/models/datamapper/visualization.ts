@@ -362,4 +362,5 @@ export type LineProps = LineCoord & {
 };
 
 /** Props passed to the alert notification handler. */
-export type SendAlertProps = Partial<AlertProps & { description: string }>;
+export type SendAlertProps = Required<Pick<AlertProps, 'variant' | 'title'>> &
+  Partial<Pick<AlertProps, 'key'>> & { description?: string };

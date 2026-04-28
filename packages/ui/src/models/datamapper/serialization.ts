@@ -1,21 +1,34 @@
 import { IParentType } from './document';
-import { MappingItem, MappingParentType } from './mapping';
+import { MappingItem, MappingParentType, MappingTree } from './mapping';
+import { SendAlertProps } from './visualization';
 
 /**
  * Constructor type for any class that extends {@link MappingItem}.
- * Used as the key type in the serialize handler table.
+ * Used as the key type in the serialize handler lookup table.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type MappingItemClass = abstract new (...args: any[]) => MappingItem;
 
 /**
- * Result of deserializing an XSLT element into a mapping model node.
+ * Per-handler result for a single XSLT element.
+ * {@link mappingItem} is absent when the element is skipped (e.g. reserved variable names)
+ * but the handler still needs to report {@link messages}.
  * {@link fieldItem} is non-null only when the handler resolves a target field
  * (e.g. `xsl:attribute` or a target element).
  */
-export interface DeserializeResult {
-  mappingItem: MappingItem;
+export interface DeserializeItemResult<T extends MappingItem> {
+  mappingItem?: T;
   fieldItem: IParentType | null;
+  messages?: SendAlertProps[];
+}
+
+/**
+ * Top-level result returned by {@link MappingSerializerService.deserialize}.
+ * Collects all {@link SendAlertProps} emitted during the full deserialization pass.
+ */
+export interface DeserializeResult {
+  mappingTree: MappingTree;
+  messages: SendAlertProps[];
 }
 
 /**
@@ -32,5 +45,9 @@ export interface XsltItemHandler<T extends MappingItem = MappingItem> {
   /** Create XSLT DOM element(s) for the given mapping item and append to `parent`. */
   serialize(parent: Element, mapping: T): Element | null;
   /** Create a {@link MappingItem} from the given XSLT DOM element, or null to skip. */
-  deserialize(element: Element, parentField: IParentType, parentMapping: MappingParentType): DeserializeResult | null;
+  deserialize(
+    element: Element,
+    parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<T> | null;
 }

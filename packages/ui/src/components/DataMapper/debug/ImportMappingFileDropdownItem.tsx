@@ -13,7 +13,7 @@ type ImportMappingFileDropdownItemProps = {
 export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileDropdownItemProps> = ({
   onComplete,
 }) => {
-  const { mappingTree, sourceParameterMap, targetBodyDocument, refreshMappingTree } = useDataMapper();
+  const { mappingTree, sourceParameterMap, targetBodyDocument, refreshMappingTree, sendAlert } = useDataMapper();
   const fileInputRef = createRef<HTMLInputElement>();
 
   const onClick = useCallback(() => {
@@ -24,13 +24,29 @@ export const ImportMappingFileDropdownItem: FunctionComponent<ImportMappingFileD
     (event: ChangeEvent<HTMLInputElement>) => {
       const file = event.target.files?.item(0);
       if (!file) return;
-      readFileAsString(file).then((content) => {
-        MappingSerializerService.deserialize(content, targetBodyDocument, mappingTree, sourceParameterMap);
-        refreshMappingTree();
-        onComplete();
-      });
+      readFileAsString(file)
+        .then((content) => {
+          const { messages } = MappingSerializerService.deserialize(
+            content,
+            targetBodyDocument,
+            mappingTree,
+            sourceParameterMap,
+          );
+          for (const msg of messages) {
+            sendAlert(msg);
+          }
+          refreshMappingTree();
+          onComplete();
+        })
+        .catch((error: unknown) => {
+          sendAlert({
+            variant: 'danger',
+            title: 'Failed to import mapping file',
+            description: error instanceof Error ? error.message : String(error),
+          });
+        });
     },
-    [mappingTree, onComplete, refreshMappingTree, sourceParameterMap, targetBodyDocument],
+    [mappingTree, onComplete, refreshMappingTree, sendAlert, sourceParameterMap, targetBodyDocument],
   );
 
   return (

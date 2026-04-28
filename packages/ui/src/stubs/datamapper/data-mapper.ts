@@ -307,6 +307,21 @@ export function getShipOrderWithMultipleCommentsXslt(): string {
 export function getShipOrderManuallyEditedXslt(): string {
   return readStubFile('./xml/ShipOrderManuallyEdited.xsl');
 }
+export function getVariableSimpleXslt(): string {
+  return readStubFile('./xml/VariableSimple.xsl');
+}
+export function getVariableReservedNamesXslt(): string {
+  return readStubFile('./xml/VariableReservedNames.xsl');
+}
+export function getVariableBeforeFieldXslt(): string {
+  return readStubFile('./xml/VariableBeforeField.xsl');
+}
+export function getVariableEmptyNameXslt(): string {
+  return readStubFile('./xml/VariableEmptyName.xsl');
+}
+export function getVariableNestedInForEachXslt(): string {
+  return readStubFile('./xml/VariableNestedInForEach.xsl');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {

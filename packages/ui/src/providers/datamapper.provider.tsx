@@ -13,7 +13,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 */
-import { Alert, AlertActionCloseButton, AlertGroup, AlertProps, AlertVariant } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, AlertGroup } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Loading } from '../components/Loading';
@@ -148,13 +148,16 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
 
     if (initialXsltFile) {
-      const loaded = MappingSerializerService.deserialize(
+      const { mappingTree: loaded, messages } = MappingSerializerService.deserialize(
         initialXsltFile,
         latestTargetBodyDocument,
         mappingTree,
         latestSourceParameterMap,
       );
       setMappingTree(loaded);
+      for (const msg of messages) {
+        sendAlert(msg);
+      }
     }
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -291,24 +294,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     [onUpdateDocument, refreshMappingTree, removeStaleMappings, setNewDocument],
   );
 
-  const sendAlert = useCallback(
-    (option: SendAlertProps) => {
-      alerts.push(option);
-      setAlerts([...alerts]);
-    },
-    [alerts],
-  );
+  const sendAlert = useCallback((option: SendAlertProps) => {
+    setAlerts((prev) => [...prev, option]);
+  }, []);
 
-  const closeAlert = useCallback(
-    (option: Partial<AlertProps>) => {
-      const index = alerts.indexOf(option);
-      if (index > -1) {
-        alerts.splice(index, 1);
-        setAlerts([...alerts]);
-      }
-    },
-    [alerts],
-  );
+  const closeAlert = useCallback((option: SendAlertProps) => {
+    setAlerts((prev) => prev.filter((a) => a !== option));
+  }, []);
 
   const value = useMemo(() => {
     return {
@@ -367,13 +359,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
             {alerts.map((option, index) => (
               <Alert
                 key={option.key ?? `alert-key-${index}`}
-                variant={option.variant ?? AlertVariant.danger}
-                title={option.title ?? 'Unknown Error'}
-                timeout={option.timeout ?? true}
+                variant={option.variant}
+                title={option.title}
+                timeout={true}
                 onTimeout={() => closeAlert(option)}
                 actionClose={<AlertActionCloseButton onClose={() => closeAlert(option)} />}
               >
-                {option.description && <>option.description</>}
+                {option.description && <>{option.description}</>}
               </Alert>
             ))}
           </AlertGroup>
