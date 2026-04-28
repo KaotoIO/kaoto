@@ -20,8 +20,8 @@ import { EndpointsField } from './EndpointsField';
 
 describe('EndpointsField', () => {
   const mockTiles: ITile[] = [
-    { name: 'http-client', type: 'testEndpoint', title: 'Http Client', tags: [] },
-    { name: 'jms-asynchronous', type: 'testEndpoint', title: 'Jms Asynchronous', tags: [] },
+    { name: 'http-client', type: 'testEndpoint', title: 'Http Client', tags: [], iconUrl: '' },
+    { name: 'jms-asynchronous', type: 'testEndpoint', title: 'Jms Asynchronous', tags: [], iconUrl: '' },
   ];
 
   const mockCatalogRegistry: IDynamicCatalogRegistry = {
