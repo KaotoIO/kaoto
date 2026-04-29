@@ -177,6 +177,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         isPlaceholder: false,
         title: '',
         description: 'errorHandler',
+        processorIconTooltip: '',
       });
     });
   });

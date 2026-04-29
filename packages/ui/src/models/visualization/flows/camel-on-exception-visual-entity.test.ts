@@ -64,6 +64,7 @@ describe('CamelOnExceptionVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
+        processorIconTooltip: '',
       });
       expect(result).toMatchSnapshot();
     });

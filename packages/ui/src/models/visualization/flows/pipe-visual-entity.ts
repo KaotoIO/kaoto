@@ -236,6 +236,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
     });
 
     await NodeEnrichmentService.enrichNodeFromCatalog(pipeGroupNode, CatalogKind.Entity);
@@ -306,6 +307,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
     };
 
     const vizNode = createVisualizationNode(path, data);

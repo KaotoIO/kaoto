@@ -256,6 +256,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
       processorName: 'route',
     });
 

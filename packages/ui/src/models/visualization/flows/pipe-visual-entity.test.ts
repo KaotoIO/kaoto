@@ -253,6 +253,7 @@ describe('Pipe', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -278,6 +279,7 @@ describe('Pipe', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -304,6 +306,7 @@ describe('Pipe', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -330,6 +333,7 @@ describe('Pipe', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -362,6 +366,7 @@ describe('Pipe', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -452,6 +457,7 @@ describe('Pipe', () => {
           iconUrl: '',
           title: '',
           description: '',
+          processorIconTooltip: '',
         });
         expect(result).toMatchSnapshot();
       },
@@ -670,6 +676,7 @@ describe('Pipe', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 

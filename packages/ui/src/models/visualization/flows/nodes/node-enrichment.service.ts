@@ -1,7 +1,9 @@
 import { getIconRequest } from '../../../../icon-resolver/getIconRequest';
+import { getProcessorIconTooltipRequest } from '../../../../tooltip-resolver/getProcessorIconTooltipRequest';
 import { getTooltipRequest } from '../../../../tooltip-resolver/getTooltipRequest';
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
+import { CamelRouteVisualEntityData } from '../support/camel-component-types';
 
 /**
  * Service for enriching visualization nodes with catalog-derived properties.
@@ -14,12 +16,34 @@ export class NodeEnrichmentService {
    * @param componentLookup - The component lookup result containing processor/component names
    */
   static async enrichNodeFromCatalog(vizNode: IVisualizationNode, catalogKind: CatalogKind): Promise<void> {
-    const [iconResult, tooltip] = await Promise.all([
+    const processorName = (vizNode.data as CamelRouteVisualEntityData).processorName;
+    const results = await Promise.allSettled([
       getIconRequest(catalogKind, vizNode.data.name),
       getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description),
+      getProcessorIconTooltipRequest(processorName),
     ]);
-    vizNode.data.iconUrl = iconResult.icon;
-    vizNode.data.iconAlt = iconResult.alt;
-    vizNode.data.description = tooltip;
+
+    // Handle icon result
+    if (results[0].status === 'fulfilled') {
+      vizNode.data.iconUrl = results[0].value.icon;
+      vizNode.data.iconAlt = results[0].value.alt;
+    } else {
+      console.warn(`Failed to fetch icon for ${vizNode.data.name}:`, results[0].reason);
+    }
+
+    // Handle tooltip result
+    if (results[1].status === 'fulfilled') {
+      vizNode.data.description = results[1].value;
+    } else {
+      console.warn(`Failed to fetch tooltip for ${vizNode.data.name}:`, results[1].reason);
+    }
+
+    // Handle processor icon tooltip result
+    if (results[2].status === 'fulfilled') {
+      vizNode.data.processorIconTooltip = results[2].value;
+    } else {
+      console.warn(`Failed to fetch processor icon tooltip for ${processorName}:`, results[2].reason);
+      vizNode.data.processorIconTooltip = '';
+    }
   }
 }

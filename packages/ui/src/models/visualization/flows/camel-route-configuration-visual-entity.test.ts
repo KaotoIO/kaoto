@@ -155,6 +155,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
+        processorIconTooltip: '',
       }),
     ).toEqual({
       canHavePreviousStep: false,
@@ -214,6 +215,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          processorIconTooltip: '',
         },
         targetProperty: 'intercept',
       });
@@ -264,6 +266,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         isPlaceholder: false,
         title: '',
         description: 'routeConfiguration',
+        processorIconTooltip: '',
       });
     });
 

@@ -1,9 +1,7 @@
-import { CatalogLibrary } from '@kaoto/camel-catalog/catalog-index.d.ts';
-import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, render } from '@testing-library/react';
 
-import { CamelCatalogService, CatalogKind, IVisualizationNode } from '../../models';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
+import { IVisualizationNode } from '../../models';
 import { ComponentMode } from './ComponentMode';
 
 let mockUpdateSourceCodeFromEntities: jest.Mock;
@@ -11,12 +9,21 @@ jest.mock('../../hooks/useEntityContext/useEntityContext', () => ({
   useEntityContext: () => ({ updateSourceCodeFromEntities: mockUpdateSourceCodeFromEntities }),
 }));
 
-describe('ComponentMode', () => {
-  beforeEach(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, { ...catalogsMap.patternCatalogMap });
+jest.mock('../../hooks/use-processor-tooltips.hook', () => ({
+  useProcessorTooltips: jest.fn(),
+}));
 
+const mockUseProcessorTooltips = useProcessorTooltips as jest.MockedFunction<typeof useProcessorTooltips>;
+
+describe('ComponentMode', () => {
+  beforeEach(() => {
     mockUpdateSourceCodeFromEntities = jest.fn();
+    // Set default tooltips before each test
+    mockUseProcessorTooltips.mockReturnValue({
+      to: 'To: Sends messages to an endpoint',
+      toD: 'ToD: Sends messages to a dynamic endpoint',
+      poll: 'Poll: Polls messages from an endpoint',
+    });
   });
 
   const getMockVizNode = (processorName = 'to'): IVisualizationNode => {
@@ -133,66 +140,24 @@ describe('ComponentMode', () => {
     expect(mockUpdateSourceCodeFromEntities).toHaveBeenCalled();
   });
 
-  it('should query the camel catalog for the component description', () => {
-    const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+  it('should render buttons even when tooltips are empty', () => {
+    // Override tooltips with empty strings for this test
+    mockUseProcessorTooltips.mockReturnValue({
+      to: '',
+      toD: '',
+      poll: '',
+    });
+
     const vizNode = getMockVizNode('to');
-
-    render(<ComponentMode vizNode={vizNode} />);
-
-    expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
-    expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'toD');
-    expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'poll');
-    expect(getComponentSpy).not.toHaveBeenCalledWith(CatalogKind.Entity, 'from');
-  });
-
-  it('should not render the to button if the catalog is not available', () => {
-    const camelPatternsCatalog = CamelCatalogService.getCatalogByKey(CatalogKind.Pattern)!;
-    delete camelPatternsCatalog['to'];
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatternsCatalog);
-    const vizNode = getMockVizNode('to');
-
     const wrapper = render(<ComponentMode vizNode={vizNode} />);
 
-    const toButton = wrapper.queryByText('Static');
-    const toDButton = wrapper.queryByText('Dynamic');
-    const pollButton = wrapper.queryByText('Poll');
-
-    expect(toButton).not.toBeInTheDocument();
-    expect(toDButton).toBeInTheDocument();
-    expect(pollButton).toBeInTheDocument();
-  });
-
-  it('should not render the toD button if the catalog is not available', () => {
-    const camelPatternsCatalog = CamelCatalogService.getCatalogByKey(CatalogKind.Pattern)!;
-    delete camelPatternsCatalog['toD'];
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatternsCatalog);
-    const vizNode = getMockVizNode('toD');
-
-    const wrapper = render(<ComponentMode vizNode={vizNode} />);
-
-    const toButton = wrapper.queryByText('Static');
-    const toDButton = wrapper.queryByText('Dynamic');
-    const pollButton = wrapper.queryByText('Poll');
-
-    expect(toButton).toBeInTheDocument();
-    expect(toDButton).not.toBeInTheDocument();
-    expect(pollButton).toBeInTheDocument();
-  });
-
-  it('should not render the poll button if the catalog is not available', () => {
-    const camelPatternsCatalog = CamelCatalogService.getCatalogByKey(CatalogKind.Pattern)!;
-    delete camelPatternsCatalog['poll'];
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, camelPatternsCatalog);
-    const vizNode = getMockVizNode('to');
-
-    const wrapper = render(<ComponentMode vizNode={vizNode} />);
-
-    const toButton = wrapper.queryByText('Static');
-    const toDButton = wrapper.queryByText('Dynamic');
-    const pollButton = wrapper.queryByText('Poll');
+    // Buttons should still render with empty tooltips
+    const toButton = wrapper.getByRole('button', { name: /static/i });
+    const toDButton = wrapper.getByRole('button', { name: /dynamic/i });
+    const pollButton = wrapper.getByRole('button', { name: /poll/i });
 
     expect(toButton).toBeInTheDocument();
     expect(toDButton).toBeInTheDocument();
-    expect(pollButton).not.toBeInTheDocument();
+    expect(pollButton).toBeInTheDocument();
   });
 });

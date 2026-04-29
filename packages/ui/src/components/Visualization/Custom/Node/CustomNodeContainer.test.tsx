@@ -34,7 +34,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={1}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={true}
       />,
     );
@@ -51,7 +51,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={5}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={false}
       />,
     );
@@ -70,7 +70,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={false}
       />,
     );
@@ -107,7 +107,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={false}
       />,
     );
@@ -124,7 +124,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={true}
       />,
     );
@@ -141,7 +141,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={false}
       />,
     );
@@ -158,7 +158,7 @@ describe('CustomNodeContainer', () => {
         vizNode={vizNode}
         childCount={0}
         ProcessorIcon={null}
-        processorDescription={undefined}
+        processorDescription={''}
         isDisabled={false}
       />,
     );
