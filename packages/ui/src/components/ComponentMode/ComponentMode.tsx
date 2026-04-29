@@ -4,10 +4,12 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useState } from 'react';
 
-import { useProcessorIcon } from '../../hooks/processor-icon.hook';
+import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
 import { IVisualizationNode } from '../../models';
+import { COMPONENT_MODE_PROCESSORS } from '../../models/special-processors.constants';
 import { CamelRouteVisualEntityData } from '../../models/visualization/flows/support/camel-component-types';
+import { getProcessorIcon } from '../../utils/processor-icon';
 
 export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const { updateSourceCodeFromEntities } = useEntityContext();
@@ -39,43 +41,44 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
     [vizNode, processorName, updateSourceCodeFromEntities],
   );
 
-  const { Icon: ToIcon, description: toDescription } = useProcessorIcon('to');
-  const { Icon: ToDIcon, description: toDDescription } = useProcessorIcon('toD');
-  const { Icon: PollIcon, description: pollDescription } = useProcessorIcon('poll');
+  const ToIcon = getProcessorIcon('to');
+  const ToDIcon = getProcessorIcon('toD');
+  const PollIcon = getProcessorIcon('poll');
+  const tooltips = useProcessorTooltips(COMPONENT_MODE_PROCESSORS);
 
   return (
     <section className="component-mode">
       <ToggleGroup isCompact aria-label="Component Mode Toggle Group">
-        {toDescription && (
+        {ToIcon && (
           <ToggleGroupItem
             icon={<ToIcon />}
             text="Static"
             buttonId="to"
-            title={toDescription}
+            title={tooltips.to}
             isSelected={processorName === 'to'}
             onChange={() => {
               switchComponentMode('to');
             }}
           />
         )}
-        {toDDescription && (
+        {ToDIcon && (
           <ToggleGroupItem
             icon={<ToDIcon />}
             text="Dynamic"
             buttonId="toD"
-            title={toDDescription}
+            title={tooltips.toD}
             isSelected={processorName === 'toD'}
             onChange={() => {
               switchComponentMode('toD');
             }}
           />
         )}
-        {pollDescription && (
+        {PollIcon && (
           <ToggleGroupItem
             icon={<PollIcon />}
             text="Poll"
             buttonId="poll"
-            title={pollDescription}
+            title={tooltips.poll}
             isSelected={processorName === 'poll'}
             onChange={() => {
               switchComponentMode('poll');

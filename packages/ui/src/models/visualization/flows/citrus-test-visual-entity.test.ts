@@ -321,6 +321,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -348,6 +349,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -377,6 +379,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -406,6 +409,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -434,6 +438,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -470,6 +475,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -503,6 +509,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -543,6 +550,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -606,6 +614,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -632,6 +641,7 @@ describe('CitrusTestVisualEntity', () => {
           title: '',
           description: '',
           iconUrl: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -772,6 +782,7 @@ describe('CitrusTestVisualEntity', () => {
         title: '',
         description: '',
         iconUrl: '',
+        processorIconTooltip: '',
       });
       expect(result.canHavePreviousStep).toEqual(false);
       expect(result.canReplaceStep).toEqual(false);
@@ -789,6 +800,7 @@ describe('CitrusTestVisualEntity', () => {
         title: '',
         description: '',
         iconUrl: '',
+        processorIconTooltip: '',
       });
       expect(result.canHavePreviousStep).toEqual(true);
       expect(result.canHaveNextStep).toEqual(true);

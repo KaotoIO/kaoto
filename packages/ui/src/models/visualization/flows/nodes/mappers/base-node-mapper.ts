@@ -34,6 +34,7 @@ export class BaseNodeMapper implements INodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
     };
 
     const vizNode = createVisualizationNode(path, data);
@@ -120,6 +121,7 @@ export class BaseNodeMapper implements INodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
       path: placeholderPath,
     });
     branchVizNodes.push(placeholderNode);

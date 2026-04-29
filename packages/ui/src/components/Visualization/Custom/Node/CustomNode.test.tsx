@@ -30,8 +30,8 @@ jest.mock('@patternfly/react-topology', () => {
   };
 });
 
-jest.mock('../../../../hooks/processor-icon.hook', () => ({
-  useProcessorIcon: () => ({ Icon: null, description: '' }),
+jest.mock('../../../../utils/processor-icon', () => ({
+  getProcessorIcon: () => null,
 }));
 
 describe('CustomNode', () => {

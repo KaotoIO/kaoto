@@ -469,6 +469,7 @@ describe('CamelRestVisualEntity', () => {
         isPlaceholder: false,
         title: '',
         description: 'rest',
+        processorIconTooltip: '',
       });
     });
   });

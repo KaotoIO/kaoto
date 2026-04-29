@@ -17,7 +17,7 @@ export interface CustomNodeContainerProps {
   vizNode: IVisualizationNode;
   childCount: number;
   ProcessorIcon: ElementType | null;
-  processorDescription: string | undefined;
+  processorDescription: string;
   isDisabled: boolean;
 }
 

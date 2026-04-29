@@ -350,6 +350,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
     });
 
     await NodeEnrichmentService.enrichNodeFromCatalog(testGroupNode, CatalogKind.TestAction);
@@ -434,6 +435,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
     };
 
     const vizNode = createVisualizationNode(path, data);
@@ -484,6 +486,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
       path: placeholderPath,
     });
     vizNodes.push(placeholderNode);
@@ -540,6 +543,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
         iconUrl: '',
         title: '',
         description: '',
+        processorIconTooltip: '',
         path: placeholderPath,
       });
       return [placeholderNode];
@@ -576,6 +580,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      processorIconTooltip: '',
       path: placeholderPath,
     });
     children.push(placeholderNode);

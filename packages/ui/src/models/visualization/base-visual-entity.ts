@@ -172,6 +172,8 @@ export interface IVisualizationNodeData {
   title: string;
   /** Description/tooltip resolved from the catalog at mapping time */
   description: string;
+  /** Tooltip for processor icon overlay (from/to/toD/poll) resolved from the catalog at mapping time */
+  processorIconTooltip?: string;
   [key: string]: unknown;
 }
 

@@ -202,6 +202,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         isPlaceholder: false,
         title: '',
         description: 'restConfiguration',
+        processorIconTooltip: '',
       });
     });
 

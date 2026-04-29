@@ -35,6 +35,36 @@ describe('AbstractCamelVisualEntity', () => {
     abstractVisualEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
   });
 
+  // Test helper to create mock node data with consistent defaults
+  const createMockNodeData = (
+    overrides: Partial<{
+      name: string;
+      path: string;
+      icon: string;
+      processorName: string;
+      componentName: string;
+      isPlaceholder: boolean;
+      isGroup: boolean;
+      iconUrl: string;
+      title: string;
+      description: string;
+      processorIconTooltip: string;
+    }> = {},
+  ) => ({
+    name: 'log',
+    path: 'route.from.steps.0.to',
+    icon: '/src/assets/components/log.svg',
+    processorName: 'to',
+    componentName: 'log',
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: 'Log',
+    description: '',
+    processorIconTooltip: '',
+    ...overrides,
+  });
+
   describe('getNodeLabel', () => {
     it('should return an empty string if the path is `undefined`', () => {
       const result = abstractVisualEntity.getNodeLabel();
@@ -77,29 +107,17 @@ describe('AbstractCamelVisualEntity', () => {
 
   describe('getNodeInteraction', () => {
     it('should not allow marked processors to have previous/next steps', () => {
-      const result = abstractVisualEntity.getNodeInteraction({
-        name: 'from',
-        processorName: 'from',
-        isPlaceholder: false,
-        isGroup: false,
-        iconUrl: '',
-        title: 'From',
-        description: '',
-      });
+      const result = abstractVisualEntity.getNodeInteraction(
+        createMockNodeData({ name: 'from', processorName: 'from', title: 'From' }),
+      );
       expect(result.canHavePreviousStep).toEqual(false);
       expect(result.canHaveNextStep).toEqual(false);
     });
 
     it('should allow processors to have previous/next steps', () => {
-      const result = abstractVisualEntity.getNodeInteraction({
-        name: 'to',
-        processorName: 'to',
-        isPlaceholder: false,
-        isGroup: false,
-        iconUrl: '',
-        title: 'To',
-        description: '',
-      });
+      const result = abstractVisualEntity.getNodeInteraction(
+        createMockNodeData({ name: 'to', processorName: 'to', title: 'To' }),
+      );
       expect(result.canHavePreviousStep).toEqual(true);
       expect(result.canHaveNextStep).toEqual(true);
     });
@@ -115,15 +133,9 @@ describe('AbstractCamelVisualEntity', () => {
       'interceptFrom',
       'interceptSendToEndpoint',
     ])(`should return the correct interaction for the '%s' processor`, (processorName) => {
-      const result = abstractVisualEntity.getNodeInteraction({
-        name: processorName,
-        processorName,
-        isPlaceholder: false,
-        isGroup: false,
-        iconUrl: '',
-        title: 'From',
-        description: '',
-      });
+      const result = abstractVisualEntity.getNodeInteraction(
+        createMockNodeData({ name: processorName, processorName, title: 'From' }),
+      );
       expect(result).toMatchSnapshot();
     });
   });
@@ -251,18 +263,7 @@ describe('AbstractCamelVisualEntity', () => {
           definition: undefined,
         },
         mode: AddStepMode.PrependStep,
-        data: {
-          name: 'log',
-          path: 'route.from.steps.2.to',
-          icon: '/src/assets/components/log.svg',
-          processorName: 'to',
-          componentName: 'log',
-          isPlaceholder: false,
-          isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: createMockNodeData({ path: 'route.from.steps.2.to' }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
@@ -277,18 +278,7 @@ describe('AbstractCamelVisualEntity', () => {
           definition: undefined,
         },
         mode: AddStepMode.AppendStep,
-        data: {
-          name: 'log',
-          path: 'route.from.steps.2.to',
-          icon: '/src/assets/components/log.svg',
-          processorName: 'to',
-          componentName: 'log',
-          isPlaceholder: false,
-          isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: createMockNodeData({ path: 'route.from.steps.2.to' }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(4);
@@ -303,18 +293,7 @@ describe('AbstractCamelVisualEntity', () => {
           definition: undefined,
         },
         mode: AddStepMode.ReplaceStep,
-        data: {
-          name: 'log',
-          path: 'route.from.steps.0.to',
-          icon: '/src/assets/components/log.svg',
-          processorName: 'to',
-          componentName: 'log',
-          isPlaceholder: false,
-          isGroup: false,
-          iconUrl: '',
-          title: 'Log',
-          description: '',
-        },
+        data: createMockNodeData({ path: 'route.from.steps.0.to' }),
       });
 
       expect(abstractVisualEntity.entityDef.route.from.steps).toHaveLength(3);
@@ -340,6 +319,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          processorIconTooltip: '',
         },
       });
       abstractVisualEntity.addStep({
@@ -466,6 +446,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          processorIconTooltip: '',
         },
       });
 
@@ -579,6 +560,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          processorIconTooltip: '',
         },
       });
 

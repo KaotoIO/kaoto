@@ -32,11 +32,11 @@ import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
-import { useProcessorIcon } from '../../../../hooks/processor-icon.hook';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
+import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode } from '../../Canvas/canvas.models';
@@ -125,7 +125,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
     const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
     const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
-    const { Icon: ProcessorIcon, description: processorDescription } = useProcessorIcon(processorName);
+    const ProcessorIcon = getProcessorIcon(processorName);
+    const processorDescription = vizNode?.data.processorIconTooltip ?? '';
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
     const validationText = vizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
