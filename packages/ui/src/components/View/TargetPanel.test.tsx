@@ -80,4 +80,9 @@ describe('TargetPanel', () => {
     // Target body starts as primitive (no schema), so it should be collapsed
     expect(panel).toHaveAttribute('data-expanded', 'false');
   });
+
+  it('should render the h3 with the "Target" text', () => {
+    const { container } = render(<TargetPanel />, { wrapper });
+    expect(container.querySelector('.target-panel__header')).toHaveTextContent('Target');
+  });
 });
