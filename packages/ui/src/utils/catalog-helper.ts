@@ -1,50 +1,41 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 
-import { SourceSchemaType } from '../models/camel';
 import { versionCompare } from './version-compare';
 
 /**
- * Finds the appropriate catalog for a given source schema type.
+ * Returns the best catalog matching the given compatible runtimes.
  *
- * For Citrus tests (SourceSchemaType.Test), returns the first available Citrus catalog sorted by version.
- * For other source types, returns the first available RedHat Main catalog sorted by version.
- *
- * @param sourceType - The source schema type to find a catalog for
- * @param catalogLibrary - The catalog library containing available catalogs
- * @returns The matching catalog entry or undefined if not found or library is unavailable
+ * Preference order: redhat builds win across all compatible runtimes (if any
+ * redhat candidate exists in the compat-filtered pool, non-redhat candidates
+ * are excluded regardless of runtime), then highest version among the pool.
  */
-export const findCatalog = (sourceType: SourceSchemaType, catalogLibrary?: CatalogLibrary) => {
-  if (!catalogLibrary) {
-    return undefined;
-  }
+export const findCatalog = (
+  compatibleRuntimes: readonly string[],
+  catalogLibrary?: CatalogLibrary,
+): CatalogLibraryEntry | undefined => {
+  if (!catalogLibrary) return undefined;
 
-  if (sourceType === SourceSchemaType.Test) {
-    const citrusCatalogs = catalogLibrary.definitions
-      .filter((c: CatalogLibraryEntry) => c.runtime === 'Citrus')
-      .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
-    return citrusCatalogs.length > 0 ? citrusCatalogs[0] : undefined;
-  } else {
-    const redhatMainCatalogs = catalogLibrary.definitions
-      .filter((c: CatalogLibraryEntry) => c.runtime === 'Main' && c.name.includes('redhat'))
-      .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) =>
-        versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
-      );
+  const candidates = catalogLibrary.definitions.filter((c: CatalogLibraryEntry) =>
+    compatibleRuntimes.includes(c.runtime),
+  );
 
-    return redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
-  }
+  const preferred = candidates.filter((c) => c.name.includes('redhat'));
+  const pool = preferred.length > 0 ? preferred : candidates;
+
+  if (pool.length === 0) return undefined;
+
+  return pool
+    .slice()
+    .sort((a: CatalogLibraryEntry, b: CatalogLibraryEntry) =>
+      versionCompare(a.version.split('.redhat')[0], b.version.split('.redhat')[0]),
+    )[0];
 };
 
 /**
- * Determines if a catalog change is required based on the source type and current catalog.
- *
- * A catalog change is required when:
- * - The current catalog is Citrus but the source type is not Test
- * - The current catalog is not Citrus but the source type is Test
- *
- * @param sourceType - The source schema type being used
- * @param catalog - The currently active catalog
- * @returns True if a catalog change is required, false otherwise
+ * Returns true if the given catalog's runtime is in the resource's
+ * compatible runtimes list.
  */
-export const requiresCatalogChange = (sourceType: SourceSchemaType, catalog?: CatalogLibraryEntry) => {
-  return catalog?.runtime === 'Citrus' ? sourceType !== SourceSchemaType.Test : sourceType === SourceSchemaType.Test;
-};
+export const isCatalogCompatible = (
+  catalog: CatalogLibraryEntry | undefined,
+  compatibleRuntimes: readonly string[],
+): boolean => catalog !== undefined && compatibleRuntimes.includes(catalog.runtime);

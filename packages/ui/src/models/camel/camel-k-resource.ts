@@ -96,10 +96,6 @@ export abstract class CamelKResource implements KaotoResource {
     return undefined;
   }
 
-  getCompatibleRuntimes(): string[] {
-    return ['Main', 'Quarkus', 'Spring Boot'];
-  }
-
   getSerializerType() {
     return this.serializer.getType();
   }

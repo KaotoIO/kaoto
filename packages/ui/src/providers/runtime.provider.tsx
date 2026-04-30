@@ -1,14 +1,26 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  FunctionComponent,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
-import { LoadingStatus, LocalStorageKeys } from '../models';
-import { SourceSchemaType } from '../models/camel';
-import { findCatalog } from '../utils/catalog-helper';
-import { EntitiesContext } from './entities.provider';
+import { LoadingStatus } from '../models';
+import { COMPATIBLE_RUNTIMES_BY_SCHEMA_TYPE } from '../models/camel/compatible-runtimes';
+import { detectSchemaType } from '../models/camel/detect-schema-type';
+import { useSourceCodeStore } from '../store';
+import { findCatalog, isCatalogCompatible } from '../utils/catalog-helper';
+import { getPersistedCatalog, setPersistedCatalog } from '../utils/catalog-storage';
+import { SourceCodeContext } from './source-code.provider';
 
 export interface IRuntimeContext {
   basePath: string;
@@ -21,23 +33,38 @@ export const RuntimeContext = createContext<IRuntimeContext | undefined>(undefin
 
 /**
  * Loader for the available Catalog library.
+ *
+ * The compatible-runtimes signal is derived from the current source code and
+ * path via `detectSchemaType` + the static compatible-runtimes registry. This
+ * keeps `RuntimeProvider` independent of `EntitiesContext`, allowing the
+ * existing provider hierarchy (EntitiesProvider nested inside the catalog
+ * loaders) to remain in place so visual entities are always computed against
+ * a populated `CamelCatalogService`.
  */
 export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
-  const entitiesContext = useContext(EntitiesContext);
-  const currentSchemaType = entitiesContext?.currentSchemaType || SourceSchemaType.Route;
-  let localSelectedCatalog: CatalogLibraryEntry | undefined = undefined;
 
-  try {
-    localSelectedCatalog = JSON.parse(localStorage.getItem(LocalStorageKeys.SelectedCatalog) ?? 'undefined');
-  } catch (error) {
-    localSelectedCatalog = undefined;
-  }
+  const sourceCode = useContext(SourceCodeContext);
+  const path = useSourceCodeStore((state) => state.path);
 
-  const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
+  const schemaType = useMemo(() => detectSchemaType(sourceCode, path), [sourceCode, path]);
+  const compatibleRuntimes = COMPATIBLE_RUNTIMES_BY_SCHEMA_TYPE[schemaType];
+  const compatibleRuntimesKey = [...compatibleRuntimes].sort().join('|');
+
+  const [selectedCatalog, setSelectedCatalogState] = useState<CatalogLibraryEntry | undefined>(undefined);
   const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
+
+  const setSelectedCatalog = useCallback(
+    (catalog: CatalogLibraryEntry | undefined) => {
+      setSelectedCatalogState(catalog);
+      if (isDefined(catalog)) {
+        setPersistedCatalog(schemaType, catalog);
+      }
+    },
+    [schemaType],
+  );
 
   useEffect(() => {
     fetch(props.catalogUrl)
@@ -45,20 +72,23 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
         setLoadingStatus(LoadingStatus.Loading);
         return response.json();
       })
-      .then((catalogLibrary: CatalogLibrary) => {
-        let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
-        if (isDefined(selectedCatalog)) {
-          catalogLibraryEntry = catalogLibrary.definitions.find(
-            (c: CatalogLibraryEntry) => c.name === selectedCatalog.name,
-          );
-        }
-        if (!isDefined(catalogLibraryEntry)) {
-          catalogLibraryEntry = findCatalog(currentSchemaType, catalogLibrary);
+      .then((library: CatalogLibrary) => {
+        const persisted = getPersistedCatalog(schemaType);
+
+        let resolved: CatalogLibraryEntry | undefined;
+        if (
+          isDefined(persisted) &&
+          isCatalogCompatible(persisted, compatibleRuntimes) &&
+          library.definitions.some((c) => c.name === persisted.name)
+        ) {
+          resolved = persisted;
+        } else {
+          resolved = findCatalog(compatibleRuntimes, library);
         }
 
-        setCatalogLibrary(catalogLibrary);
-        if (isDefined(catalogLibraryEntry)) {
-          setSelectedCatalog(catalogLibraryEntry);
+        setCatalogLibrary(library);
+        if (isDefined(resolved)) {
+          setSelectedCatalogState(resolved);
         }
       })
       .then(() => {
@@ -69,7 +99,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
         setLoadingStatus(LoadingStatus.Error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSchemaType]);
+  }, [schemaType, compatibleRuntimesKey]);
 
   const runtimeContext: IRuntimeContext = useMemo(
     () => ({
@@ -78,7 +108,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
       selectedCatalog,
       setSelectedCatalog,
     }),
-    [basePath, catalogLibrary, selectedCatalog],
+    [basePath, catalogLibrary, selectedCatalog, setSelectedCatalog],
   );
 
   return (
