@@ -54,7 +54,7 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   actionItems,
 }) => (
   <div className="parameters-header" data-testid="source-parameters-header">
-    <span className="parameters-header__title panel-header-text">Parameters</span>
+    <span className="parameters-header__title panel-header-text">Source Parameters</span>
     <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
         <>
