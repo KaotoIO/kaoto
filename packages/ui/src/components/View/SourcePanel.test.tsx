@@ -76,4 +76,15 @@ describe('SourcePanel', () => {
 
     jest.useRealTimers();
   });
+
+  it('should render the h3 with the "Source" text', () => {
+    const { container } = render(
+      <DataMapperProvider>
+        <MappingLinksProvider>
+          <SourcePanel />
+        </MappingLinksProvider>
+      </DataMapperProvider>,
+    );
+    expect(container.querySelector('.source-panel__header')).toHaveTextContent('Source');
+  });
 });
