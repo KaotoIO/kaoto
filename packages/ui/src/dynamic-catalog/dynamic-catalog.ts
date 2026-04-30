@@ -4,6 +4,7 @@ import { ICatalogProvider, IDynamicCatalog } from './models';
 
 export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
   protected readonly cache: Record<string, T> = {};
+  private fetchedAll = false;
 
   constructor(protected readonly provider: ICatalogProvider<T>) {}
 
@@ -23,7 +24,8 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
   async getAll(
     options: { forceFresh?: boolean; filterFn?: (key: string, entity: T) => boolean } = {},
   ): Promise<Record<string, T>> {
-    if (options.forceFresh || Object.keys(this.cache).length === 0) {
+    if (options.forceFresh || !this.fetchedAll) {
+      this.fetchedAll = true;
       const entities = await this.provider.fetchAll();
       Object.entries(entities).forEach(([key, entity]) => {
         this.cache[key] = entity;
@@ -50,5 +52,6 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
     Object.keys(this.cache).forEach((key) => {
       delete this.cache[key];
     });
+    this.fetchedAll = false;
   }
 }

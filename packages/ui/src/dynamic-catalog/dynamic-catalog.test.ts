@@ -303,6 +303,25 @@ describe('DynamicCatalog', () => {
       expect(result).toEqual({ entity2: entities.entity2 });
       expect(fetchAllSpy).toHaveBeenCalledTimes(1);
     });
+
+    it('should fetch all entities even if cache was partially populated by get()', async () => {
+      const singleEntity: TestEntity = { id: '1', name: 'single', value: 10 };
+      const allEntities = {
+        entity1: singleEntity,
+        entity2: { id: '2', name: 'second', value: 20 },
+        entity3: { id: '3', name: 'third', value: 30 },
+      };
+      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(singleEntity);
+      const fetchAllSpy = jest.spyOn(mockProvider, 'fetchAll').mockResolvedValue(allEntities);
+
+      await catalog.get('entity1');
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+      const result = await catalog.getAll();
+      expect(result).toEqual(allEntities);
+      expect(fetchAllSpy).toHaveBeenCalledTimes(1);
+      expect(Object.keys(result)).toHaveLength(3);
+    });
   });
 
   describe('clearCache', () => {
