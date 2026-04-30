@@ -1,6 +1,5 @@
 import './SourcePanel.scss';
 
-import { Content, ContentVariants, Truncate } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -96,9 +95,6 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
 
   return (
     <div id="panel-source" className="source-panel">
-      <Content component={ContentVariants.h3}>
-        <Truncate content="Source" className="source-panel__header" />
-      </Content>
       <ExpansionPanels firstPanelId="parameters-header" lastPanelId="source-body">
         {/* Parameters section - self-contained component that manages all parameter state */}
         <ParametersSection isReadOnly={isReadOnly} onLayoutChange={syncConnectionPorts} actionItems={actionItems} />
@@ -112,7 +108,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
           minHeight={PANEL_MIN_HEIGHT}
           summary={
             <DocumentHeader
-              header={<span className="panel-header-text">Body</span>}
+              header={<span className="panel-header-text">Source Body</span>}
               document={sourceBodyDocument}
               documentType={DocumentType.SOURCE_BODY}
               isReadOnly={isReadOnly}

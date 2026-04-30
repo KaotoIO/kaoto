@@ -1,6 +1,5 @@
 import './TargetPanel.scss';
 
-import { Content, ContentVariants, Truncate } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -151,9 +150,6 @@ export const TargetPanel: FunctionComponent = () => {
 
   return (
     <div id="panel-target" className="target-panel">
-      <Content component={ContentVariants.h3}>
-        <Truncate content="Target" className="target-panel__header" />
-      </Content>
       <ExpansionPanels lastPanelId="target-body">
         <ExpansionPanel
           id="target-body"
@@ -163,7 +159,7 @@ export const TargetPanel: FunctionComponent = () => {
           collapsible={false}
           summary={
             <DocumentHeader
-              header={<span className="panel-header-text">Body</span>}
+              header={<span className="panel-header-text">Target Body</span>}
               document={targetBodyDocument}
               documentType={DocumentType.TARGET_BODY}
               isReadOnly={false}

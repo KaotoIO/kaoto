@@ -50,7 +50,7 @@ describe('TargetPanel', () => {
 
   it('should render the Target panel with Body header', () => {
     render(<TargetPanel />, { wrapper });
-    expect(screen.getByText('Body')).toBeInTheDocument();
+    expect(screen.getByText('Target Body')).toBeInTheDocument();
   });
 
   it('should render the panel with correct id', () => {
@@ -61,7 +61,7 @@ describe('TargetPanel', () => {
   it('should hide the grab icon when the target body has a schema attached', async () => {
     const { container } = render(<TargetPanel />, { wrapper: schemaWrapper });
 
-    expect(await screen.findByText('Body')).toBeInTheDocument();
+    expect(await screen.findByText('Target Body')).toBeInTheDocument();
 
     const header = container.querySelector('[data-testid="document-doc-targetBody-Body"]');
     expect(header).toBeInTheDocument();
@@ -79,10 +79,5 @@ describe('TargetPanel', () => {
     const panel = container.querySelector('.expansion-panel');
     // Target body starts as primitive (no schema), so it should be collapsed
     expect(panel).toHaveAttribute('data-expanded', 'false');
-  });
-
-  it('should render the h3 with the "Target" text', () => {
-    const { container } = render(<TargetPanel />, { wrapper });
-    expect(container.querySelector('.target-panel__header')).toHaveTextContent('Target');
   });
 });

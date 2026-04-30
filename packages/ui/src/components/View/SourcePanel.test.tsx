@@ -56,7 +56,7 @@ describe('SourcePanel', () => {
     );
 
     // Find the Body panel summary and click to collapse
-    const bodyPanel = screen.getByText('Body').closest('.expansion-panel__summary') as HTMLElement;
+    const bodyPanel = screen.getByText('Source Body').closest('.expansion-panel__summary') as HTMLElement;
     expect(bodyPanel).toBeInTheDocument();
 
     act(() => {
@@ -70,21 +70,10 @@ describe('SourcePanel', () => {
 
     // The panel should now be collapsed (data-expanded=false)
     await waitFor(() => {
-      const panel = screen.getByText('Body').closest('.expansion-panel');
+      const panel = screen.getByText('Source Body').closest('.expansion-panel');
       expect(panel).toHaveAttribute('data-expanded', 'false');
     });
 
     jest.useRealTimers();
-  });
-
-  it('should render the h3 with the "Source" text', () => {
-    const { container } = render(
-      <DataMapperProvider>
-        <MappingLinksProvider>
-          <SourcePanel />
-        </MappingLinksProvider>
-      </DataMapperProvider>,
-    );
-    expect(container.querySelector('.source-panel__header')).toHaveTextContent('Source');
   });
 });
