@@ -1,4 +1,4 @@
-import { PROCESSORS_WITH_ICONS } from '../models/special-processors.constants';
+import { PROCESSORS_WITH_ICONS } from '../../../../../special-processors.constants';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
 /**

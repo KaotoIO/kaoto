@@ -1,7 +1,7 @@
-import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
-import { ICamelProcessorDefinition } from '../models/camel/camel-processors-catalog';
-import { CatalogKind } from '../models/catalog-kind';
-import { PROCESSOR_ICON_PREFIXES } from '../models/special-processors.constants';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
+import { CatalogKind } from '../../../../../catalog-kind';
+import { PROCESSOR_ICON_PREFIXES } from '../../../../../special-processors.constants';
 
 /**
  * Service for resolving processor icon overlay tooltips from the catalog.

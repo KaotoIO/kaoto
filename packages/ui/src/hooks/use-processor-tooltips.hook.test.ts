@@ -1,9 +1,9 @@
 import { renderHook, waitFor } from '@testing-library/react';
 
-import { getProcessorIconTooltipRequest } from '../tooltip-resolver/getProcessorIconTooltipRequest';
+import { getProcessorIconTooltipRequest } from '../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
 import { useProcessorTooltips } from './use-processor-tooltips.hook';
 
-jest.mock('../tooltip-resolver/getProcessorIconTooltipRequest');
+jest.mock('../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
 
 describe('useProcessorTooltips', () => {
   const mockGetRequest = jest.mocked(getProcessorIconTooltipRequest);

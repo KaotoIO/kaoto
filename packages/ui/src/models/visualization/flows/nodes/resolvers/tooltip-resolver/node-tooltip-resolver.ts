@@ -1,7 +1,9 @@
-import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
-import { ICamelComponentDefinition, ICamelProcessorDefinition, IKameletDefinition } from '../models';
-import { CatalogKind } from '../models/catalog-kind';
-import { ICitrusComponentDefinition } from '../models/citrus/citrus-catalog';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { ICamelComponentDefinition } from '../../../../../camel/camel-components-catalog';
+import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
+import { IKameletDefinition } from '../../../../../camel/kamelets-catalog';
+import { CatalogKind } from '../../../../../catalog-kind';
+import { ICitrusComponentDefinition } from '../../../../../citrus/citrus-catalog';
 
 /**
  * Service for resolving tooltip descriptions from various catalogs.

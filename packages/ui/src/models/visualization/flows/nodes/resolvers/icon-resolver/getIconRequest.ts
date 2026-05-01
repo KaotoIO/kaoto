@@ -1,4 +1,4 @@
-import { CatalogKind } from '../models/catalog-kind';
+import { CatalogKind } from '../../../../../catalog-kind';
 import { NodeIconResolver } from './node-icon-resolver';
 
 export interface IconRequestResult {
