@@ -364,3 +364,14 @@ export type LineProps = LineCoord & {
 /** Props passed to the alert notification handler. */
 export type SendAlertProps = Required<Pick<AlertProps, 'variant' | 'title'>> &
   Partial<Pick<AlertProps, 'key'>> & { description?: string };
+
+export enum NameValidationStatus {
+  EMPTY,
+  SUCCESS,
+  ERROR,
+}
+
+export interface NameValidation {
+  status: NameValidationStatus;
+  error?: string;
+}

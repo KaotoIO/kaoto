@@ -15,13 +15,25 @@ import {
   OtherwiseItem,
   ValueSelector,
   ValueType,
+  VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { DocumentService } from '../document/document.service';
 import { ensureNamespaceRegistered } from '../namespace-util';
 import { XPathService } from '../xpath/xpath.service';
 
+/**
+ * All-static utility service for manipulating the in-memory {@link MappingTree}/{@link MappingItem}
+ * model that corresponds to the main data mappings body placed in `<xsl:template match="/">` in the generated XSLT.
+ */
 export class MappingService {
+  /**
+   * Recursively descends into {@link InstructionItem} children to find nested field references,
+   * not just top-level matches.
+   * @param mappings - the flat list of mapping items to search through
+   * @param field - the target field to match against
+   * @returns filtered mappings that reference the given field at any nesting depth
+   */
   static filterMappingsForField(mappings: MappingItem[], field: IField): MappingItem[] {
     if (!mappings) return [];
     return mappings.filter((mapping) => {
@@ -62,6 +74,12 @@ export class MappingService {
     return [];
   }
 
+  /**
+   * Recursively unwraps nested instruction structures (choose/when/otherwise/if/foreach)
+   * to collect all referenced target fields.
+   * @param mapping - the instruction item to extract fields from
+   * @returns all target fields found at any depth within the instruction
+   */
   static getInstructionFields(mapping: InstructionItem): IField[] {
     return MappingService.getInstructionFieldItems(mapping).map((item) => item.field);
   }
@@ -137,6 +155,14 @@ export class MappingService {
     return !!stalePath;
   }
 
+  /**
+   * For target documents, attempts field migration via {@link DocumentService.getCompatibleField}
+   * before removing. For source documents, removes XPath references that no longer resolve,
+   * gracefully handling XPath parse errors.
+   * @param mappingTree - the mapping tree to clean up
+   * @param document - the document whose fields may have changed
+   * @returns the modified mapping tree
+   */
   static removeStaleMappingsForDocument(mappingTree: MappingTree, document: IDocument) {
     if (document.documentType === DocumentType.TARGET_BODY) {
       MappingService.doRemoveStaleMappingsForTargetDocument(mappingTree, document);
@@ -228,6 +254,12 @@ export class MappingService {
     return !!stalePath;
   }
 
+  /**
+   * Mutates the tree in-place: replaces the wrapped item in its parent's children array
+   * with the wrapper, then reparents the wrapped item under the wrapper.
+   * @param wrapped - the existing mapping item to be wrapped
+   * @param wrapper - the new parent item that will contain the wrapped item
+   */
   static wrapWithItem(wrapped: MappingItem, wrapper: MappingItem) {
     wrapper.children.push(wrapped);
     wrapped.parent.children = wrapped.parent.children.map((m) => (m !== wrapped ? m : wrapper));
@@ -258,18 +290,35 @@ export class MappingService {
     }
   }
 
+  /**
+   * Convenience wrapper around {@link wrapWithItem} using a {@link ForEachItem}.
+   * @param wrapped - the mapping item to wrap with a for-each loop
+   */
   static wrapWithForEach(wrapped: MappingItem) {
     MappingService.wrapWithItem(wrapped, new ForEachItem(wrapped.parent));
   }
 
+  /**
+   * Convenience wrapper around {@link wrapWithItem} using a {@link ForEachGroupItem}.
+   * @param wrapped - the mapping item to wrap with a for-each loop
+   */
   static wrapWithForEachGroup(wrapped: MappingItem) {
     MappingService.wrapWithItem(wrapped, new ForEachGroupItem(wrapped.parent));
   }
 
+  /**
+   * Convenience wrapper around {@link wrapWithItem} using an {@link IfItem}.
+   * @param wrapped - the mapping item to wrap with a conditional
+   */
   static wrapWithIf(wrapped: MappingItem) {
     MappingService.wrapWithItem(wrapped, new IfItem(wrapped.parent));
   }
 
+  /**
+   * Clones the wrapped item for the Otherwise branch so When and Otherwise
+   * receive independent copies.
+   * @param wrapped - the mapping item to wrap with a choose/when/otherwise structure
+   */
   static wrapWithChooseWhenOtherwise(wrapped: MappingItem) {
     const parent = wrapped.parent;
     const chooseItem = new ChooseItem(parent, wrapped && wrapped instanceof FieldItem ? wrapped.field : undefined);
@@ -283,12 +332,24 @@ export class MappingService {
     parent.children = parent.children.map((m) => (m !== wrapped ? m : chooseItem));
   }
 
+  /**
+   * When no mapping is provided, creates an empty {@link ValueSelector} as a placeholder child.
+   * @param parent - the parent container to add the if-item to
+   * @param mapping - optional existing mapping to place inside the if-item
+   */
   static addIf(parent: MappingParentType, mapping?: MappingItem) {
     const ifItem = new IfItem(parent);
     parent.children.push(ifItem);
     ifItem.children.push(mapping ?? MappingService.createValueSelector(ifItem));
   }
 
+  /**
+   * When a mapping is provided, it replaces that mapping in the parent's children with the new
+   * {@link ChooseItem}. The mapping is cloned for the Otherwise branch so each branch gets
+   * an independent copy.
+   * @param parent - the parent container
+   * @param mapping - optional existing mapping to distribute across When/Otherwise branches
+   */
   static addChooseWhenOtherwise(parent: MappingParentType, mapping?: MappingItem) {
     const chooseItem = new ChooseItem(parent, mapping && mapping instanceof FieldItem ? mapping.field : undefined);
     MappingService.addWhen(chooseItem, mapping);
@@ -299,6 +360,14 @@ export class MappingService {
     if (!parent.children.includes(chooseItem)) parent.children.push(chooseItem);
   }
 
+  /**
+   * Content is resolved by priority: mapping argument, then field argument,
+   * then a default empty {@link ValueSelector}.
+   * @param chooseItem - the choose item to add a when-branch to
+   * @param mapping - optional existing mapping for the when content
+   * @param field - optional field to create a {@link FieldItem} for
+   * @returns the created when item
+   */
   static addWhen(chooseItem: ChooseItem, mapping?: MappingItem, field?: IField) {
     const whenItem = new WhenItem(chooseItem);
 
@@ -313,6 +382,14 @@ export class MappingService {
     return whenItem;
   }
 
+  /**
+   * Replaces any existing {@link OtherwiseItem} in the {@link ChooseItem},
+   * ensuring at most one Otherwise per Choose.
+   * @param chooseItem - the choose item to add an otherwise-branch to
+   * @param mapping - optional existing mapping for the otherwise content
+   * @param field - optional field to create a {@link FieldItem} for
+   * @returns the created otherwise item
+   */
   static addOtherwise(chooseItem: ChooseItem, mapping?: MappingItem, field?: IField) {
     const newChildren = chooseItem.children.filter((c) => !(c instanceof OtherwiseItem));
     const otherwiseItem = new OtherwiseItem(chooseItem);
@@ -328,10 +405,21 @@ export class MappingService {
     return otherwiseItem;
   }
 
+  /**
+   * Wraps the existing expression with function-call syntax, e.g. `expr` becomes `fn(expr)`.
+   * @param condition - the expression holder whose expression will be wrapped
+   * @param func - the function definition providing the function name
+   */
   static wrapWithFunction(condition: IExpressionHolder, func: IFunctionDefinition) {
     condition.expression = `${func.name}(${condition.expression})`;
   }
 
+  /**
+   * {@link ForEachItem} replaces the expression entirely (it is a loop source),
+   * while other condition types append the source via {@link XPathService.addSource}.
+   * @param condition - the condition item to map the source to
+   * @param source - the source field or primitive document to map from
+   */
   static mapToCondition(condition: MappingItem, source: PrimitiveDocument | IField) {
     MappingService.registerNamespaceFromField(condition.mappingTree, source);
     const pathExpression = XPathService.toPathExpression(
@@ -346,6 +434,12 @@ export class MappingService {
     }
   }
 
+  /**
+   * Reuses an existing {@link ValueSelector} at the tree root if one exists
+   * instead of creating a new one.
+   * @param mappingTree - the mapping tree representing the target document root
+   * @param source - the source field or primitive document to map from
+   */
   static mapToDocument(mappingTree: MappingTree, source: PrimitiveDocument | IField) {
     let valueSelector = mappingTree.children.find((mapping) => mapping instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
@@ -357,6 +451,11 @@ export class MappingService {
     valueSelector.expression = XPathService.addSource(valueSelector.expression, path);
   }
 
+  /**
+   * Uses relative XPath based on the {@link ValueSelector}'s contextPath, not absolute paths.
+   * @param source - the source field or primitive document to map from
+   * @param targetFieldItem - the target mapping item to map the source to
+   */
   static mapToField(source: PrimitiveDocument | IField, targetFieldItem: MappingItem) {
     let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
@@ -372,6 +471,12 @@ export class MappingService {
     valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
   }
 
+  /**
+   * Creates a {@link FieldItem} and appends it to the parent's children.
+   * @param parentItem - the parent container
+   * @param field - the target field for the new item
+   * @returns the created field item
+   */
   static createFieldItem(parentItem: MappingParentType, field: IField) {
     const fieldItem = new FieldItem(parentItem, field);
     parentItem.children.push(fieldItem);
@@ -385,9 +490,51 @@ export class MappingService {
     ensureNamespaceRegistered(field.namespaceURI, mappingTree.namespaceMap, field.namespacePrefix ?? undefined);
   }
 
+  /**
+   * {@link ValueType} is inferred from the parent's target field context: ATTRIBUTE for attribute fields,
+   * CONTAINER for fields with children, VALUE otherwise. {@link MappingTree} root defaults to VALUE.
+   * @param parent - the parent container that determines the value type
+   * @returns the created value selector
+   */
   static createValueSelector(parent: MappingParentType) {
     const valueType = parent instanceof MappingTree ? ValueType.VALUE : MappingService.getValueTypeFor(parent);
     return new ValueSelector(parent, valueType);
+  }
+
+  /**
+   * Variables are prepended (unshift) to children, matching the XSLT requirement
+   * that `xsl:variable` declarations precede other instructions.
+   * @param parent - the parent container
+   * @param name - the variable name
+   * @param expression - optional initial XPath expression
+   * @returns the created variable item
+   */
+  static addVariable(parent: MappingParentType, name: string, expression?: string): VariableItem {
+    const variable = new VariableItem(parent, name);
+    if (expression) {
+      variable.expression = expression;
+    }
+    parent.children.unshift(variable);
+    return variable;
+  }
+
+  /**
+   * Also cleans up empty parent {@link FieldItem} chains via recursive deletion.
+   * @param variable - the variable item to remove
+   */
+  static removeVariable(variable: VariableItem): void {
+    MappingService.deleteFromParent(variable);
+  }
+
+  /**
+   * In-place update of name and expression on an existing {@link VariableItem}.
+   * @param variable - the variable item to update
+   * @param name - the new variable name
+   * @param expression - the new XPath expression
+   */
+  static updateVariable(variable: VariableItem, name: string, expression: string): void {
+    variable.name = name;
+    variable.expression = expression;
   }
 
   private static getValueTypeFor(mapping: MappingItem): ValueType {
@@ -405,11 +552,18 @@ export class MappingService {
     if (item instanceof FieldItem) return item.field;
   }
 
+  /**
+   * First removes {@link ValueSelector} children, then for {@link InstructionItem}/{@link VariableItem}
+   * or items under {@link FieldItem} parents, removes the item and recursively cleans up
+   * empty FieldItem ancestors.
+   * @param item - the mapping item to delete
+   */
   static deleteMappingItem(item: MappingParentType) {
     item.children = item.children.filter((child) => !(child instanceof ValueSelector));
     const isInstructionItem = item instanceof InstructionItem;
+    const isVariableItem = item instanceof VariableItem;
     const isParentFieldItem = 'parent' in item && item.parent instanceof FieldItem;
-    if (isInstructionItem || isParentFieldItem) {
+    if (isInstructionItem || isVariableItem || isParentFieldItem) {
       MappingService.deleteFromParent(item);
     }
   }
@@ -425,6 +579,13 @@ export class MappingService {
     }
   }
 
+  /**
+   * {@link Array.sort} comparator establishing XSLT output order:
+   * {@link ValueSelector} first, {@link WhenItem} before {@link OtherwiseItem}.
+   * @param left - first item to compare
+   * @param right - second item to compare
+   * @returns negative if left should come first, positive if right should, zero if equal
+   */
   static sortMappingItem(left: MappingItem, right: MappingItem) {
     if (left instanceof ValueSelector) return -1;
     if (right instanceof ValueSelector) return 1;

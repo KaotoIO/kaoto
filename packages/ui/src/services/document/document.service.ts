@@ -48,6 +48,7 @@ export class DocumentService {
    * @param schemaType
    * @param documentId
    * @param schemaFilePaths
+   * @param namespaceMap
    */
   static async createDocument(
     api: IMetadataApi,
@@ -149,6 +150,7 @@ export class DocumentService {
    *
    * @param definition - The current document definition containing schema files
    * @param filePath - The key of the schema file to remove from {@link DocumentDefinition.definitionFiles}
+   * @param namespaceMap
    * @returns A {@link CreateDocumentResult} with updated validation status, errors/warnings, and definition
    */
   static removeSchemaFile(
@@ -196,6 +198,7 @@ export class DocumentService {
   /**
    * Creates the initial set of source and target documents from a {@link DocumentInitializationModel}.
    * @param initModel - The initialization model containing document definitions
+   * @param namespaceMap
    * @returns An object containing the source body document, source parameter map, and target body document; or null if no model is provided
    */
   static createInitialDocuments(

@@ -1,11 +1,13 @@
 import xmlFormat from 'xml-formatter';
+import { qname } from 'xml-name-validator';
 
-import { IField } from '../../models/datamapper/document';
+import { IDocument, IField } from '../../models/datamapper/document';
 import {
   FieldItem,
   IExpressionHolder,
   isExpressionHolder,
   MappingItem,
+  MappingParentType,
   MappingTree,
   UnknownMappingItem,
   ValueSelector,
@@ -19,6 +21,8 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
+  NameValidation,
+  NameValidationStatus,
   NodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
@@ -435,5 +439,61 @@ export class VisualizationService {
     return nodeData.isDocument
       ? nodeData.id
       : nodeData.path.toString().replace(FORWARD_SLASH_REGEX, '-').replace(COLON_REGEX, '-');
+  }
+
+  /**
+   * Validates against XML NCName (via `xml-name-validator` {@link qname}), reserved names
+   * (`-x` suffix, `mapped-xml`), and scope-level uniqueness within the parent's children.
+   * @param name - the variable name to validate
+   * @param parent - the parent container to check for name conflicts
+   * @returns validation result with status and optional error message
+   */
+  static validateVariableName(name: string, parent: MappingParentType): NameValidation {
+    if (name.trim() === '') {
+      return { status: NameValidationStatus.EMPTY };
+    }
+    // QName without a colon `:` is NCName
+    if (name.includes(':') || !qname(name)) {
+      return {
+        status: NameValidationStatus.ERROR,
+        error: `Invalid variable name '${name}': it must be a valid NCName`,
+      };
+    }
+    if (name.endsWith('-x')) {
+      return {
+        status: NameValidationStatus.ERROR,
+        error: "Variable name cannot end with '-x' (reserved for internal use)",
+      };
+    }
+    if (name === 'mapped-xml') {
+      return { status: NameValidationStatus.ERROR, error: "Variable name 'mapped-xml' is reserved for internal use" };
+    }
+    if (parent.children.some((child) => child instanceof VariableItem && child.name === name)) {
+      return { status: NameValidationStatus.ERROR, error: `Variable name '${name}' already exists in this scope` };
+    }
+    return { status: NameValidationStatus.SUCCESS };
+  }
+
+  /**
+   * Validates against QName format (via `xml-name-validator`) and uniqueness
+   * within the existing source parameter map.
+   * @param name - the parameter name to validate
+   * @param sourceParameterMap - existing parameters to check for duplicates
+   * @returns validation result with status and optional error message
+   */
+  static validateParameterName(name: string, sourceParameterMap: Map<string, IDocument>): NameValidation {
+    if (name === '') {
+      return { status: NameValidationStatus.EMPTY };
+    }
+    if (sourceParameterMap.has(name)) {
+      return { status: NameValidationStatus.ERROR, error: `Parameter '${name}' already exists` };
+    }
+    if (!qname(name)) {
+      return {
+        status: NameValidationStatus.ERROR,
+        error: `Invalid parameter name '${name}': it must be a valid QName`,
+      };
+    }
+    return { status: NameValidationStatus.SUCCESS };
   }
 }
