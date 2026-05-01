@@ -1,8 +1,8 @@
-import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
-import { CatalogKind } from '../models/catalog-kind';
+import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind } from '../../../../../catalog-kind';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
-jest.mock('../dynamic-catalog/dynamic-catalog-registry');
+jest.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('ProcessorIconTooltipResolver', () => {
   const mockGetEntity = jest.fn();

@@ -1,15 +1,15 @@
-import { getIconRequest } from '../../../../icon-resolver/getIconRequest';
-import { getProcessorIconTooltipRequest } from '../../../../tooltip-resolver/getProcessorIconTooltipRequest';
-import { getTooltipRequest } from '../../../../tooltip-resolver/getTooltipRequest';
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { createVisualizationNode } from '../../visualization-node';
 import { CamelRouteVisualEntityData } from '../support/camel-component-types';
 import { NodeEnrichmentService } from './node-enrichment.service';
+import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';
+import { getProcessorIconTooltipRequest } from './resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
+import { getTooltipRequest } from './resolvers/tooltip-resolver/getTooltipRequest';
 
-jest.mock('../../../../icon-resolver/getIconRequest');
-jest.mock('../../../../tooltip-resolver/getTooltipRequest');
-jest.mock('../../../../tooltip-resolver/getProcessorIconTooltipRequest');
+jest.mock('./resolvers/icon-resolver/getIconRequest');
+jest.mock('./resolvers/tooltip-resolver/getTooltipRequest');
+jest.mock('./resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
 
 describe('NodeEnrichmentService', () => {
   const mockGetIconRequest = jest.mocked(getIconRequest);

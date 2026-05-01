@@ -1,9 +1,9 @@
-import { getIconRequest } from '../../../../icon-resolver/getIconRequest';
-import { getProcessorIconTooltipRequest } from '../../../../tooltip-resolver/getProcessorIconTooltipRequest';
-import { getTooltipRequest } from '../../../../tooltip-resolver/getTooltipRequest';
 import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from '../support/camel-component-types';
+import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';
+import { getProcessorIconTooltipRequest } from './resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
+import { getTooltipRequest } from './resolvers/tooltip-resolver/getTooltipRequest';
 
 /**
  * Service for enriching visualization nodes with catalog-derived properties.

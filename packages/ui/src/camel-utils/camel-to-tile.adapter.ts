@@ -1,5 +1,4 @@
 import { ITile } from '../components/Catalog/Catalog.models';
-import { getIconRequest } from '../icon-resolver/getIconRequest';
 import {
   CatalogKind,
   ICamelComponentDefinition,
@@ -7,6 +6,7 @@ import {
   ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../models';
+import { getIconRequest } from '../models/visualization/flows/nodes/resolvers/icon-resolver/getIconRequest';
 
 export const camelComponentToTile = async (componentDef: ICamelComponentDefinition): Promise<ITile> => {
   const { name, title, description, supportLevel, label, provider, version } = componentDef.component;

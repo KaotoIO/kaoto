@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { getProcessorIconTooltipRequest } from '../tooltip-resolver/getProcessorIconTooltipRequest';
+import { getProcessorIconTooltipRequest } from '../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
 
 export const useProcessorTooltips = (processorNames: readonly string[]) => {
   const [tooltips, setTooltips] = useState<Record<string, string>>({});

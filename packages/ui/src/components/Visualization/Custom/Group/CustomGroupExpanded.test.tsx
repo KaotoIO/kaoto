@@ -38,7 +38,7 @@ jest.mock('../../../../utils/processor-icon', () => ({
   getProcessorIcon: () => null,
 }));
 
-jest.mock('../../../../icon-resolver/node-icon-resolver', () => ({
+jest.mock('../../../../models/visualization/flows/nodes/resolvers/icon-resolver/node-icon-resolver', () => ({
   NodeIconResolver: {
     getIcon: jest.fn(() => Promise.resolve('data:image/svg+xml;base64,test')),
     getDefaultCamelIcon: jest.fn(() => 'data:image/svg+xml;base64,default'),
