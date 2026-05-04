@@ -84,4 +84,45 @@ describe('useVisibleVizNodes', () => {
       expect(result.current.vizNodes).toEqual([nodeA, nodeB]);
     });
   });
+
+  it('sets isResolving true on the first render with new entities/visibleFlows', async () => {
+    const e1 = mockEntity('e1', nodeA);
+    const e2 = mockEntity('e2', nodeB);
+    const resolvingByRender: boolean[] = [];
+
+    const { result, rerender } = renderHook(
+      ({ entities, visibleFlows }: { entities: BaseVisualEntity[]; visibleFlows: IVisibleFlows }) => {
+        const next = useVisibleVizNodes(entities, visibleFlows);
+        resolvingByRender.push(next.isResolving);
+        return next;
+      },
+      {
+        initialProps: {
+          entities: [e1],
+          visibleFlows: { e1: true } as IVisibleFlows,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isResolving).toBe(false);
+      expect(result.current.vizNodes).toEqual([nodeA]);
+    });
+
+    const renderCountBeforeChange = resolvingByRender.length;
+
+    rerender({
+      entities: [e1, e2],
+      visibleFlows: { e1: true, e2: true } as IVisibleFlows,
+    });
+
+    // First render with the new inputs must already be resolving (derived),
+    // not only after a follow-up useEffect setState.
+    expect(resolvingByRender[renderCountBeforeChange]).toBe(true);
+
+    await waitFor(() => {
+      expect(result.current.isResolving).toBe(false);
+      expect(result.current.vizNodes).toEqual([nodeA, nodeB]);
+    });
+  });
 });

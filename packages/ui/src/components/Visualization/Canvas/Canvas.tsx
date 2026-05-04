@@ -29,25 +29,24 @@ import {
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
-import { IVisualizationNode, LocalStorageKeys } from '../../../models';
+import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
 import { VerticalLayoutIcon } from '../../Icons/VerticalLayout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
-import { VisualizationEmptyState } from '../EmptyState';
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
-import { FlowService } from './flow.service';
 
 interface CanvasProps {
-  vizNodes: IVisualizationNode[];
-  entitiesCount: number;
-  isVizNodesResolving?: boolean;
+  nodes: CanvasNode[];
+  edges: CanvasEdge[];
+  isModelResolving?: boolean;
   contextToolbar?: ReactNode;
+  applyCollapseOnUpdate?: boolean;
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
@@ -57,10 +56,11 @@ interface CanvasState {
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
-  vizNodes,
-  entitiesCount,
-  isVizNodesResolving = false,
+  nodes,
+  edges,
+  isModelResolving = false,
   contextToolbar,
+  applyCollapseOnUpdate = false,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -83,18 +83,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   /** Context to interact with the Canvas catalog */
   const catalogModalContext = useContext(CatalogModalContext);
 
-  const shouldShowEmptyState = useMemo(() => {
-    const areNoFlows = entitiesCount === 0;
-    const areAllFlowsHidden = vizNodes.length === 0 && entitiesCount > 0;
-    return areNoFlows || areAllFlowsHidden;
-  }, [entitiesCount, vizNodes.length]);
-
-  const wasEmptyStateVisible = controller.getState<CanvasState>()[SETTLED_EMPTY_STATE];
+  const isGraphEmpty = nodes.length === 0 && edges.length === 0;
+  const wasGraphEmpty = controller.getState<CanvasState>()[SETTLED_EMPTY_STATE];
   useEffect(() => {
-    if (!isVizNodesResolving) {
-      controller.setState({ [SETTLED_EMPTY_STATE]: shouldShowEmptyState });
+    if (!isModelResolving) {
+      controller.setState({ [SETTLED_EMPTY_STATE]: isGraphEmpty });
     }
-  }, [controller, isVizNodesResolving, shouldShowEmptyState]);
+  }, [controller, isGraphEmpty, isModelResolving]);
 
   const clearSelection = useCallback(() => {
     setSelectedIds([]);
@@ -107,21 +102,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   useEffect(() => {
     clearSelection();
 
-    if (isVizNodesResolving) {
+    if (isModelResolving) {
       return;
     }
-
-    const nodes: CanvasNode[] = [];
-    const edges: CanvasEdge[] = [];
-
-    vizNodes.forEach((vizNode) => {
-      const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(
-        vizNode.getId() ?? vizNode.id,
-        vizNode,
-      );
-      nodes.push(...childNodes);
-      edges.push(...childEdges);
-    });
 
     const model: Model = {
       nodes,
@@ -133,7 +116,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       },
     };
 
-    if (!initialized || wasEmptyStateVisible) {
+    if (!initialized || wasGraphEmpty) {
       controller.fromModel(model, false);
       setInitialized(true);
 
@@ -144,10 +127,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
 
     controller.fromModel(model, true);
-    applyCollapseState(controller);
+    if (applyCollapseOnUpdate) {
+      applyCollapseState(controller);
+    }
     controller.getGraph().layout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controller, vizNodes, isVizNodesResolving]);
+  }, [controller, nodes, edges, isModelResolving, applyCollapseOnUpdate]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
   useSelectedNodePanIntoView(selectedIds);
@@ -224,7 +209,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  if (isVizNodesResolving) {
+  if (isModelResolving) {
     return null;
   }
 
@@ -242,14 +227,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onClick={handleCanvasClick}
     >
       <VisualizationSurface state={{ selectedIds }} />
-
-      {shouldShowEmptyState && (
-        <VisualizationEmptyState
-          className="canvas-empty-state"
-          data-testid="visualization-empty-state"
-          entitiesNumber={entitiesCount}
-        />
-      )}
     </TopologyView>
   );
 };

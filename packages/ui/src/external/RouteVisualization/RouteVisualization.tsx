@@ -1,7 +1,7 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 
-import { Visualization } from '../../components/Visualization';
+import { DesignerVisualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
 import {
@@ -28,7 +28,7 @@ const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ 
     visualFlowsApi.showFlows();
   }, [visualFlowsApi]);
 
-  return <Visualization className={`canvas-page ${className}`} entities={visualEntities} />;
+  return <DesignerVisualization className={`canvas-page ${className}`} entities={visualEntities} />;
 };
 
 const Viz: FunctionComponent<{

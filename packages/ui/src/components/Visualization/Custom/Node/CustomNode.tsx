@@ -1,8 +1,6 @@
 import './CustomNode.scss';
 
 import { isDefined } from '@kaoto/forms';
-import { Icon } from '@patternfly/react-core';
-import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import {
   AnchorEnd,
   DEFAULT_LAYER,
@@ -28,7 +26,6 @@ import {
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
-import clsx from 'clsx';
 import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -45,6 +42,7 @@ import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
+import { CustomNodeLabel } from './CustomNodeLabel';
 import {
   checkNodeDropCompatibility,
   getNodeDragAndDropDirection,
@@ -59,50 +57,6 @@ interface CustomNodeProps extends DefaultNodeProps {
   /** Toggle node collapse / expand */
   onCollapseToggle?: () => void;
 }
-
-interface CustomNodeLabelProps {
-  label: string;
-  doesHaveWarnings?: boolean;
-  validationText?: string;
-  x?: number;
-  y?: number;
-  transform?: string;
-  width?: number;
-  height?: number;
-  className?: string;
-}
-
-const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
-  label,
-  doesHaveWarnings = false,
-  validationText,
-  x,
-  y,
-  transform,
-  width = CanvasDefaults.DEFAULT_LABEL_WIDTH,
-  height = CanvasDefaults.DEFAULT_LABEL_HEIGHT,
-  className = 'custom-node__label',
-}) => (
-  <foreignObject
-    width={width}
-    height={height}
-    className={className}
-    {...(transform ? { transform } : { x: x!, y: y! })}
-  >
-    <div
-      className={clsx('custom-node__label__text', {
-        'custom-node__label__text__error': doesHaveWarnings,
-      })}
-    >
-      {doesHaveWarnings && (
-        <Icon status="danger" title={validationText} data-warning={doesHaveWarnings}>
-          <ExclamationCircleIcon />
-        </Icon>
-      )}
-      <span title={label}>{label}</span>
-    </div>
-  </foreignObject>
-);
 
 function getShouldShowToolbar(
   trigger: NodeToolbarTrigger | undefined,

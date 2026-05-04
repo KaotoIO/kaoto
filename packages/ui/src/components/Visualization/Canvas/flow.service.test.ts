@@ -1,3 +1,7 @@
+import { beforeEach, vi } from 'vitest';
+
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
+import { CatalogKind } from '../../../models/catalog-kind';
 import { EntityType } from '../../../models/entities';
 import { CamelRouteVisualEntity, createVisualizationNode } from '../../../models/visualization';
 import { camelRouteJson } from '../../../stubs/camel-route';
@@ -7,6 +11,30 @@ describe('FlowService', () => {
   beforeEach(() => {
     FlowService.nodes = [];
     FlowService.edges = [];
+
+    // Mock DynamicCatalogRegistry for topology tests
+    const registryInstance = DynamicCatalogRegistry.get();
+    vi.spyOn(registryInstance, 'getEntity').mockImplementation(async (kind: CatalogKind, name: string) => {
+      if (kind === CatalogKind.Component && (name === 'direct' || name === 'seda' || name === 'vm')) {
+        return {
+          component: {
+            kind: CatalogKind.Component,
+            name,
+            title: name,
+            deprecated: false,
+            label: '',
+            version: '1.0.0',
+            syntax: `${name}:name`,
+          },
+          componentProperties: {},
+          properties: {},
+          propertiesSchema: {
+            required: ['name'],
+          },
+        };
+      }
+      return undefined;
+    });
   });
 
   it('should start with an empty nodes array', () => {
@@ -199,6 +227,39 @@ describe('FlowService', () => {
       expect(edges[1].id).toBe('test|route.from.steps.0.to >>> route.from.steps.1.placeholder');
       expect(edges[1].source).toBe('test|route.from.steps.0.to');
       expect(edges[1].target).toBe('test|route.from.steps.1.placeholder');
+    });
+  });
+
+  describe('getTopologyFlowDiagram', () => {
+    it('builds one topology node per route and cross-route edges for matching in-vm endpoints', async () => {
+      const producerRoute = await new CamelRouteVisualEntity({
+        route: {
+          id: 'route-producer',
+          from: {
+            uri: 'timer:tick',
+            steps: [{ to: { uri: 'direct', parameters: { name: 'shared' } } }],
+          },
+        },
+      }).toVizNode();
+      const consumerRoute = await new CamelRouteVisualEntity({
+        route: {
+          id: 'route-consumer',
+          from: { uri: 'direct', parameters: { name: 'shared' }, steps: [] },
+        },
+      }).toVizNode();
+
+      const { nodes, edges } = await FlowService.getTopologyFlowDiagram([producerRoute, consumerRoute]);
+
+      expect(nodes).toHaveLength(2);
+      expect(nodes.map((node) => node.id).sort()).toEqual(['route-consumer', 'route-producer']);
+      expect(nodes.every((node) => node.type === 'topology-node')).toBe(true);
+
+      expect(edges).toHaveLength(1);
+      expect(edges[0]).toMatchObject({
+        type: 'topology-edge',
+        source: 'route-producer',
+        target: 'route-consumer',
+      });
     });
   });
 });
