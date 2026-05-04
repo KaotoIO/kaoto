@@ -266,4 +266,26 @@ export class CamelUriHelper {
 
     return result;
   }
+
+  static getEndpoint(value: unknown): string | undefined {
+    /** For string-based processor definitions, we can return the definition itself */
+    if (typeof value === 'string' && value !== '') {
+      return value;
+    }
+
+    const uriString = getValue(value, 'uri');
+
+    /** For object-based processor definitions, we can return the `uri` property if not empty */
+    if (typeof uriString === 'string' && uriString !== '') {
+      if (!uriString.includes(':')) {
+        const name = getValue(value, 'parameters.name');
+        if (typeof name === 'string' && name.trim() !== '') {
+          return `${uriString}:${name.trim()}`;
+        }
+      }
+      return uriString;
+    }
+
+    return undefined;
+  }
 }
