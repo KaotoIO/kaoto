@@ -4,7 +4,11 @@ import { Button, Split, SplitItem } from '@patternfly/react-core';
 import { SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
 import { CSSProperties, FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
+import { useConnectionPortSync } from '../../hooks';
+import { useDataMapper } from '../../hooks/useDataMapper';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
+import { useResizeObserver } from '../../hooks/useResizeObserver.hook';
+import { DocumentNodeData, TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import { MappingLinksContainer } from './MappingLinkContainer';
 import { SourcePanel } from './SourcePanel';
 import { TargetPanel } from './TargetPanel';
@@ -19,6 +23,30 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   const { mappingLinkCanvasRef } = useMappingLinks();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scaleFactor, setScaleFactor] = useState(initialScaleFactor);
+
+  const { sourceBodyDocument, targetBodyDocument, mappingTree, sourceParameterMap } = useDataMapper();
+
+  const sourceBodyNodeData = useMemo(() => new DocumentNodeData(sourceBodyDocument), [sourceBodyDocument]);
+  const targetBodyNodeData = useMemo(
+    () => new TargetDocumentNodeData(targetBodyDocument, mappingTree),
+    [targetBodyDocument, mappingTree],
+  );
+  const sourceParamNodeDataArray = useMemo(() => {
+    return Array.from(sourceParameterMap.values()).map((doc) => new DocumentNodeData(doc));
+  }, [sourceParameterMap]);
+
+  const allSyncIds = useMemo(() => {
+    const paramIds = sourceParamNodeDataArray.map((node) => node.id);
+    return [sourceBodyNodeData.id, targetBodyNodeData.id, ...paramIds];
+  }, [sourceBodyNodeData.id, targetBodyNodeData.id, sourceParamNodeDataArray]);
+
+  const { syncConnectionPorts: syncAllConnectionPorts } = useConnectionPortSync(allSyncIds);
+
+  const onViewResize = useCallback(() => {
+    syncAllConnectionPorts();
+  }, [syncAllConnectionPorts]);
+
+  useResizeObserver(containerRef, onViewResize);
 
   const handleZoomIn = useCallback(() => {
     setScaleFactor((prev) => Math.min(prev + 0.1, 1.2)); // Max 1.2x zoom

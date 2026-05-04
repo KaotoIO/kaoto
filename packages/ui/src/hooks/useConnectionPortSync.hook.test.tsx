@@ -78,6 +78,38 @@ describe('useConnectionPortSync', () => {
       expect(globalThis.cancelAnimationFrame).toHaveBeenCalled();
     });
 
+    it('should normalize documentIds to an array and sync correctly for both single string and array of strings inputs', () => {
+      const querySelectorAllSpy = jest
+        .spyOn(document, 'querySelectorAll')
+        .mockReturnValue([] as unknown as NodeListOf<Element>);
+
+      // single string branch
+      const { result, rerender } = renderHook(({ id }) => useConnectionPortSync(id), {
+        initialProps: { id: 'single-id' as string | string[] },
+      });
+
+      act(() => {
+        result.current.syncConnectionPorts();
+      });
+
+      expect(querySelectorAllSpy).toHaveBeenCalledWith(expect.stringContaining('single-id'));
+      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith('single-id', {});
+
+      // array of strings branch
+      rerender({ id: ['array-id-1', 'array-id-2'] });
+
+      act(() => {
+        result.current.syncConnectionPorts();
+      });
+
+      expect(querySelectorAllSpy).toHaveBeenCalledWith(expect.stringContaining('array-id-1'));
+      expect(querySelectorAllSpy).toHaveBeenCalledWith(expect.stringContaining('array-id-2'));
+      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith('array-id-1', {});
+      expect(mockSetNodesConnectionPorts).toHaveBeenCalledWith('array-id-2', {});
+
+      querySelectorAllSpy.mockRestore();
+    });
+
     it('should query for connection port elements with correct selector', () => {
       const querySelectorAllSpy = jest
         .spyOn(document, 'querySelectorAll')

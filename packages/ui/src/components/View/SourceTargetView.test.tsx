@@ -8,8 +8,13 @@ import { getCamelYamlDslJsonSchema, getShipOrderJsonSchema, getShipOrderXsd } fr
 import { SourceTargetView } from './SourceTargetView';
 
 // Mock ResizeObserver for ExpansionPanels
+let resizeObserverCallback: ResizeObserverCallback | null = null;
+
 beforeAll(() => {
   globalThis.ResizeObserver = class ResizeObserver {
+    constructor(callback: ResizeObserverCallback) {
+      resizeObserverCallback = callback;
+    }
     observe() {
       // intentional noop for test mock
     }
@@ -20,6 +25,10 @@ beforeAll(() => {
       // intentional noop for test mock
     }
   };
+});
+
+beforeEach(() => {
+  resizeObserverCallback = null;
 });
 
 describe('SourceTargetView', () => {
@@ -394,6 +403,37 @@ describe('SourceTargetView', () => {
 
       await waitFor(() => {
         expect(sourceTargetView.style.getPropertyValue('--datamapper-scale-factor')).toBe('0.7');
+      });
+    });
+
+    describe('Resize Observer', () => {
+      it('should sync connection ports when container is resized', async () => {
+        renderWithVirtuoso(
+          <BrowserFilePickerMetadataProvider>
+            <DataMapperProvider>
+              <MappingLinksProvider>
+                <SourceTargetView />
+              </MappingLinksProvider>
+            </DataMapperProvider>
+          </BrowserFilePickerMetadataProvider>,
+        );
+
+        // Wait for component to mount and ResizeObserver to be set up
+        await screen.findByTestId('attach-schema-sourceBody-Body-button');
+
+        // Verify that ResizeObserver callback was registered
+        expect(resizeObserverCallback).not.toBeNull();
+
+        // Simulate a resize event by calling the callback
+        // ResizeObserver callback expects entries and observer as parameters
+        if (resizeObserverCallback) {
+          act(() => {
+            resizeObserverCallback!([] as ResizeObserverEntry[], {} as ResizeObserver);
+          });
+        }
+
+        // Verify component still renders correctly after resize
+        expect(screen.getByTestId('attach-schema-sourceBody-Body-button')).toBeInTheDocument();
       });
     });
   });

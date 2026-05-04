@@ -3,9 +3,12 @@ import { VirtuosoProps } from 'react-virtuoso';
 
 import { TreeConnectionPorts, useDocumentTreeStore } from '../store/document-tree.store';
 
-export const useConnectionPortSync = (documentId: string) => {
+export const useConnectionPortSync = (documentIds: string | string[]) => {
   const setNodesConnectionPorts = useDocumentTreeStore((state) => state.setNodesConnectionPorts);
   const rafId = useRef<number | null>(null);
+
+  // Normalize IDs to an array for consistent iteration
+  const ids = useMemo(() => (Array.isArray(documentIds) ? documentIds : [documentIds]), [documentIds]);
 
   /**
    * Checks if an element is actually visible within its scroll container
@@ -45,28 +48,31 @@ export const useConnectionPortSync = (documentId: string) => {
       rafId.current = null;
 
       /* Query document-specific ports (includes both node ports and EDGE markers) */
-      const documentPortElements = document.querySelectorAll<HTMLElement>(
-        `[data-connection-port="true"][data-document-id="${documentId}"]`,
-      );
+      // Iterate through all provided IDs to sync them in one frame
+      ids.forEach((id) => {
+        const documentPortElements = document.querySelectorAll<HTMLElement>(
+          `[data-connection-port="true"][data-document-id="${id}"]`,
+        );
 
-      const documentVisiblePorts: TreeConnectionPorts = {};
+        const documentVisiblePorts: TreeConnectionPorts = {};
 
-      documentPortElements.forEach((element) => {
-        const nodePath = element.dataset.nodePath;
-        if (!nodePath) return;
+        documentPortElements.forEach((element) => {
+          const nodePath = element.dataset.nodePath;
+          if (!nodePath) return;
 
-        /* EDGE elements are always visible, document elements need visibility check */
-        const isEdgeElement = nodePath.endsWith(':EDGE:top') || nodePath.endsWith(':EDGE:bottom');
-        if (isEdgeElement || isElementVisibleInContainer(element)) {
-          const rect = element.getBoundingClientRect();
-          const position: [number, number] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
-          documentVisiblePorts[nodePath] = position;
-        }
+          /* EDGE elements are always visible, document elements need visibility check */
+          const isEdgeElement = nodePath.endsWith(':EDGE:top') || nodePath.endsWith(':EDGE:bottom');
+          if (isEdgeElement || isElementVisibleInContainer(element)) {
+            const rect = element.getBoundingClientRect();
+            const position: [number, number] = [rect.x + rect.width / 2, rect.y + rect.height / 2];
+            documentVisiblePorts[nodePath] = position;
+          }
+        });
+
+        setNodesConnectionPorts(id, documentVisiblePorts);
       });
-
-      setNodesConnectionPorts(documentId, documentVisiblePorts);
     });
-  }, [documentId, setNodesConnectionPorts]);
+  }, [ids, setNodesConnectionPorts]);
 
   // Create Virtuoso components object with custom Scroller that triggers sync on scroll
   const virtuosoComponents = useMemo<VirtuosoProps<unknown, unknown>['components']>(() => {
