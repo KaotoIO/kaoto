@@ -1,0 +1,64 @@
+.topology-page {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+
+  .pf-topology-container {
+    flex: 1 1 auto;
+  }
+
+  // Stepped edge paths enclose an area, which the browser would fill in black
+  // without an explicit fill: none.
+  .custom-edge {
+    &__background,
+    &__body {
+      fill: none;
+    }
+
+    &__body {
+      stroke-width: 2;
+    }
+
+    &__connector {
+      stroke-width: 2;
+    }
+  }
+
+  // Let the node labels blend with the canvas background instead of using the
+  // default solid background coming from CustomNode.scss.
+  .custom-node {
+    &__label {
+      &__text {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+.topology-collapsed-route {
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
+}
+
+.topology-external-endpoint,
+.topology-dynamic-endpoint {
+  // External and dynamic endpoints are read-only — make the visual cue obvious
+  // by using a dashed border on the container.
+  .custom-node {
+    &__container {
+      &__image {
+        border-style: dashed;
+      }
+    }
+  }
+
+  &__badge {
+    right: -12px;
+  }
+}
