@@ -3,6 +3,12 @@ import { useEffect, useState } from 'react';
 import { BaseVisualEntity, IVisualizationNode } from '../models/visualization/base-visual-entity';
 import { IVisibleFlows } from '../utils/init-visible-flows';
 
+type ResolvedVisibleVizNodes = {
+  entities: BaseVisualEntity[];
+  visibleFlows: IVisibleFlows;
+  vizNodes: IVisualizationNode[];
+};
+
 export type UseVisibleVizNodesResult = {
   vizNodes: IVisualizationNode[];
   /** True while `toVizNode()` work for the current entities/visibleFlows pass is still in flight. */
@@ -12,17 +18,20 @@ export type UseVisibleVizNodesResult = {
 /**
  * Builds the list of root visualization nodes for entities that are currently visible in the canvas.
  * Re-resolves when `entities` or `visibleFlows` change; stale async results are ignored after unmount or dependency change.
+ *
+ * `isResolving` is derived by comparing the current inputs to the last completed resolution, so it
+ * flips true on the same render the inputs change (no one-frame stale "settled" paint).
  */
 export function useVisibleVizNodes(
   entities: BaseVisualEntity[],
   visibleFlows: IVisibleFlows,
 ): UseVisibleVizNodesResult {
-  const [vizNodes, setVizNodes] = useState<IVisualizationNode[]>([]);
-  const [isResolving, setIsResolving] = useState(true);
+  const [resolved, setResolved] = useState<ResolvedVisibleVizNodes | null>(null);
+
+  const isResolving = resolved === null || resolved.entities !== entities || resolved.visibleFlows !== visibleFlows;
 
   useEffect(() => {
     let cancelled = false;
-    setIsResolving(true);
 
     const resolve = async () => {
       const nodes: IVisualizationNode[] = [];
@@ -33,8 +42,7 @@ export function useVisibleVizNodes(
         }
       }
       if (!cancelled) {
-        setVizNodes(nodes);
-        setIsResolving(false);
+        setResolved({ entities, visibleFlows, vizNodes: nodes });
       }
     };
 
@@ -44,5 +52,8 @@ export function useVisibleVizNodes(
     };
   }, [entities, visibleFlows]);
 
-  return { vizNodes, isResolving };
+  return {
+    vizNodes: isResolving ? [] : (resolved?.vizNodes ?? []),
+    isResolving,
+  };
 }

@@ -1,5 +1,6 @@
 import {
   BaseVisualEntity,
+  buildDesignerCanvasModel,
   CamelRouteVisualEntity,
   Canvas,
   CatalogLoaderProvider,
@@ -65,8 +66,18 @@ const CanvasFromEntity: StoryFn<CanvasStoryArgs> = ({ entity }) => {
   const entities = useMemo(() => [entity], [entity]);
   const visibleFlows = useMemo(() => ({ [entity.id]: true }), [entity.id]);
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
+  const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
 
-  return <Canvas vizNodes={vizNodes} entitiesCount={1} isVizNodesResolving={isResolving} />;
+  return (
+    <Canvas
+      nodes={nodes}
+      edges={edges}
+      entitiesCount={1}
+      visibleEntitiesCount={vizNodes.length}
+      isModelResolving={isResolving}
+      applyCollapseOnUpdate
+    />
+  );
 };
 
 const ContextDecorator = (Story: StoryFn) => {
