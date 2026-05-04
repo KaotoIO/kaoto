@@ -1,6 +1,7 @@
 import { EdgeStyle } from '@patternfly/react-topology';
 
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import { collectTopologyEndpoints } from '../Topology/topology-endpoints';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodesAndEdges } from './canvas.models';
 
@@ -77,10 +78,42 @@ export class FlowService {
     this.edges.push(...this.getEdgesFromVizNode(vizNodeParam, options));
   }
 
+  static getTopologyFlowDiagram(vizNodes: IVisualizationNode[]): CanvasNodesAndEdges {
+    this.nodes = vizNodes.map((vizNode) => this.getTopologyNode(vizNode));
+    this.edges = [];
+
+    const routeNodeIds = new Set(this.nodes.map((node) => node.id));
+    const { consumersByEndpoint, outgoingByEntity } = collectTopologyEndpoints(vizNodes);
+
+    outgoingByEntity.forEach((endpoints, producerId) => {
+      if (!routeNodeIds.has(producerId)) {
+        return;
+      }
+      endpoints.forEach((endpoint) => {
+        const consumerIds = consumersByEndpoint.get(endpoint);
+
+        // The endpoint is consumed somewhere in this file (possibly only by the producer itself).
+        // Don't treat it as external; emit edges to any non-self consumer.
+        if (consumerIds && consumerIds.length > 0) {
+          consumerIds.forEach((consumerId) => {
+            if (consumerId === producerId) {
+              return;
+            }
+            if (routeNodeIds.has(consumerId)) {
+              this.edges.push(this.getTopologyEdge(producerId, consumerId));
+            }
+          });
+        }
+      });
+    });
+
+    return { nodes: this.nodes, edges: this.edges };
+  }
+
   private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {
     /** Join the parent if exist to form a group */
     const parentNode =
-      vizNodeParam.getParentNode()?.getChildren() !== undefined ? vizNodeParam.getParentNode()?.id : undefined;
+      vizNodeParam.getParentNode()?.getChildren() === undefined ? undefined : vizNodeParam.getParentNode()?.id;
 
     const canvasNode = this.getNode(vizNodeParam.id, {
       parentNode,
@@ -156,6 +189,24 @@ export class FlowService {
       height: CanvasDefaults.DEFAULT_NODE_HEIGHT,
       shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
     };
+  }
+
+  private static getTopologyNode(vizNodeParam: IVisualizationNode): CanvasNode {
+    return {
+      id: vizNodeParam.getId() ?? vizNodeParam.id,
+      type: 'topology-node',
+      label: vizNodeParam.getId(),
+      data: { vizNode: vizNodeParam },
+      width: CanvasDefaults.DEFAULT_NODE_WIDTH,
+      height: CanvasDefaults.DEFAULT_NODE_HEIGHT,
+      shape: CanvasDefaults.DEFAULT_NODE_SHAPE,
+    };
+  }
+
+  private static getTopologyEdge(source: string, target: string): CanvasEdge {
+    const edge = this.getEdge(source, target);
+    edge.type = 'topology-edge';
+    return edge;
   }
 
   private static getEdge(source: string, target: string): CanvasEdge {

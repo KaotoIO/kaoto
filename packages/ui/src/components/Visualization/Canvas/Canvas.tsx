@@ -32,7 +32,6 @@ import { useLocalStorage } from '../../../hooks';
 import { usePrevious } from '../../../hooks/previous.hook';
 import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
 import { HorizontalLayoutIcon } from '../../Icons/HorizontalLayout';
@@ -43,20 +42,25 @@ import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
-import { FlowService } from './flow.service';
 
 interface CanvasProps {
-  vizNodes: IVisualizationNode[];
+  nodes: CanvasNode[];
+  edges: CanvasEdge[];
   entitiesCount: number;
-  isVizNodesResolving?: boolean;
+  visibleEntitiesCount: number;
+  isModelResolving?: boolean;
   contextToolbar?: ReactNode;
+  applyCollapseOnUpdate?: boolean;
 }
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
-  vizNodes,
+  nodes,
+  edges,
   entitiesCount,
-  isVizNodesResolving = false,
+  visibleEntitiesCount,
+  isModelResolving = false,
   contextToolbar,
+  applyCollapseOnUpdate = false,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -80,9 +84,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const controller = useVisualizationController();
   const shouldShowEmptyState = useMemo(() => {
     const areNoFlows = entitiesCount === 0;
-    const areAllFlowsHidden = vizNodes.length === 0 && entitiesCount > 0;
+    const areAllFlowsHidden = visibleEntitiesCount === 0 && entitiesCount > 0;
     return areNoFlows || areAllFlowsHidden;
-  }, [entitiesCount, vizNodes.length]);
+  }, [entitiesCount, visibleEntitiesCount]);
 
   const wasEmptyStateVisible = usePrevious(shouldShowEmptyState);
   const clearSelection = useCallback(() => {
@@ -96,21 +100,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   useEffect(() => {
     clearSelection();
 
-    if (isVizNodesResolving) {
+    if (isModelResolving) {
       return;
     }
-
-    const nodes: CanvasNode[] = [];
-    const edges: CanvasEdge[] = [];
-
-    vizNodes.forEach((vizNode) => {
-      const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(
-        vizNode.getId() ?? vizNode.id,
-        vizNode,
-      );
-      nodes.push(...childNodes);
-      edges.push(...childEdges);
-    });
 
     const model: Model = {
       nodes,
@@ -133,10 +125,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
 
     controller.fromModel(model, true);
-    applyCollapseState(controller);
+    if (applyCollapseOnUpdate) {
+      applyCollapseState(controller);
+    }
     controller.getGraph().layout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controller, vizNodes, isVizNodesResolving]);
+  }, [controller, nodes, edges, isModelResolving, applyCollapseOnUpdate]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
 
@@ -238,7 +232,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  if (isVizNodesResolving) {
+  if (isModelResolving) {
     return null;
   }
 

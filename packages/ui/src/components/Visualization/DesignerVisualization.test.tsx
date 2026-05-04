@@ -7,23 +7,33 @@ import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
 import { camelRouteJson } from '../../stubs/camel-route';
-import { Visualization } from './Visualization';
+import { DesignerVisualization } from './DesignerVisualization';
+
+vi.mock('./designer-canvas-model', () => ({
+  buildDesignerCanvasModel: (vizNodes: unknown[]) => ({
+    nodes: Array.from({ length: vizNodes.length }, (_, index) => ({ id: `node-${index}` })),
+    edges: [],
+  }),
+}));
 
 vi.mock('./Canvas', () => ({
   Canvas: ({
-    vizNodes,
+    nodes,
     entitiesCount,
-    isVizNodesResolving,
+    visibleEntitiesCount,
+    isModelResolving,
   }: {
-    vizNodes: unknown[];
+    nodes: unknown[];
     entitiesCount: number;
-    isVizNodesResolving?: boolean;
+    visibleEntitiesCount: number;
+    isModelResolving?: boolean;
   }) => (
     <div
       data-testid="mock-canvas"
       data-entities-count={String(entitiesCount)}
-      data-viz-nodes-length={String(vizNodes.length)}
-      data-is-viz-nodes-resolving={String(!!isVizNodesResolving)}
+      data-nodes-length={String(nodes.length)}
+      data-visible-entities-count={String(visibleEntitiesCount)}
+      data-is-model-resolving={String(!!isModelResolving)}
     />
   ),
 }));
@@ -54,7 +64,7 @@ function renderWithVisibleFlows(ui: ReactElement, visibleFlows: Record<string, b
   );
 }
 
-describe('Visualization', () => {
+describe('DesignerVisualization', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
   const map = { 'route-8888': true };
 
@@ -63,26 +73,27 @@ describe('Visualization', () => {
   });
 
   it('renders the root surface with default and custom class names', () => {
-    const { container } = renderWithVisibleFlows(<Visualization className="my-viz" entities={[entity]} />, map);
+    const { container } = renderWithVisibleFlows(<DesignerVisualization className="my-viz" entities={[entity]} />, map);
 
     const surface = container.querySelector('.canvas-surface');
     expect(surface).toBeInTheDocument();
     expect(surface).toHaveClass('canvas-surface', 'my-viz');
   });
 
-  it('passes vizNodes from useVisibleVizNodes and entitiesCount to Canvas', () => {
+  it('passes built canvas model and entitiesCount to Canvas', () => {
     mockUseVisibleVizNodes.mockReturnValue({ vizNodes: [mockVizNode, mockVizNode], isResolving: false });
 
-    renderWithVisibleFlows(<Visualization entities={[entity, entity]} />, map);
+    renderWithVisibleFlows(<DesignerVisualization entities={[entity, entity]} />, map);
 
     const canvas = screen.getByTestId('mock-canvas');
     expect(canvas).toHaveAttribute('data-entities-count', '2');
-    expect(canvas).toHaveAttribute('data-viz-nodes-length', '2');
-    expect(canvas).toHaveAttribute('data-is-viz-nodes-resolving', 'false');
+    expect(canvas).toHaveAttribute('data-nodes-length', '2');
+    expect(canvas).toHaveAttribute('data-visible-entities-count', '2');
+    expect(canvas).toHaveAttribute('data-is-model-resolving', 'false');
   });
 
   it('calls useVisibleVizNodes with the given entities and visible flow map from context', () => {
-    renderWithVisibleFlows(<Visualization entities={[entity]} />, map);
+    renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
 
     expect(mockUseVisibleVizNodes).toHaveBeenCalledWith([entity], map);
   });

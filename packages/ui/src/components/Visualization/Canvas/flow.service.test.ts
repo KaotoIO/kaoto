@@ -201,4 +201,37 @@ describe('FlowService', () => {
       expect(edges[1].target).toBe('test|route.from.steps.1.placeholder');
     });
   });
+
+  describe('getTopologyFlowDiagram', () => {
+    it('builds one topology node per route and cross-route edges for matching in-vm endpoints', async () => {
+      const producerRoute = await new CamelRouteVisualEntity({
+        route: {
+          id: 'route-producer',
+          from: {
+            uri: 'timer:tick',
+            steps: [{ to: { uri: 'direct', parameters: { name: 'shared' } } }],
+          },
+        },
+      }).toVizNode();
+      const consumerRoute = await new CamelRouteVisualEntity({
+        route: {
+          id: 'route-consumer',
+          from: { uri: 'direct', parameters: { name: 'shared' }, steps: [] },
+        },
+      }).toVizNode();
+
+      const { nodes, edges } = FlowService.getTopologyFlowDiagram([producerRoute, consumerRoute]);
+
+      expect(nodes).toHaveLength(2);
+      expect(nodes.map((node) => node.id).sort()).toEqual(['route-consumer', 'route-producer']);
+      expect(nodes.every((node) => node.type === 'topology-node')).toBe(true);
+
+      expect(edges).toHaveLength(1);
+      expect(edges[0]).toMatchObject({
+        type: 'topology-edge',
+        source: 'route-producer',
+        target: 'route-consumer',
+      });
+    });
+  });
 });
