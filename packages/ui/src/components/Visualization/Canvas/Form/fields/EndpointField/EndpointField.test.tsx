@@ -229,7 +229,7 @@ describe('EndpointField', () => {
 
       // Modal should appear
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         // Modal should be in Create mode
         expect(screen.getByText('Create endpoint')).toBeInTheDocument();
       });

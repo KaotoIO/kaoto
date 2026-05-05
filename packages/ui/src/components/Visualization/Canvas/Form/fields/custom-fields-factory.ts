@@ -1,14 +1,13 @@
-import { CustomFieldsFactory, EnumField } from '@kaoto/forms';
+import { CustomFieldsFactory, EnumField, TextAreaField } from '@kaoto/forms';
 
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { EndpointField } from './EndpointField/EndpointField';
-import { EndpointsField } from './EndpointField/EndpointsField';
+import { EndpointListField } from './EndpointField/EndpointListField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
-import { TextAreaField } from './TextAreaField/TextAreaField';
 import { UriField } from './UriField/UriField';
 
 const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
@@ -62,7 +61,7 @@ const isEndpointField = (schema: Parameters<CustomFieldsFactory>[0]): boolean =>
   );
 };
 
-const isEndpointsField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+const isEndpointListField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return (
     schema.type === 'array' &&
     schema.title === 'Endpoints' &&
@@ -124,8 +123,8 @@ export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
     return EndpointField;
   }
 
-  if (isEndpointsField(schema)) {
-    return EndpointsField;
+  if (isEndpointListField(schema)) {
+    return EndpointListField;
   }
 
   if (isTextAreaField(schema)) {

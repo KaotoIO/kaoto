@@ -61,7 +61,7 @@ describe('EndpointsEntityHandler', () => {
         },
       ];
 
-      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType(testModel.endpoints);
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(definedEndpoints.length).toBe(2);
       expect(definedEndpoints[0]).toEqual({ name: 'httpClient', type: 'http.client' });
       expect(definedEndpoints[1]).toEqual({ name: 'jmsQueue', type: 'jms.asynchronous' });
@@ -255,8 +255,7 @@ describe('EndpointsEntityHandler', () => {
         'oldName',
       );
 
-      const testEntity = endpointsHandler.getTestEntity();
-      const endpoints = endpointsHandler.getDefinedEndpointsNameAndType(testEntity?.endpoints || []);
+      const endpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(endpoints[0].name).toBe('newName');
     });
 
@@ -283,7 +282,7 @@ describe('EndpointsEntityHandler', () => {
         },
       ];
 
-      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType(testModel.endpoints);
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(definedEndpoints[0]).toEqual({ name: 'explicitEndpoint', type: 'custom.type' });
     });
 
@@ -295,7 +294,7 @@ describe('EndpointsEntityHandler', () => {
         },
       ];
 
-      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType(testModel.endpoints);
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(definedEndpoints[0]).toEqual({ name: 'emptyTypeEndpoint', type: '' });
     });
   });

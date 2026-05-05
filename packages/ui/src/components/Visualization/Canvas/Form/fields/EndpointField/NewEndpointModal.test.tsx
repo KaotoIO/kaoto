@@ -7,9 +7,9 @@ import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-m
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
 import { CamelCatalogService } from '../../../../../../models/visualization/flows';
 import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
-import { EndpointModal, EndpointModalProps } from './EndpointModal';
+import { EndpointModalProps, NewEndpointModal } from './NewEndpointModal';
 
-describe('EndpointModal', () => {
+describe('NewEndpointModal', () => {
   let endpointsSchema: KaotoSchemaDefinition['schema'];
   let defaultProps: EndpointModalProps;
   let mockOnConfirm: jest.Mock;
@@ -58,25 +58,25 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} />
+        <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
     });
   });
 
   it('should not render anything if there is no schema', () => {
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} endpointsSchema={undefined} />
+        <NewEndpointModal {...defaultProps} endpointsSchema={undefined} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
 
-    expect(screen.queryByTestId('EndpointModal')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
   });
 
   it('should display correct title for Create mode', async () => {
@@ -84,7 +84,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} mode="Create" />
+        <NewEndpointModal {...defaultProps} mode="Create" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -100,7 +100,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} mode="Update" endpoint={endpoint} type="http-client" />
+        <NewEndpointModal {...defaultProps} mode="Update" endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -115,7 +115,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} />
+        <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -134,7 +134,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
+        <NewEndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -155,7 +155,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} />
+        <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -171,7 +171,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} endpoint={{}} />
+        <NewEndpointModal {...defaultProps} endpoint={{}} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -189,7 +189,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} />
+        <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -213,7 +213,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
+        <NewEndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -240,7 +240,7 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} />
+        <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
@@ -259,13 +259,13 @@ describe('EndpointModal', () => {
 
     render(
       <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
-        <EndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
+        <NewEndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+      expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
     });
 
     // Should not call getNewComponent when endpoint and type are provided
