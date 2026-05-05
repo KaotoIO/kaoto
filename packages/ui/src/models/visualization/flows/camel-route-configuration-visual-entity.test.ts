@@ -264,7 +264,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconAlt: 'Entity icon',
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
-        title: '',
+        title: 'Route Configuration',
         description: 'routeConfiguration: routeConfiguration',
         processorIconTooltip: '',
       });

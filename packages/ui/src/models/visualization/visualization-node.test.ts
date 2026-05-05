@@ -33,9 +33,8 @@ describe('VisualizationNode', () => {
   });
 
   describe('getNodeTitle', () => {
-    it('should delegate to the base entity to get the title', () => {
+    it('should return the pre-enriched title from data', () => {
       const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
-      const getNodeTitleSpy = jest.spyOn(visualEntity, 'getNodeTitle');
 
       node = createVisualizationNode('test', {
         name: 'log',
@@ -43,16 +42,26 @@ describe('VisualizationNode', () => {
         entity: visualEntity,
         isPlaceholder: false,
         isGroup: false,
+        title: 'Direct Component',
+        description: '',
+        iconUrl: '',
+      });
+
+      expect(node.getNodeTitle()).toEqual('Direct Component');
+    });
+
+    it('should return the ID as title if data.title is empty', () => {
+      node = createVisualizationNode('test', {
+        name: 'log',
+        path: 'test-path',
+        entity: undefined,
+        isPlaceholder: false,
+        isGroup: false,
         title: '',
         description: '',
         iconUrl: '',
       });
 
-      expect(node.getNodeTitle()).toEqual('direct');
-      expect(getNodeTitleSpy).toHaveBeenCalledWith('route.from.steps.2.to');
-    });
-
-    it('should return the ID as title if there is no base entity', () => {
       expect(node.getNodeTitle()).toEqual('test');
     });
   });

@@ -59,18 +59,6 @@ describe('CitrusTestSchemaService', () => {
     });
   });
 
-  describe('getNodeTitle', () => {
-    it('should return the title from the action definition', () => {
-      const title = CitrusTestSchemaService.getNodeTitle('print');
-      expect(title).toEqual('Print');
-    });
-
-    it('should return the action name if no title provided', () => {
-      const title = CitrusTestSchemaService.getNodeTitle('custom');
-      expect(title).toEqual('custom');
-    });
-  });
-
   describe('getTestActionGroups', () => {
     it('should return empty groups of an action definition', () => {
       const actionDefinition = CitrusTestSchemaService.getTestActionDefinition('print');

@@ -185,23 +185,21 @@ describe('CamelRestConfigurationVisualEntity', () => {
       const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
-        componentName: undefined,
         entity,
-        catalogKind: CatalogKind.Entity,
         name: 'restConfiguration',
         isGroup: true,
         path: 'restConfiguration',
         processorName: 'restConfiguration',
-        iconAlt: 'processor icon',
+        iconAlt: 'Entity icon',
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
-        title: '',
+        title: 'Rest Configuration',
         description: 'restConfiguration: restConfiguration',
         processorIconTooltip: '',
       });
     });
 
-    it('should return hardcoded schema title', async () => {
+    it('should return schema title from enriched data', async () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
       const vizNode = await entity.toVizNode();
 

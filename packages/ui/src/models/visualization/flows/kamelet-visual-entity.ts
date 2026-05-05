@@ -72,14 +72,6 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return super.getNodeLabel(path, labelType);
   }
 
-  getNodeTitle(path?: string): string {
-    if (path === this.getRootPath()) {
-      return 'Kamelet';
-    }
-
-    return super.getNodeTitle(path);
-  }
-
   toJSON(): { from: FromDefinition } {
     return { from: this.entityDef.template.from };
   }

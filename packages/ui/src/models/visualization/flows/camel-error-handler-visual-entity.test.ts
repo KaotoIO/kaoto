@@ -160,24 +160,22 @@ describe('CamelErrorHandlerVisualEntity', () => {
       const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
-        componentName: undefined,
         entity,
-        catalogKind: CatalogKind.Entity,
         name: 'errorHandler',
         isGroup: true,
         path: 'errorHandler',
         processorName: 'errorHandler',
-        iconAlt: 'processor icon',
+        iconAlt: 'Entity icon',
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
-        title: '',
+        title: 'Error Handler',
         description: 'errorHandler: errorHandler',
         processorIconTooltip: '',
       });
     });
   });
 
-  it('should return hardcoded schema title', async () => {
+  it('should return schema title from enriched data', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
     const vizNode = await entity.toVizNode();
 

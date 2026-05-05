@@ -25,9 +25,6 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, get the component label */
   getNodeLabel: (path?: string, labelType?: NodeLabelType) => string;
 
-  /** Given a path, get the component title from the catalog */
-  getNodeTitle: (path?: string) => string;
-
   /** Given a path, returns the node's associated schema used for the configuration form */
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
 

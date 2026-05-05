@@ -2,6 +2,7 @@ import { CatalogKind } from '../../../catalog-kind';
 import { IVisualizationNode } from '../../base-visual-entity';
 import { CamelRouteVisualEntityData } from '../support/camel-component-types';
 import { getIconRequest } from './resolvers/icon-resolver/getIconRequest';
+import { getTitleRequest } from './resolvers/title-resolver/getTitleRequest';
 import { getProcessorIconTooltipRequest } from './resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
 import { getTooltipRequest } from './resolvers/tooltip-resolver/getTooltipRequest';
 
@@ -13,14 +14,18 @@ export class NodeEnrichmentService {
   /**
    * Enriches a visualization node with catalog properties (icon, title, description).
    * @param vizNode - The visualization node to enrich
-   * @param componentLookup - The component lookup result containing processor/component names
+   * @param catalogKind - The catalog kind (Component or Processor)
    */
   static async enrichNodeFromCatalog(vizNode: IVisualizationNode, catalogKind: CatalogKind): Promise<void> {
-    const processorName = (vizNode.data as CamelRouteVisualEntityData).processorName;
+    const routeData = vizNode.data as CamelRouteVisualEntityData;
+    const processorName = routeData.processorName;
+    const componentName = routeData.componentName;
+
     const results = await Promise.allSettled([
       getIconRequest(catalogKind, vizNode.data.name),
       getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description),
       getProcessorIconTooltipRequest(processorName),
+      getTitleRequest(catalogKind, vizNode.data.name, componentName),
     ]);
 
     // Handle icon result
@@ -43,7 +48,13 @@ export class NodeEnrichmentService {
       vizNode.data.processorIconTooltip = results[2].value;
     } else {
       console.warn(`Failed to fetch processor icon tooltip for ${processorName}:`, results[2].reason);
-      vizNode.data.processorIconTooltip = '';
+    }
+
+    // Handle title result
+    if (results[3].status === 'fulfilled') {
+      vizNode.data.title = results[3].value;
+    } else {
+      console.warn(`Failed to fetch title for ${vizNode.data.name}:`, results[3].reason);
     }
   }
 }

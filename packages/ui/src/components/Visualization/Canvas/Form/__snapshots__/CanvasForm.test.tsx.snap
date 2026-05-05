@@ -22,7 +22,7 @@ exports[`CanvasForm should render 1`] = `
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="Choice"
+              alt="choice"
               class="form-header__icon-test|route.from.steps.1.choice"
               src="file-mock-data"
             />
@@ -32,7 +32,7 @@ exports[`CanvasForm should render 1`] = `
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
-              Choice
+              choice
             </h2>
           </div>
           <div
@@ -266,7 +266,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="Route"
+              alt="route"
               class="form-header__icon-1"
             />
             <h2
@@ -275,7 +275,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
-              Route
+              route
             </h2>
           </div>
           <div
@@ -525,7 +525,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="Route"
+              alt="route"
               class="form-header__icon-1"
             />
             <h2
@@ -534,7 +534,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
-              Route
+              route
             </h2>
           </div>
           <div

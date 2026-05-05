@@ -118,22 +118,6 @@ describe('CitrusTestVisualEntity', () => {
     });
   });
 
-  describe('getNodeTitle', () => {
-    it('should return an empty string if path is not provided', () => {
-      expect(citrusTestEntity.getNodeTitle()).toEqual('');
-    });
-
-    it('should get the title for root path', () => {
-      const title = citrusTestEntity.getNodeTitle('test');
-      expect(title).toEqual('Test');
-    });
-
-    it('should get the title from given node path', () => {
-      const title = citrusTestEntity.getNodeTitle('actions.0.print');
-      expect(title).toEqual('Print');
-    });
-  });
-
   describe('getNodeSchema', () => {
     it('should return undefined if no path is provided', () => {
       expect(citrusTestEntity.getNodeSchema()).toBeUndefined();

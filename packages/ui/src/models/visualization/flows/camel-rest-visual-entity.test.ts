@@ -458,16 +458,15 @@ describe('CamelRestVisualEntity', () => {
       const vizNode = await entity.toVizNode();
 
       expect(vizNode.data).toEqual({
-        componentName: undefined,
         entity,
         name: 'rest',
         isGroup: true,
         path: 'rest',
         processorName: 'rest',
-        iconAlt: 'processor icon',
+        iconAlt: 'Entity icon',
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
-        title: '',
+        title: 'Rest',
         description: 'rest: rest',
         processorIconTooltip: '',
       });
