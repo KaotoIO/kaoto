@@ -21,10 +21,4 @@ export class KameletSchemaService {
 
     return '';
   }
-
-  static getNodeTitle(step?: PipeStep): string {
-    const kameletDefinition = this.getKameletCatalogEntry(step);
-
-    return kameletDefinition?.spec.definition.title ?? step?.ref?.name ?? '';
-  }
 }

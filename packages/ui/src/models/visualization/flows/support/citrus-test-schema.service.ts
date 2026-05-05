@@ -29,16 +29,6 @@ export class CitrusTestSchemaService {
   }
 
   /**
-   * Gets the display title for a test action node.
-   *
-   * @param name - The name of the test action
-   * @returns The title from the catalog definition, or the name if not found
-   */
-  static getNodeTitle(name: string): string {
-    return this.getTestActionDefinition(name)?.title ?? name;
-  }
-
-  /**
    * Extracts the test action name from a test action object.
    *
    * Searches through the action's properties to find a matching catalog definition.

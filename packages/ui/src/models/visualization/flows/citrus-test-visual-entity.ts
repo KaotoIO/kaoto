@@ -153,17 +153,6 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return name;
   }
 
-  getNodeTitle(path?: string): string {
-    if (!path) return '';
-
-    if (path === this.getRootPath()) {
-      return 'Test';
-    }
-
-    const actionName = CitrusTestSchemaService.extractTestActionName(path);
-    return CitrusTestSchemaService.getNodeTitle(actionName);
-  }
-
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
     if (!path) return undefined;
     if (path === this.getRootPath()) {

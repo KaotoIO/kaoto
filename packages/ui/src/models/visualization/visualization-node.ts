@@ -52,7 +52,8 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
   }
 
   getNodeTitle(): string {
-    return this.getBaseEntity()?.getNodeTitle(this.data.path) ?? this.id;
+    // Title is pre-enriched from the catalog during node creation
+    return this.data.title || this.id;
   }
 
   addBaseEntityStep(

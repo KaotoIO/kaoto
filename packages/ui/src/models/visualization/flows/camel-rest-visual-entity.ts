@@ -21,9 +21,10 @@ import {
   IVisualizationNodeData,
   NodeInteraction,
 } from '../base-visual-entity';
+import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
-import { NodeMapperService } from './nodes/node-mapper.service';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualEntity {
   id: string;
@@ -144,14 +145,21 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
   }
 
   async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
-    const restGroupNode = await NodeMapperService.getVizNode(
-      this.getRootPath(),
-      { processorName: REST_ELEMENT_NAME },
-      this.restDef,
-    );
-    restGroupNode.data.entity = this;
-    restGroupNode.data.isGroup = true;
-    restGroupNode.data.name = this.type;
+    const restGroupNode = createVisualizationNode(this.getRootPath(), {
+      name: this.type,
+      path: this.getRootPath(),
+      entity: this,
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
+      processorIconTooltip: '',
+      processorName: REST_ELEMENT_NAME,
+    });
+
+    // Enrich as Entity (not Processor) to get proper title formatting
+    await NodeEnrichmentService.enrichNodeFromCatalog(restGroupNode, CatalogKind.Entity);
 
     return restGroupNode;
   }

@@ -9,8 +9,9 @@ import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
+import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
-import { NodeMapperService } from './nodes/node-mapper.service';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
   id: string;
@@ -75,10 +76,6 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
 
     if (!errorHandlerId?.trim()) errorHandlerId = 'errorHandler';
     return errorHandlerId;
-  }
-
-  getNodeTitle(): string {
-    return 'Error Handler';
   }
 
   addStep(): void {
@@ -150,15 +147,21 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
   }
 
   async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
-    const errorHandlerGroupNode = await NodeMapperService.getVizNode(
-      this.getRootPath(),
-      { processorName: 'errorHandler' as keyof ProcessorDefinition },
-      this.errorHandlerDef,
-    );
-    errorHandlerGroupNode.data.entity = this;
-    errorHandlerGroupNode.data.isGroup = true;
-    errorHandlerGroupNode.data.catalogKind = CatalogKind.Entity;
-    errorHandlerGroupNode.data.name = this.type;
+    const errorHandlerGroupNode = createVisualizationNode(this.getRootPath(), {
+      name: this.type,
+      path: this.getRootPath(),
+      entity: this,
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
+      processorIconTooltip: '',
+      processorName: 'errorHandler' as keyof ProcessorDefinition,
+    });
+
+    // Enrich as Entity (not Processor) to get proper title formatting
+    await NodeEnrichmentService.enrichNodeFromCatalog(errorHandlerGroupNode, CatalogKind.Entity);
 
     return errorHandlerGroupNode;
   }

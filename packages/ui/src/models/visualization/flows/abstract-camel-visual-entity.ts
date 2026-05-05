@@ -1,5 +1,5 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { camelCaseToSpaces, isDefined } from '@kaoto/forms';
+import { isDefined } from '@kaoto/forms';
 
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
@@ -59,21 +59,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     );
 
     return label;
-  }
-
-  getNodeTitle(path?: string): string {
-    if (!path) return '';
-    if (path === this.getRootPath()) {
-      return camelCaseToSpaces(this.getRootPath(), { capitalize: true });
-    }
-
-    const componentModel = getValue(this.entityDef, path);
-
-    const title = CamelComponentSchemaService.getNodeTitle(
-      CamelComponentSchemaService.getCamelComponentLookup(path, componentModel),
-    );
-
-    return title;
   }
 
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
@@ -260,7 +245,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       processorName: 'route',
     });
 
-    // Enrich route group node with catalog properties
+    // Enrich route group node with catalog properties (icon, title, description, etc.)
     await NodeEnrichmentService.enrichNodeFromCatalog(routeGroupNode, CatalogKind.Entity);
 
     const fromNode = await NodeMapperService.getVizNode(

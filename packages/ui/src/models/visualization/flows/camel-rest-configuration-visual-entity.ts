@@ -9,8 +9,9 @@ import { EntityType } from '../../entities/base-entity';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
+import { createVisualizationNode } from '../visualization-node';
 import { CamelCatalogService } from './camel-catalog.service';
-import { NodeMapperService } from './nodes/node-mapper.service';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
   id: string;
@@ -55,10 +56,6 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
 
   getNodeLabel(): string {
     return 'restConfiguration';
-  }
-
-  getNodeTitle(): string {
-    return 'Rest Configuration';
   }
 
   addStep(): void {
@@ -139,15 +136,21 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
   }
 
   async toVizNode(): Promise<IVisualizationNode<IVisualizationNodeData>> {
-    const restConfigurationGroupNode = await NodeMapperService.getVizNode(
-      this.getRootPath(),
-      { processorName: 'restConfiguration' as keyof ProcessorDefinition },
-      this.restConfigurationDef,
-    );
-    restConfigurationGroupNode.data.entity = this;
-    restConfigurationGroupNode.data.isGroup = true;
-    restConfigurationGroupNode.data.catalogKind = CatalogKind.Entity;
-    restConfigurationGroupNode.data.name = this.type;
+    const restConfigurationGroupNode = createVisualizationNode(this.getRootPath(), {
+      name: this.type,
+      path: this.getRootPath(),
+      entity: this,
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
+      processorIconTooltip: '',
+      processorName: 'restConfiguration' as keyof ProcessorDefinition,
+    });
+
+    // Enrich as Entity (not Processor) to get proper title formatting
+    await NodeEnrichmentService.enrichNodeFromCatalog(restConfigurationGroupNode, CatalogKind.Entity);
 
     return restConfigurationGroupNode;
   }

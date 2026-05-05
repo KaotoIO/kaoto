@@ -3,7 +3,6 @@ import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
 import { CamelUriHelper, DATAMAPPER_ID_PREFIX, getValue, isDataMapperNode, ParsedParameters } from '../../../../utils';
-import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
@@ -150,26 +149,6 @@ export class CamelComponentSchemaService {
       default:
         return camelElementLookup.processorName;
     }
-  }
-
-  static getNodeTitle(camelElementLookup: ICamelElementLookupResult): string {
-    if (camelElementLookup.componentName !== undefined) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      if (catalogLookup.catalogKind === CatalogKind.Component) {
-        return catalogLookup.definition?.component.title ?? camelElementLookup.componentName;
-      }
-
-      if (catalogLookup.catalogKind === CatalogKind.Kamelet) {
-        return (
-          (catalogLookup.definition as unknown as IKameletDefinition)?.spec.definition.title ??
-          camelElementLookup.componentName
-        );
-      }
-    }
-
-    const catalogLookup = CamelCatalogService.getComponent(CatalogKind.Processor, camelElementLookup.processorName);
-
-    return catalogLookup?.model.title ?? camelElementLookup.processorName;
   }
 
   static canHavePreviousStep(processorName: keyof ProcessorDefinition): boolean {
