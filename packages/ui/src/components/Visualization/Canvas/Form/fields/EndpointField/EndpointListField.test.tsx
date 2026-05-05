@@ -16,9 +16,9 @@ import { ACTION_ID_CANCEL, ACTION_ID_CONFIRM, ActionConfirmationModalContext } f
 import { TestProvidersWrapper } from '../../../../../../stubs';
 import { getFirstCitrusCatalogMap } from '../../../../../../stubs/test-load-catalog';
 import { ITile } from '../../../../../Catalog';
-import { EndpointsField } from './EndpointsField';
+import { EndpointListField } from './EndpointListField';
 
-describe('EndpointsField', () => {
+describe('EndpointListField', () => {
   const mockTiles: ITile[] = [
     { name: 'http-client', type: 'testEndpoint', title: 'Http Client', tags: [], iconUrl: '' },
     { name: 'jms-asynchronous', type: 'testEndpoint', title: 'Jms Asynchronous', tags: [], iconUrl: '' },
@@ -83,7 +83,7 @@ describe('EndpointsField', () => {
           <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
             <SchemaProvider schema={schema}>
               <ModelContextProvider model={model} onPropertyChange={onPropertyChange} disabled={options.disabled}>
-                <EndpointsField propName={PROP_NAME} required={options.required} />
+                <EndpointListField propName={PROP_NAME} required={options.required} />
               </ModelContextProvider>
             </SchemaProvider>
           </ActionConfirmationModalContext.Provider>
@@ -219,7 +219,7 @@ describe('EndpointsField', () => {
 
       // Modal should appear
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
       });
 
       // Modal should be in Create mode
@@ -242,7 +242,7 @@ describe('EndpointsField', () => {
 
       // Modal should appear
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         // Modal should be in Create mode
         expect(screen.getByText('Create endpoint')).toBeInTheDocument();
       });
@@ -290,7 +290,7 @@ describe('EndpointsField', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
       });
 
       const cancelButton = screen.getByTestId('endpoint-modal-cancel-btn');
@@ -300,7 +300,7 @@ describe('EndpointsField', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('EndpointModal')).not.toBeInTheDocument();
+        expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
       });
     });
   });
@@ -332,7 +332,7 @@ describe('EndpointsField', () => {
 
       // Modal should appear in Update mode
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         expect(screen.getByText('Update endpoint')).toBeInTheDocument();
       });
     });
@@ -366,7 +366,7 @@ describe('EndpointsField', () => {
 
       // Wait for modal
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
       });
 
       const input = screen.getByLabelText('Name');
@@ -416,7 +416,7 @@ describe('EndpointsField', () => {
 
       // Wait for modal
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
       });
 
       const input = screen.getByLabelText('RequestUrl');
@@ -466,7 +466,7 @@ describe('EndpointsField', () => {
 
       // Wait for modal
       await waitFor(() => {
-        expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+        expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
       });
 
       const input = screen.getByLabelText('Name');
@@ -754,7 +754,7 @@ describe('EndpointsField', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+          expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         });
 
         // The confirm button should be disabled when no type is selected
@@ -782,7 +782,7 @@ describe('EndpointsField', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+          expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         });
 
         // The confirm button should be disabled when model is undefined
@@ -810,7 +810,7 @@ describe('EndpointsField', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+          expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
           expect(screen.getByText('Create endpoint')).toBeInTheDocument();
         });
       });
@@ -841,7 +841,7 @@ describe('EndpointsField', () => {
         });
 
         await waitFor(() => {
-          expect(screen.getByTestId('EndpointModal')).toBeInTheDocument();
+          expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         });
 
         // Cancel to close modal
@@ -851,7 +851,7 @@ describe('EndpointsField', () => {
         });
 
         await waitFor(() => {
-          expect(screen.queryByTestId('EndpointModal')).not.toBeInTheDocument();
+          expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
         });
       });
     });

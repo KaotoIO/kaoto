@@ -23,7 +23,7 @@ export type EndpointModalProps = {
   onCancel: () => void;
 };
 
-export const EndpointModal: FunctionComponent<EndpointModalProps> = ({
+export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
   mode,
   endpoint,
   type,
@@ -87,7 +87,13 @@ export const EndpointModal: FunctionComponent<EndpointModalProps> = ({
 
   return (
     endpointsSchema && (
-      <Modal isOpen variant={ModalVariant.large} data-testid="EndpointModal" onClose={onCancel} ouiaId="EndpointModal">
+      <Modal
+        isOpen
+        variant={ModalVariant.large}
+        data-testid="NewEndpointModal"
+        onClose={onCancel}
+        ouiaId="NewEndpointModal"
+      >
         <ModalHeader
           title={`${mode} endpoint`}
           description="Send and receive test actions may reference this endpoint by its name when sending and receiving messages during the test."

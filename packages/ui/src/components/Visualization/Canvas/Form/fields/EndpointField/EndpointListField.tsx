@@ -8,10 +8,10 @@ import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-
 import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
 import { ACTION_ID_CANCEL, ActionConfirmationModalContext, EntitiesContext } from '../../../../../../providers';
 import { getValue } from '../../../../../../utils';
-import { EndpointModal } from './EndpointModal';
+import { NewEndpointModal } from './NewEndpointModal';
 
-export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, required }) => {
-  const { value = [], onChange } = useFieldValue<Record<string, unknown>[]>(propName);
+export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, required }) => {
+  const { onChange } = useFieldValue<Record<string, unknown>[]>(propName);
   const entitiesContext = useContext(EntitiesContext);
   const testResource = entitiesContext?.camelResource as CitrusTestResource | undefined;
   const endpointsHandler = useMemo(() => new EndpointsEntityHandler(testResource), [testResource]);
@@ -21,7 +21,7 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
   const [editModel, setEditModel] = useState<Record<string, unknown> | undefined>(undefined);
   const [endpointType, setEndpointType] = useState<string | undefined>(undefined);
   const [items, setItems] = useState<{ name: string; type: string }[]>(
-    endpointsHandler.getDefinedEndpointsNameAndType(value),
+    endpointsHandler.getDefinedEndpointsNameAndType(),
   );
   const confirmModalContext = useContext(ActionConfirmationModalContext);
 
@@ -33,7 +33,7 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
 
       if (operation === 'Create') {
         endpointsHandler.addNewEndpoint(type, model);
-        setItems(endpointsHandler.getDefinedEndpointsNameAndType(value));
+        setItems(endpointsHandler.getDefinedEndpointsNameAndType());
       } else if (operation === 'Update') {
         const prevName = editModel?.name as string;
         if (prevName !== model.name) {
@@ -48,19 +48,19 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
 
         endpointsHandler.updateEndpoint(type, model, prevName);
         if (prevName !== model.name) {
-          setItems(endpointsHandler.getDefinedEndpointsNameAndType(value));
+          setItems(endpointsHandler.getDefinedEndpointsNameAndType());
         }
       }
 
-      onChange(value);
+      onChange(endpointsHandler.getEndpoints());
       setIsOpen(false);
     },
-    [endpointsHandler, editModel, onChange, operation, confirmModalContext, value],
+    [endpointsHandler, editModel, onChange, operation, confirmModalContext],
   );
 
   const handleEdit = useCallback(
     (index: number) => {
-      const model = value[index];
+      const model = endpointsHandler.getEndpoint(index);
       if (model) {
         const type = endpointsHandler.getEndpointType(model as Record<string, unknown>);
         if (type) {
@@ -71,7 +71,7 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
         }
       }
     },
-    [endpointsHandler, value],
+    [endpointsHandler],
   );
 
   const handleDelete = useCallback(
@@ -84,12 +84,11 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
 
       if (!modalAnswer || modalAnswer === ACTION_ID_CANCEL) return;
 
-      const updated = [...value];
-      updated.splice(index, 1);
-      setItems(endpointsHandler.getDefinedEndpointsNameAndType(updated));
-      onChange(updated);
+      endpointsHandler.deleteEndpoint(index);
+      setItems(endpointsHandler.getDefinedEndpointsNameAndType());
+      onChange(endpointsHandler.getEndpoints());
     },
-    [endpointsHandler, onChange, confirmModalContext, value],
+    [endpointsHandler, onChange, confirmModalContext],
   );
 
   const handleCancel = useCallback(() => {
@@ -153,7 +152,7 @@ export const EndpointsField: FunctionComponent<FieldProps> = ({ propName, requir
       </FieldWrapper>
 
       {isOpen && (
-        <EndpointModal
+        <NewEndpointModal
           mode={operation}
           endpoint={editModel}
           type={endpointType}

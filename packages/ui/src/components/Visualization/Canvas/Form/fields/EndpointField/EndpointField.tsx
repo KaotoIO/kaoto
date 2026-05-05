@@ -4,7 +4,7 @@ import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'r
 import { CitrusTestResource } from '../../../../../../models/citrus/citrus-test-resource';
 import { EndpointsEntityHandler } from '../../../../../../models/visualization/metadata/citrus/endpoints-entity-handler';
 import { EntitiesContext } from '../../../../../../providers';
-import { EndpointModal } from './EndpointModal';
+import { NewEndpointModal } from './NewEndpointModal';
 
 export const EndpointField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
@@ -111,7 +111,7 @@ export const EndpointField: FunctionComponent<FieldProps> = ({ propName, require
       </FieldWrapper>
 
       {isOpen && (
-        <EndpointModal
+        <NewEndpointModal
           mode={'Create'}
           endpointsSchema={endpointsSchema}
           onConfirm={handleCreate}

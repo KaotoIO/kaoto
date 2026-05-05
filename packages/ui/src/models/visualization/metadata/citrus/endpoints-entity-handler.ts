@@ -37,7 +37,17 @@ export class EndpointsEntityHandler {
     return this.testResource?.toJSON() as Test | undefined;
   }
 
-  getDefinedEndpointsNameAndType(endpoints: Record<string, unknown>[]): { name: string; type: string }[] {
+  getEndpoints(): Record<string, unknown>[] {
+    const testEntity = this.getTestEntity();
+    if (!testEntity) {
+      return [];
+    }
+
+    return testEntity.endpoints || [];
+  }
+
+  getDefinedEndpointsNameAndType(): { name: string; type: string }[] {
+    const endpoints = this.getEndpoints();
     const definedEndpoints: { name: string; type: string }[] = [];
 
     for (const endpoint of endpoints) {
@@ -63,9 +73,7 @@ export class EndpointsEntityHandler {
       return [];
     }
 
-    const allEndpoints: { name: string; type: string }[] = this.getDefinedEndpointsNameAndType(
-      testEntity.endpoints ?? [],
-    );
+    const allEndpoints: { name: string; type: string }[] = this.getDefinedEndpointsNameAndType();
 
     for (const action of testEntity.actions ?? []) {
       if (action.createEndpoint !== undefined) {
@@ -112,6 +120,15 @@ export class EndpointsEntityHandler {
     return endpointType;
   }
 
+  getEndpoint(index: number): Record<string, unknown> | undefined {
+    const endpoints = this.getEndpoints();
+    if (index > endpoints.length) {
+      return undefined;
+    }
+
+    return endpoints[index];
+  }
+
   findEndpointName(path: string, endpoint: Record<string, unknown>): string {
     const properties = getValue(endpoint, path, {}) as Record<string, unknown>;
     if (properties.name) {
@@ -122,19 +139,16 @@ export class EndpointsEntityHandler {
   }
 
   updateEndpoint(type: string, model: Record<string, unknown>, prevName: string | undefined) {
-    const test = this.getTestEntity();
-    if (!test) {
-      return;
-    }
+    const endpoints = this.getEndpoints();
 
-    if (!test.endpoints) {
+    if (!endpoints.length) {
       this.addNewEndpoint(type, model);
       return;
     }
 
     const endpointName = prevName || model['name'];
     if (endpointName) {
-      const index = test.endpoints.findIndex((endpoint) => {
+      const index = endpoints.findIndex((endpoint) => {
         const foundType = this.getEndpointType(endpoint);
         if (foundType) {
           const name = this.findEndpointName(foundType, endpoint);
@@ -146,9 +160,9 @@ export class EndpointsEntityHandler {
       });
 
       if (index > -1) {
-        test.endpoints[index] = this.createEndpoint(type, model);
+        endpoints[index] = this.createEndpoint(type, model);
       } else {
-        test.endpoints.push(this.createEndpoint(type, model));
+        endpoints.push(this.createEndpoint(type, model));
       }
     }
   }
@@ -161,6 +175,15 @@ export class EndpointsEntityHandler {
 
     test.endpoints ??= [];
     test.endpoints.push(this.createEndpoint(type, model));
+  }
+
+  deleteEndpoint(index: number) {
+    const endpoints = this.getEndpoints();
+    if (index > endpoints.length) {
+      return;
+    }
+
+    endpoints.splice(index, 1);
   }
 
   private createEndpoint(type: string, model: Record<string, unknown>) {
