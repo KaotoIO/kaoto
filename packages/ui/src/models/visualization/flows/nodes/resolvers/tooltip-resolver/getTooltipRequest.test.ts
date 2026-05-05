@@ -22,7 +22,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Component, 'kafka', 'fallback');
 
-    expect(result).toBe('Kafka component');
+    expect(result).toBe('kafka: Kafka component');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Component, 'kafka');
   });
 
@@ -33,7 +33,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Processor, 'log', 'fallback');
 
-    expect(result).toBe('Log processor');
+    expect(result).toBe('log: Log processor');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Processor, 'log');
   });
 
@@ -44,7 +44,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Pattern, 'choice', 'fallback');
 
-    expect(result).toBe('Choice pattern');
+    expect(result).toBe('choice: Choice pattern');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Processor, 'choice');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Pattern, 'choice');
   });
@@ -56,7 +56,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Kamelet, 'kamelet:aws-s3-source', 'fallback');
 
-    expect(result).toBe('AWS S3 Source');
+    expect(result).toBe('kamelet:aws-s3-source: AWS S3 Source');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Kamelet, 'aws-s3-source');
   });
 
@@ -67,7 +67,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Entity, 'route', 'fallback');
 
-    expect(result).toBe('Route entity');
+    expect(result).toBe('route: Route entity');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.Entity, 'route');
   });
 
@@ -78,7 +78,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.TestAction, 'echo', 'fallback');
 
-    expect(result).toBe('Echo action');
+    expect(result).toBe('echo: Echo action');
     expect(mockGetEntity).toHaveBeenCalledWith(CatalogKind.TestAction, 'echo');
   });
 
@@ -89,7 +89,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Component, 'custom', 'Custom description');
 
-    expect(result).toBe('Custom description');
+    expect(result).toBe('custom: Custom description');
   });
 
   it('should use name fallback when catalog and description are empty', async () => {
@@ -97,7 +97,7 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Component, 'custom', '');
 
-    expect(result).toBe('custom');
+    expect(result).toBe('custom: custom');
   });
 
   it('should handle catalog errors gracefully', async () => {
@@ -105,6 +105,6 @@ describe('getTooltipRequest', () => {
 
     const result = await getTooltipRequest(CatalogKind.Component, 'kafka', 'fallback');
 
-    expect(result).toBe('fallback');
+    expect(result).toBe('kafka: fallback');
   });
 });

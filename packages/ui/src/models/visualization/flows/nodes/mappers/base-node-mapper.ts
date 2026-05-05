@@ -23,9 +23,22 @@ export class BaseNodeMapper implements INodeMapper {
     componentLookup: ICamelElementLookupResult,
     entityDefinition: unknown,
   ): Promise<IVisualizationNode> {
-    const catalogKind = componentLookup.componentName ? CatalogKind.Component : CatalogKind.Processor;
+    let catalogKind: CatalogKind;
+    let name: string;
+    if (componentLookup.componentName?.startsWith('kamelet:')) {
+      catalogKind = CatalogKind.Kamelet;
+      // For Kamelets, remove the 'kamelet:' prefix from the name
+      // The resolvers will use the clean name to look up in the catalog
+      name = componentLookup.componentName.replace('kamelet:', '');
+    } else if (componentLookup.componentName) {
+      catalogKind = CatalogKind.Component;
+      name = componentLookup.componentName;
+    } else {
+      catalogKind = CatalogKind.Processor;
+      name = componentLookup.processorName;
+    }
     const data: CamelRouteVisualEntityData = {
-      name: componentLookup.componentName ?? componentLookup.processorName,
+      name,
       path,
       processorName: componentLookup.processorName,
       componentName: componentLookup.componentName,
