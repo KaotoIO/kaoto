@@ -4,7 +4,6 @@ import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
-import { EntityType } from '../../entities';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
 
@@ -162,11 +161,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
-        entity: {
-          id: entity.getId(),
-          errorHandlerDef,
-          type: EntityType.ErrorHandler,
-        },
+        entity,
         catalogKind: CatalogKind.Entity,
         name: 'errorHandler',
         isGroup: true,
@@ -176,7 +171,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: 'errorHandler',
+        description: 'errorHandler: errorHandler',
         processorIconTooltip: '',
       });
     });

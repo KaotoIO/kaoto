@@ -6,6 +6,7 @@ import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
+import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 import { CamelComponentSchemaService } from './support/camel-component-schema.service';
 import { CamelRouteVisualEntityData } from './support/camel-component-types';
@@ -85,6 +86,8 @@ export class CamelOnExceptionVisualEntity
     onExceptionGroupNode.data.isGroup = true;
     onExceptionGroupNode.data.catalogKind = CatalogKind.Entity;
     onExceptionGroupNode.data.name = this.type;
+    // Re-enrich node with correct catalogKind to get proper icons
+    await NodeEnrichmentService.enrichNodeFromCatalog(onExceptionGroupNode, CatalogKind.Entity);
 
     return onExceptionGroupNode;
   }

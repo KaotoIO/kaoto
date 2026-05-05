@@ -5,7 +5,6 @@ import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/r
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
-import { EntityType } from '../../entities';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
 
@@ -187,11 +186,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
       expect(vizNode.data).toEqual({
         componentName: undefined,
-        entity: {
-          id: entity.getId(),
-          restConfigurationDef,
-          type: EntityType.RestConfiguration,
-        },
+        entity,
         catalogKind: CatalogKind.Entity,
         name: 'restConfiguration',
         isGroup: true,
@@ -201,7 +196,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: 'restConfiguration',
+        description: 'restConfiguration: restConfiguration',
         processorIconTooltip: '',
       });
     });

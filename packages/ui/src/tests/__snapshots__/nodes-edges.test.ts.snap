@@ -19,7 +19,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "children": [],
         "data": {
           "componentName": "timer",
-          "description": "timer",
+          "description": "timer: timer",
           "iconAlt": "component icon",
           "iconUrl": "file-mock-data",
           "isGroup": false,
@@ -97,7 +97,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "setHeader",
+                    "description": "setHeader: setHeader",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -181,7 +181,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -201,7 +201,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "when",
+                "description": "when: when",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -244,7 +244,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "log",
+                    "description": "log: log",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -328,7 +328,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -348,7 +348,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "otherwise",
+                "description": "otherwise: otherwise",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -367,7 +367,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "choice",
+            "description": "choice: choice",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -394,7 +394,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": "sql",
-              "description": "sql",
+              "description": "sql: sql",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -450,7 +450,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   [Circular],
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -572,7 +572,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -677,7 +677,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -761,7 +761,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -781,7 +781,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -936,7 +936,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -1020,7 +1020,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -1040,7 +1040,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -1083,7 +1083,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -1167,7 +1167,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -1187,7 +1187,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -1206,7 +1206,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -1233,7 +1233,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -1294,7 +1294,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -1401,7 +1401,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -1485,7 +1485,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -1505,7 +1505,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -1548,7 +1548,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -1632,7 +1632,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -1652,7 +1652,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -1671,7 +1671,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -1729,7 +1729,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -1809,7 +1809,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -1893,7 +1893,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             "children": undefined,
                             "data": {
                               "componentName": undefined,
-                              "description": "setHeader",
+                              "description": "setHeader: setHeader",
                               "iconAlt": "processor icon",
                               "iconUrl": "file-mock-data",
                               "isGroup": false,
@@ -1913,7 +1913,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       ],
                       "data": {
-                        "description": "when",
+                        "description": "when: when",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": true,
@@ -1956,7 +1956,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -2040,7 +2040,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             "children": undefined,
                             "data": {
                               "componentName": undefined,
-                              "description": "log",
+                              "description": "log: log",
                               "iconAlt": "processor icon",
                               "iconUrl": "file-mock-data",
                               "isGroup": false,
@@ -2060,7 +2060,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       ],
                       "data": {
-                        "description": "otherwise",
+                        "description": "otherwise: otherwise",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": true,
@@ -2079,7 +2079,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "choice",
+                    "description": "choice: choice",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -2100,7 +2100,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "route",
+            "description": "route: route",
             "entity": {
               "route": {
                 "from": {
@@ -2252,7 +2252,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "setHeader",
+                    "description": "setHeader: setHeader",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -2336,7 +2336,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -2356,7 +2356,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "when",
+                "description": "when: when",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -2399,7 +2399,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "log",
+                    "description": "log: log",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -2483,7 +2483,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -2503,7 +2503,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "otherwise",
+                "description": "otherwise: otherwise",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -2522,7 +2522,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "choice",
+            "description": "choice: choice",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -2549,7 +2549,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": "sql",
-              "description": "sql",
+              "description": "sql: sql",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -2613,7 +2613,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -2635,7 +2635,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   [Circular],
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -2738,7 +2738,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -2787,7 +2787,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -2890,7 +2890,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -2922,7 +2922,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -3006,7 +3006,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -3026,7 +3026,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -3115,7 +3115,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": [],
             "data": {
               "componentName": "timer",
-              "description": "timer",
+              "description": "timer: timer",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -3157,7 +3157,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -3241,7 +3241,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -3261,7 +3261,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -3367,7 +3367,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "children": undefined,
         "data": {
           "componentName": undefined,
-          "description": "setHeader",
+          "description": "setHeader: setHeader",
           "iconAlt": "processor icon",
           "iconUrl": "file-mock-data",
           "isGroup": false,
@@ -3421,7 +3421,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "when",
+              "description": "when: when",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -3501,7 +3501,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -3585,7 +3585,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -3605,7 +3605,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -3624,7 +3624,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -3651,7 +3651,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -3715,7 +3715,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": [],
                         "data": {
                           "componentName": "timer",
-                          "description": "timer",
+                          "description": "timer: timer",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -3737,7 +3737,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       [Circular],
                     ],
                     "data": {
-                      "description": "route",
+                      "description": "route: route",
                       "entity": {
                         "route": {
                           "from": {
@@ -3840,7 +3840,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -3889,7 +3889,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -3992,7 +3992,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -4024,7 +4024,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -4108,7 +4108,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -4128,7 +4128,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -4217,7 +4217,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -4259,7 +4259,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -4343,7 +4343,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": "sql",
-                          "description": "sql",
+                          "description": "sql: sql",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -4363,7 +4363,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -4488,7 +4488,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "when",
+            "description": "when: when",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -4568,7 +4568,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -4652,7 +4652,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -4672,7 +4672,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "otherwise",
+                  "description": "otherwise: otherwise",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -4691,7 +4691,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "choice",
+              "description": "choice: choice",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -4718,7 +4718,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -4782,7 +4782,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -4804,7 +4804,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     [Circular],
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -4907,7 +4907,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -4956,7 +4956,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -5059,7 +5059,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -5091,7 +5091,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -5175,7 +5175,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -5195,7 +5195,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -5284,7 +5284,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -5326,7 +5326,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -5410,7 +5410,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -5430,7 +5430,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -5575,7 +5575,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": undefined,
-                "description": "setHeader",
+                "description": "setHeader: setHeader",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -5595,7 +5595,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "description": "when",
+            "description": "when: when",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -5675,7 +5675,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -5759,7 +5759,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -5779,7 +5779,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "otherwise",
+                  "description": "otherwise: otherwise",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -5798,7 +5798,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "choice",
+              "description": "choice: choice",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -5825,7 +5825,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -5889,7 +5889,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -5911,7 +5911,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     [Circular],
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -6014,7 +6014,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -6063,7 +6063,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -6166,7 +6166,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -6198,7 +6198,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -6282,7 +6282,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -6302,7 +6302,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -6391,7 +6391,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -6433,7 +6433,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -6517,7 +6517,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -6537,7 +6537,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -6631,7 +6631,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "children": undefined,
           "data": {
             "componentName": undefined,
-            "description": "setHeader",
+            "description": "setHeader: setHeader",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": false,
@@ -6661,7 +6661,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "when",
+              "description": "when: when",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -6741,7 +6741,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -6825,7 +6825,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -6845,7 +6845,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -6864,7 +6864,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -6891,7 +6891,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -6955,7 +6955,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": [],
                         "data": {
                           "componentName": "timer",
-                          "description": "timer",
+                          "description": "timer: timer",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -6977,7 +6977,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       [Circular],
                     ],
                     "data": {
-                      "description": "route",
+                      "description": "route: route",
                       "entity": {
                         "route": {
                           "from": {
@@ -7080,7 +7080,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -7129,7 +7129,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -7232,7 +7232,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -7264,7 +7264,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -7348,7 +7348,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -7368,7 +7368,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -7457,7 +7457,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -7499,7 +7499,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -7583,7 +7583,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": "sql",
-                          "description": "sql",
+                          "description": "sql: sql",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -7603,7 +7603,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -7727,7 +7727,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": undefined,
-              "description": "setHeader",
+              "description": "setHeader: setHeader",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -7811,7 +7811,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": undefined,
-                "description": "setHeader",
+                "description": "setHeader: setHeader",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -7831,7 +7831,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "description": "when",
+          "description": "when: when",
           "iconAlt": "processor icon",
           "iconUrl": "file-mock-data",
           "isGroup": true,
@@ -7911,7 +7911,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "log",
+                    "description": "log: log",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -7995,7 +7995,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -8015,7 +8015,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "otherwise",
+                "description": "otherwise: otherwise",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -8034,7 +8034,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "choice",
+            "description": "choice: choice",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -8061,7 +8061,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": "sql",
-              "description": "sql",
+              "description": "sql: sql",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -8125,7 +8125,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -8147,7 +8147,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   [Circular],
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -8250,7 +8250,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -8299,7 +8299,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -8402,7 +8402,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -8434,7 +8434,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -8518,7 +8518,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -8538,7 +8538,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -8627,7 +8627,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": [],
             "data": {
               "componentName": "timer",
-              "description": "timer",
+              "description": "timer: timer",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -8669,7 +8669,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -8753,7 +8753,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -8773,7 +8773,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -8880,7 +8880,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "children": undefined,
         "data": {
           "componentName": undefined,
-          "description": "log",
+          "description": "log: log",
           "iconAlt": "processor icon",
           "iconUrl": "file-mock-data",
           "isGroup": false,
@@ -8934,7 +8934,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "otherwise",
+              "description": "otherwise: otherwise",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -9013,7 +9013,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -9097,7 +9097,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -9117,7 +9117,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -9137,7 +9137,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 [Circular],
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -9164,7 +9164,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -9228,7 +9228,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": [],
                         "data": {
                           "componentName": "timer",
-                          "description": "timer",
+                          "description": "timer: timer",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -9250,7 +9250,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       [Circular],
                     ],
                     "data": {
-                      "description": "route",
+                      "description": "route: route",
                       "entity": {
                         "route": {
                           "from": {
@@ -9353,7 +9353,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -9402,7 +9402,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -9505,7 +9505,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -9537,7 +9537,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -9621,7 +9621,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -9641,7 +9641,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -9730,7 +9730,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -9772,7 +9772,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -9856,7 +9856,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": "sql",
-                          "description": "sql",
+                          "description": "sql: sql",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -9876,7 +9876,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -10001,7 +10001,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "otherwise",
+            "description": "otherwise: otherwise",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -10080,7 +10080,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -10164,7 +10164,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -10184,7 +10184,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "when",
+                  "description": "when: when",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -10204,7 +10204,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "choice",
+              "description": "choice: choice",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -10231,7 +10231,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -10295,7 +10295,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -10317,7 +10317,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     [Circular],
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -10420,7 +10420,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -10469,7 +10469,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -10572,7 +10572,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -10604,7 +10604,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -10688,7 +10688,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -10708,7 +10708,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -10797,7 +10797,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -10839,7 +10839,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -10923,7 +10923,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -10943,7 +10943,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -11088,7 +11088,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": undefined,
-                "description": "log",
+                "description": "log: log",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -11108,7 +11108,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "description": "otherwise",
+            "description": "otherwise: otherwise",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -11187,7 +11187,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -11271,7 +11271,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -11291,7 +11291,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "when",
+                  "description": "when: when",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -11311,7 +11311,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "choice",
+              "description": "choice: choice",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -11338,7 +11338,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -11402,7 +11402,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -11424,7 +11424,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     [Circular],
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -11527,7 +11527,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -11576,7 +11576,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -11679,7 +11679,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -11711,7 +11711,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -11795,7 +11795,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -11815,7 +11815,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -11904,7 +11904,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -11946,7 +11946,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -12030,7 +12030,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -12050,7 +12050,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -12144,7 +12144,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "children": undefined,
           "data": {
             "componentName": undefined,
-            "description": "log",
+            "description": "log: log",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": false,
@@ -12174,7 +12174,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "otherwise",
+              "description": "otherwise: otherwise",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -12253,7 +12253,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -12337,7 +12337,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -12357,7 +12357,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -12377,7 +12377,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 [Circular],
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -12404,7 +12404,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -12468,7 +12468,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": [],
                         "data": {
                           "componentName": "timer",
-                          "description": "timer",
+                          "description": "timer: timer",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -12490,7 +12490,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       [Circular],
                     ],
                     "data": {
-                      "description": "route",
+                      "description": "route: route",
                       "entity": {
                         "route": {
                           "from": {
@@ -12593,7 +12593,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": [],
                       "data": {
                         "componentName": "timer",
-                        "description": "timer",
+                        "description": "timer: timer",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -12642,7 +12642,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -12745,7 +12745,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -12777,7 +12777,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -12861,7 +12861,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -12881,7 +12881,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -12970,7 +12970,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -13012,7 +13012,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": "sql",
-                        "description": "sql",
+                        "description": "sql: sql",
                         "iconAlt": "component icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -13096,7 +13096,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": "sql",
-                          "description": "sql",
+                          "description": "sql: sql",
                           "iconAlt": "component icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -13116,7 +13116,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "route",
+                    "description": "route: route",
                     "entity": {
                       "route": {
                         "from": {
@@ -13240,7 +13240,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": undefined,
-              "description": "log",
+              "description": "log: log",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -13324,7 +13324,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": undefined,
-                "description": "log",
+                "description": "log: log",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -13344,7 +13344,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "description": "otherwise",
+          "description": "otherwise: otherwise",
           "iconAlt": "processor icon",
           "iconUrl": "file-mock-data",
           "isGroup": true,
@@ -13423,7 +13423,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "setHeader",
+                    "description": "setHeader: setHeader",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -13507,7 +13507,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -13527,7 +13527,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "when",
+                "description": "when: when",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -13547,7 +13547,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "description": "choice",
+            "description": "choice: choice",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -13574,7 +13574,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": "sql",
-              "description": "sql",
+              "description": "sql: sql",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -13638,7 +13638,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": [],
                     "data": {
                       "componentName": "timer",
-                      "description": "timer",
+                      "description": "timer: timer",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -13660,7 +13660,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   [Circular],
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -13763,7 +13763,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -13812,7 +13812,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -13915,7 +13915,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -13947,7 +13947,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -14031,7 +14031,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -14051,7 +14051,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -14140,7 +14140,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": [],
             "data": {
               "componentName": "timer",
-              "description": "timer",
+              "description": "timer: timer",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -14182,7 +14182,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -14266,7 +14266,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": "sql",
-                      "description": "sql",
+                      "description": "sql: sql",
                       "iconAlt": "component icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -14286,7 +14286,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -14448,7 +14448,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": undefined,
-                  "description": "setHeader",
+                  "description": "setHeader: setHeader",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -14532,7 +14532,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "setHeader",
+                    "description": "setHeader: setHeader",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -14552,7 +14552,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "when",
+              "description": "when: when",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -14595,7 +14595,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": undefined,
-                  "description": "log",
+                  "description": "log: log",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -14679,7 +14679,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "log",
+                    "description": "log: log",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -14699,7 +14699,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "otherwise",
+              "description": "otherwise: otherwise",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -14718,7 +14718,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "description": "choice",
+          "description": "choice: choice",
           "iconAlt": "processor icon",
           "iconUrl": "file-mock-data",
           "isGroup": true,
@@ -14745,7 +14745,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "children": undefined,
           "data": {
             "componentName": "sql",
-            "description": "sql",
+            "description": "sql: sql",
             "iconAlt": "component icon",
             "iconUrl": "file-mock-data",
             "isGroup": false,
@@ -14809,7 +14809,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -14831,7 +14831,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 [Circular],
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -14934,7 +14934,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -14983,7 +14983,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -15086,7 +15086,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -15118,7 +15118,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -15202,7 +15202,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -15222,7 +15222,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "route",
+            "description": "route: route",
             "entity": {
               "route": {
                 "from": {
@@ -15311,7 +15311,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "children": [],
           "data": {
             "componentName": "timer",
-            "description": "timer",
+            "description": "timer: timer",
             "iconAlt": "component icon",
             "iconUrl": "file-mock-data",
             "isGroup": false,
@@ -15353,7 +15353,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -15437,7 +15437,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -15457,7 +15457,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -15562,7 +15562,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
         "children": undefined,
         "data": {
           "componentName": "sql",
-          "description": "sql",
+          "description": "sql: sql",
           "iconAlt": "component icon",
           "iconUrl": "file-mock-data",
           "isGroup": false,
@@ -15626,7 +15626,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -15704,7 +15704,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -15788,7 +15788,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             "children": undefined,
                             "data": {
                               "componentName": undefined,
-                              "description": "setHeader",
+                              "description": "setHeader: setHeader",
                               "iconAlt": "processor icon",
                               "iconUrl": "file-mock-data",
                               "isGroup": false,
@@ -15808,7 +15808,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       ],
                       "data": {
-                        "description": "when",
+                        "description": "when: when",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": true,
@@ -15851,7 +15851,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -15935,7 +15935,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             "children": undefined,
                             "data": {
                               "componentName": undefined,
-                              "description": "log",
+                              "description": "log: log",
                               "iconAlt": "processor icon",
                               "iconUrl": "file-mock-data",
                               "isGroup": false,
@@ -15955,7 +15955,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       ],
                       "data": {
-                        "description": "otherwise",
+                        "description": "otherwise: otherwise",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": true,
@@ -15974,7 +15974,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "choice",
+                    "description": "choice: choice",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -16059,7 +16059,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -16143,7 +16143,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -16163,7 +16163,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -16206,7 +16206,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -16290,7 +16290,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -16310,7 +16310,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -16329,7 +16329,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -16358,7 +16358,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -16380,7 +16380,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -16483,7 +16483,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -16561,7 +16561,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -16645,7 +16645,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -16665,7 +16665,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -16708,7 +16708,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -16792,7 +16792,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -16812,7 +16812,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -16831,7 +16831,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -16916,7 +16916,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -17000,7 +17000,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -17020,7 +17020,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -17063,7 +17063,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -17147,7 +17147,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -17167,7 +17167,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -17186,7 +17186,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -17215,7 +17215,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -17264,7 +17264,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "route",
+            "description": "route: route",
             "entity": {
               "route": {
                 "from": {
@@ -17404,7 +17404,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "setHeader",
+                    "description": "setHeader: setHeader",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -17488,7 +17488,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -17508,7 +17508,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "when",
+                "description": "when: when",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -17551,7 +17551,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": undefined,
-                    "description": "log",
+                    "description": "log: log",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -17635,7 +17635,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -17655,7 +17655,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "otherwise",
+                "description": "otherwise: otherwise",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -17674,7 +17674,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             },
           ],
           "data": {
-            "description": "choice",
+            "description": "choice: choice",
             "iconAlt": "processor icon",
             "iconUrl": "file-mock-data",
             "isGroup": true,
@@ -17714,7 +17714,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -17763,7 +17763,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -17852,7 +17852,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": [],
             "data": {
               "componentName": "timer",
-              "description": "timer",
+              "description": "timer: timer",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -17911,7 +17911,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -18053,7 +18053,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -18131,7 +18131,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -18215,7 +18215,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -18235,7 +18235,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -18278,7 +18278,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -18362,7 +18362,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -18382,7 +18382,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -18401,7 +18401,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -18428,7 +18428,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": undefined,
                   "data": {
                     "componentName": "sql",
-                    "description": "sql",
+                    "description": "sql: sql",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -18516,7 +18516,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -18600,7 +18600,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -18620,7 +18620,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -18663,7 +18663,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -18747,7 +18747,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -18767,7 +18767,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -18786,7 +18786,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -18813,7 +18813,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -18845,7 +18845,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -18877,7 +18877,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -18957,7 +18957,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -19041,7 +19041,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -19061,7 +19061,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -19104,7 +19104,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -19188,7 +19188,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -19208,7 +19208,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -19227,7 +19227,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -19256,7 +19256,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -19278,7 +19278,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             [Circular],
           ],
           "data": {
-            "description": "route",
+            "description": "route: route",
             "entity": {
               "route": {
                 "from": {
@@ -19367,7 +19367,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           "children": undefined,
           "data": {
             "componentName": "sql",
-            "description": "sql",
+            "description": "sql: sql",
             "iconAlt": "component icon",
             "iconUrl": "file-mock-data",
             "isGroup": false,
@@ -19407,7 +19407,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -19485,7 +19485,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -19569,7 +19569,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             "children": undefined,
                             "data": {
                               "componentName": undefined,
-                              "description": "setHeader",
+                              "description": "setHeader: setHeader",
                               "iconAlt": "processor icon",
                               "iconUrl": "file-mock-data",
                               "isGroup": false,
@@ -19589,7 +19589,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       ],
                       "data": {
-                        "description": "when",
+                        "description": "when: when",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": true,
@@ -19632,7 +19632,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -19716,7 +19716,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                             "children": undefined,
                             "data": {
                               "componentName": undefined,
-                              "description": "log",
+                              "description": "log: log",
                               "iconAlt": "processor icon",
                               "iconUrl": "file-mock-data",
                               "isGroup": false,
@@ -19736,7 +19736,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         },
                       ],
                       "data": {
-                        "description": "otherwise",
+                        "description": "otherwise: otherwise",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": true,
@@ -19755,7 +19755,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "choice",
+                    "description": "choice: choice",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -19840,7 +19840,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -19924,7 +19924,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -19944,7 +19944,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -19987,7 +19987,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -20071,7 +20071,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -20091,7 +20091,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -20110,7 +20110,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -20139,7 +20139,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -20161,7 +20161,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               [Circular],
             ],
             "data": {
-              "description": "route",
+              "description": "route: route",
               "entity": {
                 "route": {
                   "from": {
@@ -20301,7 +20301,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -20385,7 +20385,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -20405,7 +20405,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "when",
+                  "description": "when: when",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -20448,7 +20448,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -20532,7 +20532,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -20552,7 +20552,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "otherwise",
+                  "description": "otherwise: otherwise",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -20571,7 +20571,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "choice",
+              "description": "choice: choice",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -20611,7 +20611,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -20633,7 +20633,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 [Circular],
               ],
               "data": {
-                "description": "route",
+                "description": "route: route",
                 "entity": {
                   "route": {
                     "from": {
@@ -20722,7 +20722,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -20754,7 +20754,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   [Circular],
                 ],
                 "data": {
-                  "description": "route",
+                  "description": "route: route",
                   "entity": {
                     "route": {
                       "from": {
@@ -20877,7 +20877,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": [],
             "data": {
               "componentName": "timer",
-              "description": "timer",
+              "description": "timer: timer",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -20955,7 +20955,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -21039,7 +21039,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -21059,7 +21059,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -21102,7 +21102,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -21186,7 +21186,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -21206,7 +21206,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -21225,7 +21225,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -21252,7 +21252,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": undefined,
                 "data": {
                   "componentName": "sql",
-                  "description": "sql",
+                  "description": "sql: sql",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -21367,7 +21367,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "setHeader",
+                      "description": "setHeader: setHeader",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -21451,7 +21451,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -21471,7 +21471,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "when",
+                  "description": "when: when",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -21514,7 +21514,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     "children": undefined,
                     "data": {
                       "componentName": undefined,
-                      "description": "log",
+                      "description": "log: log",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": false,
@@ -21598,7 +21598,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -21618,7 +21618,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "otherwise",
+                  "description": "otherwise: otherwise",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -21637,7 +21637,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               },
             ],
             "data": {
-              "description": "choice",
+              "description": "choice: choice",
               "iconAlt": "processor icon",
               "iconUrl": "file-mock-data",
               "isGroup": true,
@@ -21664,7 +21664,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -21723,7 +21723,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": [],
               "data": {
                 "componentName": "timer",
-                "description": "timer",
+                "description": "timer: timer",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -21755,7 +21755,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
             "children": undefined,
             "data": {
               "componentName": "sql",
-              "description": "sql",
+              "description": "sql: sql",
               "iconAlt": "component icon",
               "iconUrl": "file-mock-data",
               "isGroup": false,
@@ -21862,7 +21862,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "setHeader",
+                        "description": "setHeader: setHeader",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -21946,7 +21946,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -21966,7 +21966,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "when",
+                    "description": "when: when",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -22009,7 +22009,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       "children": undefined,
                       "data": {
                         "componentName": undefined,
-                        "description": "log",
+                        "description": "log: log",
                         "iconAlt": "processor icon",
                         "iconUrl": "file-mock-data",
                         "isGroup": false,
@@ -22093,7 +22093,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -22113,7 +22113,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                     },
                   ],
                   "data": {
-                    "description": "otherwise",
+                    "description": "otherwise: otherwise",
                     "iconAlt": "processor icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": true,
@@ -22132,7 +22132,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 },
               ],
               "data": {
-                "description": "choice",
+                "description": "choice: choice",
                 "iconAlt": "processor icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": true,
@@ -22161,7 +22161,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                 "children": [],
                 "data": {
                   "componentName": "timer",
-                  "description": "timer",
+                  "description": "timer: timer",
                   "iconAlt": "component icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": false,
@@ -22220,7 +22220,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
               "children": undefined,
               "data": {
                 "componentName": "sql",
-                "description": "sql",
+                "description": "sql: sql",
                 "iconAlt": "component icon",
                 "iconUrl": "file-mock-data",
                 "isGroup": false,
@@ -22300,7 +22300,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "setHeader",
+                          "description": "setHeader: setHeader",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -22384,7 +22384,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "setHeader",
+                            "description": "setHeader: setHeader",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -22404,7 +22404,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "when",
+                      "description": "when: when",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -22447,7 +22447,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                         "children": undefined,
                         "data": {
                           "componentName": undefined,
-                          "description": "log",
+                          "description": "log: log",
                           "iconAlt": "processor icon",
                           "iconUrl": "file-mock-data",
                           "isGroup": false,
@@ -22531,7 +22531,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                           "children": undefined,
                           "data": {
                             "componentName": undefined,
-                            "description": "log",
+                            "description": "log: log",
                             "iconAlt": "processor icon",
                             "iconUrl": "file-mock-data",
                             "isGroup": false,
@@ -22551,7 +22551,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                       },
                     ],
                     "data": {
-                      "description": "otherwise",
+                      "description": "otherwise: otherwise",
                       "iconAlt": "processor icon",
                       "iconUrl": "file-mock-data",
                       "isGroup": true,
@@ -22570,7 +22570,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   },
                 ],
                 "data": {
-                  "description": "choice",
+                  "description": "choice: choice",
                   "iconAlt": "processor icon",
                   "iconUrl": "file-mock-data",
                   "isGroup": true,
@@ -22599,7 +22599,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
                   "children": [],
                   "data": {
                     "componentName": "timer",
-                    "description": "timer",
+                    "description": "timer: timer",
                     "iconAlt": "component icon",
                     "iconUrl": "file-mock-data",
                     "isGroup": false,
@@ -22621,7 +22621,7 @@ exports[`Nodes and Edges should generate edges for steps with branches 1`] = `
           },
         ],
         "data": {
-          "description": "route",
+          "description": "route: route",
           "entity": {
             "route": {
               "from": {

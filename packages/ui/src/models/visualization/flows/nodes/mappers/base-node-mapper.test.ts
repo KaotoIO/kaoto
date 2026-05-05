@@ -86,5 +86,26 @@ describe('BaseNodeMapper', () => {
       expect(doTryNode?.getChildren()?.[3].data.path).toBe('from.steps.0.doTry.doCatch.1');
       expect(doTryNode?.getChildren()?.[4].data.path).toBe('from.steps.0.doTry.doFinally');
     });
+
+    it('should handle kamelet components correctly', async () => {
+      const kameletComponentLookup: ICamelElementLookupResult = {
+        processorName: 'to' as keyof ProcessorDefinition,
+        componentName: 'kamelet:postgresql-sink',
+      };
+      const kameletEntityDefinition = {
+        uri: 'kamelet:postgresql-sink',
+        parameters: { serverName: 'localhost' },
+      };
+
+      const vizNode = await mapper.getVizNodeFromProcessor('route.to', kameletComponentLookup, kameletEntityDefinition);
+
+      expect(vizNode).toBeDefined();
+      expect(vizNode.data).toMatchObject({
+        path: 'route.to',
+        name: 'postgresql-sink', // Should strip 'kamelet:' prefix
+        processorName: 'to',
+        componentName: 'kamelet:postgresql-sink',
+      });
+    });
   });
 });

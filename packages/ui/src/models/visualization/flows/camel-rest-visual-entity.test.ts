@@ -468,7 +468,7 @@ describe('CamelRestVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: '',
-        description: 'rest',
+        description: 'rest: rest',
         processorIconTooltip: '',
       });
     });

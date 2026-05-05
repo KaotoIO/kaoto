@@ -42,5 +42,5 @@ export async function getTooltipRequest(catalogKind: CatalogKind, name: string, 
     tooltip = description || name;
   }
 
-  return tooltip;
+  return `${name}: ${tooltip}`;
 }
