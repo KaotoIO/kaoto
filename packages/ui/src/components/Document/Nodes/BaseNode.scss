@@ -2,7 +2,8 @@
 
 .node {
   &__row {
-    --rank-margin: calc(var(--node-rank, 0) * 0.85rem);
+    --rank-step: 0.85rem;
+    --rank-margin: calc(var(--node-rank, 0) * var(--rank-step));
 
     display: flex;
     flex-flow: row nowrap;
@@ -11,7 +12,7 @@
     font-size: var(--datamapper-node-font-size, 0.875rem);
     position: relative;
 
-    // Rank-based indentation - expand icon + margins = ~1.5rem per level
+    // Rank-based indentation
     margin-left: var(--rank-margin);
 
     &[data-draggable='true'] {
@@ -21,8 +22,16 @@
     // Leaf nodes (no children) have grey font color
     &:not([data-expandable='true']) {
       color: var(--pf-t--global--color--text--subtle);
-      border-left: 1px dotted gray;
-      padding-left: var(--pf-t--global--spacer--sm);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: calc(var(--pf-t--global--spacer--sm) + 0.5rem * var(--datamapper-scale-factor, 1) - var(--rank-step));
+        top: 0;
+        bottom: 0;
+        border-left: 1px dotted var(--pf-t--global--border--color--default);
+        pointer-events: none;
+      }
     }
 
     // Make inputs/buttons fit within row height
@@ -56,6 +65,10 @@
 
   &__expand {
     margin-left: var(--pf-t--global--spacer--sm);
+    display: inline-flex;
+    align-items: center;
+    width: calc(1rem * var(--datamapper-scale-factor, 1));
+    flex-shrink: 0;
 
     svg {
       width: calc(1rem * var(--datamapper-scale-factor, 1));
