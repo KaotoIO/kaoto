@@ -371,6 +371,99 @@ describe('ExpansionPanels', () => {
       const gridTemplate = getGridTemplate(container);
       expect(gridTemplate).toBeTruthy();
     });
+
+    it('should call layout callbacks after container resize with double RAF', async () => {
+      const layoutCallback = jest.fn();
+
+      const { container } = render(
+        <ExpansionPanels>
+          <ExpansionPanel id="panel-1" summary={<div>Panel 1</div>} onLayoutChange={layoutCallback}>
+            Content 1
+          </ExpansionPanel>
+        </ExpansionPanels>,
+      );
+
+      await setupPanelMocks(container);
+      layoutCallback.mockClear();
+
+      // Trigger container resize
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 800, configurable: true });
+
+      await triggerContainerResize(mockResizeObserver);
+
+      // Wait for double RAF to complete
+      await waitForUpdate(20);
+
+      // Callback should be called after double RAF
+      expect(layoutCallback).toHaveBeenCalled();
+    });
+
+    it('should call all registered layout callbacks after container resize', async () => {
+      const callback1 = jest.fn();
+      const callback2 = jest.fn();
+      const callback3 = jest.fn();
+
+      const { container } = render(
+        <ExpansionPanels>
+          <ExpansionPanel id="panel-1" summary={<div>Panel 1</div>} onLayoutChange={callback1}>
+            Content 1
+          </ExpansionPanel>
+          <ExpansionPanel id="panel-2" summary={<div>Panel 2</div>} onLayoutChange={callback2}>
+            Content 2
+          </ExpansionPanel>
+          <ExpansionPanel id="panel-3" summary={<div>Panel 3</div>} onLayoutChange={callback3}>
+            Content 3
+          </ExpansionPanel>
+        </ExpansionPanels>,
+      );
+
+      await setupPanelMocks(container);
+      callback1.mockClear();
+      callback2.mockClear();
+      callback3.mockClear();
+
+      // Trigger container resize
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 800, configurable: true });
+
+      await triggerContainerResize(mockResizeObserver);
+
+      // Wait for double RAF to complete
+      await waitForUpdate(20);
+
+      // All callbacks should be called
+      expect(callback1).toHaveBeenCalled();
+      expect(callback2).toHaveBeenCalled();
+      expect(callback3).toHaveBeenCalled();
+    });
+
+    it('should handle horizontal resize (no height change) with layout callbacks', async () => {
+      const layoutCallback = jest.fn();
+
+      const { container } = render(
+        <ExpansionPanels>
+          <ExpansionPanel id="panel-1" summary={<div>Panel 1</div>} onLayoutChange={layoutCallback}>
+            Content 1
+          </ExpansionPanel>
+        </ExpansionPanels>,
+      );
+
+      await setupPanelMocks(container);
+      layoutCallback.mockClear();
+
+      // Trigger container resize with same height (horizontal resize)
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 600, configurable: true });
+
+      await triggerContainerResize(mockResizeObserver);
+
+      // Wait for double RAF to complete
+      await waitForUpdate(20);
+
+      // Callback should still be called for horizontal resize
+      expect(layoutCallback).toHaveBeenCalled();
+    });
   });
 
   describe('Panel State Preservation', () => {

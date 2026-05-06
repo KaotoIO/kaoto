@@ -129,6 +129,14 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
       });
       updateGridTemplate();
     }
+
+    // Always execute layout callbacks after resize settles, even if heights didn't change
+    // This handles horizontal resizes that don't affect panel heights but still need connection port updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        panelCallbacksRef.current.forEach((callback) => callback());
+      });
+    });
   }, [updateGridTemplate]);
 
   /**
