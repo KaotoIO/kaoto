@@ -58,6 +58,17 @@ const config: StorybookConfig = {
           },
         ],
       },
+      css: {
+        ...config.css,
+        preprocessorOptions: {
+          ...config.css?.preprocessorOptions,
+          scss: {
+            ...config.css?.preprocessorOptions?.scss,
+            api: 'modern-compiler',
+            silenceDeprecations: ['mixed-decls'],
+          },
+        },
+      },
     };
   },
 };
