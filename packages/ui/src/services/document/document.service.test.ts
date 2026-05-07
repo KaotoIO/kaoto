@@ -8,9 +8,11 @@ import {
   PathSegment,
   PrimitiveDocument,
   RootElementOption,
+  Types,
 } from '../../models/datamapper';
 import { IFieldSubstitution } from '../../models/datamapper/metadata';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
+import { PathExpression } from '../../models/datamapper/xpath';
 import { IMetadataApi } from '../../providers';
 import { getCartJsonSchema, getMultipleElementsXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
@@ -895,6 +897,81 @@ describe('DocumentService', () => {
       const result = DocumentService.removeSchemaFile(definition, 'test.txt');
       expect(result.validationStatus).toBe('error');
       expect(result.errors).toBeDefined();
+    });
+  });
+
+  describe('resolveSourceDocument()', () => {
+    it('should return body document when no documentReferenceName', () => {
+      const bodyDoc = TestUtil.createSourceOrderDoc();
+      const paramMap = new Map<string, PrimitiveDocument>();
+      const absolutePath = new PathExpression();
+
+      const result = DocumentService.resolveSourceDocument(absolutePath, {}, bodyDoc, paramMap);
+      expect(result).toBe(bodyDoc);
+    });
+
+    it('should return matching parameter document by reference name', () => {
+      const bodyDoc = TestUtil.createSourceOrderDoc();
+      const paramDoc = DocumentService.createPrimitiveDocument(
+        DocumentType.PARAM,
+        DocumentDefinitionType.Primitive,
+        'myParam',
+      ).document!;
+      const paramMap = new Map<string, PrimitiveDocument>([['myParam', paramDoc as PrimitiveDocument]]);
+      const absolutePath = new PathExpression();
+      absolutePath.documentReferenceName = 'myParam';
+
+      const result = DocumentService.resolveSourceDocument(absolutePath, {}, bodyDoc, paramMap);
+      expect(result).toBe(paramDoc);
+    });
+
+    it('should return undefined when documentReferenceName does not match any parameter', () => {
+      const bodyDoc = TestUtil.createSourceOrderDoc();
+      const paramMap = new Map<string, PrimitiveDocument>();
+      const absolutePath = new PathExpression();
+      absolutePath.documentReferenceName = 'nonExistent';
+
+      const result = DocumentService.resolveSourceDocument(absolutePath, {}, bodyDoc, paramMap);
+      expect(result).toBeUndefined();
+    });
+  });
+
+  describe('collectDescendantFields()', () => {
+    it('should collect non-Container leaf fields', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const result = DocumentService.collectDescendantFields(shipOrderField, 1);
+      expect(result.length).toBeGreaterThan(0);
+      for (const field of result) {
+        expect(field.type).not.toBe(Types.Container);
+      }
+    });
+
+    it('should respect maxDepth limit', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shallow = DocumentService.collectDescendantFields(doc, 1);
+      const deep = DocumentService.collectDescendantFields(doc, 5);
+      expect(deep.length).toBeGreaterThanOrEqual(shallow.length);
+    });
+
+    it('should return empty array when maxDepth is 0', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const result = DocumentService.collectDescendantFields(doc, 0);
+      expect(result).toEqual([]);
+    });
+
+    it('should traverse through wrapper fields without incrementing depth', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const choiceField = new XmlSchemaField(shipOrderField, 'choice', false);
+      choiceField.wrapperKind = 'choice';
+      const leafField = new XmlSchemaField(choiceField, 'leaf', false);
+      leafField.type = Types.String;
+      choiceField.fields = [leafField];
+      shipOrderField.fields.push(choiceField);
+
+      const result = DocumentService.collectDescendantFields(shipOrderField, 2);
+      expect(result).toContain(leafField);
     });
   });
 });

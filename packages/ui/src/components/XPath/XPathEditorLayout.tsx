@@ -15,10 +15,10 @@ import {
   TabTitleText,
 } from '@patternfly/react-core';
 import { AngleDownIcon, AngleRightIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, MouseEvent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { EditorNodeData, FunctionNodeData, IExpressionHolder, MappingItem } from '../../models/datamapper';
-import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
+import { DataMapperDndContext, DataMapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { DataMapperDnDMonitor } from '../../providers/dnd/DataMapperDndMonitor';
 import { ExpressionEditorDnDHandler } from '../../providers/dnd/ExpressionEditorDnDHandler';
 import { XPathService } from '../../services/xpath/xpath.service';
@@ -27,12 +27,25 @@ import { DraggableContainer, DroppableContainer } from '../Document/NodeContaine
 import { SourcePanel } from '../View/SourcePanel';
 import { XPathEditor } from './XPathEditor';
 
+const DragStateNotifier: FunctionComponent<{ onChange?: (isDragging: boolean) => void }> = ({ onChange }) => {
+  const { activeNode } = useContext(DataMapperDndContext);
+  useEffect(() => {
+    onChange?.(!!activeNode);
+  }, [activeNode, onChange]);
+  return null;
+};
+
 type XPathEditorLayoutProps = {
   mapping: IExpressionHolder & MappingItem;
   onUpdate: () => void;
+  onDragStateChange?: (isDragging: boolean) => void;
 };
 
-export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ mapping, onUpdate }) => {
+export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({
+  mapping,
+  onUpdate,
+  onDragStateChange,
+}) => {
   const dndHandler = useMemo(() => new ExpressionEditorDnDHandler(), []);
 
   const handleExpressionChange = useCallback(
@@ -78,7 +91,8 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
   const getSearchValue = searchValue.toLowerCase();
 
   return (
-    <DatamapperDndProvider handler={dndHandler}>
+    <DataMapperDndProvider handler={dndHandler}>
+      <DragStateNotifier onChange={onDragStateChange} />
       <Grid hasGutter className="xpath-editor">
         <GridItem key={0} span={4} rowSpan={10}>
           <Tabs isFilled mountOnEnter unmountOnExit activeKey={activeTabKey} onSelect={handleTabClick}>
@@ -182,6 +196,6 @@ export const XPathEditorLayout: FunctionComponent<XPathEditorLayoutProps> = ({ m
         </GridItem>
       </Grid>
       <DataMapperDnDMonitor />
-    </DatamapperDndProvider>
+    </DataMapperDndProvider>
   );
 };

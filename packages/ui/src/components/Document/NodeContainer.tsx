@@ -3,7 +3,7 @@ import './NodeContainer.scss';
 import { useDraggable, useDroppable } from '@dnd-kit/core';
 import { isDefined } from '@kaoto/forms';
 import clsx from 'clsx';
-import { forwardRef, FunctionComponent, PropsWithChildren, useContext, useMemo } from 'react';
+import { forwardRef, FunctionComponent, PropsWithChildren, useCallback, useContext, useMemo } from 'react';
 
 import { NodeData } from '../../models/datamapper/visualization';
 import { DataMapperDndContext } from '../../providers/datamapper-dnd.provider';
@@ -60,6 +60,7 @@ export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, 
     attributes,
     listeners,
     setNodeRef: setDraggableNodeRef,
+    setActivatorNodeRef,
     transform,
   } = useDraggable({
     id: `draggable-${id}`,
@@ -67,10 +68,18 @@ export const DraggableContainer: FunctionComponent<BaseContainerProps> = ({ id, 
     disabled: !draggable,
   });
 
+  const combinedRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      setDraggableNodeRef(node);
+      setActivatorNodeRef(node);
+    },
+    [setDraggableNodeRef, setActivatorNodeRef],
+  );
+
   return (
     <div
       id={`draggable-${id}`}
-      ref={setDraggableNodeRef}
+      ref={combinedRef}
       className={clsx({ 'draggable-container': isDefined(transform) }, 'pf-v6-c-draggable')}
       data-dnd-draggable={isDragging ? `${id}` : undefined}
       {...listeners}

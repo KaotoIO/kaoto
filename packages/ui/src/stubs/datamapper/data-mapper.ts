@@ -106,6 +106,9 @@ export function getForEachGroupStartingWithToShipOrderXslt(): string {
 export function getForEachGroupEndingWithToShipOrderXslt(): string {
   return readStubFile('./xml/ForEachGroupEndingWithToShipOrder.xsl');
 }
+export function getForEachSortToShipOrderXslt(): string {
+  return readStubFile('./xml/ForEachSortToShipOrder.xsl');
+}
 export function getShipOrderToShipOrderCollectionIndexXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrderCollectionIndex.xsl');
 }

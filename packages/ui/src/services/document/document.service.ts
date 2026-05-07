@@ -11,7 +11,9 @@ import {
   PathSegment,
   PrimitiveDocument,
   RootElementOption,
+  Types,
 } from '../../models/datamapper';
+import { PathExpression } from '../../models/datamapper/xpath';
 import { IMetadataApi } from '../../providers';
 import { XPathService } from '../xpath/xpath.service';
 import { DocumentUtilService } from './document-util.service';
@@ -253,6 +255,55 @@ export class DocumentService {
       }
     }
     return false;
+  }
+
+  /**
+   * Resolves the source document that an absolute XPath references.
+   * If the path contains a document reference name (xsl:param), looks it up
+   * in the parameter map; otherwise returns the body document.
+   */
+  static resolveSourceDocument(
+    absolutePath: PathExpression,
+    namespaceMap: Record<string, string>,
+    sourceBodyDocument: IDocument,
+    sourceParameterMap: Map<string, IDocument>,
+  ): IDocument | undefined {
+    if (absolutePath.documentReferenceName) {
+      return Array.from(sourceParameterMap.values()).find(
+        (doc) => doc.getReferenceId(namespaceMap) === absolutePath.documentReferenceName,
+      );
+    }
+    return sourceBodyDocument;
+  }
+
+  /**
+   * Collects non-Container descendant fields up to a given depth,
+   * resolving type fragments and traversing through wrappers transparently.
+   */
+  static collectDescendantFields(
+    parent: IField | IDocument,
+    maxDepth: number,
+    depth: number = 0,
+    visited: Set<IField> = new Set(),
+  ): IField[] {
+    if (depth >= maxDepth) return [];
+    const result: IField[] = [];
+
+    for (const field of parent.fields) {
+      if (visited.has(field)) continue;
+      visited.add(field);
+
+      const resolved = DocumentUtilService.resolveTypeFragment(field);
+      if (resolved.wrapperKind) {
+        result.push(...DocumentService.collectDescendantFields(resolved, maxDepth, depth, visited));
+      } else {
+        if (resolved.type !== Types.Container) result.push(resolved);
+        if (resolved.fields.length > 0) {
+          result.push(...DocumentService.collectDescendantFields(resolved, maxDepth, depth + 1, visited));
+        }
+      }
+    }
+    return result;
   }
 
   /**

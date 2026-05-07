@@ -3,11 +3,13 @@
   <xsl:output method="xml" indent="yes"/>
   <xsl:template match="/">
     <ShipOrder>
-      <xsl:for-each-group select="/ns0:ShipOrder/Item" group-by="Title">
+      <xsl:for-each select="/ns0:ShipOrder/Item">
+        <xsl:sort select="Title"/>
+        <xsl:sort select="Price" order="descending"/>
         <Item>
           <xsl:value-of select="Title"/>
         </Item>
-      </xsl:for-each-group>
+      </xsl:for-each>
     </ShipOrder>
   </xsl:template>
 </xsl:stylesheet>

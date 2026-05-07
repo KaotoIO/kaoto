@@ -19,6 +19,7 @@ import {
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { Types } from '../../models/datamapper/types';
 import {
+  getForEachSortToShipOrderXslt,
   getInvoice850Xsd,
   getRawTextNodeXslt,
   getShipOrderManuallyEditedXslt,
@@ -884,6 +885,100 @@ describe('MappingSerializerService', () => {
       const xslt2 = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       expect(xslt1).toContain('xsl:if');
       expect(xslt2).toContain('xsl:if');
+    });
+  });
+
+  describe('xsl:sort', () => {
+    it('should deserialize xsl:sort children inside xsl:for-each', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getForEachSortToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const forEachItem = mappingTree.children[0].children[0] as ForEachItem;
+      expect(forEachItem).toBeInstanceOf(ForEachItem);
+      expect(forEachItem.sortItems).toHaveLength(2);
+      expect(forEachItem.sortItems[0].expression).toBe('Title');
+      expect(forEachItem.sortItems[0].order).toBe('ascending');
+      expect(forEachItem.sortItems[1].expression).toBe('Price');
+      expect(forEachItem.sortItems[1].order).toBe('descending');
+    });
+
+    it('should not create UnknownMappingItem for xsl:sort inside for-each', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getForEachSortToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const forEachItem = mappingTree.children[0].children[0] as ForEachItem;
+      const hasUnknown = forEachItem.children.some((c) => c instanceof UnknownMappingItem);
+      expect(hasUnknown).toBe(false);
+    });
+
+    it('should round-trip xsl:sort in for-each', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getForEachSortToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const dom = domParser.parseFromString(serialized, 'application/xml');
+      const sortElements = dom.getElementsByTagNameNS(NS_XSL, 'sort');
+      expect(sortElements.length).toBe(2);
+      expect(sortElements[0].getAttribute('select')).toBe('Title');
+      expect(sortElements[0].hasAttribute('order')).toBe(false);
+      expect(sortElements[1].getAttribute('select')).toBe('Price');
+      expect(sortElements[1].getAttribute('order')).toBe('descending');
+    });
+
+    it('should still preserve xsl:sort inside xsl:apply-templates as UnknownMappingItem', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getUnknownApplyTemplateXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const dom = domParser.parseFromString(serialized, 'application/xml');
+      const applyTemplates = dom.getElementsByTagNameNS(NS_XSL, 'apply-templates');
+      expect(applyTemplates.length).toBe(1);
+      const sortInApply = applyTemplates[0].getElementsByTagNameNS(NS_XSL, 'sort');
+      expect(sortInApply.length).toBe(1);
+      expect(sortInApply[0].getAttribute('select')).toBe('Title');
+    });
+
+    it('should produce error message when xsl:sort appears under xsl:if', () => {
+      const xsltWithSortUnderIf = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+  <xsl:template match="/">
+    <ShipOrder>
+      <xsl:if test="ShipOrder/OrderPerson">
+        <xsl:sort select="Title"/>
+        <OrderPerson><xsl:value-of select="ShipOrder/OrderPerson"/></OrderPerson>
+      </xsl:if>
+    </ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const result = MappingSerializerService.deserialize(
+        xsltWithSortUnderIf,
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      );
+      mappingTree = result.mappingTree;
+      expect(
+        result.messages.some((m) => m.variant === 'danger' && String(m.title).includes('xsl:sort is not allowed')),
+      ).toBe(true);
+      const ifItem = mappingTree.children[0].children[0] as IfItem;
+      expect(ifItem).toBeInstanceOf(IfItem);
     });
   });
 });

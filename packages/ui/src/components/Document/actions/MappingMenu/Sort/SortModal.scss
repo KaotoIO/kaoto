@@ -1,0 +1,51 @@
+.sort-modal {
+  &__row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex: 1;
+  }
+
+  &__expression {
+    flex: 1;
+  }
+
+  &__sortable-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  &__advanced {
+    flex-basis: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 0 0.5rem 2.5rem;
+    border-bottom: 1px solid var(--pf-t--global--border--color--default);
+  }
+
+  &__advanced-collation {
+    grid-column: 1 / -1;
+  }
+
+  &__settings-active {
+    border: 1px solid var(--pf-t--global--color--brand--100);
+    border-radius: var(--pf-t--global--border--radius--small);
+  }
+
+  &__settings-configured {
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--pf-t--global--color--brand--default);
+    }
+  }
+}
