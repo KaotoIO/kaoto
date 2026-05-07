@@ -3,7 +3,7 @@ import { ComponentType, MouseEvent, useCallback, useEffect, useMemo, useRef, use
 import { DocumentTreeNode } from '../../../models/datamapper/document-tree-node';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { FieldContextMenu, MenuGroup } from './FieldContextMenu';
-import { useAbstractFieldMenu } from './FieldContextMenu/useAbstractFieldMenu';
+import { useAbstractFieldSubstitutionMenu } from './FieldContextMenu/useAbstractFieldSubstitutionMenu';
 import { useChoiceContextMenu } from './FieldContextMenu/useChoiceContextMenu';
 import { useFieldOverrideMenu } from './FieldContextMenu/useFieldOverrideMenu';
 
@@ -32,7 +32,7 @@ export function withFieldContextMenu<P extends WithTreeNode>(
     const field = VisualizationUtilService.getField(nodeData);
     const choice = useChoiceContextMenu(nodeData);
     const override = useFieldOverrideMenu(nodeData);
-    const abstract = useAbstractFieldMenu(nodeData);
+    const abstractSubstitution = useAbstractFieldSubstitutionMenu(nodeData);
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
@@ -73,8 +73,10 @@ export function withFieldContextMenu<P extends WithTreeNode>(
 
     const menuGroups = useMemo(
       (): MenuGroup[] =>
-        [...choice.groups, ...override.groups, ...abstract.groups].filter((group) => group.actions.length > 0),
-      [choice.groups, override.groups, abstract.groups],
+        [...choice.groups, ...override.groups, ...abstractSubstitution.groups].filter(
+          (group) => group.actions.length > 0,
+        ),
+      [choice.groups, override.groups, abstractSubstitution.groups],
     );
 
     return (
@@ -97,7 +99,7 @@ export function withFieldContextMenu<P extends WithTreeNode>(
 
         {choice.modals}
         {override.modals}
-        {abstract.modals}
+        {abstractSubstitution.modals}
       </>
     );
   };
