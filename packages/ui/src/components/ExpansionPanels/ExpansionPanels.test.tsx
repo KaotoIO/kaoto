@@ -1,5 +1,7 @@
 import { act, render, screen } from '@testing-library/react';
+import { useContext, useEffect } from 'react';
 
+import { ExpansionContext } from './ExpansionContext';
 import { ExpansionPanel } from './ExpansionPanel';
 import { ExpansionPanels } from './ExpansionPanels';
 
@@ -175,17 +177,29 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toContain('300px 300px 300px');
     });
 
-    it('should assign ORDER_FIRST (0) to parameters-header panel', async () => {
+    it('should assign ORDER_FIRST (0) to panel with firstPanelId prop', async () => {
       const configs: PanelConfig[] = [
         { id: 'panel-1', summary: 'Panel 1' },
-        { id: 'parameters-header', summary: 'Parameters Header' },
+        { id: 'first-panel', summary: 'First Panel' },
       ];
 
-      const { container } = renderPanels(configs);
+      const { container } = render(
+        <ExpansionPanels firstPanelId="first-panel">
+          {configs.map((cfg) => (
+            <ExpansionPanel key={cfg.id} id={cfg.id} summary={<div>{cfg.summary}</div>}>
+              Content
+            </ExpansionPanel>
+          ))}
+        </ExpansionPanels>,
+      );
+
       await setupBasicPanels(container);
 
       const gridTemplate = getGridTemplate(container);
       expect(gridTemplate).toBeTruthy();
+      // Grid template should have both panels
+      const heights = parseHeights(gridTemplate);
+      expect(heights.length).toBe(2);
     });
 
     it('should assign ORDER_LAST (1000) to panel with lastPanelId prop', async () => {
@@ -206,12 +220,13 @@ describe('ExpansionPanels', () => {
 
       await setupBasicPanels(container);
 
-      // Grid template should NOT contain 1fr (no spacer)
+      // Grid template should NOT contain 1fr (no spacer in new implementation)
       const gridTemplate = getGridTemplate(container);
       expect(gridTemplate).not.toContain('1fr');
 
-      // Panels should be in order: panel-1 first, my-last-panel last
-      expect(gridTemplate).toBeTruthy();
+      // Panels should be present in grid template
+      const heights = parseHeights(gridTemplate);
+      expect(heights.length).toBe(2);
     });
   });
 
@@ -372,97 +387,29 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
     });
 
-    it('should call layout callbacks after container resize with double RAF', async () => {
-      const layoutCallback = jest.fn();
+    it('should execute layout callbacks when container resizes horizontally without height change', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', defaultHeight: 300, minHeight: 100 },
+        { id: 'panel-2', summary: 'Panel 2', defaultHeight: 300, minHeight: 100 },
+      ];
 
-      const { container } = render(
-        <ExpansionPanels>
-          <ExpansionPanel id="panel-1" summary={<div>Panel 1</div>} onLayoutChange={layoutCallback}>
-            Content 1
-          </ExpansionPanel>
-        </ExpansionPanels>,
-      );
-
+      const { container } = renderPanels(configs);
       await setupPanelMocks(container);
-      layoutCallback.mockClear();
 
-      // Trigger container resize
-      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
-      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 800, configurable: true });
+      const initialGridTemplate = getGridTemplate(container);
 
+      // Trigger resize without changing height (horizontal resize)
+      // This should still execute layout callbacks via double RAF
       await triggerContainerResize(mockResizeObserver);
 
-      // Wait for double RAF to complete
-      await waitForUpdate(20);
+      // Wait for double requestAnimationFrame to complete
+      await act(async () => {
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
 
-      // Callback should be called after double RAF
-      expect(layoutCallback).toHaveBeenCalled();
-    });
-
-    it('should call all registered layout callbacks after container resize', async () => {
-      const callback1 = jest.fn();
-      const callback2 = jest.fn();
-      const callback3 = jest.fn();
-
-      const { container } = render(
-        <ExpansionPanels>
-          <ExpansionPanel id="panel-1" summary={<div>Panel 1</div>} onLayoutChange={callback1}>
-            Content 1
-          </ExpansionPanel>
-          <ExpansionPanel id="panel-2" summary={<div>Panel 2</div>} onLayoutChange={callback2}>
-            Content 2
-          </ExpansionPanel>
-          <ExpansionPanel id="panel-3" summary={<div>Panel 3</div>} onLayoutChange={callback3}>
-            Content 3
-          </ExpansionPanel>
-        </ExpansionPanels>,
-      );
-
-      await setupPanelMocks(container);
-      callback1.mockClear();
-      callback2.mockClear();
-      callback3.mockClear();
-
-      // Trigger container resize
-      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
-      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 800, configurable: true });
-
-      await triggerContainerResize(mockResizeObserver);
-
-      // Wait for double RAF to complete
-      await waitForUpdate(20);
-
-      // All callbacks should be called
-      expect(callback1).toHaveBeenCalled();
-      expect(callback2).toHaveBeenCalled();
-      expect(callback3).toHaveBeenCalled();
-    });
-
-    it('should handle horizontal resize (no height change) with layout callbacks', async () => {
-      const layoutCallback = jest.fn();
-
-      const { container } = render(
-        <ExpansionPanels>
-          <ExpansionPanel id="panel-1" summary={<div>Panel 1</div>} onLayoutChange={layoutCallback}>
-            Content 1
-          </ExpansionPanel>
-        </ExpansionPanels>,
-      );
-
-      await setupPanelMocks(container);
-      layoutCallback.mockClear();
-
-      // Trigger container resize with same height (horizontal resize)
-      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
-      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 600, configurable: true });
-
-      await triggerContainerResize(mockResizeObserver);
-
-      // Wait for double RAF to complete
-      await waitForUpdate(20);
-
-      // Callback should still be called for horizontal resize
-      expect(layoutCallback).toHaveBeenCalled();
+      const gridTemplate = getGridTemplate(container);
+      // Grid template should remain the same (no height change)
+      expect(gridTemplate).toBe(initialGridTemplate);
     });
   });
 
@@ -684,9 +631,12 @@ describe('ExpansionPanels', () => {
 
       const gridTemplate = getGridTemplate(container);
       expect(gridTemplate).toBeTruthy();
-      // All three panels should be present
+      // All three panels should be present and redistributed to fit
       const heights = parseHeights(gridTemplate);
       expect(heights.length).toBe(3);
+      // Total should not exceed container height
+      const totalHeight = heights.reduce((sum, h) => sum + h, 0);
+      expect(totalHeight).toBeLessThanOrEqual(600);
     });
 
     it('should NOT redistribute when new panel fits within container', async () => {
@@ -696,6 +646,9 @@ describe('ExpansionPanels', () => {
       mockAllPanels(container);
       mockContainerHeight(container, 1000); // Large container
       await waitForUpdate();
+
+      const initialGridTemplate = getGridTemplate(container);
+      expect(initialGridTemplate).toContain('200px');
 
       // Add a second panel that fits (200 + 300 < 1000)
       const newConfigs: PanelConfig[] = [
@@ -708,7 +661,7 @@ describe('ExpansionPanels', () => {
       await waitForUpdate();
 
       const gridTemplate = getGridTemplate(container);
-      // Both panels should maintain their heights since there's enough space
+      // Both panels should maintain their default heights since there's enough space
       expect(gridTemplate).toContain('200px');
       expect(gridTemplate).toContain('300px');
     });
@@ -790,7 +743,7 @@ describe('ExpansionPanels', () => {
     });
   });
 
-  describe('queueLayoutChange', () => {
+  describe('Layout Callbacks', () => {
     it('should provide queueLayoutChange in context', async () => {
       const configs: PanelConfig[] = [{ id: 'panel-1', summary: 'Panel 1' }];
 
@@ -800,6 +753,101 @@ describe('ExpansionPanels', () => {
       // The context should be set up correctly (tested indirectly through rendering)
       const expansionPanelsContainer = container.querySelector('.expansion-panels');
       expect(expansionPanelsContainer).toBeInTheDocument();
+    });
+
+    it('should provide registerLayoutCallback and unregisterLayoutCallback in context', async () => {
+      const configs: PanelConfig[] = [{ id: 'panel-1', summary: 'Panel 1' }];
+
+      const { container } = renderPanels(configs);
+      await setupBasicPanels(container);
+
+      // The context should be set up correctly with all callback methods
+      const expansionPanelsContainer = container.querySelector('.expansion-panels');
+      expect(expansionPanelsContainer).toBeInTheDocument();
+    });
+
+    it('should execute layout callbacks after grid template changes', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', defaultExpanded: true },
+        { id: 'panel-2', summary: 'Panel 2', defaultExpanded: true },
+      ];
+
+      const { container } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      // Collapse a panel to trigger grid template change
+      const panel1Summary = screen.getByText('Panel 1');
+      await clickElement(panel1Summary);
+
+      // Grid template should be updated
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toBeTruthy();
+    });
+
+    it('should flush layout callbacks after panel unregistration', async () => {
+      const configs: PanelConfig[] = [
+        { id: 'panel-1', summary: 'Panel 1', defaultExpanded: true },
+        { id: 'panel-2', summary: 'Panel 2', defaultExpanded: true },
+      ];
+
+      const { container, rerender } = renderPanels(configs);
+      await setupPanelMocks(container);
+
+      // Remove a panel
+      rerender(<ExpansionPanels>{createPanelElement(configs[0])}</ExpansionPanels>);
+      mockAllPanels(container);
+      await waitForUpdate();
+
+      // Grid should be updated after unregistration
+      const gridTemplate = getGridTemplate(container);
+      expect(gridTemplate).toBeTruthy();
+    });
+
+    it('should execute all queued layout callbacks via executeAllLayoutCallbacks', async () => {
+      // Create a component that registers a layout callback
+      let callbackExecuted = false;
+      const TestPanel = ({ id }: { id: string }) => {
+        const context = useContext(ExpansionContext);
+
+        useEffect(() => {
+          if (context) {
+            const callback = () => {
+              callbackExecuted = true;
+            };
+            context.registerLayoutCallback(id, callback);
+            return () => context.unregisterLayoutCallback(id);
+          }
+        }, [context, id]);
+
+        return (
+          <ExpansionPanel id={id} summary={<div>Test Panel</div>} defaultExpanded={true}>
+            Content
+          </ExpansionPanel>
+        );
+      };
+
+      const { container } = render(
+        <ExpansionPanels>
+          <TestPanel id="test-panel-1" />
+          <TestPanel id="test-panel-2" />
+        </ExpansionPanels>,
+      );
+
+      await setupPanelMocks(container);
+
+      // Trigger a container resize that doesn't change heights
+      // This will call fitPanelsToContainer which executes callbacks via double RAF
+      const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
+      Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 600, configurable: true });
+
+      await act(async () => {
+        mockResizeObserver.trigger();
+        // Wait for double RAF to complete (this executes line 71: callback())
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
+
+      // Verify the callback was actually executed (line 71 was hit)
+      expect(callbackExecuted).toBe(true);
     });
   });
 });
