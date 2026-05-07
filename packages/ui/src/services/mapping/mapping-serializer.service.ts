@@ -294,7 +294,7 @@ export class MappingSerializerService {
     const handler = deserializeHandlers.get(element.localName);
     let result: DeserializeItemResult<MappingItem> | null;
     if (handler) {
-      result = handler.deserialize(element, parentField, parentMapping);
+      result = handler.deserialize(element, parentField, parentMapping) as DeserializeItemResult<MappingItem> | null;
     } else {
       result = {
         mappingItem: new UnknownMappingItem(parentMapping, element),

@@ -3,7 +3,7 @@ import { FunctionComponent, useMemo } from 'react';
 import { DocumentDefinition, DocumentInitializationModel } from '../../../models/datamapper';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DatamapperDndProvider } from '../../../providers/datamapper-dnd.provider';
+import { DataMapperDndProvider } from '../../../providers/datamapper-dnd.provider';
 import { SourceTargetDnDHandler } from '../../../providers/dnd/SourceTargetDnDHandler';
 import { DebugLayout } from './DebugLayout';
 
@@ -29,11 +29,11 @@ export const DataMapperDebugger: FunctionComponent<DataMapperDebuggerProps> = ({
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
     >
-      <DatamapperDndProvider handler={dndHandler}>
+      <DataMapperDndProvider handler={dndHandler}>
         <MappingLinksProvider>
           <DebugLayout />
         </MappingLinksProvider>
-      </DatamapperDndProvider>
+      </DataMapperDndProvider>
     </DataMapperProvider>
   );
 };

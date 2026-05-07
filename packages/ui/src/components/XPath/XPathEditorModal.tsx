@@ -13,7 +13,7 @@ import {
 } from '@patternfly/react-core';
 import { QuestionCircleIcon } from '@patternfly/react-icons';
 import { ExclamationCircleIcon } from '@patternfly/react-icons/dist/esm/icons/exclamation-circle-icon';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IExpressionHolder, MappingItem } from '../../models/datamapper';
 import { XPathService } from '../../services/xpath/xpath.service';
@@ -36,6 +36,20 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
   mapping,
   onUpdate,
 }) => {
+  const isDraggingRef = useRef(false);
+
+  const handleDragStateChange = useCallback((isDragging: boolean) => {
+    isDraggingRef.current = isDragging;
+  }, []);
+
+  const handleClose = useCallback(() => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      return;
+    }
+    onClose();
+  }, [onClose]);
+
   const [validationResult, setValidationResult] = useState<ValidatedXPathParseResult>();
 
   const validateXPath = useCallback(() => {
@@ -99,15 +113,15 @@ export const XPathEditorModal: FunctionComponent<XPathEditorModalProps> = ({
       variant={ModalVariant.large}
       width="90%"
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       data-testid="xpath-editor-modal"
     >
       <ModalHeader title={<h1 className="pf-v6-c-title pf-m-3xl">XPath Editor: {title}</h1>} help={headerHelper} />
       <ModalBody>
-        <XPathEditorLayout mapping={mapping} onUpdate={onUpdate} />
+        <XPathEditorLayout mapping={mapping} onUpdate={onUpdate} onDragStateChange={handleDragStateChange} />
       </ModalBody>
       <ModalFooter>
-        <Button key="close-xpath-editor" onClick={onClose} data-testid="close-xpath-editor-btn">
+        <Button key="close-xpath-editor" onClick={handleClose} data-testid="close-xpath-editor-btn">
           Close
         </Button>
       </ModalFooter>
