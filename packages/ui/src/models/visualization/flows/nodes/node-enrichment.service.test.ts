@@ -92,4 +92,43 @@ describe('NodeEnrichmentService', () => {
     expect(vizNode.data.title).toBe('Log EIP');
     expect(consoleWarnSpy).toHaveBeenCalledTimes(2);
   });
+
+  it('should pass processorName to getTitleRequest for Processor catalog kind', async () => {
+    mockGetIconRequest.mockResolvedValue({ icon: 'when-icon.svg', alt: 'When icon' });
+    mockGetTooltipRequest.mockResolvedValue('Conditional routing');
+    mockGetProcessorIconTooltipRequest.mockResolvedValue('When: Routes based on condition');
+    mockGetTitleRequest.mockResolvedValue('When EIP');
+
+    const vizNode = createMockVizNode();
+    // Set name to a condition expression (different from processorName)
+    vizNode.data.name = "${header.foo} == 'bar'";
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vizNode.data as any).processorName = 'when';
+
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+
+    // Verify getTitleRequest was called with processorName, not name
+    expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Processor, 'when', undefined);
+    expect(vizNode.data.title).toBe('When EIP');
+  });
+
+  it('should pass name to getTitleRequest for Component catalog kind', async () => {
+    mockGetIconRequest.mockResolvedValue({ icon: 'timer-icon.svg', alt: 'Timer icon' });
+    mockGetTooltipRequest.mockResolvedValue('Timer component');
+    mockGetProcessorIconTooltipRequest.mockResolvedValue('From: Consumes messages');
+    mockGetTitleRequest.mockResolvedValue('Timer');
+
+    const vizNode = createMockVizNode();
+    vizNode.data.name = 'timer';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vizNode.data as any).processorName = 'from';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (vizNode.data as any).componentName = 'timer';
+
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
+
+    // Verify getTitleRequest was called with name (not processorName) for Component kind
+    expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer', 'timer');
+    expect(vizNode.data.title).toBe('Timer');
+  });
 });

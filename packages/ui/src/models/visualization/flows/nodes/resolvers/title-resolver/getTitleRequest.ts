@@ -2,6 +2,25 @@ import { CatalogKind } from '../../../../../catalog-kind';
 import { NodeTitleResolver } from './node-title-resolver';
 
 /**
+ * Mapping of catalog kinds to their respective resolver methods.
+ */
+const TITLE_RESOLVER_MAP: Partial<
+  Record<CatalogKind, (name: string, catalogKind: CatalogKind, componentName?: string) => Promise<string>>
+> = {
+  [CatalogKind.Entity]: NodeTitleResolver.getEntityTitle,
+  [CatalogKind.Kamelet]: NodeTitleResolver.getKameletTitle,
+  [CatalogKind.Component]: NodeTitleResolver.getComponentTitle,
+  [CatalogKind.Processor]: NodeTitleResolver.getProcessorTitle,
+  [CatalogKind.Pattern]: NodeTitleResolver.getProcessorTitle,
+  [CatalogKind.TestAction]: NodeTitleResolver.getTestActionTitle,
+  [CatalogKind.TestActionGroup]: NodeTitleResolver.getTestActionTitle,
+  [CatalogKind.TestContainer]: NodeTitleResolver.getTestActionTitle,
+  [CatalogKind.TestEndpoint]: NodeTitleResolver.getTestActionTitle,
+  [CatalogKind.TestFunction]: NodeTitleResolver.getTestActionTitle,
+  [CatalogKind.TestValidationMatcher]: NodeTitleResolver.getTestActionTitle,
+};
+
+/**
  * Requests the display title for a node based on its catalog kind and name.
  * This function resolves titles from the catalog asynchronously.
  *
@@ -11,33 +30,12 @@ import { NodeTitleResolver } from './node-title-resolver';
  * @returns Promise resolving to the human-readable title
  */
 export async function getTitleRequest(catalogKind: CatalogKind, name: string, componentName?: string): Promise<string> {
-  let title: string;
+  const resolver = TITLE_RESOLVER_MAP[catalogKind];
 
-  switch (catalogKind) {
-    case CatalogKind.Entity:
-      title = await NodeTitleResolver.getEntityTitle(name);
-      break;
-    case CatalogKind.Kamelet:
-      title = await NodeTitleResolver.getKameletTitle(name);
-      break;
-    case CatalogKind.Component:
-      title = await NodeTitleResolver.getComponentTitle(name);
-      break;
-    case CatalogKind.Processor:
-    case CatalogKind.Pattern:
-      title = await NodeTitleResolver.getProcessorTitle(name, componentName);
-      break;
-    case CatalogKind.TestAction:
-    case CatalogKind.TestActionGroup:
-    case CatalogKind.TestContainer:
-    case CatalogKind.TestEndpoint:
-    case CatalogKind.TestFunction:
-    case CatalogKind.TestValidationMatcher:
-      title = await NodeTitleResolver.getTestActionTitle(name);
-      break;
-    default:
-      title = name;
+  if (resolver) {
+    const title = await resolver(name, catalogKind, componentName);
+    return title || name;
   }
 
-  return title || name;
+  return name;
 }

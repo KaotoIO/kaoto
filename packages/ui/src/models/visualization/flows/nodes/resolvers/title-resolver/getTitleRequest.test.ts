@@ -20,7 +20,7 @@ describe('getTitleRequest', () => {
 
     const result = await getTitleRequest(CatalogKind.Component, 'timer');
 
-    expect(mockGetComponentTitle).toHaveBeenCalledWith('timer');
+    expect(mockGetComponentTitle).toHaveBeenCalledWith('timer', CatalogKind.Component, undefined);
     expect(result).toBe('Timer Component');
   });
 
@@ -29,7 +29,7 @@ describe('getTitleRequest', () => {
 
     const result = await getTitleRequest(CatalogKind.Kamelet, 'kafka-source');
 
-    expect(mockGetKameletTitle).toHaveBeenCalledWith('kafka-source');
+    expect(mockGetKameletTitle).toHaveBeenCalledWith('kafka-source', CatalogKind.Kamelet, undefined);
     expect(result).toBe('Kafka Source');
   });
 
@@ -38,7 +38,7 @@ describe('getTitleRequest', () => {
 
     const result = await getTitleRequest(CatalogKind.Processor, 'log');
 
-    expect(mockGetProcessorTitle).toHaveBeenCalledWith('log', undefined);
+    expect(mockGetProcessorTitle).toHaveBeenCalledWith('log', CatalogKind.Processor, undefined);
     expect(result).toBe('Log EIP');
   });
 
@@ -47,7 +47,7 @@ describe('getTitleRequest', () => {
 
     const result = await getTitleRequest(CatalogKind.Processor, 'from', 'timer');
 
-    expect(mockGetProcessorTitle).toHaveBeenCalledWith('from', 'timer');
+    expect(mockGetProcessorTitle).toHaveBeenCalledWith('from', CatalogKind.Processor, 'timer');
     expect(result).toBe('Timer');
   });
 
@@ -56,7 +56,7 @@ describe('getTitleRequest', () => {
 
     const result = await getTitleRequest(CatalogKind.Entity, 'errorHandler');
 
-    expect(mockGetEntityTitle).toHaveBeenCalledWith('errorHandler');
+    expect(mockGetEntityTitle).toHaveBeenCalledWith('errorHandler', CatalogKind.Entity, undefined);
     expect(result).toBe('Error Handler');
   });
 
@@ -65,7 +65,7 @@ describe('getTitleRequest', () => {
 
     const result = await getTitleRequest(CatalogKind.TestAction, 'send');
 
-    expect(mockGetTestActionTitle).toHaveBeenCalledWith('send');
+    expect(mockGetTestActionTitle).toHaveBeenCalledWith('send', CatalogKind.TestAction, undefined);
     expect(result).toBe('Send Action');
   });
 
