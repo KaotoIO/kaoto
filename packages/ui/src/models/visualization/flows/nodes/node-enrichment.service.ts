@@ -21,11 +21,16 @@ export class NodeEnrichmentService {
     const processorName = routeData.processorName;
     const componentName = routeData.componentName;
 
+    // For Processor/Pattern catalog kinds, use processorName as the identifier
+    // For other kinds (Component, Kamelet, etc.), use vizNode.data.name
+    const titleIdentifier =
+      catalogKind === CatalogKind.Processor || catalogKind === CatalogKind.Pattern ? processorName : vizNode.data.name;
+
     const results = await Promise.allSettled([
       getIconRequest(catalogKind, vizNode.data.name),
       getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description),
       getProcessorIconTooltipRequest(processorName),
-      getTitleRequest(catalogKind, vizNode.data.name, componentName),
+      getTitleRequest(catalogKind, titleIdentifier, componentName),
     ]);
 
     // Handle icon result

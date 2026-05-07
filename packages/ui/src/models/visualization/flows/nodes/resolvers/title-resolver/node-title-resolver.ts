@@ -1,5 +1,5 @@
-import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../catalog-kind';
+import { CatalogResolverFactory } from '../catalog-resolver.factory';
 
 /**
  * Service for resolving node titles from the catalog.
@@ -10,8 +10,12 @@ export class NodeTitleResolver {
    * Resolves the title for a Camel component.
    */
   static async getComponentTitle(name: string): Promise<string> {
-    const component = await DynamicCatalogRegistry.get().getEntity<CatalogKind.Component>(CatalogKind.Component, name);
-    return component?.component.title ?? name;
+    const title = await CatalogResolverFactory.resolveProperty(
+      CatalogKind.Component,
+      name,
+      (def) => def?.component?.title,
+    );
+    return title ?? name;
   }
 
   /**
@@ -20,15 +24,23 @@ export class NodeTitleResolver {
   static async getKameletTitle(name: string): Promise<string> {
     // Remove 'kamelet:' prefix if present
     const cleanName = name.replace('kamelet:', '');
-    const kamelet = await DynamicCatalogRegistry.get().getEntity<CatalogKind.Kamelet>(CatalogKind.Kamelet, cleanName);
-    return kamelet?.spec.definition.title ?? name;
+    const title = await CatalogResolverFactory.resolveProperty(
+      CatalogKind.Kamelet,
+      cleanName,
+      (def) => def?.spec?.definition?.title,
+    );
+    return title ?? name;
   }
 
   /**
    * Resolves the title for a processor.
    * If a component name is provided, tries to get the component title first.
    */
-  static async getProcessorTitle(processorName: string, componentName?: string): Promise<string> {
+  static async getProcessorTitle(
+    processorName: string,
+    _catalogKind: CatalogKind,
+    componentName?: string,
+  ): Promise<string> {
     // If there's a component name, get the component/kamelet title
     if (componentName) {
       if (componentName.startsWith('kamelet:')) {
@@ -38,23 +50,24 @@ export class NodeTitleResolver {
       return this.getComponentTitle(componentName);
     }
 
-    // Otherwise get processor title
-    const processor = await DynamicCatalogRegistry.get().getEntity<CatalogKind.Processor>(
-      CatalogKind.Processor,
+    // Try processor catalog, fallback to pattern catalog
+    const title = await CatalogResolverFactory.resolvePropertyWithFallbacks(
+      [CatalogKind.Processor, CatalogKind.Pattern],
       processorName,
+      (def) => def?.model?.title,
     );
-    return processor?.model.title ?? processorName;
+    return title ?? processorName;
   }
 
   /**
    * Resolves the title for an entity (route, errorHandler, etc.).
    */
   static async getEntityTitle(name: string): Promise<string> {
-    const entity = await DynamicCatalogRegistry.get().getEntity<CatalogKind.Entity>(CatalogKind.Entity, name);
+    const title = await CatalogResolverFactory.resolveProperty(CatalogKind.Entity, name, (def) => def?.model?.title);
 
     // If catalog has a title, use it
-    if (entity?.model?.title) {
-      return entity.model.title;
+    if (title) {
+      return title;
     }
 
     // Otherwise, format camelCase to spaced title
@@ -69,12 +82,23 @@ export class NodeTitleResolver {
 
   /**
    * Resolves the title for a test action.
+   * Searches across all test catalog kinds, prioritizing the requested kind.
    */
-  static async getTestActionTitle(name: string): Promise<string> {
-    const testAction = await DynamicCatalogRegistry.get().getEntity<CatalogKind.TestAction>(
+  static async getTestActionTitle(name: string, requestedKind: CatalogKind, _componentName?: string): Promise<string> {
+    // All possible test catalog kinds
+    const allTestKinds = [
       CatalogKind.TestAction,
-      name,
-    );
-    return testAction?.title ?? name;
+      CatalogKind.TestActionGroup,
+      CatalogKind.TestContainer,
+      CatalogKind.TestEndpoint,
+      CatalogKind.TestFunction,
+      CatalogKind.TestValidationMatcher,
+    ];
+
+    // Try requested kind first, then all other test kinds
+    const catalogKinds = [requestedKind, ...allTestKinds.filter((kind) => kind !== requestedKind)];
+
+    const title = await CatalogResolverFactory.resolvePropertyWithFallbacks(catalogKinds, name, (def) => def?.title);
+    return title ?? name;
   }
 }

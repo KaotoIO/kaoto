@@ -62,7 +62,7 @@ describe('NodeTitleResolver', () => {
         component: { title: 'Timer' },
       });
 
-      const title = await NodeTitleResolver.getProcessorTitle('from', 'timer');
+      const title = await NodeTitleResolver.getProcessorTitle('from', CatalogKind.Processor, 'timer');
 
       expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Component, 'timer');
       expect(title).toBe('Timer');
@@ -73,7 +73,7 @@ describe('NodeTitleResolver', () => {
         spec: { definition: { title: 'Kafka Source' } },
       });
 
-      const title = await NodeTitleResolver.getProcessorTitle('from', 'kamelet:kafka-source');
+      const title = await NodeTitleResolver.getProcessorTitle('from', CatalogKind.Processor, 'kamelet:kafka-source');
 
       expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-source');
       expect(title).toBe('Kafka Source');
@@ -84,7 +84,7 @@ describe('NodeTitleResolver', () => {
         model: { title: 'Log EIP' },
       });
 
-      const title = await NodeTitleResolver.getProcessorTitle('log');
+      const title = await NodeTitleResolver.getProcessorTitle('log', CatalogKind.Processor);
 
       expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.Processor, 'log');
       expect(title).toBe('Log EIP');
@@ -93,7 +93,7 @@ describe('NodeTitleResolver', () => {
     it('should fallback to processor name if not found', async () => {
       mockRegistry.getEntity.mockResolvedValue(undefined);
 
-      const title = await NodeTitleResolver.getProcessorTitle('missing');
+      const title = await NodeTitleResolver.getProcessorTitle('missing', CatalogKind.Processor);
 
       expect(title).toBe('missing');
     });
@@ -126,16 +126,28 @@ describe('NodeTitleResolver', () => {
         title: 'Send Action',
       });
 
-      const title = await NodeTitleResolver.getTestActionTitle('send');
+      const title = await NodeTitleResolver.getTestActionTitle('send', CatalogKind.TestAction);
 
       expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.TestAction, 'send');
       expect(title).toBe('Send Action');
     });
 
+    it('should prioritize requested catalog kind (TestActionGroup)', async () => {
+      mockRegistry.getEntity.mockResolvedValue({
+        title: 'Test Action Group Title',
+      });
+
+      const title = await NodeTitleResolver.getTestActionTitle('myGroup', CatalogKind.TestActionGroup);
+
+      // Should try TestActionGroup first since it was requested
+      expect(mockRegistry.getEntity).toHaveBeenCalledWith(CatalogKind.TestActionGroup, 'myGroup');
+      expect(title).toBe('Test Action Group Title');
+    });
+
     it('should fallback to name if test action not found', async () => {
       mockRegistry.getEntity.mockResolvedValue(undefined);
 
-      const title = await NodeTitleResolver.getTestActionTitle('missing');
+      const title = await NodeTitleResolver.getTestActionTitle('missing', CatalogKind.TestAction);
 
       expect(title).toBe('missing');
     });
