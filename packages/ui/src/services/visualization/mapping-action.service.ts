@@ -2,6 +2,7 @@ import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
+  ForEachGroupItem,
   ForEachItem,
   IfItem,
   MappingItem,
@@ -263,13 +264,7 @@ export class MappingActionService {
         if (MappingActionService.isFieldNode(n)) return !MappingActionService.isFieldInsideForEach(n);
         return (
           MappingActionService.isMappingNode(n) &&
-          !MappingActionService.mappingIsOneOf(
-            ValueSelector,
-            WhenItem,
-            OtherwiseItem,
-            ForEachItem,
-            UnknownMappingItem,
-          )(n)
+          !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, UnknownMappingItem)(n)
         );
       },
     },
@@ -281,6 +276,20 @@ export class MappingActionService {
           return MappingActionService.hasValueSelector(n);
         return MappingActionService.isMappingNode(n);
       },
+    },
+    {
+      key: MappingActionKind.Sort,
+      testId: 'transformation-actions-sort',
+      getLabel: (n) => {
+        const mapping = n.mapping;
+        if ((mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) && mapping.sortItems.length > 0) {
+          return 'Edit Sort';
+        }
+        return 'Configure Sort';
+      },
+      apply: (_n, { openModal }) => openModal(MappingActionKind.Sort),
+      isAllowed: (n) =>
+        MappingActionService.isMappingNode(n) && MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
     },
     {
       key: MappingActionKind.Comment,

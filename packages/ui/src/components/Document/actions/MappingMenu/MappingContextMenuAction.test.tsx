@@ -1,17 +1,37 @@
+import { DraggableObject } from '@patternfly/react-drag-drop';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FunctionComponent } from 'react';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { ChooseItem, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
+import { ChooseItem, FieldItem, ForEachItem, MappingTree } from '../../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   MappingNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
-} from '../../../models/datamapper/visualization';
-import { MappingService } from '../../../services/mapping/mapping.service';
-import { MappingActionService } from '../../../services/visualization/mapping-action.service';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+} from '../../../../models/datamapper/visualization';
+import { MappingService } from '../../../../services/mapping/mapping.service';
+import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
+import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
+
+jest.mock('@patternfly/react-drag-drop', () => ({
+  DragDropSort: (({ items }: { items: DraggableObject[] }) => (
+    <div data-testid="drag-drop-sort">
+      {items.map((item) => (
+        <div key={item.id}>{item.content}</div>
+      ))}
+    </div>
+  )) as FunctionComponent<{ items: DraggableObject[] }>,
+}));
+
+jest.mock('../../../../hooks/useDataMapper', () => ({
+  useDataMapper: jest.fn().mockReturnValue({
+    sourceBodyDocument: { fields: [], getReferenceId: () => '' },
+    sourceParameterMap: new Map(),
+    mappingTree: { namespaceMap: {} },
+  }),
+}));
 
 describe('MappingContextMenuAction', () => {
   let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
@@ -467,6 +487,45 @@ describe('MappingContextMenuAction', () => {
         // Comment should be set
         expect(fieldItem.comment).toBe('New test comment');
       });
+    });
+  });
+
+  describe('Sort Functionality', () => {
+    it('should open SortModal when Sort action is clicked on a ForEachItem', async () => {
+      const forEachItem = new ForEachItem(mappingTree);
+      const nodeData = new MappingNodeData(documentNodeData, forEachItem);
+      const onUpdateMock = jest.fn();
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      act(() => {
+        fireEvent.click(actionToggle);
+      });
+
+      const sortItem = screen.getByTestId('transformation-actions-sort');
+      act(() => {
+        fireEvent.click(sortItem.getElementsByTagName('button')[0]);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('sort-modal')).toBeInTheDocument();
+      });
+    });
+
+    it('should display "Edit Sort" when ForEachItem has existing sort items', () => {
+      const forEachItem = new ForEachItem(mappingTree);
+      const sort = { expression: 'Title', order: 'ascending' as const };
+      forEachItem.sortItems = [sort];
+      const nodeData = new MappingNodeData(documentNodeData, forEachItem);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={jest.fn()} />);
+
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      act(() => {
+        fireEvent.click(actionToggle);
+      });
+
+      const sortAction = screen.getByTestId('transformation-actions-sort');
+      expect(sortAction).toHaveTextContent('Edit Sort');
     });
   });
 });

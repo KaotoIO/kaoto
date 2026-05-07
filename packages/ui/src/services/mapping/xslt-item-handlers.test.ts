@@ -1,5 +1,12 @@
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IParentType } from '../../models/datamapper/document';
-import { ForEachGroupItem, GroupingStrategy, MappingTree, UnknownMappingItem } from '../../models/datamapper/mapping';
+import {
+  ForEachGroupItem,
+  ForEachItem,
+  GroupingStrategy,
+  MappingTree,
+  SortItem,
+  UnknownMappingItem,
+} from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import {
   getForEachGroupEndingWithToShipOrderXslt,
@@ -14,6 +21,7 @@ import {
   deserializeHandlers,
   FieldItemHandler,
   ForEachGroupItemHandler,
+  ForEachItemHandler,
   serializeHandlers,
   UnknownMappingItemHandler,
 } from './xslt-item-handlers';
@@ -34,9 +42,11 @@ describe('xslt-item-handlers registry', () => {
     expect(allHandlers.length).toBe(exportedHandlerClasses.length);
   });
 
-  it('every handler in allHandlers is registered in serializeHandlers', () => {
+  it('every handler with itemClass is registered in serializeHandlers', () => {
     for (const handler of allHandlers) {
-      expect(serializeHandlers.get(handler.itemClass)).toBe(handler);
+      if (handler.itemClass) {
+        expect(serializeHandlers.get(handler.itemClass)).toBe(handler);
+      }
     }
   });
 
@@ -220,6 +230,71 @@ describe('ForEachGroupItemHandler', () => {
     expect(el).toBeTruthy();
     expect(el.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
     expect(el.getAttribute('group-by')).toBe('Title');
+  });
+});
+
+describe('ForEachItemHandler sort serialization', () => {
+  const handler = new ForEachItemHandler();
+
+  it('should serialize for-each with sort items', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const item = new ForEachItem(mappingTree);
+    item.expression = '/items/item';
+    const sort1 = new SortItem();
+    sort1.expression = 'Title';
+    const sort2 = new SortItem();
+    sort2.expression = 'Price';
+    sort2.order = 'descending';
+    item.sortItems = [sort1, sort2];
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, item);
+
+    const sortElements = el.getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'sort');
+    expect(sortElements.length).toBe(2);
+    expect(sortElements[0].getAttribute('select')).toBe('Title');
+    expect(sortElements[0].hasAttribute('order')).toBe(false);
+    expect(sortElements[1].getAttribute('select')).toBe('Price');
+    expect(sortElements[1].getAttribute('order')).toBe('descending');
+  });
+
+  it('should serialize for-each with no sort items', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const item = new ForEachItem(mappingTree);
+    item.expression = '/items/item';
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, item);
+
+    const sortElements = el.getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'sort');
+    expect(sortElements.length).toBe(0);
+  });
+});
+
+describe('ForEachGroupItemHandler sort serialization', () => {
+  const handler = new ForEachGroupItemHandler();
+
+  it('should serialize for-each-group with sort items', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const item = new ForEachGroupItem(mappingTree);
+    item.expression = '/items/item';
+    item.groupingStrategy = GroupingStrategy.GROUP_BY;
+    item.groupingExpression = 'category';
+    const sort = new SortItem();
+    sort.expression = '@date';
+    sort.order = 'descending';
+    item.sortItems = [sort];
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, item);
+
+    const sortElements = el.getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'sort');
+    expect(sortElements.length).toBe(1);
+    expect(sortElements[0].getAttribute('select')).toBe('@date');
+    expect(sortElements[0].getAttribute('order')).toBe('descending');
   });
 });
 

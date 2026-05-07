@@ -127,7 +127,7 @@ type DataMapperDndContextProps = PropsWithChildren & {
   handler: DnDHandler | undefined;
 };
 
-export const DatamapperDndProvider: FunctionComponent<DataMapperDndContextProps> = (props) => {
+export const DataMapperDndProvider: FunctionComponent<DataMapperDndContextProps> = (props) => {
   const { mappingTree, refreshMappingTree, sendAlert } = useDataMapper();
   const [activeData, setActiveData] = useState<DataRef<NodeData> | null>(null);
   const activeDragSideRef = useRef<'source' | 'target' | null>(null);

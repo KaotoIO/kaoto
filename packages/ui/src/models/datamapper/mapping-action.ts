@@ -15,6 +15,7 @@ export enum MappingActionKind {
   When = 'when',
   Otherwise = 'otherwise',
   Comment = 'comment',
+  Sort = 'sort',
 }
 
 /**

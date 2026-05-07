@@ -8,7 +8,7 @@ import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { MappingActionService } from '../../../services/visualization/mapping-action.service';
 import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
-import { MappingContextMenuAction } from './MappingContextMenuAction';
+import { MappingContextMenuAction } from './MappingMenu/MappingContextMenuAction';
 import { XPathEditorAction } from './XPathEditorAction';
 import { XPathInputAction } from './XPathInputAction';
 
@@ -23,6 +23,7 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({ c
   const allowedActions = new Set(MappingActionService.getAllowedActions(nodeData));
 
   const handleStopPropagation = useCallback((event: MouseEvent | KeyboardEvent) => {
+    if (!(event.currentTarget as HTMLElement).contains(event.target as Node)) return;
     event.stopPropagation();
   }, []);
 

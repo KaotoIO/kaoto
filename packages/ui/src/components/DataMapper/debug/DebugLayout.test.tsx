@@ -6,7 +6,7 @@ import { MappingTree } from '../../../models/datamapper/mapping';
 import { IMappingLink } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
-import { DatamapperDndProvider } from '../../../providers/datamapper-dnd.provider';
+import { DataMapperDndProvider } from '../../../providers/datamapper-dnd.provider';
 import { SourceTargetDnDHandler } from '../../../providers/dnd/SourceTargetDnDHandler';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
 import { MappingLinksService } from '../../../services/visualization/mapping-links.service';
@@ -18,9 +18,9 @@ const dndHandler = new SourceTargetDnDHandler();
 
 const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (
   <DataMapperProvider>
-    <DatamapperDndProvider handler={dndHandler}>
+    <DataMapperDndProvider handler={dndHandler}>
       <MappingLinksProvider>{children}</MappingLinksProvider>
-    </DatamapperDndProvider>
+    </DataMapperDndProvider>
   </DataMapperProvider>
 );
 

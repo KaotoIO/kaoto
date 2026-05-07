@@ -19,6 +19,7 @@ import {
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { Types } from '../../models/datamapper/types';
 import {
+  getForEachSortToShipOrderXslt,
   getInvoice850Xsd,
   getRawTextNodeXslt,
   getShipOrderManuallyEditedXslt,
@@ -884,6 +885,73 @@ describe('MappingSerializerService', () => {
       const xslt2 = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       expect(xslt1).toContain('xsl:if');
       expect(xslt2).toContain('xsl:if');
+    });
+  });
+
+  describe('xsl:sort', () => {
+    it('should deserialize xsl:sort children inside xsl:for-each', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getForEachSortToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const forEachItem = mappingTree.children[0].children[0] as ForEachItem;
+      expect(forEachItem).toBeInstanceOf(ForEachItem);
+      expect(forEachItem.sortItems).toHaveLength(2);
+      expect(forEachItem.sortItems[0].expression).toBe('Title');
+      expect(forEachItem.sortItems[0].order).toBe('ascending');
+      expect(forEachItem.sortItems[1].expression).toBe('Price');
+      expect(forEachItem.sortItems[1].order).toBe('descending');
+    });
+
+    it('should not create UnknownMappingItem for xsl:sort inside for-each', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getForEachSortToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const forEachItem = mappingTree.children[0].children[0] as ForEachItem;
+      const hasUnknown = forEachItem.children.some((c) => c instanceof UnknownMappingItem);
+      expect(hasUnknown).toBe(false);
+    });
+
+    it('should round-trip xsl:sort in for-each', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getForEachSortToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const dom = domParser.parseFromString(serialized, 'application/xml');
+      const sortElements = dom.getElementsByTagNameNS(NS_XSL, 'sort');
+      expect(sortElements.length).toBe(2);
+      expect(sortElements[0].getAttribute('select')).toBe('Title');
+      expect(sortElements[0].hasAttribute('order')).toBe(false);
+      expect(sortElements[1].getAttribute('select')).toBe('Price');
+      expect(sortElements[1].getAttribute('order')).toBe('descending');
+    });
+
+    it('should still preserve xsl:sort inside xsl:apply-templates as UnknownMappingItem', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getUnknownApplyTemplateXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const dom = domParser.parseFromString(serialized, 'application/xml');
+      const applyTemplates = dom.getElementsByTagNameNS(NS_XSL, 'apply-templates');
+      expect(applyTemplates.length).toBe(1);
+      const sortInApply = applyTemplates[0].getElementsByTagNameNS(NS_XSL, 'sort');
+      expect(sortInApply.length).toBe(1);
+      expect(sortInApply[0].getAttribute('select')).toBe('Title');
     });
   });
 });

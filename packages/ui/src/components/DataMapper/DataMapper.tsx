@@ -28,7 +28,7 @@ import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, MetadataContext } from '../../providers';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DatamapperDndProvider } from '../../providers/datamapper-dnd.provider';
+import { DataMapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
@@ -145,11 +145,11 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       onUpdateMappings={onUpdateMappings}
       onUpdateNamespaceMap={onUpdateNamespaceMap}
     >
-      <DatamapperDndProvider handler={dndHandler}>
+      <DataMapperDndProvider handler={dndHandler}>
         <MappingLinksProvider>
           <DataMapperControl />
         </MappingLinksProvider>
-      </DatamapperDndProvider>
+      </DataMapperDndProvider>
     </DataMapperProvider>
   );
 };

@@ -760,7 +760,8 @@ describe('MappingActionService', () => {
 
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
         expect(forEachNode.title).toEqual('for-each');
-        expect(MappingActionService.getAllowedActions(forEachNode)).not.toContain(MappingActionKind.ContextMenu);
+        expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.ContextMenu);
+        expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.Sort);
 
         expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
         const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
@@ -771,6 +772,19 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.Choose);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ContextMenu);
         expect(MappingActionService.getAllowedActions(addMappingNode)).not.toContain(MappingActionKind.ValueSelector);
+      });
+    });
+
+    describe('Sort action availability', () => {
+      it('should not include Sort for non-ForEach nodes', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
+        expect(MappingActionService.getAllowedActions(orderIdNode)).not.toContain(MappingActionKind.Sort);
+
+        const ifNode = shipOrderChildren[1] as MappingNodeData;
+        expect(MappingActionService.getAllowedActions(ifNode)).not.toContain(MappingActionKind.Sort);
       });
     });
 

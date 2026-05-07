@@ -6,8 +6,10 @@ import {
   ForEachItem,
   GroupingStrategy,
   IfItem,
+  MappingItem,
   MappingParentType,
   OtherwiseItem,
+  SortItem,
   UnknownMappingItem,
   ValueSelector,
   ValueType,
@@ -207,6 +209,53 @@ export class OtherwiseItemHandler implements XsltItemHandler<OtherwiseItem> {
   }
 }
 
+/**
+ * Handles {@link SortItem} — maps to `xsl:sort` inside `xsl:for-each` / `xsl:for-each-group`.
+ * The serialization of this handler is dependent on either {@link ForEachItemHandler} or
+ * {@link ForEachGroupItemHandler} where {@link serializeAhead} is invoked from them, and then
+ * `xsl:sort` is serialized as a part of `xsl:for-each` or `xsl:for-each-group` serialization.
+ * Because of that, {@link serialize} of this handler is no-op.
+ * {@link deserialize} populates {@link SortItem} into {@link ForEachItem.sortItems} or
+ * {@link ForEachGroupItem.sortItems} instead of being independent mapping item child.
+ */
+export class SortItemHandler implements XsltItemHandler<SortItem> {
+  readonly itemClass = undefined;
+  readonly xsltElementNames = ['sort'];
+
+  static serializeAhead(parent: Element, sortItems: SortItem[]): void {
+    const doc = parent.ownerDocument;
+    for (const sort of sortItems) {
+      const xslSort = doc.createElementNS(NS_XSL, 'sort');
+      xslSort.setAttribute('select', sort.expression);
+      if (sort.order !== 'ascending') {
+        xslSort.setAttribute('order', sort.order);
+      }
+      parent.appendChild(xslSort);
+    }
+  }
+
+  serialize(_parent: Element, _mapping: SortItem): null {
+    return null;
+  }
+
+  deserialize(
+    element: Element,
+    _parentField: IParentType,
+    parentMapping: MappingParentType,
+  ): DeserializeItemResult<SortItem> | null {
+    if (parentMapping instanceof ForEachItem || parentMapping instanceof ForEachGroupItem) {
+      const sortItem = new SortItem();
+      sortItem.expression = element.getAttribute('select') || '';
+      const order = element.getAttribute('order');
+      if (order === 'descending') {
+        sortItem.order = 'descending';
+      }
+      parentMapping.sortItems.push(sortItem);
+    }
+    return null;
+  }
+}
+
 /** Handles {@link ForEachItem} — maps to `xsl:for-each`. */
 export class ForEachItemHandler implements XsltItemHandler<ForEachItem> {
   readonly itemClass = ForEachItem;
@@ -216,6 +265,7 @@ export class ForEachItemHandler implements XsltItemHandler<ForEachItem> {
     const xslForEach = parent.ownerDocument.createElementNS(NS_XSL, 'for-each');
     xslForEach.setAttribute('select', mapping.expression);
     parent.appendChild(xslForEach);
+    SortItemHandler.serializeAhead(xslForEach, mapping.sortItems);
     return xslForEach;
   }
 
@@ -240,6 +290,7 @@ export class ForEachGroupItemHandler implements XsltItemHandler<ForEachGroupItem
     el.setAttribute('select', mapping.expression);
     el.setAttribute(mapping.groupingStrategy, mapping.groupingExpression);
     parent.appendChild(el);
+    SortItemHandler.serializeAhead(el, mapping.sortItems);
     return el;
   }
 
@@ -336,13 +387,14 @@ export class UnknownMappingItemHandler implements XsltItemHandler<UnknownMapping
 }
 
 /** Single source of truth — every {@link XsltItemHandler} instance. Lookup maps are derived from this array. */
-export const allHandlers: XsltItemHandler[] = [
+export const allHandlers: XsltItemHandler<MappingItem | SortItem>[] = [
   new ValueSelectorHandler(),
   new FieldItemHandler(),
   new IfItemHandler(),
   new ChooseItemHandler(),
   new WhenItemHandler(),
   new OtherwiseItemHandler(),
+  new SortItemHandler(),
   new ForEachItemHandler(),
   new ForEachGroupItemHandler(),
   new VariableItemHandler(),
@@ -351,10 +403,12 @@ export const allHandlers: XsltItemHandler[] = [
 
 /** Serialize direction: dispatch by {@link MappingItem} constructor. */
 export const serializeHandlers: ReadonlyMap<MappingItemClass, XsltItemHandler> = new Map(
-  allHandlers.map((h) => [h.itemClass, h]),
+  allHandlers
+    .filter((h): h is XsltItemHandler & { itemClass: MappingItemClass } => h.itemClass !== undefined)
+    .map((h) => [h.itemClass, h]),
 );
 
 /** Deserialize direction: dispatch by XSLT element `localName`. */
-export const deserializeHandlers: ReadonlyMap<string, XsltItemHandler> = new Map(
+export const deserializeHandlers: ReadonlyMap<string, XsltItemHandler<MappingItem | SortItem>> = new Map(
   allHandlers.flatMap((h) => h.xsltElementNames.map((name) => [name, h] as const)),
 );

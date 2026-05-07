@@ -1,0 +1,23 @@
+.sort-modal {
+  &__row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex: 1;
+  }
+
+  &__expression {
+    flex: 1;
+  }
+
+  &__sortable-item {
+    display: flex;
+    align-items: center;
+
+    > .sort-modal {
+      &__row {
+        flex: 1;
+      }
+    }
+  }
+}

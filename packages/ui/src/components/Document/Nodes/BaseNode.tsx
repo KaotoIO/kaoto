@@ -10,7 +10,7 @@ import { MappingItem } from '../../../models/datamapper/mapping';
 import { NodeData, VariableNodeData } from '../../../models/datamapper/visualization';
 import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
-import { CommentModal } from '../actions/Comment/CommentModal';
+import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
 import { FieldIcon } from '../FieldIcon';
 
 interface BaseNodeProps extends IDataTestID {
