@@ -63,6 +63,16 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   }, [firstPanelId, lastPanelId]); // Only depends on panel ID props (stable)
 
   /**
+   * Execute all registered panel callbacks immediately
+   * Used after resize settles to update connection ports
+   */
+  const executeAllLayoutCallbacks = useCallback(() => {
+    for (const callback of layoutChangeQueueRef.current.values()) {
+      callback();
+    }
+  }, []);
+
+  /**
    * Queue all registered panel callbacks
    * Called whenever grid layout changes to notify all panels to update their connection ports
    */
@@ -128,8 +138,17 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
         }
       });
       updateGridTemplate();
+      return;
     }
-  }, [updateGridTemplate]);
+
+    // Always execute layout callbacks after resize settles, even if heights didn't change
+    // This handles horizontal resizes that don't affect panel heights but still need connection port updates
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        executeAllLayoutCallbacks();
+      });
+    });
+  }, [updateGridTemplate, executeAllLayoutCallbacks]);
 
   /**
    * Flush layout change callbacks after browser completes layout calculations
