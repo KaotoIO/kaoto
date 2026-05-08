@@ -143,17 +143,25 @@ export class VisualizationService {
     const selectedMember =
       field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
     const nodeField = selectedMember ?? field;
+
+    // When a choice wrapper selects a member that is itself an abstract wrapper,
+    // delegate to the ABSTRACT_WRAPPER spec so the node is created as
+    // AbstractFieldNodeData / TargetAbstractFieldNodeData rather than ChoiceFieldNodeData.
+    // This preserves the abstract badge and field-substitution menu.
+    const effectiveSpec =
+      spec === CHOICE_WRAPPER && selectedMember?.wrapperKind === 'abstract' ? ABSTRACT_WRAPPER : spec;
+
     if (parent.isSource) {
-      const node = spec.createSourceNode(parent, nodeField);
-      if (selectedMember) spec.setWrapperRef(node, field);
+      const node = effectiveSpec.createSourceNode(parent, nodeField);
+      if (selectedMember) effectiveSpec.setWrapperRef(node, field);
       return node;
     }
 
     const mappingsForMember =
       selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
     const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
-    const node = spec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
-    if (selectedMember) spec.setWrapperRef(node, field);
+    const node = effectiveSpec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
+    if (selectedMember) effectiveSpec.setWrapperRef(node, field);
     return node;
   }
 
