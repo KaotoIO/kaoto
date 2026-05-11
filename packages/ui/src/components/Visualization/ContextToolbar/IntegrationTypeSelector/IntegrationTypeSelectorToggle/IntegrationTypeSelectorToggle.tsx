@@ -1,19 +1,15 @@
 import { MenuToggle, Select, SelectList, SelectOption } from '@patternfly/react-core';
 import { FunctionComponent, MouseEvent, RefObject, useCallback, useContext, useState } from 'react';
 
-import { useRuntimeContext } from '../../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
 import { EntitiesContext } from '../../../../../providers/entities.provider';
 import { getSupportedDsls } from '../../../../../serializers/serializer-dsl-lists';
-import { requiresCatalogChange } from '../../../../../utils/catalog-helper';
 
 interface ISourceTypeSelector {
-  onSelect?: (value: SourceSchemaType, changeCatalog: boolean) => void;
+  onSelect?: (value: SourceSchemaType) => void;
 }
 
 export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
-  const runtimeContext = useRuntimeContext();
-  const { selectedCatalog } = runtimeContext;
   const { currentSchemaType, camelResource } = useContext(EntitiesContext)!;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
@@ -21,29 +17,22 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
 
   const onSelect = useCallback(
     (_event: MouseEvent | undefined, flowType: string | number | undefined) => {
-      if (!flowType) {
-        return;
-      }
+      if (!flowType) return;
       const integrationType = sourceSchemaConfig.config[flowType as SourceSchemaType];
 
       setIsOpen(false);
       if (integrationType !== undefined) {
-        props.onSelect?.(
-          flowType as SourceSchemaType,
-          requiresCatalogChange(flowType as SourceSchemaType, selectedCatalog),
-        );
+        props.onSelect?.(flowType as SourceSchemaType);
       }
     },
-    [props, selectedCatalog],
+    [props],
   );
 
   const toggle = (toggleRef: RefObject<HTMLButtonElement>) => (
     <MenuToggle
       data-testid="integration-type-list-dropdown"
       ref={toggleRef}
-      onClick={() => {
-        setIsOpen(!isOpen);
-      }}
+      onClick={() => setIsOpen(!isOpen)}
       isExpanded={isOpen}
     >
       {sourceSchemaConfig.config[currentSchemaType].name}
@@ -64,7 +53,6 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
         {dslEntries.map((sourceType, index) => {
           const sourceSchema = sourceSchemaConfig.config[sourceType];
           const isCurrentType = sourceSchema.name === currentFlowType.name;
-          const changeCatalog = requiresCatalogChange(sourceType, selectedCatalog);
 
           return (
             <SelectOption
@@ -79,7 +67,6 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
               isDisabled={isCurrentType}
             >
               {sourceSchema.name}
-              {changeCatalog && !isCurrentType && ' (in different catalog)'}
               {isCurrentType && ' (current integration type)'}
             </SelectOption>
           );
