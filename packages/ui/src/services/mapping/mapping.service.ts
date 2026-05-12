@@ -2,6 +2,7 @@ import { DocumentType, IDocument, IField, PrimitiveDocument } from '../../models
 import {
   ChooseItem,
   FieldItem,
+  ForEachGroupItem,
   ForEachItem,
   IExpressionHolder,
   IfItem,
@@ -46,7 +47,8 @@ export class MappingService {
       mapping instanceof IfItem ||
       mapping instanceof WhenItem ||
       mapping instanceof OtherwiseItem ||
-      mapping instanceof ForEachItem
+      mapping instanceof ForEachItem ||
+      mapping instanceof ForEachGroupItem
     ) {
       return mapping.children.reduce((acc, child) => {
         if (child instanceof FieldItem) {
@@ -258,6 +260,10 @@ export class MappingService {
 
   static wrapWithForEach(wrapped: MappingItem) {
     MappingService.wrapWithItem(wrapped, new ForEachItem(wrapped.parent));
+  }
+
+  static wrapWithForEachGroup(wrapped: MappingItem) {
+    MappingService.wrapWithItem(wrapped, new ForEachGroupItem(wrapped.parent));
   }
 
   static wrapWithIf(wrapped: MappingItem) {
