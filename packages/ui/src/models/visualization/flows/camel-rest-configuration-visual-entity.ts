@@ -2,6 +2,7 @@ import { ProcessorDefinition, RestConfiguration } from '@kaoto/camel-catalog/typ
 import { getValidator, isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { setValue } from '../../../utils';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
@@ -10,7 +11,6 @@ import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
@@ -33,11 +33,11 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
       return false;
     }
 
-    const objectKeys = Object.keys(restConfigurationDef!);
+    const objectKeys = Object.keys(restConfigurationDef);
 
     return (
       objectKeys.length === 1 &&
-      this.ROOT_PATH in restConfigurationDef! &&
+      this.ROOT_PATH in restConfigurationDef &&
       typeof restConfigurationDef.restConfiguration === 'object'
     );
   }
@@ -86,8 +86,8 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     return;
   }
 
-  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined {
-    const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'restConfiguration');
+  async getNodeSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    const schema = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'restConfiguration');
     return schema?.propertiesSchema ?? {};
   }
 
@@ -122,13 +122,11 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(): string | undefined {
-    const schema = this.getNodeSchema();
+  async getNodeValidationText(): Promise<string | undefined> {
+    const schema = await this.getNodeSchema();
     if (!schema) return undefined;
 
-    if (!this.schemaValidator) {
-      this.schemaValidator = getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
-    }
+    this.schemaValidator ??= getValidator<RestConfiguration>(schema, { useDefaults: 'empty' });
 
     this.schemaValidator?.({ ...this.restConfigurationDef.restConfiguration });
 

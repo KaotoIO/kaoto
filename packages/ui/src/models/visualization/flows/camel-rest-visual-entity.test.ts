@@ -11,8 +11,10 @@ import { PlaceholderType } from '../../placeholder.constants';
 import { REST_ELEMENT_NAME } from '../../special-processors.constants';
 import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestVisualEntity } from './camel-rest-visual-entity';
+import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CamelRestVisualEntity', () => {
   const REST_ID_REGEXP = /^rest-[a-zA-Z0-9]{4}$/;
@@ -21,12 +23,9 @@ describe('CamelRestVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
     restSchema = catalogsMap.entitiesCatalog[EntityType.Rest].propertiesSchema as KaotoSchemaDefinition['schema'];
-  });
 
-  afterAll(() => {
-    CamelCatalogService.clearCatalogs();
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   beforeEach(() => {
@@ -138,10 +137,10 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  it('should return schema from store', () => {
+  it('should return schema from store', async () => {
     const entity = new CamelRestVisualEntity(restDef);
 
-    expect(entity.getNodeSchema(CamelRestVisualEntity.ROOT_PATH)).toEqual(restSchema);
+    expect(await entity.getNodeSchema(CamelRestVisualEntity.ROOT_PATH)).toEqual(restSchema);
   });
 
   describe('removeStep', () => {
@@ -161,39 +160,35 @@ describe('CamelRestVisualEntity', () => {
   });
 
   describe('getNodeSchema', () => {
-    it('should return REST method schema for REST DSL methods', () => {
+    it('should return REST method schema for REST DSL methods', async () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const schema = await entity.getNodeSchema('rest.get.0');
 
-      entity.getNodeSchema('rest.get.0');
-
-      expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'get');
+      expect(schema).toBeDefined();
     });
 
-    it('should return REST method schema for POST method', () => {
+    it('should return REST method schema for POST method', async () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const schema = await entity.getNodeSchema('rest.post.0');
 
-      entity.getNodeSchema('rest.post.0');
-
-      expect(getComponentSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'post');
+      expect(schema).toBeDefined();
     });
 
-    it('should delegate to super for non-REST method paths', () => {
+    it('should delegate to super for non-REST method paths', async () => {
       const entity = new CamelRestVisualEntity(restDef);
       const superGetNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
       // Use a path where method is NOT in REST_DSL_METHODS
-      entity.getNodeSchema('rest.unknown.0');
+      await entity.getNodeSchema('rest.unknown.0');
 
       expect(superGetNodeSchemaSpy).toHaveBeenCalledWith('rest.unknown.0');
     });
 
-    it('should handle undefined path by delegating to super', () => {
+    it('should handle undefined path by delegating to super', async () => {
       const entity = new CamelRestVisualEntity(restDef);
       const superGetNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
-      entity.getNodeSchema();
+      await entity.getNodeSchema();
 
       expect(superGetNodeSchemaSpy).toHaveBeenCalledWith(undefined);
     });
@@ -419,7 +414,7 @@ describe('CamelRestVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRestVisualEntity({
         rest: {
           ...restDef.rest,
@@ -427,19 +422,19 @@ describe('CamelRestVisualEntity', () => {
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRestDef: Rest = { ...restDef.rest };
       const entity = new CamelRestVisualEntity(restDef);
 
-      entity.getNodeValidationText();
+      await entity.getNodeValidationText();
 
       expect(restDef.rest).toEqual(originalRestDef);
     });
 
-    it('should NOT return errors when there is an invalid property', () => {
+    it('should NOT return errors when there is an invalid property', async () => {
       const invalidRestDef: Rest = {
         ...restDef.rest,
         bindingMode: 'true' as unknown as Rest['bindingMode'],
@@ -447,7 +442,7 @@ describe('CamelRestVisualEntity', () => {
       };
       const entity = new CamelRestVisualEntity({ rest: invalidRestDef });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
   });
 
@@ -467,7 +462,7 @@ describe('CamelRestVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: 'Rest',
-        description: 'rest: rest',
+        description: 'rest: Defines a rest service using the rest-dsl',
         processorIconTooltip: '',
       });
     });

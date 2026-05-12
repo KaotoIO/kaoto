@@ -119,17 +119,17 @@ describe('CitrusTestVisualEntity', () => {
   });
 
   describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(citrusTestEntity.getNodeSchema()).toBeUndefined();
+    it('should return undefined if no path is provided', async () => {
+      expect(await citrusTestEntity.getNodeSchema()).toBeUndefined();
     });
 
-    it('should return empty schema if no component model is found', () => {
-      const result = citrusTestEntity.getNodeSchema('unknown');
+    it('should return empty schema if no component model is found', async () => {
+      const result = await citrusTestEntity.getNodeSchema('unknown');
 
       expect(result).toEqual({});
     });
 
-    it('should return root test schema', () => {
+    it('should return root test schema', async () => {
       const config = sourceSchemaConfig;
       config.config[SourceSchemaType.Test].schema = {
         schema: {
@@ -138,7 +138,7 @@ describe('CitrusTestVisualEntity', () => {
           properties: { name: {}, variables: {}, actions: { type: 'array' }, finally: { type: 'array' } },
         } as KaotoSchemaDefinition['schema'],
       } as KaotoSchemaDefinition;
-      const result = citrusTestEntity.getNodeSchema(CitrusTestVisualEntity.ROOT_PATH);
+      const result = await citrusTestEntity.getNodeSchema(CitrusTestVisualEntity.ROOT_PATH);
 
       expect(result).toHaveProperty('name');
       expect(result).toHaveProperty('description');
@@ -836,19 +836,19 @@ describe('CitrusTestVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = citrusTestEntity.getNodeValidationText();
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await citrusTestEntity.getNodeValidationText();
 
       expect(result).toBeUndefined();
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = citrusTestEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await citrusTestEntity.getNodeValidationText('');
 
       expect(result).toBeUndefined();
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const invalidModel = cloneDeep(citrusTestJson);
       setValue(invalidModel, 'actions[0].print.message', undefined);
       const entity = new CitrusTestVisualEntity(invalidModel);
@@ -856,7 +856,7 @@ describe('CitrusTestVisualEntity', () => {
       const spy = jest.spyOn(CitrusTestSchemaService, 'extractTestActionName');
       spy.mockReturnValueOnce('print');
 
-      const result = entity.getNodeValidationText('actions.0.print');
+      const result = await entity.getNodeValidationText('actions.0.print');
 
       expect(spy).toHaveBeenCalledWith('actions.0.print');
       expect(result).toEqual('1 required parameter is not yet configured: [ message ]');

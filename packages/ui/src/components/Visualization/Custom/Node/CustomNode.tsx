@@ -29,7 +29,7 @@ import {
   withSelection,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -128,8 +128,24 @@ const CustomNodeInner: FunctionComponent<CustomNodeProps> = observer(
     const ProcessorIcon = getProcessorIcon(processorName);
     const processorDescription = vizNode?.data.processorIconTooltip ?? '';
     const isDisabled = !!vizNode?.getNodeDefinition()?.disabled;
-    const validationText = vizNode?.getNodeValidationText();
+    const [validationText, setValidationText] = useState<string | undefined>(undefined);
     const doesHaveWarnings = !isDisabled && !!validationText;
+
+    useEffect(() => {
+      let cancelled = false;
+
+      if (vizNode) {
+        vizNode.getNodeValidationText().then((text) => {
+          if (!cancelled) {
+            setValidationText(text);
+          }
+        });
+      }
+
+      return () => {
+        cancelled = true;
+      };
+    }, [vizNode, lastUpdate]);
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,

@@ -10,6 +10,9 @@ import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteConfigurationVisualEntity } from './camel-route-configuration-visual-entity';
+import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CamelRouteConfigurationVisualEntity', () => {
   const ROUTE_CONFIGURATION_ID_REGEXP = /^routeConfiguration-[a-zA-Z0-9]{4}$/;
@@ -18,6 +21,8 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   afterAll(() => {
@@ -89,13 +94,11 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     );
   });
 
-  it('should return schema from store', () => {
-    const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-
+  it('should return schema from store', async () => {
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-    entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
+    const schema = await entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
 
-    expect(catalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'routeConfiguration');
+    expect(schema).toMatchSnapshot();
   });
 
   describe('removeStep', () => {
@@ -227,23 +230,23 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRouteConfigurationVisualEntity({
         routeConfiguration: {
           ...routeConfigurationDef.routeConfiguration,
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRouteConfigurationDef: RouteConfigurationDefinition = {
         ...routeConfigurationDef.routeConfiguration,
       };
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-      entity.getNodeValidationText();
+      await entity.getNodeValidationText();
 
       expect(routeConfigurationDef.routeConfiguration).toEqual(originalRouteConfigurationDef);
     });
@@ -265,7 +268,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: 'Route Configuration',
-        description: 'routeConfiguration: routeConfiguration',
+        description: 'routeConfiguration: Reusable configuration for Camel route(s).',
         processorIconTooltip: '',
       });
     });

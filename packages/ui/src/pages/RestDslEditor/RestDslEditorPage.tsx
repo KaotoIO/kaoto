@@ -3,13 +3,14 @@ import './RestDslEditorPage.scss';
 import { CodeSnippet } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
-import { FunctionComponent, Suspense, useCallback, useMemo, useState } from 'react';
+import { FunctionComponent, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
 import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext';
 import { EntityType } from '../../models/entities';
+import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { getRestEntities } from './components/get-rest-entities';
 import { restFormFieldFactory } from './components/restFormFieldFactory';
@@ -30,10 +31,29 @@ export const RestDslEditorPage: FunctionComponent = () => {
   const restRelatedEntities = useMemo(() => getRestEntities(entities), [entities]);
 
   const selectedEntity = restRelatedEntities.find((entity) => entity.id === selectedElement?.entityId);
-  const schema = selectedEntity?.getNodeSchema(selectedElement?.modelPath);
+  const [schema, setSchema] = useState<KaotoSchemaDefinition['schema'] | undefined>(undefined);
   const model = selectedEntity?.getNodeDefinition(selectedElement?.modelPath);
 
   const [treeVersion, setTreeVersion] = useState(0);
+
+  // Load schema asynchronously when selectedEntity or modelPath changes
+  useEffect(() => {
+    let cancelled = false;
+
+    if (selectedEntity && selectedElement?.modelPath) {
+      selectedEntity.getNodeSchema(selectedElement.modelPath).then((loadedSchema) => {
+        if (!cancelled) {
+          setSchema(loadedSchema);
+        }
+      });
+    } else {
+      setSchema(undefined);
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedEntity, selectedElement?.modelPath]);
 
   /** Handles changes to individual properties in the form editor */
   const handleOnChangeIndividualProp = useCallback(

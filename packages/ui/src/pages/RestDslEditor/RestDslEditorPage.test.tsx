@@ -2,17 +2,18 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
-import { CamelCatalogService } from '../../models';
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
-import { CatalogKind } from '../../models/catalog-kind';
 import { EntityType } from '../../models/entities';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { CamelRestConfigurationVisualEntity } from '../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
+import { setupDynamicCatalogRegistryMock } from '../../models/visualization/flows/dynamic-catalog-registry-mock';
 import { TestProvidersWrapper } from '../../stubs';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { RestDslEditorPage } from './RestDslEditorPage';
 import { clickToolbarActionUtil } from './test-utils';
+
+jest.mock('../../dynamic-catalog/dynamic-catalog-registry');
 
 /** Helper to get REST-related entities (non-visual after refactor) */
 const getRestEntities = (camelResource: KaotoResource) =>
@@ -76,8 +77,7 @@ describe('RestDslEditorPage', () => {
 
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   afterEach(() => {
@@ -104,7 +104,8 @@ describe('RestDslEditorPage', () => {
         expect(screen.getByText(/Edit/)).toBeTruthy();
       });
 
-      const pathInput = screen.getByDisplayValue('/api');
+      // Wait for form to render with async schema
+      const pathInput = await waitFor(() => screen.getByDisplayValue('/api'));
       act(() => {
         fireEvent.change(pathInput, { target: { value: '/api/v2' } });
         fireEvent.blur(pathInput);

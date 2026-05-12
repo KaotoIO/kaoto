@@ -118,7 +118,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -143,7 +143,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue('Some validation warning');
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue('Some validation warning');
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -166,7 +166,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -198,7 +198,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(groupVizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(groupVizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     const draggedVizNode = createVisualizationNode('when-0', {
       name: 'when',

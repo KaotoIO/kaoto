@@ -1,12 +1,14 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { CamelCatalogService } from '../../camel-catalog.service';
+import { setupDynamicCatalogRegistryMock } from '../../dynamic-catalog-registry-mock';
 import { CamelComponentSchemaService } from '../camel-component-schema.service';
 import { ModelValidationService } from './model-validation.service';
+
+jest.mock('../../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('ModelValidationService', () => {
   const camelRoute = {
@@ -43,17 +45,14 @@ describe('ModelValidationService', () => {
   };
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
+    setupDynamicCatalogRegistryMock(catalogsMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
   });
 
   describe('validateNodeStatus()', () => {
-    it('should return a validation text pointing to a single missing property', () => {
-      const schema = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'activemq' });
+    it('should return a validation text pointing to a single missing property', async () => {
+      const schema = await CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'activemq' });
       const model = camelRoute.route.from.steps[0].to;
 
       const result = ModelValidationService.validateNodeStatus(schema, model);
@@ -61,8 +60,8 @@ describe('ModelValidationService', () => {
       expect(result).toEqual('1 required parameter is not yet configured: [ destinationName ]');
     });
 
-    it('should return a validation text pointing to multiple missing properties', () => {
-      const schema = CamelComponentSchemaService.getSchema({
+    it('should return a validation text pointing to multiple missing properties', async () => {
+      const schema = await CamelComponentSchemaService.getSchema({
         processorName: 'to',
         componentName: 'kamelet:kafka-not-secured-sink',
       });
@@ -73,8 +72,8 @@ describe('ModelValidationService', () => {
       expect(result).toEqual('1 required parameter is not yet configured: [ templateId ]');
     });
 
-    it('should return a validation text for setheader pointing to multiple missing properties', () => {
-      const schema = CamelComponentSchemaService.getSchema({ processorName: 'setHeader' });
+    it('should return a validation text for setheader pointing to multiple missing properties', async () => {
+      const schema = await CamelComponentSchemaService.getSchema({ processorName: 'setHeader' });
       const model = camelRoute.route.from.steps[1].setHeader;
 
       const result = ModelValidationService.validateNodeStatus(schema, model);
@@ -82,8 +81,8 @@ describe('ModelValidationService', () => {
       expect(result).toEqual('2 required parameters are not yet configured: [ expression,name ]');
     });
 
-    it('should return a validation text for setheader with a different model dialect', () => {
-      const schema = CamelComponentSchemaService.getSchema({ processorName: 'setHeader' });
+    it('should return a validation text for setheader with a different model dialect', async () => {
+      const schema = await CamelComponentSchemaService.getSchema({ processorName: 'setHeader' });
       const model = {
         name: 'test',
         constant: 'Hello Camel',
@@ -94,8 +93,8 @@ describe('ModelValidationService', () => {
       expect(result).toEqual('');
     });
 
-    it('should return an empty string if there is no missing property', () => {
-      const schema = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'activemq' });
+    it('should return an empty string if there is no missing property', async () => {
+      const schema = await CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'activemq' });
       const model = { ...camelRoute.route.from.steps[0].to, parameters: { destinationName: 'myQueue' } };
 
       const result = ModelValidationService.validateNodeStatus(schema, model);

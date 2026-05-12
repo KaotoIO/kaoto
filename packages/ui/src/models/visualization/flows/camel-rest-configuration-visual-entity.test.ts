@@ -4,9 +4,10 @@ import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { CatalogKind } from '../../catalog-kind';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
+import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CamelRestConfigurationVisualEntity', () => {
   const REST_CONFIGURATION_ID_REGEXP = /^restConfiguration-[a-zA-Z0-9]{4}$/;
@@ -14,11 +15,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
-  });
-
-  afterAll(() => {
-    CamelCatalogService.clearCatalogs();
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   beforeEach(() => {
@@ -75,10 +72,10 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
   });
 
-  it('should return schema from store', () => {
+  it('should return schema from store', async () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-    expect(entity.getNodeSchema()).toEqual(restConfigurationSchema);
+    expect(await entity.getNodeSchema()).toEqual(restConfigurationSchema);
   });
 
   describe('updateModel', () => {
@@ -126,7 +123,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRestConfigurationVisualEntity({
         restConfiguration: {
           ...restConfigurationDef.restConfiguration,
@@ -141,19 +138,19 @@ describe('CamelRestConfigurationVisualEntity', () => {
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRestConfigurationDef: RestConfiguration = { ...restConfigurationDef.restConfiguration };
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
-      entity.getNodeValidationText();
+      await entity.getNodeValidationText();
 
       expect(restConfigurationDef.restConfiguration).toEqual(originalRestConfigurationDef);
     });
 
-    it('should return errors when there is an invalid property', () => {
+    it('should return errors when there is an invalid property', async () => {
       const invalidRestConfigurationDef: RestConfiguration = {
         ...restConfigurationDef.restConfiguration,
         useXForwardHeaders: 'true' as unknown as RestConfiguration['useXForwardHeaders'],
@@ -167,7 +164,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
       };
       const entity = new CamelRestConfigurationVisualEntity({ restConfiguration: invalidRestConfigurationDef });
 
-      expect(entity.getNodeValidationText()).toEqual(`'/useXForwardHeaders' must be boolean,
+      expect(await entity.getNodeValidationText()).toEqual(`'/useXForwardHeaders' must be boolean,
 '/apiVendorExtension' must be boolean,
 '/skipBindingOnErrorCode' must be boolean,
 '/clientRequestValidation' must be boolean,
@@ -194,7 +191,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: 'Rest Configuration',
-        description: 'restConfiguration: restConfiguration',
+        description: 'restConfiguration: To configure rest',
         processorIconTooltip: '',
       });
     });

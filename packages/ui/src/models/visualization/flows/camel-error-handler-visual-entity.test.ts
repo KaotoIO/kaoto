@@ -3,9 +3,10 @@ import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto
 
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
-import { CatalogKind } from '../../catalog-kind';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelErrorHandlerVisualEntity } from './camel-error-handler-visual-entity';
+import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CamelErrorHandlerVisualEntity', () => {
   const ERROR_HANDLER_ID_REGEXP = /^errorHandler-[a-zA-Z0-9]{4}$/;
@@ -13,11 +14,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
-  });
-
-  afterAll(() => {
-    CamelCatalogService.clearCatalogs();
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   beforeEach(() => {
@@ -87,10 +84,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
     expect(entity.getNodeDefinition()).toEqual(errorHandlerDef.errorHandler);
   });
 
-  it('should return schema from store', () => {
+  it('should return schema from store', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-    expect(entity.getNodeSchema()).toMatchSnapshot();
+    expect(await entity.getNodeSchema()).toMatchSnapshot();
   });
 
   describe('updateModel', () => {
@@ -147,10 +144,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  it('should return undefined validation text', () => {
+  it('should return undefined validation text', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
-    expect(entity.getNodeValidationText()).toBeUndefined();
+    expect(await entity.getNodeValidationText()).toBeUndefined();
   });
 
   describe('toVizNode', () => {
@@ -169,7 +166,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: 'Error Handler',
-        description: 'errorHandler: errorHandler',
+        description: 'errorHandler: Camel error handling.',
         processorIconTooltip: '',
       });
     });

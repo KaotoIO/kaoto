@@ -99,21 +99,21 @@ describe('Camel Route', () => {
   });
 
   describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(camelEntity.getNodeSchema()).toBeUndefined();
+    it('should return undefined if no path is provided', async () => {
+      expect(await camelEntity.getNodeSchema()).toBeUndefined();
     });
 
-    it('should return empty object if no component model is found', () => {
-      const result = camelEntity.getNodeSchema('test');
+    it('should return empty object if no component model is found', async () => {
+      const result = await camelEntity.getNodeSchema('test');
 
       expect(result).toEqual({});
     });
 
-    it('should return the component schema', () => {
+    it('should return the component schema', async () => {
       const spy = jest.spyOn(CamelComponentSchemaService, 'getSchema');
-      spy.mockReturnValueOnce({ type: 'string' });
+      spy.mockReturnValueOnce(Promise.resolve({ type: 'string' }));
 
-      camelEntity.getNodeSchema('route.from');
+      await camelEntity.getNodeSchema('route.from');
 
       expect(spy).toHaveBeenCalledWith({ processorName: 'from', componentName: 'timer' });
     });
