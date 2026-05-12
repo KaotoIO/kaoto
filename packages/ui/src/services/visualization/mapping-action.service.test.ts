@@ -9,6 +9,7 @@ import {
 import {
   ChooseItem,
   FieldItem,
+  ForEachGroupItem,
   ForEachItem,
   IfItem,
   MappingTree,
@@ -322,6 +323,25 @@ describe('MappingActionService', () => {
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
         expect(forEachChildren.length).toEqual(1);
         expect(forEachChildren[0].title).toEqual('Item');
+      });
+    });
+
+    describe('applyForEachGroup()', () => {
+      it('should add for-each-group', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        expect(docChildren.length).toEqual(1);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren.length).toEqual(4);
+        expect(shipOrderChildren[3].title).toEqual('Item');
+        MappingActionService.applyForEachGroup(shipOrderChildren[3] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[3].title).toEqual('for-each-group');
+        const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[3]);
+        expect(forEachGroupChildren.length).toEqual(1);
+        expect(forEachGroupChildren[0].title).toEqual('Item');
       });
     });
 
@@ -768,10 +788,45 @@ describe('MappingActionService', () => {
         expect(addMappingNode.title).toEqual('Item');
         expect(addMappingNode.id).toContain('add-mapping-fx-Item');
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEach);
+        expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEachGroup);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.If);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.Choose);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ContextMenu);
         expect(MappingActionService.getAllowedActions(addMappingNode)).not.toContain(MappingActionKind.ValueSelector);
+      });
+
+      it('should allow ContextMenu and Sort but exclude ValueSelector for for-each-group nodes', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const itemNode = shipOrderChildren[3] as MappingNodeData;
+        expect(itemNode.title).toEqual('for-each');
+
+        const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(itemNode);
+        const fieldInsideForEach = forEachChildren[0] as FieldItemNodeData;
+        expect(fieldInsideForEach.title).toEqual('Item');
+        expect(MappingActionService.getAllowedActions(fieldInsideForEach)).not.toContain(MappingActionKind.ContextMenu);
+
+        MappingActionService.applyForEachGroup(shipOrderChildren[4] as AddMappingNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+
+        const forEachGroupNode = updatedShipOrderChildren[4] as MappingNodeData;
+        expect(forEachGroupNode.title).toEqual('for-each-group');
+        expect(forEachGroupNode.mapping instanceof ForEachGroupItem).toBeTruthy();
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.ContextMenu);
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.Sort);
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).not.toContain(MappingActionKind.ValueSelector);
+
+        const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);
+        const fieldInsideForEachGroup = forEachGroupChildren[0] as FieldItemNodeData;
+        expect(fieldInsideForEachGroup.title).toEqual('Item');
+        expect(MappingActionService.getAllowedActions(fieldInsideForEachGroup)).not.toContain(
+          MappingActionKind.ContextMenu,
+        );
       });
     });
 

@@ -11,6 +11,7 @@ export enum MappingActionKind {
   If = 'if',
   Choose = 'choose',
   ForEach = 'forEach',
+  ForEachGroup = 'forEachGroup',
   Delete = 'delete',
   When = 'when',
   Otherwise = 'otherwise',

@@ -29,6 +29,8 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
+type ForEachCapableNodeData = TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData;
+
 /**
  * Static service for mapping mutations and the action registry in the
  * DataMapper visualization layer.
@@ -134,9 +136,19 @@ export class MappingActionService {
    * Creates the field item first if it does not yet exist.
    * @param nodeData - The target field node to wrap.
    */
-  static applyForEach(nodeData: TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData) {
+  static applyForEach(nodeData: ForEachCapableNodeData) {
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEach(fieldItem);
+  }
+
+  /**
+   * Wraps the target field's mapping item with a {@link ForEachGroupItem}.
+   * Creates the field item first if it does not yet exist.
+   * @param nodeData - The target field node to wrap.
+   */
+  static applyForEachGroup(nodeData: ForEachCapableNodeData) {
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    MappingService.wrapWithForEachGroup(fieldItem);
   }
 
   /**
@@ -252,6 +264,14 @@ export class MappingActionService {
     );
   }
 
+  private static isFieldInsideForEachGroup(n: TargetNodeData): boolean {
+    return (
+      MappingActionService.isFieldNode(n) &&
+      n.parent instanceof MappingNodeData &&
+      n.parent.mapping instanceof ForEachGroupItem
+    );
+  }
+
   private static isContextMenuAction(def: IMappingAction): def is IMappingContextMenuAction {
     return 'getLabel' in def;
   }
@@ -261,7 +281,8 @@ export class MappingActionService {
       key: MappingActionKind.ContextMenu,
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData || n instanceof TargetDocumentNodeData) return true;
-        if (MappingActionService.isFieldNode(n)) return !MappingActionService.isFieldInsideForEach(n);
+        if (MappingActionService.isFieldNode(n))
+          return !MappingActionService.isFieldInsideForEach(n) && !MappingActionService.isFieldInsideForEachGroup(n);
         return (
           MappingActionService.isMappingNode(n) &&
           !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, UnknownMappingItem)(n)
@@ -308,7 +329,13 @@ export class MappingActionService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (!MappingActionService.isMappingNode(n)) return true;
-        return !MappingActionService.mappingIsOneOf(ValueSelector, ForEachItem, ChooseItem, UnknownMappingItem)(n);
+        return !MappingActionService.mappingIsOneOf(
+          ValueSelector,
+          ForEachItem,
+          ForEachGroupItem,
+          ChooseItem,
+          UnknownMappingItem,
+        )(n);
       },
       isDisabled: (n) => MappingActionService.hasValueSelector(n),
     },
@@ -339,6 +366,18 @@ export class MappingActionService {
       getLabel: () => 'Wrap with "for-each"',
       apply: (n, { onUpdate }) => {
         MappingActionService.applyForEach(n as TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData);
+        onUpdate();
+      },
+      isAllowed: (n) =>
+        n instanceof AddMappingNodeData ||
+        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
+    },
+    {
+      key: MappingActionKind.ForEachGroup,
+      testId: 'transformation-actions-foreachgroup',
+      getLabel: () => 'Wrap with "for-each-group"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyForEachGroup(n as TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData);
         onUpdate();
       },
       isAllowed: (n) =>
