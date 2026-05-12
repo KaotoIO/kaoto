@@ -75,17 +75,18 @@ ${elements}
     expect(result.errors[0].filePath).toBe('A.xsd');
   });
 
-  it('should detect circular includes', () => {
+  it('should warn on circular includes instead of erroring', () => {
     const files = {
       'A.xsd': makeSchema({ includes: ['B.xsd'] }),
       'B.xsd': makeSchema({ includes: ['A.xsd'] }),
     };
     const result = XmlSchemaAnalysisService.analyze(files);
     const circularErrors = result.errors.filter((e) => e.message.includes('Circular'));
-    expect(circularErrors.length).toBeGreaterThan(0);
-    expect(circularErrors[0].message).toContain('A.xsd');
-    expect(circularErrors[0].message).toContain('B.xsd');
-    expect(circularErrors[0].filePath).toBeUndefined();
+    expect(circularErrors).toHaveLength(0);
+    const circularWarnings = result.warnings.filter((w) => w.message.includes('Circular xs:include'));
+    expect(circularWarnings.length).toBeGreaterThan(0);
+    expect(circularWarnings[0].message).toContain('A.xsd');
+    expect(circularWarnings[0].message).toContain('B.xsd');
   });
 
   it('should allow circular imports (different namespaces)', () => {

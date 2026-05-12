@@ -143,10 +143,10 @@ export class XmlSchemaDocumentService {
    */
   private static loadSchemaFiles(
     collection: XmlSchemaCollection,
-    analysis: { loadOrder: string[]; edges: Array<{ directive: { type: string }; to: string }> },
+    analysis: { loadOrder: string[]; edges: Array<{ directive: { type: string }; to: string; from: string }> },
     definitionFiles: Record<string, string>,
   ): { error?: { message: string; filePath?: string } } {
-    const includeTargets = new Set(analysis.edges.filter((e) => e.directive.type === 'include').map((e) => e.to));
+    const includeTargets = XmlSchemaDocumentService.computeIncludeTargetsToSkip(analysis.loadOrder, analysis.edges);
 
     try {
       for (const path of analysis.loadOrder) {
@@ -159,6 +159,62 @@ export class XmlSchemaDocumentService {
       const baseUriMatch = REGEX_BASE_URI.exec(errorMessage);
       const filePath = baseUriMatch?.[1];
       return { error: { message: errorMessage, filePath } };
+    }
+  }
+
+  /**
+   * Determines which include-target files can safely be skipped during direct loading.
+   * Normally, files that are xs:include targets are loaded indirectly when their parent
+   * schema processes the include directive. However, with circular includes (A includes B,
+   * B includes A), all files in the cycle become include targets — skipping them all means
+   * nothing loads. This method ensures at least one file per isolated cycle is promoted to
+   * direct loading so the SchemaBuilder can process the cycle via its built-in
+   * `collection.check(key)` guard.
+   */
+  private static computeIncludeTargetsToSkip(
+    loadOrder: string[],
+    edges: Array<{ directive: { type: string }; to: string; from: string }>,
+  ): Set<string> {
+    const includeEdges = edges.filter((e) => e.directive.type === 'include');
+    const includeTargets = new Set(includeEdges.map((e) => e.to));
+    const adjacencyMap = XmlSchemaDocumentService.buildIncludeAdjacency(includeEdges);
+
+    const reachable = new Set<string>();
+    const seeds = loadOrder.filter((p) => !includeTargets.has(p));
+    XmlSchemaDocumentService.bfsReachable(seeds, adjacencyMap, reachable);
+
+    for (const path of loadOrder) {
+      if (reachable.has(path)) continue;
+      includeTargets.delete(path);
+      XmlSchemaDocumentService.bfsReachable([path], adjacencyMap, reachable);
+    }
+
+    return includeTargets;
+  }
+
+  private static buildIncludeAdjacency(includeEdges: Array<{ from: string; to: string }>): Map<string, string[]> {
+    const adjacencyMap = new Map<string, string[]>();
+    for (const edge of includeEdges) {
+      const list = adjacencyMap.get(edge.from) ?? [];
+      list.push(edge.to);
+      adjacencyMap.set(edge.from, list);
+    }
+    return adjacencyMap;
+  }
+
+  private static bfsReachable(seeds: string[], adj: Map<string, string[]>, reachable: Set<string>): void {
+    const queue = [...seeds];
+    for (const seed of seeds) {
+      reachable.add(seed);
+    }
+    while (queue.length > 0) {
+      const file = queue.shift()!;
+      for (const target of adj.get(file) ?? []) {
+        if (!reachable.has(target)) {
+          reachable.add(target);
+          queue.push(target);
+        }
+      }
     }
   }
 
