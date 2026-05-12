@@ -265,6 +265,12 @@ export function getMultiIncludeComponentAXsd(): string {
 export function getMultiIncludeComponentBXsd(): string {
   return readStubFile('./xml/MultiIncludeComponentB.xsd');
 }
+export function getCircularIncludeAXsd(): string {
+  return readStubFile('./xml/CircularIncludeA.xsd');
+}
+export function getCircularIncludeBXsd(): string {
+  return readStubFile('./xml/CircularIncludeB.xsd');
+}
 export function getInlineAttrSimpleTypeXsd(): string {
   return readStubFile('./xml/InlineAttrSimpleType.xsd');
 }
