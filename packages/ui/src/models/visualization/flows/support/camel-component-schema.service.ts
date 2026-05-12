@@ -272,13 +272,13 @@ export class CamelComponentSchemaService {
     const { name, definition: defaultValue } = clipboardContent;
 
     if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {
-      return defaultValue as ProcessorDefinition;
+      return defaultValue;
     } else {
-      return { [name]: defaultValue } as ProcessorDefinition;
+      return { [name]: defaultValue };
     }
   }
 
-  static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {
+  static async getSchema(camelElementLookup: ICamelElementLookupResult): Promise<KaotoSchemaDefinition['schema']> {
     let catalogKind: CatalogKind;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
@@ -294,7 +294,10 @@ export class CamelComponentSchemaService {
         catalogKind = CatalogKind.Pattern;
     }
 
-    const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
+    const processorDefinition = await DynamicCatalogRegistry.get().getEntity(
+      catalogKind,
+      camelElementLookup.processorName,
+    );
 
     let schema = {} as unknown as KaotoSchemaDefinition['schema'];
     if (processorDefinition?.propertiesSchema === undefined) {
@@ -303,9 +306,8 @@ export class CamelComponentSchemaService {
     schema = cloneDeep(processorDefinition.propertiesSchema);
 
     if (camelElementLookup.componentName !== undefined) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      const componentSchema: KaotoSchemaDefinition['schema'] =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
+      const catalogLookup = await this.resolveCatalogLookup(camelElementLookup.componentName);
+      const componentSchema: KaotoSchemaDefinition['schema'] = catalogLookup?.definition?.propertiesSchema ?? {};
 
       // Filter out producer/consumer properties depending upon the endpoint usage
       const actualComponentProperties = Object.fromEntries(
@@ -318,10 +320,8 @@ export class CamelComponentSchemaService {
         }),
       );
 
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        if (!schema.properties) {
-          schema.properties = {};
-        }
+      if (catalogLookup?.definition !== undefined && componentSchema !== undefined) {
+        schema.properties ??= {};
         if (!schema.properties.parameters) {
           schema.properties.parameters = { type: 'object', properties: {} };
         }

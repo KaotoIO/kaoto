@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
@@ -10,6 +11,9 @@ import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteConfigurationVisualEntity } from './camel-route-configuration-visual-entity';
+import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CamelRouteConfigurationVisualEntity', () => {
   const ROUTE_CONFIGURATION_ID_REGEXP = /^routeConfiguration-[a-zA-Z0-9]{4}$/;
@@ -18,6 +22,8 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   afterAll(() => {
@@ -89,13 +95,30 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     );
   });
 
-  it('should return schema from store', () => {
-    const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+  it('should return schema from store', async () => {
+    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
+    const schema = await entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
+
+    expect(schema).toMatchSnapshot();
+  });
+
+  it('should handle errors when loading schema gracefully', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const mockRegistry = {
+      getEntity: jest.fn().mockRejectedValue(new Error('Catalog load failed')),
+    };
+    (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue(mockRegistry);
 
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-    entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
+    const schema = await entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
 
-    expect(catalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'routeConfiguration');
+    expect(schema).toEqual({});
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load schema for routeConfiguration:', expect.any(Error));
+
+    // Restore the original mock setup
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
+    setupDynamicCatalogRegistryMock(catalogsMap);
+    consoleErrorSpy.mockRestore();
   });
 
   describe('removeStep', () => {
@@ -227,23 +250,23 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined for valid definitions', () => {
+    it('should return undefined for valid definitions', async () => {
       const entity = new CamelRouteConfigurationVisualEntity({
         routeConfiguration: {
           ...routeConfigurationDef.routeConfiguration,
         },
       });
 
-      expect(entity.getNodeValidationText()).toBeUndefined();
+      expect(await entity.getNodeValidationText()).toBeUndefined();
     });
 
-    it('should not modify the original definition when validating', () => {
+    it('should not modify the original definition when validating', async () => {
       const originalRouteConfigurationDef: RouteConfigurationDefinition = {
         ...routeConfigurationDef.routeConfiguration,
       };
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
-      entity.getNodeValidationText();
+      await entity.getNodeValidationText();
 
       expect(routeConfigurationDef.routeConfiguration).toEqual(originalRouteConfigurationDef);
     });
@@ -265,7 +288,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconUrl: 'file-mock-data',
         isPlaceholder: false,
         title: 'Route Configuration',
-        description: 'routeConfiguration: routeConfiguration',
+        description: 'routeConfiguration: Reusable configuration for Camel route(s).',
         processorIconTooltip: '',
       });
     });

@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { ElementModel, GraphElement, Model, VisualizationProvider } from '@patternfly/react-topology';
-import { render } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import {
@@ -224,9 +224,11 @@ describe('NodeContextMenu', () => {
       </Provider>,
     );
 
-    const item = wrapper.queryByTestId('context-menu-item-enable-all');
-
-    expect(item).toBeInTheDocument();
+    // Wait for the async hook to load and render the item
+    await waitFor(() => {
+      const item = wrapper.queryByTestId('context-menu-item-enable-all');
+      expect(item).toBeInTheDocument();
+    });
   });
 
   it('should render an ItemReplaceStep item if canReplaceStep is true', () => {

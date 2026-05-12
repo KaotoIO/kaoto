@@ -2,6 +2,7 @@ import { ErrorHandlerDeserializer, ProcessorDefinition } from '@kaoto/camel-cata
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
@@ -10,7 +11,6 @@ import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode, IVisualizationNodeData, NodeInteraction } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
@@ -106,9 +106,14 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     return;
   }
 
-  getNodeSchema(): KaotoSchemaDefinition['schema'] {
-    const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'errorHandler');
-    return schema?.propertiesSchema ?? {};
+  async getNodeSchema(): Promise<KaotoSchemaDefinition['schema']> {
+    try {
+      const schema = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'errorHandler');
+      return schema?.propertiesSchema ?? {};
+    } catch (err) {
+      console.error('Failed to load schema for errorHandler:', err);
+      return {};
+    }
   }
 
   getNodeDefinition(): unknown {
@@ -142,7 +147,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(): string | undefined {
+  async getNodeValidationText(_path?: string): Promise<string | undefined> {
     return undefined;
   }
 

@@ -48,4 +48,46 @@ describe('KameletSchemaService', () => {
       expect(result).toEqual(expected);
     });
   });
+
+  describe('getKameletCatalogEntry', () => {
+    it('should return undefined when step is undefined', async () => {
+      const result = await KameletSchemaService.getKameletCatalogEntry();
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when step has no ref name', async () => {
+      const result = await KameletSchemaService.getKameletCatalogEntry({ ref: {} });
+      expect(result).toBeUndefined();
+    });
+
+    it('should handle catalog lookup errors gracefully', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      // Mock DynamicCatalogRegistry to throw an error
+      const { DynamicCatalogRegistry } = await import('../../../../dynamic-catalog/dynamic-catalog-registry');
+      const mockRegistry = {
+        getEntity: jest.fn().mockRejectedValue(new Error('Catalog fetch failed')),
+      };
+      jest.spyOn(DynamicCatalogRegistry, 'get').mockReturnValue(mockRegistry as any);
+
+      const step = {
+        ref: {
+          kind: 'Kamelet',
+          apiVersion: 'camel.apache.org/v1',
+          name: 'error-kamelet',
+        },
+      };
+
+      const result = await KameletSchemaService.getKameletCatalogEntry(step);
+
+      expect(result).toBeUndefined();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Failed to load Kamelet catalog entry for error-kamelet:',
+        expect.any(Error),
+      );
+
+      consoleErrorSpy.mockRestore();
+      jest.restoreAllMocks();
+    });
+  });
 });

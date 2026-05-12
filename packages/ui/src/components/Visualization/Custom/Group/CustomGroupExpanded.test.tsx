@@ -118,7 +118,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -143,7 +143,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue('Some validation warning');
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue('Some validation warning');
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -166,7 +166,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
     jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
@@ -198,7 +198,7 @@ describe('CustomGroupExpanded', () => {
     }) as IVisualizationNode;
     jest.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(groupVizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(groupVizNode, 'getNodeValidationText').mockResolvedValue(undefined);
 
     const draggedVizNode = createVisualizationNode('when-0', {
       name: 'when',
@@ -232,5 +232,42 @@ describe('CustomGroupExpanded', () => {
     await renderInContext(<CustomGroupExpanded element={element} />);
 
     expect(getNodeDragAndDropDirection).toHaveBeenCalledWith(draggedVizNode, groupVizNode, false);
+  });
+
+  it('should handle validation text loading errors gracefully', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const vizNode = createVisualizationNode('choice-1', {
+      name: 'choice',
+      path: 'route.from.steps.0.choice',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    }) as IVisualizationNode;
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockRejectedValue(new Error('Validation fetch failed'));
+
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
+
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    // Wait for async validation text fetch to complete and error handling to trigger
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    });
+
+    // Should log warning
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to load node validation text:', expect.any(Error));
+
+    // Group should still render without validation icon
+    const group = screen.getByTestId('custom-group__choice-1');
+    expect(group).toBeInTheDocument();
+    expect(group).toHaveAttribute('data-warnings', 'false');
+
+    consoleWarnSpy.mockRestore();
   });
 });

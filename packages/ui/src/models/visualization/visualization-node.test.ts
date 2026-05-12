@@ -81,7 +81,7 @@ describe('VisualizationNode', () => {
     expect(node.getId()).toEqual('route-8888');
   });
 
-  it('should return the node schema from the underlying BaseVisualCamelEntity', () => {
+  it('should return the node schema from the underlying BaseVisualCamelEntity', async () => {
     const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
       getNodeSchema: getNodeSchemaSpy,
@@ -97,7 +97,7 @@ describe('VisualizationNode', () => {
       description: '',
       iconUrl: '',
     });
-    node.getNodeSchema();
+    await node.getNodeSchema();
 
     expect(getNodeSchemaSpy).toHaveBeenCalledWith(node.data.path);
   });
@@ -182,7 +182,7 @@ describe('VisualizationNode', () => {
     });
   });
 
-  it('should return the node schema from the root node', () => {
+  it('should return the node schema from the root node', async () => {
     /** Arrange */
     const getNodeSchemaSpy = jest.fn();
     const visualEntity = {
@@ -202,7 +202,7 @@ describe('VisualizationNode', () => {
     node.setParentNode(rootNode);
 
     /** Act */
-    node.getNodeSchema();
+    await node.getNodeSchema();
 
     /** Assert */
     expect(getNodeSchemaSpy).toHaveBeenCalledWith(node.data.path);
@@ -447,7 +447,7 @@ describe('VisualizationNode', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
+    it('should return undefined when the underlying BaseVisualCamelEntity is not defined', async () => {
       node = createVisualizationNode('test', {
         name: 'log',
         isGroup: false,
@@ -456,12 +456,12 @@ describe('VisualizationNode', () => {
         description: '',
         iconUrl: '',
       });
-      const validationText = node.getNodeValidationText();
+      const validationText = await node.getNodeValidationText();
 
       expect(validationText).toBeUndefined();
     });
 
-    it('should return the validation text from the underlying BaseVisualCamelEntity', () => {
+    it('should return the validation text from the underlying BaseVisualCamelEntity', async () => {
       const getNodeValidationTextSpy = jest.fn().mockReturnValue('test-validation-text');
       const visualEntity = {
         getNodeValidationText: getNodeValidationTextSpy,
@@ -477,7 +477,7 @@ describe('VisualizationNode', () => {
         description: '',
         iconUrl: '',
       });
-      const validationText = node.getNodeValidationText();
+      const validationText = await node.getNodeValidationText();
 
       expect(getNodeValidationTextSpy).toHaveBeenCalledWith(node.data.path);
       expect(validationText).toEqual('test-validation-text');

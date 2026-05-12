@@ -6,11 +6,11 @@ import { camelFromJson } from '../../../stubs/camel-from';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../camel/kamelets-catalog';
-import { CatalogKind } from '../../catalog-kind';
 import { NodeLabelType } from '../../settings';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { KameletVisualEntity } from './kamelet-visual-entity';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('KameletVisualEntity', () => {
   let kameletDef: IKameletDefinition;
@@ -115,21 +115,22 @@ describe('KameletVisualEntity', () => {
   it('should return the kamelet root schema when querying the ROOT_PATH', async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     const entityCatalogMap = catalogsMap.entitiesCatalog;
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, entityCatalogMap);
+
+    const { setupDynamicCatalogRegistryMock } = await import('./dynamic-catalog-registry-mock');
+    setupDynamicCatalogRegistryMock(catalogsMap);
+
     const kamelet = new KameletVisualEntity(kameletDef);
 
-    expect(kamelet.getNodeSchema(KameletVisualEntity.ROOT_PATH)).toEqual(
+    expect(await kamelet.getNodeSchema(KameletVisualEntity.ROOT_PATH)).toEqual(
       entityCatalogMap.KameletConfiguration.propertiesSchema,
     );
-
-    CamelCatalogService.clearCatalogs();
   });
 
-  it('getNodeSchema should return the component schema from the underlying AbstractCamelVisualEntity', () => {
+  it('getNodeSchema should return the component schema from the underlying AbstractCamelVisualEntity', async () => {
     const getNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
     const kamelet = new KameletVisualEntity(kameletDef);
-    kamelet.getNodeSchema('test-path');
+    await kamelet.getNodeSchema('test-path');
 
     expect(getNodeSchemaSpy).toHaveBeenCalledWith('test-path');
   });

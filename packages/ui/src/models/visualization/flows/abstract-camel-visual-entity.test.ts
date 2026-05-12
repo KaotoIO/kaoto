@@ -13,6 +13,9 @@ import { NodeLabelType } from '../../settings';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
+import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
+
+jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -25,6 +28,8 @@ describe('AbstractCamelVisualEntity', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   afterAll(() => {
@@ -141,80 +146,77 @@ describe('AbstractCamelVisualEntity', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = abstractVisualEntity.getNodeValidationText(undefined);
+    it.each<[string | undefined, string]>([
+      [undefined, 'undefined'],
+      ['', 'empty'],
+    ])('should return undefined if the path is %s', async (path) => {
+      const result = await abstractVisualEntity.getNodeValidationText(path);
 
-      expect(result).toEqual(undefined);
+      expect(result).toBeUndefined();
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = abstractVisualEntity.getNodeValidationText('');
-
-      expect(result).toEqual(undefined);
-    });
-
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const missingParametersModel = cloneDeep(camelRouteJson.route);
       missingParametersModel.from.uri = '';
       abstractVisualEntity = new CamelRouteVisualEntity(missingParametersModel);
 
-      const result = abstractVisualEntity.getNodeValidationText('route.from');
+      const result = await abstractVisualEntity.getNodeValidationText('route.from');
 
       expect(result).toEqual('1 required parameter is not yet configured: [ uri ]');
     });
   });
 
   describe('getNodeSchema', () => {
-    it('should return undefined if path is not provided', () => {
-      const result = abstractVisualEntity.getNodeSchema();
+    it('should return undefined if path is not provided', async () => {
+      const result = await abstractVisualEntity.getNodeSchema();
       expect(result).toBeUndefined();
     });
 
-    it('should return schema when path is valid', () => {
+    it('should return schema when path is valid', async () => {
       const path = 'route.from.steps.1.choice';
 
-      const result = abstractVisualEntity.getNodeSchema(path);
+      const result = await abstractVisualEntity.getNodeSchema(path);
 
       expect(result).toMatchObject({ type: 'object', title: 'Choice' });
     });
   });
 
   describe('getNodeDefinition', () => {
-    it('should return undefined if path is not provided', () => {
-      const result = abstractVisualEntity.getNodeDefinition();
+    it('should return undefined if path is not provided', async () => {
+      const result = await abstractVisualEntity.getNodeDefinition();
       expect(result).toBeUndefined();
     });
 
-    it('should return updated node definition when path is valid', () => {
+    it('should return updated node definition when path is valid', async () => {
       const path = 'route.from.steps.2.to';
       const definition = {
         uri: 'direct',
         parameters: { name: 'my-route', bridgeErrorHandler: true },
       };
 
-      const result = abstractVisualEntity.getNodeDefinition(path);
+      const result = await abstractVisualEntity.getNodeDefinition(path);
       expect(result).toEqual(definition);
     });
 
     it.each([null, undefined])(
       'should override parameters with an empty object when parameters is null or undefined',
-      (parameters) => {
+      async (parameters) => {
         const path = 'route.from.steps.2.to';
         (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
         (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters =
           parameters as unknown as Record<string, unknown>;
 
-        const definition = abstractVisualEntity.getNodeDefinition(path);
+        const definition = await abstractVisualEntity.getNodeDefinition(path);
         expect((definition as NonStringEIP<To>).parameters).toEqual({});
       },
     );
 
-    it('should not do anything when parameters is not null', () => {
+    it('should not do anything when parameters is not null', async () => {
       const path = 'route.from.steps.2.to';
       (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).uri = 'direct';
       (abstractVisualEntity.entityDef.route.from.steps[2].to as NonStringEIP<To>).parameters = { prop: true };
 
-      const definition = abstractVisualEntity.getNodeDefinition(path);
+      const definition = await abstractVisualEntity.getNodeDefinition(path);
 
       expect(definition).toEqual({
         uri: 'direct',

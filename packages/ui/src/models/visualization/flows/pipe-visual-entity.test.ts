@@ -123,26 +123,85 @@ describe('Pipe', () => {
   });
 
   describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(pipeVisualEntity.getNodeSchema()).toBeUndefined();
+    it('should return undefined if no path is provided', async () => {
+      expect(await pipeVisualEntity.getNodeSchema()).toBeUndefined();
     });
 
-    it('should return {} when using an invalid path', () => {
-      const result = pipeVisualEntity.getNodeSchema('test');
+    it('should return {} when using an invalid path', async () => {
+      const result = await pipeVisualEntity.getNodeSchema('test');
 
       expect(result).toEqual({});
     });
 
-    it('should return the root pipe schema when path is root path', () => {
-      const result = pipeVisualEntity.getNodeSchema('pipe');
-      expect(result).toBeDefined();
+    it('should return the root pipe schema when path is root path', async () => {
+      const mockPropertiesSchema = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      };
+      const mockRegistry = {
+        getEntity: jest.fn((kind: CatalogKind, name: string) => {
+          if (kind === CatalogKind.Entity && name === 'PipeConfiguration') {
+            return Promise.resolve({
+              propertiesSchema: mockPropertiesSchema,
+            });
+          }
+          if (kind === CatalogKind.Kamelet) {
+            return Promise.resolve(kameletCatalogMap[name]);
+          }
+          return Promise.resolve(undefined);
+        }),
+      };
+      (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue(mockRegistry);
+
+      const result = await pipeVisualEntity.getNodeSchema('pipe');
+      expect(result).toEqual(mockPropertiesSchema);
     });
 
-    it('should return the node schema', () => {
+    it('should return the node schema', async () => {
       const spy = jest.spyOn(KameletSchemaService, 'getKameletCatalogEntry');
 
-      pipeVisualEntity.getNodeSchema('source');
+      await pipeVisualEntity.getNodeSchema('source');
       expect(spy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return empty schema when PipeConfiguration has no propertiesSchema', async () => {
+      const mockRegistry = {
+        getEntity: jest.fn((kind: CatalogKind, name: string) => {
+          if (kind === CatalogKind.Entity && name === 'PipeConfiguration') {
+            return Promise.resolve({
+              // No propertiesSchema defined
+            });
+          }
+          if (kind === CatalogKind.Kamelet) {
+            return Promise.resolve(kameletCatalogMap[name]);
+          }
+          return Promise.resolve(undefined);
+        }),
+      };
+      (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue(mockRegistry);
+
+      const result = await pipeVisualEntity.getNodeSchema('pipe');
+      expect(result).toEqual({});
+    });
+
+    it('should handle errors when loading root pipe schema gracefully', async () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const mockRegistry = {
+        getEntity: jest.fn().mockRejectedValue(new Error('Catalog load failed')),
+      };
+      (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue(mockRegistry);
+
+      const result = await pipeVisualEntity.getNodeSchema('pipe');
+
+      expect(result).toEqual({});
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load schema for PipeConfiguration:', expect.any(Error));
+
+      // Restore the original mock setup
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary);
+      CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
+      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -225,6 +284,15 @@ describe('Pipe', () => {
       pipeVisualEntity.updateModel('nonExistingPath', { name });
 
       expect(pipeVisualEntity.pipe.spec?.source?.properties).toBeUndefined();
+    });
+
+    it('should update the root pipe model and sync the id', () => {
+      const newName = 'updated-pipe-name';
+
+      pipeVisualEntity.updateModel('pipe', { name: newName });
+
+      expect(pipeVisualEntity.id).toEqual(newName);
+      expect(pipeVisualEntity.pipe.metadata!.name).toEqual(newName);
     });
   });
 
@@ -462,24 +530,24 @@ describe('Pipe', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = pipeVisualEntity.getNodeValidationText();
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText();
 
       expect(result).toEqual(undefined);
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = pipeVisualEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText('');
 
       expect(result).toEqual(undefined);
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const missingParametersModel = cloneDeep(pipeJson);
       missingParametersModel.spec!.steps![0].properties = {};
       pipeVisualEntity = new PipeVisualEntity(missingParametersModel);
 
-      const result = pipeVisualEntity.getNodeValidationText('steps.0');
+      const result = await pipeVisualEntity.getNodeValidationText('steps.0');
 
       expect(result).toEqual('1 required parameter is not yet configured: [ milliseconds ]');
     });
@@ -703,12 +771,12 @@ describe('Pipe', () => {
       expect(copiedContent).toBeUndefined();
     });
 
-    it('should return undefined node default value if the path is invalid', () => {
+    it('should return empty name and undefined definition if the path is invalid', () => {
       const copiedContent = pipeVisualEntity.getCopiedContent('steps.1');
       expect(copiedContent).toEqual({
         type: SourceSchemaType.Pipe,
         name: '',
-        defaultValue: undefined,
+        definition: undefined,
       });
     });
   });

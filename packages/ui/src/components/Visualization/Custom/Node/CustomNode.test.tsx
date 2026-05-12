@@ -86,7 +86,7 @@ describe('CustomNode', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
     jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
     jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
 
@@ -140,5 +140,60 @@ describe('CustomNode', () => {
 
     // The component should return null, resulting in empty render
     expect(container.querySelector('.custom-node')).toBeNull();
+  });
+
+  it('should handle validation text loading errors gracefully', async () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      name: 'log',
+      path: 'route.from.steps.0.log',
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
+    }) as IVisualizationNode;
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockRejectedValue(new Error('Validation fetch failed'));
+    jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+
+    const parentElement = new BaseGraph();
+    const element = new BaseNode();
+    const controller = ControllerService.createController();
+    parentElement.setController(controller);
+    element.setController(controller);
+    element.setParent(parentElement);
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-log');
+
+    const { Provider } = TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <ElementContext.Provider value={element}>
+            <CustomNodeObserver element={element} />
+          </ElementContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    // Wait for async validation text fetch to complete and error handling to trigger
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    });
+
+    // Should log warning
+    expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to load node validation text:', expect.any(Error));
+
+    // Node should still render without validation icon
+    const node = screen.getByTestId('custom-node__route.from.steps.0.log');
+    expect(node).toBeInTheDocument();
+    expect(node).toHaveAttribute('data-warning', 'false');
+
+    consoleWarnSpy.mockRestore();
   });
 });

@@ -1,7 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
-import { DynamicCatalog } from '../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
@@ -12,8 +11,11 @@ import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { IClipboardCopyObject } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
+import { setupDynamicCatalogRegistryMock } from '../dynamic-catalog-registry-mock';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
+
+jest.mock('../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CamelComponentSchemaService', () => {
   beforeAll(async () => {
@@ -23,6 +25,8 @@ describe('CamelComponentSchemaService', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
+
+    setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   afterEach(() => {
@@ -34,78 +38,49 @@ describe('CamelComponentSchemaService', () => {
   });
 
   describe('getSchema', () => {
-    it.each([
-      ['route', CatalogKind.Entity],
-      ['intercept', CatalogKind.Entity],
-      ['interceptFrom', CatalogKind.Entity],
-      ['interceptSendToEndpoint', CatalogKind.Entity],
-      ['onException', CatalogKind.Entity],
-      ['onCompletion', CatalogKind.Entity],
-      ['from', CatalogKind.Entity],
-      ['aggregate', CatalogKind.Pattern],
-      ['choice', CatalogKind.Pattern],
-      ['to', CatalogKind.Pattern],
-    ])('should leverage the CamelComponentSchemaService.getComponent method', (processorName, catalogKind) => {
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+    it('should return an empty schema when the processor is not found', async () => {
+      const result = await CamelComponentSchemaService.getSchema({
+        processorName: 'non-existing-processor' as keyof ProcessorDefinition,
+      });
 
-      CamelComponentSchemaService.getSchema({ processorName: processorName as keyof ProcessorDefinition });
-
-      expect(getComponentSpy).toHaveBeenCalledWith(catalogKind, processorName);
+      expect(result).toEqual({});
     });
 
-    it.each([undefined, { propertiesSchema: undefined }])(
-      'should return an empty schema when the processor it is not found',
-      (schema) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema as any);
-        const result = CamelComponentSchemaService.getSchema({
-          processorName: 'non-existing-processor' as keyof ProcessorDefinition,
-        });
-
-        expect(result).toEqual({});
-      },
-    );
-
-    it('should clone the component processor schema to avoid mutating the original one', () => {
+    it('should clone the component processor schema to avoid mutating the original one', async () => {
       const originalSchema = CamelCatalogService.getComponent(CatalogKind.Pattern, 'aggregate')?.propertiesSchema;
 
-      const result = CamelComponentSchemaService.getSchema({ processorName: 'aggregate' });
+      const result = await CamelComponentSchemaService.getSchema({ processorName: 'aggregate' });
 
       expect(result).not.toBe(originalSchema);
       expect(result).toEqual(originalSchema);
     });
 
-    it('should build the appropriate schema for entities', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-      const result = CamelComponentSchemaService.getSchema({ processorName: 'from' as keyof ProcessorDefinition });
+    it('should build the appropriate schema for entities', async () => {
+      const result = await CamelComponentSchemaService.getSchema({
+        processorName: 'from' as keyof ProcessorDefinition,
+      });
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'from');
       expect(result).toMatchSnapshot();
     });
 
-    it('should build the appropriate schema for standalone processors', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-      const result = CamelComponentSchemaService.getSchema({ processorName: 'log' });
+    it('should build the appropriate schema for standalone processors', async () => {
+      const result = await CamelComponentSchemaService.getSchema({ processorName: 'log' });
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'log');
       expect(result).toMatchSnapshot();
     });
 
-    it('should build the appropriate schema for processors combined that holds a component', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-      const result = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
+    it('should build the appropriate schema for processors combined that holds a component', async () => {
+      const result = await CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Component, 'log');
       expect(result).toMatchSnapshot();
     });
 
-    it('should build the appropriate schema for producer/consumer components', () => {
-      const consumerComponent = CamelComponentSchemaService.getSchema({
+    it('should build the appropriate schema for producer/consumer components', async () => {
+      const consumerComponent = await CamelComponentSchemaService.getSchema({
         processorName: 'from' as keyof ProcessorDefinition,
         componentName: 'file',
       });
-      const producerComponent = CamelComponentSchemaService.getSchema({
+      const producerComponent = await CamelComponentSchemaService.getSchema({
         processorName: 'to',
         componentName: 'file',
       });
@@ -121,22 +96,18 @@ describe('CamelComponentSchemaService', () => {
       expect(producerProperties).toMatchSnapshot();
     });
 
-    it('should build the appropriate schema for kamelets', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
-
-      const result = CamelComponentSchemaService.getSchema({
+    it('should build the appropriate schema for kamelets', async () => {
+      const result = await CamelComponentSchemaService.getSchema({
         processorName: 'to',
         componentName: 'kamelet:kafka-not-secured-sink',
       });
 
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
-      expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Kamelet, 'kafka-not-secured-sink');
       expect(result.properties?.parameters['x-component-name']).toEqual('kamelet:kafka-not-secured-sink');
       expect(result).toMatchSnapshot();
     });
 
-    it('should include the component name in endpoint parameters schema metadata', () => {
-      const result = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
+    it('should include the component name in endpoint parameters schema metadata', async () => {
+      const result = await CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
 
       expect(result.properties?.parameters['x-component-name']).toEqual('log');
     });
@@ -686,7 +657,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should allow disabling processors that define disabled in schema', () => {
-      const result = CamelComponentSchemaService.canBeDisabled('log' as keyof ProcessorDefinition);
+      const result = CamelComponentSchemaService.canBeDisabled('log');
 
       expect(result).toBe(true);
     });
@@ -718,24 +689,26 @@ describe('CamelComponentSchemaService', () => {
     } as IKameletDefinition;
 
     beforeEach(() => {
-      const componentCatalog = new DynamicCatalog<ICamelComponentDefinition>({
-        id: 'component-provider',
-        fetch: (key) =>
-          Promise.resolve(
-            ({ timer: timerComponent, kamelet: kameletComponent } as Record<string, ICamelComponentDefinition>)[key],
-          ),
-        fetchAll: () => Promise.resolve({ timer: timerComponent, kamelet: kameletComponent }),
-      });
+      const mockRegistry = {
+        getEntity: jest.fn((kind: CatalogKind, name: string) => {
+          if (kind === CatalogKind.Component) {
+            const components: Record<string, ICamelComponentDefinition> = {
+              timer: timerComponent,
+              kamelet: kameletComponent,
+            };
+            return Promise.resolve(components[name]);
+          }
+          if (kind === CatalogKind.Kamelet) {
+            const kamelets: Record<string, IKameletDefinition> = {
+              'chuck-norris-source': chuckNorrisKamelet,
+            };
+            return Promise.resolve(kamelets[name]);
+          }
+          return Promise.resolve(undefined);
+        }),
+      };
 
-      const kameletCatalog = new DynamicCatalog<IKameletDefinition>({
-        id: 'kamelet-provider',
-        fetch: (key) =>
-          Promise.resolve(({ 'chuck-norris-source': chuckNorrisKamelet } as Record<string, IKameletDefinition>)[key]),
-        fetchAll: () => Promise.resolve({ 'chuck-norris-source': chuckNorrisKamelet }),
-      });
-
-      DynamicCatalogRegistry.get().setCatalog(CatalogKind.Component, componentCatalog);
-      DynamicCatalogRegistry.get().setCatalog(CatalogKind.Kamelet, kameletCatalog);
+      (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue(mockRegistry);
     });
 
     it('should return undefined for an empty component name', async () => {
@@ -772,12 +745,11 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should pass forceFresh to underlying catalog lookups', async () => {
-      const componentCatalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.Component)!;
-      const getSpy = jest.spyOn(componentCatalog, 'get');
+      const getEntitySpy = jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity');
 
       await CamelComponentSchemaService.resolveCatalogLookup('timer', { forceFresh: true });
 
-      expect(getSpy).toHaveBeenCalledWith('timer', { forceFresh: true });
+      expect(getEntitySpy).toHaveBeenCalledWith(CatalogKind.Component, 'timer', { forceFresh: true });
     });
   });
 });

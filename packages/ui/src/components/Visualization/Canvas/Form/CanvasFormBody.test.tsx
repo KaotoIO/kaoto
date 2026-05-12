@@ -2,17 +2,11 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import {
-  CamelCatalogService,
-  CamelRouteVisualEntity,
-  CatalogKind,
-  ICamelComponentDefinition,
-  ICamelProcessorDefinition,
-  IKameletDefinition,
-} from '../../../../models';
+import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { setupDynamicCatalogRegistryMock } from '../../../../models/visualization/flows/dynamic-catalog-registry-mock';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -20,30 +14,25 @@ import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasFormBody } from './CanvasFormBody';
 
-describe('CanvasFormBody', () => {
-  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
-  let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
-  let kameletCatalogMap: Record<string, IKameletDefinition>;
+jest.mock('../../../../dynamic-catalog/dynamic-catalog-registry');
 
+describe('CanvasFormBody', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    componentCatalogMap = catalogsMap.componentCatalogMap;
-    patternCatalogMap = catalogsMap.patternCatalogMap;
-    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistryMock(catalogsMap);
+
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, catalogsMap.loadbalancerCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
   describe('should persists changes from both expression editor and main form', () => {
     beforeEach(() => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      cleanup();
+      jest.restoreAllMocks();
     });
 
     it('expression => main form', async () => {
@@ -83,8 +72,23 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      // Wait for async schema to load and form to render
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
+
+      // Wait for the Name field to appear with the initial value
+      await waitFor(() => {
+        const nameField = formPageObject.getFieldByDisplayName('Name');
+        expect(nameField).toBeInTheDocument();
+      });
+
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -137,6 +141,14 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      // Wait for async schema to load and form to render
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Name', 'bar');
@@ -157,6 +169,11 @@ describe('CanvasFormBody', () => {
   describe('should persists changes from both dataformat editor and main form', () => {
     beforeEach(() => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      cleanup();
+      jest.restoreAllMocks();
     });
 
     it('dataformat => main form', async () => {
@@ -194,6 +211,14 @@ describe('CanvasFormBody', () => {
             </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
+      );
+
+      // Wait for async schema to load and form to render
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+        },
+        { timeout: 5000 },
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
@@ -247,6 +272,14 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      // Wait for async schema to load and form to render
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
@@ -264,6 +297,11 @@ describe('CanvasFormBody', () => {
   describe('should persists changes from both loadbalancer editor and main form', () => {
     beforeEach(() => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      cleanup();
+      jest.restoreAllMocks();
     });
 
     it('loadbalancer => main form', async () => {
@@ -301,6 +339,14 @@ describe('CanvasFormBody', () => {
             </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
+      );
+
+      // Wait for async schema to load and form to render
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+        },
+        { timeout: 5000 },
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
@@ -354,6 +400,14 @@ describe('CanvasFormBody', () => {
         </EntitiesContext.Provider>,
       );
 
+      // Wait for async schema to load and form to render
+      await waitFor(
+        () => {
+          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
+
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
@@ -371,7 +425,7 @@ describe('CanvasFormBody', () => {
   it('should show suggestions', async () => {
     const { Provider, camelResource } = TestProvidersWrapper();
     const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
-    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue({
+    jest.spyOn(vizNode, 'getNodeSchema').mockResolvedValue({
       type: 'object',
       properties: {
         name: {
@@ -395,6 +449,11 @@ describe('CanvasFormBody', () => {
       </Provider>,
     );
 
+    // Wait for async schema to load
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'All' })).toBeInTheDocument();
+    });
+
     const formPageObject = new KaotoFormPageObject(screen, act);
     const inputField = formPageObject.getFieldByDisplayName('Name')!;
 
@@ -406,5 +465,38 @@ describe('CanvasFormBody', () => {
     await waitFor(() => {
       expect(wrapper.getByTestId('suggestions-menu')).toBeInTheDocument();
     });
+  });
+
+  it('should handle schema loading errors gracefully', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const { Provider, camelResource } = TestProvidersWrapper();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+    jest.spyOn(vizNode, 'getNodeSchema').mockRejectedValue(new Error('Schema load failed'));
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ name: 'test-component' });
+
+    render(
+      <Provider>
+        <CanvasFormTabsContext.Provider
+          value={{
+            selectedTab: 'All',
+            setSelectedTab: jest.fn(),
+          }}
+        >
+          <CanvasFormBody vizNode={vizNode} />
+        </CanvasFormTabsContext.Provider>
+      </Provider>,
+    );
+
+    // Wait for error handling to complete
+    await waitFor(() => {
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load node schema:', expect.any(Error));
+    });
+
+    // Should show UnknownNode component with the error message
+    await waitFor(() => {
+      expect(screen.getByText(/Unknow node type/i)).toBeInTheDocument();
+    });
+
+    consoleErrorSpy.mockRestore();
   });
 });

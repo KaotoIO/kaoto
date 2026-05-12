@@ -2,6 +2,7 @@ import { FromDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getCustomSchemaFromKamelet, setValue, updateKameletFromCustomSchema } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { IKameletDefinition, IKameletSpec } from '../../camel/kamelets-catalog';
@@ -13,7 +14,6 @@ import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { CamelComponentDefaultService } from './support/camel-component-default.service';
 
 export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string; template: { from: FromDefinition } }> {
@@ -76,7 +76,7 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return { from: this.entityDef.template.from };
   }
 
-  getNodeSchema(path?: string | undefined): KaotoSchemaDefinition['schema'] | undefined {
+  async getNodeSchema(path?: string | undefined): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     if (path === this.getRootPath()) {
       return this.getRootKameletSchema();
     }
@@ -150,8 +150,11 @@ export class KameletVisualEntity extends AbstractCamelVisualEntity<{ id: string;
     return this.kamelet.spec.template.from?.uri;
   }
 
-  private getRootKameletSchema(): KaotoSchemaDefinition['schema'] {
-    const rootKameletDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, 'KameletConfiguration');
+  private async getRootKameletSchema(): Promise<KaotoSchemaDefinition['schema']> {
+    const rootKameletDefinition = await DynamicCatalogRegistry.get().getEntity(
+      CatalogKind.Entity,
+      'KameletConfiguration',
+    );
 
     if (rootKameletDefinition === undefined) return {} as unknown as KaotoSchemaDefinition['schema'];
 
