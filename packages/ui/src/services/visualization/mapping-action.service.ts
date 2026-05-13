@@ -188,6 +188,11 @@ export class MappingActionService {
       if (sourceNode.choiceField) {
         const item = MappingActionService.getOrCreateFieldItem(targetNode);
         MappingService.mapToField(sourceNode.field, item);
+      } else if (
+        VisualizationUtilService.isCollectionField(sourceNode) &&
+        VisualizationUtilService.isCollectionField(targetNode)
+      ) {
+        MappingActionService.createForEachWithChooseFromChoice(sourceNode.field, targetNode);
       } else {
         MappingActionService.createChooseFromChoice(sourceNode.field, targetNode);
       }
@@ -218,16 +223,37 @@ export class MappingActionService {
     const targetItem = MappingActionService.getOrCreateFieldItem(targetNode);
     if (targetItem.children.some((c) => c instanceof ChooseItem)) return;
     targetItem.children = targetItem.children.filter((c) => !(c instanceof ValueSelector));
-    const chooseItem = new ChooseItem(targetItem, targetItem instanceof FieldItem ? targetItem.field : undefined);
 
+    const chooseItem = MappingActionService.buildChooseFromChoiceMembers(targetItem, sourceField, targetItem);
+    targetItem.children.push(chooseItem);
+  }
+
+  private static createForEachWithChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {
+    const targetItem = MappingActionService.getOrCreateFieldItem(targetNode);
+    if (targetItem.children.some((c) => c instanceof ForEachItem)) return;
+    targetItem.children = targetItem.children.filter((c) => !(c instanceof ValueSelector));
+
+    const forEachItem = new ForEachItem(targetItem);
+    MappingService.mapToCondition(forEachItem, sourceField);
+
+    const chooseItem = MappingActionService.buildChooseFromChoiceMembers(forEachItem, sourceField, targetItem);
+    forEachItem.children.push(chooseItem);
+    targetItem.children.push(forEachItem);
+  }
+
+  private static buildChooseFromChoiceMembers(
+    parent: MappingItem,
+    sourceField: IField,
+    targetItem: MappingItem,
+  ): ChooseItem {
+    const chooseItem = new ChooseItem(parent, targetItem instanceof FieldItem ? targetItem.field : undefined);
     for (const member of sourceField.fields ?? []) {
       const whenItem = MappingService.addWhen(chooseItem);
       MappingService.mapToCondition(whenItem, member);
       MappingService.mapToField(member, whenItem);
     }
-
     MappingService.addOtherwise(chooseItem);
-    targetItem.children.push(chooseItem);
+    return chooseItem;
   }
 
   private static getOrCreateFieldItem(nodeData: TargetNodeData): MappingItem {
