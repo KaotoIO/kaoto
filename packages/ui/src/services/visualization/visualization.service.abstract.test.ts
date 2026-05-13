@@ -589,9 +589,8 @@ describe('VisualizationService / abstract fields', () => {
   expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
   });
   });
-});
 
-describe('choice-selected abstract wrapper rendering', () => {
+  describe('choice-selected abstract wrapper rendering', () => {
   let sourceDoc: XmlSchemaDocument;
   let sourceDocNode: DocumentNodeData;
   let targetDoc: XmlSchemaDocument;
