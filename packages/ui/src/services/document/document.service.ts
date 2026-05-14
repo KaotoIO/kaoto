@@ -485,12 +485,33 @@ export class DocumentService {
   }
 
   /**
+   * Returns true if the field's parent is a collection choice wrapper.
+   * A collection choice wrapper is an xs:choice with maxOccurs > 1, meaning its members
+   * can repeat across choice instances and should be treated as collection fields.
+   * @param field - The field to inspect
+   * @returns true if the field is a direct child of a collection choice wrapper, false otherwise
+   */
+  static isFieldInsideCollectionChoiceWrapper(field: IField): boolean {
+    if (!('wrapperKind' in field.parent)) return false;
+    return (
+      field.parent.wrapperKind === 'choice' &&
+      (field.parent.maxOccurs === 'unbounded' || Number(field.parent.maxOccurs) > 1)
+    );
+  }
+
+  /**
    * Returns true if the field represents a collection (maxOccurs is 'unbounded' or greater than 1).
+   * Also returns true if the field is a member of a collection choice wrapper, as members inherit
+   * the repeating nature from the choice wrapper.
    * @param field - The field to inspect
    * @returns true if the field is a collection, false otherwise
    */
   static isCollectionField(field: IField) {
-    return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
+    return (
+      field.maxOccurs === 'unbounded' ||
+      Number(field.maxOccurs) > 1 ||
+      DocumentService.isFieldInsideCollectionChoiceWrapper(field)
+    );
   }
 
   /**

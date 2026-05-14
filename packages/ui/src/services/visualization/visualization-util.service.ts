@@ -23,6 +23,8 @@ export class VisualizationUtilService {
   /**
    * Returns `true` if the node's field is a collection (array/repeating element).
    * Also checks the choice wrapper field for collection status when the node is a selected choice member.
+   * For unselected choice members (children of a collection choice wrapper), the collection status
+   * is inherited from the parent wrapper via DocumentService.isCollectionField().
    * @param nodeData - The node to test.
    */
   static isCollectionField(nodeData: NodeData) {
