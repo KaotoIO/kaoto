@@ -3,6 +3,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../models';
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { CAMEL_RUNTIMES, TEST_RUNTIMES } from '../../../../models/catalog-runtime-types';
 import { KaotoResource } from '../../../../models/kaoto-resource';
 import { RuntimeContext, SourceCodeApiContext } from '../../../../providers';
 import { XmlCamelResourceSerializer } from '../../../../serializers';
@@ -65,6 +66,9 @@ describe('IntegrationTypeSelector.tsx', () => {
             catalogLibrary: mockCatalogLibrary,
             selectedCatalog,
             setSelectedCatalog: mockSetSelectedCatalog,
+            compatibleRuntimes: [],
+            camelCatalog: { version: '4.0.0', runtime: CAMEL_RUNTIMES[0] },
+            testingCatalog: { version: '4.0.0', runtime: TEST_RUNTIMES[0] },
           }}
         >
           <SourceCodeApiContext.Provider value={{ setCodeAndNotify: jest.fn() }}>

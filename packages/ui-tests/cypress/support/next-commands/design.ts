@@ -223,15 +223,45 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
   cy.get(`[data-testid="new-entity-${subType}"] button.pf-v6-c-menu__item`).click({ force: true });
 });
 
-Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
-  cy.hoverOnRuntime(type);
-  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v6-c-menu__item`).first().click({ force: true });
-  cy.waitSchemasLoading();
+/**
+ * Selects a catalog runtime version via Settings.
+ * @param type - The runtime type (e.g., 'Main', 'Quarkus', 'Spring Boot', 'Citrus')
+ * @param version - Optional specific version. If omitted, selects the first available catalog for that runtime.
+ * @param catalogType - Which catalog to configure: 'camelCatalog' (default) or 'testingCatalog'
+ */
+Cypress.Commands.add(
+  'selectRuntimeVersion',
+  (type: string, version?: string, catalogType: 'camelCatalog' | 'testingCatalog' = 'camelCatalog') => {
+    cy.openSettings();
 
-  cy.get('[data-testid="visualization-empty-state"]').should('exist');
-  // Wait for the element to become visible
-  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
-});
+    // Wait for the catalog selector toggle to be ready, then click it
+    cy.get(`[data-testid="${catalogType}-catalog-selector-toggle"]`)
+      .should('exist')
+      .and('be.visible')
+      .click({ force: true });
+
+    // If version is specified, select the exact catalog; otherwise select first for this runtime
+    if (version) {
+      cy.get('.pf-v6-c-menu__item').contains(`Camel ${type} ${version}`).click({ force: true });
+    } else {
+      // Select the first catalog with this runtime by hovering on the runtime group and clicking first item
+      cy.get('.pf-v6-c-menu__group')
+        .contains(type)
+        .parent()
+        .parent()
+        .within(() => {
+          cy.get('.pf-v6-c-menu__item').first().click({ force: true });
+        });
+    }
+
+    cy.get('[data-testid="settings-form-save-btn"]').click();
+    cy.waitSchemasLoading();
+
+    cy.get('[data-testid="visualization-empty-state"]').should('exist');
+    // Wait for the element to become visible
+    cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
+  },
+);
 
 Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelector: string) => {
   cy.wrap(null).then(() => {
@@ -248,17 +278,13 @@ Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelect
   });
 });
 
+/**
+ * @deprecated RuntimeSelector is now read-only. Use checkRuntimeDisplay instead.
+ * This command is kept for backward compatibility but does nothing.
+ */
 Cypress.Commands.add('hoverOnRuntime', (type: string) => {
-  const dropdownSelector = '[data-testid="runtime-selector-list-dropdown"]';
-  const listSelector = '[data-testid="runtime-selector-list"]';
-  cy.retryClickDropdown(dropdownSelector, listSelector);
-  // Now the list should be visible
-  cy.get(listSelector).should('exist');
-  cy.get('ul.pf-v6-c-menu__list')
-    .should('exist')
-    .find(`[data-testid="runtime-selector-${type}"]`)
-    .should('exist')
-    .trigger('mouseover');
+  cy.log(`hoverOnRuntime is deprecated. RuntimeSelector is now read-only. Runtime: ${type}`);
+  // No-op: RuntimeSelector no longer has hover/dropdown functionality
 });
 
 Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
@@ -304,4 +330,24 @@ Cypress.Commands.add('DnDOnEdge', (sourceNodeName: string, targetEdgeName: strin
   sourceNode.realMouseDown({ button: 'left', position: 'topLeft' }).realMouseMove(0, 0, { position: 'center' });
   targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
   targetEdge.realMouseMove(0, 0, { position: 'center' }).realMouseUp({ position: 'center' });
+});
+
+/**
+ * Gets the currently displayed runtime catalog name from the read-only RuntimeSelector.
+ * Returns the catalog name (e.g., "Camel Quarkus 4.18.1").
+ */
+Cypress.Commands.add('getRuntimeDisplay', () => {
+  return cy.get('[data-testid="runtime-selector-display"]').find('.cds--toggletip-label').invoke('text');
+});
+
+/**
+ * Checks that the runtime selector displays a catalog containing the expected runtime and version.
+ * @param runtime - Expected runtime (e.g., 'Quarkus', 'Spring Boot')
+ * @param version - Optional expected version (e.g., '4.18.1')
+ */
+Cypress.Commands.add('checkRuntimeDisplay', (runtime: string, version?: string) => {
+  cy.get('[data-testid="runtime-selector-display"]').find('.cds--toggletip-label').should('contain', runtime);
+  if (version) {
+    cy.get('[data-testid="runtime-selector-display"]').find('.cds--toggletip-label').should('contain', version);
+  }
 });

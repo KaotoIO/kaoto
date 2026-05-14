@@ -1,3 +1,4 @@
+import { resolveSettingsForCatalogUrl } from '../../utils/catalog-helper';
 import { AbstractSettingsAdapter, ISettingsModel, SettingsModel } from './settings.model';
 
 export class DefaultSettingsAdapter implements AbstractSettingsAdapter {
@@ -11,7 +12,8 @@ export class DefaultSettingsAdapter implements AbstractSettingsAdapter {
     return this.settings;
   }
 
-  saveSettings(settings: ISettingsModel) {
-    Object.assign(this.settings, settings);
+  async saveSettings(settings: ISettingsModel) {
+    const resolvedSettings = await resolveSettingsForCatalogUrl(settings);
+    Object.assign(this.settings, resolvedSettings);
   }
 }

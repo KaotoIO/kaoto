@@ -4,6 +4,7 @@ import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } fr
 import { Visualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
+import { CatalogVersion, SettingsModel } from '../../models/settings/settings.model';
 import {
   EntitiesContext,
   EntitiesProvider,
@@ -27,12 +28,17 @@ const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ 
   return <Visualization className={`canvas-page ${className}`} entities={visualEntities} />;
 };
 
-const Viz: FunctionComponent<{ catalogUrl: string; className?: string }> = ({ catalogUrl, className = '' }) => {
+const Viz: FunctionComponent<{
+  catalogUrl: string;
+  camelCatalog: CatalogVersion;
+  testingCatalog: CatalogVersion;
+  className?: string;
+}> = ({ catalogUrl, camelCatalog, testingCatalog, className = '' }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
     <ReloadProvider>
-      <RuntimeProvider catalogUrl={catalogUrl}>
+      <RuntimeProvider catalogUrl={catalogUrl} camelCatalog={camelCatalog} testingCatalog={testingCatalog}>
         <SchemasLoaderProvider>
           <CatalogLoaderProvider>
             <VisualizationProvider controller={controller}>
@@ -52,7 +58,10 @@ export const RouteVisualization: React.FC<{
   code: string;
   codeChange: (code: string) => void;
   className?: string;
-}> = ({ catalogUrl, code, codeChange, className }) => {
+  camelCatalog?: CatalogVersion;
+  testingCatalog?: CatalogVersion;
+}> = ({ catalogUrl, code, codeChange, className, camelCatalog, testingCatalog }) => {
+  const defaultSettings = new SettingsModel();
   const eventNotifier = EventNotifier.getInstance();
 
   useLayoutEffect(() => {
@@ -67,7 +76,12 @@ export const RouteVisualization: React.FC<{
 
   return (
     <EntitiesProvider>
-      <Viz catalogUrl={catalogUrl} className={className} />
+      <Viz
+        catalogUrl={catalogUrl}
+        camelCatalog={camelCatalog ?? defaultSettings.camelCatalog}
+        testingCatalog={testingCatalog ?? defaultSettings.testingCatalog}
+        className={className}
+      />
     </EntitiesProvider>
   );
 };

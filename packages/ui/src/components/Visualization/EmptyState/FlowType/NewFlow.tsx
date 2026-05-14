@@ -88,7 +88,12 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
                 // Update catalog if needed when switching flow types
                 const changeCatalog = requiresCatalogChange(proposedFlowType, runtimeContext.selectedCatalog);
                 if (changeCatalog) {
-                  const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
+                  const matchingCatalog = findCatalog(
+                    proposedFlowType,
+                    runtimeContext.catalogLibrary,
+                    runtimeContext.camelCatalog,
+                    runtimeContext.testingCatalog,
+                  );
                   if (isDefined(matchingCatalog)) {
                     runtimeContext.setSelectedCatalog(matchingCatalog);
                   }

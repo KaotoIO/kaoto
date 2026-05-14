@@ -2,7 +2,8 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 import { ITile } from '../../components/Catalog';
 import { CatalogTilesContext } from '../../dynamic-catalog/catalog-tiles.provider';
-import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
+import { AbstractSettingsAdapter } from '../../models/settings';
+import { DefaultSettingsAdapter } from '../../models/settings/default-settings-adapter';
 import { ReloadContext, SettingsProvider } from '../../providers';
 import { CatalogPage } from './CatalogPage';
 

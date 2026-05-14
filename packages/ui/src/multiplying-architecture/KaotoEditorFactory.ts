@@ -6,7 +6,8 @@ import {
   KogitoEditorEnvelopeContextType,
 } from '@kie-tools-core/editor/dist/api';
 
-import { DefaultSettingsAdapter, ISettingsModel, SettingsModel } from '../models';
+import { ISettingsModel, SettingsModel } from '../models';
+import { DefaultSettingsAdapter } from '../models/settings/default-settings-adapter';
 import { CatalogSchemaLoader, promiseTimeout } from '../utils';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
@@ -58,11 +59,10 @@ export class KaotoEditorFactory implements EditorFactory<Editor, KaotoEditorChan
    * @param initArgs        The init args to get the resources path prefix
    */
   private updateCatalogUrl(settingsAdapter: DefaultSettingsAdapter, initArgs: EditorInitArgs) {
-    let catalogUrl = settingsAdapter.getSettings().catalogUrl;
+    const settings = settingsAdapter.getSettings();
 
-    if (!isDefined(catalogUrl) || catalogUrl === '') {
-      catalogUrl = `${initArgs.resourcesPathPrefix}${CatalogSchemaLoader.DEFAULT_CATALOG_PATH.replace('.', '')}`;
-      settingsAdapter.saveSettings({ ...settingsAdapter.getSettings(), catalogUrl });
+    if (!isDefined(settings.catalogUrl) || settings.catalogUrl === '') {
+      settings.catalogUrl = `${initArgs.resourcesPathPrefix}${CatalogSchemaLoader.DEFAULT_CATALOG_PATH.replace('.', '')}`;
     }
   }
 }

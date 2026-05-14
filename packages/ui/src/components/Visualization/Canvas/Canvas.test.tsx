@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
-import { DefaultSettingsAdapter } from '../../../models/settings';
+import { DefaultSettingsAdapter } from '../../../models/settings/default-settings-adapter';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';

@@ -7,3 +7,18 @@
     width: max-content;
   }
 }
+
+.runtime-selector-display {
+  display: flex;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
+  align-self: anchor-center;
+
+  > span:first-child {
+    font-size: var(--cds-label-02-font-size);
+    color: var(--cds-text-primary);
+  }
+
+  > span:nth-child(2) {
+    align-self: center;
+  }
+}

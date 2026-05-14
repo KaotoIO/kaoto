@@ -5,6 +5,15 @@
     overflow: hidden auto;
   }
 
+  .alert-catalog-url {
+    margin-bottom: 24px;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-v6-c-alert__icon {
+      align-content: center;
+    }
+  }
+
   /* stylelint-disable-next-line selector-class-pattern */
   .pf-v6-c-card__footer {
     padding-block-start: var(--pf-v6-c-card--first-child--PaddingBlockStart);

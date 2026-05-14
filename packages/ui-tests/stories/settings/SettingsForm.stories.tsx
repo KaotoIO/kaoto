@@ -1,5 +1,5 @@
 import { SettingsForm } from '@kaoto/kaoto';
-import { DefaultSettingsAdapter, ReloadContext, SettingsProvider } from '@kaoto/kaoto/testing';
+import { DefaultSettingsAdapter, ReloadContext, RuntimeProvider, SettingsProvider } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import { reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
@@ -22,7 +22,13 @@ const Template: StoryFn<typeof SettingsForm> = (args) => {
   return (
     <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
       <SettingsProvider adapter={settingsAdapter}>
-        <SettingsForm {...args} />
+        <RuntimeProvider
+          catalogUrl="camel-catalog/index.json"
+          camelCatalog={{ version: '4.18.1', runtime: 'Main' }}
+          testingCatalog={{ version: '4.10.1', runtime: 'Citrus' }}
+        >
+          <SettingsForm {...args} />
+        </RuntimeProvider>
       </SettingsProvider>
     </ReloadContext.Provider>
   );

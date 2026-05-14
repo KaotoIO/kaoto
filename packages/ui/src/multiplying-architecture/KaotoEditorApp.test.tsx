@@ -15,7 +15,8 @@ import { OperatingSystem } from '@kie-tools-core/operating-system/dist/Operating
 import { RefObject } from 'react';
 
 import { CatalogKind, StepUpdateAction } from '../models';
-import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
+import { AbstractSettingsAdapter, ColorScheme } from '../models/settings';
+import { DefaultSettingsAdapter } from '../models/settings/default-settings-adapter';
 import { setColorScheme } from '../utils/color-scheme';
 import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';

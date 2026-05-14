@@ -3,6 +3,7 @@ import { act, fireEvent, render } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../models';
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { CAMEL_RUNTIMES, TEST_RUNTIMES } from '../../../../models/catalog-runtime-types';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
@@ -60,6 +61,9 @@ describe('NewFlow.tsx', () => {
       selectedCatalog: mockCamelCatalog,
       catalogLibrary: mockCatalogLibrary,
       setSelectedCatalog: mockSetSelectedCatalog,
+      compatibleRuntimes: [],
+      camelCatalog: { version: '4.0.0', runtime: CAMEL_RUNTIMES[0] },
+      testingCatalog: { version: '4.0.0', runtime: TEST_RUNTIMES[0] },
     };
 
     const mergedRuntimeContext = { ...defaultRuntimeContext, ...runtimeContextValue };

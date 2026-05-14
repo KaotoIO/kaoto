@@ -1,7 +1,8 @@
 import { act, render } from '@testing-library/react';
 import { useContext, useEffect, useState } from 'react';
 
-import { DefaultSettingsAdapter, SettingsModel } from '../models/settings';
+import { SettingsModel } from '../models/settings';
+import { DefaultSettingsAdapter } from '../models/settings/default-settings-adapter';
 import { SettingsContext, SettingsProvider } from './settings.provider';
 
 describe('SettingsProvider', () => {

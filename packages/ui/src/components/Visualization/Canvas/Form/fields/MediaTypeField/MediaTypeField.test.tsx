@@ -2,7 +2,7 @@ import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
-import { DefaultSettingsAdapter } from '../../../../../../models/settings';
+import { DefaultSettingsAdapter } from '../../../../../../models/settings/default-settings-adapter';
 import { SettingsProvider } from '../../../../../../providers';
 import { MediaTypeField } from './MediaTypeField';
 
@@ -445,12 +445,12 @@ describe('MediaTypeField', () => {
 
       const updatedSettings = settingsAdapter.getSettings();
       const customTypes = updatedSettings.rest.customMediaTypes;
-      expect(customTypes.filter((type) => type === 'application/existing')).toHaveLength(1);
+      expect(customTypes.filter((type: string) => type === 'application/existing')).toHaveLength(1);
     });
 
     it('should display custom media types from settings in options', async () => {
       const settings = settingsAdapter.getSettings();
-      settingsAdapter.saveSettings({
+      await settingsAdapter.saveSettings({
         ...settings,
         rest: {
           ...settings.rest,

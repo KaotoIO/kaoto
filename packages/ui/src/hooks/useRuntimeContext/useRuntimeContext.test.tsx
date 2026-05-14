@@ -2,12 +2,19 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
+import { CAMEL_RUNTIMES, TEST_RUNTIMES } from '../../models/catalog-runtime-types';
 import { RuntimeProvider } from '../../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { errorMessage, useRuntimeContext } from './useRuntimeContext';
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>{children}</RuntimeProvider>
+  <RuntimeProvider
+    catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+    camelCatalog={{ version: '4.18.0', runtime: CAMEL_RUNTIMES[0] }}
+    testingCatalog={{ version: '4.10.1', runtime: TEST_RUNTIMES[0] }}
+  >
+    {children}
+  </RuntimeProvider>
 );
 
 describe('useRuntimeContext', () => {

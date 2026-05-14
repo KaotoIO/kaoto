@@ -30,7 +30,7 @@ import { FunctionComponent, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { AddStepMode, IVisualizationNode, NodeToolbarTrigger } from '../../../../models';
+import { AddStepMode, IVisualizationNode } from '../../../../models';
 import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { SettingsContext } from '../../../../providers';
 import { getProcessorIcon } from '../../../../utils/processor-icon';
@@ -77,10 +77,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
       CanvasDefaults.HOVER_DELAY_OUT,
     );
     const boxRef = useRef<Rect | null>(null);
-    const shouldShowToolbar =
-      settingsAdapter.getSettings().nodeToolbarTrigger === NodeToolbarTrigger.onHover
-        ? isGHover || isToolbarHover || selected
-        : selected;
+    const nodeToolbarTrigger = settingsAdapter.getSettings().nodeToolbarTrigger ?? 'onHover';
+    const shouldShowToolbar = nodeToolbarTrigger === 'onHover' ? isGHover || isToolbarHover || selected : selected;
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);

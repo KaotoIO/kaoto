@@ -167,12 +167,17 @@ export class KaotoEditorApp implements Editor {
   }
 
   af_componentRoot() {
+    const settings = this.settingsAdapter.getSettings();
     return (
       <ReloadProvider>
         <SettingsProvider adapter={this.settingsAdapter}>
           <SourceCodeProvider>
             <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
-              <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+              <RuntimeProvider
+                catalogUrl={settings.catalogUrl}
+                camelCatalog={settings.camelCatalog}
+                testingCatalog={settings.testingCatalog}
+              >
                 <CatalogLoaderProvider>
                   <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
                     <KaotoBridge

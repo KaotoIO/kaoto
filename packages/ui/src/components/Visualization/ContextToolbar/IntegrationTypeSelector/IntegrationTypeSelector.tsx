@@ -31,7 +31,12 @@ export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () 
       sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
 
       if (changeCatalog) {
-        const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
+        const matchingCatalog = findCatalog(
+          proposedFlowType,
+          runtimeContext.catalogLibrary,
+          runtimeContext.camelCatalog,
+          runtimeContext.testingCatalog,
+        );
         if (isDefined(matchingCatalog)) {
           runtimeContext.setSelectedCatalog(matchingCatalog);
         }

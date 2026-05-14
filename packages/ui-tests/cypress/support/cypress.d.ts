@@ -88,8 +88,15 @@ declare global {
       checkEdgeExists(scope: string, sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
-      selectRuntimeVersion(type: string): Chainable<JQuery<Element>>;
+      selectRuntimeVersion(
+        type: string,
+        version?: string,
+        catalogType?: 'camelCatalog' | 'testingCatalog',
+      ): Chainable<JQuery<Element>>;
+      /** @deprecated RuntimeSelector is now read-only. Use checkRuntimeDisplay instead. */
       hoverOnRuntime(type: string): Chainable<JQuery<Element>>;
+      getRuntimeDisplay(): Chainable<string>;
+      checkRuntimeDisplay(runtime: string, version?: string): Chainable<JQuery<Element>>;
       checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
