@@ -11,6 +11,46 @@
       "type": "string",
       "format": "uri"
     },
+    "camelCatalog": {
+      "title": "Camel Catalog",
+      "description": "Default catalog for Camel integrations (Routes, Pipes, Kamelets). Supports Main, Quarkus, and Spring Boot runtimes.",
+      "type": "object",
+      "default": {
+        "version": "",
+        "runtime": "Main"
+      },
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Catalog version (e.g., '4.14.5'). Empty string means use default from catalog library."
+        },
+        "runtime": {
+          "type": "string",
+          "description": "Runtime type: 'Main', 'Quarkus', or 'Spring Boot'"
+        }
+      },
+      "required": ["version", "runtime"]
+    },
+    "citrusCatalog": {
+      "title": "Test Catalog",
+      "description": "Default catalog for test integrations.",
+      "type": "object",
+      "default": {
+        "version": "",
+        "runtime": "Citrus"
+      },
+      "properties": {
+        "version": {
+          "type": "string",
+          "description": "Catalog version (e.g., '4.10.1'). Empty string means use default from catalog library."
+        },
+        "runtime": {
+          "type": "string",
+          "description": "Runtime type: 'Citrus'"
+        }
+      },
+      "required": ["version", "runtime"]
+    },
     "nodeLabel": {
       "title": "Node label to display in canvas",
       "description": "Node label, which will be used for nodes in the canvas. Can be either `description` or `id`. If `description` is selected, it will be displayed only if it is available, otherwise `id` will be displayed by default.",

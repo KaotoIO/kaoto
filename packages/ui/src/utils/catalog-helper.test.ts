@@ -1,9 +1,9 @@
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 
 import { SourceSchemaType } from '../models/camel';
-import { findCatalog } from './catalog-helper';
+import { findCatalog, requiresCatalogChange } from './catalog-helper';
 
-describe('CatalogHelper', () => {
+describe('catalog-helper', () => {
   let catalogLibrary: CatalogLibrary;
 
   beforeEach(() => {
@@ -30,29 +30,40 @@ describe('CatalogHelper', () => {
           fileName: 'citrus/1.0.0/index.js',
         },
       ],
-    } as CatalogLibrary;
+    };
   });
 
-  it('should handle no matching Camel catalog', () => {
+  it('requiresCatalogChange returns false when catalog is undefined or missing runtime', () => {
+    expect(requiresCatalogChange(SourceSchemaType.Route)).toBe(false);
+    expect(requiresCatalogChange(SourceSchemaType.Route, {} as CatalogLibraryEntry)).toBe(false);
+  });
+
+  it('requiresCatalogChange returns true when switching from Camel to Test', () => {
+    const camelCatalog = { runtime: 'Main' } as CatalogLibraryEntry;
+    expect(requiresCatalogChange(SourceSchemaType.Test, camelCatalog)).toBe(true);
+  });
+
+  it('requiresCatalogChange returns true when switching from Test to Camel', () => {
+    const testCatalog = { runtime: 'Citrus' } as CatalogLibraryEntry;
+    expect(requiresCatalogChange(SourceSchemaType.Route, testCatalog)).toBe(true);
+  });
+
+  it('requiresCatalogChange returns false when staying in Camel runtime', () => {
+    const camelCatalog = { runtime: 'Quarkus' } as CatalogLibraryEntry;
+    expect(requiresCatalogChange(SourceSchemaType.Route, camelCatalog)).toBe(false);
+  });
+
+  it('requiresCatalogChange returns false when staying in Test runtime', () => {
+    const testCatalog = { runtime: 'Citrus' } as CatalogLibraryEntry;
+    expect(requiresCatalogChange(SourceSchemaType.Test, testCatalog)).toBe(false);
+  });
+
+  it('findCatalog handles no matching Camel catalog', () => {
     const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
     expect(entry).toBeUndefined();
   });
 
-  it('should find matching Camel catalog', () => {
-    catalogLibrary.definitions.push({
-      name: 'Camel Main 1.0.0.redhat-00001',
-      runtime: 'Main',
-      version: '1.0.0.redhat-00001',
-      fileName: 'camel-main-redhat/index.js',
-    });
-
-    const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
-    expect(entry).toBeDefined();
-    expect(entry?.name).toEqual('Camel Main 1.0.0.redhat-00001');
-    expect(entry?.runtime).toEqual('Main');
-  });
-
-  it('should find matching Camel catalog latest version', () => {
+  it('findCatalog finds latest Camel catalog version', () => {
     catalogLibrary.definitions.push(
       {
         name: 'Camel Main 1.0.2.redhat-00002',
@@ -69,19 +80,10 @@ describe('CatalogHelper', () => {
     );
 
     const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
-    expect(entry).toBeDefined();
     expect(entry?.name).toEqual('Camel Main 1.0.3.redhat-00003');
-    expect(entry?.runtime).toEqual('Main');
   });
 
-  it('should find Citrus catalog', () => {
-    const entry = findCatalog(SourceSchemaType.Test, catalogLibrary);
-    expect(entry).toBeDefined();
-    expect(entry?.name).toEqual('Citrus 1.0.0');
-    expect(entry?.runtime).toEqual('Citrus');
-  });
-
-  it('should find matching Citrus catalog latest version', () => {
+  it('findCatalog finds latest Citrus catalog version', () => {
     catalogLibrary.definitions.push(
       {
         name: 'Citrus 1.0.2',
@@ -98,8 +100,6 @@ describe('CatalogHelper', () => {
     );
 
     const entry = findCatalog(SourceSchemaType.Test, catalogLibrary);
-    expect(entry).toBeDefined();
     expect(entry?.name).toEqual('Citrus 1.0.3');
-    expect(entry?.runtime).toEqual('Citrus');
   });
 });

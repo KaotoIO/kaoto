@@ -4,6 +4,6 @@ exports[`SettingsProvider should render 1`] = `
 <p
   data-testid="settings"
 >
-  {"catalogUrl":"","nodeLabel":"description","nodeToolbarTrigger":"onHover","colorScheme":"auto","rest":{"apicurioRegistryUrl":"","customMediaTypes":[]},"canvasLayoutDirection":"SelectInCanvas"}
+  {"catalogUrl":"","camelCatalog":{"version":"4.18.0","runtime":"Main"},"citrusCatalog":{"version":"4.10.1","runtime":"Citrus"},"nodeLabel":"description","nodeToolbarTrigger":"onHover","colorScheme":"auto","rest":{"apicurioRegistryUrl":"","customMediaTypes":[]},"canvasLayoutDirection":"SelectInCanvas"}
 </p>
 `;

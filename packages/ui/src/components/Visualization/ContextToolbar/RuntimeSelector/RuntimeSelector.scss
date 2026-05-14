@@ -7,3 +7,11 @@
     width: max-content;
   }
 }
+
+.runtime-selector-display {
+  display: flex;
+  flex-direction: row;
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
+  align-self: anchor-center;
+  gap: 8px;
+}

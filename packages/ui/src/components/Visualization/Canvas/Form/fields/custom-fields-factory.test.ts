@@ -1,5 +1,4 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { EnumField, TextAreaField } from '@kaoto/forms';
 
 import { ICamelComponentDefinition } from '../../../../../models/camel/camel-components-catalog';
@@ -9,6 +8,7 @@ import { CamelCatalogService } from '../../../../../models/visualization/flows/c
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { CatalogSelectorField } from './CatalogSelectorField/CatalogSelectorField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { EndpointField } from './EndpointField/EndpointField';
@@ -22,7 +22,7 @@ describe('customFieldsFactoryfactory', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
 
   beforeEach(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     componentCatalogMap = catalogsMap.componentCatalogMap;
 
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
@@ -238,5 +238,17 @@ describe('customFieldsFactoryfactory', () => {
     };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointListField);
+  });
+
+  it('returns CatalogSelectorField for catalog titles', () => {
+    const testCases = [
+      { type: 'object', title: 'Camel Catalog' },
+      { type: 'object', title: 'Test Catalog' },
+    ];
+
+    testCases.forEach((schema) => {
+      const result = customFieldsFactoryfactory(schema as KaotoSchemaDefinition['schema']);
+      expect(result).toBe(CatalogSelectorField);
+    });
   });
 });
