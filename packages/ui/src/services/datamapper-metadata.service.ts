@@ -174,6 +174,23 @@ export class DataMapperMetadataService {
   }
 
   /**
+   * Updates the XSLT path in the metadata.
+   * @param api The metadata API
+   * @param metadataId The metadata identifier
+   * @param metadata The DataMapper metadata
+   * @param newXsltPath The new XSLT file path
+   */
+  static async updateXsltPath(
+    api: IMetadataApi,
+    metadataId: string,
+    metadata: IDataMapperMetadata,
+    newXsltPath: string,
+  ): Promise<void> {
+    const updatedMetadata = { ...metadata, xsltPath: newXsltPath };
+    await api.setMetadata(metadataId, updatedMetadata);
+  }
+
+  /**
    * Updates the source body metadata with a new document definition.
    * @param api The metadata API
    * @param metadataId The metadata identifier

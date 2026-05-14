@@ -162,4 +162,79 @@ describe('DataMapperPage', () => {
 
     updateMappingFileSpy.mockRestore();
   });
+
+  it('should create XSLT file when metadata exists but file is missing', async () => {
+    const existingMetadata: IDataMapperMetadata = {
+      sourceBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      sourceParameters: {},
+      targetBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      xsltPath: 'kaoto-datamapper-1234.xsl',
+    };
+
+    metadata = existingMetadata;
+    // File does not exist initially
+    fileContents = {};
+
+    const saveResourceContentSpy = jest.spyOn(api, 'saveResourceContent');
+
+    renderWithVirtuoso(
+      <MetadataProvider api={api}>
+        <DataMapper vizNode={vizNode} />
+      </MetadataProvider>,
+    );
+
+    await screen.findByTestId('source-parameters-header');
+
+    await waitFor(() => {
+      expect(saveResourceContentSpy).toHaveBeenCalledWith('kaoto-datamapper-1234.xsl', expect.any(String));
+      expect(fileContents['kaoto-datamapper-1234.xsl']).toBeDefined();
+    });
+
+    saveResourceContentSpy.mockRestore();
+  });
+
+  it('should not create XSLT file when it already exists', async () => {
+    const existingMetadata: IDataMapperMetadata = {
+      sourceBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      sourceParameters: {},
+      targetBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      xsltPath: 'kaoto-datamapper-1234.xsl',
+    };
+
+    metadata = existingMetadata;
+    fileContents['kaoto-datamapper-1234.xsl'] = '<existing xslt content/>';
+
+    const saveResourceContentSpy = jest.spyOn(api, 'saveResourceContent');
+
+    renderWithVirtuoso(
+      <MetadataProvider api={api}>
+        <DataMapper vizNode={vizNode} />
+      </MetadataProvider>,
+    );
+
+    await screen.findByTestId('source-parameters-header');
+
+    await waitFor(() => {
+      // saveResourceContent should not be called for creating the file
+      // (it may be called for other purposes like saving mappings)
+      const createFileCalls = saveResourceContentSpy.mock.calls.filter(
+        (call) => call[0] === 'kaoto-datamapper-1234.xsl' && call[1].includes('<?xml'),
+      );
+      expect(createFileCalls.length).toBe(0);
+    });
+
+    saveResourceContentSpy.mockRestore();
+  });
 });

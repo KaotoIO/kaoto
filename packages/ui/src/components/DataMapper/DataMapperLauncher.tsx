@@ -28,12 +28,15 @@ import {
   ValidatedOptions,
 } from '@patternfly/react-core';
 import { HelpIcon, WrenchIcon } from '@patternfly/react-icons';
-import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { IVisualizationNode } from '../../models';
+import { IDataMapperMetadata } from '../../models/datamapper/metadata';
+import { EntitiesContext } from '../../providers';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
+import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
@@ -41,17 +44,94 @@ import type { XsltComponentDef } from '../../utils/is-xslt-component';
 export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNode }> = ({ vizNode }) => {
   const navigate = useNavigate();
   const metadata = useContext(MetadataContext);
-  const xsltDocument = useMemo(() => {
+  const entitiesContext = useContext(EntitiesContext);
+  const [xsltFileExists, setXsltFileExists] = useState<boolean>(false);
+  const [localXsltDocumentName, setLocalXsltDocumentName] = useState<string>('');
+
+  const xsltDocumentName = useMemo(() => {
     const xsltComponent = vizNode?.getNodeDefinition()?.steps?.find(isXSLTComponent) as XsltComponentDef;
     return DataMapperStepService.getXsltFileName(xsltComponent);
   }, [vizNode]);
-  const isXsltDocumentDefined = useMemo(() => {
-    return isDefined(xsltDocument);
-  }, [xsltDocument]);
 
-  const onClick = useCallback(() => {
+  const isXsltDocumentDefined = useMemo(() => {
+    return isDefined(xsltDocumentName);
+  }, [xsltDocumentName]);
+
+  useEffect(() => {
+    const checkFile = async () => {
+      if (!xsltDocumentName || !metadata) {
+        setXsltFileExists(false);
+        return;
+      }
+      const content = await metadata.getResourceContent(xsltDocumentName);
+      setXsltFileExists(content !== undefined);
+    };
+    checkFile();
+  }, [xsltDocumentName, metadata]);
+
+  useEffect(() => {
+    if (xsltDocumentName) {
+      setLocalXsltDocumentName(xsltDocumentName);
+    }
+  }, [xsltDocumentName]);
+
+  const isXsltDocumentNameValid = useMemo(() => {
+    if (localXsltDocumentName === xsltDocumentName) {
+      return true;
+    }
+
+    const trimmed = localXsltDocumentName.trim();
+
+    // Empty value
+    if (!trimmed) {
+      return false;
+    }
+
+    /**
+     * Valid filename rules:
+     * - must end with .xsl
+     * - filename before extension cannot be empty
+     * - disallow invalid filename characters
+     */
+    // eslint-disable-next-line no-control-regex
+    const xsltFileNameRegex = /^(?!\.)([^<>:"/\\|?*\x00-\x1F]+)\.(xsl)$/i;
+
+    return xsltFileNameRegex.test(trimmed);
+  }, [localXsltDocumentName, xsltDocumentName]);
+
+  const validationState = useMemo(() => {
+    if (!isXsltDocumentNameValid) {
+      return ValidatedOptions.error;
+    }
+
+    return ValidatedOptions.default;
+  }, [isXsltDocumentNameValid]);
+
+  const onXsltDocumentNameChange = useCallback((_event: React.FormEvent<HTMLInputElement>, value: string) => {
+    setLocalXsltDocumentName(value);
+  }, []);
+
+  const onClick = useCallback(async () => {
+    const oldPath = xsltDocumentName;
+    const newPath = localXsltDocumentName.trim();
+
+    if (newPath !== oldPath && vizNode && metadata && entitiesContext && oldPath) {
+      const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
+      const meta = await metadata.getMetadata<IDataMapperMetadata>(metadataId);
+
+      if (meta) {
+        const content = await metadata.getResourceContent(oldPath);
+        if (content !== undefined) {
+          await metadata.saveResourceContent(newPath, content);
+          await DataMapperMetadataService.updateXsltPath(metadata, metadataId, meta, newPath);
+          DataMapperStepService.updateXsltFileName(vizNode, newPath, entitiesContext);
+          await metadata.deleteResource(oldPath);
+        }
+      }
+    }
+
     navigate(`${Links.DataMapper}/${vizNode?.getNodeDefinition()?.id}`);
-  }, [navigate, vizNode]);
+  }, [localXsltDocumentName, xsltDocumentName, metadata, entitiesContext, navigate, vizNode]);
 
   if (!isDefined(metadata)) {
     return (
@@ -70,42 +150,50 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
 
   return (
     <section className="data-mapper-launcher">
-      <Form>
-        <FormGroup
-          label="Document"
-          labelHelp={
-            <Popover
-              bodyContent="The name of the XSLT document that is used by the Kaoto DataMapper"
-              triggerAction="hover"
-              withFocusTrap={false}
-            >
-              <Button variant="plain" aria-label="More info" icon={<HelpIcon />} />
-            </Popover>
-          }
-        >
-          <TextInput
-            readOnly
-            value={xsltDocument}
-            title="The name of the XSLT document that is used by the Kaoto DataMapper"
-            validated={isXsltDocumentDefined ? ValidatedOptions.default : ValidatedOptions.error}
-            id="xslt-document-path"
-          />
-          {!isXsltDocumentDefined && (
-            <HelperText>
-              <HelperTextItem variant="error">
-                This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure
-                it.
-              </HelperTextItem>
-            </HelperText>
-          )}
-        </FormGroup>
-      </Form>
-
+      {xsltFileExists && (
+        <Form>
+          <FormGroup
+            label="Document"
+            labelHelp={
+              <Popover
+                bodyContent="The name of the XSLT document that is used by the Kaoto DataMapper"
+                triggerAction="hover"
+                withFocusTrap={false}
+              >
+                <Button variant="plain" aria-label="More info" icon={<HelpIcon />} />
+              </Popover>
+            }
+          >
+            <TextInput
+              value={localXsltDocumentName}
+              onChange={onXsltDocumentNameChange}
+              title="The name of the XSLT document that is used by the Kaoto DataMapper"
+              validated={validationState}
+              id="xslt-document-path"
+            />
+            {!isXsltDocumentNameValid && (
+              <HelperText>
+                <HelperTextItem variant="error">
+                  XSLT document name is required and must be a valid filename ending with .xsl.
+                </HelperTextItem>
+              </HelperText>
+            )}
+          </FormGroup>
+        </Form>
+      )}
+      {!isXsltDocumentDefined && (
+        <HelperText>
+          <HelperTextItem variant="error">
+            This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure it.
+          </HelperTextItem>
+        </HelperText>
+      )}
       <Button
         variant="primary"
         title="Click to launch the Kaoto DataMapper editor"
         aria-label="Launch the Kaoto DataMapper editor"
         onClick={onClick}
+        isDisabled={xsltFileExists && !isXsltDocumentNameValid}
         icon={<WrenchIcon />}
       >
         Configure

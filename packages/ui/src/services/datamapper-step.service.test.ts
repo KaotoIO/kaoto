@@ -354,4 +354,110 @@ describe('DataMapperStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
     });
   });
+
+  describe('updateXsltFileName', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
+    it('should update XSLT filename in the URI', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          {
+            to: {
+              uri: `${XSLT_COMPONENT_NAME}:old-file.xsl`,
+            },
+          } as ProcessorDefinition,
+        ],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(model);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      const step = model.steps[0];
+      if (step.to && typeof step.to === 'object' && 'uri' in step.to) {
+        expect(step.to.uri).toBe(`${XSLT_COMPONENT_NAME}:new-file.xsl`);
+      }
+    });
+
+    it('should handle filename with different extension', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          {
+            to: {
+              uri: `${XSLT_COMPONENT_NAME}:transform.xsl`,
+            },
+          } as ProcessorDefinition,
+        ],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.updateXsltFileName(vizNode, 'transform.xslt', mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalledWith(model);
+      const step = model.steps[0];
+      if (step.to && typeof step.to === 'object' && 'uri' in step.to) {
+        expect(step.to.uri).toBe(`${XSLT_COMPONENT_NAME}:transform.xslt`);
+      }
+    });
+
+    it('should not update when XSLT step is not found', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          {
+            to: {
+              uri: 'direct:test',
+            },
+          } as ProcessorDefinition,
+        ],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+
+    it('should not update when to property is missing', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          {
+            from: {
+              uri: 'direct:test',
+            },
+          } as ProcessorDefinition,
+        ],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
+
+      expect(updateModelSpy).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+    });
+  });
 });
