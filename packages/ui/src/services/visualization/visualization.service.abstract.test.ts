@@ -585,8 +585,124 @@ describe('VisualizationService / abstract fields', () => {
         (c) => c instanceof FieldItem && c.field.name === 'Cat',
       ) as FieldItem;
 
-      const candidateChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshAbstractNode);
-      expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
-    });
+  const candidateChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshAbstractNode);
+  expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
+  });
+  });
+
+  describe('choice-selected abstract wrapper rendering', () => {
+  let sourceDoc: XmlSchemaDocument;
+  let sourceDocNode: DocumentNodeData;
+  let targetDoc: XmlSchemaDocument;
+  let tree: MappingTree;
+
+  function createMockAbstractField(
+    candidates: { name: string; children?: { name: string }[] }[],
+    selectedMemberIndex?: number,
+  ) {
+    const baseField = sourceDoc.fields[0];
+    const candidateFields = candidates.map((c) => ({
+      ...baseField,
+      name: c.name,
+      displayName: c.name,
+      fields: (c.children ?? []).map((child) => ({
+        ...baseField,
+        name: child.name,
+        displayName: child.name,
+        fields: [],
+      })),
+    }));
+    return {
+      ...baseField,
+      name: 'AbstractElement',
+      displayName: 'AbstractElement',
+      wrapperKind: 'abstract' as const,
+      selectedMemberIndex,
+      fields: candidateFields,
+    } as unknown as typeof baseField;
+  }
+
+  beforeEach(() => {
+    sourceDoc = TestUtil.createSourceOrderDoc();
+    sourceDocNode = new DocumentNodeData(sourceDoc);
+    targetDoc = TestUtil.createTargetOrderDoc();
+    tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+  });
+
+  it('should create AbstractFieldNodeData when a choice selects an abstract wrapper member (source)', () => {
+    const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
+    const baseField = sourceDoc.fields[0];
+    const choiceField = {
+      ...baseField,
+      name: '__choice__',
+      displayName: '__choice__',
+      wrapperKind: 'choice' as const,
+      selectedMemberIndex: 0,
+      fields: [abstractField],
+    } as unknown as typeof baseField;
+    const parentField = {
+      ...sourceDoc.fields[0],
+      fields: [choiceField],
+    };
+    const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+    const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+
+    expect(children.length).toEqual(1);
+    expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
+    const abstractNode = children[0] as AbstractFieldNodeData;
+    expect(abstractNode.abstractField).toBe(abstractField);
+    expect(VisualizationUtilService.isAbstractField(abstractNode)).toBe(true);
+  });
+
+  it('should create TargetAbstractFieldNodeData when a choice selects an abstract wrapper member (target)', () => {
+    const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
+    const baseField = targetDoc.fields[0];
+    const choiceField = {
+      ...baseField,
+      name: '__choice__',
+      displayName: '__choice__',
+      wrapperKind: 'choice' as const,
+      selectedMemberIndex: 0,
+      fields: [abstractField],
+    } as unknown as typeof baseField;
+    const parentField = {
+      ...targetDoc.fields[0],
+      fields: [choiceField],
+    };
+    const localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+    const parentNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+    const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+
+    expect(children.length).toEqual(1);
+    expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
+    const abstractNode = children[0] as TargetAbstractFieldNodeData;
+    expect(abstractNode.abstractField).toBe(abstractField);
+    expect(VisualizationUtilService.isAbstractField(abstractNode)).toBe(true);
+  });
+
+  it('should expand abstract candidates as children when choice-selected abstract node is expanded', () => {
+    const abstractField = createMockAbstractField([{ name: 'Cat' }, { name: 'Dog' }]);
+    const baseField = sourceDoc.fields[0];
+    const choiceField = {
+      ...baseField,
+      name: '__choice__',
+      displayName: '__choice__',
+      wrapperKind: 'choice' as const,
+      selectedMemberIndex: 0,
+      fields: [abstractField],
+    } as unknown as typeof baseField;
+    const parentField = {
+      ...sourceDoc.fields[0],
+      fields: [choiceField],
+    };
+    const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+    const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+
+    const abstractNode = children[0] as AbstractFieldNodeData;
+    expect(VisualizationService.hasChildren(abstractNode)).toBe(true);
+    const abstractChildren = VisualizationService.generateNonDocumentNodeDataChildren(abstractNode);
+    const childNames = abstractChildren.map((c) => c.title);
+    expect(childNames).toContain('Cat');
+    expect(childNames).toContain('Dog');
   });
 });
