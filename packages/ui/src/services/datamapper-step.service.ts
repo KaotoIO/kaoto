@@ -118,4 +118,18 @@ export class DataMapperStepService {
     vizNode.updateModel(model);
     entitiesContext.updateSourceCodeFromEntities();
   }
+
+  static updateXsltFileName(
+    vizNode: IVisualizationNode,
+    newFileName: string,
+    entitiesContext: EntitiesContextResult,
+  ): void {
+    const model = vizNode.getNodeDefinition();
+    const xsltStep = (model.steps as ProcessorDefinition[]).find(isXSLTComponent);
+    if (xsltStep?.to) {
+      xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${newFileName}`;
+      vizNode.updateModel(model);
+      entitiesContext.updateSourceCodeFromEntities();
+    }
+  }
 }

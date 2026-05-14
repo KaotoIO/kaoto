@@ -32,6 +32,7 @@ import { DataMapperDndProvider } from '../../providers/datamapper-dnd.provider';
 import { SourceTargetDnDHandler } from '../../providers/dnd/SourceTargetDnDHandler';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 
 export interface IDataMapperProps {
   vizNode?: IVisualizationNode;
@@ -54,6 +55,12 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       if (!meta) {
         const xsltPath = DataMapperStepService.initializeXsltStep(vizNode, metadataId, entitiesContext);
         meta = await DataMapperMetadataService.initializeDataMapperMetadata(ctx, metadataId, xsltPath);
+      } else {
+        // Check if XSLT file exists, create if missing
+        const xsltContent = await ctx.getResourceContent(meta.xsltPath);
+        if (!xsltContent) {
+          await ctx.saveResourceContent(meta.xsltPath, EMPTY_XSL);
+        }
       }
       setMetadata(meta);
       const initModel = await DataMapperMetadataService.loadDocuments(ctx, meta);

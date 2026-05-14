@@ -1579,4 +1579,47 @@ describe('DataMapperMetadataService', () => {
       expect(result).toEqual({});
     });
   });
+
+  describe('updateXsltPath', () => {
+    it('should update the XSLT path in metadata', async () => {
+      const metadataId = 'test-metadata-id';
+      const originalMetadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'old-transform.xsl',
+        namespaceMap: {},
+      };
+      const newXsltPath = 'new-transform.xsl';
+
+      await DataMapperMetadataService.updateXsltPath(mockApi, metadataId, originalMetadata, newXsltPath);
+
+      expect(mockApi.setMetadata).toHaveBeenCalledWith(metadataId, {
+        ...originalMetadata,
+        xsltPath: newXsltPath,
+      });
+    });
+
+    it('should preserve all other metadata properties when updating XSLT path', async () => {
+      const metadataId = 'test-metadata-id';
+      const originalMetadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['source.xsd'] },
+        sourceParameters: { param1: { type: DocumentDefinitionType.Primitive, filePath: [] } },
+        targetBody: { type: DocumentDefinitionType.JSON_SCHEMA, filePath: ['target.json'] },
+        xsltPath: 'old-transform.xsl',
+        namespaceMap: { ns1: 'http://example.com' },
+      };
+      const newXsltPath = 'new-transform.xsl';
+
+      await DataMapperMetadataService.updateXsltPath(mockApi, metadataId, originalMetadata, newXsltPath);
+
+      expect(mockApi.setMetadata).toHaveBeenCalledWith(metadataId, {
+        sourceBody: originalMetadata.sourceBody,
+        sourceParameters: originalMetadata.sourceParameters,
+        targetBody: originalMetadata.targetBody,
+        xsltPath: newXsltPath,
+        namespaceMap: originalMetadata.namespaceMap,
+      });
+    });
+  });
 });
