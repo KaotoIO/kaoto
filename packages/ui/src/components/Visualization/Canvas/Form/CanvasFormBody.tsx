@@ -1,5 +1,5 @@
 import { isDefined, KaotoForm } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
@@ -15,7 +15,21 @@ interface CanvasFormTabsProps {
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
   const entitiesContext = useContext(EntitiesContext);
   const omitFields = useRef(vizNode.getOmitFormFields() ?? []);
-  const schema = useMemo(() => vizNode.getNodeSchema(), [vizNode]);
+  const [schema, setSchema] = useState<Record<string, unknown> | undefined>(undefined);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    vizNode.getNodeSchema().then((loadedSchema) => {
+      if (!cancelled) {
+        setSchema(loadedSchema);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [vizNode, vizNode.lastUpdate]);
 
   const isUnknownComponent = useMemo(() => {
     return !isDefined(schema) || Object.keys(schema).length === 0;

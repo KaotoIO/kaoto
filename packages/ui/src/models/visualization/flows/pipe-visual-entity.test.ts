@@ -123,18 +123,18 @@ describe('Pipe', () => {
   });
 
   describe('getNodeSchema', () => {
-    it('should return undefined if no path is provided', () => {
-      expect(pipeVisualEntity.getNodeSchema()).toBeUndefined();
+    it('should return undefined if no path is provided', async () => {
+      expect(await pipeVisualEntity.getNodeSchema()).toBeUndefined();
     });
 
-    it('should return {} when using an invalid path', () => {
-      const result = pipeVisualEntity.getNodeSchema('test');
+    it('should return {} when using an invalid path', async () => {
+      const result = await pipeVisualEntity.getNodeSchema('test');
 
       expect(result).toEqual({});
     });
 
-    it('should return the root pipe schema when path is root path', () => {
-      const result = pipeVisualEntity.getNodeSchema('pipe');
+    it('should return the root pipe schema when path is root path', async () => {
+      const result = await pipeVisualEntity.getNodeSchema('pipe');
       expect(result).toBeDefined();
     });
 
@@ -462,24 +462,24 @@ describe('Pipe', () => {
   });
 
   describe('getNodeValidationText', () => {
-    it('should return an `undefined` if the path is `undefined`', () => {
-      const result = pipeVisualEntity.getNodeValidationText();
+    it('should return an `undefined` if the path is `undefined`', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText();
 
       expect(result).toEqual(undefined);
     });
 
-    it('should return an `undefined` if the path is empty', () => {
-      const result = pipeVisualEntity.getNodeValidationText('');
+    it('should return an `undefined` if the path is empty', async () => {
+      const result = await pipeVisualEntity.getNodeValidationText('');
 
       expect(result).toEqual(undefined);
     });
 
-    it('should return a validation text relying on the `validateNodeStatus` method', () => {
+    it('should return a validation text relying on the `validateNodeStatus` method', async () => {
       const missingParametersModel = cloneDeep(pipeJson);
       missingParametersModel.spec!.steps![0].properties = {};
       pipeVisualEntity = new PipeVisualEntity(missingParametersModel);
 
-      const result = pipeVisualEntity.getNodeValidationText('steps.0');
+      const result = await pipeVisualEntity.getNodeValidationText('steps.0');
 
       expect(result).toEqual('1 required parameter is not yet configured: [ milliseconds ]');
     });

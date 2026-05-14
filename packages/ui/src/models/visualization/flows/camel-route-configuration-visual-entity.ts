@@ -2,6 +2,7 @@ import { ProcessorDefinition, RouteConfigurationDefinition } from '@kaoto/camel-
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
@@ -17,7 +18,6 @@ import {
   NodeInteraction,
 } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeMapperService } from './nodes/node-mapper.service';
 
 export class CamelRouteConfigurationVisualEntity
@@ -96,9 +96,9 @@ export class CamelRouteConfigurationVisualEntity
     }
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
+  async getNodeSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     if (path === this.getRootPath()) {
-      const schema = CamelCatalogService.getComponent(CatalogKind.Entity, 'routeConfiguration');
+      const schema = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, 'routeConfiguration');
       return schema?.propertiesSchema ?? {};
     }
 

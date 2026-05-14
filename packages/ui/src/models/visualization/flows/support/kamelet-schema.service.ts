@@ -1,13 +1,14 @@
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { KameletBindingStep, PipeStep } from '../../../entities';
-import { CamelCatalogService } from '../camel-catalog.service';
 
 export class KameletSchemaService {
-  static getKameletCatalogEntry(step?: KameletBindingStep): IKameletDefinition | undefined {
+  static async getKameletCatalogEntry(step?: KameletBindingStep): Promise<IKameletDefinition | undefined> {
     const stepName = step?.ref?.name;
+    if (!stepName) return undefined;
 
-    return CamelCatalogService.getComponent(CatalogKind.Kamelet, stepName);
+    return await DynamicCatalogRegistry.get().getEntity(CatalogKind.Kamelet, stepName);
   }
 
   static getNodeLabel(step: PipeStep, path: string): string {

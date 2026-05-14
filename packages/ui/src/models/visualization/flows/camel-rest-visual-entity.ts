@@ -2,6 +2,7 @@ import { Rest } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
@@ -23,7 +24,6 @@ import {
 } from '../base-visual-entity';
 import { createVisualizationNode } from '../visualization-node';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
-import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 
 export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Rest }> implements BaseVisualEntity {
@@ -74,16 +74,18 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
     this.id = id;
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
+  async getNodeSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     if (path === CamelRestVisualEntity.ROOT_PATH) {
-      return CamelCatalogService.getComponent(CatalogKind.Entity, REST_ELEMENT_NAME)?.propertiesSchema ?? {};
+      const schema = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, REST_ELEMENT_NAME);
+      return schema?.propertiesSchema ?? {};
     }
 
     /** If we're targetting a Rest method, the path would be `rest.get.0` */
     const pathSegments = path?.split('.') ?? [];
     const method = (pathSegments[1] ?? '') as RestMethods;
     if (pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
-      return CamelCatalogService.getComponent(CatalogKind.Pattern, method)?.propertiesSchema ?? {};
+      const schema = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Pattern, method);
+      return schema?.propertiesSchema ?? {};
     }
 
     return super.getNodeSchema(path);

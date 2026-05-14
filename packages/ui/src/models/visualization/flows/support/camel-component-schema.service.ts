@@ -2,7 +2,11 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelUriHelper, DATAMAPPER_ID_PREFIX, getValue, isDataMapperNode, ParsedParameters } from '../../../../utils';
+import { ComponentsCatalogTypes } from '../../../camel/camel-catalog-index';
+import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
+import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { NodeLabelType } from '../../../settings/settings.model';
@@ -260,13 +264,13 @@ export class CamelComponentSchemaService {
     const { name, definition: defaultValue } = clipboardContent;
 
     if (this.SPECIAL_CHILD_PROCESSORS.includes(name)) {
-      return defaultValue as ProcessorDefinition;
+      return defaultValue;
     } else {
-      return { [name]: defaultValue } as ProcessorDefinition;
+      return { [name]: defaultValue };
     }
   }
 
-  static getSchema(camelElementLookup: ICamelElementLookupResult): KaotoSchemaDefinition['schema'] {
+  static async getSchema(camelElementLookup: ICamelElementLookupResult): Promise<KaotoSchemaDefinition['schema']> {
     let catalogKind: CatalogKind;
     switch (camelElementLookup.processorName) {
       case 'route' as keyof ProcessorDefinition:
@@ -282,7 +286,10 @@ export class CamelComponentSchemaService {
         catalogKind = CatalogKind.Pattern;
     }
 
-    const processorDefinition = CamelCatalogService.getComponent(catalogKind, camelElementLookup.processorName);
+    const processorDefinition = await DynamicCatalogRegistry.get().getEntity(
+      catalogKind,
+      camelElementLookup.processorName,
+    );
 
     let schema = {} as unknown as KaotoSchemaDefinition['schema'];
     if (processorDefinition?.propertiesSchema === undefined) {
@@ -291,9 +298,8 @@ export class CamelComponentSchemaService {
     schema = cloneDeep(processorDefinition.propertiesSchema);
 
     if (camelElementLookup.componentName !== undefined) {
-      const catalogLookup = CamelCatalogService.getCatalogLookup(camelElementLookup.componentName);
-      const componentSchema: KaotoSchemaDefinition['schema'] =
-        catalogLookup.definition?.propertiesSchema ?? ({} as unknown as KaotoSchemaDefinition['schema']);
+      const catalogLookup = await this.getAsyncCatalogLookup(camelElementLookup.componentName);
+      const componentSchema: KaotoSchemaDefinition['schema'] = catalogLookup?.definition?.propertiesSchema ?? {};
 
       // Filter out producer/consumer properties depending upon the endpoint usage
       const actualComponentProperties = Object.fromEntries(
@@ -306,10 +312,8 @@ export class CamelComponentSchemaService {
         }),
       );
 
-      if (catalogLookup.definition !== undefined && componentSchema !== undefined) {
-        if (!schema.properties) {
-          schema.properties = {};
-        }
+      if (catalogLookup?.definition !== undefined && componentSchema !== undefined) {
+        schema.properties ??= {};
         if (!schema.properties.parameters) {
           schema.properties.parameters = { type: 'object', properties: {} };
         }
@@ -442,5 +446,52 @@ export class CamelComponentSchemaService {
       definition.uri = this.getComponentNameFromUri(definition.uri);
       Object.assign(definition.parameters, parametersFromSyntax);
     }
+  }
+
+  /**
+   * Async method to return whether this is a Camel Component or a Kamelet.
+   * Uses the dynamic catalog registry for async catalog access.
+   */
+  private static async getAsyncCatalogLookup(componentName: string): Promise<{
+    catalogKind: CatalogKind.Component;
+    definition?: ICamelComponentDefinition;
+  }>;
+  private static async getAsyncCatalogLookup(componentName: string): Promise<{
+    catalogKind: CatalogKind.Kamelet;
+    definition?: IKameletDefinition;
+  }>;
+  private static async getAsyncCatalogLookup(
+    componentName: string,
+  ): Promise<{ catalogKind: CatalogKind; definition?: ComponentsCatalogTypes } | undefined> {
+    if (!componentName) {
+      return undefined;
+    }
+
+    if (componentName.startsWith('kamelet:')) {
+      const definition = await DynamicCatalogRegistry.get().getEntity(
+        CatalogKind.Kamelet,
+        componentName.replace('kamelet:', ''),
+      );
+
+      if (definition) {
+        return {
+          catalogKind: CatalogKind.Kamelet,
+          definition: definition,
+        };
+      }
+
+      // If the Kamelet is not found, we fallback to the Kamelet component
+      const fallbackDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, 'kamelet');
+      return {
+        catalogKind: CatalogKind.Component,
+        definition: fallbackDefinition as ICamelComponentDefinition,
+      };
+    }
+
+    const definition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Component, componentName);
+    return {
+      catalogKind: CatalogKind.Component,
+      definition: definition as ICamelComponentDefinition,
+    };
   }
 }

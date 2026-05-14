@@ -88,13 +88,13 @@ describe('CamelOnCompletionVisualEntity', () => {
     });
   });
 
-  it('should delegate the validation text to the ModelValidationService', () => {
+  it('should delegate the validation text to the ModelValidationService', async () => {
     const validateNodeStatusSpy = jest.spyOn(ModelValidationService, 'validateNodeStatus');
 
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },
     });
-    onCompletionVisualEntity.getNodeValidationText('onCompletion');
+    await onCompletionVisualEntity.getNodeValidationText('onCompletion');
 
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });

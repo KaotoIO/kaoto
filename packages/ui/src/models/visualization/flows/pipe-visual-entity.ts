@@ -72,17 +72,15 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return KameletSchemaService.getNodeLabel(stepModel, path);
   }
 
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined {
+  async getNodeSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined> {
     if (!path) return undefined;
     if (path === this.getRootPath()) {
       return this.getRootPipeSchema();
     }
 
     const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return (
-      KameletSchemaService.getKameletCatalogEntry(stepModel)?.propertiesSchema ??
-      ({} as KaotoSchemaDefinition['schema'])
-    );
+    const kameletEntry = await KameletSchemaService.getKameletCatalogEntry(stepModel);
+    return kameletEntry?.propertiesSchema ?? {};
   }
 
   getNodeDefinition(path?: string): unknown {
@@ -207,8 +205,8 @@ export class PipeVisualEntity implements BaseVisualEntity {
     };
   }
 
-  getNodeValidationText(path?: string | undefined): string | undefined {
-    const schema = this.getNodeSchema(path);
+  async getNodeValidationText(path?: string | undefined): Promise<string | undefined> {
+    const schema = await this.getNodeSchema(path);
     const definition = this.getNodeDefinition(path);
     if (!schema || !definition) return undefined;
 

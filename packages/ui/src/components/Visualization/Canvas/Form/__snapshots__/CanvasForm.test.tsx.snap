@@ -22,7 +22,7 @@ exports[`CanvasForm should render 1`] = `
             class="pf-v6-l-grid__item pf-m-11-col form-header"
           >
             <img
-              alt="choice"
+              alt="Choice"
               class="form-header__icon-test|route.from.steps.1.choice"
               src="file-mock-data"
             />
@@ -32,7 +32,7 @@ exports[`CanvasForm should render 1`] = `
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
-              choice
+              Choice
             </h2>
           </div>
           <div
@@ -171,7 +171,7 @@ exports[`CanvasForm should render 1`] = `
       />
       <div
         class="pf-v6-c-card kaoto-form kaoto-form__empty"
-        data-ouia-component-id="OUIA-Generated-Card-2"
+        data-ouia-component-id="OUIA-Generated-Card-3"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="no-field-found"
@@ -248,7 +248,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
 <div>
   <div
     class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-5"
+    data-ouia-component-id="OUIA-Generated-Card-6"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
@@ -410,7 +410,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
     >
       <div
         class="pf-v6-c-card"
-        data-ouia-component-id="OUIA-Generated-Card-6"
+        data-ouia-component-id="OUIA-Generated-Card-7"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         id=""
@@ -459,7 +459,7 @@ exports[`CanvasForm should render nothing if no schema and no definition is avai
         >
           <div
             class="pf-v6-c-alert pf-m-warning"
-            data-ouia-component-id="OUIA-Generated-Alert-warning-2"
+            data-ouia-component-id="OUIA-Generated-Alert-warning-3"
             data-ouia-component-type="PF6/Alert"
             data-ouia-safe="true"
           >
@@ -507,7 +507,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
 <div>
   <div
     class="pf-v6-c-card canvas-form"
-    data-ouia-component-id="OUIA-Generated-Card-3"
+    data-ouia-component-id="OUIA-Generated-Card-4"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
@@ -669,7 +669,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
     >
       <div
         class="pf-v6-c-card"
-        data-ouia-component-id="OUIA-Generated-Card-4"
+        data-ouia-component-id="OUIA-Generated-Card-5"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         id=""
@@ -715,7 +715,7 @@ exports[`CanvasForm should render nothing if no schema is available 1`] = `
         >
           <div
             class="pf-v6-c-alert pf-m-warning"
-            data-ouia-component-id="OUIA-Generated-Alert-warning-1"
+            data-ouia-component-id="OUIA-Generated-Alert-warning-2"
             data-ouia-component-type="PF6/Alert"
             data-ouia-safe="true"
           >

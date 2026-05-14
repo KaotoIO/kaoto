@@ -26,7 +26,7 @@ export interface BaseVisualEntity extends BaseEntity {
   getNodeLabel: (path?: string, labelType?: NodeLabelType) => string;
 
   /** Given a path, returns the node's associated schema used for the configuration form */
-  getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
+  getNodeSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined>;
 
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,7 +72,7 @@ export interface BaseVisualEntity extends BaseEntity {
   getNodeInteraction(data: IVisualizationNodeData): NodeInteraction;
 
   /** Given a path, retrieve the Node validation status */
-  getNodeValidationText(path?: string): string | undefined;
+  getNodeValidationText(path?: string): Promise<string | undefined>;
 
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => Promise<IVisualizationNode>;
@@ -124,7 +124,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   getNodeInteraction(): NodeInteraction;
 
   /** This method returns the node's associated schema used for the configuration form */
-  getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined;
+  getNodeSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined>;
 
   /** This method returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -154,7 +154,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   removeChild(): void;
 
   /** Retrieve the node's validation status, relying into the underlying entity */
-  getNodeValidationText(): string | undefined;
+  getNodeValidationText(): Promise<string | undefined>;
 }
 
 export interface IVisualizationNodeData {

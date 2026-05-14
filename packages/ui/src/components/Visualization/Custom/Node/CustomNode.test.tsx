@@ -86,7 +86,7 @@ describe('CustomNode', () => {
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue(undefined);
     jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
     jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
 

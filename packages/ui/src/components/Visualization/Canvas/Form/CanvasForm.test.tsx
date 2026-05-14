@@ -9,14 +9,12 @@ import {
   CamelRouteVisualEntity,
   CatalogKind,
   createVisualizationNode,
-  ICamelComponentDefinition,
-  ICamelProcessorDefinition,
-  IKameletDefinition,
   KameletVisualEntity,
   KaotoSchemaDefinition,
 } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { setupDynamicCatalogRegistryMock } from '../../../../models/visualization/flows/dynamic-catalog-registry-mock';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
@@ -27,27 +25,18 @@ import { CanvasNode } from '../canvas.models';
 import { FlowService } from '../flow.service';
 import { CanvasForm } from './CanvasForm';
 
+jest.mock('../../../../dynamic-catalog/dynamic-catalog-registry');
+
 describe('CanvasForm', () => {
   let camelRouteVisualEntity: CamelRouteVisualEntity;
   let selectedNode: CanvasNode;
-  let componentCatalogMap: Record<string, ICamelComponentDefinition>;
-  let patternCatalogMap: Record<string, ICamelProcessorDefinition>;
-  let kameletCatalogMap: Record<string, IKameletDefinition>;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    componentCatalogMap = catalogsMap.componentCatalogMap;
-    patternCatalogMap = catalogsMap.patternCatalogMap;
-    kameletCatalogMap = catalogsMap.kameletsCatalogMap;
 
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Pattern, patternCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    setupDynamicCatalogRegistryMock(catalogsMap);
+
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Dataformat, catalogsMap.dataformatCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Loadbalancer, catalogsMap.loadbalancerCatalog);
-    CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
   beforeEach(async () => {
@@ -125,7 +114,7 @@ describe('CanvasForm', () => {
       },
     };
 
-    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeSchema').mockResolvedValue(undefined);
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
     const { container } = await act(async () =>
@@ -166,7 +155,7 @@ describe('CanvasForm', () => {
       },
     };
 
-    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
+    jest.spyOn(vizNode, 'getNodeSchema').mockResolvedValue(null as unknown as KaotoSchemaDefinition['schema']);
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
 
     const { container } = await act(async () =>
