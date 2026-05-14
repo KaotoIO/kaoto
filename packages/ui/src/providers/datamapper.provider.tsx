@@ -39,6 +39,7 @@ import {
 import { MappingTree, VariableItem } from '../models/datamapper/mapping';
 import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
+import { DataMapperStepService } from '../services/datamapper-step.service';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
@@ -89,7 +90,7 @@ type DataMapperProviderProps = PropsWithChildren & {
   onDeleteParameter?: (name: string) => void;
   onRenameParameter?: (oldName: string, newName: string) => void;
   initialXsltFile?: string;
-  onUpdateMappings?: (xsltFile: string) => void;
+  onUpdateMappings?: (xsltFile: string, isSourceBodyUsed: boolean) => void;
   onUpdateNamespaceMap?: (namespaceMap: Record<string, string>) => void;
 };
 
@@ -239,8 +240,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       return gv;
     });
     newMapping.namespaceMap = mappingTree.namespaceMap;
+    const isSourceBodyUsed = DataMapperStepService.isSourceBodyUsed(newMapping);
     setMappingTree(newMapping);
-    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
+    onUpdateMappings?.(
+      MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings),
+      isSourceBodyUsed,
+    );
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
     dataMapperSettings,
@@ -253,8 +258,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.namespaceMap = { ...initialNamespaceMap };
+    const isSourceBodyUsed = DataMapperStepService.isSourceBodyUsed(newMapping);
     setMappingTree(newMapping);
-    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
+    onUpdateMappings?.(
+      MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings),
+      isSourceBodyUsed,
+    );
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
     dataMapperSettings,
@@ -278,7 +287,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     if (previousSettings.current === dataMapperSettings) return;
 
     previousSettings.current = dataMapperSettings;
-    onUpdateMappings?.(MappingSerializerService.serialize(mappingTree, sourceParameterMap, dataMapperSettings));
+    const isSourceBodyUsed = DataMapperStepService.isSourceBodyUsed(mappingTree);
+    onUpdateMappings?.(
+      MappingSerializerService.serialize(mappingTree, sourceParameterMap, dataMapperSettings),
+      isSourceBodyUsed,
+    );
   }, [dataMapperSettings, isLoading, mappingTree, onUpdateMappings, sourceParameterMap]);
 
   const renameSourceParameter = useCallback(
