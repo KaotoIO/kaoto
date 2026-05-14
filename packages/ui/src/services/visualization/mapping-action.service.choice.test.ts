@@ -4,7 +4,14 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../../models/datamapper/document';
-import { ChooseItem, FieldItem, MappingTree, OtherwiseItem, ValueSelector } from '../../models/datamapper/mapping';
+import {
+  ChooseItem,
+  FieldItem,
+  ForEachItem,
+  MappingTree,
+  OtherwiseItem,
+  ValueSelector,
+} from '../../models/datamapper/mapping';
 import {
   ChoiceFieldNodeData,
   DocumentNodeData,
@@ -50,6 +57,38 @@ describe('MappingActionService / choice field mappings', () => {
       isChoice: true,
       selectedMemberIndex,
       fields: memberFields,
+    } as unknown as typeof baseField;
+  }
+
+  function createMockCollectionChoiceField(members: { name: string }[], selectedMemberIndex?: number) {
+    const baseField = sourceDoc.fields[0];
+    const memberFields = members.map((m) => ({
+      ...baseField,
+      name: m.name,
+      displayName: m.name,
+      fields: [],
+      isChoice: false,
+      maxOccurs: 1,
+    }));
+    return {
+      ...baseField,
+      name: '__choice__',
+      displayName: 'choice',
+      isChoice: true,
+      wrapperKind: 'choice' as const,
+      selectedMemberIndex,
+      fields: memberFields,
+      maxOccurs: 'unbounded' as const,
+    } as unknown as typeof baseField;
+  }
+
+  function createMockCollectionField() {
+    const baseField = targetDoc.fields[0];
+    return {
+      ...baseField,
+      name: 'collectionField',
+      displayName: 'collectionField',
+      maxOccurs: 'unbounded' as const,
     } as unknown as typeof baseField;
   }
 
@@ -441,6 +480,118 @@ describe('MappingActionService / choice field mappings', () => {
       expect((freshNestedDirect1 as FieldItemNodeData).path.pathSegments).toContain(freshInnerChoice.id);
       expect(nestedDirect1Item.nodePath.pathSegments).not.toContain(freshOuterChoice.id);
       expect(nestedDirect1Item.nodePath.pathSegments).not.toContain(freshInnerChoice.id);
+    });
+  });
+
+  describe('collection choice wrapper mappings (S2 scenario)', () => {
+    let localTargetDocNode: TargetDocumentNodeData;
+
+    beforeEach(() => {
+      localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+    });
+
+    it('should create ForEachItem wrapping ChooseItem when mapping collection choice wrapper to collection field', () => {
+      const collectionChoiceField = createMockCollectionChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, collectionChoiceField);
+      const collectionTargetField = createMockCollectionField();
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, collectionTargetField);
+
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+
+      expect(tree.children.length).toEqual(1);
+      const targetFieldItem = tree.children[0];
+      expect(targetFieldItem).toBeInstanceOf(FieldItem);
+      expect(targetFieldItem.children.length).toEqual(1);
+
+      const forEachItem = targetFieldItem.children[0];
+      expect(forEachItem).toBeInstanceOf(ForEachItem);
+      expect(forEachItem.children.length).toEqual(1);
+
+      const chooseItem = forEachItem.children[0] as ChooseItem;
+      expect(chooseItem).toBeInstanceOf(ChooseItem);
+      expect(chooseItem.when.length).toEqual(2);
+      expect(chooseItem.otherwise).toBeInstanceOf(OtherwiseItem);
+    });
+
+    it('ForEachItem expression should be the XPath of the collection choice wrapper', () => {
+      const collectionChoiceField = createMockCollectionChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, collectionChoiceField);
+      const collectionTargetField = createMockCollectionField();
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, collectionTargetField);
+
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+
+      const forEachItem = tree.children[0].children[0] as ForEachItem;
+      expect(forEachItem.expression).toBeTruthy();
+    });
+
+    it('WhenItem expressions inside ForEachItem should reference the choice members', () => {
+      const collectionChoiceField = createMockCollectionChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, collectionChoiceField);
+      const collectionTargetField = createMockCollectionField();
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, collectionTargetField);
+
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+
+      const forEachItem = tree.children[0].children[0] as ForEachItem;
+      const chooseItem = forEachItem.children[0] as ChooseItem;
+      expect(chooseItem.when[0].expression).toEqual('/ns0:email');
+      expect(chooseItem.when[1].expression).toEqual('/ns0:phone');
+      const emailSelector = chooseItem.when[0].children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      const phoneSelector = chooseItem.when[1].children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      expect(emailSelector.expression).toEqual('/ns0:email');
+      expect(phoneSelector.expression).toEqual('/ns0:phone');
+    });
+
+    it('should create only ChooseItem (no ForEachItem) when mapping collection choice wrapper to non-collection field (S1)', () => {
+      const collectionChoiceField = createMockCollectionChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, collectionChoiceField);
+      const nonCollectionTargetField = targetDoc.fields[0]; // maxOccurs = 1
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, nonCollectionTargetField);
+
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+
+      expect(tree.children.length).toEqual(1);
+      const targetFieldItem = tree.children[0];
+      expect(targetFieldItem).toBeInstanceOf(FieldItem);
+      expect(targetFieldItem.children.length).toEqual(1);
+
+      const chooseItem = targetFieldItem.children[0];
+      expect(chooseItem).toBeInstanceOf(ChooseItem);
+      expect(chooseItem).not.toBeInstanceOf(ForEachItem);
+      expect((chooseItem as ChooseItem).when.length).toEqual(2);
+    });
+
+    it('should create only ChooseItem when mapping non-collection choice wrapper to collection field', () => {
+      const nonCollectionChoiceField = createMockChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, nonCollectionChoiceField);
+      const collectionTargetField = createMockCollectionField();
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, collectionTargetField);
+
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+
+      expect(tree.children.length).toEqual(1);
+      const targetFieldItem = tree.children[0];
+      expect(targetFieldItem).toBeInstanceOf(FieldItem);
+      expect(targetFieldItem.children.length).toEqual(1);
+
+      const chooseItem = targetFieldItem.children[0];
+      expect(chooseItem).toBeInstanceOf(ChooseItem);
+      expect(chooseItem).not.toBeInstanceOf(ForEachItem);
+    });
+
+    it('should not create duplicate ForEachItem when mapping the same collection choice source twice', () => {
+      const collectionChoiceField = createMockCollectionChoiceField([{ name: 'email' }, { name: 'phone' }]);
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, collectionChoiceField);
+      const collectionTargetField = createMockCollectionField();
+      const targetFieldNode = new TargetFieldNodeData(localTargetDocNode, collectionTargetField);
+
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+      MappingActionService.engageMapping(tree, choiceNode, targetFieldNode);
+
+      const targetFieldItem = tree.children[0];
+      const forEachItems = targetFieldItem.children.filter((c) => c instanceof ForEachItem);
+      expect(forEachItems.length).toEqual(1);
     });
   });
 });
