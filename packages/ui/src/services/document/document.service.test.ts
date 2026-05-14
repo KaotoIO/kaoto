@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -496,7 +499,7 @@ describe('DocumentService', () => {
   });
 
   describe('isCollectionField()', () => {
-    it('', () => {
+    it('should identify collection fields by maxOccurs', () => {
       expect(DocumentService.isCollectionField(sourceDoc.fields[0])).toBeFalsy();
       expect(DocumentService.isCollectionField(targetDoc.fields[0])).toBeFalsy();
       expect(DocumentService.isCollectionField(sourceDoc.fields[0].fields[0])).toBeFalsy();
@@ -507,6 +510,300 @@ describe('DocumentService', () => {
       expect(DocumentService.isCollectionField(targetDoc.fields[0].fields[2])).toBeFalsy();
       expect(DocumentService.isCollectionField(sourceDoc.fields[0].fields[3])).toBeTruthy();
       expect(DocumentService.isCollectionField(targetDoc.fields[0].fields[3])).toBeTruthy();
+    });
+
+    it('should identify members of collection choice as collection fields', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(`
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="test" xmlns:ns0="test">
+            <xs:element name="TestDocument">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="CollectionChoiceElement">
+                    <xs:complexType>
+                      <xs:choice maxOccurs="unbounded">
+                        <xs:element name="Email" type="xs:string"/>
+                        <xs:element name="Phone" type="xs:string"/>
+                        <xs:element name="Fax" type="xs:string"/>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:schema>
+        `),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['test.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
+
+      // Navigate to CollectionChoiceElement
+      const collectionChoiceElement = doc.fields[0].fields[0];
+      expect(collectionChoiceElement.name).toBe('CollectionChoiceElement');
+
+      // The choice wrapper itself should be a collection
+      const choiceWrapper = collectionChoiceElement.fields[0];
+      expect(choiceWrapper.wrapperKind).toBe('choice');
+      expect(DocumentService.isCollectionField(choiceWrapper)).toBeTruthy();
+
+      // Each member of the collection choice should inherit collection status
+      const emailField = choiceWrapper.fields.find((f) => f.name === 'Email');
+      const phoneField = choiceWrapper.fields.find((f) => f.name === 'Phone');
+      const faxField = choiceWrapper.fields.find((f) => f.name === 'Fax');
+
+      expect(emailField).toBeDefined();
+      expect(phoneField).toBeDefined();
+      expect(faxField).toBeDefined();
+
+      // Members themselves have maxOccurs=1, but should be treated as collections
+      // because they're inside a collection choice wrapper
+      expect(emailField!.maxOccurs).toBe(1);
+      expect(DocumentService.isCollectionField(emailField!)).toBeTruthy();
+
+      expect(phoneField!.maxOccurs).toBe(1);
+      expect(DocumentService.isCollectionField(phoneField!)).toBeTruthy();
+
+      expect(faxField!.maxOccurs).toBe(1);
+      expect(DocumentService.isCollectionField(faxField!)).toBeTruthy();
+    });
+
+    it('should not treat members of non-collection choice as collection fields', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(`
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="test" xmlns:ns0="test">
+            <xs:element name="TestDocument">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="RegularChoiceElement">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:element name="Choice1" type="xs:string"/>
+                        <xs:element name="Choice2" type="xs:string"/>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:schema>
+        `),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['test.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
+
+      // Navigate to RegularChoiceElement
+      const regularChoiceElement = doc.fields[0].fields[0];
+      expect(regularChoiceElement.name).toBe('RegularChoiceElement');
+
+      // The choice wrapper itself should NOT be a collection (maxOccurs=1)
+      const choiceWrapper = regularChoiceElement.fields[0];
+      expect(choiceWrapper.wrapperKind).toBe('choice');
+      expect(DocumentService.isCollectionField(choiceWrapper)).toBeFalsy();
+
+      // Members should NOT inherit collection status from non-collection choice
+      const choice1Field = choiceWrapper.fields.find((f) => f.name === 'Choice1');
+      const choice2Field = choiceWrapper.fields.find((f) => f.name === 'Choice2');
+
+      expect(choice1Field).toBeDefined();
+      expect(choice2Field).toBeDefined();
+
+      expect(DocumentService.isCollectionField(choice1Field!)).toBeFalsy();
+      expect(DocumentService.isCollectionField(choice2Field!)).toBeFalsy();
+    });
+  });
+
+  describe('isFieldInsideCollectionChoiceWrapper()', () => {
+    it('should return true for fields inside collection choice wrapper', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(`
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="test" xmlns:ns0="test">
+            <xs:element name="TestDocument">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="CollectionChoiceElement">
+                    <xs:complexType>
+                      <xs:choice maxOccurs="unbounded">
+                        <xs:element name="Email" type="xs:string"/>
+                        <xs:element name="Phone" type="xs:string"/>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:schema>
+        `),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['test.xsd'],
+      );
+
+      const doc = result.document!;
+      const choiceWrapper = doc.fields[0].fields[0].fields[0];
+      const emailField = choiceWrapper.fields.find((f) => f.name === 'Email')!;
+
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(emailField)).toBeTruthy();
+    });
+
+    it('should return false for fields inside non-collection choice wrapper', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockResolvedValue(`
+          <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="test" xmlns:ns0="test">
+            <xs:element name="TestDocument">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="RegularChoiceElement">
+                    <xs:complexType>
+                      <xs:choice>
+                        <xs:element name="Choice1" type="xs:string"/>
+                      </xs:choice>
+                    </xs:complexType>
+                  </xs:element>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:schema>
+        `),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test',
+        ['test.xsd'],
+      );
+
+      const doc = result.document!;
+      const choiceWrapper = doc.fields[0].fields[0].fields[0];
+      const choice1Field = choiceWrapper.fields.find((f) => f.name === 'Choice1')!;
+
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(choice1Field)).toBeFalsy();
+    });
+
+    it('should return false for fields not inside any choice wrapper', () => {
+      const regularField = sourceDoc.fields[0].fields[0];
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(regularField)).toBeFalsy();
+    });
+  });
+
+  describe('isCollectionField() with TestDocument.xsd', () => {
+    it('should identify CollectionChoiceElement members as collection fields', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockImplementation((filePath: string) => {
+          if (filePath.includes('TestDocument.xsd')) {
+            return Promise.resolve(
+              fs.readFileSync(path.resolve(__dirname, '../../stubs/datamapper/xml/TestDocument.xsd'), 'utf-8'),
+            );
+          }
+          return Promise.reject(new Error('File not found'));
+        }),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'TestDocument',
+        ['TestDocument.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
+
+      const testDocument = doc.fields[0];
+      expect(testDocument.name).toBe('TestDocument');
+
+      const collectionChoiceElement = testDocument.fields.find((f) => f.name === 'CollectionChoiceElement');
+      expect(collectionChoiceElement).toBeDefined();
+
+      const choiceWrapper = collectionChoiceElement!.fields[0];
+      expect(choiceWrapper.wrapperKind).toBe('choice');
+      expect(choiceWrapper.maxOccurs).toBe('unbounded');
+      expect(DocumentService.isCollectionField(choiceWrapper)).toBeTruthy();
+
+      const emailField = choiceWrapper.fields.find((f) => f.name === 'Email');
+      const phoneField = choiceWrapper.fields.find((f) => f.name === 'Phone');
+      const faxField = choiceWrapper.fields.find((f) => f.name === 'Fax');
+
+      expect(emailField).toBeDefined();
+      expect(phoneField).toBeDefined();
+      expect(faxField).toBeDefined();
+
+      expect(DocumentService.isCollectionField(emailField!)).toBeTruthy();
+      expect(DocumentService.isCollectionField(phoneField!)).toBeTruthy();
+      expect(DocumentService.isCollectionField(faxField!)).toBeTruthy();
+
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(emailField!)).toBeTruthy();
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(phoneField!)).toBeTruthy();
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(faxField!)).toBeTruthy();
+    });
+
+    it('should not treat regular ChoiceElement members as collection fields', async () => {
+      const mockApi = {
+        getResourceContent: jest.fn().mockImplementation((filePath: string) => {
+          if (filePath.includes('TestDocument.xsd')) {
+            return Promise.resolve(
+              fs.readFileSync(path.resolve(__dirname, '../../stubs/datamapper/xml/TestDocument.xsd'), 'utf-8'),
+            );
+          }
+          return Promise.reject(new Error('File not found'));
+        }),
+      };
+
+      const result = await DocumentService.createDocument(
+        mockApi as unknown as IMetadataApi,
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'TestDocument',
+        ['TestDocument.xsd'],
+      );
+
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document!;
+
+      const testDocument = doc.fields[0];
+      const choiceElement = testDocument.fields.find((f) => f.name === 'ChoiceElement');
+      expect(choiceElement).toBeDefined();
+
+      const choiceWrapper = choiceElement!.fields[0];
+      expect(choiceWrapper.wrapperKind).toBe('choice');
+      expect(choiceWrapper.maxOccurs).toBe(1);
+      expect(DocumentService.isCollectionField(choiceWrapper)).toBeFalsy();
+
+      const choice1Field = choiceWrapper.fields.find((f) => f.name === 'Choice1');
+      const choice2Field = choiceWrapper.fields.find((f) => f.name === 'Choice2');
+
+      expect(choice1Field).toBeDefined();
+      expect(choice2Field).toBeDefined();
+
+      expect(DocumentService.isCollectionField(choice1Field!)).toBeFalsy();
+      expect(DocumentService.isCollectionField(choice2Field!)).toBeFalsy();
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(choice1Field!)).toBeFalsy();
+      expect(DocumentService.isFieldInsideCollectionChoiceWrapper(choice2Field!)).toBeFalsy();
     });
   });
 
