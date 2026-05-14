@@ -33,6 +33,7 @@ import { CanvasView } from '../models/datamapper/view';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
+import { DataMapperStepService } from '../services/datamapper-step.service';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -77,6 +78,7 @@ type DataMapperProviderProps = PropsWithChildren & {
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
   onUpdateNamespaceMap?: (namespaceMap: Record<string, string>) => void;
+  onIsSourceBodyUsed?: (isUsed: boolean) => void;
 };
 
 export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
@@ -87,6 +89,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   initialXsltFile,
   onUpdateMappings,
   onUpdateNamespaceMap,
+  onIsSourceBodyUsed,
   children,
 }) => {
   const [debug, setDebug] = useState<boolean>(false);
@@ -192,7 +195,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
-  }, [mappingTree, onUpdateMappings, onUpdateNamespaceMap, sourceParameterMap, targetBodyDocument.definitionType]);
+    const isBodyUsed = DataMapperStepService.isSourceBodyUsed(newMapping);
+    console.debug('[DataMapper] refreshMappingTree() completed', {
+      childrenCount: newMapping.children.length,
+      isBodyUsed,
+    });
+    onIsSourceBodyUsed?.(isBodyUsed);
+  }, [mappingTree, onUpdateMappings, onUpdateNamespaceMap, onIsSourceBodyUsed, sourceParameterMap, targetBodyDocument.definitionType]);
 
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
@@ -200,10 +209,12 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
+    onIsSourceBodyUsed?.(DataMapperStepService.isSourceBodyUsed(newMapping));
   }, [
     initialNamespaceMap,
     onUpdateMappings,
     onUpdateNamespaceMap,
+    onIsSourceBodyUsed,
     sourceParameterMap,
     targetBodyDocument.definitionType,
   ]);

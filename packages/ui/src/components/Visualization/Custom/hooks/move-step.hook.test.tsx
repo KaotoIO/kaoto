@@ -252,6 +252,14 @@ describe('useMoveStep', () => {
           id: 'kaoto-datamapper-657b6637',
           steps: [
             {
+              setBody: {
+                id: 'kaoto-datamapper-set-body-0000',
+                expression: {
+                  constant: null,
+                },
+              },
+            },
+            {
               to: {
                 id: 'kaoto-datamapper-xslt-3158',
                 uri: 'xslt-saxon',
@@ -270,6 +278,14 @@ describe('useMoveStep', () => {
         definition: {
           id: 'kaoto-datamapper-657b6637',
           steps: [
+            {
+              setBody: {
+                id: 'kaoto-datamapper-set-body-0000',
+                expression: {
+                  constant: null,
+                },
+              },
+            },
             {
               to: {
                 id: 'kaoto-datamapper-xslt-3158',

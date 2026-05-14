@@ -171,17 +171,19 @@ describe('CamelComponentDefaultService', () => {
       expect(removeHeadersDefault.removeHeaders.pattern).toEqual('*');
     });
 
-    it('should return the default value for a DataMapper step with failOnNullBody set to false', () => {
+    it('should return the default value for a DataMapper step with empty setBody constant and failOnNullBody set to false', () => {
       const datamapperDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
         type: 'processor',
         name: 'kaoto-datamapper',
       } as DefinedComponent) as any;
       expect(datamapperDefault.step).toBeDefined();
       expect(datamapperDefault.step.id as string).toMatch(/^kaoto-datamapper-/);
-      expect(datamapperDefault.step.steps).toHaveLength(1);
-      expect(datamapperDefault.step.steps[0].to).toBeDefined();
-      expect(datamapperDefault.step.steps[0].to.uri).toEqual('xslt-saxon');
-      expect(datamapperDefault.step.steps[0].to.parameters.failOnNullBody).toEqual(false);
+      expect(datamapperDefault.step.steps).toHaveLength(2);
+      expect(datamapperDefault.step.steps[0].setBody).toBeDefined();
+      expect(datamapperDefault.step.steps[0].setBody.expression.constant).toEqual('');
+      expect(datamapperDefault.step.steps[1].to).toBeDefined();
+      expect(datamapperDefault.step.steps[1].to.uri).toEqual('xslt-saxon');
+      expect(datamapperDefault.step.steps[1].to.parameters.failOnNullBody).toEqual(false);
     });
 
     it.each(['get', 'post', 'put', 'delete', 'patch', 'head'])(
@@ -197,14 +199,14 @@ describe('CamelComponentDefaultService', () => {
         expect(verbDefault.to.id as string).toMatch(/^to-/);
       },
     );
-  });
 
-  it('should return the default value for a intercept entity', () => {
-    const interceptDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
-      type: 'entity',
-      name: 'intercept',
-    } as DefinedComponent) as any;
-    expect(interceptDefault.intercept).toBeDefined();
-    expect(interceptDefault.intercept.id as string).toMatch(/^intercept-/);
+    it('should return the default value for a intercept entity', () => {
+      const interceptDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
+        type: 'entity',
+        name: 'intercept',
+      } as DefinedComponent) as any;
+      expect(interceptDefault.intercept).toBeDefined();
+      expect(interceptDefault.intercept.id as string).toMatch(/^intercept-/);
+    });
   });
 });

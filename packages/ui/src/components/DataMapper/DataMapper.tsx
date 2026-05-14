@@ -119,6 +119,14 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
     [ctx, metadata],
   );
 
+  const onIsSourceBodyUsed = useCallback(
+    (isUsed: boolean) => {
+      if (!vizNode) return;
+      DataMapperStepService.syncSetBodyNullStep(vizNode, isUsed, entitiesContext);
+    },
+    [vizNode, entitiesContext],
+  );
+
   const onUpdateNamespaceMap = useCallback(
     (namespaceMap: Record<string, string>) => {
       if (!metadataId || !metadata) return;
@@ -143,6 +151,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
       onRenameParameter={onRenameParameter}
       initialXsltFile={initialXsltFile}
       onUpdateMappings={onUpdateMappings}
+      onIsSourceBodyUsed={onIsSourceBodyUsed}
       onUpdateNamespaceMap={onUpdateNamespaceMap}
     >
       <DatamapperDndProvider handler={dndHandler}>
