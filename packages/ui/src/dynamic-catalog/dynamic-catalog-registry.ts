@@ -1,5 +1,5 @@
 import { CatalogKind } from '../models/catalog-kind';
-import { DynamicCatalogTypeMap, IDynamicCatalog, IDynamicCatalogRegistry } from './models';
+import { CatalogLookupResult, DynamicCatalogTypeMap, IDynamicCatalog, IDynamicCatalogRegistry } from './models';
 
 export class DynamicCatalogRegistry {
   private static instance: CatalogsRegistry;
@@ -31,6 +31,37 @@ class CatalogsRegistry implements IDynamicCatalogRegistry {
   ): Promise<DynamicCatalogTypeMap[K] | undefined> {
     const catalog = this.getCatalog(kind);
     return catalog?.get(key, options) as Promise<DynamicCatalogTypeMap[K] | undefined>;
+  }
+
+  async resolveCatalogLookup(
+    componentName: string,
+    options: { forceFresh?: boolean } = {},
+  ): Promise<CatalogLookupResult | undefined> {
+    if (!componentName) {
+      return undefined;
+    }
+
+    if (componentName.startsWith('kamelet:')) {
+      const kameletName = componentName.replace('kamelet:', '');
+      const definition = await this.getEntity(CatalogKind.Kamelet, kameletName, options);
+
+      if (definition) {
+        return {
+          catalogKind: CatalogKind.Kamelet,
+          definition,
+        };
+      }
+
+      return {
+        catalogKind: CatalogKind.Component,
+        definition: await this.getEntity(CatalogKind.Component, 'kamelet', options),
+      };
+    }
+
+    return {
+      catalogKind: CatalogKind.Component,
+      definition: await this.getEntity(CatalogKind.Component, componentName, options),
+    };
   }
 
   clearRegistry(): void {
