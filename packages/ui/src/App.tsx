@@ -29,22 +29,25 @@ import { setColorScheme } from './utils/color-scheme';
 function App() {
   const controller = useMemo(() => ControllerService.createController(), []);
   const settingsAdapter = new LocalStorageSettingsAdapter();
+  const settings = settingsAdapter.getSettings();
   let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
-  const settingsCatalogUrl = settingsAdapter.getSettings().catalogUrl;
-  const colorSchema = settingsAdapter.getSettings().colorScheme;
 
-  if (isDefined(settingsCatalogUrl) && settingsCatalogUrl !== '') {
-    catalogUrl = settingsCatalogUrl;
+  if (isDefined(settings.catalogUrl) && settings.catalogUrl !== '') {
+    catalogUrl = settings.catalogUrl;
   }
 
   useLayoutEffect(() => {
-    setColorScheme(colorSchema);
-  }, [colorSchema]);
+    setColorScheme(settings.colorScheme);
+  }, [settings.colorScheme]);
 
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
+        <RuntimeProvider
+          catalogUrl={catalogUrl}
+          camelCatalog={settings.camelCatalog}
+          citrusCatalog={settings.citrusCatalog}
+        >
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
               <EntitiesProvider>

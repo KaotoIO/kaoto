@@ -2,6 +2,7 @@ import { CustomFieldsFactory, EnumField, TextAreaField } from '@kaoto/forms';
 
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { CatalogSelectorField } from './CatalogSelectorField/CatalogSelectorField';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { EndpointField } from './EndpointField/EndpointField';
 import { EndpointListField } from './EndpointField/EndpointListField';
@@ -77,10 +78,18 @@ const isTextAreaField = (schema: Parameters<CustomFieldsFactory>[0]): boolean =>
   );
 };
 
+const isCatalogSelectorField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'object' && (schema.title === 'Camel Catalog' || schema.title === 'Test Catalog');
+};
+
 export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
   /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return EnumField;
+  }
+
+  if (isCatalogSelectorField(schema)) {
+    return CatalogSelectorField;
   }
 
   if (isDirectEndpointName(schema)) {

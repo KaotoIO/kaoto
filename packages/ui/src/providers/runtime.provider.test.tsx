@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, render, screen } from '@testing-library/react';
 
+import { CatalogVersion } from '../models/settings/settings.model';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { ReloadContext } from './reload.provider';
 import { RuntimeProvider } from './runtime.provider';
@@ -9,6 +10,9 @@ describe('RuntimeProvider', () => {
   let fetchMock: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
+
+  const defaultCamelCatalog: CatalogVersion = { version: '', runtime: 'Main' };
+  const defaultCitrusCatalog: CatalogVersion = { version: '', runtime: 'Citrus' };
 
   beforeEach(() => {
     fetchMock = jest.spyOn(window, 'fetch');
@@ -34,7 +38,7 @@ describe('RuntimeProvider', () => {
   it('should start in loading mode', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl="">
+        <RuntimeProvider catalogUrl="" camelCatalog={defaultCamelCatalog} citrusCatalog={defaultCitrusCatalog}>
           <span data-testid="library-loaded">Loaded</span>
         </RuntimeProvider>,
       );
@@ -48,7 +52,7 @@ describe('RuntimeProvider', () => {
     await act(async () => {
       render(
         <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
-          <RuntimeProvider catalogUrl="">
+          <RuntimeProvider catalogUrl="" camelCatalog={defaultCamelCatalog} citrusCatalog={defaultCitrusCatalog}>
             <span data-testid="library-loaded">Loaded</span>
           </RuntimeProvider>
         </ReloadContext.Provider>,
@@ -65,7 +69,11 @@ describe('RuntimeProvider', () => {
   it('should fetch the index.json catalog file', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <RuntimeProvider
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          camelCatalog={defaultCamelCatalog}
+          citrusCatalog={defaultCitrusCatalog}
+        >
           <span data-testid="library-loaded">Loaded</span>
         </RuntimeProvider>,
       );
@@ -81,7 +89,11 @@ describe('RuntimeProvider', () => {
   it('should render children when the index.json file is loaded', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <RuntimeProvider
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          camelCatalog={defaultCamelCatalog}
+          citrusCatalog={defaultCitrusCatalog}
+        >
           <span data-testid="library-loaded">Loaded</span>
         </RuntimeProvider>,
       );
