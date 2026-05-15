@@ -106,6 +106,9 @@ export function getForEachGroupStartingWithToShipOrderXslt(): string {
 export function getForEachGroupEndingWithToShipOrderXslt(): string {
   return readStubFile('./xml/ForEachGroupEndingWithToShipOrder.xsl');
 }
+export function getForEachSortToShipOrderXslt(): string {
+  return readStubFile('./xml/ForEachSortToShipOrder.xsl');
+}
 export function getShipOrderToShipOrderCollectionIndexXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrderCollectionIndex.xsl');
 }
@@ -261,6 +264,12 @@ export function getMultiIncludeComponentAXsd(): string {
 }
 export function getMultiIncludeComponentBXsd(): string {
   return readStubFile('./xml/MultiIncludeComponentB.xsd');
+}
+export function getCircularIncludeAXsd(): string {
+  return readStubFile('./xml/CircularIncludeA.xsd');
+}
+export function getCircularIncludeBXsd(): string {
+  return readStubFile('./xml/CircularIncludeB.xsd');
 }
 export function getInlineAttrSimpleTypeXsd(): string {
   return readStubFile('./xml/InlineAttrSimpleType.xsd');

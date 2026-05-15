@@ -2206,7 +2206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@dnd-kit/core@npm:^6.1.0":
+"@dnd-kit/core@npm:^6.1.0, @dnd-kit/core@npm:^6.3.1":
   version: 6.3.1
   resolution: "@dnd-kit/core@npm:6.3.1"
   dependencies:
@@ -2230,6 +2230,19 @@ __metadata:
     "@dnd-kit/core": ^6.3.0
     react: ">=16.8.0"
   checksum: 10/2ae238a1b787029e95d92319d7e4a0e2ffba8fceed56c4b58dfee7ed6890df207bf89ce522d4126411051121954222bd8e1444fae321485b594ae518c7c4397d
+  languageName: node
+  linkType: hard
+
+"@dnd-kit/sortable@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "@dnd-kit/sortable@npm:10.0.0"
+  dependencies:
+    "@dnd-kit/utilities": "npm:^3.2.2"
+    tslib: "npm:^2.0.0"
+  peerDependencies:
+    "@dnd-kit/core": ^6.3.0
+    react: ">=16.8.0"
+  checksum: 10/bc61c25e76905204a53f91294b8116bf106fa27247eebca2c66478450b2051d7177115a384054e7e5639e6c4430083ade63056f79ee45f549da537cf05bc5288
   languageName: node
   linkType: hard
 
@@ -3570,6 +3583,7 @@ __metadata:
     "@patternfly/patternfly": "npm:^6.4.0"
     "@patternfly/react-code-editor": "npm:^6.4.0"
     "@patternfly/react-core": "npm:^6.4.0"
+    "@patternfly/react-drag-drop": "npm:^6.4.3"
     "@patternfly/react-icons": "npm:^6.4.0"
     "@patternfly/react-table": "npm:^6.4.0"
     "@patternfly/react-topology": "npm:^6.4.0"
@@ -3650,6 +3664,7 @@ __metadata:
     "@patternfly/patternfly": ^6.4.0
     "@patternfly/react-code-editor": ^6.4.0
     "@patternfly/react-core": ^6.4.0
+    "@patternfly/react-drag-drop": ^6.4.3
     "@patternfly/react-icons": ^6.4.0
     "@patternfly/react-table": ^6.4.0
     "@patternfly/react-topology": ^6.4.0
@@ -4528,6 +4543,24 @@ __metadata:
     react: ^17 || ^18 || ^19
     react-dom: ^17 || ^18 || ^19
   checksum: 10/e35bf937e6c1f4d8dc8d95d4aaf02815a151332e298d7fdedd9fd6a644c023c7eb28e79636607b7043d8da5613db79a2704ef2356cbab5131e4662c37e81e0fb
+  languageName: node
+  linkType: hard
+
+"@patternfly/react-drag-drop@npm:^6.4.3":
+  version: 6.4.3
+  resolution: "@patternfly/react-drag-drop@npm:6.4.3"
+  dependencies:
+    "@dnd-kit/core": "npm:^6.3.1"
+    "@dnd-kit/modifiers": "npm:^9.0.0"
+    "@dnd-kit/sortable": "npm:^10.0.0"
+    "@patternfly/react-core": "npm:^6.4.3"
+    "@patternfly/react-icons": "npm:^6.4.0"
+    "@patternfly/react-styles": "npm:^6.4.0"
+    resize-observer-polyfill: "npm:^1.5.1"
+  peerDependencies:
+    react: ^17 || ^18 || ^19
+    react-dom: ^17 || ^18 || ^19
+  checksum: 10/d911b3ee1fcb5abb18e2b89e3dc73ff6710219dd518685cf7936bb99953ec4d63afb22edc5d68895bfb653e8c1fa8fdec3fe60ae071f1cedcfb9667c3e80368b
   languageName: node
   linkType: hard
 
@@ -16827,6 +16860,13 @@ __metadata:
   version: 1.0.0
   resolution: "requires-port@npm:1.0.0"
   checksum: 10/878880ee78ccdce372784f62f52a272048e2d0827c29ae31e7f99da18b62a2b9463ea03a75f277352f4697c100183debb0532371ad515a2d49d4bfe596dd4c20
+  languageName: node
+  linkType: hard
+
+"resize-observer-polyfill@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "resize-observer-polyfill@npm:1.5.1"
+  checksum: 10/e10ee50cd6cf558001de5c6fb03fee15debd011c2f694564b71f81742eef03fb30d6c2596d1d5bf946d9991cb692fcef529b7bd2e4057041377ecc9636c753ce
   languageName: node
   linkType: hard
 

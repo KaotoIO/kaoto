@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/circular"
+           xmlns:tns="http://example.com/circular"
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="CircularIncludeA.xsd"/>
+
+  <xs:complexType name="ProductType">
+    <xs:sequence>
+      <xs:element name="productName" type="xs:string"/>
+      <xs:element name="price" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

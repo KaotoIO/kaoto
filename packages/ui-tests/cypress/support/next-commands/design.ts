@@ -271,7 +271,7 @@ Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
 
 Cypress.Commands.add('switchCodeToXml', () => {
   cy.get('[data-testid="serializer-list-dropdown"]').click();
-  cy.get('[data-testid="serializer-yaml"]').contains('XML').click();
+  cy.get('[data-testid="serializer-xml"]').contains('XML').click();
 });
 
 Cypress.Commands.add('switchCodeToYaml', () => {

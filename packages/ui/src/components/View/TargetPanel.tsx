@@ -14,7 +14,7 @@ import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DeleteMappingItemAction } from '../Document/actions/DeleteMappingItemAction';
-import { MappingContextMenuAction } from '../Document/actions/MappingContextMenuAction';
+import { MappingContextMenuAction } from '../Document/actions/MappingMenu/MappingContextMenuAction';
 import { XPathEditorAction } from '../Document/actions/XPathEditorAction';
 import { XPathInputAction } from '../Document/actions/XPathInputAction';
 import { DocumentHeader } from '../Document/BaseDocument';

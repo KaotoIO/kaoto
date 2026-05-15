@@ -19,6 +19,7 @@ import { DataMapperModal } from './DataMapperModal';
  */
 const DnDParent: FunctionComponent<
   PropsWithChildren<{
+    onClick?: (e: MouseEvent) => void;
     onMouseDown?: (e: MouseEvent) => void;
     onPointerDown?: (e: PointerEvent) => void;
     onKeyDown?: (e: KeyboardEvent) => void;
@@ -52,6 +53,20 @@ describe('DataMapperModal', () => {
     expect(screen.queryByTestId('modal-content')).not.toBeInTheDocument();
   });
 
+  it('should stop click propagation to parent handlers', () => {
+    const outerHandler = jest.fn();
+    render(
+      <DnDParent onClick={outerHandler}>
+        <DataMapperModal isOpen aria-label="Test Modal">
+          <button data-testid="inner-btn">Click me</button>
+        </DataMapperModal>
+      </DnDParent>,
+    );
+
+    fireEvent.click(screen.getByTestId('inner-btn'));
+    expect(outerHandler).not.toHaveBeenCalled();
+  });
+
   it('should stop mousedown propagation to parent DnD handlers', () => {
     const outerHandler = jest.fn();
     render(
@@ -80,7 +95,7 @@ describe('DataMapperModal', () => {
     expect(outerHandler).not.toHaveBeenCalled();
   });
 
-  it('should stop keydown propagation to parent DnD handlers', () => {
+  it('should allow keydown events to propagate for keyboard DnD support', () => {
     const outerHandler = jest.fn();
     render(
       <DnDParent onKeyDown={outerHandler}>
@@ -91,7 +106,7 @@ describe('DataMapperModal', () => {
     );
 
     fireEvent.keyDown(screen.getByTestId('inner-input'), { key: 'Enter' });
-    expect(outerHandler).not.toHaveBeenCalled();
+    expect(outerHandler).toHaveBeenCalled();
   });
 
   it('should stop touchstart propagation to parent DnD handlers', () => {

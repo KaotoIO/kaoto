@@ -87,11 +87,7 @@ export class MappingLinksService {
     const fieldPaths = XPathService.extractFieldPaths(sourceXPath, sourceExpressionItem.parent.contextPath);
     return fieldPaths.reduce((acc, xpath) => {
       const absolutePath = XPathService.toAbsolutePath(xpath);
-      const document = absolutePath.documentReferenceName
-        ? Array.from(sourceParameterMap.values()).find(
-            (doc: IDocument) => doc.getReferenceId(namespaces) === absolutePath.documentReferenceName,
-          )
-        : sourceBody;
+      const document = DocumentService.resolveSourceDocument(absolutePath, namespaces, sourceBody, sourceParameterMap);
       const sourceResult = document
         ? DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments)
         : undefined;

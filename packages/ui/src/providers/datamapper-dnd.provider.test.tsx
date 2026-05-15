@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { MappingTree } from '../models/datamapper/mapping';
-import { canScrollPanel, DatamapperDndProvider, scrollAwareCollision } from './datamapper-dnd.provider';
+import { canScrollPanel, DataMapperDndProvider, scrollAwareCollision } from './datamapper-dnd.provider';
 
 // Mock rectIntersection to control collision detection in tests
 jest.mock('@dnd-kit/core', () => {
@@ -352,7 +352,7 @@ describe('datamapper-dnd.provider', () => {
   });
 });
 
-describe('DatamapperDndProvider', () => {
+describe('DataMapperDndProvider', () => {
   const mockSendAlert = jest.fn();
   const mockRefreshMappingTree = jest.fn();
   const mockMappingTree = {} as MappingTree;
@@ -387,9 +387,9 @@ describe('DatamapperDndProvider', () => {
     };
 
     render(
-      <DatamapperDndProvider handler={mockHandler}>
+      <DataMapperDndProvider handler={mockHandler}>
         <div />
-      </DatamapperDndProvider>,
+      </DataMapperDndProvider>,
     );
 
     await invokeOnDragEnd(mockDragEndEvent);
@@ -405,9 +405,9 @@ describe('DatamapperDndProvider', () => {
     };
 
     render(
-      <DatamapperDndProvider handler={mockHandler}>
+      <DataMapperDndProvider handler={mockHandler}>
         <div />
-      </DatamapperDndProvider>,
+      </DataMapperDndProvider>,
     );
 
     await invokeOnDragEnd(mockDragEndEvent);
@@ -417,9 +417,9 @@ describe('DatamapperDndProvider', () => {
 
   it('should not crash when no handler is provided', async () => {
     render(
-      <DatamapperDndProvider handler={undefined}>
+      <DataMapperDndProvider handler={undefined}>
         <div />
-      </DatamapperDndProvider>,
+      </DataMapperDndProvider>,
     );
 
     await invokeOnDragEnd(mockDragEndEvent);

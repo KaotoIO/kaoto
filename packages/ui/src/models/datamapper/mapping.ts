@@ -216,12 +216,7 @@ export class ForEachItem extends InstructionItem implements IExpressionHolder {
 
   doClone() {
     const cloned = new ForEachItem(this.parent);
-    cloned.sortItems = this.sortItems.map((sort) => {
-      return {
-        expression: sort.expression,
-        order: sort.order,
-      } as SortItem;
-    });
+    cloned.sortItems = this.sortItems.map((sort) => sort.clone());
     return cloned;
   }
 
@@ -264,12 +259,7 @@ export class ForEachGroupItem extends InstructionItem implements IExpressionHold
 
   doClone() {
     const cloned = new ForEachGroupItem(this.parent);
-    cloned.sortItems = this.sortItems.map((sort) => {
-      return {
-        expression: sort.expression,
-        order: sort.order,
-      } as SortItem;
-    });
+    cloned.sortItems = this.sortItems.map((sort) => sort.clone());
     return cloned;
   }
 
@@ -286,6 +276,19 @@ export class ForEachGroupItem extends InstructionItem implements IExpressionHold
 export class SortItem {
   expression: string = '';
   order: 'ascending' | 'descending' = 'ascending';
+  lang: string = '';
+  dataType: string = '';
+  caseOrder: '' | 'upper-first' | 'lower-first' = '';
+  collation: string = '';
+  stable: '' | 'yes' | 'no' = '';
+
+  hasAdvancedProperties(): boolean {
+    return !!(this.lang || this.dataType || this.caseOrder || this.collation || this.stable);
+  }
+
+  clone(): SortItem {
+    return Object.assign(new SortItem(), this);
+  }
 }
 
 /** Distinguishes how a {@link ValueSelector} produces its output in the generated XSLT. */

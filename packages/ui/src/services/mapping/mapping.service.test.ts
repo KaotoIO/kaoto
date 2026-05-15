@@ -8,6 +8,7 @@ import {
   OtherwiseItem,
   ValueSelector,
   ValueType,
+  VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { mockRandomValues } from '../../stubs';
@@ -758,6 +759,135 @@ describe('MappingService', () => {
       expect(forEachItem.expression).toEqual('$cart/ns0:Cart/Item');
       MappingService.deleteMappingItem(forEachItem);
       expect(tree.children.length).toEqual(0);
+    });
+
+    it('should delete VariableItem from FieldItem parent', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'myVar');
+      const childrenBefore = parent.children.length;
+      MappingService.deleteMappingItem(variable);
+      expect(parent.children.length).toEqual(childrenBefore - 1);
+      expect(parent.children).not.toContain(variable);
+    });
+
+    it('should delete VariableItem from ForEachItem parent', () => {
+      const forEachItem = tree.children[0].children[3] as ForEachItem;
+      const variable = MappingService.addVariable(forEachItem, 'loopVar');
+      const childrenBefore = forEachItem.children.length;
+      MappingService.deleteMappingItem(variable);
+      expect(forEachItem.children.length).toEqual(childrenBefore - 1);
+      expect(forEachItem.children).not.toContain(variable);
+    });
+
+    it('should delete VariableItem from IfItem parent', () => {
+      const ifItem = tree.children[0].children[1] as IfItem;
+      const variable = MappingService.addVariable(ifItem, 'condVar');
+      const childrenBefore = ifItem.children.length;
+      MappingService.deleteMappingItem(variable);
+      expect(ifItem.children.length).toEqual(childrenBefore - 1);
+      expect(ifItem.children).not.toContain(variable);
+    });
+  });
+
+  describe('addVariable()', () => {
+    it('should add variable to FieldItem', () => {
+      const parent = tree.children[0];
+      const childrenBefore = parent.children.length;
+      const variable = MappingService.addVariable(parent, 'myVar');
+      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(variable).toBeInstanceOf(VariableItem);
+      expect(variable.name).toEqual('myVar');
+      expect(variable.expression).toEqual('');
+      expect(variable.parent).toBe(parent);
+    });
+
+    it('should add variable with expression', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'taxRate', '0.08');
+      expect(variable.expression).toEqual('0.08');
+    });
+
+    it('should add variable to ForEachItem', () => {
+      const forEachItem = tree.children[0].children[3] as ForEachItem;
+      const variable = MappingService.addVariable(forEachItem, 'loopVar');
+      expect(variable.parent).toBe(forEachItem);
+      expect(forEachItem.children).toContain(variable);
+    });
+
+    it('should add variable to IfItem', () => {
+      const ifItem = tree.children[0].children[1] as IfItem;
+      const variable = MappingService.addVariable(ifItem, 'condVar');
+      expect(variable.parent).toBe(ifItem);
+      expect(ifItem.children).toContain(variable);
+    });
+
+    it('should add variable to WhenItem', () => {
+      const parent = tree.children[0];
+      const chooseItem = new ChooseItem(parent);
+      const whenItem = MappingService.addWhen(chooseItem);
+      const variable = MappingService.addVariable(whenItem, 'whenVar');
+      expect(variable.parent).toBe(whenItem);
+      expect(whenItem.children).toContain(variable);
+    });
+
+    it('should add variable to OtherwiseItem', () => {
+      const parent = tree.children[0];
+      const chooseItem = new ChooseItem(parent);
+      const otherwiseItem = MappingService.addOtherwise(chooseItem);
+      const variable = MappingService.addVariable(otherwiseItem, 'elseVar');
+      expect(variable.parent).toBe(otherwiseItem);
+      expect(otherwiseItem.children).toContain(variable);
+    });
+
+    it('should insert variable at the beginning of children', () => {
+      const parent = tree.children[0];
+      const firstChildBefore = parent.children[0];
+      MappingService.addVariable(parent, 'myVar');
+      expect(parent.children[0]).toBeInstanceOf(VariableItem);
+      expect(parent.children[1]).toBe(firstChildBefore);
+    });
+  });
+
+  describe('removeVariable()', () => {
+    it('should remove variable from parent', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'myVar');
+      const childrenBefore = parent.children.length;
+      MappingService.removeVariable(variable);
+      expect(parent.children.length).toEqual(childrenBefore - 1);
+      expect(parent.children).not.toContain(variable);
+    });
+
+    it('should clean up empty parent FieldItem chain', () => {
+      const shipOrderItem = tree.children[0];
+      shipOrderItem.children = [];
+      const nestedFieldItem = new FieldItem(shipOrderItem, targetDoc.fields[0].fields[0]);
+      shipOrderItem.children.push(nestedFieldItem);
+      const variable = MappingService.addVariable(nestedFieldItem, 'myVar');
+      expect(nestedFieldItem.children.length).toEqual(1);
+      MappingService.removeVariable(variable);
+      expect(shipOrderItem.children.length).toEqual(0);
+    });
+
+    it('should preserve sibling children when removing variable', () => {
+      const parent = tree.children[0];
+      const childrenBefore = parent.children.length;
+      const var1 = MappingService.addVariable(parent, 'var1');
+      MappingService.addVariable(parent, 'var2');
+      MappingService.removeVariable(var1);
+      expect(parent.children.length).toEqual(childrenBefore + 1);
+      expect(parent.children[0]).toBeInstanceOf(VariableItem);
+      expect((parent.children[0] as VariableItem).name).toEqual('var2');
+    });
+  });
+
+  describe('updateVariable()', () => {
+    it('should update name and expression', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'oldName', 'oldExpr');
+      MappingService.updateVariable(variable, 'newName', 'newExpr');
+      expect(variable.name).toEqual('newName');
+      expect(variable.expression).toEqual('newExpr');
     });
   });
 });

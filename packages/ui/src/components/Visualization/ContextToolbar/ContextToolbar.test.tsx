@@ -45,6 +45,14 @@ jest.mock('./RuntimeSelector/RuntimeSelector', () => ({
   RuntimeSelector: () => <div data-testid="runtime-selector">RuntimeSelector</div>,
 }));
 
+jest.mock('./IntegrationTypeSelector/IntegrationTypeSelector', () => ({
+  IntegrationTypeSelector: () => <div data-testid="integration-type-selector">IntegrationTypeSelector</div>,
+}));
+
+jest.mock('./SerializerSelector/SerializerSelector', () => ({
+  SerializerSelector: () => <div data-testid="serializer-selector">SerializerSelector</div>,
+}));
+
 describe('ContextToolbar', () => {
   describe('when using multipleRoute configuration', () => {
     it('should include NewEntity component for Route schema type', () => {
@@ -207,27 +215,8 @@ describe('ContextToolbar', () => {
 
       expect(screen.getByTestId('runtime-selector')).toBeInTheDocument();
     });
-  });
 
-  describe('additional controls', () => {
-    it('should render additional controls when provided', () => {
-      const { Provider } = TestProvidersWrapper();
-      const additionalControls = [
-        <div key="test-control" data-testid="additional-control">
-          Test Control
-        </div>,
-      ];
-
-      render(
-        <Provider>
-          <ContextToolbar additionalControls={additionalControls} />
-        </Provider>,
-      );
-
-      expect(screen.getByTestId('additional-control')).toBeInTheDocument();
-    });
-
-    it('should work without additional controls', () => {
+    it('should render IntegrationTypeSelector component', () => {
       const { Provider } = TestProvidersWrapper();
 
       render(
@@ -236,9 +225,108 @@ describe('ContextToolbar', () => {
         </Provider>,
       );
 
-      // Should render basic components without additional controls
+      expect(screen.getByTestId('integration-type-selector')).toBeInTheDocument();
+    });
+
+    it('should render SerializerSelector component', () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <ContextToolbar />
+        </Provider>,
+      );
+
+      expect(screen.getByTestId('serializer-selector')).toBeInTheDocument();
+    });
+  });
+
+  describe('SerializerSelector visibility', () => {
+    it('should render SerializerSelector for CamelRouteResource (Route schema)', () => {
+      const camelResource = new CamelRouteResource([]);
+      const { Provider } = TestProvidersWrapper({ camelResource });
+
+      render(
+        <Provider>
+          <ContextToolbar />
+        </Provider>,
+      );
+
+      expect(screen.getByTestId('serializer-selector')).toBeInTheDocument();
+    });
+
+    it.each([
+      ['IntegrationResource', () => new IntegrationResource()],
+      ['KameletResource', () => new KameletResource()],
+      ['PipeResource', () => new PipeResource()],
+      ['KameletBindingResource', () => new KameletBindingResource()],
+    ])('should not render SerializerSelector for %s (non-Route schema)', (_name, createResource) => {
+      const camelResource = createResource();
+      const { Provider } = TestProvidersWrapper({ camelResource });
+
+      render(
+        <Provider>
+          <ContextToolbar />
+        </Provider>,
+      );
+
+      expect(screen.queryByTestId('serializer-selector')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('when isSimplified is true', () => {
+    it('should not render SerializerSelector even for Route schema', () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <ContextToolbar isSimplified />
+        </Provider>,
+      );
+
+      expect(screen.queryByTestId('serializer-selector')).not.toBeInTheDocument();
+    });
+
+    it('should not render IntegrationTypeSelector', () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <ContextToolbar isSimplified />
+        </Provider>,
+      );
+
+      expect(screen.queryByTestId('integration-type-selector')).not.toBeInTheDocument();
+    });
+
+    it('should not render RuntimeSelector', () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <ContextToolbar isSimplified />
+        </Provider>,
+      );
+
+      expect(screen.queryByTestId('runtime-selector')).not.toBeInTheDocument();
+    });
+
+    it('should still render the core toolbar items', () => {
+      const { Provider } = TestProvidersWrapper();
+
+      render(
+        <Provider>
+          <ContextToolbar isSimplified />
+        </Provider>,
+      );
+
       expect(screen.getByTestId('flows-menu')).toBeInTheDocument();
+      expect(screen.getByTestId('new-entity')).toBeInTheDocument();
+      expect(screen.getByTestId('flow-clipboard')).toBeInTheDocument();
+      expect(screen.getByTestId('flow-export-image')).toBeInTheDocument();
+      expect(screen.getByTestId('export-document')).toBeInTheDocument();
       expect(screen.getByLabelText('Undo')).toBeInTheDocument();
+      expect(screen.getByLabelText('Redo')).toBeInTheDocument();
     });
   });
 });

@@ -1,5 +1,5 @@
 import { IParentType } from './document';
-import { MappingItem, MappingParentType, MappingTree } from './mapping';
+import { MappingItem, MappingParentType, MappingTree, SortItem } from './mapping';
 import { SendAlertProps } from './visualization';
 
 /**
@@ -16,7 +16,7 @@ export type MappingItemClass = abstract new (...args: any[]) => MappingItem;
  * {@link fieldItem} is non-null only when the handler resolves a target field
  * (e.g. `xsl:attribute` or a target element).
  */
-export interface DeserializeItemResult<T extends MappingItem> {
+export interface DeserializeItemResult<T extends MappingItem | SortItem> {
   mappingItem?: T;
   fieldItem: IParentType | null;
   messages?: SendAlertProps[];
@@ -37,9 +37,9 @@ export interface DeserializeResult {
  * Each handler declares its {@link itemClass} and {@link xsltElementNames},
  * from which the serialize and deserialize lookup tables are derived automatically.
  */
-export interface XsltItemHandler<T extends MappingItem = MappingItem> {
-  /** The {@link MappingItem} subclass this handler serializes. */
-  readonly itemClass: MappingItemClass;
+export interface XsltItemHandler<T extends MappingItem | SortItem = MappingItem> {
+  /** The {@link MappingItem} subclass this handler serializes. Absent for non-MappingItem handlers (e.g. SortItemHandler). */
+  readonly itemClass?: MappingItemClass;
   /** XSLT element `localName`(s) this handler deserializes. Empty for fallback handlers. */
   readonly xsltElementNames: string[];
   /** Create XSLT DOM element(s) for the given mapping item and append to `parent`. */

@@ -10,7 +10,7 @@ import { MappingItem } from '../../../models/datamapper/mapping';
 import { NodeData, VariableNodeData } from '../../../models/datamapper/visualization';
 import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
-import { CommentModal } from '../actions/Comment/CommentModal';
+import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
 import { FieldIcon } from '../FieldIcon';
 
 interface BaseNodeProps extends IDataTestID {
@@ -68,6 +68,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const isChoiceField = VisualizationUtilService.isChoiceField(nodeData);
   const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
   const isAbstractField = VisualizationUtilService.isAbstractField(nodeData);
+  const isSelectedAbstract = VisualizationUtilService.isSelectedAbstractField(nodeData);
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isVariableNode = nodeData instanceof VariableNodeData;
   const isDraggable = MappingValidationService.isDraggable(nodeData);
@@ -135,7 +136,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Icon>
       )}
       {isAbstractField && (
-        <Icon className="node__spacer" data-testid="abstract-field-icon">
+        <Icon
+          className="node__spacer"
+          status={isSelectedAbstract ? 'success' : undefined}
+          data-testid="abstract-field-icon"
+        >
           <Choices />
         </Icon>
       )}

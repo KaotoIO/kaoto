@@ -6,17 +6,15 @@ import {
   ContextToolbar,
   ControllerService,
   EntitiesProvider,
-  IntegrationTypeSelector,
   kameletYaml,
   pipeYaml,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SerializerSelector,
   SourceCodeApiContext,
   SourceCodeProvider,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
-import { Divider, Toolbar, ToolbarContent, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
 import { useContext, useMemo } from 'react';
@@ -56,18 +54,12 @@ export default {
 const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }) => {
   const sourceCodeApi = useContext(SourceCodeApiContext);
   sourceCodeApi.setCodeAndNotify(props.sourceCode);
-  const additionalControls = [
-    <ToolbarItem key="toolbar-integration-type-selector">
-      <IntegrationTypeSelector />
-    </ToolbarItem>,
-    <SerializerSelector key="toolbar-serializer-selector" />,
-  ];
 
   return (
     <Toolbar>
       <ToolbarContent>
         <ToolbarGroup className="pf-topology-view__project-toolbar">
-          <ContextToolbar additionalControls={additionalControls} />
+          <ContextToolbar />
         </ToolbarGroup>
       </ToolbarContent>
       <Divider />

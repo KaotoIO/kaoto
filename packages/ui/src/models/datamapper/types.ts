@@ -39,6 +39,35 @@ export enum FieldOverrideVariant {
   SUBSTITUTION = 'SUBSTITUTION',
 }
 
+export interface LangOption {
+  id: string;
+  displayName: string;
+}
+
+export const LANG_OPTIONS: ReadonlyArray<LangOption> = [
+  { id: 'en', displayName: 'English' },
+  { id: 'en-US', displayName: 'U.S. English' },
+  { id: 'en-GB', displayName: 'British English' },
+  { id: 'de', displayName: 'German' },
+  { id: 'fr', displayName: 'French' },
+  { id: 'es', displayName: 'Spanish' },
+  { id: 'it', displayName: 'Italian' },
+  { id: 'pt', displayName: 'Portuguese' },
+  { id: 'nl', displayName: 'Dutch' },
+  { id: 'ja', displayName: 'Japanese' },
+  { id: 'zh', displayName: 'Chinese' },
+  { id: 'ko', displayName: 'Korean' },
+  { id: 'ru', displayName: 'Russian' },
+  { id: 'ar', displayName: 'Arabic' },
+  { id: 'sv', displayName: 'Swedish' },
+  { id: 'da', displayName: 'Danish' },
+  { id: 'fi', displayName: 'Finnish' },
+  { id: 'nb', displayName: 'Norwegian' },
+  { id: 'pl', displayName: 'Polish' },
+  { id: 'cs', displayName: 'Czech' },
+  { id: 'tr', displayName: 'Turkish' },
+];
+
 /**
  * Type derivation enum to indicate whether it's extension or restriction in XML Schema type inheritance.
  */

@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { EnumField } from '@kaoto/forms';
+import { EnumField, TextAreaField } from '@kaoto/forms';
 
 import { ICamelComponentDefinition } from '../../../../../models/camel/camel-components-catalog';
 import { CatalogKind } from '../../../../../models/catalog-kind';
@@ -11,6 +11,8 @@ import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { customFieldsFactoryfactory } from './custom-fields-factory';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
+import { EndpointField } from './EndpointField/EndpointField';
+import { EndpointListField } from './EndpointField/EndpointListField';
 import { EndpointPropertiesField } from './EndpointPropertiesField/EndpointPropertiesField';
 import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
@@ -160,5 +162,81 @@ describe('customFieldsFactoryfactory', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'object', title: 'Endpoint Properties' };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EndpointPropertiesField);
+  });
+
+  it('returns EndpointField for string type with title "Endpoint" and matching description', () => {
+    // used for instance in the "send" or "receive" test action "endpoint" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Endpoint',
+      description: 'Uses an endpoint URI or references an endpoint name.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointField);
+  });
+
+  it('returns EndpointField for string type with title "Client" and matching description', () => {
+    // used for instance in the "http-sendRequest" or "http-receiveResponse" test action "client" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Client',
+      description: 'Uses an endpoint URI or references an endpoint name.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointField);
+  });
+
+  it('returns EndpointField for string type with title "Server" and matching description', () => {
+    // used for instance in the "http-receiveRequest" or "http-sendResponse" test action "server" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Server',
+      description: 'Uses an endpoint URI or references an endpoint name.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointField);
+  });
+
+  it('returns TextAreaField for string type with title "Data" and matching description', () => {
+    // used for instance in the "send" or "receive" test action "message" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Data',
+      description: 'Message body as inline data.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns TextAreaField for string type with title "Value" and matching description', () => {
+    // used for instance in the "send" or "receive" test action within the "script" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Value',
+      description: 'Message body as inline data.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns TextAreaField for string type with title "Source" and matching description', () => {
+    // used for instance in the "camel-jbang-run" test action within the "integration" property
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'string',
+      title: 'Source',
+      description: 'Message body as inline data.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(TextAreaField);
+  });
+
+  it('returns EndpointListField for array type with title "Endpoints" and matching description', () => {
+    const schema: KaotoSchemaDefinition['schema'] = {
+      type: 'array',
+      title: 'Endpoints',
+      description: 'List of endpoints for this test.',
+    };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(EndpointListField);
   });
 });

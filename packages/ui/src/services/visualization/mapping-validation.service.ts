@@ -15,6 +15,8 @@ import {
   TargetNodeData,
   UnknownMappingNodeData,
 } from '../../models/datamapper/visualization';
+import { DocumentService } from '../document/document.service';
+import { FieldMatchingService } from '../mapping/field-matching.service';
 
 /**
  * Result returned by mapping validation operations.
@@ -156,7 +158,9 @@ export class MappingValidationService {
    * Rules are applied in order; the first failing rule short-circuits and its
    * result is returned.  Currently enforced rules are:
    * 1. Choice selection — a choice target must have a member selected before mapping.
-   * 2. Container/terminal compatibility — a container field cannot be mapped to a terminal field and vice versa.
+   * 2. Abstract selection — an abstract target must have a concrete candidate selected.
+   * 3. Container/terminal compatibility — a container field cannot be mapped to a terminal field
+   *    and vice versa; two containers must have at least one matching child pair.
    *
    * @param sourceField - The source schema field.
    * @param targetField - The target schema field.
@@ -173,17 +177,44 @@ export class MappingValidationService {
   private static validateContainerRules(source: IField, target: IField): ValidationResult {
     if (source.wrapperKind) return { isValid: true };
 
-    if (MappingValidationService.isContainer(source) !== MappingValidationService.isContainer(target)) {
+    if (source.type === Types.Array || target.type === Types.Array) {
+      return {
+        isValid: false,
+        errorMessage: 'Cannot map a JSON array wrapper field directly. Map its children instead.',
+      };
+    }
+
+    const sourceIsContainer = MappingValidationService.isContainer(source);
+    const targetIsContainer = MappingValidationService.isContainer(target);
+
+    if (sourceIsContainer !== targetIsContainer) {
       return {
         isValid: false,
         errorMessage: 'Cannot map between a container field and a terminal field.',
       };
     }
+
+    if (
+      sourceIsContainer &&
+      targetIsContainer &&
+      DocumentService.hasChildren(source) &&
+      DocumentService.hasChildren(target)
+    ) {
+      const matchingChildren = FieldMatchingService.findMatchingChildren(source, target);
+      if (matchingChildren.length === 0) {
+        return {
+          isValid: false,
+          errorMessage:
+            'Cannot map containers with no matching children. The source and target structures have no compatible fields to map.',
+        };
+      }
+    }
+
     return { isValid: true };
   }
 
-  private static isContainer(source: IField) {
-    return source.type === Types.Container;
+  private static isContainer(field: IField) {
+    return field.type === Types.Container;
   }
 
   private static validateChoiceRules(_source: IField, target: IField): ValidationResult {

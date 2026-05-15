@@ -1,8 +1,8 @@
 import { Button, FormGroup, ModalBody, ModalFooter, ModalHeader, ModalVariant, TextArea } from '@patternfly/react-core';
 import { FormEvent, FunctionComponent, useCallback, useEffect, useState } from 'react';
 
-import { MappingItem } from '../../../../models/datamapper/mapping';
-import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
+import { MappingItem } from '../../../../../models/datamapper/mapping';
+import { DataMapperModal } from '../../../../DataMapper/DataMapperModal';
 
 interface CommentModalProps {
   /** Controls whether the modal is open */

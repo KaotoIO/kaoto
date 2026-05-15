@@ -91,8 +91,16 @@ export class VisualizationUtilService {
    * Returns `true` if the node is an abstract field, on either source or target side.
    * @param nodeData - The node to test.
    */
-  static isAbstractField(nodeData: NodeData) {
+  static isAbstractField(nodeData: NodeData): nodeData is AbstractFieldNodeData | TargetAbstractFieldNodeData {
     return nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData;
+  }
+
+  /**
+   * Returns `true` if the node is an abstract field with a selected substitution member.
+   * @param nodeData - The node to test.
+   */
+  static isSelectedAbstractField(nodeData: NodeData): nodeData is AbstractFieldNodeData | TargetAbstractFieldNodeData {
+    return VisualizationUtilService.isAbstractField(nodeData) && !!nodeData.abstractField;
   }
 
   /**

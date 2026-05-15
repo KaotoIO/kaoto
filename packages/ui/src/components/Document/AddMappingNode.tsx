@@ -7,7 +7,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { AddMappingNodeData } from '../../models/datamapper/visualization';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
-import { MappingContextMenuAction } from './actions/MappingContextMenuAction';
+import { MappingContextMenuAction } from './actions/MappingMenu/MappingContextMenuAction';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle/NodeTitle';
 

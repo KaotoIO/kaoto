@@ -10,6 +10,7 @@ import { VisualizationService } from '../../../../services/visualization/visuali
 import { VisualizationUtilService } from '../../../../services/visualization/visualization-util.service';
 import { ChoiceSelectionModal } from '../ChoiceSelectionModal';
 import { MenuAction, MenuGroup } from '../FieldContextMenu';
+import { buildSelectSelfAction } from './menu-utils';
 import { MenuContributor } from './types';
 
 const INLINE_CHOICE_LIMIT = 10;
@@ -18,20 +19,6 @@ function getFieldDisplayName(field: IField): string {
   return field.wrapperKind === 'choice'
     ? VisualizationService.getChoiceMemberLabel(field)
     : field.displayName || field.name;
-}
-
-function buildSelectSelfAction(
-  choiceMemberField: IField | undefined,
-  parentChoiceWrapperField: IField | undefined,
-  onClick: () => void,
-): MenuAction {
-  const memberName = choiceMemberField ? getFieldDisplayName(choiceMemberField) : '';
-  const parentName = parentChoiceWrapperField ? getFieldDisplayName(parentChoiceWrapperField) : undefined;
-  return {
-    label: parentName ? `Select '${memberName}' in '${parentName}'` : `Select '${memberName}'`,
-    onClick,
-    testId: 'select-choice-member',
-  };
 }
 
 function buildInlineMemberActions(
@@ -185,7 +172,13 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   };
 
   const selectSelfAction = isChoiceMember
-    ? buildSelectSelfAction(choiceMemberField, parentChoiceWrapperField, handleSelectSelfAsChoiceMember)
+    ? buildSelectSelfAction(
+        choiceMemberField,
+        parentChoiceWrapperField,
+        handleSelectSelfAsChoiceMember,
+        'select-choice-member',
+        getFieldDisplayName,
+      )
     : undefined;
 
   let menuGroups: MenuGroup[];

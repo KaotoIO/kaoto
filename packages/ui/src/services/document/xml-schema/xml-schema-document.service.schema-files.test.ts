@@ -6,8 +6,10 @@ import {
 } from '../../../models/datamapper/document';
 import { IFieldSubstitution } from '../../../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
-import { FieldOverrideVariant } from '../../../models/datamapper/types';
+import { FieldOverrideVariant, Types } from '../../../models/datamapper/types';
 import {
+  getCircularIncludeAXsd,
+  getCircularIncludeBXsd,
   getCommonTypesXsd,
   getElementRefXsd,
   getFieldSubstitutionXsd,
@@ -273,7 +275,7 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       expect(result.errors!.length).toBeGreaterThan(0);
     });
 
-    it('should return error for circular includes', () => {
+    it('should warn but succeed for circular includes', () => {
       const schemaA = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:include schemaLocation="B.xsd"/>
@@ -293,10 +295,45 @@ describe('XmlSchemaDocumentService / schema file management', () => {
         { 'A.xsd': schemaA, 'B.xsd': schemaB },
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      expect(result.validationStatus).toBe('error');
-      expect(result.errors![0].message).toContain('Circular xs:include');
-      expect(result.errors).toBeDefined();
-      expect(result.errors!.length).toBeGreaterThan(0);
+      expect(result.validationStatus).toBe('warning');
+      expect(result.warnings).toBeDefined();
+      expect(result.warnings!.some((w) => w.message.includes('Circular xs:include'))).toBe(true);
+      expect(result.document).toBeDefined();
+    });
+
+    it('should resolve cross-referenced types in circular includes', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'CircularIncludeA.xsd': getCircularIncludeAXsd(),
+          'CircularIncludeB.xsd': getCircularIncludeBXsd(),
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('warning');
+      expect(result.warnings!.some((w) => w.message.includes('Circular xs:include'))).toBe(true);
+      const document = result.document as XmlSchemaDocument;
+      expect(document).toBeDefined();
+      expect(document.fields[0].name).toBe('Root');
+
+      const orderField = document.fields[0].fields.find((f) => f.name === 'order');
+      expect(orderField).toBeDefined();
+      expect(orderField!.type).toBe(Types.Container);
+
+      const NS = 'http://example.com/circular';
+      const orderTypeQName = new QName(NS, 'OrderType');
+      expect(document.xmlSchemaCollection.getTypeByQName(orderTypeQName)).toBeDefined();
+      const productTypeQName = new QName(NS, 'ProductType');
+      expect(document.xmlSchemaCollection.getTypeByQName(productTypeQName)).toBeDefined();
+
+      const orderFragment = document.namedTypeFragments[orderTypeQName.toString()];
+      expect(orderFragment).toBeDefined();
+      expect(orderFragment.fields.some((f) => f.name === 'product')).toBe(true);
+      const productFragment = document.namedTypeFragments[productTypeQName.toString()];
+      expect(productFragment).toBeDefined();
+      expect(productFragment.fields.some((f) => f.name === 'productName')).toBe(true);
     });
 
     it('should warn with circular imports (different namespaces)', () => {

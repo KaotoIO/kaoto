@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/circular"
+           xmlns:tns="http://example.com/circular"
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="CircularIncludeB.xsd"/>
+
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="order" type="tns:OrderType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="OrderType">
+    <xs:sequence>
+      <xs:element name="orderId" type="xs:string"/>
+      <xs:element name="product" type="tns:ProductType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

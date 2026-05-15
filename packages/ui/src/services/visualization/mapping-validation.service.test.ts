@@ -23,6 +23,8 @@ import {
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
+import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { MappingValidationService } from './mapping-validation.service';
 
 function createMockField(overrides: Partial<IField> = {}): IField {
@@ -30,6 +32,8 @@ function createMockField(overrides: Partial<IField> = {}): IField {
     type: Types.String,
     selectedMemberIndex: undefined,
     fields: [],
+    namedTypeFragmentRefs: [],
+    isAttribute: false,
     ...overrides,
   } as unknown as IField;
 }
@@ -160,6 +164,119 @@ describe('MappingValidationService', () => {
       it('should allow source to non-abstract target', () => {
         const source = createMockField({ type: Types.String });
         const target = createMockField({});
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('array wrapper rejection', () => {
+      it('should reject source with Types.Array', () => {
+        const source = createMockField({ type: Types.Array });
+        const target = createMockField({ type: Types.String });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toContain('array wrapper');
+      });
+
+      it('should reject target with Types.Array', () => {
+        const source = createMockField({ type: Types.String });
+        const target = createMockField({ type: Types.Array });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toContain('array wrapper');
+      });
+
+      it('should skip array check for source with wrapperKind', () => {
+        const source = createMockField({ type: Types.Array, wrapperKind: 'choice' });
+        const target = createMockField({ type: Types.String });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+    });
+
+    describe('container-to-container matching children validation', () => {
+      it('should reject XML containers with no matching children', () => {
+        const source = createXmlSchemaField('source', 'http://example.com/ns');
+        source.type = Types.Container;
+        source.fields.push(createXmlSchemaField('name', 'http://example.com/ns'));
+
+        const target = createXmlSchemaField('target', 'http://example.com/ns');
+        target.type = Types.Container;
+        target.fields.push(createXmlSchemaField('email', 'http://example.com/ns'));
+
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toContain('no matching children');
+      });
+
+      it('should accept XML containers with matching children', () => {
+        const source = createXmlSchemaField('source', 'http://example.com/ns');
+        source.type = Types.Container;
+        source.fields.push(createXmlSchemaField('name', 'http://example.com/ns'));
+
+        const target = createXmlSchemaField('target', 'http://example.com/ns');
+        target.type = Types.Container;
+        target.fields.push(createXmlSchemaField('name', 'http://example.com/ns'));
+
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should reject JSON containers with no matching children', () => {
+        const source = createJsonSchemaField('source', Types.Container);
+        source.fields.push(createJsonSchemaField('name', Types.String));
+
+        const target = createJsonSchemaField('target', Types.Container);
+        target.fields.push(createJsonSchemaField('email', Types.String));
+
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toContain('no matching children');
+      });
+
+      it('should accept JSON containers with matching children', () => {
+        const source = createJsonSchemaField('source', Types.Container);
+        source.fields.push(createJsonSchemaField('name', Types.String));
+
+        const target = createJsonSchemaField('target', Types.Container);
+        target.fields.push(createJsonSchemaField('name', Types.String));
+
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should reject cross-format containers with no matching children', () => {
+        const source = createXmlSchemaField('source', 'http://example.com/ns');
+        source.type = Types.Container;
+        source.fields.push(createXmlSchemaField('name', 'http://example.com/ns'));
+
+        const target = createJsonSchemaField('target', Types.Container);
+        target.fields.push(createJsonSchemaField('email', Types.String));
+
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(false);
+        expect(result.errorMessage).toContain('no matching children');
+      });
+
+      it('should accept cross-format containers with matching children', () => {
+        const source = createXmlSchemaField('source', 'http://example.com/ns');
+        source.type = Types.Container;
+        source.fields.push(createXmlSchemaField('name', 'http://example.com/ns'));
+
+        const target = createJsonSchemaField('target', Types.Container);
+        target.fields.push(createJsonSchemaField('name', Types.String));
+
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should allow containers when one has namedTypeFragmentRefs but no direct children', () => {
+        const source = createMockField({
+          type: Types.Container,
+          fields: [],
+          namedTypeFragmentRefs: ['SomeType'],
+        });
+        const target = createMockField({ type: Types.Container, fields: [] });
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
@@ -401,3 +518,22 @@ describe('MappingValidationService', () => {
     });
   });
 });
+
+function createXmlSchemaField(name: string, namespaceURI: string, isAttribute = false): XmlSchemaField {
+  const mockParent = {
+    path: { documentType: DocumentType.SOURCE_BODY, documentId: 'test', pathSegments: [] },
+    isNamespaceAware: true,
+  } as unknown as XmlSchemaDocument;
+
+  const field = new XmlSchemaField(mockParent, name, isAttribute);
+  field.namespaceURI = namespaceURI;
+  field.type = Types.String;
+  return field;
+}
+
+function createJsonSchemaField(key: string, type: Types): JsonSchemaField {
+  const doc = new JsonSchemaDocument(
+    new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, 'test'),
+  );
+  return new JsonSchemaField(doc, key, type);
+}

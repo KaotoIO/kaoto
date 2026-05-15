@@ -1,19 +1,13 @@
 import { ActionList, ActionListGroup, ActionListItem, AlertVariant, Button } from '@patternfly/react-core';
 import { CheckIcon, TimesIcon } from '@patternfly/react-icons';
 import { FunctionComponent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { qname } from 'xml-name-validator';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
+import { NameValidationStatus } from '../../models/datamapper/visualization';
 import { DocumentService } from '../../services/document/document.service';
+import { VisualizationService } from '../../services/visualization/visualization.service';
 import { ParameterInput } from './ParameterInput';
-
-enum ParameterNameValidation {
-  EMPTY,
-  OK,
-  DUPLICATE,
-  INVALID,
-}
 
 type ParameterInputPlaceholderProps = {
   onComplete: () => void;
@@ -58,34 +52,10 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
     onComplete();
   }, [onComplete]);
 
-  const newParameterNameValidation: ParameterNameValidation = useMemo(() => {
-    if (newParameterName === '') return ParameterNameValidation.EMPTY;
-    if (!parameter && sourceParameterMap.has(newParameterName)) return ParameterNameValidation.DUPLICATE;
-    if (!qname(newParameterName)) return ParameterNameValidation.INVALID;
-    return ParameterNameValidation.OK;
+  const validation = useMemo(() => {
+    const paramMap = parameter ? new Map<string, never>() : sourceParameterMap;
+    return VisualizationService.validateParameterName(newParameterName, paramMap);
   }, [newParameterName, parameter, sourceParameterMap]);
-
-  const textInputValidatedProp = useMemo(() => {
-    switch (newParameterNameValidation) {
-      case ParameterNameValidation.OK:
-        return 'success';
-      case ParameterNameValidation.EMPTY:
-        return 'default';
-      case ParameterNameValidation.DUPLICATE:
-      case ParameterNameValidation.INVALID:
-        return 'error';
-    }
-  }, [newParameterNameValidation]);
-
-  const errorMessage = useMemo(() => {
-    if (newParameterNameValidation === ParameterNameValidation.DUPLICATE) {
-      return `Parameter '${newParameterName}' already exists`;
-    }
-    if (newParameterNameValidation === ParameterNameValidation.INVALID) {
-      return `Invalid parameter name '${newParameterName}': it must be a valid QName`;
-    }
-    return undefined;
-  }, [newParameterNameValidation, newParameterName]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -105,7 +75,7 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
               value={newParameterName}
               onChange={setNewParameterName}
               placeholder="parameter name"
-              validated={textInputValidatedProp}
+              validated={validation.status}
             />
           </ActionListItem>
         </ActionListGroup>
@@ -115,7 +85,7 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
               icon={<CheckIcon />}
               onClick={() => onSubmitParameter()}
               variant="link"
-              isDisabled={newParameterNameValidation !== ParameterNameValidation.OK}
+              isDisabled={validation.status !== NameValidationStatus.SUCCESS}
               id="new-parameter-submit-btn"
               data-testid="new-parameter-submit-btn"
               aria-label="Submit new parameter"
@@ -134,7 +104,7 @@ export const ParameterInputPlaceholder: FunctionComponent<ParameterInputPlacehol
         </ActionListGroup>
       </ActionList>
       <div className="parameter-input-error" data-testid="new-parameter-name-input-error">
-        {textInputValidatedProp === 'error' && errorMessage}
+        {validation.error}
       </div>
     </>
   );

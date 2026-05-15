@@ -7,14 +7,14 @@ import {
   MenuToggleElement,
 } from '@patternfly/react-core';
 import { AddCircleOIcon, EllipsisVIcon } from '@patternfly/react-icons';
-import { FunctionComponent, MouseEvent, Ref, useCallback, useMemo, useState } from 'react';
+import { Fragment, FunctionComponent, MouseEvent, Ref, useCallback, useMemo, useState } from 'react';
 
-import { MappingItem } from '../../../models/datamapper/mapping';
-import { IMappingActionCallbacks, MappingActionKind } from '../../../models/datamapper/mapping-action';
-import { TargetNodeData } from '../../../models/datamapper/visualization';
-import { DEFAULT_POPPER_PROPS } from '../../../models/popper-default';
-import { MappingActionService } from '../../../services/visualization/mapping-action.service';
-import { CommentModal } from './Comment/CommentModal';
+import { MappingItem } from '../../../../models/datamapper/mapping';
+import { IMappingActionCallbacks } from '../../../../models/datamapper/mapping-action';
+import { TargetNodeData } from '../../../../models/datamapper/visualization';
+import { DEFAULT_POPPER_PROPS } from '../../../../models/popper-default';
+import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
+import { useMappingActionModals } from './useMappingActionModals';
 
 type MappingContextMenuProps = {
   dropdownLabel?: string;
@@ -28,19 +28,20 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
   onUpdate,
 }) => {
   const [isActionMenuOpen, setIsActionMenuOpen] = useState<boolean>(false);
-  const [isCommentModalOpen, setIsCommentModalOpen] = useState<boolean>(false);
   const menuItems = useMemo(() => MappingActionService.getMappingContextMenuItems(nodeData), [nodeData]);
 
   const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
+
+  const modalActions = useMappingActionModals(mappingItem, onUpdate);
 
   const callbacks: IMappingActionCallbacks = useMemo(
     () => ({
       onUpdate,
       openModal: (type: string) => {
-        if (type === MappingActionKind.Comment) setIsCommentModalOpen(true);
+        modalActions.find((a) => a.kind === type)?.open();
       },
     }),
-    [onUpdate],
+    [onUpdate, modalActions],
   );
 
   const onToggleActionMenu = useCallback(
@@ -67,10 +68,6 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
     ),
     [dropdownLabel, onToggleActionMenu, isActionMenuOpen],
   );
-
-  const handleCloseCommentModal = useCallback(() => {
-    setIsCommentModalOpen(false);
-  }, []);
 
   const onSelectAction = useCallback(
     (event: MouseEvent | undefined, value: string | number | undefined) => {
@@ -110,14 +107,9 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
         </Dropdown>
       </ActionListItem>
 
-      {mappingItem && (
-        <CommentModal
-          isOpen={isCommentModalOpen}
-          onClose={handleCloseCommentModal}
-          mapping={mappingItem}
-          onUpdate={onUpdate}
-        />
-      )}
+      {modalActions.map((action) => (
+        <Fragment key={action.kind}>{action.render()}</Fragment>
+      ))}
     </>
   );
 };

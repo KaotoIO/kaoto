@@ -73,10 +73,10 @@ export class XmlSchemaAnalysisService {
       }
     }
 
-    const circularErrors = XmlSchemaAnalysisService.detectCircularIncludes(fileInfos, edges);
-    errors.push(...circularErrors);
+    const circularIncludeWarnings = XmlSchemaAnalysisService.detectCircularIncludes(fileInfos, edges);
 
     const warnings = XmlSchemaAnalysisService.detectCircularImports(fileInfos, edges);
+    warnings.push(...circularIncludeWarnings);
 
     const includeNsErrors = XmlSchemaAnalysisService.validateIncludeNamespaces(fileInfos, edges);
     errors.push(...includeNsErrors);

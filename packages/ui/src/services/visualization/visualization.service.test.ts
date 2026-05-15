@@ -21,6 +21,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
+  NameValidationStatus,
   TargetDocumentNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
@@ -483,6 +484,134 @@ describe('VisualizationService', () => {
       const variableNodeData = children.find((c) => c instanceof VariableNodeData);
       expect(variableNodeData).toBeInstanceOf(VariableNodeData);
       expect(variableNodeData!.title).toBe('taxRate');
+    });
+  });
+
+  describe('validateVariableName()', () => {
+    it('should accept a valid name', () => {
+      const result = VisualizationService.validateVariableName('taxRate', tree);
+      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should accept name starting with underscore', () => {
+      const result = VisualizationService.validateVariableName('_private', tree);
+      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
+    });
+
+    it('should accept name with hyphens', () => {
+      const result = VisualizationService.validateVariableName('tax-rate', tree);
+      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
+    });
+
+    it('should accept name with periods', () => {
+      const result = VisualizationService.validateVariableName('v1.0', tree);
+      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
+    });
+
+    it('should accept single-character name', () => {
+      const result = VisualizationService.validateVariableName('x', tree);
+      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
+    });
+
+    it('should return EMPTY for empty name', () => {
+      const result = VisualizationService.validateVariableName('', tree);
+      expect(result.status).toEqual(NameValidationStatus.EMPTY);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should return EMPTY for whitespace-only name', () => {
+      const result = VisualizationService.validateVariableName('   ', tree);
+      expect(result.status).toEqual(NameValidationStatus.EMPTY);
+    });
+
+    it('should reject name starting with digit', () => {
+      const result = VisualizationService.validateVariableName('1var', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid NCName');
+    });
+
+    it('should reject name starting with hyphen', () => {
+      const result = VisualizationService.validateVariableName('-var', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid NCName');
+    });
+
+    it('should reject name with spaces', () => {
+      const result = VisualizationService.validateVariableName('tax rate', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid NCName');
+    });
+
+    it('should reject name with special characters', () => {
+      const result = VisualizationService.validateVariableName('var@name', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid NCName');
+    });
+
+    it('should reject name ending with -x', () => {
+      const result = VisualizationService.validateVariableName('myVar-x', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain("'-x'");
+    });
+
+    it('should reject the reserved name mapped-xml', () => {
+      const result = VisualizationService.validateVariableName('mapped-xml', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain("'mapped-xml'");
+    });
+
+    it('should reject duplicate name within scope', () => {
+      const variable = new VariableItem(tree, 'existingVar');
+      tree.children.push(variable);
+      const result = VisualizationService.validateVariableName('existingVar', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain("'existingVar' already exists");
+    });
+
+    it('should reject name with colon (QName but not NCName)', () => {
+      const result = VisualizationService.validateVariableName('ns:var', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid NCName');
+    });
+
+    it('should return first error only (early return)', () => {
+      const result = VisualizationService.validateVariableName('1bad-x', tree);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid NCName');
+    });
+  });
+
+  describe('validateParameterName()', () => {
+    it('should accept a valid name', () => {
+      const result = VisualizationService.validateParameterName('myParam', new Map());
+      expect(result.status).toEqual(NameValidationStatus.SUCCESS);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should return EMPTY for empty name', () => {
+      const result = VisualizationService.validateParameterName('', new Map());
+      expect(result.status).toEqual(NameValidationStatus.EMPTY);
+      expect(result.error).toBeUndefined();
+    });
+
+    it('should reject duplicate parameter name', () => {
+      const paramMap = new Map<string, IDocument>([['existingParam', {} as IDocument]]);
+      const result = VisualizationService.validateParameterName('existingParam', paramMap);
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain("'existingParam' already exists");
+    });
+
+    it('should reject invalid QName', () => {
+      const result = VisualizationService.validateParameterName('123invalid', new Map());
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid QName');
+    });
+
+    it('should reject name with spaces', () => {
+      const result = VisualizationService.validateParameterName('my param', new Map());
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toContain('valid QName');
     });
   });
 });
