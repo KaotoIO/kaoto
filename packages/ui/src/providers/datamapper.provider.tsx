@@ -195,12 +195,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setMappingTree(newMapping);
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
-    const isBodyUsed = DataMapperStepService.isSourceBodyUsed(newMapping);
-    console.debug('[DataMapper] refreshMappingTree() completed', {
-      childrenCount: newMapping.children.length,
-      isBodyUsed,
-    });
-    onIsSourceBodyUsed?.(isBodyUsed);
+    onIsSourceBodyUsed?.(DataMapperStepService.isSourceBodyUsed(newMapping));
   }, [mappingTree, onUpdateMappings, onUpdateNamespaceMap, onIsSourceBodyUsed, sourceParameterMap, targetBodyDocument.definitionType]);
 
   const resetMappingTree = useCallback(() => {
