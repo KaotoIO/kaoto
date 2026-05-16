@@ -4,6 +4,8 @@ import { ElementModel, GraphElement, Node } from '@patternfly/react-topology';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { AddStepMode, IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { IClipboardCopyObject } from '../../../../models/visualization/clipboard';
+import { CamelComponentSchemaService } from '../../../../models/visualization/flows/support/camel-component-schema.service';
+import { CamelRouteVisualEntityData } from '../../../../models/visualization/flows/support/camel-component-types';
 import { EntitiesContextResult } from '../../../../providers/entities.provider';
 import {
   IInteractionType,
@@ -173,4 +175,26 @@ const performForwardDrop = (
     const flowId = draggedVizNode?.getId();
     entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
   }
+};
+
+export interface VizNodeChildrenInfo {
+  childCount: number;
+  hasGroupChildren: boolean;
+  isCollapsedGroup: boolean;
+}
+
+export const getVizNodeChildrenInfo = (vizNode: IVisualizationNode | undefined): VizNodeChildrenInfo => {
+  const processorName = (vizNode?.data as CamelRouteVisualEntityData)?.processorName;
+  const vizNodeChildren = vizNode?.getChildren() ?? [];
+  const childCount = vizNodeChildren.filter((c) => !c.data.isPlaceholder).length;
+  const hasGroupChildren = vizNodeChildren.some((child) => {
+    const childProcessorName = (child.data as CamelRouteVisualEntityData)?.processorName;
+    return childProcessorName
+      ? CamelComponentSchemaService.getProcessorStepsProperties(childProcessorName).length > 0
+      : false;
+  });
+  const isContainerType =
+    !!processorName && CamelComponentSchemaService.getProcessorStepsProperties(processorName).length > 0;
+  const isCollapsedGroup = isContainerType && childCount > 0;
+  return { childCount, hasGroupChildren, isCollapsedGroup };
 };

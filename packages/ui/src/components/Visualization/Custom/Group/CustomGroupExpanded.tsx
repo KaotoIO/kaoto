@@ -47,7 +47,12 @@ import {
 } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
-import { checkNodeDropCompatibility, getNodeDragAndDropDirection, handleValidNodeDrop } from '../Node/CustomNodeUtils';
+import {
+  checkNodeDropCompatibility,
+  getNodeDragAndDropDirection,
+  getVizNodeChildrenInfo,
+  handleValidNodeDrop,
+} from '../Node/CustomNodeUtils';
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
 
@@ -70,7 +75,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
     const isDisabled = !!groupVizNode?.getNodeDefinition()?.disabled;
     const validationText = groupVizNode?.getNodeValidationText();
     const doesHaveWarnings = !isDisabled && !!validationText;
-    const childCount = element.getAllNodeChildren().length;
+    const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
     const [isGHover, gHoverRef] = useHover<SVGGElement>(CanvasDefaults.HOVER_DELAY_IN, CanvasDefaults.HOVER_DELAY_OUT);
     const [isToolbarHover, toolbarHoverRef] = useHover<SVGForeignObjectElement>(
       CanvasDefaults.HOVER_DELAY_IN,
@@ -254,7 +259,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
                 dataTestId={groupVizNode.id}
                 vizNode={groupVizNode}
+                isCollapsed={element.isCollapsed()}
                 childCount={childCount}
+                hasGroupChildren={hasGroupChildren}
                 containerClassNames={{
                   'custom-node__container__draggedNode': true,
                   'custom-node__container__grabbing-cursor': true,
