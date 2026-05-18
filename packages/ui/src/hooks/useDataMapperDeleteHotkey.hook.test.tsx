@@ -1,8 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
 
+import { IDocument } from '../models/datamapper';
 import { MappingActionKind } from '../models/datamapper/mapping-action';
-import { TargetDocumentNodeData } from '../models/datamapper/visualization';
+import { DocumentNodeData, TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { MappingActionService } from '../services/visualization/mapping-action.service';
 import { TreeUIService } from '../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../store/document-tree.store';
@@ -23,10 +24,9 @@ describe('useDataMapperDeleteHotkey', () => {
   let mockUseDataMapper: jest.MockedFunction<typeof useDataMapper>;
   let mockGetAllowedActions: jest.Mock;
   let mockDeleteMappingItem: jest.Mock;
-  let mockCreateTree: jest.Mock;
+  let mockGetTree: jest.Mock;
   let mockFindNodeByPath: jest.Mock;
-  let mockTargetBodyDocument: { id: string };
-  let mockMappingTree: { mappings: unknown[] };
+  let mockTargetBodyDocument: { id: string; documentType: string; documentId: string };
   let mockTreeNode: { nodeData: TargetDocumentNodeData };
   let mockTargetDocumentNodeData: TargetDocumentNodeData;
 
@@ -40,7 +40,7 @@ describe('useDataMapperDeleteHotkey', () => {
     mockHotkeysUnbind = jest.fn();
     mockGetAllowedActions = jest.fn();
     mockDeleteMappingItem = jest.fn();
-    mockCreateTree = jest.fn();
+    mockGetTree = jest.fn();
     mockFindNodeByPath = jest.fn();
 
     // Mock hotkeys
@@ -48,12 +48,10 @@ describe('useDataMapperDeleteHotkey', () => {
     mockHotkeys.unbind = mockHotkeysUnbind;
 
     // Mock useDataMapper
-    mockTargetBodyDocument = { id: 'target-doc' };
-    mockMappingTree = { mappings: [] };
+    mockTargetBodyDocument = { id: 'target-doc', documentType: 'targetBody', documentId: 'Body' };
     mockUseDataMapper = useDataMapper as jest.MockedFunction<typeof useDataMapper>;
     mockUseDataMapper.mockReturnValue({
       targetBodyDocument: mockTargetBodyDocument,
-      mappingTree: mockMappingTree,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
@@ -62,7 +60,7 @@ describe('useDataMapperDeleteHotkey', () => {
     (MappingActionService.deleteMappingItem as jest.Mock) = mockDeleteMappingItem;
 
     // Mock TreeUIService
-    (TreeUIService.createTree as jest.Mock) = mockCreateTree;
+    (TreeUIService.getTree as jest.Mock) = mockGetTree;
 
     // Setup mock node data
     mockTargetDocumentNodeData = { id: 'test-node' } as TargetDocumentNodeData;
@@ -71,7 +69,7 @@ describe('useDataMapperDeleteHotkey', () => {
     };
 
     mockFindNodeByPath = jest.fn();
-    mockCreateTree.mockReturnValue({
+    mockGetTree.mockReturnValue({
       findNodeByPath: mockFindNodeByPath,
     });
 
@@ -241,47 +239,51 @@ describe('useDataMapperDeleteHotkey', () => {
       expect(mockOnUpdate).not.toHaveBeenCalled();
     });
   });
-  describe('tree creation and memoization', () => {
-    it('should create TargetDocumentNodeData with correct parameters', () => {
+
+  describe('tree lookup', () => {
+    it('should not call getTree during render', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
-      // The hook creates a TargetDocumentNodeData internally
-      // We can verify TreeUIService.createTree was called
-      expect(mockCreateTree).toHaveBeenCalled();
+      expect(mockGetTree).not.toHaveBeenCalled();
     });
 
-    it('should recreate tree when targetBodyDocument changes', () => {
-      const { rerender } = renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+    it('should call getTree when handling keypress', () => {
+      useDocumentTreeStore.setState({
+        selectedNodePath: 'test-path',
+        selectedNodeIsSource: false,
+        clearSelection: mockClearSelection,
+      });
 
-      const callCountBefore = mockCreateTree.mock.calls.length;
+      mockFindNodeByPath.mockReturnValue(mockTreeNode);
+      mockGetAllowedActions.mockReturnValue([MappingActionKind.Delete]);
 
-      // Change targetBodyDocument
-      mockUseDataMapper.mockReturnValue({
-        targetBodyDocument: { id: 'new-target-doc' },
-        mappingTree: mockMappingTree,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
-      rerender();
+      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
+      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      hotkeyCallback(mockEvent);
 
-      expect(mockCreateTree.mock.calls.length).toBeGreaterThan(callCountBefore);
+      expect(mockGetTree).toHaveBeenCalledWith(DocumentNodeData.getId(mockTargetBodyDocument as unknown as IDocument));
     });
 
-    it('should recreate tree when mappingTree changes', () => {
-      const { rerender } = renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
+    it('should not delete when getTree returns undefined', () => {
+      useDocumentTreeStore.setState({
+        selectedNodePath: 'test-path',
+        selectedNodeIsSource: false,
+        clearSelection: mockClearSelection,
+      });
 
-      const callCountBefore = mockCreateTree.mock.calls.length;
+      mockGetTree.mockReturnValue(undefined);
 
-      // Change mappingTree
-      mockUseDataMapper.mockReturnValue({
-        targetBodyDocument: mockTargetBodyDocument,
-        mappingTree: { mappings: [{ id: 'new-mapping' }] },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
-      rerender();
+      const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
+      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      hotkeyCallback(mockEvent);
 
-      expect(mockCreateTree.mock.calls.length).toBeGreaterThan(callCountBefore);
+      expect(mockDeleteMappingItem).not.toHaveBeenCalled();
+      expect(mockClearSelection).not.toHaveBeenCalled();
+      expect(mockOnUpdate).not.toHaveBeenCalled();
     });
   });
 

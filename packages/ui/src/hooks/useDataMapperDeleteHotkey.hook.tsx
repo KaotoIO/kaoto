@@ -1,9 +1,8 @@
 import hotkeys from 'hotkeys-js';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect } from 'react';
 
-import { DocumentTree } from '../models/datamapper/document-tree';
 import { MappingActionKind } from '../models/datamapper/mapping-action';
-import { TargetDocumentNodeData } from '../models/datamapper/visualization';
+import { DocumentNodeData, TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { MappingActionService } from '../services/visualization/mapping-action.service';
 import { TreeUIService } from '../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../store/document-tree.store';
@@ -20,21 +19,14 @@ export function useDataMapperDeleteHotkey(onUpdate: () => void) {
   const selectedNodePath = useDocumentTreeStore((state) => state.selectedNodePath);
   const selectedNodeIsSource = useDocumentTreeStore((state) => state.selectedNodeIsSource);
   const clearSelection = useDocumentTreeStore((state) => state.clearSelection);
-  const { targetBodyDocument, mappingTree } = useDataMapper();
-
-  // Create the target document tree
-  const targetBodyNodeData = useMemo(
-    () => new TargetDocumentNodeData(targetBodyDocument, mappingTree),
-    [targetBodyDocument, mappingTree],
-  );
-
-  const targetBodyTree = useMemo<DocumentTree | undefined>(() => {
-    return TreeUIService.createTree(targetBodyNodeData);
-  }, [targetBodyNodeData]);
+  const { targetBodyDocument } = useDataMapper();
 
   const handleKeyDown = useCallback(() => {
     // Only handle deletions on target nodes (not source nodes)
-    if (!selectedNodePath || selectedNodeIsSource || !targetBodyTree) return;
+    if (!selectedNodePath || selectedNodeIsSource) return;
+
+    const targetBodyTree = TreeUIService.getTree(DocumentNodeData.getId(targetBodyDocument));
+    if (!targetBodyTree) return;
 
     // Find the selected tree node by path
     const treeNode = targetBodyTree.findNodeByPath(selectedNodePath);
@@ -54,7 +46,7 @@ export function useDataMapperDeleteHotkey(onUpdate: () => void) {
     // Clear selection and trigger update
     clearSelection();
     onUpdate();
-  }, [selectedNodePath, selectedNodeIsSource, targetBodyTree, clearSelection, onUpdate]);
+  }, [selectedNodePath, selectedNodeIsSource, targetBodyDocument, clearSelection, onUpdate]);
 
   useEffect(() => {
     hotkeys.filter = (event) => {

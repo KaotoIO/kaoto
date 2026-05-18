@@ -120,6 +120,35 @@ describe('TreeUIService', () => {
     });
   });
 
+  describe('getTree', () => {
+    it('should return undefined when no tree exists for the given ID', () => {
+      expect(TreeUIService.getTree('non-existent-id')).toBeUndefined();
+    });
+
+    it('should return the cached tree after createTree()', () => {
+      TreeUIService.createTree(sourceDocNode);
+
+      const retrieved = TreeUIService.getTree(sourceDocNode.id);
+
+      expect(retrieved).toBeInstanceOf(DocumentTree);
+      expect(retrieved!.root.nodeData).toBe(sourceDocNode);
+    });
+
+    it('should return different trees for different document IDs', () => {
+      TreeUIService.createTree(sourceDocNode);
+
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const targetDocNode = new DocumentNodeData(targetDoc);
+      TreeUIService.createTree(targetDocNode);
+
+      const sourceTree = TreeUIService.getTree(sourceDocNode.id);
+      const targetTree = TreeUIService.getTree(targetDocNode.id);
+
+      expect(sourceTree).not.toBe(targetTree);
+      expect(sourceTree!.root.nodeData.id).not.toBe(targetTree!.root.nodeData.id);
+    });
+  });
+
   describe('toggleNode', () => {
     let tree: DocumentTree;
     let documentId: string;
