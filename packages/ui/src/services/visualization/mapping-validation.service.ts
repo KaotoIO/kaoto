@@ -119,14 +119,8 @@ export class MappingValidationService {
     const targetNode = (fromNode.isSource ? toNode : fromNode) as TargetNodeData;
 
     if (sourceNode instanceof ChoiceFieldNodeData && !sourceNode.choiceField) {
-      if (!(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)) {
-        return {
-          isValid: false,
-          sourceNode,
-          targetNode,
-          errorMessage: 'Drop a choice node onto a target field to create a conditional mapping.',
-        };
-      }
+      const choiceError = MappingValidationService.validateSourceChoiceWrapper(sourceNode, targetNode);
+      if (choiceError) return { ...choiceError, sourceNode, targetNode };
     }
 
     if (targetNode instanceof TargetDocumentNodeData) {
@@ -211,6 +205,25 @@ export class MappingValidationService {
     }
 
     return { isValid: true };
+  }
+
+  private static validateSourceChoiceWrapper(
+    sourceNode: ChoiceFieldNodeData,
+    targetNode: TargetNodeData,
+  ): ValidationResult | undefined {
+    if (!(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)) {
+      return {
+        isValid: false,
+        errorMessage: 'Drop a choice node onto a target field to create a conditional mapping.',
+      };
+    }
+    if (sourceNode.field.fields?.some((m) => MappingValidationService.isContainer(m))) {
+      return {
+        isValid: false,
+        errorMessage: 'Cannot map a choice containing complex elements. Map individual members instead.',
+      };
+    }
+    return undefined;
   }
 
   private static isContainer(field: IField) {
