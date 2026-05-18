@@ -60,7 +60,7 @@ describe('useDocumentTreeStore', () => {
 
       useDocumentTreeStore.getState().updateTreeExpansion(tree);
       const state = useDocumentTreeStore.getState().expansionState;
-      const keys = Object.keys(state[tree.documentId]);
+      const keys = Object.keys(state[tree.documentNodeDataId]);
 
       expect(keys).toEqual([
         // DFS order: ShipOrder -> children -> grandchildren (maxFields extends beyond maxDepth)
@@ -94,7 +94,7 @@ describe('useDocumentTreeStore', () => {
 
       useDocumentTreeStore.getState().updateTreeExpansion(primitiveTree);
       const state = useDocumentTreeStore.getState().expansionState;
-      const keys = Object.keys(state[primitiveTree.documentId]);
+      const keys = Object.keys(state[primitiveTree.documentNodeDataId]);
 
       expect(keys).toEqual([]);
     });
@@ -118,13 +118,13 @@ describe('useDocumentTreeStore', () => {
 
       useDocumentTreeStore.getState().updateTreeExpansion(primitiveTree);
       const state = useDocumentTreeStore.getState().expansionState;
-      const keys = Object.keys(state[primitiveTree.documentId]);
+      const keys = Object.keys(state[primitiveTree.documentNodeDataId]);
 
       // The 'if' instruction item and its ValueSelector child should appear in expansion state
       expect(keys.length).toBeGreaterThan(0);
 
       // Content roots should be flattened for rendering
-      const flattened = primitiveTree.flatten(state[primitiveTree.documentId]);
+      const flattened = primitiveTree.flatten(state[primitiveTree.documentNodeDataId]);
       expect(flattened.length).toBeGreaterThan(0);
       expect(flattened[0].treeNode.nodeData.title).toBe('if');
     });
@@ -135,7 +135,7 @@ describe('useDocumentTreeStore', () => {
       useDocumentTreeStore.getState().updateTreeExpansion(tree);
 
       // Get the actual paths from the tree after initial expansion
-      const initialState = useDocumentTreeStore.getState().expansionState[tree.documentId];
+      const initialState = useDocumentTreeStore.getState().expansionState[tree.documentNodeDataId];
       const paths = Object.keys(initialState);
 
       const firstContentRoot = paths[0];
@@ -144,7 +144,7 @@ describe('useDocumentTreeStore', () => {
       // Set custom expansion state: first content root expanded (true), second collapsed (false)
       useDocumentTreeStore.setState({
         expansionState: {
-          [tree.documentId]: {
+          [tree.documentNodeDataId]: {
             [firstContentRoot]: true,
             [secondPath]: false,
           },
@@ -153,7 +153,7 @@ describe('useDocumentTreeStore', () => {
 
       // Call updateTreeExpansion again - should preserve existing states
       useDocumentTreeStore.getState().updateTreeExpansion(tree);
-      const state = useDocumentTreeStore.getState().expansionState[tree.documentId];
+      const state = useDocumentTreeStore.getState().expansionState[tree.documentNodeDataId];
 
       expect(state[firstContentRoot]).toBe(true);
       expect(state[secondPath]).toBe(false);
@@ -212,7 +212,7 @@ describe('useDocumentTreeStore', () => {
 
   describe('toggleExpansion', () => {
     it('should toggle expansion state from false to true', () => {
-      const documentId = tree.documentId;
+      const documentId = tree.documentNodeDataId;
       const nodePath = 'sourceBody:Body://';
 
       // Set initial state to false
@@ -231,7 +231,7 @@ describe('useDocumentTreeStore', () => {
     });
 
     it('should toggle expansion state from true to false', () => {
-      const documentId = tree.documentId;
+      const documentId = tree.documentNodeDataId;
       const nodePath = 'sourceBody:Body://';
 
       // Set initial state to true
@@ -297,7 +297,7 @@ describe('useDocumentTreeStore', () => {
 
   describe('isExpanded', () => {
     it('should return true for expanded node', () => {
-      const documentId = tree.documentId;
+      const documentId = tree.documentNodeDataId;
       const nodePath = 'sourceBody:Body://';
 
       useDocumentTreeStore.setState({
@@ -314,7 +314,7 @@ describe('useDocumentTreeStore', () => {
     });
 
     it('should return false for collapsed node', () => {
-      const documentId = tree.documentId;
+      const documentId = tree.documentNodeDataId;
       const nodePath = 'sourceBody:Body://';
 
       useDocumentTreeStore.setState({

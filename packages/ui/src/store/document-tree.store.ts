@@ -97,7 +97,7 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
       },
 
       updateTreeExpansion: (documentTree: DocumentTree) => {
-        const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentId] ?? {};
+        const currentExpansionState: TreeExpansionState = get().expansionState[documentTree.documentNodeDataId] ?? {};
         const newExpansionState: TreeExpansionState = {};
 
         for (const contentRoot of documentTree.contentRoots) {
@@ -110,11 +110,11 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         set((state) => ({
           expansionState: {
             ...state.expansionState,
-            [documentTree.documentId]: newExpansionState,
+            [documentTree.documentNodeDataId]: newExpansionState,
           },
           expansionStateArray: {
             ...state.expansionStateArray,
-            [documentTree.documentId]: Object.keys(newExpansionState),
+            [documentTree.documentNodeDataId]: Object.keys(newExpansionState),
           },
         }));
       },

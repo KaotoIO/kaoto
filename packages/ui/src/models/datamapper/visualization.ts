@@ -67,9 +67,13 @@ export type TargetNodeDataType =
  * Its `title` is set to the document's `documentId`.
  */
 export class DocumentNodeData implements NodeData {
+  static getId(document: IDocument): string {
+    return `doc-${document.documentType}-${document.documentId}`;
+  }
+
   constructor(document: IDocument) {
     this.title = document.documentId;
-    this.id = `doc-${document.documentType}-${document.documentId}`;
+    this.id = DocumentNodeData.getId(document);
     this.path = NodePath.fromDocument(document.documentType, document.documentId);
     this.document = document;
     this.isSource = document.documentType !== DocumentType.TARGET_BODY;
