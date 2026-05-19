@@ -145,29 +145,38 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         latestTargetBodyDocument = documents.targetBodyDocument;
       }
     }
-    mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
 
     if (initialXsltFile) {
+      const freshTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        latestTargetBodyDocument.definitionType,
+      );
+      freshTree.namespaceMap = { ...effectiveNamespaceMap };
       const { mappingTree: loaded, messages } = MappingSerializerService.deserialize(
         initialXsltFile,
         latestTargetBodyDocument,
-        mappingTree,
+        freshTree,
         latestSourceParameterMap,
       );
       setMappingTree(loaded);
       for (const msg of messages) {
         sendAlert(msg);
       }
+    } else {
+      mappingTree.documentDefinitionType = latestTargetBodyDocument.definitionType;
     }
+
     setIsLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update mapping tree when target document changes
   useEffect(() => {
+    if (isLoading) return;
     refreshMappingTree();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [targetBodyDocument]);
+  }, [isLoading, targetBodyDocument]);
 
   const refreshSourceParameters = useCallback(() => {
     setSourceParameterMap(new Map(sourceParameterMap));
@@ -190,7 +199,8 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     });
     newMapping.namespaceMap = mappingTree.namespaceMap;
     setMappingTree(newMapping);
-    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
+    const serialized = MappingSerializerService.serialize(newMapping, sourceParameterMap);
+    onUpdateMappings?.(serialized);
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [mappingTree, onUpdateMappings, onUpdateNamespaceMap, sourceParameterMap, targetBodyDocument.definitionType]);
 
