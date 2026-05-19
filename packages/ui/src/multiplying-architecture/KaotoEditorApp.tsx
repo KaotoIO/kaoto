@@ -49,6 +49,7 @@ export class KaotoEditorApp implements Editor {
     this.getMetadata = this.getMetadata.bind(this);
     this.setMetadata = this.setMetadata.bind(this);
     this.getResourceContent = this.getResourceContent.bind(this);
+    this.isResourceExist = this.isResourceExist.bind(this);
     this.saveResourceContent = this.saveResourceContent.bind(this);
     this.deleteResource = this.deleteResource.bind(this);
     this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
@@ -125,6 +126,10 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.getResourceContent(path);
   }
 
+  async isResourceExist(path: string): Promise<boolean> {
+    return await this.envelopeContext.channelApi.requests.isResourceExist(path);
+  }
+
   async saveResourceContent(path: string, content: string): Promise<void> {
     return this.envelopeContext.channelApi.requests.saveResourceContent(path, content);
   }
@@ -179,6 +184,7 @@ export class KaotoEditorApp implements Editor {
                       setMetadata={this.setMetadata}
                       getResourceContent={this.getResourceContent}
                       saveResourceContent={this.saveResourceContent}
+                      isResourceExist={this.isResourceExist}
                       deleteResource={this.deleteResource}
                       askUserForFileSelection={this.askUserForFileSelection}
                       getSuggestions={this.getSuggestions}

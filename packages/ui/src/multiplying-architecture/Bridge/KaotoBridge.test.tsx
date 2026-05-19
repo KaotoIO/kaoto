@@ -11,6 +11,7 @@ describe('KaotoBridge', () => {
   const mockGetMetadata = jest.fn();
   const mockSetMetadata = jest.fn();
   const mockGetResourceContent = jest.fn();
+  const mockIsResourceExist = jest.fn();
   const mockSaveResourceContent = jest.fn();
   const mockDeleteResource = jest.fn();
   const mockAskUserForFileSelection = jest.fn();
@@ -23,6 +24,7 @@ describe('KaotoBridge', () => {
     getMetadata: mockGetMetadata,
     setMetadata: mockSetMetadata,
     getResourceContent: mockGetResourceContent,
+    isResourceExist: mockIsResourceExist,
     saveResourceContent: mockSaveResourceContent,
     deleteResource: mockDeleteResource,
     askUserForFileSelection: mockAskUserForFileSelection,

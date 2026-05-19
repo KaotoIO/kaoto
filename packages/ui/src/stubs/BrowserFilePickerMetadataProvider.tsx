@@ -59,10 +59,15 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
     return Promise.resolve(fileContentsRef.current?.[path]);
   }, []);
 
+  const isResourceExist = useCallback((path: string) => {
+    return Promise.resolve(fileContentsRef.current?.[path] !== undefined);
+  }, []);
+
   const metadataApi: IMetadataApi = useMemo(
     () => ({
       askUserForFileSelection: askUserForFileSelection,
       getResourceContent: getResourceContent,
+      isResourceExist: isResourceExist,
       shouldSaveSchema: true,
       getMetadata: () => Promise.resolve(undefined),
       setMetadata: () => Promise.resolve(),
@@ -71,7 +76,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
       getSuggestions: () => Promise.resolve([]),
       onStepUpdated: () => Promise.resolve(),
     }),
-    [askUserForFileSelection, getResourceContent],
+    [askUserForFileSelection, getResourceContent, isResourceExist],
   );
 
   return (

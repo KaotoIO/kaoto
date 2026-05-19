@@ -40,6 +40,9 @@ describe('DataMapperPage', () => {
     getResourceContent: (path: string) => {
       return Promise.resolve(fileContents[path]);
     },
+    isResourceExist: (path: string) => {
+      return Promise.resolve(fileContents[path] !== undefined);
+    },
     saveResourceContent: (path: string, content: string) => {
       fileContents[path] = content;
       return Promise.resolve();
