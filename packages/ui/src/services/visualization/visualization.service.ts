@@ -142,6 +142,12 @@ export class VisualizationService {
   ): NodeData {
     const selectedMember =
       field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
+
+    if (selectedMember?.wrapperKind && selectedMember.selectedMemberIndex !== undefined) {
+      const innerSpec = selectedMember.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
+      return VisualizationService.doGenerateNodeDataFromWrapperField(parent, selectedMember, mappings, innerSpec);
+    }
+
     const nodeField = selectedMember ?? field;
     if (parent.isSource) {
       const node = spec.createSourceNode(parent, nodeField);

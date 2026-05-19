@@ -1,7 +1,7 @@
 import './BaseNode.scss';
 
 import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, ValueVariable } from '@carbon/icons-react';
-import { Button, Icon, Tooltip } from '@patternfly/react-core';
+import { Button, Icon, Label, Tooltip } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
@@ -67,6 +67,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const isCollectionField = VisualizationUtilService.isCollectionField(nodeData);
   const isChoiceField = VisualizationUtilService.isChoiceField(nodeData);
   const isSelectedChoice = VisualizationUtilService.isSelectedChoiceField(nodeData);
+  const choiceDepth = VisualizationUtilService.getSelectedChoiceDepth(nodeData);
   const isAbstractField = VisualizationUtilService.isAbstractField(nodeData);
   const isSelectedAbstract = VisualizationUtilService.isSelectedAbstractField(nodeData);
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
@@ -126,14 +127,15 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           <LayerGroupIcon />
         </Icon>
       )}
-      {isChoiceField && (
-        <Icon
-          className="node__spacer"
-          status={isSelectedChoice ? 'success' : undefined}
-          data-testid="choice-field-icon"
-        >
+      {isChoiceField && !isSelectedChoice && (
+        <Icon className="node__spacer" data-testid="choice-field-icon">
           <Choices />
         </Icon>
+      )}
+      {isChoiceField && isSelectedChoice && (
+        <Label className="node__spacer" color="green" icon={<Choices />} isCompact data-testid="choice-field-icon">
+          {choiceDepth >= 2 ? <>&times;{choiceDepth}</> : ''}
+        </Label>
       )}
       {isAbstractField && (
         <Icon

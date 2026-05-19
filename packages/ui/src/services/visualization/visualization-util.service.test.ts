@@ -14,6 +14,10 @@ import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { VisualizationUtilService } from './visualization-util.service';
 
+function createMockField(baseField: IField, overrides: Partial<IField> = {}): IField {
+  return { ...baseField, ...overrides };
+}
+
 describe('VisualizationUtilService', () => {
   let sourceDoc: XmlSchemaDocument;
   let sourceDocNode: DocumentNodeData;
@@ -184,6 +188,111 @@ describe('VisualizationUtilService', () => {
 
     it('should return undefined for DocumentNodeData', () => {
       expect(VisualizationUtilService.getField(sourceDocNode)).toBeUndefined();
+    });
+  });
+
+  describe('resolveOutermostSelectedWrapper', () => {
+    it('should return the field itself and depth 1 when no parent wrapper', () => {
+      const field = createMockField(sourceDoc.fields[0], { wrapperKind: 'choice', selectedMemberIndex: 0 });
+      const result = VisualizationUtilService.resolveOutermostSelectedWrapper(field);
+      expect(result.outermost).toBe(field);
+      expect(result.depth).toEqual(1);
+    });
+
+    it('should walk up through selected parent wrappers', () => {
+      const outer = createMockField(sourceDoc.fields[0], { wrapperKind: 'choice', selectedMemberIndex: 0 });
+      const inner = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 1,
+        parent: outer,
+      });
+      const result = VisualizationUtilService.resolveOutermostSelectedWrapper(inner);
+      expect(result.outermost).toBe(outer);
+      expect(result.depth).toEqual(2);
+    });
+
+    it('should walk up through three levels of selected wrappers', () => {
+      const outermost = createMockField(sourceDoc.fields[0], { wrapperKind: 'choice', selectedMemberIndex: 0 });
+      const middle = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 0,
+        parent: outermost,
+      });
+      const inner = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 1,
+        parent: middle,
+      });
+      const result = VisualizationUtilService.resolveOutermostSelectedWrapper(inner);
+      expect(result.outermost).toBe(outermost);
+      expect(result.depth).toEqual(3);
+    });
+
+    it('should stop at parent without selectedMemberIndex', () => {
+      const outer = createMockField(sourceDoc.fields[0], { wrapperKind: 'choice' });
+      const inner = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 0,
+        parent: outer,
+      });
+      const result = VisualizationUtilService.resolveOutermostSelectedWrapper(inner);
+      expect(result.outermost).toBe(inner);
+      expect(result.depth).toEqual(1);
+    });
+
+    it('should return depth 1 and undefined for undefined input', () => {
+      const result = VisualizationUtilService.resolveOutermostSelectedWrapper(undefined);
+      expect(result.outermost).toBeUndefined();
+      expect(result.depth).toEqual(1);
+    });
+  });
+
+  describe('getSelectedChoiceDepth', () => {
+    it('should return 0 for non-choice nodes', () => {
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.getSelectedChoiceDepth(fieldNode)).toEqual(0);
+    });
+
+    it('should return 0 for unselected choice nodes', () => {
+      const choiceField = {
+        ...sourceDoc.fields[0],
+        wrapperKind: 'choice' as const,
+        fields: [],
+      } as unknown as IField;
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(0);
+    });
+
+    it('should return 1 for simple selected choice', () => {
+      const wrapper = {
+        ...sourceDoc.fields[0],
+        wrapperKind: 'choice' as const,
+        selectedMemberIndex: 0,
+        fields: [{ ...sourceDoc.fields[0], name: 'a', fields: [] }],
+      } as unknown as IField;
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      choiceNode.choiceField = wrapper;
+      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(1);
+    });
+
+    it('should return 3 for triple-nested selected choice', () => {
+      const outermost = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 0,
+      });
+      const middle = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 0,
+        parent: outermost,
+      });
+      const inner = createMockField(sourceDoc.fields[0], {
+        wrapperKind: 'choice',
+        selectedMemberIndex: 0,
+        parent: middle,
+      });
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      choiceNode.choiceField = inner;
+      expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(3);
     });
   });
 });
