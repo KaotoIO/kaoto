@@ -61,10 +61,10 @@ function resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
       : undefined;
 
   let choiceWrapperField: IField | undefined;
-  if (isChoiceWrapper) {
+  if (isSelectedChoice) {
+    choiceWrapperField = VisualizationUtilService.resolveOutermostSelectedWrapper(nodeData.choiceField).outermost;
+  } else if (isChoiceWrapper) {
     choiceWrapperField = field;
-  } else if (isSelectedChoice) {
-    choiceWrapperField = nodeData.choiceField;
   }
 
   return {
