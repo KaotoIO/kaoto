@@ -25,6 +25,12 @@ export interface IMetadataApi {
   getResourceContent(path: string): Promise<string | undefined>;
 
   /**
+   * Check if a resource exists
+   * @param path The path of the resource
+   */
+  isResourceExist(path: string): Promise<boolean>;
+
+  /**
    * Save resource content
    * @param path The path of the resource
    * @param content The content to be saved

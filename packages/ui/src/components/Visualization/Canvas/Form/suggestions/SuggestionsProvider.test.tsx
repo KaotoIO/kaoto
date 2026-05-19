@@ -42,6 +42,7 @@ describe('SuggestionRegistrar', () => {
       getMetadata: jest.fn(),
       setMetadata: jest.fn(),
       getResourceContent: jest.fn(),
+      isResourceExist: jest.fn(),
       saveResourceContent: jest.fn(),
       deleteResource: jest.fn(),
       askUserForFileSelection: jest.fn(),

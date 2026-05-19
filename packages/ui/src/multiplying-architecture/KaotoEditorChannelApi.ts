@@ -47,6 +47,13 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
   getResourceContent(path: string): Promise<string | undefined>;
 
   /**
+   * Check if a resource exists
+   * @param path The path of the resource relatively to the currently edited Camel file
+   * @returns Promise<boolean> - true if the file exists, false otherwise
+   */
+  isResourceExist(path: string): Promise<boolean>;
+
+  /**
    * Save resource content
    * @param path The path of the resource relatively to the currently edited Camel file
    * @param content The content to be saved
