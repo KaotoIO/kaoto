@@ -143,6 +143,18 @@ export class VisualizationService {
     const selectedMember =
       field.selectedMemberIndex === undefined ? undefined : field.fields?.[field.selectedMemberIndex];
     const nodeField = selectedMember ?? field;
+    if (
+      spec === CHOICE_WRAPPER &&
+      selectedMember?.wrapperKind === 'abstract' &&
+      selectedMember.selectedMemberIndex !== undefined
+    ) {
+      return VisualizationService.doGenerateNodeDataFromWrapperField(
+        parent,
+        selectedMember,
+        mappings,
+        ABSTRACT_WRAPPER,
+      );
+    }
     if (parent.isSource) {
       const node = spec.createSourceNode(parent, nodeField);
       if (selectedMember) spec.setWrapperRef(node, field);

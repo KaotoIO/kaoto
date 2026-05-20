@@ -589,4 +589,53 @@ describe('VisualizationService / abstract fields', () => {
       expect(candidateChildren.map((c) => c.title)).toEqual(['catName']);
     });
   });
+
+  describe('choice-selected abstract wrapper with existing substitution (#3201)', () => {
+    it('should render concrete substitution on source side when choice selects an already-substituted abstract field', () => {
+      const abstractField = createMockAbstractField([{ name: 'AgmtsUpd' }, { name: 'OtherType' }], 0);
+      const baseField = sourceDoc.fields[0];
+      const choiceField = {
+        ...baseField,
+        wrapperKind: 'choice' as const,
+        selectedMemberIndex: 0,
+        fields: [abstractField],
+      } as unknown as typeof baseField;
+      const parentField = {
+        ...sourceDoc.fields[0],
+        fields: [choiceField],
+      };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+
+      expect(children.length).toEqual(1);
+      expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
+      expect(children[0].title).toEqual('AgmtsUpd');
+      expect((children[0] as AbstractFieldNodeData).abstractField).toBeDefined();
+    });
+
+    it('should render concrete substitution on target side when choice selects an already-substituted abstract field', () => {
+      const abstractField = createMockAbstractField([{ name: 'AgmtsUpd' }, { name: 'OtherType' }], 0);
+      const baseField = targetDoc.fields[0];
+      const choiceField = {
+        ...baseField,
+        wrapperKind: 'choice' as const,
+        selectedMemberIndex: 0,
+        fields: [abstractField],
+      } as unknown as typeof baseField;
+      const parentField = {
+        ...targetDoc.fields[0],
+        fields: [choiceField],
+      };
+      const localTargetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const parentNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+
+      expect(children.length).toEqual(1);
+      expect(children[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
+      expect(children[0].title).toEqual('AgmtsUpd');
+      expect((children[0] as TargetAbstractFieldNodeData).abstractField).toBeDefined();
+    });
+  });
 });
