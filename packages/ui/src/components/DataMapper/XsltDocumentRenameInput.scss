@@ -1,0 +1,18 @@
+.xslt-document-rename-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  gap: var(--pf-t--global--spacer--sm);
+
+  span {
+    flex: 1;
+  }
+}
+
+.xslt-document-rename-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+}
