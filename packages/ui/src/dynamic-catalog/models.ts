@@ -43,16 +43,6 @@ export interface IDynamicCatalog<T> {
   clearCache(): void;
 }
 
-export type CatalogLookupResult =
-  | {
-      catalogKind: CatalogKind.Component;
-      definition?: ICamelComponentDefinition;
-    }
-  | {
-      catalogKind: CatalogKind.Kamelet;
-      definition?: IKameletDefinition;
-    };
-
 export interface IDynamicCatalogRegistry {
   setCatalog<K extends CatalogKind>(kind: K, catalog: IDynamicCatalog<DynamicCatalogTypeMap[K]>): void;
   getCatalog<K extends CatalogKind>(kind: K): IDynamicCatalog<DynamicCatalogTypeMap[K]> | undefined;
@@ -62,11 +52,6 @@ export interface IDynamicCatalogRegistry {
     key: string,
     options?: { forceFresh?: boolean },
   ): Promise<DynamicCatalogTypeMap[K] | undefined>;
-
-  resolveCatalogLookup(
-    componentName: string,
-    options?: { forceFresh?: boolean },
-  ): Promise<CatalogLookupResult | undefined>;
 
   clearRegistry(): void;
 }

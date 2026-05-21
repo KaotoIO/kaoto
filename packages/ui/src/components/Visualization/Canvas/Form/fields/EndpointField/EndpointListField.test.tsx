@@ -29,7 +29,6 @@ describe('EndpointListField', () => {
     getCatalog: jest.fn(),
     setCatalog: jest.fn(),
     clearRegistry: jest.fn(),
-    resolveCatalogLookup: jest.fn(),
   };
 
   const createWrapper = (

@@ -1,9 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalog } from '../../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
+import { IKameletDefinition } from '../../../camel/kamelets-catalog';
 import { SourceSchemaType } from '../../../camel/source-schema-type';
 import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
@@ -692,6 +695,89 @@ describe('CamelComponentSchemaService', () => {
       const result = CamelComponentSchemaService.canBeDisabled('from' as keyof ProcessorDefinition);
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe('resolveCatalogLookup', () => {
+    const timerComponent = {
+      component: { name: 'timer', syntax: 'timer:name' },
+      properties: {},
+      propertiesSchema: {},
+    } as ICamelComponentDefinition;
+
+    const kameletComponent = {
+      component: { name: 'kamelet' },
+      properties: {},
+      propertiesSchema: {},
+    } as ICamelComponentDefinition;
+
+    const chuckNorrisKamelet = {
+      kind: 'Kamelet',
+      metadata: { name: 'chuck-norris-source' },
+      spec: { definition: {} },
+    } as IKameletDefinition;
+
+    beforeEach(() => {
+      const componentCatalog = new DynamicCatalog<ICamelComponentDefinition>({
+        id: 'component-provider',
+        fetch: (key) =>
+          Promise.resolve(
+            ({ timer: timerComponent, kamelet: kameletComponent } as Record<string, ICamelComponentDefinition>)[key],
+          ),
+        fetchAll: () => Promise.resolve({ timer: timerComponent, kamelet: kameletComponent }),
+      });
+
+      const kameletCatalog = new DynamicCatalog<IKameletDefinition>({
+        id: 'kamelet-provider',
+        fetch: (key) =>
+          Promise.resolve(({ 'chuck-norris-source': chuckNorrisKamelet } as Record<string, IKameletDefinition>)[key]),
+        fetchAll: () => Promise.resolve({ 'chuck-norris-source': chuckNorrisKamelet }),
+      });
+
+      DynamicCatalogRegistry.get().setCatalog(CatalogKind.Component, componentCatalog);
+      DynamicCatalogRegistry.get().setCatalog(CatalogKind.Kamelet, kameletCatalog);
+    });
+
+    it('should return undefined for an empty component name', async () => {
+      const lookup = await CamelComponentSchemaService.resolveCatalogLookup('');
+
+      expect(lookup).toBeUndefined();
+    });
+
+    it('should return a component from the catalog lookup', async () => {
+      const lookup = await CamelComponentSchemaService.resolveCatalogLookup('timer');
+
+      expect(lookup).toEqual({
+        catalogKind: CatalogKind.Component,
+        definition: timerComponent,
+      });
+    });
+
+    it('should return a kamelet from the catalog lookup', async () => {
+      const lookup = await CamelComponentSchemaService.resolveCatalogLookup('kamelet:chuck-norris-source');
+
+      expect(lookup).toEqual({
+        catalogKind: CatalogKind.Kamelet,
+        definition: chuckNorrisKamelet,
+      });
+    });
+
+    it('should return the kamelet component for unknown kamelets', async () => {
+      const lookup = await CamelComponentSchemaService.resolveCatalogLookup('kamelet:non-existing-kamelet');
+
+      expect(lookup).toEqual({
+        catalogKind: CatalogKind.Component,
+        definition: kameletComponent,
+      });
+    });
+
+    it('should pass forceFresh to underlying catalog lookups', async () => {
+      const componentCatalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.Component)!;
+      const getSpy = jest.spyOn(componentCatalog, 'get');
+
+      await CamelComponentSchemaService.resolveCatalogLookup('timer', { forceFresh: true });
+
+      expect(getSpy).toHaveBeenCalledWith('timer', { forceFresh: true });
     });
   });
 });
