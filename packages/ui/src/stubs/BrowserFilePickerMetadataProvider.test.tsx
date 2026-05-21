@@ -190,6 +190,33 @@ describe('BrowserFilePickerMetadataProvider', () => {
     });
   });
 
+  describe('isResourceExist', () => {
+    it('should return false for non-existent resource', async () => {
+      const { api } = renderWithProvider();
+
+      const exists = await api.isResourceExist('non-existent.json');
+
+      expect(exists).toBe(false);
+    });
+
+    it('should return true after files are imported', async () => {
+      const mockFile = new File(['test content'], 'test.json', { type: 'application/json' });
+      mockReadFileAsString.mockResolvedValue('test content');
+
+      const { api, fileInput } = renderWithProvider();
+
+      // Select files
+      const filesPromise = api.askUserForFileSelection(SCHEMA_FILE_NAME_PATTERN);
+      await triggerFileSelect(fileInput, [mockFile]);
+      await filesPromise;
+
+      // Check if resource exists
+      const exists = await api.isResourceExist('test.json');
+
+      expect(exists).toBe(true);
+    });
+  });
+
   describe('metadata API stub methods', () => {
     it('should provide getMetadata that returns undefined', async () => {
       const { api } = renderWithProvider();

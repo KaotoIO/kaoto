@@ -131,6 +131,23 @@ export class DataMapperStepService {
     entitiesContext.updateSourceCodeFromEntities();
   }
 
+  static updateXsltFileName(
+    vizNode: IVisualizationNode,
+    newFileName: string,
+    entitiesContext: EntitiesContextResult,
+  ): void {
+    const model = vizNode.getNodeDefinition();
+    const xsltStep = (model.steps as ProcessorDefinition[]).find(isXSLTComponent);
+
+    if (!xsltStep?.to || typeof xsltStep.to !== 'object') {
+      return;
+    }
+
+    xsltStep.to.uri = `${XSLT_COMPONENT_NAME}:${newFileName}`;
+    vizNode.updateModel(model);
+    entitiesContext.updateSourceCodeFromEntities();
+  }
+
   /**
    * Sets the source body-related XSLT configuration in one place.
    * It updates the useJsonBody parameter based on the source body definition

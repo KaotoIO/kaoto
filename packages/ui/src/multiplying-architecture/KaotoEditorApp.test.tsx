@@ -1,4 +1,5 @@
 jest.mock('react-router-dom');
+import { SuggestionRequestContext } from '@kaoto/forms';
 import {
   ChannelType,
   EditorApi,
@@ -63,6 +64,10 @@ describe('KaotoEditorApp', () => {
           setMetadata: jest.fn(),
           getResourceContent: jest.fn(),
           saveResourceContent: jest.fn(),
+          isResourceExist: jest.fn(),
+          deleteResource: jest.fn(),
+          askUserForFileSelection: jest.fn(),
+          getSuggestions: jest.fn(),
           onStepUpdated: jest.fn(),
         } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -236,6 +241,75 @@ describe('KaotoEditorApp', () => {
     kaotoEditorApp.af_onOpen();
 
     expect(setColorScheme).toHaveBeenCalledWith(ColorScheme.Auto);
+  });
+
+  it('should delegate to the channelApi checking if a resource exists', async () => {
+    (envelopeContext.channelApi.requests.isResourceExist as jest.Mock).mockResolvedValue(true);
+
+    const exists = await kaotoEditorApp.isResourceExist('path');
+
+    expect(envelopeContext.channelApi.requests.isResourceExist).toHaveBeenCalledWith('path');
+    expect(exists).toBe(true);
+  });
+
+  it('should return false when resource does not exist', async () => {
+    (envelopeContext.channelApi.requests.isResourceExist as jest.Mock).mockResolvedValue(false);
+
+    const exists = await kaotoEditorApp.isResourceExist('path');
+
+    expect(envelopeContext.channelApi.requests.isResourceExist).toHaveBeenCalledWith('path');
+    expect(exists).toBe(false);
+  });
+
+  it('should delegate to the channelApi deleting a resource', async () => {
+    (envelopeContext.channelApi.requests.deleteResource as jest.Mock).mockResolvedValue(true);
+
+    const result = await kaotoEditorApp.deleteResource('path');
+
+    expect(envelopeContext.channelApi.requests.deleteResource).toHaveBeenCalledWith('path');
+    expect(result).toBe(true);
+  });
+
+  it('should delegate to the channelApi asking user for file selection', async () => {
+    (envelopeContext.channelApi.requests.askUserForFileSelection as jest.Mock).mockResolvedValue(['file1.txt']);
+
+    const result = await kaotoEditorApp.askUserForFileSelection('**/*.txt', '**/*.log', { multiSelect: true });
+
+    expect(envelopeContext.channelApi.requests.askUserForFileSelection).toHaveBeenCalledWith('**/*.txt', '**/*.log', {
+      multiSelect: true,
+    });
+    expect(result).toEqual(['file1.txt']);
+  });
+
+  it('should delegate to the channelApi getting suggestions', async () => {
+    const mockSuggestions = [{ label: 'test', value: 'test' }];
+    const mockContext = {} as SuggestionRequestContext;
+    (envelopeContext.channelApi.requests.getSuggestions as jest.Mock).mockResolvedValue(mockSuggestions);
+
+    const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
+
+    expect(envelopeContext.channelApi.requests.getSuggestions).toHaveBeenCalledWith('topic', 'word', mockContext);
+    expect(result).toEqual(mockSuggestions);
+  });
+
+  it('should return empty array when getSuggestions times out', async () => {
+    const mockContext = {} as SuggestionRequestContext;
+    (envelopeContext.channelApi.requests.getSuggestions as jest.Mock).mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve([{ label: 'test' }]), 3000)),
+    );
+
+    const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
+
+    expect(result).toEqual([]);
+  });
+
+  it('should return empty array when getSuggestions throws an error', async () => {
+    const mockContext = {} as SuggestionRequestContext;
+    (envelopeContext.channelApi.requests.getSuggestions as jest.Mock).mockRejectedValue(new Error('test error'));
+
+    const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
+
+    expect(result).toEqual([]);
   });
 
   it('should notify when a new step is added', async () => {

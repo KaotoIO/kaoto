@@ -12,7 +12,6 @@ export class DynamicCatalogRegistry {
     return this.instance;
   }
 }
-
 class CatalogsRegistry implements IDynamicCatalogRegistry {
   private readonly catalogs = new Map<CatalogKind, IDynamicCatalog<unknown>>();
 
@@ -30,7 +29,7 @@ class CatalogsRegistry implements IDynamicCatalogRegistry {
     options: { forceFresh?: boolean } = {},
   ): Promise<DynamicCatalogTypeMap[K] | undefined> {
     const catalog = this.getCatalog(kind);
-    return catalog?.get(key, options) as Promise<DynamicCatalogTypeMap[K] | undefined>;
+    return catalog?.get(key, options);
   }
 
   clearRegistry(): void {

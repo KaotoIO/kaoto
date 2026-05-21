@@ -379,6 +379,35 @@ describe('MappingValidationService', () => {
       expect(result.isValid).toBe(true);
     });
 
+    it('should reject unselected choice source with container members dropped onto a target field', () => {
+      const containerMember = createMockField({ type: Types.Container, name: 'address' });
+      const choiceField = createMockField({
+        wrapperKind: 'choice',
+        type: Types.Container,
+        fields: [containerMember],
+      });
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetField = createMockField({ type: Types.String });
+      const toNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const result = MappingValidationService.validateMappingPair(choiceNode, toNode);
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toContain('complex elements');
+    });
+
+    it('should allow unselected choice source with only terminal members dropped onto a target field', () => {
+      const terminalMember = createMockField({ type: Types.String, name: 'email' });
+      const choiceField = createMockField({
+        wrapperKind: 'choice',
+        type: Types.Container,
+        fields: [terminalMember],
+      });
+      const choiceNode = new ChoiceFieldNodeData(sourceDocNode, choiceField);
+      const targetField = createMockField({ type: Types.String });
+      const toNode = new TargetFieldNodeData(targetDocNode, targetField);
+      const result = MappingValidationService.validateMappingPair(choiceNode, toNode);
+      expect(result.isValid).toBe(true);
+    });
+
     it('should reject cross-side drop to unselected abstract target with errorMessage', () => {
       const sourceField = createMockField({ type: Types.String });
       const targetField = createMockField({ wrapperKind: 'abstract', selectedMemberIndex: undefined });

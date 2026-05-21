@@ -6,6 +6,7 @@ import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IMetadataApi, MetadataProvider } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 import { getShipOrderToShipOrderXslt, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
@@ -39,6 +40,9 @@ describe('DataMapperPage', () => {
     },
     getResourceContent: (path: string) => {
       return Promise.resolve(fileContents[path]);
+    },
+    isResourceExist: (path: string) => {
+      return Promise.resolve(fileContents[path] !== undefined);
     },
     saveResourceContent: (path: string, content: string) => {
       fileContents[path] = content;
@@ -161,5 +165,80 @@ describe('DataMapperPage', () => {
     });
 
     updateMappingFileSpy.mockRestore();
+  });
+
+  it('should create XSLT file when metadata exists but file is missing', async () => {
+    const existingMetadata: IDataMapperMetadata = {
+      sourceBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      sourceParameters: {},
+      targetBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      xsltPath: 'kaoto-datamapper-1234.xsl',
+    };
+
+    metadata = existingMetadata;
+    // File does not exist initially
+    fileContents = {};
+
+    const saveResourceContentSpy = jest.spyOn(api, 'saveResourceContent');
+
+    renderWithVirtuoso(
+      <MetadataProvider api={api}>
+        <DataMapper vizNode={vizNode} />
+      </MetadataProvider>,
+    );
+
+    await screen.findByTestId('source-parameters-header');
+
+    await waitFor(() => {
+      expect(saveResourceContentSpy).toHaveBeenCalledWith('kaoto-datamapper-1234.xsl', EMPTY_XSL);
+      expect(fileContents['kaoto-datamapper-1234.xsl']).toBeDefined();
+    });
+
+    saveResourceContentSpy.mockRestore();
+  });
+
+  it('should not create XSLT file when it already exists', async () => {
+    const existingMetadata: IDataMapperMetadata = {
+      sourceBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      sourceParameters: {},
+      targetBody: {
+        type: DocumentDefinitionType.Primitive,
+        filePath: [],
+      },
+      xsltPath: 'kaoto-datamapper-1234.xsl',
+    };
+
+    metadata = existingMetadata;
+    fileContents['kaoto-datamapper-1234.xsl'] = '<existing xslt content/>';
+
+    const saveResourceContentSpy = jest.spyOn(api, 'saveResourceContent');
+
+    renderWithVirtuoso(
+      <MetadataProvider api={api}>
+        <DataMapper vizNode={vizNode} />
+      </MetadataProvider>,
+    );
+
+    await screen.findByTestId('source-parameters-header');
+
+    await waitFor(() => {
+      // saveResourceContent should not be called for creating the file
+      // (it may be called for other purposes like saving mappings)
+      const createFileCalls = saveResourceContentSpy.mock.calls.filter(
+        (call) => call[0] === 'kaoto-datamapper-1234.xsl' && call[1] === EMPTY_XSL,
+      );
+      expect(createFileCalls.length).toBe(0);
+    });
+
+    saveResourceContentSpy.mockRestore();
   });
 });

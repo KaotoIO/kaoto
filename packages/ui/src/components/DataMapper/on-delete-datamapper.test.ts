@@ -17,6 +17,7 @@ describe('onDeleteDataMapper', () => {
       setMetadata: jest.fn(),
       deleteMetadata: jest.fn(),
       getResourceContent: jest.fn(),
+      isResourceExist: jest.fn(),
       saveResourceContent: jest.fn(),
       deleteResourceContent: jest.fn(),
     } as unknown as jest.Mocked<IMetadataApi>;

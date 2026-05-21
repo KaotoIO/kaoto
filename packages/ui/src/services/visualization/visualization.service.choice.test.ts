@@ -454,47 +454,21 @@ describe('VisualizationService / choice fields', () => {
       expect(outerChildren[1].title).toEqual('regularField');
     });
 
-    it('both selected: resolves in two steps with choiceField references at each level', () => {
-      const { outerChoice, innerChoice } = createNestedChoiceFields(0, 1);
+    it('both selected: flattens nested wrappers and shows final selected member directly', () => {
+      const { outerChoice, innerChoice, innerMembers } = createNestedChoiceFields(0, 1);
       const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
       const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
       expect(children.length).toEqual(1);
-      const outerNode = children[0] as ChoiceFieldNodeData;
-      expect(outerNode).toBeInstanceOf(ChoiceFieldNodeData);
-      expect(outerNode.field).toBe(innerChoice);
-      expect(outerNode.choiceField).toBe(outerChoice);
-
-      const innerChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerNode);
-      expect(innerChildren.length).toEqual(1);
-      const innerNode = innerChildren[0] as ChoiceFieldNodeData;
-      expect(innerNode).toBeInstanceOf(ChoiceFieldNodeData);
-      expect(innerNode.title).toEqual('y');
-      expect(innerNode.choiceField).toBe(innerChoice);
+      const flattenedNode = children[0] as ChoiceFieldNodeData;
+      expect(flattenedNode).toBeInstanceOf(ChoiceFieldNodeData);
+      expect(flattenedNode.field).toBe(innerMembers[1]);
+      expect(flattenedNode.field.name).toEqual('y');
+      expect(flattenedNode.choiceField).toBe(innerChoice);
     });
 
-    it('multi-step revert: reverting inner selection restores inner choice members', () => {
-      const { outerChoice, innerChoice } = createNestedChoiceFields(0, 1);
-      const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
-      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
-
-      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      const outerNode = children[0] as ChoiceFieldNodeData;
-      const innerChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerNode);
-      const innerNode = innerChildren[0] as ChoiceFieldNodeData;
-      expect(innerNode.choiceField).toBe(innerChoice);
-
-      innerNode.choiceField!.selectedMemberIndex = undefined;
-
-      const refreshedInnerChildren = VisualizationService.generateNonDocumentNodeDataChildren(outerNode);
-      expect(refreshedInnerChildren.length).toEqual(2);
-      expect(refreshedInnerChildren[0].title).toEqual('x');
-      expect(refreshedInnerChildren[1].title).toEqual('y');
-      expect((refreshedInnerChildren[0] as ChoiceFieldNodeData).choiceField).toBeUndefined();
-    });
-
-    it('multi-step revert: reverting outer selection after inner restores outer choice members', () => {
+    it('multi-step revert: reverting inner selection shows inner choice as unselected wrapper', () => {
       const { outerChoice, innerChoice } = createNestedChoiceFields(0, 1);
       const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
       const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
@@ -502,17 +476,32 @@ describe('VisualizationService / choice fields', () => {
       innerChoice.selectedMemberIndex = undefined;
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(children.length).toEqual(1);
+      const node = children[0] as ChoiceFieldNodeData;
+      expect(node).toBeInstanceOf(ChoiceFieldNodeData);
+      expect(node.field).toBe(innerChoice);
+      expect(node.choiceField).toBe(outerChoice);
+
+      const innerChildren = VisualizationService.generateNonDocumentNodeDataChildren(node);
+      expect(innerChildren.length).toEqual(2);
+      expect(innerChildren[0].title).toEqual('x');
+      expect(innerChildren[1].title).toEqual('y');
+    });
+
+    it('multi-step revert: reverting outer selection restores outer choice members', () => {
+      const { outerChoice, innerChoice } = createNestedChoiceFields(0, 1);
+      const parentField = { ...sourceDoc.fields[0], fields: [outerChoice] };
+      const parentNode = new FieldNodeData(sourceDocNode, parentField as (typeof sourceDoc.fields)[0]);
+
+      innerChoice.selectedMemberIndex = undefined;
+      outerChoice.selectedMemberIndex = undefined;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
+      expect(children.length).toEqual(1);
       const outerNode = children[0] as ChoiceFieldNodeData;
-      expect(outerNode.choiceField).toBe(outerChoice);
+      expect(outerNode.choiceField).toBeUndefined();
 
-      outerNode.choiceField!.selectedMemberIndex = undefined;
-
-      const refreshedChildren = VisualizationService.generateNonDocumentNodeDataChildren(parentNode);
-      expect(refreshedChildren.length).toEqual(1);
-      const refreshedOuterNode = refreshedChildren[0] as ChoiceFieldNodeData;
-      expect(refreshedOuterNode.choiceField).toBeUndefined();
-
-      const outerMembers = VisualizationService.generateNonDocumentNodeDataChildren(refreshedOuterNode);
+      const outerMembers = VisualizationService.generateNonDocumentNodeDataChildren(outerNode);
       expect(outerMembers.length).toEqual(2);
       expect(outerMembers[0]).toBeInstanceOf(ChoiceFieldNodeData);
       expect(outerMembers[1].title).toEqual('regularField');

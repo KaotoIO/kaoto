@@ -130,6 +130,21 @@
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
+                <xs:element name="ContainerChoiceElement">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="SimpleOption" type="xs:string"/>
+                            <xs:element name="ComplexOption">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Street" type="xs:string"/>
+                                        <xs:element name="City" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
                 <xs:element name="AllElement">
                     <xs:complexType>
                         <xs:all>

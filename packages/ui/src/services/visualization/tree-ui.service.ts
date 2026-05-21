@@ -17,10 +17,14 @@ export class TreeUIService {
     const tree = new DocumentTree(documentNodeData);
     TreeParsingService.parseTree(tree);
 
-    this.trees.set(tree.documentId, tree);
+    this.trees.set(tree.documentNodeDataId, tree);
     useDocumentTreeStore.getState().updateTreeExpansion(tree);
 
     return tree;
+  }
+
+  static getTree(documentNodeDataId: string): DocumentTree | undefined {
+    return this.trees.get(documentNodeDataId);
   }
 
   /**

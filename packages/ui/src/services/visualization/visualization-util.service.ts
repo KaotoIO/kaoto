@@ -23,6 +23,8 @@ export class VisualizationUtilService {
   /**
    * Returns `true` if the node's field is a collection (array/repeating element).
    * Also checks the choice wrapper field for collection status when the node is a selected choice member.
+   * For unselected choice members (children of a collection choice wrapper), the collection status
+   * is inherited from the parent wrapper via DocumentService.isCollectionField().
    * @param nodeData - The node to test.
    */
   static isCollectionField(nodeData: NodeData) {
@@ -85,6 +87,39 @@ export class VisualizationUtilService {
    */
   static isSelectedNestedChoice(nodeData: NodeData): boolean {
     return VisualizationUtilService.isSelectedChoiceField(nodeData) && nodeData.field.wrapperKind === 'choice';
+  }
+
+  /**
+   * Walks up from `wrapper` through ancestor choice fields that also have a selection,
+   * returning the outermost selected wrapper and the number of levels traversed.
+   */
+  static resolveOutermostSelectedWrapper(wrapper: IField | undefined): {
+    outermost: IField | undefined;
+    depth: number;
+  } {
+    let depth = 1;
+    let current = wrapper;
+    while (
+      current?.parent &&
+      'wrapperKind' in current.parent &&
+      current.parent.wrapperKind === 'choice' &&
+      current.parent.selectedMemberIndex !== undefined
+    ) {
+      depth++;
+      current = current.parent;
+    }
+    return { outermost: current, depth };
+  }
+
+  /**
+   * Returns the number of resolved choice wrapper levels for a selected choice node.
+   * A simple selected choice returns 1. A flattened nested choice (both outer and inner
+   * selected) returns 2+, indicating how many wrapper levels were collapsed.
+   * Returns 0 for non-choice nodes.
+   */
+  static getSelectedChoiceDepth(nodeData: NodeData): number {
+    if (!VisualizationUtilService.isSelectedChoiceField(nodeData)) return 0;
+    return VisualizationUtilService.resolveOutermostSelectedWrapper(nodeData.choiceField).depth;
   }
 
   /**

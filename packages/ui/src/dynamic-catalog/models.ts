@@ -52,5 +52,6 @@ export interface IDynamicCatalogRegistry {
     key: string,
     options?: { forceFresh?: boolean },
   ): Promise<DynamicCatalogTypeMap[K] | undefined>;
+
   clearRegistry(): void;
 }

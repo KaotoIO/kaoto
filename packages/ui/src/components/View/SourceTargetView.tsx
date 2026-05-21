@@ -4,6 +4,8 @@ import { Button, Split, SplitItem } from '@patternfly/react-core';
 import { SearchMinusIcon, SearchPlusIcon } from '@patternfly/react-icons';
 import { CSSProperties, FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
+import { useDataMapper } from '../../hooks/useDataMapper';
+import { useDataMapperDeleteHotkey } from '../../hooks/useDataMapperDeleteHotkey.hook';
 import { useMappingLinks } from '../../hooks/useMappingLinks';
 import { MappingLinksContainer } from './MappingLinkContainer';
 import { SourcePanel } from './SourcePanel';
@@ -17,8 +19,12 @@ export const SourceTargetView: FunctionComponent<SourceTargetViewProps> = ({
   uiScaleFactor: initialScaleFactor = 1,
 }) => {
   const { mappingLinkCanvasRef } = useMappingLinks();
+  const { refreshMappingTree } = useDataMapper();
   const containerRef = useRef<HTMLDivElement>(null);
   const [scaleFactor, setScaleFactor] = useState(initialScaleFactor);
+
+  // Enable Delete key support for removing selected mappings
+  useDataMapperDeleteHotkey(refreshMappingTree);
 
   const handleZoomIn = useCallback(() => {
     setScaleFactor((prev) => Math.min(prev + 0.1, 1.2)); // Max 1.2x zoom

@@ -1,5 +1,10 @@
 .data-mapper-launcher {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pf-t--global--spacer--md);
+  margin-top: var(--pf-t--global--spacer--md);
+
   button {
-    margin-top: var(--pf-t--global--spacer--md);
+    width: fit-content;
   }
 }
