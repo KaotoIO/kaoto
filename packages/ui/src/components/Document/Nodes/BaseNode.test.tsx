@@ -9,6 +9,7 @@ import {
 } from '../../../models/datamapper/document';
 import { MappingTree, UnknownMappingItem, ValueSelector, VariableItem } from '../../../models/datamapper/mapping';
 import {
+  AbstractFieldNodeData,
   AddMappingNodeData,
   DocumentNodeData,
   FieldNodeData,
@@ -137,6 +138,43 @@ const createAddMappingNodeData = (): AddMappingNodeData => {
   return new AddMappingNodeData(targetDocNodeData, mockField);
 };
 
+const createAbstractFieldNodeData = (): AbstractFieldNodeData => {
+  const mockDocument = new PrimitiveDocument(
+    new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test-doc'),
+  );
+  const docNodeData = new DocumentNodeData(mockDocument);
+
+  const mockField: IField = {
+    parent: mockDocument,
+    ownerDocument: mockDocument,
+    id: 'abstract-field',
+    name: 'abstractField',
+    displayName: 'Abstract Field',
+    type: Types.Container,
+    typeQName: new QName('', Types.Container),
+    originalType: Types.Container,
+    originalTypeQName: new QName('', Types.Container),
+    path: new NodePath('abstractField'),
+    fields: [],
+    isAttribute: false,
+    defaultValue: null,
+    minOccurs: 1,
+    maxOccurs: 1,
+    nillable: false,
+    typeOverride: FieldOverrideVariant.NONE,
+    namespacePrefix: null,
+    namespaceURI: '',
+    namedTypeFragmentRefs: [],
+    predicates: [],
+    wrapperKind: 'abstract',
+    adopt: () => mockField,
+    getExpression: () => '',
+    isIdentical: () => false,
+  } as IField;
+
+  return new AbstractFieldNodeData(docNodeData, mockField);
+};
+
 describe('BaseNode', () => {
   describe('Basic Rendering', () => {
     it('should render title as string', () => {
@@ -248,6 +286,14 @@ describe('BaseNode', () => {
       const { container } = render(<BaseNode nodeData={addMappingNodeData} title="Title" data-testid="test-node" />);
       const dragHandler = container.querySelector('[data-drag-handler]');
       expect(dragHandler).not.toBeInTheDocument();
+    });
+
+    it('should reserve drag icon space for unselected abstract wrapper fields', () => {
+      const abstractNodeData = createAbstractFieldNodeData();
+      const { container } = render(<BaseNode nodeData={abstractNodeData} title="Title" data-testid="test-node" />);
+
+      expect(container.querySelector('[data-drag-handler]')).not.toBeInTheDocument();
+      expect(screen.getByTestId('drag-handler-spacer')).toBeInTheDocument();
     });
 
     it('should show drag icon for VariableNodeData', () => {

@@ -86,6 +86,10 @@
     }
   }
 
+  &__drag-placeholder {
+    visibility: hidden;
+  }
+
   &__override-indicator {
     padding: var(--pf-t--global--spacer--sm);
     cursor: help;

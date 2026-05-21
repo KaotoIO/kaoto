@@ -72,6 +72,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isVariableNode = nodeData instanceof VariableNodeData;
   const isDraggable = MappingValidationService.isDraggable(nodeData);
+  const shouldReserveDragHandleSpace = !isDraggable && isAbstractField && !isSelectedAbstract;
   const isSource = nodeData.isSource;
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
@@ -117,6 +118,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
 
       {isDraggable && (
         <Icon className="node__spacer" data-drag-handler>
+          <Draggable />
+        </Icon>
+      )}
+      {shouldReserveDragHandleSpace && (
+        <Icon className="node__spacer node__drag-placeholder" data-testid="drag-handler-spacer" aria-hidden="true">
           <Draggable />
         </Icon>
       )}
