@@ -190,7 +190,6 @@ describe('CatalogTilesProvider', () => {
       getCatalog: jest.fn().mockReturnValue(undefined),
       getEntity: jest.fn(),
       clearRegistry: jest.fn(),
-      resolveCatalogLookup: jest.fn(),
     };
 
     const {
