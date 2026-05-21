@@ -30,12 +30,17 @@ describe('CatalogHelper', () => {
           fileName: 'citrus/1.0.0/index.js',
         },
       ],
-    } as CatalogLibrary;
+    };
   });
 
   it('should handle no matching Camel catalog', () => {
     const entry = findCatalog(SourceSchemaType.Route, catalogLibrary);
-    expect(entry).toBeUndefined();
+    expect(entry).toEqual({
+      fileName: 'camel-main/index.js',
+      name: 'Camel Main 1.0.0',
+      runtime: 'Main',
+      version: '1.0.0',
+    });
   });
 
   it('should find matching Camel catalog', () => {

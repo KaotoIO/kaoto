@@ -1,7 +1,7 @@
 import './SettingsForm.scss';
 
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
-import { Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
+import { Alert, Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,15 +22,27 @@ export const SettingsForm: FunctionComponent = () => {
   const navigate = useNavigate();
   const { lastRender, reloadPage } = useReloadContext();
   const [settings, setSettings] = useState(settingsAdapter.getSettings());
+  const [saveError, setSaveError] = useState<string | undefined>(undefined);
+  const initialCatalogUrl = useMemo(() => settingsAdapter.getSettings().catalogUrl, [settingsAdapter]);
 
   const onChangeModel = (value: unknown) => {
     setSettings(value as SettingsModel);
+    setSaveError(undefined);
   };
 
-  const onSave = () => {
-    settingsAdapter.saveSettings(settings);
-    reloadPage();
-    navigate(Links.Home);
+  const hasPendingCatalogUrlChange = settings.catalogUrl !== initialCatalogUrl;
+
+  const onSave = async () => {
+    try {
+      await settingsAdapter.saveSettings(settings);
+      reloadPage();
+
+      if (!hasPendingCatalogUrlChange) {
+        navigate(Links.Home);
+      }
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'Unable to save settings');
+    }
   };
 
   return (
@@ -38,6 +50,22 @@ export const SettingsForm: FunctionComponent = () => {
       <CardTitle>Settings</CardTitle>
 
       <CardBody>
+        {hasPendingCatalogUrlChange && (
+          <Alert
+            className="alert-catalog-url"
+            isInline
+            variant="info"
+            title="Catalog versions will be recomputed after saving a custom catalog."
+          >
+            Runtime selector versions still reflect the currently saved catalog URL. Save the settings to recompute the
+            available Camel and testing catalogs options from the new catalog URL.
+          </Alert>
+        )}
+        {saveError && (
+          <Alert className="alert-catalog-url" isInline variant="danger" title="Failed to save settings.">
+            {saveError}
+          </Alert>
+        )}
         <CanvasFormTabsContext.Provider value={formTabsValue}>
           <KaotoForm
             data-testid="settings-form"

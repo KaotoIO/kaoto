@@ -2,6 +2,7 @@ import { CustomFieldsFactory, EnumField, TextAreaField } from '@kaoto/forms';
 
 import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
+import { RuntimeCatalogNameField, TestingCatalogNameField } from './CatalogSelectorField/CatalogSelectorField';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { EndpointField } from './EndpointField/EndpointField';
 import { EndpointListField } from './EndpointField/EndpointListField';
@@ -77,10 +78,26 @@ const isTextAreaField = (schema: Parameters<CustomFieldsFactory>[0]): boolean =>
   );
 };
 
+const isIntegrationRuntimeSelectorField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.title === 'Integrations runtime version';
+};
+
+const isTestingRuntimeSelectorField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
+  return schema.type === 'string' && schema.title === 'Testing runtime version';
+};
+
 export const customFieldsFactoryfactory: CustomFieldsFactory = (schema) => {
   /* Workaround for https://github.com/KaotoIO/kaoto/issues/2565 since the SNMP component has the wrong type */
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return EnumField;
+  }
+
+  if (isIntegrationRuntimeSelectorField(schema)) {
+    return RuntimeCatalogNameField;
+  }
+
+  if (isTestingRuntimeSelectorField(schema)) {
+    return TestingCatalogNameField;
   }
 
   if (isDirectEndpointName(schema)) {
