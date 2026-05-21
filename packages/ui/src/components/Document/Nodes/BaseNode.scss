@@ -61,6 +61,7 @@
   &__row[data-selected='true'] {
     color: var(--pf-t--global--color--brand--default) !important;
     font-weight: bold;
+    outline: 1px dotted var(--pf-t--global--color--brand--default);
   }
 
   &__expand {
