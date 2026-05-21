@@ -202,8 +202,8 @@ export class CamelComponentDefaultService {
             steps:
               - setBody:
                   id: ${getCamelRandomId('kaoto-datamapper-set-body')}
-                  expression:
-                  constant: ''
+                  simple:
+                    expression: '\${null}'
               - to:
                   id: ${getCamelRandomId('kaoto-datamapper-xslt')}
                   uri: ${XSLT_COMPONENT_NAME}

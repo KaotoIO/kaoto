@@ -171,7 +171,7 @@ describe('CamelComponentDefaultService', () => {
       expect(removeHeadersDefault.removeHeaders.pattern).toEqual('*');
     });
 
-    it('should return the default value for a DataMapper step with empty setBody constant and failOnNullBody set to false', () => {
+    it('should return the default value for a DataMapper step with simple expression is ${null} for setBody and failOnNullBody set to false', () => {
       const datamapperDefault = CamelComponentDefaultService.getDefaultNodeDefinitionValue({
         type: 'processor',
         name: 'kaoto-datamapper',
@@ -180,7 +180,7 @@ describe('CamelComponentDefaultService', () => {
       expect(datamapperDefault.step.id as string).toMatch(/^kaoto-datamapper-/);
       expect(datamapperDefault.step.steps).toHaveLength(2);
       expect(datamapperDefault.step.steps[0].setBody).toBeDefined();
-      expect(datamapperDefault.step.steps[0].setBody.expression.constant).toEqual('');
+      expect(datamapperDefault.step.steps[0].setBody.simple.expression).toEqual('${null}');
       expect(datamapperDefault.step.steps[1].to).toBeDefined();
       expect(datamapperDefault.step.steps[1].to.uri).toEqual('xslt-saxon');
       expect(datamapperDefault.step.steps[1].to.parameters.failOnNullBody).toEqual(false);

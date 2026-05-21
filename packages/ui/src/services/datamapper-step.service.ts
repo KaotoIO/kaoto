@@ -2,6 +2,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { IVisualizationNode } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
+import { DocumentDefinition, DocumentDefinitionType } from '../models/datamapper/document';
 import { isExpressionHolder, MappingItem, MappingTree } from '../models/datamapper/mapping';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntitiesContextResult } from '../providers';
@@ -108,19 +109,48 @@ export class DataMapperStepService {
       return;
     }
 
-    if (!xsltStep.to.parameters) {
-      xsltStep.to.parameters = {};
+    const currentUseJsonBody = xsltStep.to.parameters?.useJsonBody;
+    if (isUseJsonBody && currentUseJsonBody === true) {
+      return;
+    }
+
+    if (!isUseJsonBody && currentUseJsonBody === undefined) {
+      return;
     }
 
     if (isUseJsonBody) {
+      if (!xsltStep.to.parameters) {
+        xsltStep.to.parameters = {};
+      }
       xsltStep.to.parameters.useJsonBody = true;
     } else {
-      delete xsltStep.to.parameters.useJsonBody;
+      delete xsltStep.to.parameters!.useJsonBody;
     }
 
     vizNode.updateModel(model);
     entitiesContext.updateSourceCodeFromEntities();
   }
+
+  /**
+   * Sets the source body-related XSLT configuration in one place.
+   * It updates the useJsonBody parameter based on the source body definition
+   * and synchronizes the managed setBody(null) step based on the current mapping usage.
+   * @param vizNode The visualization node
+   * @param sourceBodyDocument The source body document definition
+   * @param isBodyUsed Whether the source body is referenced by any mapping
+   * @param entitiesContext The entities context for updating source code
+   */
+  static setSourceBody(
+    vizNode: IVisualizationNode,
+    sourceBodyDocument: DocumentDefinition | undefined,
+    isBodyUsed: boolean,
+    entitiesContext: EntitiesContextResult,
+  ): void {
+    const isUseJsonBody = sourceBodyDocument?.definitionType === DocumentDefinitionType.JSON_SCHEMA;
+    DataMapperStepService.setUseJsonBody(vizNode, isUseJsonBody, entitiesContext);
+    DataMapperStepService.syncSetBodyNullStep(vizNode, isBodyUsed, entitiesContext);
+  }
+
   /**
    * Checks whether any mapping in the given tree references the source body document.
    * Source body references are XPath expressions that have no document reference name
@@ -156,16 +186,16 @@ export class DataMapperStepService {
     if (!step.setBody || typeof step.setBody !== 'object') return false;
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    const expression = (step.setBody as any).expression;
-    if (!expression || typeof expression !== 'object' || !('constant' in expression)) return false;
+    const simple = (step.setBody as any).simple;
+    if (!simple || typeof simple !== 'object') return false;
 
-    const constantValue = expression.constant;
-    return constantValue === null || constantValue === '';
+    const expression = simple.expression;
+    return expression === '${null}';
   }
 
   private static normalizeSetBodyStep(step: ProcessorDefinition): void {
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    (step.setBody as any).expression = { constant: '' };
+    (step.setBody as any).simple = { expression: '${null}' };
   }
 
   /**
@@ -220,7 +250,7 @@ export class DataMapperStepService {
         steps.unshift({
           setBody: {
             id: getCamelRandomId('kaoto-datamapper-set-body'),
-            expression: { constant: '' },
+            simple: { expression: '${null}' },
           } as any,
         });
         changed = true;

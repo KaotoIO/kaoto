@@ -2,7 +2,7 @@ import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
 import { MappingTree, ValueSelector } from '../models/datamapper/mapping';
-import { DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
@@ -356,6 +356,71 @@ describe('DataMapperStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
     });
   });
+
+  describe('setSourceBody', () => {
+    let vizNode: IVisualizationNode;
+
+    beforeEach(() => {
+      vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+    });
+
+    it('should configure json body and managed setBody when source body is JSON and body is not used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      const sourceBodyDocument = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+      );
+
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, false, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect((model.steps[0] as any).setBody).toBeDefined();
+      expect((model.steps[0] as any).setBody.simple.expression).toEqual('${null}');
+      expect(((model.steps[1] as any).to as any)?.parameters?.useJsonBody).toBe(true);
+    });
+
+    it('should remove managed setBody and keep useJsonBody when body is used', () => {
+      const model = {
+        id: 'step-id',
+        steps: [
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
+          { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition,
+        ],
+      };
+
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(model);
+      const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+
+      const sourceBodyDocument = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'Body',
+      );
+
+      DataMapperStepService.setSourceBody(vizNode, sourceBodyDocument, true, mockEntitiesContext);
+
+      expect(updateModelSpy).toHaveBeenCalled();
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      expect(model.steps).toHaveLength(1);
+      expect(((model.steps[0] as any).to as any)?.parameters?.useJsonBody).toBe(true);
+    });
+  });
   describe('isSourceBodyUsed', () => {
     it('should return false for an empty mapping tree', () => {
       const tree = new MappingTree(DocumentType.TARGET_BODY, 'Body', DocumentDefinitionType.Primitive);
@@ -393,7 +458,7 @@ describe('DataMapperStepService', () => {
       });
     });
 
-    it('should insert setBody with empty constant at index 0 when body is not used and no managed setBody exists', () => {
+    it('should insert setBody with ${null} expression at index 0 when body is not used and no managed setBody exists', () => {
       const model = {
         id: 'step-id',
         steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition],
@@ -407,7 +472,7 @@ describe('DataMapperStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(2);
       expect((model.steps[0] as any).setBody).toBeDefined();
-      expect((model.steps[0] as any).setBody.expression.constant).toEqual('');
+      expect((model.steps[0] as any).setBody.simple.expression).toEqual('${null}');
     });
 
     it('should not insert setBody(null) when body is used', () => {
@@ -428,7 +493,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
-          { setBody: { id: 'set-body-id', expression: { constant: null } } } as any,
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -443,11 +508,11 @@ describe('DataMapperStepService', () => {
       expect((model.steps[0] as any).to).toBeDefined();
     });
 
-    it('should remove setBody with empty constant when body becomes used', () => {
+    it('should remove setBody with ${null} expression when body becomes used', () => {
       const model = {
         id: 'step-id',
         steps: [
-          { setBody: { id: 'set-body-id', expression: { constant: '' } } } as any,
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -466,7 +531,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
-          { setBody: { id: 'set-body-id', expression: { simple: { expression: '${body}' } } } } as any,
+          { setBody: { id: 'set-body-id', simple: { expression: '${body}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -483,7 +548,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
-          { setBody: { id: 'set-body-id', expression: { constant: null } } } as any,
+          { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
       };
@@ -512,7 +577,7 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(2);
-      expect((model.steps[0] as any).setBody.expression.constant).toEqual('');
+      expect((model.steps[0] as any)?.setBody?.simple?.expression).toEqual('${null}');
     });
 
     it('should do nothing when steps is undefined', () => {

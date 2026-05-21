@@ -254,8 +254,8 @@ describe('useMoveStep', () => {
             {
               setBody: {
                 id: 'kaoto-datamapper-set-body-0000',
-                expression: {
-                  constant: null,
+                simple: {
+                  expression: '\${null}',
                 },
               },
             },
@@ -281,8 +281,8 @@ describe('useMoveStep', () => {
             {
               setBody: {
                 id: 'kaoto-datamapper-set-body-0000',
-                expression: {
-                  constant: null,
+                simple: {
+                  expression: "\${null}",
                 },
               },
             },
