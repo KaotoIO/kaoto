@@ -48,7 +48,6 @@ import { FlowService } from './flow.service';
 interface CanvasProps {
   vizNodes: IVisualizationNode[];
   entitiesCount: number;
-  /** When true, root viz nodes are not ready yet; avoid empty-state for "all flows hidden" during async resolution. */
   isVizNodesResolving?: boolean;
   contextToolbar?: ReactNode;
 }
@@ -81,9 +80,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const controller = useVisualizationController();
   const shouldShowEmptyState = useMemo(() => {
     const areNoFlows = entitiesCount === 0;
-    const areAllFlowsHidden = vizNodes.length === 0 && entitiesCount > 0 && !isVizNodesResolving;
+    const areAllFlowsHidden = vizNodes.length === 0 && entitiesCount > 0;
     return areNoFlows || areAllFlowsHidden;
-  }, [entitiesCount, vizNodes.length, isVizNodesResolving]);
+  }, [entitiesCount, vizNodes.length]);
 
   const wasEmptyStateVisible = usePrevious(shouldShowEmptyState);
   const clearSelection = useCallback(() => {
@@ -96,6 +95,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   /** Draw graph */
   useEffect(() => {
     clearSelection();
+
+    if (isVizNodesResolving) {
+      return;
+    }
+
     const nodes: CanvasNode[] = [];
     const edges: CanvasEdge[] = [];
 
@@ -118,7 +122,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       },
     };
 
-    if ((!initialized && !isVizNodesResolving) || wasEmptyStateVisible) {
+    if (!initialized || wasEmptyStateVisible) {
       controller.fromModel(model, false);
       setInitialized(true);
 
@@ -132,7 +136,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     applyCollapseState(controller);
     controller.getGraph().layout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [controller, vizNodes]);
+  }, [controller, vizNodes, isVizNodesResolving]);
 
   useEventListener<SelectionEventListener>(SELECTION_EVENT, setSelectedIds);
 
@@ -233,6 +237,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   );
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
+
+  if (isVizNodesResolving) {
+    return null;
+  }
 
   return (
     <TopologyView
