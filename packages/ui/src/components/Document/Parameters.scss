@@ -1,5 +1,3 @@
-@use './shared-mixins' as *;
-
 .parameters-header {
   display: flex;
   flex-flow: row nowrap;
@@ -35,36 +33,6 @@
     padding-block: 0;
     padding-inline: 0;
   }
-}
-
-.parameter-actions {
-  padding: 0.25rem 0.5rem;
-
-  --pf-v6-c-action-list--child--spacer-base: 0.5rem;
-  --pf-v6-c-action-list--group--spacer-base: 0.5rem;
-
-  /* stylelint-disable-next-line selector-class-pattern */
-  .pf-v6-c-action-list__group:first-child {
-    flex: 1;
-
-    /* stylelint-disable-next-line selector-class-pattern */
-    .pf-v6-c-action-list__item {
-      width: 100%;
-    }
-  }
-
-  /* stylelint-disable-next-line selector-class-pattern */
-  .pf-v6-c-button {
-    @include header-button-style;
-  }
-}
-
-.parameter-input-error {
-  padding: 0 0.5rem 0.5rem;
-  font-size: var(--datamapper-header-control-font-size);
-  color: var(--pf-t--global--text--color--status--danger--default);
-  line-height: 1.2;
-  word-wrap: break-word;
 }
 
 .parameter-title-italic {
