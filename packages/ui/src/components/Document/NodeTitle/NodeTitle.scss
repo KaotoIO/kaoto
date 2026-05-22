@@ -32,6 +32,10 @@ div.node-title-container {
   align-items: center;
   overflow: hidden;
   min-width: 0;
+
+  &__abstract {
+    margin-left: calc(0.875rem + 2 * var(--pf-t--global--spacer--sm));
+  }
 }
 
 .datamapper-marker-field {

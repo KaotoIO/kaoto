@@ -139,6 +139,16 @@ export class VisualizationUtilService {
   }
 
   /**
+   * Returns `true` if the node is an abstract field without a selected substitution member
+   * @param nodeData - The node to test.
+   */
+  static isUnselectedAbstractField(
+    nodeData: NodeData,
+  ): nodeData is AbstractFieldNodeData | TargetAbstractFieldNodeData {
+    return VisualizationUtilService.isAbstractField(nodeData) && !nodeData.abstractField;
+  }
+
+  /**
    * Returns `true` if the node represents a recursive field reference (self-referencing type).
    * @param nodeData - The node to test.
    */
