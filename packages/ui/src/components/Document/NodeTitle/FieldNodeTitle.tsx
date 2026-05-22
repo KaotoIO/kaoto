@@ -7,13 +7,7 @@ import { FunctionComponent } from 'react';
 import OptIcon from '../../../assets/data-mapper/field-icons/OptIcon';
 import Repeat0Icon from '../../../assets/data-mapper/field-icons/Repeat0Icon';
 import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
-import {
-  AbstractFieldNodeData,
-  AddMappingNodeData,
-  FieldItemNodeData,
-  FieldNodeData,
-  TargetAbstractFieldNodeData,
-} from '../../../models/datamapper/visualization';
+import { AddMappingNodeData, FieldItemNodeData, FieldNodeData } from '../../../models/datamapper/visualization';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
 
@@ -34,9 +28,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({
 }) => {
   const isChoiceWrapper = VisualizationUtilService.isUnselectedChoiceField(nodeData);
   const isSelectedChoiceWrapper = VisualizationUtilService.isSelectedNestedChoice(nodeData);
-  const isAbstractWrapper =
-    (nodeData instanceof AbstractFieldNodeData || nodeData instanceof TargetAbstractFieldNodeData) &&
-    !nodeData.abstractField;
+  const isAbstractWrapper = VisualizationUtilService.isUnselectedAbstractField(nodeData);
   const hasNoCandidates = isAbstractWrapper && (nodeData.field.fields ?? []).length === 0;
   const optionalField = nodeData.field.minOccurs === 0;
   const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
@@ -73,7 +65,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({
         </div>
       }
     >
-      <div className="node-title-container">
+      <div className={clsx('node-title-container', { 'node-title-container__abstract': isAbstractWrapper })}>
         {isChoiceWrapper && <Label>choice</Label>}
         {isSelectedChoiceWrapper && (
           <Label color="green" icon={<CheckIcon />}>
