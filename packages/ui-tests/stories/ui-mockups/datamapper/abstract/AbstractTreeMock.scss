@@ -1,0 +1,114 @@
+.abstract-tree {
+  &__empty-state {
+    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+    padding: 0.5rem;
+  }
+
+  &__empty-text {
+    font-style: italic;
+    color: var(--pf-v6-global--palette--black-500);
+    font-size: 0.8125rem;
+  }
+
+  &__conditional-row {
+    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__test-input {
+    max-width: 12rem;
+    font-family: var(--pf-t--global--font--family--mono);
+    font-size: 0.8125rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0;
+
+    .pf-v6-c-button {
+      --pf-v6-c-button--FontSize: 0.75rem;
+    }
+  }
+
+  &__conditional-placeholder {
+    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+    padding: 0.25rem 0.5rem;
+  }
+
+  &__field-node {
+    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &--pending {
+      border: 1px dashed var(--pf-v6-global--palette--black-400);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.02);
+    }
+  }
+
+  &__abstract-candidates {
+    font-style: italic;
+    font-size: 0.8125rem;
+    color: var(--pf-v6-global--palette--black-500);
+  }
+
+  &__mapping-actions {
+    margin-left: auto;
+  }
+
+  &__field-expand {
+    cursor: pointer;
+  }
+
+  &__field-expand-placeholder {
+    display: inline-block;
+    width: 1rem;
+  }
+
+  &__field-name {
+    color: var(--pf-v6-global--palette--black-800);
+  }
+
+  &__field-type {
+    font-size: 0.75rem;
+    color: var(--pf-v6-global--palette--black-500);
+    font-family: var(--pf-t--global--font--family--mono);
+  }
+
+  &__instruction-node {
+    margin-left: calc(var(--node-rank, 0) * 0.85rem);
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px dashed var(--pf-v6-global--palette--purple-300);
+    background: rgba(150, 80, 200, 0.04);
+    border-radius: 4px;
+    margin-bottom: 0.25rem;
+  }
+
+  &__instruction-input {
+    max-width: 14rem;
+    font-family: var(--pf-t--global--font--family--mono);
+    font-size: 0.8125rem;
+  }
+
+  &__instruction-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  &__right-click-menu {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    background: var(--pf-v6-global--BackgroundColor--100, #fff);
+  }
+}
