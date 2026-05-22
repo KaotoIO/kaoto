@@ -17,6 +17,8 @@ export enum MappingActionKind {
   Otherwise = 'otherwise',
   Comment = 'comment',
   Sort = 'sort',
+  Variable = 'variable',
+  RenameVariable = 'renameVariable',
 }
 
 /**

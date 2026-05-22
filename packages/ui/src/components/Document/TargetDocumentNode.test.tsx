@@ -10,20 +10,23 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { MappingTree, VariableItem } from '../../models/datamapper/mapping';
+import { FieldItem, MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
   DocumentNodeData,
+  FieldItemNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { MappingService } from '../../services/mapping/mapping.service';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
 import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
+import { VisualizationService } from '../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
@@ -866,7 +869,12 @@ describe('TargetDocumentNode', () => {
   });
 
   describe('Variable Node', () => {
-    it('should render variable node with $name label and variable icon', () => {
+    afterEach(() => {
+      useDocumentTreeStore.getState().setAddingVariableTo(null);
+      useDocumentTreeStore.getState().setRenamingVariable(null);
+    });
+
+    it('should render variable node with $name label', () => {
       const document = TestUtil.createTargetOrderDoc();
       const tree = new MappingTree(document.documentType, document.documentId, DocumentDefinitionType.XML_SCHEMA);
       const targetDocNode = new TargetDocumentNodeData(document, tree);
@@ -881,7 +889,207 @@ describe('TargetDocumentNode', () => {
       });
 
       expect(screen.getByText('taxRate')).toBeInTheDocument();
-      expect(screen.getByTestId('variable-node-icon')).toBeInTheDocument();
+    });
+
+    it('should show VariableInputPlaceholder for add mode when addingVariableToNodePath matches', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const fieldItem = new FieldItem(mappingTree, document.fields[0]);
+      mappingTree.children.push(fieldItem);
+      const targetDocNode = new TargetDocumentNodeData(document, mappingTree);
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const fieldNode = targetDocChildren[0] as FieldItemNodeData;
+      const fieldTreeNode = new DocumentTreeNode(fieldNode);
+
+      const nodePath = fieldNode.path.toString();
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      });
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      expect(screen.getByTestId('new-variable-name-input')).toBeInTheDocument();
+      expect(screen.getByTestId('new-variable-submit-btn')).toBeInTheDocument();
+      expect(screen.getByTestId('new-variable-cancel-btn')).toBeInTheDocument();
+    });
+
+    it('should show VariableInputPlaceholder for rename mode when renamingVariableId matches', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const targetDocNode = new TargetDocumentNodeData(document, mappingTree);
+      const variableItem = new VariableItem(mappingTree, 'taxRate');
+      mappingTree.children.push(variableItem);
+      const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
+      const variableTreeNode = new DocumentTreeNode(variableNodeData);
+
+      act(() => {
+        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      });
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      const input = screen.getByTestId('new-variable-name-input');
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveValue('taxRate');
+      expect(screen.getByTestId(`node-target-${variableNodeData.id}-renaming`)).toBeInTheDocument();
+    });
+
+    it('should clear store state when cancel is clicked on add placeholder', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const fieldItem = new FieldItem(mappingTree, document.fields[0]);
+      mappingTree.children.push(fieldItem);
+      const targetDocNode = new TargetDocumentNodeData(document, mappingTree);
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const fieldNode = targetDocChildren[0] as FieldItemNodeData;
+      const fieldTreeNode = new DocumentTreeNode(fieldNode);
+
+      const nodePath = fieldNode.path.toString();
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      });
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
+      });
+
+      expect(useDocumentTreeStore.getState().addingVariableToNodePath).toBeNull();
+    });
+
+    it('should add variable when submit is clicked on add placeholder', async () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const fieldItem = new FieldItem(mappingTree, document.fields[0]);
+      mappingTree.children.push(fieldItem);
+      const targetDocNode = new TargetDocumentNodeData(document, mappingTree);
+      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const fieldNode = targetDocChildren[0] as FieldItemNodeData;
+      const fieldTreeNode = new DocumentTreeNode(fieldNode);
+
+      const addVariableSpy = jest.spyOn(MappingService, 'addVariable');
+      const nodePath = fieldNode.path.toString();
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
+      });
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      const input = screen.getByTestId('new-variable-name-input');
+      act(() => {
+        fireEvent.change(input, { target: { value: 'myVar' } });
+      });
+      act(() => {
+        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+      });
+
+      await waitFor(() => {
+        expect(addVariableSpy).toHaveBeenCalledWith(fieldNode.mapping, 'myVar');
+      });
+      expect(useDocumentTreeStore.getState().addingVariableToNodePath).toBeNull();
+      addVariableSpy.mockRestore();
+    });
+
+    it('should rename variable when submit is clicked on rename placeholder', async () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const targetDocNode = new TargetDocumentNodeData(document, mappingTree);
+      const variableItem = new VariableItem(mappingTree, 'oldName');
+      mappingTree.children.push(variableItem);
+      const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
+      const variableTreeNode = new DocumentTreeNode(variableNodeData);
+
+      const updateVariableSpy = jest.spyOn(MappingService, 'updateVariable');
+      act(() => {
+        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      });
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      const input = screen.getByTestId('new-variable-name-input');
+      act(() => {
+        fireEvent.change(input, { target: { value: 'newName' } });
+      });
+      act(() => {
+        fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+      });
+
+      await waitFor(() => {
+        expect(updateVariableSpy).toHaveBeenCalledWith(variableItem, 'newName', variableItem.expression);
+      });
+      expect(useDocumentTreeStore.getState().renamingVariableId).toBeNull();
+      updateVariableSpy.mockRestore();
+    });
+
+    it('should clear store state when cancel is clicked on rename placeholder', () => {
+      const document = TestUtil.createTargetOrderDoc();
+      const mappingTree = new MappingTree(
+        document.documentType,
+        document.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const targetDocNode = new TargetDocumentNodeData(document, mappingTree);
+      const variableItem = new VariableItem(mappingTree, 'taxRate');
+      mappingTree.children.push(variableItem);
+      const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
+      const variableTreeNode = new DocumentTreeNode(variableNodeData);
+
+      act(() => {
+        useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
+      });
+
+      act(() => {
+        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+          wrapper,
+        });
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
+      });
+
+      expect(useDocumentTreeStore.getState().renamingVariableId).toBeNull();
     });
   });
 

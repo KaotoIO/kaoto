@@ -1,13 +1,13 @@
 import './BaseNode.scss';
 
-import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, ValueVariable } from '@carbon/icons-react';
+import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable } from '@carbon/icons-react';
 import { Button, Icon, Label, Tooltip } from '@patternfly/react-core';
 import { LayerGroupIcon } from '@patternfly/react-icons';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { IDataTestID } from '../../../models';
 import { MappingItem } from '../../../models/datamapper/mapping';
-import { NodeData, VariableNodeData } from '../../../models/datamapper/visualization';
+import { NodeData } from '../../../models/datamapper/visualization';
 import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
@@ -71,7 +71,6 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const isAbstractField = VisualizationUtilService.isAbstractField(nodeData);
   const isSelectedAbstract = VisualizationUtilService.isSelectedAbstractField(nodeData);
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
-  const isVariableNode = nodeData instanceof VariableNodeData;
   const isDraggable = MappingValidationService.isDraggable(nodeData);
   const isSource = nodeData.isSource;
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
@@ -153,12 +152,6 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           <At />
         </Icon>
       )}
-      {isVariableNode && (
-        <Icon className="node__spacer" data-testid="variable-node-icon">
-          <ValueVariable />
-        </Icon>
-      )}
-
       {mapping?.comment && mapping && onUpdate && (
         <Tooltip content={mapping?.comment}>
           <Icon className="node__spacer" data-testid="comment-indicator-icon">

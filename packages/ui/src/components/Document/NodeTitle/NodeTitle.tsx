@@ -46,7 +46,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
   if (nodeData instanceof VariableNodeData) {
     return (
       <>
-        <Label isCompact>$</Label>
+        <Label>$</Label>
         {content}
       </>
     );

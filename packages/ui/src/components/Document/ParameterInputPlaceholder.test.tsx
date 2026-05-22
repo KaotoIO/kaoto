@@ -9,17 +9,20 @@ import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 describe('ParameterInputPlaceholder', () => {
   let mockSendAlert: jest.Mock;
   let mockOnComplete: jest.Mock;
+  let mockRenameSourceParameter: jest.Mock;
   let mockCreatePrimitiveDocument: jest.SpyInstance;
 
   const AlertCapture: FunctionComponent<PropsWithChildren> = ({ children }) => {
     const dataMapper = useDataMapper();
     dataMapper.sendAlert = mockSendAlert;
+    dataMapper.renameSourceParameter = mockRenameSourceParameter;
     return <>{children}</>;
   };
 
   beforeEach(() => {
     mockSendAlert = jest.fn();
     mockOnComplete = jest.fn();
+    mockRenameSourceParameter = jest.fn();
   });
 
   afterEach(() => {
@@ -75,6 +78,29 @@ describe('ParameterInputPlaceholder', () => {
       variant: 'warning',
       title: 'Warning during document creation',
     });
+    expect(mockOnComplete).toHaveBeenCalled();
+  });
+
+  it('should rename existing parameter when parameter prop is provided and name changes', () => {
+    render(
+      <DataMapperProvider>
+        <AlertCapture>
+          <ParameterInputPlaceholder onComplete={mockOnComplete} parameter="oldParam" />
+        </AlertCapture>
+      </DataMapperProvider>,
+    );
+
+    const input = screen.getByTestId('new-parameter-name-input');
+    expect(input).toHaveValue('oldParam');
+
+    act(() => {
+      fireEvent.change(input, { target: { value: 'newParam' } });
+    });
+    act(() => {
+      fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
+    });
+
+    expect(mockRenameSourceParameter).toHaveBeenCalledWith('oldParam', 'newParam');
     expect(mockOnComplete).toHaveBeenCalled();
   });
 });

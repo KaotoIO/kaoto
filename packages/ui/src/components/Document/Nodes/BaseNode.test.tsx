@@ -327,17 +327,6 @@ describe('BaseNode', () => {
       render(<BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />);
       expect(screen.queryByTestId('attribute-field-icon')).not.toBeInTheDocument();
     });
-
-    it('should render variable icon when isVariableNode is true', () => {
-      const variableNodeData = createVariableNodeData();
-      render(<BaseNode nodeData={variableNodeData} title="Title" data-testid="test-node" />);
-      expect(screen.getByTestId('variable-node-icon')).toBeInTheDocument();
-    });
-
-    it('should not render variable icon when not VariableNodeData', () => {
-      render(<BaseNode nodeData={createMockNodeData()} title="Title" data-testid="test-node" />);
-      expect(screen.queryByTestId('variable-node-icon')).not.toBeInTheDocument();
-    });
   });
 
   describe('Combined States', () => {
