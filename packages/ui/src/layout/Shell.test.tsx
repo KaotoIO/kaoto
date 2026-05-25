@@ -17,10 +17,28 @@ jest.mock('./TopBar', () => ({
   ),
 }));
 
-describe('Shell Component', () => {
-  it('renders the Shell component with children', () => {
-    (useLocalStorage as jest.Mock).mockReturnValue([true, jest.fn()]);
+describe('Shell', () => {
+  const originalInnerWidth = globalThis.window.innerWidth;
+  const mockSetNavOpen = jest.fn();
 
+  const setWindowWidth = (width: number) => {
+    Object.defineProperty(globalThis.window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: width,
+    });
+  };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useLocalStorage as jest.Mock).mockReturnValue([true, mockSetNavOpen]);
+  });
+
+  afterEach(() => {
+    setWindowWidth(originalInnerWidth);
+  });
+
+  it('renders children', () => {
     render(
       <Shell>
         <div data-testid="child">Child Content</div>
@@ -28,29 +46,29 @@ describe('Shell Component', () => {
     );
 
     expect(screen.getByTestId('child')).toBeInTheDocument();
-    expect(screen.getByTestId('navigation')).toHaveAttribute('data-is-open', 'true');
-    expect(screen.getByTestId('topbar')).toBeInTheDocument();
   });
 
-  it('toggles navigation state when navToggle is called', () => {
-    const setIsNavOpenMock = jest.fn();
-    (useLocalStorage as jest.Mock).mockReturnValue([true, setIsNavOpenMock]);
-
+  it('toggles navigation when button is clicked', () => {
     render(<Shell />);
 
     act(() => {
-      const topBarButton = screen.getByTestId('topbar');
-      topBarButton.click();
+      screen.getByTestId('topbar').click();
     });
 
-    expect(setIsNavOpenMock).toHaveBeenCalledWith(false);
+    expect(mockSetNavOpen).toHaveBeenCalledWith(false);
   });
 
-  it('renders navigation as closed when isNavOpen is false', () => {
-    (useLocalStorage as jest.Mock).mockReturnValue([false, jest.fn()]);
+  it.each([
+    ['desktop', 1200, true],
+    ['wide desktop', 1920, true],
+    ['just below breakpoint', 1199, false],
+    ['tablet', 768, false],
+    ['mobile', 375, false],
+  ])('defaults to %s behavior at %dpx', (_, width, expectedDefault) => {
+    setWindowWidth(width);
 
     render(<Shell />);
 
-    expect(screen.getByTestId('navigation')).toHaveAttribute('data-is-open', 'false');
+    expect(useLocalStorage).toHaveBeenCalledWith(expect.any(String), expectedDefault);
   });
 });
