@@ -4,6 +4,7 @@ import { toBlob } from 'html-to-image';
 import { PropsWithChildren } from 'react';
 
 import { EntitiesProvider } from '../../../../providers/entities.provider';
+import { KaotoResourceProvider } from '../../../../providers/kaoto-resource.provider';
 import { SourceCodeSync } from '../../../../providers/source-code-sync';
 import { VisibleFlowsProvider } from '../../../../providers/visible-flows.provider';
 import { FlowExportImage } from './FlowExportImage';
@@ -45,10 +46,12 @@ interface MockGraph {
 }
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <SourceCodeSync initialSourceCode="">
-    <EntitiesProvider>
-      <VisibleFlowsProvider>{children}</VisibleFlowsProvider>
-    </EntitiesProvider>
+  <SourceCodeSync>
+    <KaotoResourceProvider>
+      <EntitiesProvider>
+        <VisibleFlowsProvider>{children}</VisibleFlowsProvider>
+      </EntitiesProvider>
+    </KaotoResourceProvider>
   </SourceCodeSync>
 );
 

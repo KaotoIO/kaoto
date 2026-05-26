@@ -34,7 +34,7 @@ describe('Test URI node config', () => {
     });
   });
 
-  it('User adds URI step to the YAML', () => {
+  it('User adds URI step to a Kamelet YAML', () => {
     cy.uploadFixture('flows/kamelet/uriConf.yaml');
     const stepToInsert = `      - to: aws2-s3:testBucket?autoCreateBucket=true`;
     cy.editorAddText(43, stepToInsert);
@@ -55,7 +55,7 @@ describe('Test URI node config', () => {
     cy.checkConfigInputObject('parameters.bucketNameOrArn', 'testBucket');
   });
 
-  it('User adds URI step to the YAML', () => {
+  it('User adds URI step to a Camel Route YAML', () => {
     cy.uploadFixture('flows/camelRoute/uriConf.yaml');
     const stepToInsert = `        - to: aws2-s3:testBucket?autoCreateBucket=true`;
     cy.editorAddText(11, stepToInsert);

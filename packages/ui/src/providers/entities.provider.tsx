@@ -1,19 +1,10 @@
-import {
-  createContext,
-  FunctionComponent,
-  PropsWithChildren,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { BaseVisualEntity } from '../models';
 import { SourceSchemaType } from '../models/camel';
-import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { BaseEntity } from '../models/entities';
 import { KaotoResource } from '../models/kaoto-resource';
-import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
 
 export interface EntitiesContextResult {
@@ -43,48 +34,30 @@ export interface EntitiesContextResult {
 
 export const EntitiesContext = createContext<EntitiesContextResult | null>(null);
 
-interface EntitiesProviderProps extends PropsWithChildren {
-  fileExtension?: string;
-}
-
-export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fileExtension, children }) => {
+export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const eventNotifier = EventNotifier.getInstance();
-  const initialSourceCode = useSourceCodeStore.getState().sourceCode;
 
-  let initialCamelResource: KaotoResource;
-  try {
-    initialCamelResource = CamelResourceFactory.createCamelResource(initialSourceCode, { path: fileExtension });
-  } catch (error) {
-    initialCamelResource = CamelResourceFactory.createCamelResource('', { path: fileExtension });
-  }
+  const { kaotoResource } = useKaotoResourceContext();
+  const [entities, setEntities] = useState<BaseEntity[]>([]);
+  const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
 
-  const [camelResource, setCamelResource] = useState<KaotoResource>(initialCamelResource);
-  const [entities, setEntities] = useState<BaseEntity[]>(camelResource.getEntities());
-  const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>(camelResource.getVisualEntities());
+  useEffect(() => {
+    kaotoResource.initialize();
+    const entities = kaotoResource.getEntities();
+    const visualEntities = kaotoResource.getVisualEntities();
 
-  /**
-   * Subscribe to the `code:updated` event to recreate the CamelResource
-   */
-  useLayoutEffect(() => {
-    return eventNotifier.subscribe('code:updated', ({ code, path }) => {
-      const camelResource = CamelResourceFactory.createCamelResource(code, { path });
-      const entities = camelResource.getEntities();
-      const visualEntities = camelResource.getVisualEntities();
-
-      setCamelResource(camelResource);
-      setEntities(entities);
-      setVisualEntities(visualEntities);
-    });
-  }, [eventNotifier]);
+    setEntities(entities);
+    setVisualEntities(visualEntities);
+  }, [kaotoResource]);
 
   const updateSourceCodeFromEntities = useCallback(() => {
-    const code = camelResource.toString();
+    const code = kaotoResource.toString();
     eventNotifier.next('entities:updated', code);
-  }, [camelResource, eventNotifier]);
+  }, [kaotoResource, eventNotifier]);
 
   const updateEntitiesFromCamelResource = useCallback(() => {
-    const entities = camelResource.getEntities();
-    const visualEntities = camelResource.getVisualEntities();
+    const entities = kaotoResource.getEntities();
+    const visualEntities = kaotoResource.getVisualEntities();
     setEntities(entities);
     setVisualEntities(visualEntities);
 
@@ -92,18 +65,18 @@ export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fil
      * Notify consumers that entities has been refreshed, hence the code needs to be updated
      */
     updateSourceCodeFromEntities();
-  }, [camelResource, updateSourceCodeFromEntities]);
+  }, [kaotoResource, updateSourceCodeFromEntities]);
 
   const value = useMemo(
     () => ({
       entities,
       visualEntities,
-      currentSchemaType: camelResource?.getType(),
-      camelResource,
+      currentSchemaType: kaotoResource?.getType(),
+      camelResource: kaotoResource,
       updateEntitiesFromCamelResource,
       updateSourceCodeFromEntities,
     }),
-    [entities, visualEntities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
+    [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
   );
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;

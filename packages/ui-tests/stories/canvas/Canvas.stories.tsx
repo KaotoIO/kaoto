@@ -9,6 +9,7 @@ import {
   EntitiesProvider,
   kameletJson,
   KameletVisualEntity,
+  KaotoResourceProvider,
   pipeJson,
   PipeVisualEntity,
   RuntimeProvider,
@@ -73,21 +74,27 @@ const ContextDecorator = (Story: StoryFn) => {
 
   return (
     <SourceCodeSync>
-      <EntitiesProvider>
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+      <KaotoResourceProvider>
+        <RuntimeProvider
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          runtimeCatalogName=""
+          testingCatalogName=""
+        >
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
-              <CatalogTilesProvider>
-                <VisibleFlowsProvider>
-                  <VisualizationProvider controller={controller}>
-                    <Story />
-                  </VisualizationProvider>
-                </VisibleFlowsProvider>
-              </CatalogTilesProvider>
+              <EntitiesProvider>
+                <CatalogTilesProvider>
+                  <VisibleFlowsProvider>
+                    <VisualizationProvider controller={controller}>
+                      <Story />
+                    </VisualizationProvider>
+                  </VisibleFlowsProvider>
+                </CatalogTilesProvider>
+              </EntitiesProvider>
             </CatalogLoaderProvider>
           </SchemasLoaderProvider>
         </RuntimeProvider>
-      </EntitiesProvider>
+      </KaotoResourceProvider>
     </SourceCodeSync>
   );
 };

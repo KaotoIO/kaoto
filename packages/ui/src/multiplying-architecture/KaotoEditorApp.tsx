@@ -15,7 +15,8 @@ import { RouterProvider } from 'react-router-dom';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
 import { CatalogKind, StepUpdateAction } from '../models';
-import { AbstractSettingsAdapter } from '../models/settings';
+import { AbstractSettingsAdapter, SettingsModel } from '../models/settings';
+import { KaotoResourceProvider } from '../providers';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
@@ -32,6 +33,7 @@ import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export class KaotoEditorApp implements Editor {
   protected editorRef: RefObject<SourceCodeBridgeProviderRef | null>;
+  protected settings: SettingsModel;
   af_isReact = true;
   af_componentId = 'kaoto-editor';
   af_componentTitle = 'Kaoto Editor';
@@ -42,6 +44,7 @@ export class KaotoEditorApp implements Editor {
     protected readonly settingsAdapter: AbstractSettingsAdapter,
   ) {
     this.editorRef = createRef<SourceCodeBridgeProviderRef>();
+    this.settings = this.settingsAdapter.getSettings();
     this.sendReady = this.sendReady.bind(this);
     this.sendNewEdit = this.sendNewEdit.bind(this);
     this.sendNotifications = this.sendNotifications.bind(this);
@@ -170,32 +173,38 @@ export class KaotoEditorApp implements Editor {
     return (
       <ReloadProvider>
         <SettingsProvider adapter={this.settingsAdapter}>
-          <SourceCodeSync initialSourceCode="">
+          <SourceCodeSync>
             <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
-              <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
-                <CatalogLoaderProvider>
-                  <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
-                    <KaotoBridge
-                      channelType={this.initArgs.channel}
-                      onReady={this.sendReady}
-                      setNotifications={this.sendNotifications}
-                      onStateControlCommandUpdate={this.sendStateControlCommand}
-                      getMetadata={this.getMetadata}
-                      setMetadata={this.setMetadata}
-                      getResourceContent={this.getResourceContent}
-                      saveResourceContent={this.saveResourceContent}
-                      isResourceExist={this.isResourceExist}
-                      deleteResource={this.deleteResource}
-                      askUserForFileSelection={this.askUserForFileSelection}
-                      getSuggestions={this.getSuggestions}
-                      shouldSaveSchema={false}
-                      onStepUpdated={this.onStepUpdated}
-                    >
-                      <RouterProvider router={kaotoEditorRouter} />
-                    </KaotoBridge>
-                  </EntitiesProvider>
-                </CatalogLoaderProvider>
-              </RuntimeProvider>
+              <KaotoResourceProvider fileExtension={this.initArgs.fileExtension}>
+                <RuntimeProvider
+                  catalogUrl={this.settings.catalogUrl}
+                  runtimeCatalogName={this.settings.runtimeCatalogName}
+                  testingCatalogName={this.settings.testingCatalogName}
+                >
+                  <CatalogLoaderProvider>
+                    <EntitiesProvider>
+                      <KaotoBridge
+                        channelType={this.initArgs.channel}
+                        onReady={this.sendReady}
+                        setNotifications={this.sendNotifications}
+                        onStateControlCommandUpdate={this.sendStateControlCommand}
+                        getMetadata={this.getMetadata}
+                        setMetadata={this.setMetadata}
+                        getResourceContent={this.getResourceContent}
+                        saveResourceContent={this.saveResourceContent}
+                        isResourceExist={this.isResourceExist}
+                        deleteResource={this.deleteResource}
+                        askUserForFileSelection={this.askUserForFileSelection}
+                        getSuggestions={this.getSuggestions}
+                        shouldSaveSchema={false}
+                        onStepUpdated={this.onStepUpdated}
+                      >
+                        <RouterProvider router={kaotoEditorRouter} />
+                      </KaotoBridge>
+                    </EntitiesProvider>
+                  </CatalogLoaderProvider>
+                </RuntimeProvider>
+              </KaotoResourceProvider>
             </SourceCodeBridgeProvider>
           </SourceCodeSync>
         </SettingsProvider>

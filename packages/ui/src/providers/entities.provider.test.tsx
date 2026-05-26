@@ -10,7 +10,23 @@ import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
+import { KaotoResourceProvider } from './kaoto-resource.provider';
 import { SourceCodeSync } from './source-code-sync';
+
+/**
+ * Compose the real provider chain. Source code enters through the single ingress
+ * (SourceCodeSync emits `code:updated` on mount), KaotoResourceProvider builds the
+ * resource, and EntitiesProvider derives the entities from it.
+ */
+const buildWrapper =
+  (initialSourceCode?: string, fileExtension?: string) =>
+  ({ children }: PropsWithChildren) => (
+    <SourceCodeSync initialSourceCode={initialSourceCode}>
+      <KaotoResourceProvider fileExtension={fileExtension}>
+        <EntitiesProvider>{children}</EntitiesProvider>
+      </KaotoResourceProvider>
+    </SourceCodeSync>
+  );
 
 describe('EntitiesProvider', () => {
   let eventNotifier: EventNotifier;
@@ -29,9 +45,7 @@ describe('EntitiesProvider', () => {
     'should initialize the camelResource using the `%s` serializer provided a `%s` file extension',
     (serializerType, fileExtension) => {
       const { result } = renderHook(() => useContext(EntitiesContext), {
-        wrapper: ({ children }: PropsWithChildren) => (
-          <EntitiesProvider fileExtension={fileExtension}>{children}</EntitiesProvider>
-        ),
+        wrapper: buildWrapper(undefined, fileExtension),
       });
 
       expect(result.current?.camelResource.getSerializerType()).toEqual(serializerType);
@@ -39,15 +53,9 @@ describe('EntitiesProvider', () => {
   );
 
   describe('Initialization', () => {
-    it('should use the sourceCode store to initialize the Camel Resource', () => {
-      useSourceCodeStore.getState().setSourceCode(camelRouteYaml);
-
+    it('should use the source code to initialize the Camel Resource', () => {
       const { result } = renderHook(() => useContext(EntitiesContext), {
-        wrapper: ({ children }: PropsWithChildren) => (
-          <SourceCodeSync initialSourceCode={camelRouteYaml}>
-            <EntitiesProvider>{children}</EntitiesProvider>
-          </SourceCodeSync>
-        ),
+        wrapper: buildWrapper(camelRouteYaml),
       });
 
       expect(result.current?.camelResource.toJSON()).toEqual(parse(camelRouteYaml));
@@ -55,7 +63,7 @@ describe('EntitiesProvider', () => {
 
     it('should create an empty Camel Resource if there is no Source Code available', () => {
       const { result } = renderHook(() => useContext(EntitiesContext), {
-        wrapper: EntitiesProvider,
+        wrapper: buildWrapper(),
       });
 
       expect(result.current?.camelResource.toJSON()).toEqual([]);
@@ -65,11 +73,7 @@ describe('EntitiesProvider', () => {
       useSourceCodeStore.getState().setSourceCode('A non camel source code');
 
       const { result } = renderHook(() => useContext(EntitiesContext), {
-        wrapper: ({ children }: PropsWithChildren) => (
-          <SourceCodeSync initialSourceCode="A non camel source code">
-            <EntitiesProvider>{children}</EntitiesProvider>
-          </SourceCodeSync>
-        ),
+        wrapper: buildWrapper('A non camel source code'),
       });
 
       expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
@@ -79,27 +83,15 @@ describe('EntitiesProvider', () => {
       useSourceCodeStore.getState().setSourceCode('- from: {');
 
       const { result } = renderHook(() => useContext(EntitiesContext), {
-        wrapper: ({ children }: PropsWithChildren) => (
-          <SourceCodeSync initialSourceCode={'- from: {'}>
-            <EntitiesProvider>{children}</EntitiesProvider>
-          </SourceCodeSync>
-        ),
+        wrapper: buildWrapper('- from: {'),
       });
 
       expect(result.current?.camelResource.toJSON()).toEqual([]);
     });
   });
 
-  it('it should subscribe to the `code:updated` notification', () => {
-    const notifierSpy = jest.spyOn(eventNotifier, 'subscribe');
-
-    renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
-
-    expect(notifierSpy).toHaveBeenCalledWith('code:updated', expect.anything());
-  });
-
   it('updating the source code should NOT recreate the Camel Resource', () => {
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       const firstCamelResource = result.current?.camelResource;
@@ -111,7 +103,7 @@ describe('EntitiesProvider', () => {
   });
 
   it('should recreate the entities when the source code is updated', () => {
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       eventNotifier.next('code:updated', { code: camelRouteYaml });
@@ -123,7 +115,7 @@ describe('EntitiesProvider', () => {
 
   it('should serialize using YAML 1.1', () => {
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       eventNotifier.next('code:updated', { code: camelRouteYaml_1_1_original });
@@ -141,7 +133,7 @@ describe('EntitiesProvider', () => {
     mockRandomValues();
 
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       result.current?.camelResource.addNewEntity();
@@ -170,7 +162,7 @@ describe('EntitiesProvider', () => {
     let firstCamelResource: KaotoResource | undefined;
     let secondCamelResource: KaotoResource | undefined;
 
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       firstCamelResource = result.current?.camelResource;
@@ -187,7 +179,7 @@ describe('EntitiesProvider', () => {
   });
 
   it('should refresh entities', () => {
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       result.current?.camelResource.addNewEntity();
@@ -201,7 +193,7 @@ describe('EntitiesProvider', () => {
 
   it('should refresh entities and notify subscribers', () => {
     const notifierSpy = jest.spyOn(eventNotifier, 'next');
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       result.current?.updateEntitiesFromCamelResource();
@@ -233,7 +225,7 @@ describe('EntitiesProvider', () => {
             message: \${body}
 `;
 
-    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
     act(() => {
       eventNotifier.next('code:updated', { code });

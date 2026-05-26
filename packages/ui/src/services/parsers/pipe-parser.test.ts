@@ -9,7 +9,9 @@ import { PipeParser } from './pipe-parser';
 describe('PipeParser', () => {
   describe('parsePipeEntity()', () => {
     it('should parse pipe', () => {
-      const pipeEntity = CamelResourceFactory.createCamelResource(pipeYaml).getVisualEntities()[0] as PipeVisualEntity;
+      const resource = CamelResourceFactory.createCamelResource(pipeYaml);
+      resource.initialize();
+      const pipeEntity = resource.getVisualEntities()[0] as PipeVisualEntity;
       const parsed = PipeParser.parsePipeEntity(pipeEntity);
 
       expect(parsed.title).toEqual('Steps');
@@ -28,9 +30,9 @@ describe('PipeParser', () => {
     });
 
     it('should parse pipe with properties', () => {
-      const pipeEntity = CamelResourceFactory.createCamelResource(
-        pipeTimerSourceYaml,
-      ).getVisualEntities()[0] as PipeVisualEntity;
+      const resource = CamelResourceFactory.createCamelResource(pipeTimerSourceYaml);
+      resource.initialize();
+      const pipeEntity = resource.getVisualEntities()[0] as PipeVisualEntity;
       const parsed = PipeParser.parsePipeEntity(pipeEntity);
 
       expect(parsed.data[3][0]).toEqual('');
@@ -42,9 +44,9 @@ describe('PipeParser', () => {
 
   describe('parseKameletBindingEntity()', () => {
     it('should parse kamelet binding', () => {
-      const kbEntity = CamelResourceFactory.createCamelResource(
-        kameletBindingYaml,
-      ).getVisualEntities()[0] as KameletBindingVisualEntity;
+      const resource = CamelResourceFactory.createCamelResource(kameletBindingYaml);
+      resource.initialize();
+      const kbEntity = resource.getVisualEntities()[0] as KameletBindingVisualEntity;
       const parsed = PipeParser.parseKameletBindingEntity(kbEntity);
 
       expect(parsed.title).toEqual('Steps');
@@ -65,7 +67,9 @@ describe('PipeParser', () => {
 
   describe('parsePipeErrorHandlerEntity()', () => {
     it('should parse pipe error handler', () => {
-      const pehEntity = CamelResourceFactory.createCamelResource(pipeYaml)
+      const resource = CamelResourceFactory.createCamelResource(pipeYaml);
+      resource.initialize();
+      const pehEntity = resource
         .getEntities()
         .find((e) => e instanceof PipeErrorHandlerEntity) as PipeErrorHandlerEntity;
       const parsed = PipeParser.parsePipeErrorHandlerEntity(pehEntity, 'Pipe Error Handler') as ParsedTable;

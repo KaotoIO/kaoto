@@ -27,7 +27,6 @@ export class CamelResourceFactory {
     const testResource = CitrusTestResourceFactory.getCitrusTestResource(parsedCode as Test, pathResourceType);
 
     if (testResource) {
-      testResource.initialize();
       return testResource;
     }
 
@@ -37,12 +36,10 @@ export class CamelResourceFactory {
     );
 
     if (resource) {
-      resource.initialize();
       return resource;
     }
 
     const camelRouteResource = new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
-    camelRouteResource.initialize();
     return camelRouteResource;
   }
 

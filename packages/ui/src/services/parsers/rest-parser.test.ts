@@ -15,6 +15,7 @@ describe('RestParser', () => {
   describe('parseRestEntity()', () => {
     it('should parse rest', () => {
       const camelResource = CamelResourceFactory.createCamelResource(restOperationsYaml);
+      camelResource.initialize();
       const restEntity = camelResource
         .getEntities()
         .find((e) => e instanceof CamelRestVisualEntity) as CamelRestVisualEntity;

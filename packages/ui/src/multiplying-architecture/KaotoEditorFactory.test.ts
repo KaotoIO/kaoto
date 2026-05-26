@@ -15,6 +15,8 @@ describe('KaotoEditorFactory', () => {
   it('should create editor', async () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: 'catalog-url',
+      runtimeCatalogName: '',
+      testingCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
@@ -46,6 +48,8 @@ describe('KaotoEditorFactory', () => {
   it('should get settings', async () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: 'catalog-url',
+      runtimeCatalogName: '',
+      testingCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
@@ -102,6 +106,8 @@ describe('KaotoEditorFactory', () => {
   it('should update catalog URL', async () => {
     const settingsModel: ISettingsModel = {
       catalogUrl: '',
+      runtimeCatalogName: '',
+      testingCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],
@@ -113,6 +119,8 @@ describe('KaotoEditorFactory', () => {
     };
     const expectedSettings: ISettingsModel = {
       catalogUrl: 'path-prefix/camel-catalog/index.json',
+      runtimeCatalogName: '',
+      testingCatalogName: '',
       rest: {
         apicurioRegistryUrl: '',
         customMediaTypes: [],

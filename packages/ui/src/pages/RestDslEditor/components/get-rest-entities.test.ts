@@ -27,6 +27,7 @@ describe('getRestEntities', () => {
         to:
           uri: direct:createOrder
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);
@@ -44,6 +45,7 @@ describe('getRestEntities', () => {
     host: localhost
     port: "8080"
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);
@@ -72,6 +74,7 @@ describe('getRestEntities', () => {
         to:
           uri: direct:deleteItem
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);
@@ -106,6 +109,7 @@ describe('getRestEntities', () => {
         - log:
             message: "tick"
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);
@@ -158,6 +162,7 @@ describe('getRestEntities', () => {
         to:
           uri: direct:deleteUser
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);
@@ -195,6 +200,7 @@ describe('getRestEntities', () => {
         - log:
             message: "tick"
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);
@@ -229,6 +235,7 @@ describe('getRestEntities', () => {
         to:
           uri: direct:third
     `);
+    camelResource.initialize();
 
     const entities = camelResource.getEntities();
     const result = getRestEntities(entities);

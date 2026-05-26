@@ -16,6 +16,7 @@ import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
   EntitiesProvider,
+  KaotoResourceProvider,
   KeyboardShortcutsProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
@@ -30,49 +31,59 @@ function App() {
   const controller = useMemo(() => ControllerService.createController(), []);
   const settingsAdapter = new LocalStorageSettingsAdapter();
   let catalogUrl = CatalogSchemaLoader.DEFAULT_CATALOG_PATH;
-  const settingsCatalogUrl = settingsAdapter.getSettings().catalogUrl;
-  const colorSchema = settingsAdapter.getSettings().colorScheme;
+  const {
+    catalogUrl: settingsCatalogUrl,
+    runtimeCatalogName,
+    testingCatalogName,
+    colorScheme,
+  } = settingsAdapter.getSettings();
 
   if (isDefined(settingsCatalogUrl) && settingsCatalogUrl !== '') {
     catalogUrl = settingsCatalogUrl;
   }
 
   useLayoutEffect(() => {
-    setColorScheme(colorSchema);
-  }, [colorSchema]);
+    setColorScheme(colorScheme);
+  }, [colorScheme]);
 
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <EntitiesProvider>
-                <Shell>
-                  <CatalogTilesProvider>
-                    <VisualizationProvider controller={controller}>
-                      <VisibleFlowsProvider>
-                        <RenderingProvider>
-                          <RegisterComponents>
-                            <NodeInteractionAddonProvider>
-                              <RegisterNodeInteractionAddons>
-                                <SuggestionRegistryProvider>
-                                  <KeyboardShortcutsProvider>
-                                    <Outlet />
-                                  </KeyboardShortcutsProvider>
-                                </SuggestionRegistryProvider>
-                              </RegisterNodeInteractionAddons>
-                            </NodeInteractionAddonProvider>
-                          </RegisterComponents>
-                        </RenderingProvider>
-                      </VisibleFlowsProvider>
-                    </VisualizationProvider>
-                  </CatalogTilesProvider>
-                </Shell>
-              </EntitiesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
+        <KaotoResourceProvider>
+          <RuntimeProvider
+            catalogUrl={catalogUrl}
+            runtimeCatalogName={runtimeCatalogName}
+            testingCatalogName={testingCatalogName}
+          >
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <Shell>
+                    <CatalogTilesProvider>
+                      <VisualizationProvider controller={controller}>
+                        <VisibleFlowsProvider>
+                          <RenderingProvider>
+                            <RegisterComponents>
+                              <NodeInteractionAddonProvider>
+                                <RegisterNodeInteractionAddons>
+                                  <SuggestionRegistryProvider>
+                                    <KeyboardShortcutsProvider>
+                                      <Outlet />
+                                    </KeyboardShortcutsProvider>
+                                  </SuggestionRegistryProvider>
+                                </RegisterNodeInteractionAddons>
+                              </NodeInteractionAddonProvider>
+                            </RegisterComponents>
+                          </RenderingProvider>
+                        </VisibleFlowsProvider>
+                      </VisualizationProvider>
+                    </CatalogTilesProvider>
+                  </Shell>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
+        </KaotoResourceProvider>
       </SourceCodeLocalStorageProvider>
     </SettingsProvider>
   );

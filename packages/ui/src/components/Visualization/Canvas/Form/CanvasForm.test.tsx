@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsContext, CanvasFormTabsProvider, SuggestionRegistryProvider } from '@kaoto/forms';
+import { CanvasFormTabsContext, CanvasFormTabsProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
@@ -18,9 +18,7 @@ import {
 import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
-import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../../providers';
-import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
-import { camelRouteJson, kameletJson } from '../../../../stubs';
+import { camelRouteJson, kameletJson, TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';
@@ -61,17 +59,14 @@ describe('CanvasForm', () => {
   });
 
   it('should render', async () => {
+    const { Provider } = TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
-        <EntitiesProvider>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesProvider>,
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
+        </Provider>,
       ),
     );
 
@@ -87,17 +82,14 @@ describe('CanvasForm', () => {
       },
     } as CanvasNode;
 
+    const { Provider } = TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
-        <EntitiesProvider>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesProvider>,
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
+        </Provider>,
       ),
     );
 
@@ -128,17 +120,14 @@ describe('CanvasForm', () => {
     jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
+    const { Provider } = TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
-        <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesContext.Provider>,
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
+        </Provider>,
       ),
     );
 
@@ -169,17 +158,14 @@ describe('CanvasForm', () => {
     jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
 
+    const { Provider } = TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
-        <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesContext.Provider>,
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
+        </Provider>,
       ),
     );
 
@@ -193,24 +179,22 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
+    const { Provider } = TestProvidersWrapper({
+      visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
+    });
+
     await act(async () =>
       render(
-        <EntitiesProvider>
-          <VisibleFlowsContext.Provider
-            value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        <Provider>
+          <CanvasFormTabsContext.Provider
+            value={{
+              selectedTab: 'All',
+              setSelectedTab: jest.fn(),
+            }}
           >
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsContext.Provider>
-        </EntitiesProvider>,
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsContext.Provider>
+        </Provider>,
       ),
     );
 
@@ -234,24 +218,22 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
+    const { Provider } = TestProvidersWrapper({
+      visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
+    });
+
     await act(async () =>
       render(
-        <EntitiesProvider>
-          <VisibleFlowsContext.Provider
-            value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        <Provider>
+          <CanvasFormTabsContext.Provider
+            value={{
+              selectedTab: 'All',
+              setSelectedTab: jest.fn(),
+            }}
           >
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsContext.Provider>
-        </EntitiesProvider>,
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsContext.Provider>
+        </Provider>,
       ),
     );
 
@@ -276,24 +258,22 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
+    const { Provider } = TestProvidersWrapper({
+      visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
+    });
+
     await act(async () =>
       render(
-        <EntitiesProvider>
-          <VisibleFlowsContext.Provider
-            value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
+        <Provider>
+          <CanvasFormTabsContext.Provider
+            value={{
+              selectedTab: 'All',
+              setSelectedTab: jest.fn(),
+            }}
           >
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsContext.Provider>
-        </EntitiesProvider>,
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsContext.Provider>
+        </Provider>,
       ),
     );
 
@@ -320,19 +300,17 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
+    const { Provider } = TestProvidersWrapper({
+      visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
+    });
+
     await act(async () =>
       render(
-        <EntitiesProvider>
-          <VisibleFlowsContext.Provider
-            value={{ visibleFlows: { [flowId]: true }, allFlowsVisible: true, visualFlowsApi }}
-          >
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsContext.Provider>
-        </EntitiesProvider>,
+        <Provider>
+          <CanvasFormTabsProvider>
+            <CanvasForm selectedNode={selectedNode} />
+          </CanvasFormTabsProvider>
+        </Provider>,
       ),
     );
 
@@ -358,17 +336,15 @@ describe('CanvasForm', () => {
     });
 
     it('normal text field', async () => {
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesProvider>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesProvider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -417,17 +393,15 @@ describe('CanvasForm', () => {
         },
       };
 
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesContext.Provider value={null}>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesContext.Provider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -484,17 +458,15 @@ describe('CanvasForm', () => {
         },
       };
 
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesContext.Provider value={null}>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesContext.Provider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -555,17 +527,15 @@ describe('CanvasForm', () => {
         },
       };
 
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesContext.Provider value={null}>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesContext.Provider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -605,17 +575,15 @@ describe('CanvasForm', () => {
     });
 
     it('normal text field', async () => {
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesProvider>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesProvider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -660,17 +628,15 @@ describe('CanvasForm', () => {
         },
       };
 
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesContext.Provider value={null}>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesContext.Provider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -723,17 +689,15 @@ describe('CanvasForm', () => {
         },
       };
 
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesContext.Provider value={null}>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesContext.Provider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 
@@ -787,17 +751,15 @@ describe('CanvasForm', () => {
         },
       };
 
+      const { Provider } = TestProvidersWrapper();
+
       await act(async () =>
         render(
-          <EntitiesContext.Provider value={null}>
-            <VisibleFlowsProvider>
-              <SuggestionRegistryProvider>
-                <CanvasFormTabsProvider>
-                  <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
-                </CanvasFormTabsProvider>
-              </SuggestionRegistryProvider>
-            </VisibleFlowsProvider>
-          </EntitiesContext.Provider>,
+          <Provider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode as unknown as CanvasNode} />
+            </CanvasFormTabsProvider>
+          </Provider>,
         ),
       );
 

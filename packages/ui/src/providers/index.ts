@@ -1,5 +1,6 @@
 export * from './action-confirmation-modal.provider';
 export * from './entities.provider';
+export * from './kaoto-resource.provider';
 export * from './keyboard-shortcuts.provider';
 export * from './metadata.provider';
 export * from './reload.provider';

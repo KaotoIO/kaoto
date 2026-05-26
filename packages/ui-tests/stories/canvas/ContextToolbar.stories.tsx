@@ -7,6 +7,7 @@ import {
   ControllerService,
   EntitiesProvider,
   kameletYaml,
+  KaotoResourceProvider,
   pipeYaml,
   RuntimeProvider,
   SchemasLoaderProvider,
@@ -39,26 +40,32 @@ export default {
 const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }) => {
   return (
     <SourceCodeSync initialSourceCode={props.sourceCode}>
-      <EntitiesProvider>
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+      <KaotoResourceProvider>
+        <RuntimeProvider
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          runtimeCatalogName=""
+          testingCatalogName=""
+        >
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
-              <CatalogTilesProvider>
-                <VisibleFlowsProvider>
-                  <Toolbar>
-                    <ToolbarContent>
-                      <ToolbarGroup className="pf-topology-view__project-toolbar">
-                        <ContextToolbar />
-                      </ToolbarGroup>
-                    </ToolbarContent>
-                    <Divider />
-                  </Toolbar>
-                </VisibleFlowsProvider>
-              </CatalogTilesProvider>
+              <EntitiesProvider>
+                <CatalogTilesProvider>
+                  <VisibleFlowsProvider>
+                    <Toolbar>
+                      <ToolbarContent>
+                        <ToolbarGroup className="pf-topology-view__project-toolbar">
+                          <ContextToolbar />
+                        </ToolbarGroup>
+                      </ToolbarContent>
+                      <Divider />
+                    </Toolbar>
+                  </VisibleFlowsProvider>
+                </CatalogTilesProvider>
+              </EntitiesProvider>
             </CatalogLoaderProvider>
           </SchemasLoaderProvider>
         </RuntimeProvider>
-      </EntitiesProvider>
+      </KaotoResourceProvider>
     </SourceCodeSync>
   );
 };

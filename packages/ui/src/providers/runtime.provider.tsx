@@ -1,14 +1,14 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
-import { LoadingStatus, LocalStorageKeys } from '../models';
+import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
+import { LoadingStatus } from '../models';
 import { SourceSchemaType } from '../models/camel';
 import { findCatalog } from '../utils/catalog-helper';
-import { EntitiesContext } from './entities.provider';
 
 export interface IRuntimeContext {
   basePath: string;
@@ -19,38 +19,42 @@ export interface IRuntimeContext {
 
 export const RuntimeContext = createContext<IRuntimeContext | undefined>(undefined);
 
+interface IRuntimeProvider {
+  catalogUrl: string;
+  runtimeCatalogName: string;
+  testingCatalogName: string;
+}
+
 /**
  * Loader for the available Catalog library.
  */
-export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
+export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvider>> = ({
+  catalogUrl,
+  runtimeCatalogName,
+  testingCatalogName,
+  children,
+}) => {
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
-  const entitiesContext = useContext(EntitiesContext);
-  const currentSchemaType = entitiesContext?.currentSchemaType || SourceSchemaType.Route;
-  let localSelectedCatalog: CatalogLibraryEntry | undefined = undefined;
+  const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>();
 
-  try {
-    localSelectedCatalog = JSON.parse(localStorage.getItem(LocalStorageKeys.SelectedCatalog) ?? 'undefined');
-  } catch (error) {
-    localSelectedCatalog = undefined;
-  }
+  const { kaotoResource } = useKaotoResourceContext();
+  const currentSchemaType = kaotoResource.getType();
+  const catalogName = currentSchemaType === SourceSchemaType.Test ? testingCatalogName : runtimeCatalogName;
 
-  const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
-  const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
+  const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
 
   useEffect(() => {
-    fetch(props.catalogUrl)
+    fetch(catalogUrl)
       .then((response) => {
         setLoadingStatus(LoadingStatus.Loading);
         return response.json();
       })
       .then((catalogLibrary: CatalogLibrary) => {
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
-        if (isDefined(selectedCatalog)) {
-          catalogLibraryEntry = catalogLibrary.definitions.find(
-            (c: CatalogLibraryEntry) => c.name === selectedCatalog.name,
-          );
+        if (isDefined(catalogName)) {
+          catalogLibraryEntry = catalogLibrary.definitions.find((c: CatalogLibraryEntry) => c.name === catalogName);
         }
         if (!isDefined(catalogLibraryEntry)) {
           catalogLibraryEntry = findCatalog(currentSchemaType, catalogLibrary);
@@ -99,7 +103,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
         </LoadDefaultCatalog>
       )}
 
-      {loadingStatus === LoadingStatus.Loaded && props.children}
+      {loadingStatus === LoadingStatus.Loaded && children}
     </RuntimeContext.Provider>
   );
 };
