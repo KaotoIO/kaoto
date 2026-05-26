@@ -142,6 +142,30 @@ const renderPanels = (configs: PanelConfig[]) => {
   return render(<ExpansionPanels>{configs.map(createPanelElement)}</ExpansionPanels>);
 };
 
+// Helper component for testing layout callbacks
+const createTestPanelWithCallback = (callbackRef: { current: boolean }) => {
+  const TestPanel = ({ id }: { id: string }) => {
+    const context = useContext(ExpansionContext);
+
+    useEffect(() => {
+      if (context) {
+        const callback = () => {
+          callbackRef.current = true;
+        };
+        context.registerLayoutCallback(id, callback);
+        return () => context.unregisterLayoutCallback(id);
+      }
+    }, [context, id]);
+
+    return (
+      <ExpansionPanel id={id} summary={<div>Test Panel</div>} defaultExpanded={true}>
+        Content
+      </ExpansionPanel>
+    );
+  };
+  return TestPanel;
+};
+
 describe('ExpansionPanels', () => {
   let mockResizeObserver: MockResizeObserver;
   let originalResizeObserver: typeof ResizeObserver;
@@ -805,26 +829,8 @@ describe('ExpansionPanels', () => {
 
     it('should execute all queued layout callbacks via executeAllLayoutCallbacks', async () => {
       // Create a component that registers a layout callback
-      let callbackExecuted = false;
-      const TestPanel = ({ id }: { id: string }) => {
-        const context = useContext(ExpansionContext);
-
-        useEffect(() => {
-          if (context) {
-            const callback = () => {
-              callbackExecuted = true;
-            };
-            context.registerLayoutCallback(id, callback);
-            return () => context.unregisterLayoutCallback(id);
-          }
-        }, [context, id]);
-
-        return (
-          <ExpansionPanel id={id} summary={<div>Test Panel</div>} defaultExpanded={true}>
-            Content
-          </ExpansionPanel>
-        );
-      };
+      const callbackRef = { current: false };
+      const TestPanel = createTestPanelWithCallback(callbackRef);
 
       const { container } = render(
         <ExpansionPanels>
@@ -847,7 +853,44 @@ describe('ExpansionPanels', () => {
       });
 
       // Verify the callback was actually executed (line 71 was hit)
-      expect(callbackExecuted).toBe(true);
+      expect(callbackRef.current).toBe(true);
+    });
+
+    it('should flush layout callbacks after panel registration (fix for primitive parameters)', async () => {
+      // This test covers the bug fix for primitive parameters without schemas
+      // When a panel registers, callbacks should be flushed via double RAF
+      const callbackRef = { current: false };
+      const TestPanel = createTestPanelWithCallback(callbackRef);
+
+      const { container, rerender } = render(
+        <ExpansionPanels>
+          <TestPanel id="test-panel-1" />
+        </ExpansionPanels>,
+      );
+
+      await setupPanelMocks(container);
+
+      // Reset the flag
+      callbackRef.current = false;
+
+      // Add a new panel - this triggers the register function
+      rerender(
+        <ExpansionPanels>
+          <TestPanel id="test-panel-1" />
+          <TestPanel id="test-panel-2" />
+        </ExpansionPanels>,
+      );
+
+      await setupPanelMocks(container);
+
+      // Wait for double RAF to complete (lines 229-235 in ExpansionPanels.tsx)
+      await act(async () => {
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
+
+      // Verify the callback was executed after panel registration
+      // This ensures connection ports are synced for primitive parameters
+      expect(callbackRef.current).toBe(true);
     });
   });
 });

@@ -225,9 +225,24 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
             fitPanelsToContainer();
           }
         }
+
+        // Flush queued layout callbacks after grid settles
+        // This is critical for panels without children (primitive parameters) which don't
+        // trigger CSS transitions and thus never fire transitionend events
+        // Use double RAF to ensure layout is fully settled
+        requestAnimationFrame(() => {
+          requestAnimationFrame(flushLayoutCallbacks);
+        });
       });
     },
-    [updateGridTemplate, updateOrdersFromChildren, firstPanelId, lastPanelId, fitPanelsToContainer],
+    [
+      updateGridTemplate,
+      updateOrdersFromChildren,
+      firstPanelId,
+      lastPanelId,
+      fitPanelsToContainer,
+      flushLayoutCallbacks,
+    ],
   );
 
   const unregister = useCallback(
