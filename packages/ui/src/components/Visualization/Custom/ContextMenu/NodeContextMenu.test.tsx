@@ -201,6 +201,7 @@ describe('NodeContextMenu', () => {
 
   it('should render an ItemEnableAllSteps', async () => {
     const camelResource = new CamelRouteResource([camelRouteWithDisabledSteps]);
+    camelResource.initialize();
     const visualEntity = camelResource.getVisualEntities()[0];
     const { nodes, edges } = FlowService.getFlowDiagram('test', await visualEntity.toVizNode());
 

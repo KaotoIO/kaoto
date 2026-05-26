@@ -21,6 +21,9 @@ interface TestProvidersWrapperResult {
 
 export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): TestProvidersWrapperResult => {
   const camelResource = props.camelResource ?? new CamelRouteResource([camelRouteJson]);
+  if (!props.camelResource) {
+    camelResource.initialize();
+  }
   const currentSchemaType = camelResource.getType();
   const updateEntitiesFromCamelResourceSpy = jest.fn();
   const updateSourceCodeFromEntitiesSpy = jest.fn();

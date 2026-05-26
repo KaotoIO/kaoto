@@ -26,9 +26,14 @@ export class PipeResource extends CamelKResource {
     if (!this.pipe.spec) {
       this.pipe.spec = {};
     }
+  }
+
+  initialize(): void {
+    super.initialize();
+
     this.flow = new PipeVisualEntity(this.pipe);
     this.errorHandler =
-      this.pipe.spec.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
+      this.pipe.spec?.errorHandler && new PipeErrorHandlerEntity(this.pipe.spec as PipeSpecErrorHandler);
   }
 
   removeEntity(): void {

@@ -44,6 +44,7 @@ describe('useMoveStep', () => {
   });
 
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   const mockEntitiesContext = {
     camelResource,
     entities: camelResource.getEntities(),

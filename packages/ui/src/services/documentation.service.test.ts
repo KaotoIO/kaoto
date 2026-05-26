@@ -97,6 +97,7 @@ describe('DocumentationService', () => {
       mockRandomValues();
 
       const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
+      camelResource.initialize();
       const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
 
       expect(documentationEntities.length).toEqual(2);
@@ -209,6 +210,7 @@ describe('DocumentationService', () => {
 
     it('should generate rest markdown', () => {
       const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
+      camelResource.initialize();
       const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 

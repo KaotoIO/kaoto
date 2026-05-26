@@ -19,6 +19,7 @@ import { SourceSchemaType } from './source-schema-type';
 describe('CamelRouteResource', () => {
   it('should create CamelRouteResource', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getVisualEntities().length).toEqual(1);
     expect(resource.getEntities().length).toEqual(0);
@@ -26,9 +27,11 @@ describe('CamelRouteResource', () => {
 
   it('should initialize Camel Route if no args is specified', () => {
     const resource = new CamelRouteResource(undefined);
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities()).toEqual([]);
+    resource.initialize();
   });
 
   describe('entity ordering in constructor', () => {
@@ -42,6 +45,7 @@ describe('CamelRouteResource', () => {
       ];
 
       const resource = new CamelRouteResource(mixedEntities);
+      resource.initialize();
       const entities = resource.getVisualEntities();
 
       // Should be sorted: RestConfiguration, Rest, RouteConfiguration, Route, Route
@@ -61,6 +65,7 @@ describe('CamelRouteResource', () => {
       ];
 
       const resource = new CamelRouteResource(multipleRoutes);
+      resource.initialize();
       const entities = resource.getVisualEntities();
 
       expect(entities).toHaveLength(3);
@@ -81,6 +86,7 @@ describe('CamelRouteResource', () => {
       ];
 
       const resource = new CamelRouteResource(mixedWithMultiples);
+      resource.initialize();
 
       // Verify internal ordering via toJSON: RestConfiguration, RouteConfiguration(config2), RouteConfiguration(config1), Route(route1), Route(route2)
       const json = resource.toJSON() as Record<string, unknown>[];
@@ -125,6 +131,7 @@ describe('CamelRouteResource', () => {
     ];
     it.each(testCases)('should return the appropriate entity for: %s', (json, expected) => {
       const resource = new CamelRouteResource(json);
+      resource.initialize();
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
 
       if (typeof expected === 'function') {
@@ -138,6 +145,7 @@ describe('CamelRouteResource', () => {
   describe('addNewEntity', () => {
     it('should add new entity and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       const id = resource.addNewEntity();
 
       expect(resource.getVisualEntities()).toHaveLength(1);
@@ -146,6 +154,7 @@ describe('CamelRouteResource', () => {
 
     it('should add new entities at the end of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.Route);
 
@@ -155,6 +164,7 @@ describe('CamelRouteResource', () => {
 
     it('should add the given entities at the end of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(
         EntityType.Route,
@@ -167,6 +177,7 @@ describe('CamelRouteResource', () => {
 
     it('should add OnException entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.OnException);
 
@@ -176,6 +187,7 @@ describe('CamelRouteResource', () => {
 
     it('should add the given OnException entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.OnException, { onException: { id: 'onException-test' } });
 
@@ -185,6 +197,7 @@ describe('CamelRouteResource', () => {
 
     it('should add ErrorHandler entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.ErrorHandler);
 
@@ -194,6 +207,7 @@ describe('CamelRouteResource', () => {
 
     it('should add the given ErrorHandler entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.ErrorHandler, { errorHandler: { id: 'errorHandler-test' } });
 
@@ -203,6 +217,7 @@ describe('CamelRouteResource', () => {
 
     it('should add OnCompletion entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.OnCompletion);
 
@@ -212,6 +227,7 @@ describe('CamelRouteResource', () => {
 
     it('should add the given OnCompletion entity at the beginning of the list and return its ID', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.OnCompletion, { onCompletion: { id: 'onCompletion-test' } });
 
@@ -226,6 +242,7 @@ describe('CamelRouteResource', () => {
           { from: { uri: 'direct:route2', steps: [] } },
           { from: { uri: 'direct:route3', steps: [] } },
         ]);
+        resource.initialize();
 
         const entities = resource.getVisualEntities();
         expect(entities).toHaveLength(3);
@@ -246,6 +263,7 @@ describe('CamelRouteResource', () => {
           { from: { uri: 'direct:route1', steps: [] } },
           { from: { uri: 'direct:route2', steps: [] } },
         ]);
+        resource.initialize();
 
         const entities = resource.getVisualEntities();
         const route2Id = entities[1].id;
@@ -264,6 +282,7 @@ describe('CamelRouteResource', () => {
           { from: { uri: 'direct:route1', steps: [] } },
           { from: { uri: 'direct:route2', steps: [] } },
         ]);
+        resource.initialize();
 
         const entities = resource.getVisualEntities();
         const route1Id = entities.find((e) => e.type === EntityType.Route)!.id;
@@ -282,6 +301,7 @@ describe('CamelRouteResource', () => {
 
       it('should fall back to default ordering when insertAfterEntityId is not found', () => {
         const resource = new CamelRouteResource([{ from: { uri: 'direct:route1', steps: [] } }]);
+        resource.initialize();
 
         const newId = resource.addNewEntity(EntityType.Route, undefined, 'non-existing-id');
 
@@ -292,6 +312,7 @@ describe('CamelRouteResource', () => {
 
       it('should fall back to default ordering when insertAfterEntityId is not provided', () => {
         const resource = new CamelRouteResource([{ from: { uri: 'direct:route1', steps: [] } }]);
+        resource.initialize();
 
         const newId = resource.addNewEntity(EntityType.Route);
 
@@ -304,16 +325,19 @@ describe('CamelRouteResource', () => {
 
   it('should return the right type', () => {
     const resource = new CamelRouteResource();
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
   });
 
   it('should allow consumers to have multiple visual entities', () => {
     const resource = new CamelRouteResource();
+    resource.initialize();
     expect(resource.supportsMultipleVisualEntities()).toEqual(true);
   });
 
   it('should return visual entities', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
+    resource.initialize();
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CamelRouteVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
@@ -329,6 +353,7 @@ describe('CamelRouteResource', () => {
       ];
 
       const resource = new CamelRouteResource(mixedEntities);
+      resource.initialize();
       const visualEntities = resource.getVisualEntities();
 
       // Rest and RestConfiguration are non-visual entities
@@ -347,6 +372,7 @@ describe('CamelRouteResource', () => {
 
     it('should maintain consistent ordering after adding entities', () => {
       const resource = new CamelRouteResource([{ from: { uri: 'direct:route1', steps: [] } }]);
+      resource.initialize();
 
       // Add entities that should be ordered before routes
       resource.addNewEntity(EntityType.RestConfiguration);
@@ -377,6 +403,7 @@ describe('CamelRouteResource', () => {
       ];
 
       const resource = new CamelRouteResource(multipleEntitiesPerType);
+      resource.initialize();
       const visualEntities = resource.getVisualEntities();
 
       // Visual entities: RouteConfiguration(config2), RouteConfiguration(config1), Route(route3), Route(route1)
@@ -404,6 +431,7 @@ describe('CamelRouteResource', () => {
 
   it('should return entities', () => {
     const resource = new CamelRouteResource([beansJson]);
+    resource.initialize();
     expect(resource.getEntities()).toHaveLength(1);
     expect(resource.getEntities()[0]).toBeInstanceOf(BeansEntity);
     expect(resource.getVisualEntities()).toHaveLength(0);
@@ -412,6 +440,7 @@ describe('CamelRouteResource', () => {
   describe('toJSON', () => {
     it('should return JSON', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
       expect(resource.toJSON()).toMatchSnapshot();
     });
 
@@ -421,6 +450,7 @@ describe('CamelRouteResource', () => {
 
   it('should create beans entity', () => {
     const resource = new CamelRouteResource();
+    resource.initialize();
     const beansEntity = resource.createBeansEntity();
 
     expect(resource.getEntities()).toHaveLength(1);
@@ -430,6 +460,7 @@ describe('CamelRouteResource', () => {
 
   it('should delete beans entity', () => {
     const resource = new CamelRouteResource();
+    resource.initialize();
     const beansEntity = resource.createBeansEntity();
 
     resource.deleteBeansEntity(beansEntity);
@@ -440,6 +471,7 @@ describe('CamelRouteResource', () => {
   describe('beans entity management', () => {
     it('should create beans entity with empty beans array', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       const beansEntity = resource.createBeansEntity();
 
       expect(beansEntity).toBeInstanceOf(BeansEntity);
@@ -449,6 +481,7 @@ describe('CamelRouteResource', () => {
 
     it('should delete the correct beans entity when multiple exist', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       const firstBeansEntity = resource.createBeansEntity();
       const secondBeansEntity = resource.createBeansEntity();
 
@@ -462,6 +495,7 @@ describe('CamelRouteResource', () => {
 
     it('should not fail when trying to delete non-existing beans entity', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       const beansEntity = new BeansEntity({ beans: [] });
 
       expect(() => resource.deleteBeansEntity(beansEntity)).not.toThrow();
@@ -470,6 +504,7 @@ describe('CamelRouteResource', () => {
 
     it('should handle beans entities in mixed entity lists', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.addNewEntity(); // Add a route
       const beansEntity = resource.createBeansEntity();
 
@@ -487,6 +522,7 @@ describe('CamelRouteResource', () => {
   describe('removeEntity', () => {
     it('should not do anything if the ID is not provided', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
 
       resource.removeEntity();
 
@@ -495,6 +531,7 @@ describe('CamelRouteResource', () => {
 
     it('should not do anything when providing a non existing ID', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
 
       resource.removeEntity(['non-existing-id']);
 
@@ -503,6 +540,7 @@ describe('CamelRouteResource', () => {
 
     it('should allow to remove an entity', () => {
       const resource = new CamelRouteResource([camelRouteJson, camelFromJson]);
+      resource.initialize();
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity([camelRouteEntity.id]);
@@ -512,6 +550,7 @@ describe('CamelRouteResource', () => {
 
     it('should remove multiple entities when multiple IDs are provided', () => {
       const resource = new CamelRouteResource([camelRouteJson, camelFromJson]);
+      resource.initialize();
       const entitiesToRemove = resource.getVisualEntities().map((e) => e.id);
 
       resource.removeEntity(entitiesToRemove);
@@ -521,6 +560,7 @@ describe('CamelRouteResource', () => {
 
     it('should NOT create a new entity after deleting them all', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
       const camelRouteEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity([camelRouteEntity.id]);
@@ -530,6 +570,7 @@ describe('CamelRouteResource', () => {
 
     it('should preserve comments and metadata when changing serializer', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
       resource.setSerializer(SerializerType.XML);
       resource['serializer'].setComments(['Initial Comment']);
       resource['serializer'].setMetadata({
@@ -558,6 +599,7 @@ describe('CamelRouteResource', () => {
   describe('getCanvasEntityList', () => {
     it('should return all entities for YAML serializer', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
@@ -584,6 +626,7 @@ describe('CamelRouteResource', () => {
 
     it('should filter out YAML-only entities for XML serializer', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.XML);
 
       const entityList = resource.getCanvasEntityList();
@@ -612,6 +655,7 @@ describe('CamelRouteResource', () => {
 
     it('should return consistent entity list structure on multiple calls', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
 
       const firstCall = resource.getCanvasEntityList();
       const secondCall = resource.getCanvasEntityList();
@@ -621,6 +665,7 @@ describe('CamelRouteResource', () => {
 
     it('should recreate entity list when called after serializer change', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const yamlEntityList = resource.getCanvasEntityList();
@@ -636,6 +681,7 @@ describe('CamelRouteResource', () => {
 
     it('should include entity titles and descriptions from catalog', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
 
       const entityList = resource.getCanvasEntityList();
 
@@ -649,6 +695,7 @@ describe('CamelRouteResource', () => {
 
     it('should properly group entities', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
@@ -669,6 +716,7 @@ describe('CamelRouteResource', () => {
         { rest: { path: '/api' } },
         { from: { uri: 'direct:route1', steps: [] } },
       ]);
+      resource.initialize();
 
       const visualEntities = resource.getVisualEntities();
       expect(visualEntities).toHaveLength(1);
@@ -681,6 +729,7 @@ describe('CamelRouteResource', () => {
         { rest: { path: '/api' } },
         { from: { uri: 'direct:route1', steps: [] } },
       ]);
+      resource.initialize();
 
       const entities = resource.getEntities();
       const entityTypes = entities.map((e) => e.type);
@@ -690,6 +739,7 @@ describe('CamelRouteResource', () => {
 
     it('should not include Rest and RestConfiguration in getCanvasEntityList', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
@@ -707,6 +757,7 @@ describe('CamelRouteResource', () => {
 
     it('should still allow adding Rest and RestConfiguration via addNewEntity', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
 
       const restConfigId = resource.addNewEntity(EntityType.RestConfiguration);
       const restId = resource.addNewEntity(EntityType.Rest);
@@ -726,17 +777,20 @@ describe('CamelRouteResource', () => {
   describe('getSerializerType', () => {
     it('should return YAML serializer type by default', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
     });
 
     it('should return XML serializer type after setting XML serializer', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.XML);
       expect(resource.getSerializerType()).toBe(SerializerType.XML);
     });
 
     it('should return current serializer type after multiple changes', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
 
       resource.setSerializer(SerializerType.XML);
       expect(resource.getSerializerType()).toBe(SerializerType.XML);
@@ -749,6 +803,7 @@ describe('CamelRouteResource', () => {
   describe('toString', () => {
     it('should delegate to serializer serialize method', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
       const serialized = resource.toString();
 
       expect(typeof serialized).toBe('string');
@@ -757,6 +812,7 @@ describe('CamelRouteResource', () => {
 
     it('should support switching between serializer types', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
+      resource.initialize();
 
       // Test YAML serializer
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
@@ -827,6 +883,7 @@ describe('CamelRouteResource', () => {
     ];
     it.each(testCases)('should not throw error when calling: %s', (json) => {
       const resource = new CamelRouteResource(json);
+      resource.initialize();
       const firstEntity = resource.getVisualEntities()[0] ?? resource.getEntities()[0];
       expect(firstEntity.toJSON()).not.toBeUndefined();
     });
@@ -835,6 +892,7 @@ describe('CamelRouteResource', () => {
   describe('getCompatibleRuntimes', () => {
     it('should return the correct list of compatible runtimes', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -842,13 +900,16 @@ describe('CamelRouteResource', () => {
 
     it('should return the same list regardless of resource content', () => {
       const emptyResource = new CamelRouteResource();
+      emptyResource.initialize();
       const resourceWithRoutes = new CamelRouteResource([camelRouteJson, camelFromJson]);
+      resourceWithRoutes.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithRoutes.getCompatibleRuntimes());
     });
 
     it('should return an array with three runtime names', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -858,6 +919,7 @@ describe('CamelRouteResource', () => {
   describe('edge cases and error handling', () => {
     it('should handle empty entities array in constructor', () => {
       const resource = new CamelRouteResource([]);
+      resource.initialize();
 
       expect(resource.getVisualEntities()).toHaveLength(0);
       expect(resource.getEntities()).toHaveLength(0);
@@ -867,6 +929,7 @@ describe('CamelRouteResource', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const entities = [camelRouteJson, null, undefined, { from: { uri: 'direct:test' } }] as any;
       const resource = new CamelRouteResource(entities);
+      resource.initialize();
 
       expect(resource.getVisualEntities()).toHaveLength(2); // Only valid entities
     });
@@ -882,6 +945,7 @@ describe('CamelRouteResource', () => {
       ] as any;
 
       const resource = new CamelRouteResource(malformedEntities);
+      resource.initialize();
 
       // Should create NonVisualEntity for unrecognized entities
       expect(resource.getEntities()).toHaveLength(5); // All become NonVisualEntity
@@ -892,6 +956,7 @@ describe('CamelRouteResource', () => {
         { routeConfiguration: { id: 'config1' } },
         { from: { uri: 'direct:route1', steps: [] } },
       ]);
+      resource.initialize();
 
       const initialVisualCount = resource.getVisualEntities().length;
 
@@ -923,12 +988,14 @@ describe('CamelRouteResource', () => {
       const arrayInput = [{ from: { uri: 'direct:test' } }];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const resourceWithArray = new CamelRouteResource(arrayInput as any);
+      resourceWithArray.initialize();
 
       expect(resourceWithArray.getVisualEntities()).toHaveLength(1);
     });
 
     it('should support template parameter in addNewEntity for all entity types', () => {
       const resource = new CamelRouteResource();
+      resource.initialize();
 
       // Test with RouteConfiguration template
       const configTemplate = { routeConfiguration: { id: 'custom-config', description: 'Custom configuration' } };

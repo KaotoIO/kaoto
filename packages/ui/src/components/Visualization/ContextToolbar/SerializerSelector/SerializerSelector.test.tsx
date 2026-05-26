@@ -49,6 +49,7 @@ describe('SerializerSelector', () => {
 
   it('calls setSerializer and updateSourceCodeFromEntities when a different serializer is selected', async () => {
     const camelResource = new CamelRouteResource([camelRouteJson]);
+    camelResource.initialize();
     const setSerializerSpy = jest.spyOn(camelResource, 'setSerializer');
     const { Provider, updateSourceCodeFromEntitiesSpy } = TestProvidersWrapper({ camelResource });
 
@@ -79,6 +80,7 @@ describe('SerializerSelector', () => {
 
   it('does not call setSerializer when the already-selected serializer is clicked', async () => {
     const camelResource = new CamelRouteResource([camelRouteJson]);
+    camelResource.initialize();
     const setSerializerSpy = jest.spyOn(camelResource, 'setSerializer');
     const { Provider, updateSourceCodeFromEntitiesSpy } = TestProvidersWrapper({ camelResource });
 
