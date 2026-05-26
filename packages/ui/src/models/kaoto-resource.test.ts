@@ -3,12 +3,17 @@ import { citrusTestYaml } from '../stubs/citrus-test';
 import { integrationJson } from '../stubs/integration';
 import { kameletBindingJson } from '../stubs/kamelet-binding-route';
 import { kameletJson } from '../stubs/kamelet-route';
+import { mockRandomValues } from '../stubs/mock-random-values';
 import { pipeJson } from '../stubs/pipe';
 import { CamelResourceFactory } from './camel/camel-resource-factory';
 import { SourceSchemaType } from './camel/source-schema-type';
 import { CamelRouteVisualEntity, CitrusTestVisualEntity, PipeVisualEntity } from './visualization/flows';
 
 describe('CamelResourceFactory.createCamelResource', () => {
+  beforeAll(() => {
+    mockRandomValues();
+  });
+
   it('should create an empty CamelRouteResource if no args is specified', () => {
     const resource = CamelResourceFactory.createCamelResource();
     expect(resource.getType()).toEqual(SourceSchemaType.Route);
@@ -40,7 +45,9 @@ describe('CamelResourceFactory.createCamelResource', () => {
   it('should create an empty KameletResource if no args is specified', () => {
     const resource = CamelResourceFactory.createCamelResource(undefined, { path: 'chuck-norris-source.kamelet.yaml' });
     expect(resource.getType()).toEqual(SourceSchemaType.Kamelet);
-    expect(resource.getEntities()).toEqual([]);
+    const entities = resource.getEntities();
+    expect(entities).toHaveLength(1);
+    expect(entities[0].toJSON()).toEqual({ metadata: { name: expect.stringMatching(/^kamelet-\d{4}$/) } });
     expect(resource.getVisualEntities()).toMatchSnapshot();
   });
 

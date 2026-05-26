@@ -28,6 +28,7 @@ const mockSetValue = setValue as jest.MockedFunction<typeof setValue>;
 
 describe('useEnableAllSteps', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   let mockGraph: Node<ElementModel, unknown>;
 
   const mockEntitiesContext = {

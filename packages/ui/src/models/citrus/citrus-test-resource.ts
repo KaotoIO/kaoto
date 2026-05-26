@@ -49,12 +49,17 @@ export class CitrusTestResource implements KaotoResource {
    * @param serializer - Serializer for converting between object and string representations (defaults to YAML)
    */
   constructor(
-    rawEntities?: Test | Test[],
+    private readonly rawEntities?: Test | Test[],
     private serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
-  ) {
-    if (!rawEntities) return;
+  ) {}
 
-    const entities = Array.isArray(rawEntities) ? rawEntities : [rawEntities];
+  initialize(): void {
+    if (!this.rawEntities) {
+      this.entities = [];
+      return;
+    }
+
+    const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
     const parsedEntities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {

@@ -5,6 +5,7 @@ import { SourceSchemaType } from './source-schema-type';
 describe('PipeResource', () => {
   it('should create KameletBindingResource', () => {
     const resource = new PipeResource(pipeJson);
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0];
@@ -20,6 +21,7 @@ describe('PipeResource', () => {
 
   it('should initialize Pipe if no args is specified', () => {
     const resource = new PipeResource();
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
@@ -32,6 +34,7 @@ describe('PipeResource', () => {
   describe('getCompatibleRuntimes', () => {
     it('should return the correct list of compatible runtimes', () => {
       const resource = new PipeResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -39,13 +42,16 @@ describe('PipeResource', () => {
 
     it('should return the same list regardless of resource content', () => {
       const emptyResource = new PipeResource();
+      emptyResource.initialize();
       const resourceWithPipe = new PipeResource(pipeJson);
+      resourceWithPipe.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithPipe.getCompatibleRuntimes());
     });
 
     it('should return an array with three runtime names', () => {
       const resource = new PipeResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -54,6 +60,7 @@ describe('PipeResource', () => {
 
   it('should create/delete entities', () => {
     const resource = new PipeResource();
+    resource.initialize();
     expect(resource.getEntities().length).toEqual(0);
     expect(resource.getMetadataEntity()).toBeUndefined();
     expect(resource.getErrorHandlerEntity()).toBeUndefined();

@@ -11,6 +11,7 @@ describe('VisibleFlowsProvider', () => {
     mockRandomValues();
 
     const camelResource = new CamelRouteResource();
+    camelResource.initialize();
     camelResource.addNewEntity(EntityType.Route);
 
     const { Provider } = TestProvidersWrapper({ camelResource });
@@ -28,6 +29,7 @@ describe('VisibleFlowsProvider', () => {
 
   it('should initialize visible flows with an empty context', () => {
     const camelResource = new CamelRouteResource();
+    camelResource.initialize();
     const { Provider } = TestProvidersWrapper({ camelResource });
 
     const wrapper = render(

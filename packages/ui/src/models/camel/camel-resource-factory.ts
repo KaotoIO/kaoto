@@ -26,15 +26,24 @@ export class CamelResourceFactory {
 
     const testResource = CitrusTestResourceFactory.getCitrusTestResource(parsedCode as Test, pathResourceType);
 
-    if (testResource) return testResource;
+    if (testResource) {
+      testResource.initialize();
+      return testResource;
+    }
 
     const resource = CamelKResourceFactory.getCamelKResource(
       parsedCode as Integration | KameletBinding | Pipe | IKameletDefinition,
       pathResourceType,
     );
 
-    if (resource) return resource;
-    return new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
+    if (resource) {
+      resource.initialize();
+      return resource;
+    }
+
+    const camelRouteResource = new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
+    camelRouteResource.initialize();
+    return camelRouteResource;
   }
 
   private static initSerializer(source?: string, path?: string): KaotoResourceSerializer {

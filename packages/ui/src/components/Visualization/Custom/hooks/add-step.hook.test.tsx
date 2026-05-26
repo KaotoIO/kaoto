@@ -14,6 +14,7 @@ import { useAddStep } from './add-step.hook';
 
 describe('useAddStep', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   const getCompatibleComponentsSpy = jest.spyOn(camelResource, 'getCompatibleComponents');
 
   const mockEntitiesContext = {

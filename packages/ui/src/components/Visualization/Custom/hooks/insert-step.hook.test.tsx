@@ -22,6 +22,7 @@ jest.mock('@patternfly/react-topology', () => ({
 
 describe('useInsertStep', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
 
   const mockEntitiesContext = {

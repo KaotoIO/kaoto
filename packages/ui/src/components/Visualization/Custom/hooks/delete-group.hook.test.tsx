@@ -25,6 +25,7 @@ jest.mock('../ContextMenu/item-interaction-helper', () => ({
 
 describe('useDeleteGroup', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
 
   const mockEntitiesContext = {

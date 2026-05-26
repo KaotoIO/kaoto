@@ -23,6 +23,7 @@ Object.assign(navigator, {
 
 describe('usePasteEntity', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
   const removeEntitySpy = jest.spyOn(camelResource, 'removeEntity');
   jest.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
