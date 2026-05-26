@@ -22,6 +22,8 @@ export const enum CanvasLayoutDirection {
 
 export interface ISettingsModel {
   catalogUrl: string;
+  runtimeCatalogName: string;
+  testingCatalogName: string;
   nodeLabel: NodeLabelType;
   nodeToolbarTrigger: NodeToolbarTrigger;
   colorScheme: ColorScheme;
@@ -39,6 +41,8 @@ export interface AbstractSettingsAdapter {
 
 export class SettingsModel implements ISettingsModel {
   catalogUrl: string = '';
+  runtimeCatalogName: string = '';
+  testingCatalogName: string = '';
   nodeLabel: NodeLabelType = NodeLabelType.Description;
   nodeToolbarTrigger: NodeToolbarTrigger = NodeToolbarTrigger.onHover;
   colorScheme: ColorScheme = ColorScheme.Auto;

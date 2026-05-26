@@ -5,6 +5,7 @@ import {
   CatalogSchemaLoader,
   CatalogTilesProvider,
   getIconRequest,
+  KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
 } from '@kaoto/kaoto/testing';
@@ -47,15 +48,17 @@ async function tilesWithIcons(rawTiles: FixtureTile[]): Promise<ITile[]> {
 }
 
 const ContextDecorator = (Story: StoryFn) => (
-  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-    <SchemasLoaderProvider>
-      <CatalogLoaderProvider>
-        <CatalogTilesProvider>
-          <Story />
-        </CatalogTilesProvider>
-      </CatalogLoaderProvider>
-    </SchemasLoaderProvider>
-  </RuntimeProvider>
+  <KaotoResourceProvider>
+    <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH} runtimeCatalogName="" testingCatalogName="">
+      <SchemasLoaderProvider>
+        <CatalogLoaderProvider>
+          <CatalogTilesProvider>
+            <Story />
+          </CatalogTilesProvider>
+        </CatalogLoaderProvider>
+      </SchemasLoaderProvider>
+    </RuntimeProvider>
+  </KaotoResourceProvider>
 );
 
 export default {

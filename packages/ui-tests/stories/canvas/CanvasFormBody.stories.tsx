@@ -5,6 +5,7 @@ import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
   createVisualizationNode,
+  KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   VisibleFlowsProvider,
@@ -18,24 +19,30 @@ export default {
   component: CanvasFormBody,
   decorators: [
     (Story: StoryFn) => (
-      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-        <SchemasLoaderProvider>
-          <CatalogLoaderProvider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: () => {},
-              }}
-            >
-              <VisibleFlowsProvider>
-                <SuggestionRegistryProvider>
-                  <Story />
-                </SuggestionRegistryProvider>
-              </VisibleFlowsProvider>
-            </CanvasFormTabsContext.Provider>
-          </CatalogLoaderProvider>
-        </SchemasLoaderProvider>
-      </RuntimeProvider>
+      <KaotoResourceProvider>
+        <RuntimeProvider
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          runtimeCatalogName=""
+          testingCatalogName=""
+        >
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <CanvasFormTabsContext.Provider
+                value={{
+                  selectedTab: 'All',
+                  setSelectedTab: () => {},
+                }}
+              >
+                <VisibleFlowsProvider>
+                  <SuggestionRegistryProvider>
+                    <Story />
+                  </SuggestionRegistryProvider>
+                </VisibleFlowsProvider>
+              </CanvasFormTabsContext.Provider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
+      </KaotoResourceProvider>
     ),
   ],
 } as Meta<typeof CanvasFormBody>;

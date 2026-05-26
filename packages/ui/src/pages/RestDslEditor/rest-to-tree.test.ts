@@ -48,6 +48,7 @@ describe('restToTree', () => {
     host: localhost
     port: "8080"
     `);
+    camelResource.initialize();
   });
 
   it('should convert rest to tree', () => {
@@ -119,6 +120,7 @@ describe('restToTree', () => {
         to:
           uri: direct:create
     `);
+    camelResource.initialize();
 
     const treeNodes = restToTree(getRestEntities(camelResource));
 

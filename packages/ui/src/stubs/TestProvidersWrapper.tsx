@@ -4,7 +4,13 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { KaotoResource } from '../models/kaoto-resource';
 import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
-import { EntitiesContext, EntitiesContextResult, VisibleFlowsContext, VisibleFlowsContextResult } from '../providers';
+import {
+  EntitiesContext,
+  EntitiesContextResult,
+  KaotoResourceProvider,
+  VisibleFlowsContext,
+  VisibleFlowsContextResult,
+} from '../providers';
 import { camelRouteJson } from './camel-route';
 
 interface TestProviderWrapperProps extends PropsWithChildren {
@@ -36,23 +42,25 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
   };
 
   const Provider: FunctionComponent<PropsWithChildren> = (props) => (
-    <EntitiesContext.Provider
-      key={Date.now()}
-      value={
-        {
-          camelResource,
-          entities: camelResource.getEntities(),
-          visualEntities: camelResource.getVisualEntities(),
-          currentSchemaType,
-          updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
-          updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
-        } as unknown as EntitiesContextResult
-      }
-    >
-      <VisibleFlowsContext.Provider value={visibleFlowsContext}>
-        <SuggestionRegistryProvider>{props.children}</SuggestionRegistryProvider>
-      </VisibleFlowsContext.Provider>
-    </EntitiesContext.Provider>
+    <KaotoResourceProvider>
+      <EntitiesContext.Provider
+        key={Date.now()}
+        value={
+          {
+            camelResource,
+            entities: camelResource.getEntities(),
+            visualEntities: camelResource.getVisualEntities(),
+            currentSchemaType,
+            updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
+            updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
+          } as unknown as EntitiesContextResult
+        }
+      >
+        <VisibleFlowsContext.Provider value={visibleFlowsContext}>
+          <SuggestionRegistryProvider>{props.children}</SuggestionRegistryProvider>
+        </VisibleFlowsContext.Provider>
+      </EntitiesContext.Provider>
+    </KaotoResourceProvider>
   );
 
   return { Provider, camelResource, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy };

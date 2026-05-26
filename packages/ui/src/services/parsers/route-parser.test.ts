@@ -28,9 +28,9 @@ describe('RouteParser', () => {
 
   describe('parseRouteEntity()', () => {
     it('should parse route', () => {
-      const routeEntity = CamelResourceFactory.createCamelResource(
-        camelRouteYaml,
-      ).getVisualEntities()[0] as CamelRouteVisualEntity;
+      const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
+      resource.initialize();
+      const routeEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
       const parsed = RouteParser.parseRouteEntity(routeEntity);
 
       expect(parsed.title).toEqual('route-8888');
@@ -51,9 +51,9 @@ describe('RouteParser', () => {
     });
   });
 
-  const rcEntity = CamelResourceFactory.createCamelResource(
-    routeConfigurationFullYaml,
-  ).getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
+  const rcResource = CamelResourceFactory.createCamelResource(routeConfigurationFullYaml);
+  rcResource.initialize();
+  const rcEntity = rcResource.getVisualEntities()[0] as CamelRouteConfigurationVisualEntity;
 
   describe('parseRouteConfigurationEntity()', () => {
     it('should parse route configuration', () => {

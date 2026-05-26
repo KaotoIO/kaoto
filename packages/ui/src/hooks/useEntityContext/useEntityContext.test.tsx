@@ -2,9 +2,14 @@ import { renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
 import { EntitiesProvider } from '../../providers/entities.provider';
+import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
 import { errorMessage, useEntityContext } from './useEntityContext';
 
-const wrapper = ({ children }: PropsWithChildren) => <EntitiesProvider>{children}</EntitiesProvider>;
+const wrapper = ({ children }: PropsWithChildren) => (
+  <KaotoResourceProvider>
+    <EntitiesProvider>{children}</EntitiesProvider>
+  </KaotoResourceProvider>
+);
 
 describe('useEntityContext', () => {
   it('should be throw when use hook without provider', () => {

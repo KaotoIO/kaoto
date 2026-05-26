@@ -2,6 +2,7 @@ import {
   EntitiesContext,
   EntitiesContextResult,
   EntitiesProvider,
+  KaotoResourceProvider,
   Navigation,
   Shell,
   SourceCodeSync,
@@ -16,9 +17,11 @@ export default {
     withRouter,
     (Story: StoryFn) => (
       <SourceCodeSync>
-        <EntitiesProvider>
-          <Story />
-        </EntitiesProvider>
+        <KaotoResourceProvider>
+          <EntitiesProvider>
+            <Story />
+          </EntitiesProvider>
+        </KaotoResourceProvider>
       </SourceCodeSync>
     ),
   ],

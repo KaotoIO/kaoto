@@ -2,6 +2,7 @@ import { SettingsForm } from '@kaoto/kaoto';
 import {
   CatalogSchemaLoader,
   DefaultSettingsAdapter,
+  KaotoResourceProvider,
   ReloadContext,
   RuntimeProvider,
   SettingsProvider,
@@ -27,11 +28,17 @@ const Template: StoryFn<typeof SettingsForm> = (args) => {
   const settingsAdapter = new DefaultSettingsAdapter();
   return (
     <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
-      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-        <SettingsProvider adapter={settingsAdapter}>
-          <SettingsForm {...args} />
-        </SettingsProvider>
-      </RuntimeProvider>
+      <KaotoResourceProvider>
+        <RuntimeProvider
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          runtimeCatalogName=""
+          testingCatalogName=""
+        >
+          <SettingsProvider adapter={settingsAdapter}>
+            <SettingsForm {...args} />
+          </SettingsProvider>
+        </RuntimeProvider>
+      </KaotoResourceProvider>
     </ReloadContext.Provider>
   );
 };

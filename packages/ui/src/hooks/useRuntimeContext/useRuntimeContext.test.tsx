@@ -2,12 +2,21 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
+import { SourceSchemaType } from '../../models/camel';
+import { KaotoResource } from '../../models/kaoto-resource';
+import { KaotoResourceContext } from '../../providers/kaoto-resource.provider';
 import { RuntimeProvider } from '../../providers/runtime.provider';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { errorMessage, useRuntimeContext } from './useRuntimeContext';
 
+const kaotoResource = { getType: () => SourceSchemaType.Integration } as unknown as KaotoResource;
+
 const wrapper = ({ children }: PropsWithChildren) => (
-  <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>{children}</RuntimeProvider>
+  <KaotoResourceContext.Provider value={{ kaotoResource }}>
+    <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH} runtimeCatalogName="" testingCatalogName="">
+      {children}
+    </RuntimeProvider>
+  </KaotoResourceContext.Provider>
 );
 
 describe('useRuntimeContext', () => {

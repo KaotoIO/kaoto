@@ -1,6 +1,7 @@
 import { act, render } from '@testing-library/react';
 import { FunctionComponent, useRef } from 'react';
 
+import { SourceCodeSync } from '../../providers/source-code-sync';
 import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils/event-notifier';
 import { SourceCodeBridgeProviderRef } from './editor-api';
@@ -119,6 +120,22 @@ describe('SourceCodeBridgeProvider', () => {
     });
 
     expect(setCodeAndNotifySpy).toHaveBeenCalledTimes(1);
+
+    setCodeAndNotifySpy.mockRestore();
+  });
+
+  it('does not call onNewEdit for the empty initial code emitted on mount', () => {
+    const mockOnNewEdit = jest.fn();
+
+    render(
+      <SourceCodeSync>
+        <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+          <p>Mounting letter</p>
+        </SourceCodeBridgeProvider>
+      </SourceCodeSync>,
+    );
+
+    expect(mockOnNewEdit).not.toHaveBeenCalled();
   });
 });
 

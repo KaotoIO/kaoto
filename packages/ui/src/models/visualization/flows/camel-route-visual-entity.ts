@@ -15,13 +15,14 @@ export const isCamelRoute = (rawEntity: unknown): rawEntity is { route: RouteDef
     return false;
   }
 
-  const objectKeys = Object.keys(rawEntity!);
+  const objectKeys = Object.keys(rawEntity);
 
   return (
     objectKeys.length === 1 &&
-    'route' in rawEntity! &&
+    'route' in rawEntity &&
     typeof rawEntity.route === 'object' &&
-    'from' in rawEntity.route!
+    isDefined(rawEntity.route) &&
+    'from' in rawEntity.route
   );
 };
 
@@ -31,7 +32,7 @@ export const isCamelFrom = (rawEntity: unknown): rawEntity is { from: FromDefini
     return false;
   }
 
-  const objectKeys = Object.keys(rawEntity!);
+  const objectKeys = Object.keys(rawEntity);
   const isFromHolder = objectKeys.length === 1 && objectKeys[0] === 'from';
   const isValidUriField = typeof (rawEntity as { from: FromDefinition })?.from?.uri === 'string';
 

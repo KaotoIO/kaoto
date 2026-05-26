@@ -14,11 +14,21 @@ jest.mock('@patternfly/react-topology', () => ({
 }));
 
 describe('useEditorApi', () => {
+  const mockSetCodeAndNotify = jest.fn();
+  let originalSetCodeAndNotify: typeof mockSetCodeAndNotify;
+
   beforeEach(() => {
+    originalSetCodeAndNotify = useSourceCodeStore.getState().setCodeAndNotify as typeof mockSetCodeAndNotify;
     jest.clearAllMocks();
-    // Reset store state before each test
-    useSourceCodeStore.getState().setSourceCode('');
-    useSourceCodeStore.temporal.getState().clear();
+    act(() => {
+      useSourceCodeStore.setState({ setCodeAndNotify: mockSetCodeAndNotify });
+    });
+  });
+
+  afterEach(() => {
+    act(() => {
+      useSourceCodeStore.setState({ setCodeAndNotify: originalSetCodeAndNotify });
+    });
   });
 
   it('should initialize editorApi and sourceCodeRef', () => {
@@ -29,7 +39,6 @@ describe('useEditorApi', () => {
   });
 
   it('should set content when setContent is called', async () => {
-    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
     const { result } = renderHook(() => useEditorApi());
 
     const path = 'test-path';
@@ -39,12 +48,11 @@ describe('useEditorApi', () => {
       await result.current.editorApi.setContent(path, content);
     });
 
-    expect(setCodeAndNotifySpy).toHaveBeenCalledWith(content, path);
+    expect(mockSetCodeAndNotify).toHaveBeenCalledWith(content, path);
     expect(result.current.sourceCodeRef.current).toBe(content);
   });
 
   it('should not update content if the new content is the same as the current one', async () => {
-    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
     const { result } = renderHook(() => useEditorApi());
 
     const path = 'test-path';
@@ -54,13 +62,13 @@ describe('useEditorApi', () => {
       await result.current.editorApi.setContent(path, content);
     });
 
-    expect(setCodeAndNotifySpy).toHaveBeenCalledTimes(1);
+    expect(mockSetCodeAndNotify).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.editorApi.setContent(path, content);
     });
 
-    expect(setCodeAndNotifySpy).toHaveBeenCalledTimes(1);
+    expect(mockSetCodeAndNotify).toHaveBeenCalledTimes(1);
   });
 
   it('should get content when getContent is called', async () => {
