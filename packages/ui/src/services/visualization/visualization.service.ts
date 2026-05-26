@@ -153,7 +153,8 @@ export class VisualizationService {
 
     if (parent.isSource) {
       const node = effectiveSpec.createSourceNode(parent, nodeField);
-      if (selectedMember) effectiveSpec.setWrapperRef(node, field);
+      const wrapperRef = spec === CHOICE_WRAPPER && effectiveSpec === ABSTRACT_WRAPPER ? selectedMember : field;
+      if (selectedMember && wrapperRef) effectiveSpec.setWrapperRef(node, wrapperRef);
       return node;
     }
 
@@ -161,7 +162,8 @@ export class VisualizationService {
       selectedMember && mappings ? MappingService.filterMappingsForField(mappings, selectedMember) : [];
     const mapping = mappingsForMember.find((m) => m instanceof FieldItem) as FieldItem;
     const node = effectiveSpec.createTargetNode(parent as TargetNodeData, nodeField, mapping);
-    if (selectedMember) effectiveSpec.setWrapperRef(node, field);
+    const wrapperRef = spec === CHOICE_WRAPPER && effectiveSpec === ABSTRACT_WRAPPER ? selectedMember : field;
+    if (selectedMember && wrapperRef) effectiveSpec.setWrapperRef(node, wrapperRef);
     return node;
   }
 
