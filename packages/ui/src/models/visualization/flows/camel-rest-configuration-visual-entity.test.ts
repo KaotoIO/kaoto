@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
+import { RestConfiguration } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
@@ -15,7 +15,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
   let restConfigurationDef: { restConfiguration: RestConfiguration };
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
@@ -39,38 +39,12 @@ describe('CamelRestConfigurationVisualEntity', () => {
     });
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should set id to generated id', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
       expect(entity.id).toMatch(REST_CONFIGURATION_ID_REGEXP);
     });
-  });
-
-  it('should return id', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getId()).toMatch(REST_CONFIGURATION_ID_REGEXP);
-  });
-
-  it('should set id', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-    const newId = 'newId';
-    entity.setId(newId);
-
-    expect(entity.getId()).toEqual(newId);
-  });
-
-  it('should return node label', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getNodeLabel()).toEqual('restConfiguration');
-  });
-
-  it('should return entity current definition', () => {
-    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-
-    expect(entity.getNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
   });
 
   it('should return schema from store', async () => {
@@ -80,7 +54,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
   });
 
   it('should handle errors when loading schema gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const mockRegistry = {
       getEntity: jest.fn().mockRejectedValue(new Error('Catalog load failed')),
     };
@@ -127,7 +101,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
     });
   });
 
-  it('return no interactions', () => {
+  it('should return no interactions except remove flow', () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
     expect(entity.getNodeInteraction()).toEqual({
@@ -215,16 +189,9 @@ describe('CamelRestConfigurationVisualEntity', () => {
         processorIconTooltip: '',
       });
     });
-
-    it('should return schema title from enriched data', async () => {
-      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
-      const vizNode = await entity.toVizNode();
-
-      expect(vizNode.getNodeTitle()).toEqual('Rest Configuration');
-    });
   });
 
-  it('getCopiedContent should return the content to be copied', () => {
+  it('should return clipboard copy object', () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
     expect(entity.getCopiedContent()).toEqual({

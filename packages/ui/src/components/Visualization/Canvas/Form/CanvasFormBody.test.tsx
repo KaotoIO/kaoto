@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -16,22 +16,39 @@ import { CanvasFormBody } from './CanvasFormBody';
 
 jest.mock('../../../../dynamic-catalog/dynamic-catalog-registry');
 
+/**
+ * Wait for async schema to load and form to render
+ * This is a common pattern when forms need to fetch schemas before rendering
+ */
+const waitForSchemaLoad = async (timeout = 5000) => {
+  await waitFor(
+    () => {
+      expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
+    },
+    { timeout },
+  );
+};
+
 describe('CanvasFormBody', () => {
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
 
     setupDynamicCatalogRegistryMock(catalogsMap);
 
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
   });
 
-  describe('should persists changes from both expression editor and main form', () => {
+  describe('should persist changes from both expression editor and main form', () => {
+    let consoleErrorSpy: jest.SpyInstance;
+
     beforeEach(() => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterEach(() => {
       cleanup();
+      consoleErrorSpy?.mockRestore();
+      jest.clearAllMocks();
       jest.restoreAllMocks();
     });
 
@@ -73,12 +90,7 @@ describe('CanvasFormBody', () => {
       );
 
       // Wait for async schema to load and form to render
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
+      await waitForSchemaLoad();
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
@@ -142,12 +154,7 @@ describe('CanvasFormBody', () => {
       );
 
       // Wait for async schema to load and form to render
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
+      await waitForSchemaLoad();
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
@@ -167,12 +174,15 @@ describe('CanvasFormBody', () => {
   });
 
   describe('should persists changes from both dataformat editor and main form', () => {
+    let consoleErrorSpy: jest.SpyInstance;
+
     beforeEach(() => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterEach(() => {
       cleanup();
+      consoleErrorSpy?.mockRestore();
       jest.restoreAllMocks();
     });
 
@@ -214,12 +224,7 @@ describe('CanvasFormBody', () => {
       );
 
       // Wait for async schema to load and form to render
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
+      await waitForSchemaLoad();
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
@@ -273,12 +278,7 @@ describe('CanvasFormBody', () => {
       );
 
       // Wait for async schema to load and form to render
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
+      await waitForSchemaLoad();
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
@@ -295,12 +295,15 @@ describe('CanvasFormBody', () => {
   });
 
   describe('should persists changes from both loadbalancer editor and main form', () => {
+    let consoleErrorSpy: jest.SpyInstance;
+
     beforeEach(() => {
-      jest.spyOn(console, 'error').mockImplementation(() => {});
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterEach(() => {
       cleanup();
+      consoleErrorSpy?.mockRestore();
       jest.restoreAllMocks();
     });
 
@@ -342,12 +345,7 @@ describe('CanvasFormBody', () => {
       );
 
       // Wait for async schema to load and form to render
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
+      await waitForSchemaLoad();
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();
@@ -401,12 +399,7 @@ describe('CanvasFormBody', () => {
       );
 
       // Wait for async schema to load and form to render
-      await waitFor(
-        () => {
-          expect(screen.getByRole('button', { name: 'All' })).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
+      await waitForSchemaLoad();
 
       const formPageObject = new KaotoFormPageObject(screen, act);
       await formPageObject.showAllFields();

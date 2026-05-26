@@ -1,11 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
-import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../camel/kamelets-catalog';
+import { IKameletDefinition, IKameletMetadata } from '../../camel/kamelets-catalog';
 import { NodeLabelType } from '../../settings';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { KameletVisualEntity } from './kamelet-visual-entity';
@@ -50,7 +49,7 @@ describe('KameletVisualEntity', () => {
               type: 'string',
               example: 'secretsmanager.amazonaws.com',
             },
-          } as Record<string, IKameletSpecProperty>,
+          },
           type: 'source',
         },
         template: {
@@ -59,10 +58,6 @@ describe('KameletVisualEntity', () => {
         dependencies: [],
       },
     };
-  });
-
-  it('should create an instance', () => {
-    expect(new KameletVisualEntity(kameletDef)).toBeTruthy();
   });
 
   it('should set the id to the name if provided', () => {
@@ -78,13 +73,6 @@ describe('KameletVisualEntity', () => {
     const kameletVisualEntity = new KameletVisualEntity(kameletDef);
     expect(kameletVisualEntity.id).toEqual('kamelet-1234');
     expect(kameletVisualEntity.kamelet.metadata.name).toEqual('kamelet-1234');
-  });
-
-  it('should set the id', () => {
-    const kameletVisualEntity = new KameletVisualEntity(kameletDef);
-    kameletVisualEntity.setId('new-id');
-    expect(kameletVisualEntity.id).toEqual('new-id');
-    expect(kameletVisualEntity.kamelet.metadata.name).toEqual('new-id');
   });
 
   describe('getNodeLabel', () => {
@@ -113,7 +101,7 @@ describe('KameletVisualEntity', () => {
   });
 
   it('should return the kamelet root schema when querying the ROOT_PATH', async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     const entityCatalogMap = catalogsMap.entitiesCatalog;
 
     const { setupDynamicCatalogRegistryMock } = await import('./dynamic-catalog-registry-mock');

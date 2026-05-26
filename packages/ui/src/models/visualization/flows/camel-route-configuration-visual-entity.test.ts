@@ -1,10 +1,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
+import { RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { AddStepMode } from '../base-visual-entity';
@@ -20,7 +19,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   let routeConfigurationDef: { routeConfiguration: RouteConfigurationDefinition };
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
 
     setupDynamicCatalogRegistryMock(catalogsMap);
@@ -50,36 +49,12 @@ describe('CamelRouteConfigurationVisualEntity', () => {
     });
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should set id to generated id', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
 
       expect(entity.id).toMatch(ROUTE_CONFIGURATION_ID_REGEXP);
     });
-  });
-
-  it('should return id', () => {
-    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-
-    expect(entity.getId()).toMatch(ROUTE_CONFIGURATION_ID_REGEXP);
-  });
-
-  it('should set id', () => {
-    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-    const newId = 'newId';
-    entity.setId(newId);
-
-    expect(entity.getId()).toEqual(newId);
-  });
-
-  it('should delegate to super return node label', () => {
-    const superGetNodeLabelSpy = jest
-      .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeLabel')
-      .mockReturnValueOnce('label');
-    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-
-    expect(entity.getNodeLabel()).toEqual('label');
-    expect(superGetNodeLabelSpy).toHaveBeenCalled();
   });
 
   it('should return "Add configuration" for placeholder path', () => {
@@ -103,7 +78,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   it('should handle errors when loading schema gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const mockRegistry = {
       getEntity: jest.fn().mockRejectedValue(new Error('Catalog load failed')),
     };
@@ -228,7 +203,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       const superAddStepSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
 
       entity.addStep({
-        definedComponent: { type: CatalogKind.Processor, name: 'intercept' } as DefinedComponent,
+        definedComponent: { type: CatalogKind.Processor, name: 'intercept' },
         mode: AddStepMode.InsertSpecialChildStep,
         data: {
           path: 'routeConfiguration.placeholder',

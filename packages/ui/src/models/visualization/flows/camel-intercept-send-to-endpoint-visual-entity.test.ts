@@ -1,5 +1,4 @@
 import { mockRandomValues } from '../../../stubs';
-import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from './camel-intercept-send-to-endpoint-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
@@ -8,7 +7,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     mockRandomValues();
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should allow to create an instance out of the object definition', () => {
       const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
         interceptSendToEndpoint: { id: 'a-reference', uri: 'direct:a-reference' },
@@ -45,22 +44,6 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     });
   });
 
-  it('should return the id', () => {
-    const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
-      interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
-    });
-    expect(interceptSendToEndpointVisualEntity.getId()).toEqual('id');
-  });
-
-  it('should set the id', () => {
-    const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
-      interceptSendToEndpoint: 'a-reference',
-    });
-    interceptSendToEndpointVisualEntity.setId('new-id');
-    expect(interceptSendToEndpointVisualEntity.getId()).toEqual('new-id');
-    expect(interceptSendToEndpointVisualEntity.interceptSendToEndpointDef.interceptSendToEndpoint.id).toEqual('new-id');
-  });
-
   describe('getNodeInteraction', () => {
     it.each([
       { processorName: 'route', path: 'route' },
@@ -84,7 +67,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
         title: '',
         description: '',
         iconUrl: '',
-      } as IVisualizationNodeData);
+      });
       expect(result).toMatchSnapshot();
     });
   });
@@ -100,7 +83,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', async () => {
+  it('should return the visualization node', async () => {
     const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
       interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },
     });

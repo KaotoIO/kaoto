@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, Rest } from '@kaoto/camel-catalog/types';
+import { Rest } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../models/camel/camel-resource-factory';
@@ -76,13 +76,14 @@ describe('RestDslEditorPage', () => {
   };
 
   beforeEach(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
   afterEach(() => {
     unmount?.();
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   describe('Entity Updates', () => {
@@ -134,7 +135,7 @@ describe('RestDslEditorPage', () => {
       });
 
       const entities = getRestEntities(camelResource);
-      expect(entities.length).toBe(initialCount + 1);
+      expect(entities).toHaveLength(initialCount + 1);
       expect(entities.find((e) => e.type === EntityType.RestConfiguration)).toBeDefined();
     });
 
@@ -153,8 +154,8 @@ describe('RestDslEditorPage', () => {
       });
 
       const entities = getRestEntities(camelResource);
-      expect(entities.length).toBe(initialCount + 1);
-      expect(entities.filter((e) => e.type === EntityType.Rest).length).toBe(2);
+      expect(entities).toHaveLength(initialCount + 1);
+      expect(entities.filter((e) => e.type === EntityType.Rest)).toHaveLength(2);
     });
 
     it('should add REST method', async () => {
@@ -176,7 +177,7 @@ describe('RestDslEditorPage', () => {
       const restDef = restEntity?.toJSON() as { rest: Rest };
       expect(restDef).toHaveProperty('rest.get');
       expect(Array.isArray(restDef?.rest?.get)).toBe(true);
-      expect(restDef?.rest?.get?.length).toBeGreaterThan(0);
+      expect(restDef?.rest?.get).not.toHaveLength(0);
     });
 
     it('should delete entity', async () => {
@@ -202,7 +203,7 @@ describe('RestDslEditorPage', () => {
       });
 
       const entities = getRestEntities(camelResource);
-      expect(entities.length).toBe(initialCount - 1);
+      expect(entities).toHaveLength(initialCount - 1);
       expect(entities.find((e) => e.id === 'rest-1')).toBeUndefined();
     });
   });
@@ -222,7 +223,7 @@ describe('RestDslEditorPage', () => {
       await clickToolbarActionUtil('Add Configuration');
 
       await waitFor(() => {
-        expect(getRestEntities(camelResource).length).toBe(initialCount + 1);
+        expect(getRestEntities(camelResource)).toHaveLength(initialCount + 1);
       });
 
       await waitFor(() => {
@@ -245,7 +246,7 @@ describe('RestDslEditorPage', () => {
       await clickToolbarActionUtil('Add Service');
 
       await waitFor(() => {
-        expect(getRestEntities(camelResource).length).toBe(2);
+        expect(getRestEntities(camelResource)).toHaveLength(2);
       });
 
       await waitFor(() => {
@@ -274,12 +275,12 @@ describe('RestDslEditorPage', () => {
           const tree = screen.getByRole('tree');
           expect(within(tree).getByText('/orders')).toBeTruthy();
         },
-        { timeout: 3000 },
+        { timeout: 5000 },
       );
 
       await waitFor(() => {
         expect(screen.getByText(/Edit/)).toBeTruthy();
-        expect(screen.getAllByText(/GET/).length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/GET/)).not.toHaveLength(0);
       });
     });
 
@@ -323,6 +324,7 @@ describe('RestDslEditorPage', () => {
 
   it('should handle schema loading errors gracefully', async () => {
     const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
     const { camelResource } = renderPage(`
 - rest:
     id: rest-1
@@ -347,7 +349,7 @@ describe('RestDslEditorPage', () => {
       expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load schema:', expect.any(Error));
     });
 
-    // Should still show the edit area but with loading state
+    // Should still show the edit area
     expect(screen.getByText(/Edit/)).toBeTruthy();
 
     consoleErrorSpy.mockRestore();

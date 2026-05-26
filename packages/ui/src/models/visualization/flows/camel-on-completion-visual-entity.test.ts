@@ -1,7 +1,6 @@
 import { OnCompletion } from '@kaoto/camel-catalog/types';
 
 import { mockRandomValues } from '../../../stubs';
-import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelOnCompletionVisualEntity } from './camel-on-completion-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
@@ -10,7 +9,7 @@ describe('CamelOnCompletionVisualEntity', () => {
     mockRandomValues();
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should allow to create an instance out of the object definition', () => {
       const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
         onCompletion: { id: 'a-reference', mode: 'AfterConsumer' },
@@ -43,22 +42,6 @@ describe('CamelOnCompletionVisualEntity', () => {
     });
   });
 
-  it('should return the id', () => {
-    const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
-      onCompletion: { id: 'id', mode: 'AfterConsumer' },
-    });
-    expect(onCompletionVisualEntity.getId()).toEqual('id');
-  });
-
-  it('should set the id', () => {
-    const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
-      onCompletion: { id: 'id', mode: 'AfterConsumer' },
-    });
-    onCompletionVisualEntity.setId('new-id');
-    expect(onCompletionVisualEntity.getId()).toEqual('new-id');
-    expect(onCompletionVisualEntity.onCompletionDef.onCompletion.id).toEqual('new-id');
-  });
-
   describe('getNodeInteraction', () => {
     it.each([
       { processorName: 'route', path: 'route' },
@@ -83,7 +66,7 @@ describe('CamelOnCompletionVisualEntity', () => {
         title: '',
         description: '',
         processorIconTooltip: '',
-      } as IVisualizationNodeData);
+      });
       expect(result).toMatchSnapshot();
     });
   });

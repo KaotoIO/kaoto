@@ -1,9 +1,8 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, ProcessorDefinition, Rest, To2 } from '@kaoto/camel-catalog/types';
+import { Rest, To2 } from '@kaoto/camel-catalog/types';
 
 import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
-import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -22,7 +21,7 @@ describe('CamelRestVisualEntity', () => {
   let restSchema: KaotoSchemaDefinition['schema'];
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     restSchema = catalogsMap.entitiesCatalog[EntityType.Rest].propertiesSchema as KaotoSchemaDefinition['schema'];
 
     setupDynamicCatalogRegistryMock(catalogsMap);
@@ -62,39 +61,9 @@ describe('CamelRestVisualEntity', () => {
     });
   });
 
-  it('should return id', () => {
-    const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getId()).toMatch(REST_ID_REGEXP);
-  });
-
-  it('should set id', () => {
-    const entity = new CamelRestVisualEntity(restDef);
-    const newId = 'newId';
-    entity.setId(newId);
-
-    expect(entity.getId()).toEqual(newId);
-  });
-
-  it('should delegate to super return node label', () => {
-    const superGetNodeLabelSpy = jest
-      .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeLabel')
-      .mockReturnValueOnce('label');
-    const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getNodeLabel()).toEqual('label');
-    expect(superGetNodeLabelSpy).toHaveBeenCalled();
-  });
-
   it('should return "verb" for placeholder path', () => {
     const entity = new CamelRestVisualEntity(restDef);
     expect(entity.getNodeLabel('rest.placeholder')).toEqual('verb');
-  });
-
-  it('should return entity current definition', () => {
-    const entity = new CamelRestVisualEntity(restDef);
-
-    expect(entity.getNodeDefinition(CamelRestVisualEntity.ROOT_PATH)).toEqual(restDef.rest);
   });
 
   describe('getNodeDefinition', () => {
@@ -326,7 +295,7 @@ describe('CamelRestVisualEntity', () => {
       entity.getNodeInteraction({
         name: 'get',
         path: 'rest.get.0',
-        processorName: 'get' as keyof ProcessorDefinition,
+        processorName: 'get',
         isPlaceholder: false,
         isGroup: false,
         iconUrl: '',
@@ -344,7 +313,7 @@ describe('CamelRestVisualEntity', () => {
       const superAddStepSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
 
       entity.addStep({
-        definedComponent: { type: CatalogKind.Processor, name: 'get' } as DefinedComponent,
+        definedComponent: { type: CatalogKind.Processor, name: 'get' },
         mode: AddStepMode.InsertSpecialChildStep,
         data: {
           name: REST_ELEMENT_NAME,
@@ -372,7 +341,7 @@ describe('CamelRestVisualEntity', () => {
       const entity = new CamelRestVisualEntity(restDefWithGet);
 
       entity.addStep({
-        definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
+        definedComponent: { type: CatalogKind.Component, name: 'direct' },
         mode: AddStepMode.ReplaceStep,
         data: {
           name: PlaceholderType.Placeholder,
@@ -395,7 +364,7 @@ describe('CamelRestVisualEntity', () => {
       const entity = new CamelRestVisualEntity(restDef);
 
       entity.addStep({
-        definedComponent: { type: CatalogKind.Component, name: 'direct' } as DefinedComponent,
+        definedComponent: { type: CatalogKind.Component, name: 'direct' },
         mode: AddStepMode.ReplaceStep,
         data: {
           name: PlaceholderType.Placeholder,

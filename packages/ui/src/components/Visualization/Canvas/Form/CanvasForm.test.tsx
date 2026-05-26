@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, CanvasFormTabsProvider, SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -32,7 +32,7 @@ describe('CanvasForm', () => {
   let selectedNode: CanvasNode;
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
 
     setupDynamicCatalogRegistryMock(catalogsMap);
 
@@ -42,32 +42,34 @@ describe('CanvasForm', () => {
   beforeEach(async () => {
     camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!; // choice
+    selectedNode = nodes.find((node) => node.id === 'test|route.from.steps.1.choice')!;
   });
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should render', async () => {
-    const { container } = await act(async () =>
-      render(
-        <EntitiesProvider>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesProvider>,
-      ),
+    const { container } = render(
+      <EntitiesProvider>
+        <VisibleFlowsProvider>
+          <SuggestionRegistryProvider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsProvider>
+          </SuggestionRegistryProvider>
+        </VisibleFlowsProvider>
+      </EntitiesProvider>,
     );
 
+    await waitFor(() => {
+      expect(container.querySelector('form')).toBeInTheDocument();
+    });
     expect(container).toMatchSnapshot();
   });
 
-  it('should return null when vizNode is not available', async () => {
+  it('should return null when vizNode is not available', () => {
     const selectedNode = {
       id: '1',
       type: 'node',
@@ -76,48 +78,50 @@ describe('CanvasForm', () => {
       },
     } as CanvasNode;
 
-    const { container } = await act(async () =>
-      render(
-        <EntitiesProvider>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesProvider>,
-      ),
+    const { container } = render(
+      <EntitiesProvider>
+        <VisibleFlowsProvider>
+          <SuggestionRegistryProvider>
+            <CanvasFormTabsProvider>
+              <CanvasForm selectedNode={selectedNode} />
+            </CanvasFormTabsProvider>
+          </SuggestionRegistryProvider>
+        </VisibleFlowsProvider>
+      </EntitiesProvider>,
     );
 
     expect(container.firstChild).toBeNull();
   });
 
-  it('should render nothing if no schema is available', async () => {
-    const vizNode = createVisualizationNode('route', {
-      name: EntityType.Route,
-      path: CamelRouteVisualEntity.ROOT_PATH,
-      entity: new CamelRouteVisualEntity(camelRouteJson),
-      isGroup: true,
-      processorName: 'route',
-      iconUrl: '',
-      title: 'route',
-      description: '',
-      isPlaceholder: false,
-    });
+  it.each([
+    ['undefined', undefined, undefined],
+    ['null', null as unknown as KaotoSchemaDefinition['schema'], null],
+  ])(
+    'should render warning alert when schema is %s and definition is not available',
+    async (_, schemaValue, definitionValue) => {
+      const vizNode = createVisualizationNode('route', {
+        name: EntityType.Route,
+        path: CamelRouteVisualEntity.ROOT_PATH,
+        entity: new CamelRouteVisualEntity(camelRouteJson),
+        isGroup: true,
+        processorName: 'route',
+        iconUrl: '',
+        title: 'route',
+        description: '',
+        isPlaceholder: false,
+      });
 
-    const selectedNode: CanvasNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode,
-      },
-    };
+      const selectedNode: CanvasNode = {
+        id: '1',
+        type: 'node',
+        data: {
+          vizNode,
+        },
+      };
 
-    jest.spyOn(vizNode, 'getNodeSchema').mockResolvedValue(undefined);
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+      jest.spyOn(vizNode, 'getNodeSchema').mockResolvedValue(schemaValue);
+      jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(definitionValue);
 
-    const { container } = await act(async () =>
       render(
         <EntitiesContext.Provider value={null}>
           <VisibleFlowsProvider>
@@ -128,59 +132,21 @@ describe('CanvasForm', () => {
             </SuggestionRegistryProvider>
           </VisibleFlowsProvider>
         </EntitiesContext.Provider>,
-      ),
-    );
+      );
 
-    expect(container).toMatchSnapshot();
-  });
-
-  it('should render nothing if no schema and no definition is available', async () => {
-    const vizNode = createVisualizationNode('route', {
-      name: EntityType.Route,
-      path: CamelRouteVisualEntity.ROOT_PATH,
-      entity: new CamelRouteVisualEntity(camelRouteJson),
-      isGroup: true,
-      processorName: 'route',
-      iconUrl: '',
-      title: 'route',
-      description: '',
-      isPlaceholder: false,
-    });
-
-    const selectedNode: CanvasNode = {
-      id: '1',
-      type: 'node',
-      data: {
-        vizNode,
-      },
-    };
-
-    jest.spyOn(vizNode, 'getNodeSchema').mockResolvedValue(null as unknown as KaotoSchemaDefinition['schema']);
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
-
-    const { container } = await act(async () =>
-      render(
-        <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsProvider>
-                <CanvasForm selectedNode={selectedNode} />
-              </CanvasFormTabsProvider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
-        </EntitiesContext.Provider>,
-      ),
-    );
-
-    expect(container).toMatchSnapshot();
-  });
+      // Wait for async schema loading and verify warning is shown
+      await waitFor(() => {
+        expect(screen.getByText('Unknow node type')).toBeInTheDocument();
+      });
+    },
+  );
 
   it("should serialize empty strings `''` as `undefined`", async () => {
     const flowId = camelRouteVisualEntity.id;
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    selectedNode = nodes.at(-1)!;
 
     await act(async () =>
       render(
@@ -221,7 +187,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    selectedNode = nodes.at(-1)!;
 
     await act(async () =>
       render(
@@ -263,7 +229,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    selectedNode = nodes.at(-1)!;
 
     await act(async () =>
       render(
@@ -307,7 +273,7 @@ describe('CanvasForm', () => {
     const dispatchSpy = jest.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
-    selectedNode = nodes[nodes.length - 1];
+    selectedNode = nodes.at(-1)!;
 
     await act(async () =>
       render(
@@ -343,7 +309,7 @@ describe('CanvasForm', () => {
     beforeEach(async () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
       const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-      selectedNode = nodes[0]; // timer
+      selectedNode = nodes[0];
     });
 
     it('normal text field', async () => {
@@ -590,7 +556,7 @@ describe('CanvasForm', () => {
     beforeEach(async () => {
       camelRouteVisualEntity = new CamelRouteVisualEntity(camelRouteJson);
       const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
-      selectedNode = nodes[0]; // timer
+      selectedNode = nodes[0];
     });
 
     it('normal text field', async () => {

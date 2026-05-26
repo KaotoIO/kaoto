@@ -1,5 +1,4 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../catalog-kind';
@@ -8,9 +7,10 @@ import { KameletSchemaService } from './kamelet-schema.service';
 
 describe('KameletSchemaService', () => {
   let kameletCatalogMap: Record<string, unknown>;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     kameletCatalogMap = catalogsMap.kameletsCatalogMap;
 
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
@@ -23,6 +23,8 @@ describe('KameletSchemaService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
+    consoleErrorSpy?.mockRestore();
     CamelCatalogService.clearCatalogs();
   });
 
@@ -61,9 +63,9 @@ describe('KameletSchemaService', () => {
     });
 
     it('should handle catalog lookup errors gracefully', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      // Mock DynamicCatalogRegistry to throw an error
+      // Mock DynamicCatalogRegistry to throw an error during catalog fetch
       const { DynamicCatalogRegistry } = await import('../../../../dynamic-catalog/dynamic-catalog-registry');
       const mockRegistry = {
         getEntity: jest.fn().mockRejectedValue(new Error('Catalog fetch failed')),
@@ -85,9 +87,6 @@ describe('KameletSchemaService', () => {
         'Failed to load Kamelet catalog entry for error-kamelet:',
         expect.any(Error),
       );
-
-      consoleErrorSpy.mockRestore();
-      jest.restoreAllMocks();
     });
   });
 });

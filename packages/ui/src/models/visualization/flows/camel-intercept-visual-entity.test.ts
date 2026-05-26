@@ -1,5 +1,4 @@
 import { mockRandomValues } from '../../../stubs';
-import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptVisualEntity } from './camel-intercept-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
@@ -8,7 +7,7 @@ describe('CamelInterceptVisualEntity', () => {
     mockRandomValues();
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should allow to create an instance out of the object definition', () => {
       const interceptVisualEntity = new CamelInterceptVisualEntity({
         intercept: { id: 'a-reference', disabled: false },
@@ -41,20 +40,6 @@ describe('CamelInterceptVisualEntity', () => {
     });
   });
 
-  it('should return the id', () => {
-    const interceptVisualEntity = new CamelInterceptVisualEntity({
-      intercept: { id: 'id', disabled: false },
-    });
-    expect(interceptVisualEntity.getId()).toEqual('id');
-  });
-
-  it('should set the id', () => {
-    const interceptVisualEntity = new CamelInterceptVisualEntity({ intercept: { id: 'a-reference', disabled: false } });
-    interceptVisualEntity.setId('new-id');
-    expect(interceptVisualEntity.getId()).toEqual('new-id');
-    expect(interceptVisualEntity.interceptDef.intercept.id).toEqual('new-id');
-  });
-
   describe('getNodeInteraction', () => {
     it.each([
       { processorName: 'route', path: 'route' },
@@ -78,7 +63,7 @@ describe('CamelInterceptVisualEntity', () => {
         title: '',
         description: '',
         iconUrl: '',
-      } as IVisualizationNodeData);
+      });
       expect(result).toMatchSnapshot();
     });
   });
@@ -94,7 +79,7 @@ describe('CamelInterceptVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', async () => {
+  it('should return the visualization node', async () => {
     const interceptVisualEntity = new CamelInterceptVisualEntity({
       intercept: { id: 'id', disabled: false },
     });

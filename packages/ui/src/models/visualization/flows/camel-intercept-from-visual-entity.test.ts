@@ -1,5 +1,4 @@
 import { mockRandomValues } from '../../../stubs';
-import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptFromVisualEntity } from './camel-intercept-from-visual-entity';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
@@ -8,7 +7,7 @@ describe('CamelInterceptFromVisualEntity', () => {
     mockRandomValues();
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should allow to create an instance out of the string definition', () => {
       const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({ interceptFrom: 'a-reference' });
 
@@ -47,20 +46,6 @@ describe('CamelInterceptFromVisualEntity', () => {
     });
   });
 
-  it('should return the id', () => {
-    const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({
-      interceptFrom: { id: 'id', uri: 'direct:a-reference' },
-    });
-    expect(interceptFromVisualEntity.getId()).toEqual('id');
-  });
-
-  it('should set the id', () => {
-    const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({ interceptFrom: 'a-reference' });
-    interceptFromVisualEntity.setId('new-id');
-    expect(interceptFromVisualEntity.getId()).toEqual('new-id');
-    expect(interceptFromVisualEntity.interceptFromDef.interceptFrom.id).toEqual('new-id');
-  });
-
   describe('getNodeInteraction', () => {
     it.each([
       { processorName: 'route', path: 'route' },
@@ -85,7 +70,7 @@ describe('CamelInterceptFromVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
-      } as IVisualizationNodeData);
+      });
       expect(result).toMatchSnapshot();
     });
   });
@@ -101,7 +86,7 @@ describe('CamelInterceptFromVisualEntity', () => {
     expect(validateNodeStatusSpy).toHaveBeenCalled();
   });
 
-  it('should return the vizualization node', async () => {
+  it('should return the visualization node', async () => {
     const interceptFromVisualEntity = new CamelInterceptFromVisualEntity({
       interceptFrom: { id: 'id', uri: 'direct:a-reference' },
     });

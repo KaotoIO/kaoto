@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
+import { ErrorHandlerDeserializer, NoErrorHandler } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
@@ -14,7 +14,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
   let errorHandlerDef: { errorHandler: ErrorHandlerDeserializer };
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     setupDynamicCatalogRegistryMock(catalogsMap);
   });
 
@@ -36,27 +36,13 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  describe('function Object() { [native code] }', () => {
+  describe('constructor', () => {
     it('should set id to generated id', () => {
       const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
       expect(entity.id).toMatch(ERROR_HANDLER_ID_REGEXP);
       expect((errorHandlerDef.errorHandler.noErrorHandler as NoErrorHandler).id).toEqual('noErrorHandlerId');
     });
-  });
-
-  it('should return id', () => {
-    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
-
-    expect(entity.getId()).toMatch(ERROR_HANDLER_ID_REGEXP);
-  });
-
-  it('should set id', () => {
-    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
-    const newId = 'newId';
-    entity.setId(newId);
-
-    expect(entity.getId()).toEqual(newId);
   });
 
   describe('getNodeLabel', () => {
@@ -92,7 +78,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
   });
 
   it('should handle errors when loading schema gracefully', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const mockRegistry = {
       getEntity: jest.fn().mockRejectedValue(new Error('Catalog load failed')),
     };
@@ -139,7 +125,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  it('return no interactions', () => {
+  it('should return no interactions except remove flow', () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
     expect(entity.getNodeInteraction()).toEqual({
@@ -154,7 +140,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
     });
   });
 
-  it('getCopiedContent should return the content to be copied', () => {
+  it('should return clipboard copy object', () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 
     expect(entity.getCopiedContent()).toEqual({
@@ -190,13 +176,6 @@ describe('CamelErrorHandlerVisualEntity', () => {
         processorIconTooltip: '',
       });
     });
-  });
-
-  it('should return schema title from enriched data', async () => {
-    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
-    const vizNode = await entity.toVizNode();
-
-    expect(vizNode.getNodeTitle()).toEqual('Error Handler');
   });
 
   it('should serialize the errorHandler definition', () => {

@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
+import { Pipe } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -25,7 +25,7 @@ describe('Pipe', () => {
   beforeEach(async () => {
     pipeCR = cloneDeep(pipeJson);
     pipeVisualEntity = new PipeVisualEntity(pipeCR);
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     kameletCatalogMap = catalogsMap.kameletsCatalogMap;
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
 
@@ -42,7 +42,7 @@ describe('Pipe', () => {
 
   describe('constructor', () => {
     it('should initialize with empty pipe object', () => {
-      const emptyPipe = new PipeVisualEntity({} as Pipe);
+      const emptyPipe = new PipeVisualEntity({});
       expect(emptyPipe.id).toBeDefined();
       expect(emptyPipe.pipe.metadata).toBeDefined();
       expect(emptyPipe.pipe.metadata!.name).toBe(emptyPipe.id);
@@ -187,7 +187,7 @@ describe('Pipe', () => {
     });
 
     it('should handle errors when loading root pipe schema gracefully', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const mockRegistry = {
         getEntity: jest.fn().mockRejectedValue(new Error('Catalog load failed')),
       };
