@@ -121,20 +121,51 @@ export class MappingActionService {
 
   /**
    * Appends a new {@link WhenItem} to the {@link ChooseItem} mapping of the node.
+   * For "inner" choose structures (where choose is inside a FieldItem with the same field),
+   * does not pass the field to avoid creating duplicate field elements.
    * @param nodeData - The target node whose mapping is a `ChooseItem`.
    */
   static applyWhen(nodeData: TargetNodeData) {
     const chooseItem = nodeData.mapping as ChooseItem;
-    MappingService.addWhen(chooseItem, undefined, chooseItem.field);
+    // Check if this is an "inner" choose by checking if any ancestor FieldItem has the same field
+    const isInnerChoose = MappingActionService.isInnerChoose(chooseItem);
+    // For inner choose, don't pass the field to avoid creating duplicate field elements
+    MappingService.addWhen(chooseItem, undefined, isInnerChoose ? undefined : chooseItem.field);
   }
 
   /**
    * Sets the {@link OtherwiseItem} on the {@link ChooseItem} mapping of the node.
+   * For "inner" choose structures (where choose is inside a FieldItem with the same field),
+   * does not pass the field to avoid creating duplicate field elements.
    * @param nodeData - The target node whose mapping is a `ChooseItem`.
    */
   static applyOtherwise(nodeData: TargetNodeData) {
     const chooseItem = nodeData.mapping as ChooseItem;
-    MappingService.addOtherwise(chooseItem, undefined, chooseItem.field);
+    // Check if this is an "inner" choose by checking if any ancestor FieldItem has the same field
+    const isInnerChoose = MappingActionService.isInnerChoose(chooseItem);
+    // For inner choose, don't pass the field to avoid creating duplicate field elements
+    MappingService.addOtherwise(chooseItem, undefined, isInnerChoose ? undefined : chooseItem.field);
+  }
+
+  /**
+   * Checks if a ChooseItem is an "inner" choose by looking up the ancestor tree
+   * to find a FieldItem with the same field. This handles cases where the choose
+   * is nested inside other instructions like ForEachItem or ForEachGroupItem.
+   * @param chooseItem - The choose item to check
+   * @returns true if this is an inner choose, false otherwise
+   */
+  private static isInnerChoose(chooseItem: ChooseItem): boolean {
+    if (!chooseItem.field) return false;
+
+    // Walk up the parent tree to find a FieldItem with the same field
+    let current: MappingItem | MappingTree = chooseItem.parent;
+    while (!(current instanceof MappingTree)) {
+      if (current instanceof FieldItem && current.field === chooseItem.field) {
+        return true;
+      }
+      current = current.parent;
+    }
+    return false;
   }
 
   /**
@@ -155,6 +186,63 @@ export class MappingActionService {
   static applyForEachGroup(nodeData: ForEachCapableNodeData) {
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEachGroup(fieldItem);
+  }
+
+  /**
+   * Adds a {@link ForEachItem} as a child inside the target field's mapping item or inside an existing for-each.
+   * This creates an "inner" for-each where the for-each is nested
+   * inside the field element rather than wrapping it.
+   * Creates the field item first if it does not yet exist.
+   * @param nodeData - The target field node or for-each node to add the inner for-each to.
+   */
+  static applyInnerForEach(nodeData: ForEachCapableNodeData | TargetNodeData) {
+    // If applying to a ForEachItem or ForEachGroupItem node, use the mapping directly
+    if (MappingActionService.isMappingNode(nodeData)) {
+      const mapping = (nodeData as MappingNodeData).mapping;
+      if (mapping instanceof ForEachItem || mapping instanceof ForEachGroupItem) {
+        MappingService.addInnerForEach(mapping);
+        return;
+      }
+    }
+
+    // Otherwise, get or create the field item
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    MappingService.addInnerForEach(fieldItem);
+  }
+
+  /**
+   * Adds a {@link ChooseItem} with when/otherwise branches as a child inside the target field's mapping item.
+   * This creates an "inner" choose-when-otherwise where the choose structure is nested
+   * inside the field element rather than wrapping it.
+   * Creates the field item first if it does not yet exist.
+   * @param nodeData - The target field node to add the inner choose-when-otherwise to.
+   */
+  static applyInnerChooseWhenOtherwise(nodeData: TargetNodeData) {
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    const field = fieldItem instanceof FieldItem ? fieldItem.field : undefined;
+    MappingService.addInnerChooseWhenOtherwise(fieldItem, field);
+  }
+
+  /**
+   * Adds an {@link IfItem} as a child inside the target field's mapping item or inside an existing if.
+   * This creates an "inner" if where the if structure is nested
+   * inside the field element rather than wrapping it.
+   * Creates the field item first if it does not yet exist.
+   * @param nodeData - The target field node or if node to add the inner if to.
+   */
+  static applyInnerIf(nodeData: TargetNodeData) {
+    // If applying to an IfItem node, use the mapping directly
+    if (MappingActionService.isMappingNode(nodeData)) {
+      const mapping = (nodeData as MappingNodeData).mapping;
+      if (mapping instanceof IfItem) {
+        MappingService.addInnerIf(mapping);
+        return;
+      }
+    }
+
+    // Otherwise, get or create the field item
+    const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
+    MappingService.addInnerIf(fieldItem);
   }
 
   /**
@@ -524,6 +612,43 @@ export class MappingActionService {
       isAllowed: (n) =>
         !MappingActionService.isMappingNode(n) ||
         !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, IfItem, ChooseItem)(n),
+    },
+    {
+      key: MappingActionKind.InnerForEach,
+      testId: 'transformation-actions-foreach-inner',
+      getLabel: () => 'Inner "for-each"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyInnerForEach(n);
+        onUpdate();
+      },
+      isAllowed: (n) =>
+        n instanceof AddMappingNodeData ||
+        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
+        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+    },
+    {
+      key: MappingActionKind.InnerChoose,
+      testId: 'transformation-actions-choose-inner',
+      getLabel: () => 'Inner "choose-when-otherwise"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyInnerChooseWhenOtherwise(n);
+        onUpdate();
+      },
+      isAllowed: (n) =>
+        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
+        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n),
+    },
+    {
+      key: MappingActionKind.InnerIf,
+      testId: 'transformation-actions-if-inner',
+      getLabel: () => 'Inner "if"',
+      apply: (n, { onUpdate }) => {
+        MappingActionService.applyInnerIf(n);
+        onUpdate();
+      },
+      isAllowed: (n) =>
+        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isTerminalField(n)) ||
+        MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem, IfItem)(n),
     },
     {
       key: MappingActionKind.Variable,
