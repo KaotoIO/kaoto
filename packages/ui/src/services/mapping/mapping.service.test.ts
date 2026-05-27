@@ -1009,4 +1009,203 @@ describe('MappingService', () => {
       expect(MappingService.getContainerValueType(sourceShipTo, targetShipTo)).toBe(ValueType.CONTAINER);
     });
   });
+
+  describe('addInnerForEach()', () => {
+    it('should add first for-each to FieldItem and move existing children into it', () => {
+      // Create a fresh FieldItem without any existing ForEachItem children
+      const freshFieldItem = new FieldItem(tree, targetDoc.fields[0]);
+      const field1 = new FieldItem(freshFieldItem, targetDoc.fields[0].fields[0]);
+      const field2 = new FieldItem(freshFieldItem, targetDoc.fields[0].fields[1]);
+      const valueSelector = new ValueSelector(freshFieldItem, ValueType.VALUE);
+      freshFieldItem.children = [field1, field2, valueSelector];
+
+      MappingService.addInnerForEach(freshFieldItem);
+
+      // Should have ValueSelector + ForEachItem
+      expect(freshFieldItem.children).toHaveLength(2);
+      expect(freshFieldItem.children[0]).toBe(valueSelector);
+      expect(freshFieldItem.children[1]).toBeInstanceOf(ForEachItem);
+
+      const forEachItem = freshFieldItem.children[1] as ForEachItem;
+      expect(forEachItem.parent).toBe(freshFieldItem);
+      // The two field items should be moved into the for-each
+      expect(forEachItem.children).toHaveLength(2);
+      expect(forEachItem.children[0]).toBe(field1);
+      expect(forEachItem.children[1]).toBe(field2);
+      forEachItem.children.forEach((child) => {
+        expect(child.parent).toBe(forEachItem);
+      });
+    });
+
+    it('should nest for-each inside existing ForEachItem parent', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const parentForEach = new ForEachItem(shipOrderItem);
+      const fieldItem = new FieldItem(parentForEach, targetDoc.fields[0].fields[0]);
+      parentForEach.children.push(fieldItem);
+      const valueSelector = new ValueSelector(parentForEach, ValueType.VALUE);
+      parentForEach.children.push(valueSelector);
+
+      MappingService.addInnerForEach(parentForEach);
+
+      // Should have ValueSelector + nested ForEachItem
+      expect(parentForEach.children).toHaveLength(2);
+      expect(parentForEach.children[0]).toBe(valueSelector);
+      expect(parentForEach.children[1]).toBeInstanceOf(ForEachItem);
+
+      const nestedForEach = parentForEach.children[1] as ForEachItem;
+      expect(nestedForEach.parent).toBe(parentForEach);
+      expect(nestedForEach.children).toHaveLength(1);
+      expect(nestedForEach.children[0]).toBe(fieldItem);
+      expect(fieldItem.parent).toBe(nestedForEach);
+    });
+  });
+
+  describe('addInnerChooseWhenOtherwise()', () => {
+    it('should add choose/when/otherwise to FieldItem and move existing children into when branch', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const childrenBefore = shipOrderItem.children.slice();
+
+      MappingService.addInnerChooseWhenOtherwise(shipOrderItem);
+
+      expect(shipOrderItem.children).toHaveLength(1);
+      expect(shipOrderItem.children[0]).toBeInstanceOf(ChooseItem);
+
+      const chooseItem = shipOrderItem.children[0] as ChooseItem;
+      expect(chooseItem.parent).toBe(shipOrderItem);
+      expect(chooseItem.when).toHaveLength(1);
+      expect(chooseItem.otherwise).toBeTruthy();
+
+      const whenItem = chooseItem.when[0];
+      expect(whenItem.parent).toBe(chooseItem);
+      // When branch should have the original children (except ValueSelector)
+      const nonValueSelectorChildren = childrenBefore.filter((c) => !(c instanceof ValueSelector));
+      expect(whenItem.children).toHaveLength(nonValueSelectorChildren.length);
+    });
+
+    it('should clone children into otherwise branch', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const orderIdField = shipOrderItem.children[0] as FieldItem;
+
+      MappingService.addInnerChooseWhenOtherwise(shipOrderItem);
+
+      const chooseItem = shipOrderItem.children[0] as ChooseItem;
+      const whenItem = chooseItem.when[0];
+      const otherwiseItem = chooseItem.otherwise!;
+
+      // Both branches should have children
+      expect(whenItem.children.length).toBeGreaterThan(0);
+      expect(otherwiseItem.children).toHaveLength(whenItem.children.length);
+
+      // Children should be different instances (cloned)
+      expect(whenItem.children[0]).not.toBe(otherwiseItem.children[0]);
+      expect(whenItem.children[0]).toBeInstanceOf(FieldItem);
+      expect(otherwiseItem.children[0]).toBeInstanceOf(FieldItem);
+
+      // But they should have the same field
+      const whenFieldItem = whenItem.children[0] as FieldItem;
+      const otherwiseFieldItem = otherwiseItem.children[0] as FieldItem;
+      expect(whenFieldItem.field).toBe(orderIdField.field);
+      expect(otherwiseFieldItem.field).toBe(orderIdField.field);
+    });
+  });
+
+  describe('addInnerIf()', () => {
+    it('should add if to FieldItem and move ALL existing children into it', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const childrenBefore = shipOrderItem.children.slice();
+
+      MappingService.addInnerIf(shipOrderItem);
+
+      // Should have only 1 IfItem at the parent level
+      expect(shipOrderItem.children).toHaveLength(1);
+      expect(shipOrderItem.children[0]).toBeInstanceOf(IfItem);
+
+      const ifItem = shipOrderItem.children[0] as IfItem;
+      expect(ifItem.parent).toBe(shipOrderItem);
+      // If item should have ALL the original children (including ValueSelectors)
+      expect(ifItem.children).toHaveLength(childrenBefore.length);
+      ifItem.children.forEach((child) => {
+        expect(child.parent).toBe(ifItem);
+      });
+    });
+
+    it('should add second if as a sibling, not nested inside the first', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const childrenBefore = shipOrderItem.children.slice();
+
+      // Add first if
+      MappingService.addInnerIf(shipOrderItem);
+      const firstIfItem = shipOrderItem.children[0] as IfItem;
+      const firstIfChildrenCount = firstIfItem.children.length;
+
+      // Verify first if has all the original children
+      expect(firstIfChildrenCount).toEqual(childrenBefore.length);
+
+      // Add second if
+      MappingService.addInnerIf(shipOrderItem);
+
+      // Should have 2 IfItems
+      expect(shipOrderItem.children).toHaveLength(2);
+
+      // Check that both children are IfItems and are siblings
+      const ifItems = shipOrderItem.children.filter((c) => c instanceof IfItem);
+      expect(ifItems).toHaveLength(2);
+      expect(ifItems[0]).toBe(firstIfItem);
+      expect(ifItems[1]).toBeInstanceOf(IfItem);
+
+      // First if should still have the original children
+      expect(firstIfItem.children).toHaveLength(firstIfChildrenCount);
+
+      // Second if should be empty (no children)
+      const secondIfItem = ifItems[1] as IfItem;
+      expect(secondIfItem.parent).toBe(shipOrderItem);
+      expect(secondIfItem.children).toHaveLength(0);
+    });
+
+    it('should support nesting an if inside an existing IfItem', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+
+      // Add first if
+      MappingService.addInnerIf(shipOrderItem);
+      const firstIfItem = shipOrderItem.children[0] as IfItem;
+      const firstIfChildrenCount = firstIfItem.children.length;
+
+      // Add nested if inside the first if
+      MappingService.addInnerIf(firstIfItem);
+
+      // First if should now have only 1 child: the nested if
+      expect(firstIfItem.children).toHaveLength(1);
+      expect(firstIfItem.children[0]).toBeInstanceOf(IfItem);
+
+      // The nested if should contain all the original children
+      const nestedIfItem = firstIfItem.children[0] as IfItem;
+      expect(nestedIfItem.parent).toBe(firstIfItem);
+      expect(nestedIfItem.children).toHaveLength(firstIfChildrenCount);
+    });
+
+    it('should add sibling if when calling addInnerIf on IfItem that already has nested IfItem', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+
+      // Add first if
+      MappingService.addInnerIf(shipOrderItem);
+      const firstIfItem = shipOrderItem.children[0] as IfItem;
+
+      // Add nested if inside the first if
+      MappingService.addInnerIf(firstIfItem);
+      const nestedIfItem = firstIfItem.children[0] as IfItem;
+
+      // Add another nested if - should be added as sibling (empty)
+      MappingService.addInnerIf(firstIfItem);
+
+      // First if should now have 2 children: both IfItems
+      expect(firstIfItem.children).toHaveLength(2);
+      expect(firstIfItem.children[0]).toBe(nestedIfItem);
+      expect(firstIfItem.children[1]).toBeInstanceOf(IfItem);
+
+      // Second nested if should be empty
+      const secondNestedIfItem = firstIfItem.children[1] as IfItem;
+      expect(secondNestedIfItem.parent).toBe(firstIfItem);
+      expect(secondNestedIfItem.children).toHaveLength(0);
+    });
+  });
 });

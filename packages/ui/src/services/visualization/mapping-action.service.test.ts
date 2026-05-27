@@ -351,6 +351,259 @@ describe('MappingActionService', () => {
       });
     });
 
+    describe('applyInnerForEach()', () => {
+      it('should add inner for-each', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        expect(docChildren).toHaveLength(1);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren).toHaveLength(4);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        // Should have at least one child which is the for-each
+        expect(orderIdChildren.length).toBeGreaterThanOrEqual(1);
+        const forEachChild = orderIdChildren.find((child) => child.title === 'for-each');
+        expect(forEachChild).toBeDefined();
+        expect(forEachChild?.title).toEqual('for-each');
+      });
+
+      it('should add multiple inner for-each as siblings when applied to the same field', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+
+        // Add first inner for-each
+        MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+
+        // Add second inner for-each to the same field (not to the for-each node)
+        MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+
+        // Should have 2 for-each children as siblings
+        const forEachChildren = orderIdChildren.filter((child) => child.title === 'for-each');
+        expect(forEachChildren).toHaveLength(2);
+
+        // Both should be direct children of OrderId (siblings, not nested)
+        forEachChildren.forEach((forEachChild) => {
+          expect((forEachChild as MappingNodeData).mapping.parent).toBe(
+            (shipOrderChildren[0] as FieldItemNodeData).mapping,
+          );
+        });
+      });
+
+      it('should nest inner for-each when applied to an existing for-each node', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+
+        // Add first inner for-each
+        MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const firstForEach = orderIdChildren.find((child) => child.title === 'for-each');
+
+        // Add second inner for-each to the for-each node itself (should nest)
+        MappingActionService.applyInnerForEach(firstForEach as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const updatedOrderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+
+        // Should still have only 1 for-each at the OrderId level
+        const topLevelForEach = updatedOrderIdChildren.filter((child) => child.title === 'for-each');
+        expect(topLevelForEach).toHaveLength(1);
+
+        // The nested for-each should be a child of the first for-each
+        const nestedChildren = VisualizationService.generateNonDocumentNodeDataChildren(topLevelForEach[0]);
+        const nestedForEach = nestedChildren.find((child) => child.title === 'for-each');
+        expect(nestedForEach).toBeDefined();
+        expect((nestedForEach as MappingNodeData).mapping.parent).toBe((topLevelForEach[0] as MappingNodeData).mapping);
+      });
+    });
+
+    describe('applyInnerChooseWhenOtherwise()', () => {
+      it('should add inner choose-when-otherwise', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        expect(docChildren).toHaveLength(1);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren).toHaveLength(4);
+        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        MappingActionService.applyInnerChooseWhenOtherwise(shipOrderChildren[1] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        const orderPersonChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[1]);
+        // Should have at least one child which is the choose
+        expect(orderPersonChildren.length).toBeGreaterThanOrEqual(1);
+        const chooseChild = orderPersonChildren.find((child) => child.title === 'choose');
+        expect(chooseChild).toBeDefined();
+        expect(chooseChild?.title).toEqual('choose');
+
+        // Verify choose has when and otherwise branches
+        const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChild!);
+        expect(chooseChildren).toHaveLength(2);
+        expect(chooseChildren[0].title).toEqual('when');
+        expect(chooseChildren[1].title).toEqual('otherwise');
+      });
+
+      it('should add when with ValueSelector (not FieldItem) to inner choose', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[1].title).toEqual('OrderPerson');
+        MappingActionService.applyInnerChooseWhenOtherwise(shipOrderChildren[1] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderPersonChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[1]);
+        const chooseChild = orderPersonChildren.find((child) => child.title === 'choose');
+
+        // Add a new when branch
+        MappingActionService.applyWhen(chooseChild as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const updatedOrderPersonChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          shipOrderChildren[1],
+        );
+        const updatedChooseChild = updatedOrderPersonChildren.find((child) => child.title === 'choose');
+        const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedChooseChild!);
+
+        // Should have 3 children now: 2 when + 1 otherwise
+        expect(chooseChildren).toHaveLength(3);
+        expect(chooseChildren[0].title).toEqual('when');
+        expect(chooseChildren[1].title).toEqual('when');
+        expect(chooseChildren[2].title).toEqual('otherwise');
+
+        // Verify the new when branch contains a ValueSelector, not a FieldItem
+        const newWhenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
+        expect(newWhenChildren).toHaveLength(1);
+        expect((newWhenChildren[0] as MappingNodeData).mapping instanceof ValueSelector).toBeTruthy();
+      });
+
+      it('should add when with ValueSelector to inner choose nested inside inner for-each', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+
+        // First add inner for-each
+        MappingActionService.applyInnerForEach(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const forEachChild = orderIdChildren.find((child) => child.title === 'for-each');
+
+        // Then add inner choose inside the for-each
+        MappingActionService.applyInnerChooseWhenOtherwise(forEachChild as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const updatedOrderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const updatedForEachChild = updatedOrderIdChildren.find((child) => child.title === 'for-each');
+        const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedForEachChild!);
+        const chooseChild = forEachChildren.find((child) => child.title === 'choose');
+
+        // Add a new when branch to the choose that's inside the for-each
+        MappingActionService.applyWhen(chooseChild as TargetNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const finalOrderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const finalForEachChild = finalOrderIdChildren.find((child) => child.title === 'for-each');
+        const finalForEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(finalForEachChild!);
+        const finalChooseChild = finalForEachChildren.find((child) => child.title === 'choose');
+        const chooseChildren = VisualizationService.generateNonDocumentNodeDataChildren(finalChooseChild!);
+
+        // Should have 3 children: 2 when + 1 otherwise
+        expect(chooseChildren).toHaveLength(3);
+        expect(chooseChildren[0].title).toEqual('when');
+        expect(chooseChildren[1].title).toEqual('when');
+        expect(chooseChildren[2].title).toEqual('otherwise');
+
+        // Verify the new when branch contains a ValueSelector, not a FieldItem
+        const newWhenChildren = VisualizationService.generateNonDocumentNodeDataChildren(chooseChildren[1]);
+        expect(newWhenChildren).toHaveLength(1);
+        expect((newWhenChildren[0] as MappingNodeData).mapping instanceof ValueSelector).toBeTruthy();
+      });
+    });
+
+    describe('applyInnerIf()', () => {
+      it('should add inner if', () => {
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        expect(docChildren).toHaveLength(1);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren).toHaveLength(4);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        MappingActionService.applyInnerIf(shipOrderChildren[0] as TargetFieldNodeData);
+
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        expect(shipOrderChildren[0].title).toEqual('OrderId');
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        // Should have at least one child which is the if
+        expect(orderIdChildren.length).toBeGreaterThanOrEqual(1);
+        const ifChild = orderIdChildren.find((child) => child.title === 'if');
+        expect(ifChild).toBeDefined();
+        expect(ifChild?.title).toEqual('if');
+      });
+
+      it('should add nested inner if inside an existing IfItem', () => {
+        // First add an inner if to OrderId
+        let docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        MappingActionService.applyInnerIf(shipOrderChildren[0] as TargetFieldNodeData);
+
+        // Get the created if node
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const ifChild = orderIdChildren.find((child) => child.title === 'if');
+        expect(ifChild).toBeDefined();
+
+        // Now apply inner if on the IfItem itself
+        MappingActionService.applyInnerIf(ifChild as TargetNodeData);
+
+        // Verify the nested structure
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const updatedOrderIdChildren = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderChildren[0]);
+        const updatedIfChild = updatedOrderIdChildren.find((child) => child.title === 'if');
+
+        // The if should now have a nested if inside it
+        const nestedIfChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedIfChild!);
+        const nestedIf = nestedIfChildren.find((child) => child.title === 'if');
+        expect(nestedIf).toBeDefined();
+        expect(nestedIf?.title).toEqual('if');
+      });
+    });
+
     describe('applyValueSelector()', () => {
       it('should apply value selector', () => {
         expect(tree.children.length).toEqual(0);
