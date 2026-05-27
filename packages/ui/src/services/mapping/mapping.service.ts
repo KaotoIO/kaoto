@@ -307,6 +307,131 @@ export class MappingService {
   }
 
   /**
+   * Adds a {@link ForEachItem} as a child inside the parent item.
+   * This creates an "inner" for-each where the for-each is nested
+   * inside the parent element rather than wrapping it.
+   *
+   * Behavior depends on the parent type:
+   * - If parent is a ForEachItem: nests the new for-each inside it
+   * - If parent is a FieldItem with existing ForEachItem children: adds as sibling
+   * - Otherwise: moves existing children into the new for-each
+   *
+   * @param parent - the parent item to add the for-each inside
+   * @param existingChildren - optional existing children to move inside the for-each
+   */
+  static addInnerForEach(parent: MappingItem, existingChildren?: MappingItem[]) {
+    const forEachItem = new ForEachItem(parent);
+    const ensureBodyPlaceholder = () => {
+      if (forEachItem.children.length === 0) {
+        forEachItem.children.push(MappingService.createValueSelector(forEachItem));
+      }
+    };
+
+    // If parent is already a ForEachItem, nest inside it
+    if (parent instanceof ForEachItem || parent instanceof ForEachGroupItem) {
+      // Move existing children (except ValueSelector) into the new for-each
+      const childrenToMove = existingChildren ?? parent.children.filter((c) => !(c instanceof ValueSelector));
+      childrenToMove.forEach((child) => {
+        child.parent = forEachItem;
+        forEachItem.children.push(child);
+      });
+
+      // Replace parent's children with the for-each and any ValueSelectors
+      const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
+      ensureBodyPlaceholder();
+      parent.children = [...valueSelectors, forEachItem];
+    } else {
+      // Parent is a FieldItem or other type
+      // Check if there are already ForEachItem children
+      const hasExistingForEach = parent.children.some((c) => c instanceof ForEachItem || c instanceof ForEachGroupItem);
+
+      if (hasExistingForEach) {
+        // If there are already for-each items, add the new one as a sibling (empty)
+        const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
+        const otherChildren = parent.children.filter((c) => !(c instanceof ValueSelector));
+        ensureBodyPlaceholder();
+        parent.children = [...valueSelectors, ...otherChildren, forEachItem];
+      } else {
+        // First for-each: move existing children (except ValueSelector) into it
+        const childrenToMove = existingChildren ?? parent.children.filter((c) => !(c instanceof ValueSelector));
+        childrenToMove.forEach((child) => {
+          child.parent = forEachItem;
+          forEachItem.children.push(child);
+        });
+
+        // Replace parent's children with the for-each and any ValueSelectors
+        const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
+        ensureBodyPlaceholder();
+        parent.children = [...valueSelectors, forEachItem];
+      }
+    }
+  }
+
+  /**
+   * Adds a {@link ChooseItem} with when/otherwise branches as a child inside the parent item.
+   * This creates an "inner" choose where the choose structure is nested
+   * inside the parent element rather than wrapping it.
+   * @param parent - the parent item to add the choose inside
+   * @param field - optional field for the choose item
+   */
+  static addInnerChooseWhenOtherwise(parent: MappingItem, field?: IField) {
+    const chooseItem = new ChooseItem(parent, field);
+
+    // Move existing children (except ValueSelector) into the when branch
+    const childrenToMove = parent.children.filter((c) => !(c instanceof ValueSelector));
+    const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
+
+    // Create when and otherwise branches
+    const whenItem = MappingService.addWhen(chooseItem);
+    const otherwiseItem = MappingService.addOtherwise(chooseItem);
+
+    // Move existing children into the when branch
+    if (childrenToMove.length > 0) {
+      // Remove the default ValueSelector from when branch
+      whenItem.children = whenItem.children.filter((c) => !(c instanceof ValueSelector));
+      childrenToMove.forEach((child) => {
+        child.parent = whenItem;
+        whenItem.children.push(child);
+      });
+
+      // Clone children for otherwise branch
+      const clonedChildren = childrenToMove.map((child) => {
+        const cloned = child.clone();
+        cloned.parent = otherwiseItem;
+        return cloned;
+      });
+      otherwiseItem.children = otherwiseItem.children.filter((c) => !(c instanceof ValueSelector));
+      otherwiseItem.children.push(...clonedChildren);
+    }
+
+    // Replace parent's children with the choose and any ValueSelectors
+    parent.children = [...valueSelectors, chooseItem];
+  }
+
+  /**
+   * Adds an {@link IfItem} as a child inside the parent item.
+   * This creates an "inner" if where the if structure is nested
+   * inside the parent element rather than wrapping it.
+   * @param parent - the parent item to add the if inside
+   */
+  static addInnerIf(parent: MappingItem) {
+    const ifItem = new IfItem(parent);
+
+    // Move existing children (except ValueSelector) into the if
+    const childrenToMove = parent.children.filter((c) => !(c instanceof ValueSelector));
+    const valueSelectors = parent.children.filter((c) => c instanceof ValueSelector);
+
+    // Move existing children into the if item
+    childrenToMove.forEach((child) => {
+      child.parent = ifItem;
+      ifItem.children.push(child);
+    });
+
+    // Replace parent's children with the if and any ValueSelectors
+    parent.children = [...valueSelectors, ifItem];
+  }
+
+  /**
    * Convenience wrapper around {@link wrapWithItem} using an {@link IfItem}.
    * @param wrapped - the mapping item to wrap with a conditional
    */
