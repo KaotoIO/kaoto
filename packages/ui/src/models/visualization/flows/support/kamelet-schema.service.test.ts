@@ -1,17 +1,23 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
+import { setupDynamicCatalogRegistryMock } from '../../../../stubs/dynamic-catalog-registry-mock';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../catalog-kind';
 import { CamelCatalogService } from '../camel-catalog.service';
 import { KameletSchemaService } from './kamelet-schema.service';
 
+jest.mock('../../../../dynamic-catalog/dynamic-catalog-registry');
+
 describe('KameletSchemaService', () => {
   let kameletCatalogMap: Record<string, unknown>;
+  let catalogsMap: Awaited<ReturnType<typeof getFirstCatalogMap>>;
 
   beforeEach(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     kameletCatalogMap = catalogsMap.kameletsCatalogMap;
+
+    setupDynamicCatalogRegistryMock(catalogsMap);
 
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
@@ -63,12 +69,14 @@ describe('KameletSchemaService', () => {
     it('should handle catalog lookup errors gracefully', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-      // Mock DynamicCatalogRegistry to throw an error
-      const { DynamicCatalogRegistry } = await import('../../../../dynamic-catalog/dynamic-catalog-registry');
-      const mockRegistry = {
-        getEntity: jest.fn().mockRejectedValue(new Error('Catalog fetch failed')),
-      };
-      jest.spyOn(DynamicCatalogRegistry, 'get').mockReturnValue(mockRegistry as any);
+      // Setup mock with error injection for specific kamelet
+      setupDynamicCatalogRegistryMock(catalogsMap, [
+        {
+          kind: CatalogKind.Kamelet,
+          name: 'error-kamelet',
+          error: new Error('Catalog fetch failed'),
+        },
+      ]);
 
       const step = {
         ref: {
@@ -87,7 +95,6 @@ describe('KameletSchemaService', () => {
       );
 
       consoleErrorSpy.mockRestore();
-      jest.restoreAllMocks();
     });
   });
 });

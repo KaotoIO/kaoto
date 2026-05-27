@@ -116,7 +116,7 @@ describe('KameletVisualEntity', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     const entityCatalogMap = catalogsMap.entitiesCatalog;
 
-    const { setupDynamicCatalogRegistryMock } = await import('./dynamic-catalog-registry-mock');
+    const { setupDynamicCatalogRegistryMock } = await import('../../../stubs/dynamic-catalog-registry-mock');
     setupDynamicCatalogRegistryMock(catalogsMap);
 
     const kamelet = new KameletVisualEntity(kameletDef);

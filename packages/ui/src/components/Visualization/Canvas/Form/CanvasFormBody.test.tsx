@@ -6,10 +6,10 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 
 import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { setupDynamicCatalogRegistryMock } from '../../../../models/visualization/flows/dynamic-catalog-registry-mock';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
+import { setupDynamicCatalogRegistryMock } from '../../../../stubs/dynamic-catalog-registry-mock';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasFormBody } from './CanvasFormBody';

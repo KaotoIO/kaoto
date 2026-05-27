@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash';
 
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
+import { setupDynamicCatalogRegistryMock } from '../../../stubs/dynamic-catalog-registry-mock';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel';
 import { NonStringEIP } from '../../camel/types';
@@ -13,7 +14,6 @@ import { NodeLabelType } from '../../settings';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
-import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
 
 jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 

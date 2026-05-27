@@ -1,10 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 
+import { setupDynamicCatalogRegistryMock } from '../../../../../stubs/dynamic-catalog-registry-mock';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../../kaoto-schema';
 import { CamelCatalogService } from '../../camel-catalog.service';
-import { setupDynamicCatalogRegistryMock } from '../../dynamic-catalog-registry-mock';
 import { CamelComponentSchemaService } from '../camel-component-schema.service';
 import { ModelValidationService } from './model-validation.service';
 

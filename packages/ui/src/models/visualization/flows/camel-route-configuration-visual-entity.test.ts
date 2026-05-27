@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { setupDynamicCatalogRegistryMock } from '../../../stubs/dynamic-catalog-registry-mock';
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
@@ -11,7 +12,6 @@ import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
 import { CamelRouteConfigurationVisualEntity } from './camel-route-configuration-visual-entity';
-import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
 
 jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 

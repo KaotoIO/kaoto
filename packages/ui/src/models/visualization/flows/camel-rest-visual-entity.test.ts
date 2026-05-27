@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition, Rest, To2 } from '@kaoto/camel-catalog/types';
 
+import { setupDynamicCatalogRegistryMock } from '../../../stubs/dynamic-catalog-registry-mock';
 import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
@@ -12,7 +13,6 @@ import { REST_ELEMENT_NAME } from '../../special-processors.constants';
 import { AddStepMode } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { CamelRestVisualEntity } from './camel-rest-visual-entity';
-import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
 
 jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 

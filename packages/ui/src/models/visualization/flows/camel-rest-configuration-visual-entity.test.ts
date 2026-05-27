@@ -2,11 +2,11 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RestConfiguration } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { setupDynamicCatalogRegistryMock } from '../../../stubs/dynamic-catalog-registry-mock';
 import { restConfigurationSchema, restConfigurationStub } from '../../../stubs/rest-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CamelRestConfigurationVisualEntity } from './camel-rest-configuration-visual-entity';
-import { setupDynamicCatalogRegistryMock } from './dynamic-catalog-registry-mock';
 
 jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 

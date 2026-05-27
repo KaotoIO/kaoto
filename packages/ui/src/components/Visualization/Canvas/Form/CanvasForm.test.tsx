@@ -14,11 +14,11 @@ import {
 } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { setupDynamicCatalogRegistryMock } from '../../../../models/visualization/flows/dynamic-catalog-registry-mock';
 import { VisualFlowsApi } from '../../../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext, VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesProvider } from '../../../../providers/entities.provider';
 import { camelRouteJson, kameletJson } from '../../../../stubs';
+import { setupDynamicCatalogRegistryMock } from '../../../../stubs/dynamic-catalog-registry-mock';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { CanvasNode } from '../canvas.models';

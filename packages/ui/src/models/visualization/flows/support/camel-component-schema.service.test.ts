@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
+import { setupDynamicCatalogRegistryMock } from '../../../../stubs/dynamic-catalog-registry-mock';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../../../utils';
 import { ICamelComponentDefinition } from '../../../camel/camel-components-catalog';
@@ -11,7 +12,6 @@ import { CatalogKind } from '../../../catalog-kind';
 import { NodeLabelType } from '../../../settings/settings.model';
 import { IClipboardCopyObject } from '../../clipboard';
 import { CamelCatalogService } from '../camel-catalog.service';
-import { setupDynamicCatalogRegistryMock } from '../dynamic-catalog-registry-mock';
 import { CamelComponentSchemaService } from './camel-component-schema.service';
 import { CamelProcessorStepsProperties, ICamelElementLookupResult } from './camel-component-types';
 
