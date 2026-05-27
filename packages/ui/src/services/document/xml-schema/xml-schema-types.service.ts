@@ -837,7 +837,7 @@ export class XmlSchemaTypesService {
         if (!el.isAbstract()) results.push(el);
       }
     }
-    results.sort((a, b) => (a.getQName()?.toString() ?? '').localeCompare(b.getQName()?.toString() ?? ''));
+    results.sort((a, b) => (a.getQName()?.toString() ?? '').localeCompare(b.getQName()?.toString() ?? '', 'en-US'));
     return results;
   }
 
