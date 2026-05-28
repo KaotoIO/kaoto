@@ -3,7 +3,7 @@ import './MappingLinkContainer.scss';
 import { FunctionComponent, useRef as useReactRef } from 'react';
 
 import { useMappingLinks } from '../../hooks/useMappingLinks';
-import { LineProps } from '../../models/datamapper';
+import { LineProps, MappingLineStyle } from '../../models/datamapper';
 import { useDocumentTreeStore } from '../../store';
 import { getNearestVisiblePort } from '../../utils';
 import { MappingLink } from './MappingLink';
@@ -42,7 +42,7 @@ export const MappingLinksContainer: FunctionComponent = () => {
   const svgOffsetTop = svgRect?.top ?? 0;
 
   const lineCoordList: LineProps[] = mappingLinks
-    .map(({ sourceNodePath, targetNodePath, sourceDocumentId, targetDocumentId, isSelected }) => {
+    .map(({ sourceNodePath, targetNodePath, sourceDocumentId, targetDocumentId, isSelected, lineStyle }) => {
       const sourcePort = getNearestVisiblePort(sourceNodePath, {
         nodesConnectionPorts: nodesConnectionPorts[sourceDocumentId],
         nodesConnectionPortsArray: nodesConnectionPortsArray[sourceDocumentId],
@@ -55,9 +55,19 @@ export const MappingLinksContainer: FunctionComponent = () => {
         expansionState: expansionState[targetDocumentId],
         expansionStateArray: expansionStateArray[targetDocumentId],
       });
-      const isPartial = sourcePort.connectionTarget !== 'node' || targetPort.connectionTarget !== 'node';
       const isSourceEdge = sourcePort.connectionTarget === 'edge';
       const isTargetEdge = targetPort.connectionTarget === 'edge';
+
+      let resolvedLineStyle = lineStyle;
+      if (isSourceEdge || isTargetEdge) {
+        resolvedLineStyle = MappingLineStyle.OUT_OF_VIEW;
+      } else if (
+        sourcePort.connectionTarget === 'node' &&
+        targetPort.connectionTarget === 'node' &&
+        (lineStyle === MappingLineStyle.COMPLETE || lineStyle === MappingLineStyle.PARTIAL)
+      ) {
+        resolvedLineStyle = MappingLineStyle.REGULAR;
+      }
 
       /* Convert absolute screen coordinates to SVG-relative coordinates */
       return {
@@ -68,9 +78,9 @@ export const MappingLinksContainer: FunctionComponent = () => {
         sourceNodePath,
         targetNodePath,
         isSelected,
-        isPartial,
         isSourceEdge,
         isTargetEdge,
+        lineStyle: resolvedLineStyle,
       } as LineProps;
     })
     .filter(deduplicateByCoords())
@@ -94,9 +104,9 @@ export const MappingLinksContainer: FunctionComponent = () => {
             sourceNodePath={lineProps.sourceNodePath}
             targetNodePath={lineProps.targetNodePath}
             isSelected={lineProps.isSelected}
-            isPartial={lineProps.isPartial}
             isSourceEdge={lineProps.isSourceEdge}
             isTargetEdge={lineProps.isTargetEdge}
+            lineStyle={lineProps.lineStyle}
           />
         ))}
       </g>

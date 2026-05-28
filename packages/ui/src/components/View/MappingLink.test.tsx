@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react';
 
+import { MappingLineStyle } from '../../models/datamapper';
 import { useDocumentTreeStore } from '../../store';
 import { MappingLink } from './MappingLink';
 
@@ -30,9 +31,9 @@ describe('MappingLink', () => {
     sourceNodePath: 'source.path',
     targetNodePath: 'target.path',
     isSelected: false,
-    isPartial: false,
     isSourceEdge: false,
     isTargetEdge: false,
+    lineStyle: MappingLineStyle.REGULAR,
   };
 
   it('renders circles at endpoints', () => {
