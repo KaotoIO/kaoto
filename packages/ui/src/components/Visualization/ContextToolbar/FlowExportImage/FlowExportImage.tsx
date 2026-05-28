@@ -1,5 +1,5 @@
-import { Button } from '@patternfly/react-core';
-import { ImageIcon } from '@patternfly/react-icons';
+import { DropPhoto } from '@carbon/icons-react';
+import { IconButton, InlineLoading } from '@carbon/react';
 import { useContext, useState } from 'react';
 
 import { useVisibleVizNodes } from '../../../../hooks/use-visible-viz-nodes';
@@ -26,14 +26,15 @@ export function FlowExportImage() {
 
   return (
     <>
-      <Button
-        icon={<ImageIcon />}
+      <IconButton
+        label="Export as image"
         onClick={onClick}
-        variant="control"
+        kind="ghost"
         data-testid="exportImageButton"
-        isDisabled={isExporting}
-        isLoading={isExporting}
-      />
+        disabled={isExporting}
+      >
+        {isExporting ? <InlineLoading /> : <DropPhoto />}
+      </IconButton>
 
       {isExporting && !isResolving && (
         <HiddenCanvas autoDownload vizNodes={vizNodes} layout={currentLayout} onComplete={handleExportComplete} />

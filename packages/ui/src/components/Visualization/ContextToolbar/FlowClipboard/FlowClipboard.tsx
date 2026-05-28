@@ -1,7 +1,7 @@
 import './FlowClipboard.scss';
 
-import { Button, Icon } from '@patternfly/react-core';
-import { CopyIcon } from '@patternfly/react-icons';
+import { Copy } from '@carbon/icons-react';
+import { IconButton } from '@carbon/react';
 import { useContext, useState } from 'react';
 
 import { SourceCodeContext } from '../../../../providers';
@@ -26,18 +26,15 @@ export function FlowClipboard() {
   };
 
   return (
-    <Button
+    <IconButton
       className="flow-clipboard-control"
-      icon={
-        <Icon status={status}>
-          <CopyIcon />
-        </Icon>
-      }
-      title={tooltipText}
+      label={tooltipText}
       onClick={onClick}
-      variant="control"
+      kind="ghost"
       data-testid="clipboardButton"
       data-copied={isCopied}
-    />
+    >
+      <Copy />
+    </IconButton>
   );
 }
