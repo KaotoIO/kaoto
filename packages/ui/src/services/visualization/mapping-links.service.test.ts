@@ -720,6 +720,50 @@ describe('MappingLinksService', () => {
       }
     });
 
+    it('should downgrade COMPLETE to PARTIAL when duplicate source mappings hide unmapped siblings', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+      const extraField = new BaseField(sourceShipTo, sourceDoc, 'PostalCode');
+      sourceShipTo.fields.push(extraField);
+
+      try {
+        const rootItem = new FieldItem(manualTree, targetRoot);
+        manualTree.children.push(rootItem);
+        const shipToItem = new FieldItem(rootItem, targetShipTo);
+        rootItem.children.push(shipToItem);
+
+        const targetChildren = targetShipTo.fields;
+        targetChildren.forEach((childField: IField, i: number) => {
+          const childItem = new FieldItem(shipToItem, childField);
+          shipToItem.children.push(childItem);
+          const vs = new ValueSelector(childItem);
+          // Map first two target children to the same source child (Name),
+          // so mappedSourceCount would be 4 but unique mapped sources is only 3
+          const sourceName = i < 2 ? 'Name' : targetChildren[i].name;
+          vs.expression = `/ns0:ShipOrder/ShipTo/${sourceName}`;
+          childItem.children.push(vs);
+        });
+
+        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        expect(links.length).toBe(4);
+        links.forEach((link) => {
+          expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
+        });
+      } finally {
+        sourceShipTo.fields.pop();
+      }
+    });
+
     it('should classify copy-of with CONTAINER_NODE as COPY_OF', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,
