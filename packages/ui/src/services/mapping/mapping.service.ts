@@ -18,9 +18,12 @@ import {
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
+import { Types } from '../../models/datamapper/types';
 import { DocumentService } from '../document/document.service';
+import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { ensureNamespaceRegistered } from '../namespace-util';
 import { XPathService } from '../xpath/xpath.service';
+import { FieldMatchingService } from './field-matching.service';
 
 /**
  * All-static utility service for manipulating the in-memory {@link MappingTree}/{@link MappingItem}
@@ -457,11 +460,41 @@ export class MappingService {
    * @param targetFieldItem - the target mapping item to map the source to
    */
   static mapToField(source: PrimitiveDocument | IField, targetFieldItem: MappingItem) {
+    const valueSelector = MappingService.ensureValueSelector(targetFieldItem);
+    MappingService.applySourceExpression(source, targetFieldItem, valueSelector);
+  }
+
+  /**
+   * Like {@link mapToField} but sets an explicit {@link ValueType} on the selector.
+   * Used for container copy-of scenarios where we need CONTAINER or CONTAINER_NODE.
+   */
+  static mapToFieldWithValueType(
+    source: PrimitiveDocument | IField,
+    targetFieldItem: MappingItem,
+    valueType: ValueType,
+  ) {
+    const valueSelector = MappingService.ensureValueSelector(targetFieldItem, valueType);
+    valueSelector.valueType = valueType;
+    MappingService.applySourceExpression(source, targetFieldItem, valueSelector);
+  }
+
+  private static ensureValueSelector(targetFieldItem: MappingItem, valueType?: ValueType): ValueSelector {
     let valueSelector = targetFieldItem?.children.find((child) => child instanceof ValueSelector) as ValueSelector;
     if (!valueSelector) {
-      valueSelector = MappingService.createValueSelector(targetFieldItem);
+      valueSelector =
+        valueType == null
+          ? MappingService.createValueSelector(targetFieldItem)
+          : new ValueSelector(targetFieldItem, valueType);
       targetFieldItem.children.push(valueSelector);
     }
+    return valueSelector;
+  }
+
+  private static applySourceExpression(
+    source: PrimitiveDocument | IField,
+    targetFieldItem: MappingItem,
+    valueSelector: ValueSelector,
+  ) {
     MappingService.registerNamespaceFromField(targetFieldItem.mappingTree, source);
     const relativePath = XPathService.toPathExpression(
       targetFieldItem.mappingTree.namespaceMap,
@@ -469,6 +502,74 @@ export class MappingService {
       valueSelector.contextPath,
     );
     valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
+  }
+
+  /**
+   * Recursively generates child mappings for container fields that cannot use copy-of.
+   * For each matching child pair from {@link FieldMatchingService.findMatchingChildren}:
+   * - Both terminal → {@link mapToField} (value-of)
+   * - Both container + copy-of eligible → {@link mapToFieldWithValueType} with CONTAINER/CONTAINER_NODE
+   * - Both container + NOT copy-of eligible → recurse
+   * - Kind mismatch (leaf↔container) → skipped (already filtered by findMatchingChildren)
+   *
+   * @param sourceField - Source container field
+   * @param targetField - Target container field
+   * @param parentItem - Parent mapping item to attach children to
+   */
+  static generateAutoChildMappings(sourceField: IField, targetField: IField, parentItem: MappingItem): void {
+    const matchingPairs = FieldMatchingService.findMatchingChildren(sourceField, targetField);
+
+    for (const pair of matchingPairs) {
+      MappingService.processPair(pair.source, pair.target, parentItem);
+    }
+  }
+
+  /**
+   * Processes a single source-target field pair during auto-mapping.
+   * Decides whether to create a terminal mapping, container copy-of, or recurse.
+   * @param sourceChild - Source field from the pair
+   * @param targetChild - Target field from the pair
+   * @param parentItem - Parent mapping item to attach the new mapping to
+   */
+  private static processPair(sourceChild: IField, targetChild: IField, parentItem: MappingItem): void {
+    const childFieldItem = MappingService.createFieldItem(parentItem, targetChild);
+
+    if (!DocumentService.hasChildren(sourceChild)) {
+      MappingService.mapToField(sourceChild, childFieldItem);
+      return;
+    }
+
+    MappingService.applyContainerMapping(sourceChild, targetChild, childFieldItem);
+  }
+
+  /**
+   * Applies container-to-container mapping: uses copy-of when eligible, otherwise recurses
+   * into child mappings. Shared by auto-mapping ({@link processPair}) and drag-and-drop
+   * ({@link MappingActionService.engageMapping}).
+   */
+  static applyContainerMapping(sourceField: IField, targetField: IField, parentItem: MappingItem): void {
+    if (FieldMatchingService.canUseCopyOf(sourceField, targetField)) {
+      const valueType = MappingService.getContainerValueType(sourceField, targetField);
+      MappingService.mapToFieldWithValueType(sourceField, parentItem, valueType);
+    } else {
+      MappingService.generateAutoChildMappings(sourceField, targetField, parentItem);
+    }
+  }
+
+  /**
+   * Determines whether to use CONTAINER or CONTAINER_NODE based on xs:anyType involvement.
+   * When xs:anyType is involved, CONTAINER_NODE is used to generate `xsl:copy-of select="path/node()"`,
+   * which copies only children to avoid name mismatch between source and target wrapper elements.
+   * @param sourceField - Source field
+   * @param targetField - Target field
+   * @returns CONTAINER_NODE if xs:anyType is involved, otherwise CONTAINER
+   */
+  static getContainerValueType(sourceField: IField, targetField: IField): ValueType {
+    const anyTypeInvolved =
+      (sourceField instanceof XmlSchemaField && sourceField.type === Types.AnyType) ||
+      (targetField instanceof XmlSchemaField && targetField.type === Types.AnyType);
+
+    return anyTypeInvolved ? ValueType.CONTAINER_NODE : ValueType.CONTAINER;
   }
 
   /**

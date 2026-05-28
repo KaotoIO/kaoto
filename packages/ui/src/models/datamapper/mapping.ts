@@ -299,8 +299,10 @@ export class SortItem {
 export enum ValueType {
   /** Emits a text value via `xsl:value-of`. */
   VALUE = 'value',
-  /** Emits a structured element container. */
+  /** Emits a structured element container via `xsl:copy-of`. */
   CONTAINER = 'container',
+  /** Emits container children only via `xsl:copy-of select="path/node()"` (for xs:anyType scenarios). */
+  CONTAINER_NODE = 'container_node',
   /** Emits an XML attribute. */
   ATTRIBUTE = 'attribute',
 }

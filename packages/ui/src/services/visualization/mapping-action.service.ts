@@ -202,6 +202,8 @@ export class MappingActionService {
       return;
     }
 
+    if (MappingActionService.tryEngageContainerMapping(sourceNode, targetNode)) return;
+
     if (targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       MappingService.mapToField(sourceField, item);
@@ -234,6 +236,38 @@ export class MappingActionService {
     }
     if (nodeData instanceof MappingNodeData) return nodeData.mapping;
     return undefined;
+  }
+
+  private static tryEngageContainerMapping(sourceNode: SourceNodeDataType, targetNode: TargetNodeData): boolean {
+    if (
+      !('field' in sourceNode) ||
+      !sourceNode.field ||
+      !(targetNode instanceof TargetFieldNodeData || targetNode instanceof FieldItemNodeData)
+    ) {
+      return false;
+    }
+    const sourceFieldFromNode = sourceNode.field;
+    const targetFieldFromNode = targetNode.field;
+
+    if (!DocumentService.hasChildren(sourceFieldFromNode) || !DocumentService.hasChildren(targetFieldFromNode)) {
+      return false;
+    }
+
+    const item = MappingActionService.getOrCreateFieldItem(targetNode);
+    const bothCollections =
+      VisualizationUtilService.isCollectionField(sourceNode) && VisualizationUtilService.isCollectionField(targetNode);
+
+    if (bothCollections) {
+      if (item.children.some((c) => c instanceof ForEachItem)) return true;
+      item.children = item.children.filter((c) => !(c instanceof ValueSelector));
+      const forEachItem = new ForEachItem(item);
+      MappingService.mapToCondition(forEachItem, sourceFieldFromNode);
+      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, forEachItem);
+      item.children.push(forEachItem);
+    } else {
+      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
+    }
+    return true;
   }
 
   private static createChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {
