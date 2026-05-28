@@ -205,7 +205,7 @@ export class MappingLinksService {
   ): boolean {
     const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
     const sourceParents = new Set<IParentType>();
-    let mappedSourceCount = 0;
+    const mappedSourceChildren = new Set<string>();
 
     for (const child of childFieldItems) {
       const vs = child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
@@ -213,7 +213,7 @@ export class MappingLinksService {
       const resolved = MappingLinksService.resolveSourceFields(vs, sourceParameterMap, sourceBody);
       for (const { field } of resolved) {
         sourceParents.add(field.parent);
-        mappedSourceCount++;
+        mappedSourceChildren.add(field.id);
       }
     }
 
@@ -223,7 +223,7 @@ export class MappingLinksService {
     const sourceChildren = (sourceParent as IField).fields.filter(
       (f) => !f.isAttribute && !MappingLinksService.isWrapperField(f),
     );
-    return sourceChildren.length > mappedSourceCount;
+    return sourceChildren.length > mappedSourceChildren.size;
   }
 
   /**

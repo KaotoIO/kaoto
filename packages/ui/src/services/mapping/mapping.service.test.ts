@@ -950,7 +950,7 @@ describe('MappingService', () => {
       const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
       expect(childFieldItems.length).toBe(4);
       childFieldItems.forEach((fi) => {
-        const vs = (fi as FieldItem).children.find((c) => c instanceof ValueSelector);
+        const vs = fi.children.find((c) => c instanceof ValueSelector);
         expect(vs).toBeDefined();
       });
     });
@@ -970,7 +970,7 @@ describe('MappingService', () => {
 
       const childFieldItems = rootItem.children.filter((c) => c instanceof FieldItem);
       expect(childFieldItems.length).toBeGreaterThan(0);
-      const shipToChild = childFieldItems.find((c) => (c as FieldItem).field.name === 'ShipTo') as FieldItem;
+      const shipToChild = childFieldItems.find((c) => c.field.name === 'ShipTo')!;
       expect(shipToChild).toBeDefined();
       const shipToVs = shipToChild.children.find((c) => c instanceof ValueSelector) as ValueSelector;
       expect(shipToVs).toBeDefined();
