@@ -1,42 +1,85 @@
 .mapping-link {
-  stroke: gray;
-  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
   pointer-events: auto;
 
-  &:hover {
-    stroke-width: 6;
+  &--copy-of {
+    stroke: #3c3f42;
+    stroke-width: 2;
+  }
+
+  &--complete {
+    stroke: gray;
+    stroke-width: 3;
+    stroke-dasharray: 20 5 5 5;
+  }
+
+  &--regular {
+    stroke: gray;
+    stroke-width: 2;
+  }
+
+  &--partial {
+    stroke: gray;
+    stroke-width: 2;
+    stroke-dasharray: 5 3;
+  }
+
+  // stylelint-disable-next-line selector-class-pattern
+  &--out-of-view {
+    stroke: #b8bbbe;
+    stroke-width: 1;
+    stroke-dasharray: 0.1 4;
   }
 
   &--selected {
     stroke: var(--pf-t--global--border--color--brand--default);
-    stroke-width: 6;
-  }
 
-  &--partial {
-    stroke-dasharray: 5, 5;
-    opacity: 0.5;
-  }
-
-  &--edge {
-    stroke-width: 2;
-
-    &:hover {
-      stroke-width: 4;
+    // stylelint-disable-next-line selector-class-pattern
+    &.mapping-link--out-of-view {
+      stroke: #73bcf7;
     }
   }
 
+  &:hover {
+    stroke-width: 4;
+  }
+
   &--source-edge {
-    // Edge -> Node: fade in from 25% to 100%
     mask-image: linear-gradient(to right, rgb(0 0 0 / 25%) 0%, rgb(0 0 0 / 100%) 100%);
   }
 
   &--target-edge {
-    // Node -> Edge: fade out from 100% to 25%
     mask-image: linear-gradient(to right, rgb(0 0 0 / 100%) 0%, rgb(0 0 0 / 25%) 100%);
   }
 
-  // Edge -> Edge: both ends at 25%, peak in middle
   &--source-edge#{&}--target-edge {
     mask-image: linear-gradient(to right, rgb(0 0 0 / 25%) 0%, rgb(0 0 0 / 100%) 50%, rgb(0 0 0 / 25%) 100%);
+  }
+}
+
+.mapping-link-dot {
+  &--copy-of {
+    fill: #3c3f42;
+  }
+
+  &--complete,
+  &--regular,
+  &--partial {
+    fill: gray;
+  }
+
+  // stylelint-disable-next-line selector-class-pattern
+  &--out-of-view {
+    fill: #b8bbbe;
+  }
+
+  &--selected {
+    fill: var(--pf-t--global--border--color--brand--default);
+  }
+
+  // stylelint-disable-next-line selector-class-pattern
+  &--selected.mapping-link-dot--out-of-view {
+    fill: #73bcf7;
   }
 }

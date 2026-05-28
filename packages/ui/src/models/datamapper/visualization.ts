@@ -338,6 +338,14 @@ export class FunctionNodeData implements NodeData {
   title: string;
 }
 
+export enum MappingLineStyle {
+  COPY_OF = 'copy-of',
+  COMPLETE = 'complete',
+  REGULAR = 'regular',
+  PARTIAL = 'partial',
+  OUT_OF_VIEW = 'out-of-view',
+}
+
 /** Describes a drawn mapping line between a source and a target node. */
 export interface IMappingLink {
   sourceNodePath: string;
@@ -345,6 +353,7 @@ export interface IMappingLink {
   sourceDocumentId: string;
   targetDocumentId: string;
   isSelected: boolean;
+  lineStyle: MappingLineStyle;
 }
 
 /** SVG line endpoint coordinates. */
@@ -360,9 +369,9 @@ export type LineProps = LineCoord & {
   sourceNodePath: string;
   targetNodePath: string;
   isSelected: boolean;
-  isPartial: boolean;
   isSourceEdge: boolean;
   isTargetEdge: boolean;
+  lineStyle: MappingLineStyle;
 };
 
 /** Props passed to the alert notification handler. */

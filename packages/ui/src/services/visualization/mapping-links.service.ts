@@ -6,13 +6,16 @@ import {
   IExpressionHolder,
   IField,
   IMappingLink,
+  InstructionItem,
   IParentType,
   isExpressionHolder,
   MappingItem,
+  MappingLineStyle,
   MappingTree,
   NodePath,
   PrimitiveDocument,
   ValueSelector,
+  ValueType,
 } from '../../models/datamapper';
 import { DocumentService } from '../document/document.service';
 import { XPathService } from '../xpath/xpath.service';
@@ -27,9 +30,19 @@ export class MappingLinksService {
     sourceBody: IDocument,
     selectedNodePath: string | null = null,
     selectedNodeIsSource: boolean = false,
+    parentLineStyle?: MappingLineStyle,
   ): IMappingLink[] {
     const answer = [] as IMappingLink[];
     const targetNodePath = MappingLinksService.computeVisualTargetNodePath(item).toString();
+    let ownLineStyle =
+      item instanceof FieldItem ? MappingLinksService.classifyContainerLineStyle(item) : MappingLineStyle.REGULAR;
+    if (ownLineStyle === MappingLineStyle.COMPLETE) {
+      if (MappingLinksService.hasExtraSourceChildren(item as FieldItem, sourceParameterMap, sourceBody)) {
+        ownLineStyle = MappingLineStyle.PARTIAL;
+      }
+    }
+    const lineStyle = ownLineStyle === MappingLineStyle.REGULAR ? (parentLineStyle ?? ownLineStyle) : ownLineStyle;
+
     if (item instanceof MappingItem && isExpressionHolder(item)) {
       const links = MappingLinksService.doExtractMappingLinks(
         item,
@@ -38,10 +51,12 @@ export class MappingLinksService {
         sourceBody,
         selectedNodePath,
         selectedNodeIsSource,
+        lineStyle,
       );
       answer.push(...links);
     }
     if ('children' in item) {
+      const childLineStyle = ownLineStyle === MappingLineStyle.REGULAR ? undefined : ownLineStyle;
       item.children.forEach((child) => {
         if (
           item instanceof FieldItem &&
@@ -55,6 +70,7 @@ export class MappingLinksService {
             sourceBody,
             selectedNodePath,
             selectedNodeIsSource,
+            lineStyle,
           );
           answer.push(...links);
         } else {
@@ -64,12 +80,36 @@ export class MappingLinksService {
             sourceBody,
             selectedNodePath,
             selectedNodeIsSource,
+            childLineStyle,
           );
           answer.push(...links);
         }
       });
     }
     return answer;
+  }
+
+  private static resolveSourceFields(
+    expressionHolder: IExpressionHolder & MappingItem,
+    sourceParameterMap: Map<string, IDocument>,
+    sourceBody: IDocument,
+  ): { field: IField; document: IDocument }[] {
+    const namespaces = expressionHolder.mappingTree.namespaceMap;
+    const sourceXPath = expressionHolder.expression;
+    const validationResult = XPathService.validate(sourceXPath);
+    if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
+    const fieldPaths = XPathService.extractFieldPaths(sourceXPath, expressionHolder.parent.contextPath);
+    const results: { field: IField; document: IDocument }[] = [];
+    for (const xpath of fieldPaths) {
+      const absolutePath = XPathService.toAbsolutePath(xpath);
+      const document = DocumentService.resolveSourceDocument(absolutePath, namespaces, sourceBody, sourceParameterMap);
+      if (!document) continue;
+      const result = DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments);
+      if (result && 'parent' in result) {
+        results.push({ field: result, document });
+      }
+    }
+    return results;
   }
 
   private static doExtractMappingLinks(
@@ -79,41 +119,32 @@ export class MappingLinksService {
     sourceBody: IDocument,
     selectedNodePath: string | null,
     selectedNodeIsSource: boolean,
+    lineStyle: MappingLineStyle = MappingLineStyle.REGULAR,
   ) {
-    const namespaces = sourceExpressionItem.mappingTree.namespaceMap;
-    const sourceXPath = sourceExpressionItem.expression;
-    const validationResult = XPathService.validate(sourceXPath);
-    if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
-    const fieldPaths = XPathService.extractFieldPaths(sourceXPath, sourceExpressionItem.parent.contextPath);
-    return fieldPaths.reduce((acc, xpath) => {
-      const absolutePath = XPathService.toAbsolutePath(xpath);
-      const document = DocumentService.resolveSourceDocument(absolutePath, namespaces, sourceBody, sourceParameterMap);
-      const sourceResult = document
-        ? DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments)
-        : undefined;
-      const sourceField = sourceResult && 'parent' in sourceResult ? sourceResult : undefined;
-      const sourceNodePath = sourceField && MappingLinksService.computeVisualSourceNodePath(sourceField);
-
-      if (sourceNodePath) {
-        const sourceNodePathString = sourceNodePath.toString();
-        const sourceDocumentId = document
-          ? `doc-${document.documentType}-${document.documentId}`
-          : `doc-${DocumentType.SOURCE_BODY}-${BODY_DOCUMENT_ID}`;
-        const targetDocumentId = `doc-${DocumentType.TARGET_BODY}-${BODY_DOCUMENT_ID}`;
-        const isSelected = MappingLinksService.isLinkSelected(
-          sourceNodePathString,
-          targetNodePath,
-          selectedNodePath,
-          selectedNodeIsSource,
-        );
-        acc.push({
-          sourceNodePath: sourceNodePathString,
-          targetNodePath: targetNodePath,
-          sourceDocumentId,
-          targetDocumentId,
-          isSelected,
-        });
-      }
+    const resolvedFields = MappingLinksService.resolveSourceFields(
+      sourceExpressionItem,
+      sourceParameterMap,
+      sourceBody,
+    );
+    return resolvedFields.reduce((acc, { field, document }) => {
+      const sourceNodePath = MappingLinksService.computeVisualSourceNodePath(field);
+      const sourceNodePathString = sourceNodePath.toString();
+      const sourceDocumentId = `doc-${document.documentType}-${document.documentId}`;
+      const targetDocumentId = `doc-${DocumentType.TARGET_BODY}-${BODY_DOCUMENT_ID}`;
+      const isSelected = MappingLinksService.isLinkSelected(
+        sourceNodePathString,
+        targetNodePath,
+        selectedNodePath,
+        selectedNodeIsSource,
+      );
+      acc.push({
+        sourceNodePath: sourceNodePathString,
+        targetNodePath: targetNodePath,
+        sourceDocumentId,
+        targetDocumentId,
+        isSelected,
+        lineStyle,
+      });
       return acc;
     }, [] as IMappingLink[]);
   }
@@ -137,6 +168,62 @@ export class MappingLinksService {
     return mappingLinks
       .filter((link) => link.isSelected)
       .some((link) => link.sourceNodePath === nodePath || link.targetNodePath === nodePath);
+  }
+
+  private static classifyContainerLineStyle(item: FieldItem): MappingLineStyle {
+    const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
+
+    const vs = item.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
+    if (
+      childFieldItems.length === 0 &&
+      vs &&
+      (vs.valueType === ValueType.CONTAINER || vs.valueType === ValueType.CONTAINER_NODE)
+    ) {
+      return MappingLineStyle.COPY_OF;
+    }
+
+    if (childFieldItems.length === 0) return MappingLineStyle.REGULAR;
+    if (item.parent instanceof InstructionItem) return MappingLineStyle.REGULAR;
+
+    const targetChildren = item.field.fields.filter((f) => !MappingLinksService.isWrapperField(f));
+    if (childFieldItems.length < targetChildren.length) return MappingLineStyle.PARTIAL;
+
+    const allContainerChildrenCopyOf = childFieldItems
+      .filter((child) => DocumentService.hasChildren(child.field))
+      .every((child) => {
+        const childVs = child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
+        return childVs && (childVs.valueType === ValueType.CONTAINER || childVs.valueType === ValueType.CONTAINER_NODE);
+      });
+
+    return allContainerChildrenCopyOf ? MappingLineStyle.COMPLETE : MappingLineStyle.PARTIAL;
+  }
+
+  private static hasExtraSourceChildren(
+    item: FieldItem,
+    sourceParameterMap: Map<string, IDocument>,
+    sourceBody: IDocument,
+  ): boolean {
+    const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
+    const sourceParents = new Set<IParentType>();
+    let mappedSourceCount = 0;
+
+    for (const child of childFieldItems) {
+      const vs = child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
+      if (!vs || !isExpressionHolder(vs)) continue;
+      const resolved = MappingLinksService.resolveSourceFields(vs, sourceParameterMap, sourceBody);
+      for (const { field } of resolved) {
+        sourceParents.add(field.parent);
+        mappedSourceCount++;
+      }
+    }
+
+    if (sourceParents.size !== 1) return false;
+    const sourceParent = [...sourceParents][0];
+    if (!('fields' in sourceParent)) return false;
+    const sourceChildren = (sourceParent as IField).fields.filter(
+      (f) => !f.isAttribute && !MappingLinksService.isWrapperField(f),
+    );
+    return sourceChildren.length > mappedSourceCount;
   }
 
   /**

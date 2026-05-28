@@ -1,4 +1,5 @@
 import {
+  BaseField,
   BODY_DOCUMENT_ID,
   DocumentDefinition,
   DocumentDefinitionType,
@@ -6,7 +7,8 @@ import {
   IDocument,
   IField,
 } from '../../models/datamapper/document';
-import { FieldItem, MappingTree, ValueSelector } from '../../models/datamapper/mapping';
+import { FieldItem, MappingTree, ValueSelector, ValueType } from '../../models/datamapper/mapping';
+import { MappingLineStyle } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
 import {
@@ -549,6 +551,196 @@ describe('MappingLinksService', () => {
       expect(links).toHaveLength(0);
 
       validateSpy.mockRestore();
+    });
+  });
+
+  describe('lineStyle classification', () => {
+    let sourceRoot: IField;
+    let targetRoot: IField;
+
+    beforeEach(() => {
+      sourceRoot = sourceDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(sourceRoot);
+      targetRoot = targetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(targetRoot);
+    });
+
+    it('should classify copy-of mapping as COPY_OF', () => {
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const shipToLink = links.find((l) => l.sourceNodePath.includes('ShipTo'));
+      expect(shipToLink).toBeDefined();
+      expect(shipToLink!.lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    it('should classify links inside InstructionItem as REGULAR', () => {
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const itemChildLinks = links.filter((l) => /for-each-.*fx-(Title|Quantity|Price)/.exec(l.targetNodePath));
+      expect(itemChildLinks.length).toBe(3);
+      itemChildLinks.forEach((link) => {
+        expect(link.lineStyle).toBe(MappingLineStyle.REGULAR);
+      });
+    });
+
+    it('should classify container with all children mapped as COMPLETE', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      for (const childField of targetShipTo.fields) {
+        const childItem = new FieldItem(shipToItem, childField);
+        shipToItem.children.push(childItem);
+        const vs = new ValueSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
+        childItem.children.push(vs);
+      }
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links.length).toBe(4);
+      links.forEach((link) => {
+        expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
+      });
+    });
+
+    it('should classify shuffled field mappings as COMPLETE when all children are mapped', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const sourceNames = sourceShipTo.fields.map((f: IField) => f.name);
+      const shuffledSourceNames = [...sourceNames].reverse();
+      targetShipTo.fields.forEach((targetChild: IField, i: number) => {
+        const childItem = new FieldItem(shipToItem, targetChild);
+        shipToItem.children.push(childItem);
+        const vs = new ValueSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/ShipTo/${shuffledSourceNames[i]}`;
+        childItem.children.push(vs);
+      });
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links.length).toBe(4);
+      links.forEach((link) => {
+        expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
+      });
+    });
+
+    it('should classify container with some children unmapped as PARTIAL', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      const mappedFields = targetShipTo.fields.slice(0, 3);
+      for (const childField of mappedFields) {
+        const childItem = new FieldItem(shipToItem, childField);
+        shipToItem.children.push(childItem);
+        const vs = new ValueSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
+        childItem.children.push(vs);
+      }
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links.length).toBe(3);
+      links.forEach((link) => {
+        expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
+      });
+    });
+
+    it('should downgrade COMPLETE to PARTIAL when source has extra children', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+      const extraField = new BaseField(sourceShipTo, sourceDoc, 'PostalCode');
+      sourceShipTo.fields.push(extraField);
+
+      try {
+        const rootItem = new FieldItem(manualTree, targetRoot);
+        manualTree.children.push(rootItem);
+        const shipToItem = new FieldItem(rootItem, targetShipTo);
+        rootItem.children.push(shipToItem);
+
+        for (const childField of targetShipTo.fields) {
+          const childItem = new FieldItem(shipToItem, childField);
+          shipToItem.children.push(childItem);
+          const vs = new ValueSelector(childItem);
+          vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
+          childItem.children.push(vs);
+        }
+
+        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        expect(links.length).toBe(4);
+        links.forEach((link) => {
+          expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
+        });
+      } finally {
+        sourceShipTo.fields.pop();
+      }
+    });
+
+    it('should classify copy-of with CONTAINER_NODE as COPY_OF', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+      const vs = new ValueSelector(shipToItem, ValueType.CONTAINER_NODE);
+      vs.expression = '/ns0:ShipOrder/ShipTo';
+      shipToItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      expect(links.length).toBe(1);
+      expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
     });
   });
 });
