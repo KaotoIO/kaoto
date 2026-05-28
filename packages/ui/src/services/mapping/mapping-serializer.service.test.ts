@@ -419,7 +419,7 @@ describe('MappingSerializerService', () => {
       expect(orderPersonSelect?.nodeValue).toEqual('/ns0:ShipOrder/ns0:OrderPerson');
       const shipToSelect = xsltDocument
         .evaluate(
-          '/xsl:stylesheet/xsl:template/ShipOrder/ShipTo/xsl:copy-of/@select',
+          '/xsl:stylesheet/xsl:template/ShipOrder/xsl:copy-of/@select',
           xsltDocument,
           null,
           XPathResult.ORDERED_NODE_ITERATOR_TYPE,
@@ -600,8 +600,8 @@ describe('MappingSerializerService', () => {
       const xslIf = shipOrderSelect.iterateNext() as Element;
       expect(xslIf.nodeName).toEqual('xsl:if');
       expect(xslIf.getAttribute('test')).toEqual("/ns0:ShipOrder/ns0:OrderPerson != ''");
-      const shipTo = shipOrderSelect.iterateNext() as Element;
-      expect(shipTo.nodeName).toEqual('ShipTo');
+      const copyOf = shipOrderSelect.iterateNext() as Element;
+      expect(copyOf.nodeName).toEqual('xsl:copy-of');
       const xslForEach = shipOrderSelect.iterateNext() as Element;
       expect(xslForEach.nodeName).toEqual('xsl:for-each');
       expect(xslForEach.getAttribute('select')).toEqual('/ns0:ShipOrder/Item');

@@ -1,4 +1,4 @@
-import { DocumentDefinitionType, DocumentType, IDocument } from '../../models/datamapper/document';
+import { DocumentDefinitionType, DocumentType, IDocument, IField } from '../../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
@@ -24,9 +24,11 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { DocumentService } from '../document/document.service';
+import { DocumentUtilService } from '../document/document-util.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { MappingLinksService } from '../visualization/mapping-links.service';
 import { XPathService } from '../xpath/xpath.service';
+import { FieldMatchingService } from './field-matching.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 
@@ -888,6 +890,123 @@ describe('MappingService', () => {
       MappingService.updateVariable(variable, 'newName', 'newExpr');
       expect(variable.name).toEqual('newName');
       expect(variable.expression).toEqual('newExpr');
+    });
+  });
+
+  describe('container auto-mapping', () => {
+    let sourceRoot: IField;
+    let targetRoot: IField;
+
+    beforeEach(() => {
+      sourceRoot = sourceDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(sourceRoot);
+      targetRoot = targetDoc.fields[0];
+      DocumentUtilService.resolveTypeFragment(targetRoot);
+    });
+
+    it('applyContainerMapping should use copy-of for identical containers', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
+
+      const vs = shipToItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      expect(vs).toBeDefined();
+      expect(vs.valueType).toBe(ValueType.CONTAINER);
+    });
+
+    it('generateAutoChildMappings should create value-of for terminal matching children', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      MappingService.generateAutoChildMappings(sourceShipTo, targetShipTo, shipToItem);
+
+      const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
+      expect(childFieldItems.length).toBe(4);
+      childFieldItems.forEach((fi) => {
+        const vs = (fi as FieldItem).children.find((c) => c instanceof ValueSelector);
+        expect(vs).toBeDefined();
+      });
+    });
+
+    it('generateAutoChildMappings should recurse into nested containers', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+
+      MappingService.generateAutoChildMappings(sourceRoot, targetRoot, rootItem);
+
+      const childFieldItems = rootItem.children.filter((c) => c instanceof FieldItem);
+      expect(childFieldItems.length).toBeGreaterThan(0);
+      const shipToChild = childFieldItems.find((c) => (c as FieldItem).field.name === 'ShipTo') as FieldItem;
+      expect(shipToChild).toBeDefined();
+      const shipToVs = shipToChild.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+      expect(shipToVs).toBeDefined();
+      expect(shipToVs.valueType).toBe(ValueType.CONTAINER);
+    });
+
+    it('applyContainerMapping should recurse when canUseCopyOf is false', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const shipToItem = new FieldItem(rootItem, targetShipTo);
+      rootItem.children.push(shipToItem);
+
+      jest.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
+      MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
+
+      const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
+      expect(childFieldItems.length).toBe(4);
+      jest.restoreAllMocks();
+    });
+
+    it('getContainerValueType should return CONTAINER for normal fields', () => {
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      expect(MappingService.getContainerValueType(sourceShipTo, targetShipTo)).toBe(ValueType.CONTAINER);
     });
   });
 });
