@@ -804,10 +804,7 @@ describe('XmlSchemaTypesService', () => {
 
       expect(members.length).toBe(4);
       const names = members.map((el) => el.getName());
-      expect(names).toContain('Cat');
-      expect(names).toContain('Dog');
-      expect(names).toContain('Fish');
-      expect(names).toContain('Kitten');
+      expect(names).toEqual(['Cat', 'Dog', 'Fish', 'Kitten']);
       expect(names).not.toContain('Feline');
     });
 

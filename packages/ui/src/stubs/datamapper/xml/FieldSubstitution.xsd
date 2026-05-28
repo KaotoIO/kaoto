@@ -15,10 +15,10 @@
   </xs:element>
 
   <xs:element name="AbstractAnimal" type="Animal_t" abstract="true"/>
-  <xs:element name="Cat" type="Cat_t" substitutionGroup="AbstractAnimal"/>
   <xs:element name="Dog" type="Dog_t" substitutionGroup="AbstractAnimal"/>
   <xs:element name="Feline" type="Feline_t" abstract="true" substitutionGroup="AbstractAnimal"/>
   <xs:element name="Kitten" type="Kitten_t" substitutionGroup="Feline"/>
+  <xs:element name="Cat" type="Cat_t" substitutionGroup="AbstractAnimal"/>
 
   <xs:element name="AbstractLabel" type="xs:string" abstract="true"/>
   <xs:element name="Nickname" type="Nickname_t" substitutionGroup="AbstractLabel"/>
