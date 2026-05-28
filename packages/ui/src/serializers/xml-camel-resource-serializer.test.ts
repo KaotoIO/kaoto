@@ -26,6 +26,7 @@ describe('XmlCamelResourceSerializer', () => {
 
   it('should insert comments into XML', () => {
     const resource = new CamelRouteResource([]);
+    resource.initialize();
     serializer.setComments(['Comment 1', 'Comment 2']);
 
     const xml = serializer.serialize(resource);
@@ -35,6 +36,7 @@ describe('XmlCamelResourceSerializer', () => {
 
   it('should include XML declaration in serialized XML', () => {
     const resource = new CamelRouteResource([]);
+    resource.initialize();
     serializer.setMetadata({ xmlDeclaration: '<?xml version="1.0" encoding="UTF-8"?>' });
     const xml = serializer.serialize(resource);
     expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
@@ -42,12 +44,14 @@ describe('XmlCamelResourceSerializer', () => {
 
   it('should include default camel namespace in root', () => {
     const resource = new CamelRouteResource([]);
+    resource.initialize();
     const xml = serializer.serialize(resource);
     expect(xml).toContain('xmlns="http://camel.apache.org/schema/spring"');
   });
 
   it('should include all root element definitions', () => {
     const resource = new CamelRouteResource([]);
+    resource.initialize();
     serializer.setMetadata({
       rootElementDefinitions: [
         { name: 'xmlns:xsi', value: 'http://www.w3.org/2001/XMLSchema-instance' },

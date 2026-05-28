@@ -43,6 +43,12 @@ export abstract class CamelKResource implements KaotoResource {
     this.metadata = this.resource.metadata && new MetadataEntity(this.resource);
   }
 
+  initialize(): void {
+    if (this.resource.metadata && !this.metadata) {
+      this.metadata = new MetadataEntity(this.resource);
+    }
+  }
+
   getCanvasEntityList(): BaseVisualEntityDefinition {
     return {
       common: [],

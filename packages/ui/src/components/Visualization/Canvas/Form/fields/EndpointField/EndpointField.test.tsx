@@ -69,6 +69,7 @@ describe('EndpointField', () => {
     options: { disabled?: boolean; required?: boolean } = {},
   ) => {
     const camelResource = createTestResource(testModel);
+    camelResource.initialize();
     const { Provider } = TestProvidersWrapper({ camelResource });
 
     await act(async () => {

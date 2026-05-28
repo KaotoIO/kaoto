@@ -57,6 +57,7 @@ describe('ContextToolbar', () => {
   describe('when using multipleRoute configuration', () => {
     it('should include NewEntity component for Route schema type', () => {
       const camelResource = new CamelRouteResource([]);
+      camelResource.initialize();
       const { Provider } = TestProvidersWrapper({ camelResource });
 
       render(
@@ -85,6 +86,7 @@ describe('ContextToolbar', () => {
   describe('when using single route configuration', () => {
     it('should not include NewEntity component for Kamelet schema type', () => {
       const camelResource = new KameletResource();
+      camelResource.initialize();
       const { Provider } = TestProvidersWrapper({ camelResource });
 
       render(
@@ -98,6 +100,7 @@ describe('ContextToolbar', () => {
 
     it('should not include NewEntity component for Pipe schema type', () => {
       const camelResource = new PipeResource();
+      camelResource.initialize();
       const { Provider } = TestProvidersWrapper({ camelResource });
 
       render(
@@ -111,6 +114,7 @@ describe('ContextToolbar', () => {
 
     it('should not include NewEntity component for KameletBinding schema type', () => {
       const camelResource = new KameletBindingResource();
+      camelResource.initialize();
       const { Provider } = TestProvidersWrapper({ camelResource });
 
       render(
@@ -244,6 +248,7 @@ describe('ContextToolbar', () => {
   describe('SerializerSelector visibility', () => {
     it('should render SerializerSelector for CamelRouteResource (Route schema)', () => {
       const camelResource = new CamelRouteResource([]);
+      camelResource.initialize();
       const { Provider } = TestProvidersWrapper({ camelResource });
 
       render(

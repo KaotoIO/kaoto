@@ -34,6 +34,7 @@ jest.mock('../ContextMenu/item-interaction-helper', () => ({
 
 describe('useReplaceStep', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
 
   const mockEntitiesContext = {

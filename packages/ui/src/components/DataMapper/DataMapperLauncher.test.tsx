@@ -146,6 +146,7 @@ describe('DataMapperLauncher', () => {
   };
 
   const mockCamelResource = {
+    initialize: jest.fn(),
     getVisualEntities: jest.fn().mockReturnValue([]),
     getEntities: jest.fn().mockReturnValue([]),
     addNewEntity: jest.fn(),

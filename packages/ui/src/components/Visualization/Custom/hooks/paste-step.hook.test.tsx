@@ -30,6 +30,7 @@ Object.assign(navigator, {
 
 describe('usePasteStep', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   const getCompatibleComponentsSpy = jest.spyOn(camelResource, 'getCompatibleComponents');
   const getTypeSpy = jest.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
   const mockEntitiesContext = {

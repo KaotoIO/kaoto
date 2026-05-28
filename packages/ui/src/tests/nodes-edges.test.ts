@@ -10,6 +10,7 @@ describe('Nodes and Edges', () => {
 
   it('should generate edges for steps with branches', async () => {
     const camelResource = new CamelRouteResource(camelRouteBranch);
+    camelResource.initialize();
     const [camelRoute] = camelResource.getVisualEntities();
 
     const rootVizNode = await camelRoute.toVizNode();

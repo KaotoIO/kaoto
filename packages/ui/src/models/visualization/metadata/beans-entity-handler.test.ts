@@ -24,6 +24,7 @@ describe('BeansEntityHandler', () => {
     beforeEach(() => {
       model = cloneDeep(routeStub.camelRouteJson);
       const camelRouteResource = new CamelRouteResource(model);
+      camelRouteResource.initialize();
       beansHandler = new BeansEntityHandler(camelRouteResource);
     });
 
@@ -77,6 +78,7 @@ describe('BeansEntityHandler', () => {
     beforeEach(() => {
       model = cloneDeep(kameletStub.kameletJson);
       const kameletResource = new KameletResource(model);
+      kameletResource.initialize();
       beansHandler = new BeansEntityHandler(kameletResource);
     });
 
@@ -140,6 +142,7 @@ describe('BeansEntityHandler', () => {
 
     it('if CamelResource is not the supported one', () => {
       const camelResource = new PipeResource({});
+      camelResource.initialize();
       const beansHandler = new BeansEntityHandler(camelResource);
       expect(beansHandler.isSupported()).toBeFalsy();
       expect(beansHandler.stripReferenceQuote('#myBean')).toBeUndefined();

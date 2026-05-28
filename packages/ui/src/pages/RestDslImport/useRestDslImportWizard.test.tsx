@@ -185,6 +185,7 @@ describe('useRestDslImportWizard', () => {
       },
     ]);
 
+    camelResource.initialize();
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
     const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
 
@@ -244,6 +245,7 @@ describe('useRestDslImportWizard', () => {
         },
       },
     ]);
+    camelResource.initialize();
 
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
     const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');

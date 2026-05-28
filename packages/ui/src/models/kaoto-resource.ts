@@ -8,7 +8,15 @@ import { AddStepMode, BaseVisualEntity, IVisualizationNodeData } from './visuali
 import { BeansEntity } from './visualization/metadata';
 import { RouteTemplateBeansEntity } from './visualization/metadata/routeTemplateBeansEntity';
 
+/**
+ * The KaotoResource should be created lazily, as some require a fully loaded catalog to properly
+ * parse them (f.i. XML Camel Routes)
+ */
 export interface KaotoResource {
+  /**
+   * After creation, the `initialize` method parses the underlying DSL to populate the resource entities
+   */
+  initialize(): void;
   getVisualEntities(): BaseVisualEntity[];
   getEntities(): BaseEntity[];
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string;

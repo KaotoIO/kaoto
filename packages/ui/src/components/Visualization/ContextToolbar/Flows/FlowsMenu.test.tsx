@@ -90,6 +90,7 @@ describe('FlowsMenu.tsx', () => {
 
   it('should render the route id when a single route is visible', async () => {
     const singleFlowCamelResource = new CamelRouteResource();
+    singleFlowCamelResource.initialize();
     singleFlowCamelResource.addNewEntity(EntityType.Route);
 
     const { Provider } = TestProvidersWrapper({
