@@ -24,6 +24,7 @@ export const xpathEditorConstrufctionOption: monaco.editor.IStandaloneEditorCons
   automaticLayout: true,
   wordWrap: 'on',
   scrollBeyondLastColumn: 0,
+  scrollBeyondLastLine: false,
   scrollbar: {
     horizontal: 'hidden',
     horizontalHasArrows: false,
