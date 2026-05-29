@@ -126,6 +126,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** This method returns the node's associated schema used for the configuration form */
   getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined;
 
+  /** This method returns the node's associated schema asynchronously from the catalog */
+  fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined>;
+
   /** This method returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(): any;
@@ -171,6 +174,8 @@ export interface IVisualizationNodeData {
   description: string;
   /** Tooltip for processor icon overlay (from/to/toD/poll) resolved from the catalog at mapping time */
   processorIconTooltip?: string;
+  /** Schema resolved from the catalog at mapping time */
+  schema?: KaotoSchemaDefinition['schema'];
   [key: string]: unknown;
 }
 

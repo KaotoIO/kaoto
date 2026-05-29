@@ -171,6 +171,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         title: 'Error Handler',
         description: 'errorHandler: errorHandler',
         processorIconTooltip: '',
+        schema: expect.any(Object),
       });
     });
   });
