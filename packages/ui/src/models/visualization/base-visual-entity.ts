@@ -28,6 +28,9 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, returns the node's associated schema used for the configuration form */
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
 
+  /** Given a path, returns the node's associated schema asynchronously from the catalog */
+  fetchSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined>;
+
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(path?: string): any;
@@ -125,6 +128,9 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   /** This method returns the node's associated schema used for the configuration form */
   getNodeSchema(): KaotoSchemaDefinition['schema'] | undefined;
+
+  /** This method returns the node's associated schema asynchronously from the catalog */
+  fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined>;
 
   /** This method returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
