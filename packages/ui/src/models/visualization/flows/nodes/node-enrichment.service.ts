@@ -26,11 +26,14 @@ export class NodeEnrichmentService {
     const titleIdentifier =
       catalogKind === CatalogKind.Processor || catalogKind === CatalogKind.Pattern ? processorName : vizNode.data.name;
 
+    const getSchema = () => vizNode.fetchSchema();
+
     const results = await Promise.allSettled([
       getIconRequest(catalogKind, vizNode.data.name),
       getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description),
       getProcessorIconTooltipRequest(processorName),
       getTitleRequest(catalogKind, titleIdentifier, componentName),
+      getSchema(),
     ]);
 
     // Handle icon result
@@ -60,6 +63,13 @@ export class NodeEnrichmentService {
       vizNode.data.title = results[3].value;
     } else {
       console.warn(`Failed to fetch title for ${vizNode.data.name}:`, results[3].reason);
+    }
+
+    // Handle schema result
+    if (results[4].status === 'fulfilled') {
+      vizNode.data.schema = results[4].value;
+    } else {
+      console.warn(`Failed to fetch schema for ${vizNode.data.name}:`, results[4].reason);
     }
   }
 }

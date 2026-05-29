@@ -243,6 +243,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
       description: '',
       processorIconTooltip: '',
       processorName: 'route',
+      schema: undefined,
     });
 
     // Enrich route group node with catalog properties (icon, title, description, etc.)

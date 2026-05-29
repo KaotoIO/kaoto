@@ -1,5 +1,15 @@
 import { CatalogLibrary, CatalogLibraryEntry, KaotoFunction } from '@kaoto/camel-catalog/types';
 
+import { DynamicCatalog } from '../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
+import {
+  CamelComponentsProvider,
+  CamelDataformatProvider,
+  CamelLanguageProvider,
+  CamelLoadbalancerProvider,
+  CamelProcessorsProvider,
+} from '../dynamic-catalog/providers/camel-components.provider';
+import { CamelKameletsProvider } from '../dynamic-catalog/providers/camel-kamelets.provider';
 import {
   CamelCatalogIndex,
   CitrusCatalogIndex,
@@ -11,6 +21,7 @@ import {
   ICitrusComponentDefinition,
   IKameletDefinition,
 } from '../models';
+import { CatalogKind } from '../models/catalog-kind';
 
 export const getFirstCatalogMap = async (catalogLibrary: CatalogLibrary) => {
   const [firstCatalogLibraryEntry] = catalogLibrary.definitions;
@@ -131,4 +142,49 @@ export const testLoadCitrusCatalog = async (catalogLibraryEntry: CatalogLibraryE
     containersCatalogMap,
     endpointsCatalogMap,
   };
+};
+
+/**
+ * Helper to populate DynamicCatalogRegistry with all catalog types for testing.
+ * Use this in beforeAll/beforeEach to avoid duplicating catalog setup across tests.
+ *
+ * @example
+ * beforeAll(async () => {
+ *   const catalogsMap = await getFirstCatalogMap(catalogLibrary);
+ *   setupDynamicCatalogRegistry(catalogsMap);
+ * });
+ */
+export const setupDynamicCatalogRegistry = (catalogsMap: Awaited<ReturnType<typeof testLoadCatalog>>) => {
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Component,
+    new DynamicCatalog(new CamelComponentsProvider(catalogsMap.componentCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Processor,
+    new DynamicCatalog(new CamelProcessorsProvider(catalogsMap.modelCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Pattern,
+    new DynamicCatalog(new CamelProcessorsProvider(catalogsMap.patternCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Entity,
+    new DynamicCatalog(new CamelProcessorsProvider(catalogsMap.entitiesCatalog)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Kamelet,
+    new DynamicCatalog(new CamelKameletsProvider(catalogsMap.kameletsCatalogMap)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Language,
+    new DynamicCatalog(new CamelLanguageProvider(catalogsMap.languageCatalog)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Dataformat,
+    new DynamicCatalog(new CamelDataformatProvider(catalogsMap.dataformatCatalog)),
+  );
+  DynamicCatalogRegistry.get().setCatalog(
+    CatalogKind.Loadbalancer,
+    new DynamicCatalog(new CamelLoadbalancerProvider(catalogsMap.loadbalancerCatalog)),
+  );
 };

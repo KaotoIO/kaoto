@@ -1,5 +1,6 @@
 import { CatalogKind } from '../../../catalog-kind';
-import { IVisualizationNode } from '../../base-visual-entity';
+import { KaotoSchemaDefinition } from '../../../kaoto-schema';
+import { BaseVisualEntity, IVisualizationNode } from '../../base-visual-entity';
 import { createVisualizationNode } from '../../visualization-node';
 import { CamelRouteVisualEntityData } from '../support/camel-component-types';
 import { NodeEnrichmentService } from './node-enrichment.service';
@@ -30,7 +31,9 @@ describe('NodeEnrichmentService', () => {
     consoleWarnSpy.mockRestore();
   });
 
-  const createMockVizNode = (): IVisualizationNode<CamelRouteVisualEntityData> => {
+  const createMockVizNode = (
+    fetchSchemaImpl?: () => Promise<KaotoSchemaDefinition['schema'] | undefined>,
+  ): IVisualizationNode<CamelRouteVisualEntityData> => {
     const data = {
       name: 'log',
       description: 'Logs messages',
@@ -40,16 +43,30 @@ describe('NodeEnrichmentService', () => {
       iconUrl: '',
       title: '',
     } as unknown as CamelRouteVisualEntityData;
-    return createVisualizationNode('test-node', data);
+    const vizNode = createVisualizationNode('test-node', data);
+
+    // Mock fetchSchema method
+    if (fetchSchemaImpl) {
+      vizNode.fetchSchema = jest.fn(fetchSchemaImpl);
+    }
+
+    return vizNode;
   };
 
   it('should enrich node with all catalog data on success', async () => {
+    const mockSchema: KaotoSchemaDefinition['schema'] = {
+      type: 'object' as const,
+      properties: {
+        message: { type: 'string' as const },
+      },
+    };
+
     mockGetIconRequest.mockResolvedValue({ icon: 'log-icon.svg', alt: 'Log icon' });
     mockGetTooltipRequest.mockResolvedValue('Logs messages to the console');
     mockGetProcessorIconTooltipRequest.mockResolvedValue('From: Consumes messages from an endpoint');
     mockGetTitleRequest.mockResolvedValue('Log EIP');
 
-    const vizNode = createMockVizNode();
+    const vizNode = createMockVizNode(async () => mockSchema);
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
 
     expect(vizNode.data.iconUrl).toBe('log-icon.svg');
@@ -57,6 +74,7 @@ describe('NodeEnrichmentService', () => {
     expect(vizNode.data.description).toBe('Logs messages to the console');
     expect(vizNode.data.processorIconTooltip).toBe('From: Consumes messages from an endpoint');
     expect(vizNode.data.title).toBe('Log EIP');
+    expect(vizNode.data.schema).toBe(mockSchema);
   });
 
   it('should handle all fetches failing gracefully', async () => {
@@ -65,7 +83,9 @@ describe('NodeEnrichmentService', () => {
     mockGetProcessorIconTooltipRequest.mockRejectedValue(new Error('Processor service down'));
     mockGetTitleRequest.mockRejectedValue(new Error('Title service down'));
 
-    const vizNode = createMockVizNode();
+    const vizNode = createMockVizNode(async () => {
+      throw new Error('Schema service down');
+    });
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
 
     expect(vizNode.data.iconUrl).toBe('');
@@ -73,16 +93,24 @@ describe('NodeEnrichmentService', () => {
     expect(vizNode.data.description).toBe('Logs messages');
     expect(vizNode.data.processorIconTooltip).toBeUndefined();
     expect(vizNode.data.title).toBe('');
-    expect(consoleWarnSpy).toHaveBeenCalledTimes(4);
+    expect(vizNode.data.schema).toBeUndefined();
+    expect(consoleWarnSpy).toHaveBeenCalledTimes(5);
   });
 
   it('should handle partial failures and still enrich successfully fetched data', async () => {
+    const mockSchema: KaotoSchemaDefinition['schema'] = {
+      type: 'object' as const,
+      properties: {
+        message: { type: 'string' as const },
+      },
+    };
+
     mockGetIconRequest.mockRejectedValue(new Error('Icon failed'));
     mockGetTooltipRequest.mockResolvedValue('Logs messages to the console');
     mockGetProcessorIconTooltipRequest.mockRejectedValue(new Error('Processor tooltip failed'));
     mockGetTitleRequest.mockResolvedValue('Log EIP');
 
-    const vizNode = createMockVizNode();
+    const vizNode = createMockVizNode(async () => mockSchema);
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Component);
 
     expect(vizNode.data.iconUrl).toBe('');
@@ -90,6 +118,7 @@ describe('NodeEnrichmentService', () => {
     expect(vizNode.data.description).toBe('Logs messages to the console');
     expect(vizNode.data.processorIconTooltip).toBeUndefined();
     expect(vizNode.data.title).toBe('Log EIP');
+    expect(vizNode.data.schema).toBe(mockSchema);
     expect(consoleWarnSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -130,5 +159,72 @@ describe('NodeEnrichmentService', () => {
     // Verify getTitleRequest was called with name (not processorName) for Component kind
     expect(mockGetTitleRequest).toHaveBeenCalledWith(CatalogKind.Component, 'timer', 'timer');
     expect(vizNode.data.title).toBe('Timer');
+  });
+
+  it('should enrich schema for Kamelet root nodes', async () => {
+    const rootSchema: KaotoSchemaDefinition['schema'] = {
+      type: 'object' as const,
+      properties: {
+        name: { type: 'string' as const },
+        metadata: { type: 'object' as const },
+      },
+    };
+
+    mockGetIconRequest.mockResolvedValue({ icon: 'kamelet-icon.svg', alt: 'Kamelet icon' });
+    mockGetTooltipRequest.mockResolvedValue('Kamelet description');
+    mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+    mockGetTitleRequest.mockResolvedValue('My Kamelet');
+
+    const vizNode = createVisualizationNode('test-kamelet', {
+      name: 'test-kamelet',
+      path: 'template',
+      entity: {} as BaseVisualEntity,
+      processorName: 'route',
+      isPlaceholder: false,
+      isGroup: true,
+      iconUrl: '',
+      title: '',
+      description: '',
+    } as unknown as CamelRouteVisualEntityData);
+
+    vizNode.fetchSchema = jest.fn(async () => rootSchema);
+
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
+
+    expect(vizNode.fetchSchema).toHaveBeenCalled();
+    expect(vizNode.data.schema).toBe(rootSchema);
+  });
+
+  it('should enrich schema for non-root nodes', async () => {
+    const standardSchema: KaotoSchemaDefinition['schema'] = {
+      type: 'object' as const,
+      properties: {
+        uri: { type: 'string' as const },
+      },
+    };
+
+    mockGetIconRequest.mockResolvedValue({ icon: 'log-icon.svg', alt: 'Log icon' });
+    mockGetTooltipRequest.mockResolvedValue('Logs messages');
+    mockGetProcessorIconTooltipRequest.mockResolvedValue('');
+    mockGetTitleRequest.mockResolvedValue('Log');
+
+    const vizNode = createVisualizationNode('test-child', {
+      name: 'log',
+      path: 'template.from.steps.0.log', // Not a root path
+      entity: {} as BaseVisualEntity,
+      processorName: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    } as unknown as CamelRouteVisualEntityData);
+
+    vizNode.fetchSchema = jest.fn(async () => standardSchema);
+
+    await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
+
+    expect(vizNode.fetchSchema).toHaveBeenCalled();
+    expect(vizNode.data.schema).toBe(standardSchema);
   });
 });

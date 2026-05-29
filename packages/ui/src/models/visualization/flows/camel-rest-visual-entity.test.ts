@@ -469,6 +469,7 @@ describe('CamelRestVisualEntity', () => {
         title: 'Rest',
         description: 'rest: rest',
         processorIconTooltip: '',
+        schema: expect.any(Object),
       });
     });
   });
