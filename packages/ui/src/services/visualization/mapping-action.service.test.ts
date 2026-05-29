@@ -798,6 +798,24 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(addMappingNode)).not.toContain(MappingActionKind.ValueSelector);
       });
 
+      it('should allow Delete for a field node added via Add Mapping', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        expect(addMappingNode instanceof AddMappingNodeData).toBeTruthy();
+        expect(MappingActionService.getAllowedActions(addMappingNode)).not.toContain(MappingActionKind.Delete);
+        MappingActionService.addMapping(addMappingNode);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+
+        const addedNode = updatedShipOrderChildren.find(
+          (n) => n instanceof FieldItemNodeData && n.title === 'Item',
+        ) as FieldItemNodeData;
+        expect(addedNode).toBeDefined();
+        expect(MappingActionService.getAllowedActions(addedNode)).toContain(MappingActionKind.Delete);
+      });
+
       it('should include ContextMenu for primitive TargetDocumentNodeData', () => {
         const primitiveTargetDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
@@ -1122,7 +1140,7 @@ describe('MappingActionService', () => {
       const docData = new TargetDocumentNodeData(targetDoc, tree);
 
       const fieldNodeData = new FieldItemNodeData(docData, tree.children[0] as FieldItem);
-      expect(MappingActionService.getAllowedActions(fieldNodeData)).not.toContain(MappingActionKind.Delete);
+      expect(MappingActionService.getAllowedActions(fieldNodeData)).toContain(MappingActionKind.Delete);
 
       const forEachNodeData = new MappingNodeData(docData, tree.children[0].children[0] as ForEachItem);
       expect(MappingActionService.getAllowedActions(forEachNodeData)).toContain(MappingActionKind.Delete);

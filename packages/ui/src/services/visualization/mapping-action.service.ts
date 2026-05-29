@@ -319,6 +319,7 @@ export class MappingActionService {
       key: MappingActionKind.Delete,
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (n instanceof FieldItemNodeData) return true;
         if (MappingActionService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
           return MappingActionService.hasValueSelector(n);
         return MappingActionService.isMappingNode(n);
