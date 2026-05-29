@@ -31,6 +31,7 @@ export class NodeEnrichmentService {
       getTooltipRequest(catalogKind, vizNode.data.name, vizNode.data.description),
       getProcessorIconTooltipRequest(processorName),
       getTitleRequest(catalogKind, titleIdentifier, componentName),
+      vizNode.fetchSchema(),
     ]);
 
     // Handle icon result

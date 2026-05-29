@@ -100,7 +100,10 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     if (!baseEntity) {
       return Promise.resolve(undefined);
     }
-    return baseEntity.fetchSchema(this.data.path);
+
+    const schema = baseEntity.getNodeSchema(this.data.path);
+    this.data.schema = schema;
+    return Promise.resolve(schema);
   }
 
   getNodeDefinition(): unknown {

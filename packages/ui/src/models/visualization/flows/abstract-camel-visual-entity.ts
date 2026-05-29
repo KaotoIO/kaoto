@@ -69,39 +69,6 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     return CamelComponentSchemaService.getSchema(camelElementLookup);
   }
 
-  async fetchSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined> {
-    if (!path) return undefined;
-
-    const definition = getValue(this.entityDef, path);
-
-    // Check if this is an Entity node (routeConfiguration, intercept, etc.) at root path
-    if (path === this.getRootPath()) {
-      const entityTypes = [
-        'routeConfiguration',
-        'intercept',
-        'interceptFrom',
-        'interceptSendToEndpoint',
-        'onException',
-        'onCompletion',
-        'errorHandler',
-        'rest',
-        'restConfiguration',
-      ];
-
-      // Extract the entity type from the root path
-      const rootPathSegment = path.split('.')[0];
-      if (entityTypes.includes(rootPathSegment)) {
-        // This is an Entity node, fetch from Entity catalog
-        const { NodeSchemaResolver } = await import('./nodes/resolvers/schema-resolver/node-schema-resolver');
-        return NodeSchemaResolver.getEntitySchema(rootPathSegment);
-      }
-    }
-
-    // Default: use processor schema resolver
-    const { NodeSchemaResolver } = await import('./nodes/resolvers/schema-resolver/node-schema-resolver');
-    return NodeSchemaResolver.getProcessorSchema(path, definition);
-  }
-
   getNodeDefinition(path?: string): unknown {
     if (!path) return undefined;
 

@@ -28,9 +28,6 @@ export interface BaseVisualEntity extends BaseEntity {
   /** Given a path, returns the node's associated schema used for the configuration form */
   getNodeSchema(path?: string): KaotoSchemaDefinition['schema'] | undefined;
 
-  /** Given a path, returns the node's associated schema asynchronously from the catalog */
-  fetchSchema(path?: string): Promise<KaotoSchemaDefinition['schema'] | undefined>;
-
   /** Given a path, returns the node's underlying definition in JSON format */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getNodeDefinition(path?: string): any;
@@ -177,6 +174,8 @@ export interface IVisualizationNodeData {
   description: string;
   /** Tooltip for processor icon overlay (from/to/toD/poll) resolved from the catalog at mapping time */
   processorIconTooltip?: string;
+  /** Schemas */
+  schema: KaotoSchemaDefinition['schema'] | undefined;
   [key: string]: unknown;
 }
 
