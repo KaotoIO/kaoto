@@ -816,6 +816,14 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(addedNode)).toContain(MappingActionKind.Delete);
       });
 
+      it('should keep Delete for an existing value-mapped field node', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
+        expect(orderIdNode.title).toEqual('OrderId');
+        expect(MappingActionService.getAllowedActions(orderIdNode)).toContain(MappingActionKind.Delete);
+      });
+
       it('should include ContextMenu for primitive TargetDocumentNodeData', () => {
         const primitiveTargetDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
@@ -1140,7 +1148,7 @@ describe('MappingActionService', () => {
       const docData = new TargetDocumentNodeData(targetDoc, tree);
 
       const fieldNodeData = new FieldItemNodeData(docData, tree.children[0] as FieldItem);
-      expect(MappingActionService.getAllowedActions(fieldNodeData)).toContain(MappingActionKind.Delete);
+      expect(MappingActionService.getAllowedActions(fieldNodeData)).not.toContain(MappingActionKind.Delete);
 
       const forEachNodeData = new MappingNodeData(docData, tree.children[0].children[0] as ForEachItem);
       expect(MappingActionService.getAllowedActions(forEachNodeData)).toContain(MappingActionKind.Delete);

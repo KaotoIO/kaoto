@@ -219,7 +219,8 @@ export class MappingActionService {
    */
   static addMapping(nodeData: AddMappingNodeData) {
     const parentItem = MappingActionService.getOrCreateFieldItem(nodeData.parent);
-    MappingService.createFieldItem(parentItem, nodeData.field);
+    const fieldItem = MappingService.createFieldItem(parentItem, nodeData.field);
+    fieldItem.isUserCreated = true;
   }
 
   static getOrCreateParentMapping(nodeData: TargetNodeData): MappingParentType | undefined {
@@ -319,7 +320,8 @@ export class MappingActionService {
       key: MappingActionKind.Delete,
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
-        if (n instanceof FieldItemNodeData) return true;
+        if (n instanceof FieldItemNodeData)
+          return (n.mapping instanceof FieldItem && n.mapping.isUserCreated) || MappingActionService.hasValueSelector(n);
         if (MappingActionService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
           return MappingActionService.hasValueSelector(n);
         return MappingActionService.isMappingNode(n);
