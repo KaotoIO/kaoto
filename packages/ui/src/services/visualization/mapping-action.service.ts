@@ -321,7 +321,8 @@ export class MappingActionService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (n instanceof FieldItemNodeData)
-          return (n.mapping instanceof FieldItem && n.mapping.isUserCreated) || MappingActionService.hasValueSelector(n);
+          // A workaround until https://github.com/KaotoIO/kaoto/issues/3242 is solved
+          return (n.mapping instanceof FieldItem && n.mapping.isUserCreated && n.mapping.parent instanceof FieldItem)  || MappingActionService.hasValueSelector(n);
         if (MappingActionService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
           return MappingActionService.hasValueSelector(n);
         return MappingActionService.isMappingNode(n);
