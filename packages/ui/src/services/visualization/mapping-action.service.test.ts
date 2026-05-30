@@ -807,7 +807,9 @@ describe('MappingActionService', () => {
         MappingActionService.addMapping(addMappingNode);
         targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
         const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(updatedDocChildren[0]);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
 
         const addedNode = updatedShipOrderChildren.find(
           (n) => n instanceof FieldItemNodeData && n.title === 'Item',

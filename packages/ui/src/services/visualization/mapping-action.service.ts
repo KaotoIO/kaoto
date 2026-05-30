@@ -322,7 +322,10 @@ export class MappingActionService {
         if (n instanceof AddMappingNodeData) return false;
         if (n instanceof FieldItemNodeData)
           // A workaround until https://github.com/KaotoIO/kaoto/issues/3242 is solved
-          return (n.mapping instanceof FieldItem && n.mapping.isUserCreated && n.mapping.parent instanceof FieldItem)  || MappingActionService.hasValueSelector(n);
+          return (
+            (n.mapping instanceof FieldItem && n.mapping.isUserCreated && n.mapping.parent instanceof FieldItem) ||
+            MappingActionService.hasValueSelector(n)
+          );
         if (MappingActionService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
           return MappingActionService.hasValueSelector(n);
         return MappingActionService.isMappingNode(n);
