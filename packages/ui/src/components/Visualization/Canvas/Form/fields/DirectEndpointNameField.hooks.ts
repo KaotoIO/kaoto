@@ -209,10 +209,13 @@ export const useCreateDirectRoute = ({
   entitiesContext,
   visibleFlowsContext,
 }: UseCreateDirectRouteParams) => {
-  const canCreateRoute = !disabled && typedName !== '' && !existingDirectRouteNames.includes(typedName);
+  const canCreateRouteByName = !disabled && typedName !== '' && !existingDirectRouteNames.includes(typedName);
+  const isEntitiesReady = Boolean(entitiesContext && !entitiesContext.isLoading && entitiesContext.camelResource);
+  const canCreateRoute = canCreateRouteByName && isEntitiesReady;
 
   const onCreateRoute = useCallback(() => {
-    if (!entitiesContext || !canCreateRoute) {
+    const camelResource = entitiesContext?.camelResource;
+    if (!canCreateRouteByName || !camelResource || entitiesContext?.isLoading) {
       return;
     }
 
@@ -224,11 +227,12 @@ export const useCreateDirectRoute = ({
       },
     };
 
-    const newRouteId = entitiesContext.camelResource.addNewEntity(EntityType.Route, routeTemplate);
+    const newRouteId = camelResource.addNewEntity(EntityType.Route, routeTemplate);
+
     visibleFlowsContext?.visualFlowsApi.toggleFlowVisible(newRouteId);
     entitiesContext.updateEntitiesFromCamelResource();
     onChange(typedName);
-  }, [canCreateRoute, entitiesContext, onChange, typedName, visibleFlowsContext]);
+  }, [canCreateRouteByName, entitiesContext, onChange, typedName, visibleFlowsContext]);
 
   return { canCreateRoute, onCreateRoute };
 };

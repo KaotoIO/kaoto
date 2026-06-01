@@ -21,7 +21,7 @@ import { NodeInteractionAddonContext } from '../../../registers/interactions/nod
 import { processOnCopyAddon, processOnDuplicateAddonRecursively } from '../ContextMenu/item-interaction-helper';
 
 export const useDuplicateStep = (vizNode: IVisualizationNode) => {
-  const entitiesContext = useContext(EntitiesContext)!;
+  const { isLoading, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const nodeInteractionAddonContext = useContext(NodeInteractionAddonContext);
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
@@ -39,11 +39,11 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
   const parentVizNode = vizNode.getParentNode();
 
   const canDuplicate = useMemo(() => {
-    if (!isDefined(vizNodeContent)) return false;
+    if (isLoading || !camelResource || !isDefined(vizNodeContent)) return false;
 
     // check for step array nodes
     if (vizNode.getNodeInteraction().canHaveNextStep) {
-      const filter = entitiesContext.camelResource.getCompatibleComponents(
+      const filter = camelResource?.getCompatibleComponents(
         AddStepMode.AppendStep,
         vizNode.data,
         vizNode.getNodeDefinition(),
@@ -55,7 +55,7 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
 
     // check for special children nodes in case of Route Entity
     if (parentVizNode?.getNodeInteraction().canHaveSpecialChildren) {
-      const filter = entitiesContext.camelResource.getCompatibleComponents(
+      const filter = camelResource.getCompatibleComponents(
         AddStepMode.InsertSpecialChildStep,
         parentVizNode.data,
         parentVizNode.getNodeDefinition(),
@@ -71,10 +71,10 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
     }
 
     return false;
-  }, [catalogModalContext, entitiesContext, parentVizNode, vizNode, vizNodeContent]);
+  }, [isLoading, camelResource, vizNodeContent, vizNode, parentVizNode, catalogModalContext]);
 
   const onDuplicate = useCallback(async () => {
-    if (!vizNode || !vizNodeContent || !entitiesContext) return;
+    if (isLoading || !vizNode || !vizNodeContent || !camelResource) return;
 
     let updatedVizNodeContent = updateIds(cloneDeep(vizNodeContent));
 
@@ -92,11 +92,12 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
 
     if (vizNodeContent.type === SourceSchemaType.Route && !isDefined(parentVizNode)) {
       const originalEntityId = vizNode.getId();
-      const newId = entitiesContext.camelResource.addNewEntity(
+      const newId = camelResource.addNewEntity(
         updatedVizNodeContent.name as EntityType,
         { [updatedVizNodeContent.name]: updatedVizNodeContent.definition },
         originalEntityId,
       );
+
       visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
       controller.fromModel({
         nodes: [],
@@ -128,12 +129,14 @@ export const useDuplicateStep = (vizNode: IVisualizationNode) => {
     }
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    updateEntitiesFromCamelResource();
   }, [
+    camelResource,
     controller,
-    entitiesContext,
+    isLoading,
     nodeInteractionAddonContext,
     parentVizNode,
+    updateEntitiesFromCamelResource,
     visibleFlowsContext.visualFlowsApi,
     vizNode,
     vizNodeContent,

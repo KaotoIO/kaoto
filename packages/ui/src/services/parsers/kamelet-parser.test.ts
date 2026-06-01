@@ -5,10 +5,9 @@ import { KameletParser } from './kamelet-parser';
 
 describe('KameletParser', () => {
   describe('parseKameletEntity()', () => {
-    it('should parse kamelet', () => {
-      const kameletEntity = CamelResourceFactory.createCamelResource(
-        kameletYaml,
-      ).getVisualEntities()[0] as KameletVisualEntity;
+    it('should parse kamelet', async () => {
+      const kameletResource = await CamelResourceFactory.createCamelResource(kameletYaml);
+      const kameletEntity = kameletResource.getVisualEntities()[0] as KameletVisualEntity;
       const parsedTables = KameletParser.parseKameletEntity(kameletEntity);
       expect(parsedTables.length).toEqual(4);
 

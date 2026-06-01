@@ -14,10 +14,8 @@ interface ISourceTypeSelector {
 export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
   const runtimeContext = useRuntimeContext();
   const { selectedCatalog } = runtimeContext;
-  const { currentSchemaType, camelResource } = useContext(EntitiesContext)!;
-  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
+  const { currentSchemaType, camelResource, isLoading } = useContext(EntitiesContext)!;
   const [isOpen, setIsOpen] = useState(false);
-  const dslEntries = getSupportedDsls(camelResource);
 
   const onSelect = useCallback(
     (_event: MouseEvent | undefined, flowType: string | number | undefined) => {
@@ -36,6 +34,13 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
     },
     [props, selectedCatalog],
   );
+
+  if (isLoading || !camelResource || !currentSchemaType) {
+    return null;
+  }
+
+  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
+  const dslEntries = getSupportedDsls(camelResource);
 
   const toggle = (toggleRef: RefObject<HTMLButtonElement>) => (
     <MenuToggle

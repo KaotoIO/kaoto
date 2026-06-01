@@ -19,21 +19,17 @@ export const useInsertStep = (
   mode: AddStepMode.InsertChildStep | AddStepMode.InsertSpecialChildStep = AddStepMode.InsertChildStep,
   options?: UseInsertStepOptions,
 ) => {
-  const entitiesContext = useContext(EntitiesContext);
+  const { isLoading, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const controller = useVisualizationController();
 
   const onInsertStep = useCallback(async () => {
-    if (!vizNode || !entitiesContext) return;
+    if (isLoading || !camelResource || !vizNode) return;
 
     let definedComponent: DefinedComponent | undefined = options?.predefinedComponent;
     if (!definedComponent) {
       /** Get compatible nodes and the location where can be introduced */
-      const compatibleNodes = entitiesContext.camelResource.getCompatibleComponents(
-        mode,
-        vizNode.data,
-        vizNode.getNodeDefinition(),
-      );
+      const compatibleNodes = camelResource.getCompatibleComponents(mode, vizNode.data, vizNode.getNodeDefinition());
       /** Open Catalog modal, filtering the compatible nodes */
       definedComponent = await catalogModalContext?.getNewComponent(compatibleNodes);
     }
@@ -64,8 +60,18 @@ export const useInsertStep = (
     }
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
-  }, [catalogModalContext, controller, entitiesContext, mode, options, vizNode]);
+    updateEntitiesFromCamelResource();
+  }, [
+    isLoading,
+    camelResource,
+    vizNode,
+    options?.predefinedComponent,
+    options?.insertAtStart,
+    mode,
+    updateEntitiesFromCamelResource,
+    catalogModalContext,
+    controller,
+  ]);
 
   const value = useMemo(
     () => ({

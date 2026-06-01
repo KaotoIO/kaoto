@@ -28,15 +28,15 @@ export class XmlCamelResourceSerializer implements KaotoResourceSerializer {
     return isXML(code as string);
   }
 
-  parse(code: unknown): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe {
+  async parse(code: string): Promise<CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe> {
     const xmlParser = new KaotoXmlParser();
 
-    this.metadata.xmlDeclaration = this.parseXmlDeclaration(code as string);
+    this.metadata.xmlDeclaration = this.parseXmlDeclaration(code);
 
-    const codeWithoutDeclaration = (code as string).replace(this.metadata.xmlDeclaration, '');
+    const codeWithoutDeclaration = code.replace(this.metadata.xmlDeclaration, '');
     this.extractComments(codeWithoutDeclaration);
     this.metadata.rootElementDefinitions = xmlParser.parseRootElementDefinitions(codeWithoutDeclaration);
-    const entities = xmlParser.parseXML(codeWithoutDeclaration as string);
+    const entities = await xmlParser.parseXML(codeWithoutDeclaration);
 
     return entities as CamelYamlDsl;
   }

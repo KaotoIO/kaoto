@@ -171,6 +171,7 @@ describe('DataMapperLauncher', () => {
     entities: [],
     visualEntities: [],
     camelResource: mockCamelResource,
+    isLoading: false,
     currentSchemaType: SourceSchemaType.Route,
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromSource: jest.fn(),

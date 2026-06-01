@@ -54,8 +54,8 @@ export const RuntimeSelector: FunctionComponent = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const runtimeContext = useRuntimeContext();
-  const entitiesContext = useContext(EntitiesContext);
-  const compatibleRuntimes = entitiesContext?.camelResource.getCompatibleRuntimes() ?? [];
+  const { camelResource, isLoading } = useContext(EntitiesContext)!;
+  const compatibleRuntimes = camelResource?.getCompatibleRuntimes() ?? [];
   const [_, setSelectedCatalogLocalStorage] = useLocalStorage(
     LocalStorageKeys.SelectedCatalog,
     runtimeContext.selectedCatalog,
@@ -78,7 +78,7 @@ export const RuntimeSelector: FunctionComponent = () => {
 
   const onSelect = useCallback(
     (_event: unknown, runtimeVersion: string | number | undefined) => {
-      if (!runtimeVersion) {
+      if (isLoading || !camelResource || !runtimeVersion) {
         return;
       }
 
@@ -93,7 +93,7 @@ export const RuntimeSelector: FunctionComponent = () => {
 
       setIsOpen(false);
     },
-    [runtimeContext, setSelectedCatalogLocalStorage],
+    [runtimeContext, setSelectedCatalogLocalStorage, isLoading, camelResource],
   );
 
   const getMenuItem = useCallback(
@@ -139,6 +139,10 @@ export const RuntimeSelector: FunctionComponent = () => {
     },
     [],
   );
+
+  if (isLoading || !camelResource) {
+    return null;
+  }
 
   return (
     <MenuContainer

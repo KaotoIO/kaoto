@@ -13,7 +13,7 @@ interface INavigationSidebar {
 
 export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
   const currentLocation = useLocation();
-  const { currentSchemaType } = useContext(EntitiesContext)!;
+  const { currentSchemaType, isLoading } = useContext(EntitiesContext)!;
 
   const navElements: NavElements = useMemo(
     () => [
@@ -26,7 +26,7 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
       },
       {
         title: 'Rest',
-        hidden: () => !NAVIGATION_ELEMENTS.RestDsl.includes(currentSchemaType),
+        hidden: () => isLoading || !currentSchemaType || !NAVIGATION_ELEMENTS.RestDsl.includes(currentSchemaType),
         children: [
           {
             title: 'Import',
@@ -41,26 +41,27 @@ export const Navigation: FunctionComponent<INavigationSidebar> = (props) => {
       {
         title: 'Beans',
         to: Links.Beans,
-        hidden: () => !NAVIGATION_ELEMENTS.Beans.includes(currentSchemaType),
+        hidden: () => isLoading || !currentSchemaType || !NAVIGATION_ELEMENTS.Beans.includes(currentSchemaType),
       },
       {
         title: 'Metadata',
         to: Links.Metadata,
-        hidden: () => !NAVIGATION_ELEMENTS.Metadata.includes(currentSchemaType),
+        hidden: () => isLoading || !currentSchemaType || !NAVIGATION_ELEMENTS.Metadata.includes(currentSchemaType),
       },
       {
         title: 'Pipe ErrorHandler',
         to: Links.PipeErrorHandler,
-        hidden: () => !NAVIGATION_ELEMENTS.PipeErrorHandler.includes(currentSchemaType),
+        hidden: () =>
+          isLoading || !currentSchemaType || !NAVIGATION_ELEMENTS.PipeErrorHandler.includes(currentSchemaType),
       },
       {
         title: 'DataMapper',
         to: Links.DataMapper,
-        hidden: () => !NAVIGATION_ELEMENTS.DataMapper.includes(currentSchemaType),
+        hidden: () => isLoading || !currentSchemaType || !NAVIGATION_ELEMENTS.DataMapper.includes(currentSchemaType),
       },
       { title: 'Catalog', to: Links.Catalog },
     ],
-    [currentSchemaType],
+    [currentSchemaType, isLoading],
   );
 
   return (

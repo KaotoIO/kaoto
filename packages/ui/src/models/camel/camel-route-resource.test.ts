@@ -826,10 +826,10 @@ describe('CamelRouteResource', () => {
   });
 
   describe('getCompatibleComponents', () => {
-    it('should delegate to the CamelComponentFilterService', () => {
+    it('should delegate to the CamelComponentFilterService', async () => {
       const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
 
-      const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
+      const resource = await CamelResourceFactory.createCamelResource(camelRouteYaml);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
         name: 'from',
         path: 'from',

@@ -24,7 +24,7 @@ export class YamlCamelResourceSerializer implements KaotoResourceSerializer {
     return !isXML(code);
   }
 
-  parse(code: string): CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test {
+  async parse(code: string): Promise<CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test> {
     if (!code || typeof code !== 'string') return [];
 
     this.comments = this.parseComments(code);

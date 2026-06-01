@@ -34,6 +34,7 @@ describe('ItemReplaceStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
+    isLoading: false,
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
   };
@@ -47,7 +48,11 @@ describe('ItemReplaceStep', () => {
   });
 
   it('should render replace ContextMenuItem', () => {
-    const { container } = render(<ItemReplaceStep vizNode={vizNode} loadActionConfirmationModal={false} />);
+    const { container } = render(
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ItemReplaceStep vizNode={vizNode} loadActionConfirmationModal={false} />
+      </EntitiesContext.Provider>,
+    );
 
     expect(container).toMatchSnapshot();
   });

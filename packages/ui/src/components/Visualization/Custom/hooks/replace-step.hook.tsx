@@ -18,7 +18,7 @@ import {
 } from '../ContextMenu/item-interaction-helper';
 
 export const useReplaceStep = (vizNode: IVisualizationNode) => {
-  const entitiesContext = useContext(EntitiesContext);
+  const { isLoading, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const catalogModalContext = useContext(CatalogModalContext);
   const metadataContext = useContext(MetadataContext);
   const replaceModalContext = useContext(ActionConfirmationModalContext);
@@ -28,7 +28,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onReplaceNode = useCallback(async () => {
-    if (!entitiesContext) return;
+    if (isLoading || !camelResource) return;
 
     const modalCustoms = findOnDeleteModalCustomizationRecursively(
       vizNode,
@@ -50,7 +50,7 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     }
 
     /** Find compatible components */
-    const catalogFilter = entitiesContext.camelResource.getCompatibleComponents(AddStepMode.ReplaceStep, vizNode.data);
+    const catalogFilter = camelResource.getCompatibleComponents(AddStepMode.ReplaceStep, vizNode.data);
 
     /** Open Catalog modal, filtering the compatible nodes */
     const definedComponent = await catalogModalContext?.getNewComponent(catalogFilter);
@@ -66,18 +66,20 @@ export const useReplaceStep = (vizNode: IVisualizationNode) => {
     vizNode.addBaseEntityStep(definedComponent, AddStepMode.ReplaceStep);
 
     /** Update entity */
-    entitiesContext.updateEntitiesFromCamelResource();
+    updateEntitiesFromCamelResource();
 
     /** Notify VS Code host about the new step */
     metadataContext?.onStepUpdated?.(StepUpdateAction.Replace, definedComponent.type, definedComponent.name);
   }, [
+    camelResource,
     catalogModalContext,
-    entitiesContext,
     getRegisteredInteractionAddons,
     hasChildren,
+    isLoading,
     isPlaceholderNode,
     metadataContext,
     replaceModalContext,
+    updateEntitiesFromCamelResource,
     vizNode,
   ]);
 

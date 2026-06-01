@@ -37,20 +37,23 @@ type IExportDocumentPreviewModal = {
 const FILENAME_BASE = 'route-export';
 
 export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPreviewModal> = ({ onClose }) => {
-  const { camelResource } = useEntityContext();
+  const { camelResource, visualEntities, isLoading: isEntitiesLoading } = useEntityContext();
   const { visibleFlows, visualFlowsApi } = useContext(VisibleFlowsContext)!;
-  const { visualEntities } = useEntityContext();
   const [markdownText, setMarkdownText] = useState<string>('');
   const [flowImageBlob, setFlowImageBlob] = useState<Blob>();
   const [flowImageUrl, setFlowImageUrl] = useState<string>();
   const [downloadFileName, setDownloadFileName] = useState<string>(`${FILENAME_BASE}.zip`);
-  const initialDocEntities = DocumentationService.getDocumentationEntities(camelResource, visibleFlows);
-  const [documentationEntities, setDocumentationEntities] = useState<DocumentationEntity[]>(initialDocEntities);
+  const [documentationEntities, setDocumentationEntities] = useState<DocumentationEntity[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isGeneratingImage, setIsGeneratingImage] = useState<boolean>(false);
 
   const currentLayout = useGraphLayout();
   const { vizNodes, isResolving } = useVisibleVizNodes(visualEntities, visibleFlows);
+
+  useEffect(() => {
+    if (!camelResource || isEntitiesLoading) return;
+    setDocumentationEntities(DocumentationService.getDocumentationEntities(camelResource, visibleFlows));
+  }, [camelResource, isEntitiesLoading, visibleFlows]);
 
   const onUpdateDocumentationEntities = (documentationEntities: DocumentationEntity[]) => {
     documentationEntities.forEach((docEntity) => {

@@ -1,38 +1,41 @@
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
 import { EntityType } from '../models/entities';
-import { BaseVisualEntityDefinition, BaseVisualEntityDefinitionItem } from '../models/kaoto-resource';
+import { BaseVisualEntityDefinitionItem } from '../models/kaoto-resource';
 import { EntitiesContext } from '../providers/entities.provider';
 import { VisibleFlowsContext } from '../providers/visible-flows.provider';
 
 export interface CanvasEntities {
   commonEntities: BaseVisualEntityDefinitionItem[];
   groupedEntities: Record<string, BaseVisualEntityDefinitionItem[]>;
-  createEntity: (entityType: EntityType) => void;
+  createEntity: (entityType: EntityType) => void | Promise<void>;
 }
 
 export const useCanvasEntities = (): CanvasEntities => {
-  const { camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
+  const { camelResource, isLoading, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
-  const groupedEntities = useRef<BaseVisualEntityDefinition>(camelResource.getCanvasEntityList());
+  const groupedEntities = useMemo(
+    () => camelResource?.getCanvasEntityList() ?? { common: [], groups: {} },
+    [camelResource],
+  );
 
   const createEntity = useCallback(
     (entityType: EntityType) => {
+      if (!camelResource || isLoading) return;
+
       const newId = camelResource.addNewEntity(entityType);
       visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
       updateEntitiesFromCamelResource();
     },
-    [camelResource, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
+    [camelResource, isLoading, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
   );
 
-  const result = useMemo(
+  return useMemo(
     () => ({
-      commonEntities: groupedEntities.current.common,
-      groupedEntities: groupedEntities.current.groups,
+      commonEntities: groupedEntities.common,
+      groupedEntities: groupedEntities.groups,
       createEntity,
     }),
-    [createEntity],
+    [groupedEntities, createEntity],
   );
-
-  return result;
 };

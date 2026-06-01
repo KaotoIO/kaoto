@@ -49,62 +49,62 @@ export class KaotoXmlParser {
     this.beanParser = new BeansXmlParser();
   }
 
-  parseXML(xml: string): unknown {
+  async parseXML(xml: string): Promise<unknown> {
     try {
       const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
-      return this.parseFromXmlDocument(xmlDoc);
+      const result = await this.parseFromXmlDocument(xmlDoc);
+      return result;
     } catch (e) {
       console.log('Error parsing XML', e);
     }
   }
 
-  parseFromXmlDocument(xmlDoc: Document): unknown {
+  async parseFromXmlDocument(xmlDoc: Document): Promise<unknown> {
     const rawEntities = [];
     const rootCamelElement = xmlDoc.getElementsByTagName('camel')[0];
     const children = rootCamelElement ? rootCamelElement.children : xmlDoc.children;
 
     // Process route entities
-    Array.from(xmlDoc.getElementsByTagName('route')).forEach((routeElement) => {
-      const route = RouteXmlParser.parse(routeElement);
+    for (const routeElement of Array.from(xmlDoc.getElementsByTagName('route'))) {
+      const route = await RouteXmlParser.parse(routeElement);
       rawEntities.push({ route });
-    });
+    }
 
     // Process beans (bean factory)
     const beansSection = xmlDoc.getElementsByTagName('beans')[0];
-    const beans: BeanFactory[] = beansSection ? this.beanParser.transformBeansSection(beansSection) : [];
+    const beans: BeanFactory[] = beansSection ? await this.beanParser.transformBeansSection(beansSection) : [];
     // process beans outside of beans section
-    Array.from(children)
-      .filter((child) => child.tagName === 'bean')
-      .forEach((beanElement) => {
-        beans.push(BeansXmlParser.transformBeanFactory(beanElement));
-      });
+    for (const beanElement of Array.from(children).filter((child) => child.tagName === 'bean')) {
+      const bean = await BeansXmlParser.transformBeanFactory(beanElement);
+      beans.push(bean);
+    }
 
     if (beans.length > 0) {
       rawEntities.push({ beans });
     }
 
     // Process rest entities
-    Array.from(xmlDoc.getElementsByTagName('rest')).forEach((restElement) => {
-      const rest = RestXmlParser.parse(restElement);
+    for (const restElement of Array.from(xmlDoc.getElementsByTagName('rest'))) {
+      const rest = await RestXmlParser.parse(restElement);
       rawEntities.push({ rest });
-    });
+    }
 
     // Process route configurations
-    Array.from(xmlDoc.getElementsByTagName('routeConfiguration')).forEach((routeConf) => {
-      const routeConfiguration = RouteXmlParser.parseRouteConfiguration(routeConf);
+    for (const routeConf of Array.from(xmlDoc.getElementsByTagName('routeConfiguration'))) {
+      const routeConfiguration = await RouteXmlParser.parseRouteConfiguration(routeConf);
       rawEntities.push({ routeConfiguration });
-    });
+    }
 
     // rest of the elements
 
-    Array.from(children).forEach((child) => {
+    for (const child of Array.from(children)) {
       if (KaotoXmlParser.PARSABLE_ELEMENTS.includes(child.tagName)) {
-        const entity = StepParser.parseElement(child);
+        const entity = await StepParser.parseElement(child);
         if (entity) {
           rawEntities.push({ [child.tagName]: entity });
         }
       }
-    });
+    }
 
     return rawEntities;
   }

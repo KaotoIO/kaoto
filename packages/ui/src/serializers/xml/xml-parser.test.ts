@@ -17,7 +17,9 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../models';
+import { DynamicCatalog } from '../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelProcessorDefinition } from '../../models';
 import { doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs';
 import { beanWithConstructorAandProperties, beanWithConstructorAandPropertiesXML } from '../../stubs/beans';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
@@ -28,16 +30,35 @@ describe('XmlParser', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+    const registry = DynamicCatalogRegistry.get();
+
+    // Create processor catalog from catalogsMap.modelCatalogMap
+    const processorProvider = {
+      id: 'test-processor-provider',
+      fetch: async (key: string) => {
+        return catalogsMap.modelCatalogMap[key];
+      },
+      fetchAll: async () => {
+        return catalogsMap.modelCatalogMap;
+      },
+    };
+
+    const processorCatalog = new DynamicCatalog<ICamelProcessorDefinition>(processorProvider);
+    registry.setCatalog(CatalogKind.Processor, processorCatalog);
   });
 
   beforeEach(async () => {
     parser = new KaotoXmlParser();
   });
 
-  it('parses XML with a single route correctly', () => {
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
+  it('parses XML with a single route correctly', async () => {
     const xml = `<camel><routes><route><from uri="direct:start" /></route></routes></camel>`;
-    const result = parser.parseXML(xml);
+    const result = await parser.parseXML(xml);
 
     expect(result).toBeDefined();
     expect(result).toEqual([
@@ -49,9 +70,9 @@ describe('XmlParser', () => {
     ]);
   });
 
-  it('parses XML with multiple routes correctly', () => {
+  it('parses XML with multiple routes correctly', async () => {
     const xml = `<routes><route id="test"><from uri="direct:first" /></route><route><from uri="direct:second" /></route></routes>`;
-    const result = parser.parseXML(xml);
+    const result = await parser.parseXML(xml);
     expect(result).toEqual([
       {
         route: { id: 'test', from: { uri: 'direct:first', steps: [] } },
@@ -64,9 +85,9 @@ describe('XmlParser', () => {
     ]);
   });
 
-  it('returns an empty array for XML with no routes', () => {
+  it('returns an empty array for XML with no routes', async () => {
     const xml = `<routes></routes>`;
-    const result = parser.parseXML(xml);
+    const result = await parser.parseXML(xml);
     expect(result).toEqual([]);
   });
 
@@ -80,13 +101,13 @@ describe('XmlParser', () => {
     expect(isXML(xml)).toBe(false);
   });
 
-  it('parses XML with doTry correctly', () => {
-    const result = parser.parseXML(doTryCamelRouteXml);
+  it('parses XML with doTry correctly', async () => {
+    const result = await parser.parseXML(doTryCamelRouteXml);
     expect(result).toEqual([doTryCamelRouteJson]);
   });
 
-  it('parse beans correctly', () => {
-    const result = parser.parseXML(beanWithConstructorAandPropertiesXML);
+  it('parse beans correctly', async () => {
+    const result = await parser.parseXML(beanWithConstructorAandPropertiesXML);
     expect(result).toEqual([beanWithConstructorAandProperties]);
   });
 });

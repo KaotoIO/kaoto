@@ -21,9 +21,11 @@ interface ContextToolbarProps {
 }
 
 export const ContextToolbar: FunctionComponent<ContextToolbarProps> = ({ isSimplified }) => {
-  const { currentSchemaType } = useEntityContext();
-  const doesSupportSerializers = !isSimplified && currentSchemaType === SourceSchemaType.Route;
-  const isMultipleRoutes = sourceSchemaConfig.config[currentSchemaType].multipleRoute;
+  const { currentSchemaType, isLoading, camelResource } = useEntityContext();
+  const isEntitiesReady = !isLoading && Boolean(camelResource);
+  const effectiveSchemaType = isEntitiesReady ? currentSchemaType : undefined;
+  const doesSupportSerializers = !isSimplified && effectiveSchemaType === SourceSchemaType.Route;
+  const isMultipleRoutes = effectiveSchemaType ? sourceSchemaConfig.config[effectiveSchemaType].multipleRoute : false;
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
 
   return (
@@ -35,7 +37,7 @@ export const ContextToolbar: FunctionComponent<ContextToolbarProps> = ({ isSimpl
           </ToolbarItem>
         )}
 
-        {!isSimplified && (
+        {!isSimplified && isEntitiesReady && (
           <ToolbarItem key="toolbar-dsl-selector">
             <IntegrationTypeSelector />
           </ToolbarItem>
@@ -75,7 +77,7 @@ export const ContextToolbar: FunctionComponent<ContextToolbarProps> = ({ isSimpl
           <ExportDocument />
         </ToolbarItem>
 
-        {!isSimplified && <RuntimeSelector key="runtime-selector" />}
+        {!isSimplified && isEntitiesReady && <RuntimeSelector key="runtime-selector" />}
       </ToolbarContent>
     </Toolbar>
   );

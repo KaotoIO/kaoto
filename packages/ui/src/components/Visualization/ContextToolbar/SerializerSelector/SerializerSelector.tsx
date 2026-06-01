@@ -1,19 +1,26 @@
 import './SerializerSelector.scss';
 
 import { MenuToggle, Select, SelectList, SelectOption } from '@patternfly/react-core';
-import { FunctionComponent, RefObject, useContext, useState } from 'react';
+import { FunctionComponent, RefObject, useContext, useEffect, useState } from 'react';
 
 import { SerializerType } from '../../../../models/kaoto-resource';
 import { EntitiesContext } from '../../../../providers';
 
 export const SerializerSelector: FunctionComponent = () => {
-  const { camelResource, updateSourceCodeFromEntities } = useContext(EntitiesContext)!;
+  const { camelResource, updateSourceCodeFromEntities, isLoading } = useContext(EntitiesContext)!;
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<SerializerType>(camelResource.getSerializerType());
+  const [selected, setSelected] = useState<SerializerType | undefined>(camelResource?.getSerializerType());
+
+  useEffect(() => {
+    if (isLoading || !camelResource) {
+      return;
+    }
+    setSelected(camelResource.getSerializerType());
+  }, [camelResource, isLoading]);
 
   const onSelect = (serializer: SerializerType) => {
     setSelected(serializer);
-    if (serializer !== selected) {
+    if (!isLoading && camelResource && serializer !== selected) {
       camelResource.setSerializer(serializer);
       updateSourceCodeFromEntities();
       setIsOpen(false);

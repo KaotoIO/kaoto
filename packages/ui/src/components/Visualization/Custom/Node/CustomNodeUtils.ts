@@ -171,6 +171,6 @@ const performForwardDrop = (
     draggedVizNode.removeChild();
   } else if (draggedVizNodeinteraction.canRemoveFlow) {
     const flowId = draggedVizNode?.getId();
-    entitiesContext.camelResource.removeEntity(flowId ? [flowId] : undefined);
+    entitiesContext.camelResource?.removeEntity(flowId ? [flowId] : undefined);
   }
 };

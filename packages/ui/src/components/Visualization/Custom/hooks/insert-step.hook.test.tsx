@@ -30,6 +30,7 @@ describe('useInsertStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
+    isLoading: false,
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
   };
@@ -113,9 +114,19 @@ describe('useInsertStep', () => {
     expect(mockCatalogModalContext.getNewComponent).not.toHaveBeenCalled();
   });
 
-  it('should return early when entitiesContext is null', async () => {
+  it('should return early when entitiesContext is not ready', async () => {
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={null}>
+      <EntitiesContext.Provider
+        value={{
+          camelResource: undefined,
+          entities: [],
+          visualEntities: [],
+          currentSchemaType: undefined,
+          isLoading: true,
+          updateSourceCodeFromEntities: jest.fn(),
+          updateEntitiesFromCamelResource: jest.fn(),
+        }}
+      >
         <CatalogModalContext.Provider value={mockCatalogModalContext}>{children}</CatalogModalContext.Provider>
       </EntitiesContext.Provider>
     );
