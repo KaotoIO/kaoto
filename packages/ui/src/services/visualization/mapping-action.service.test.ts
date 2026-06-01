@@ -798,6 +798,34 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(addMappingNode)).not.toContain(MappingActionKind.ValueSelector);
       });
 
+      it('should allow Delete for a field node added via Add Mapping', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
+        expect(addMappingNode instanceof AddMappingNodeData).toBeTruthy();
+        expect(MappingActionService.getAllowedActions(addMappingNode)).not.toContain(MappingActionKind.Delete);
+        MappingActionService.addMapping(addMappingNode);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+        const updatedDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const updatedShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          updatedDocChildren[0],
+        );
+
+        const addedNode = updatedShipOrderChildren.find(
+          (n) => n instanceof FieldItemNodeData && n.title === 'Item',
+        ) as FieldItemNodeData;
+        expect(addedNode).toBeDefined();
+        expect(MappingActionService.getAllowedActions(addedNode)).toContain(MappingActionKind.Delete);
+      });
+
+      it('should keep Delete for an existing value-mapped field node', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const orderIdNode = shipOrderChildren[0] as FieldItemNodeData;
+        expect(orderIdNode.title).toEqual('OrderId');
+        expect(MappingActionService.getAllowedActions(orderIdNode)).toContain(MappingActionKind.Delete);
+      });
+
       it('should include ContextMenu for primitive TargetDocumentNodeData', () => {
         const primitiveTargetDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
