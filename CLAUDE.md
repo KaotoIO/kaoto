@@ -137,4 +137,53 @@ yarn workspace @kaoto/kaoto run test -- --testPathPattern="generateEntityContext
 
 ### VS Code Configuration
 
+
+## AI Agent Contribution Guidelines
+
+Claude Code users are welcome contributors to Kaoto. When contributing code with AI assistance:
+
+### Human Oversight Required
+
+- AI agents **cannot** submit PRs independently
+- A human must review, approve, and sign all AI-generated code
+- The human reviewer is responsible for:
+  - Code quality and correctness
+  - Responding to maintainer feedback
+  - Following up on PR comments
+
+### Disclosure and Documentation
+
+- Disclosing AI tool usage (Claude Code) is **optional but recommended**
+- Mentioning your AI tool helps us improve AGENTS.md and CLAUDE.md
+- If you discover gaps in our agent documentation, please suggest improvements
+
+### PR Lifecycle
+
+- PRs require active follow-up from the human contributor
+- PRs without response after **2 weeks** will be closed
+- If you need more time, communicate with maintainers
+
+### Quality Standards
+
+Before submitting AI-generated PRs, run:
+
+```bash
+# TypeScript/JavaScript linting
+yarn workspace @kaoto/kaoto run lint
+yarn workspace @kaoto/kaoto run lint:style
+
+# Unit tests
+yarn workspace @kaoto/kaoto run test
+```
+
+- Ensure all tests pass
+- Fix any linter errors
+- Verify changes work as expected
+- For UI changes, consider running Storybook and/or Cypress tests
+
+### Additional Resources
+
+- Full contribution policies: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Technical setup and commands: [AGENTS.md](AGENTS.md)
+- Development workflow: See sections above in this file
 Jest testing is configured with root path pointing to `packages/ui` and test command `yarn test`.
