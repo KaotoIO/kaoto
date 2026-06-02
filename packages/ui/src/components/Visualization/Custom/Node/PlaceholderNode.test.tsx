@@ -101,6 +101,7 @@ describe('PlaceholderNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue(PlaceholderType.Placeholder);

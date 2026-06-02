@@ -19,6 +19,7 @@ describe('ItemMoveStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   const mockOnMoveStep = jest.fn();
 

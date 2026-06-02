@@ -839,6 +839,7 @@ describe('CamelRouteResource', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(filterSpy).toHaveBeenCalledWith(
@@ -852,6 +853,7 @@ describe('CamelRouteResource', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         undefined,
       );

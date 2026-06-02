@@ -27,6 +27,7 @@ describe('getMoveIcons', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     };
     return createVisualizationNode(`test-${processorName}`, data);
   };
@@ -155,6 +156,7 @@ describe('getMoveIcons', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       };
       const vizNode = createVisualizationNode('test-unknown', data);
 

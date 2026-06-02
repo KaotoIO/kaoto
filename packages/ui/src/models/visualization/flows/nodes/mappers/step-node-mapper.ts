@@ -26,6 +26,7 @@ export class StepNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     };
 
     const stepDefinition: Step = getValue(entityDefinition, path);

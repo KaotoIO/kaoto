@@ -34,6 +34,7 @@ describe('useDisableStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getNodeDefinition = jest.fn();
     mockVizNode.updateModel = jest.fn();

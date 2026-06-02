@@ -85,6 +85,7 @@ describe('CamelInterceptFromVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();
     });

@@ -51,6 +51,7 @@ describe('CustomEdge', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue({

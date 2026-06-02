@@ -47,6 +47,7 @@ export class BaseNodeMapper implements INodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
     };
 
@@ -134,6 +135,7 @@ export class BaseNodeMapper implements INodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
       path: placeholderPath,
     });
@@ -199,6 +201,7 @@ export class BaseNodeMapper implements INodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       path: `${path}`,
     });
   }

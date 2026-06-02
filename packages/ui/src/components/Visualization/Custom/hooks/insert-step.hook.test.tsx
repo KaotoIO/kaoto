@@ -58,6 +58,7 @@ describe('useInsertStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
@@ -270,6 +271,7 @@ describe('useInsertStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     newMockVizNode.addBaseEntityStep = jest.fn();
     newMockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});

@@ -145,6 +145,7 @@ export class CamelRestConfigurationVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
       processorName: 'restConfiguration' as keyof ProcessorDefinition,
     });

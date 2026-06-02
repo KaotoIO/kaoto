@@ -41,6 +41,7 @@ describe('useMoveStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
 
   const camelResource = new CamelRouteResource();
@@ -103,6 +104,7 @@ describe('useMoveStep', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
           path: 'route.from.steps.2',
         }),
       ]);
@@ -123,6 +125,7 @@ describe('useMoveStep', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
           path: 'route.from.steps.2',
         }),
       ]);
@@ -143,6 +146,7 @@ describe('useMoveStep', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
           path: 'route.from.steps.0',
         }),
       ]);
@@ -179,6 +183,7 @@ describe('useMoveStep', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const shortPathVizNode = createVisualizationNode('shortPath', {
         name: 'choice',
@@ -188,6 +193,7 @@ describe('useMoveStep', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const longPathVizNodeSpy = jest.spyOn(longPathVizNode, 'getCopiedContent');
       const shortPathVizNodeSpy = jest.spyOn(shortPathVizNode, 'getCopiedContent');
@@ -244,6 +250,7 @@ describe('useMoveStep', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const dataMapperVizNodeCopiedContent = {

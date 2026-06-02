@@ -30,6 +30,7 @@ describe('ItemDeleteGroup', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
   });
 
@@ -51,6 +52,7 @@ describe('ItemDeleteGroup', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     vizNode.addChild(childNode);
 

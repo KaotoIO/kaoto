@@ -15,6 +15,7 @@ describe('RenderingProvider', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
 
   describe('RenderingAnchorContext', () => {

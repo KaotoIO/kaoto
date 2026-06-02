@@ -39,6 +39,7 @@ describe('onDeleteDataMapper', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_AND_FILE);
@@ -56,6 +57,7 @@ describe('onDeleteDataMapper', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
 
     await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_ONLY);
@@ -73,6 +75,7 @@ describe('onDeleteDataMapper', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
 
     await onDeleteDataMapper(mockApi, vizNode, undefined);
@@ -90,6 +93,7 @@ describe('onDeleteDataMapper', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
 
     await onDeleteDataMapper(mockApi, vizNode, 'some-other-action');

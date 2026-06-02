@@ -273,6 +273,7 @@ describe('CamelRestVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         }),
       ).toEqual({
         canHavePreviousStep: false,
@@ -305,6 +306,7 @@ describe('CamelRestVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         }),
       ).toEqual({
         canHavePreviousStep: false,
@@ -337,6 +339,7 @@ describe('CamelRestVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(superGetNodeInteractionSpy).toHaveBeenCalled();
@@ -359,6 +362,7 @@ describe('CamelRestVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         targetProperty: 'get',
       });
@@ -387,6 +391,7 @@ describe('CamelRestVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
       });
 
@@ -410,6 +415,7 @@ describe('CamelRestVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
       });
 

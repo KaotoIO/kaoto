@@ -19,6 +19,7 @@ describe('ItemHideOtherFlows', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     jest.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
 

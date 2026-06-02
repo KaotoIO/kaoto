@@ -156,6 +156,7 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
       processorName: 'errorHandler' as keyof ProcessorDefinition,
     });

@@ -26,6 +26,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const { nodes, edges } = FlowService.getFlowDiagram('test', vizNode);
@@ -42,6 +43,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const child1VizNode = createVisualizationNode('child1', {
         name: EntityType.Route,
@@ -50,6 +52,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const child2VizNode = createVisualizationNode('child2', {
         name: EntityType.Route,
@@ -58,6 +61,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       groupVizNode.addChild(child1VizNode);
       groupVizNode.addChild(child2VizNode);
@@ -76,6 +80,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const childNode = createVisualizationNode('child', {
         name: EntityType.Route,
@@ -84,6 +89,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       vizNode.addChild(childNode);
 
@@ -100,6 +106,7 @@ describe('FlowService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       };
       const vizNode = createVisualizationNode('node', { name: EntityType.Route, ...baseData });
 

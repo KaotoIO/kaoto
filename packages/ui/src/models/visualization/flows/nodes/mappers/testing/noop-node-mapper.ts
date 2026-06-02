@@ -16,6 +16,7 @@ export const noopNodeMapper: INodeMapper = {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       componentLookup,
       entityDefinition,
     });

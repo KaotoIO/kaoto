@@ -24,6 +24,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
   });
@@ -44,6 +45,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: 'Direct Component',
         description: '',
+        schema: {},
         iconUrl: '',
       });
 
@@ -59,6 +61,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
 
@@ -75,6 +78,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
 
@@ -95,6 +99,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.getNodeSchema();
@@ -116,6 +121,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.getNodeDefinition();
@@ -137,6 +143,7 @@ describe('VisualizationNode', () => {
       isPlaceholder: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.getOmitFormFields();
@@ -159,6 +166,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const label = node.getNodeLabel(NodeLabelType.Id);
@@ -174,6 +182,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const label = node.getNodeLabel();
@@ -197,6 +206,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.setParentNode(rootNode);
@@ -223,6 +233,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.setParentNode(rootNode);
@@ -256,6 +267,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       node.updateModel('test-value');
@@ -277,6 +289,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       node.setParentNode(rootNode);
@@ -296,6 +309,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.setParentNode(parentNode);
@@ -310,6 +324,7 @@ describe('VisualizationNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.setPreviousNode(previousNode);
@@ -324,6 +339,7 @@ describe('VisualizationNode', () => {
       isPlaceholder: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.setNextNode(nextNode);
@@ -338,6 +354,7 @@ describe('VisualizationNode', () => {
       isPlaceholder: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     });
     node.addChild(child);
@@ -369,6 +386,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const expectedNodeInteraction = node.getNodeInteraction();
@@ -384,6 +402,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       expect(node.getNodeInteraction()).toEqual(DISABLED_NODE_INTERACTION);
@@ -398,6 +417,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       node.addChild(child);
@@ -414,6 +434,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       child.removeChild();
@@ -454,6 +475,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const validationText = node.getNodeValidationText();
@@ -475,6 +497,7 @@ describe('VisualizationNode', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const validationText = node.getNodeValidationText();
@@ -492,6 +515,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const copiedContent = node.getCopiedContent();
@@ -513,6 +537,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const copiedContent = node.getCopiedContent();
@@ -539,6 +564,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       const copiedContent = node.pasteBaseEntityStep(clipboardContent, AddStepMode.InsertChildStep);
@@ -560,6 +586,7 @@ describe('VisualizationNode', () => {
         isPlaceholder: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
 

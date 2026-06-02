@@ -83,6 +83,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode]);
 
@@ -100,6 +101,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const disabledNode2 = createVisualizationNode('disabled-step-2', {
       name: EntityType.Route,
@@ -109,6 +111,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockGetVisualizationNodesFromGraph.mockReturnValue([disabledNode1, disabledNode2]);
 
@@ -132,6 +135,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     enabledNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
 
@@ -143,6 +147,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     disabledNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
 
@@ -159,6 +164,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const mockDefinition1 = { disabled: true, id: 'step1' };
     disabledNode1.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition1);
@@ -172,6 +178,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const mockDefinition2 = { disabled: true, id: 'step2' };
     disabledNode2.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition2);
@@ -199,6 +206,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const mockDefinition = {};
     disabledNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
@@ -223,6 +231,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     disabledNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
     disabledNode.updateModel = jest.fn();
@@ -275,6 +284,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     disabledNode1.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
     const disabledNode2 = createVisualizationNode('disabled-step-2', {
@@ -284,6 +294,7 @@ describe('useEnableAllSteps', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     disabledNode2.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
 

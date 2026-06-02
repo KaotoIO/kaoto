@@ -54,6 +54,7 @@ describe('useDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.removeChild = jest.fn();
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
@@ -112,6 +113,7 @@ describe('useDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([placeholderChild]);
 
@@ -132,6 +134,7 @@ describe('useDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
@@ -158,6 +161,7 @@ describe('useDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
@@ -180,6 +184,7 @@ describe('useDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(undefined);

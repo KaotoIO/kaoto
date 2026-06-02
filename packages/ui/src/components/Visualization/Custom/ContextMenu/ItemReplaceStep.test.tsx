@@ -25,6 +25,7 @@ describe('ItemReplaceStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
 
   const camelResource = new CamelRouteResource();
@@ -60,6 +61,7 @@ describe('ItemReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     vizNode.addChild(childNode);
 

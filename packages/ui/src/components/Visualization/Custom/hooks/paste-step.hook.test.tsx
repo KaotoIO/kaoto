@@ -76,6 +76,7 @@ describe('usePasteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const { result } = renderHook(() => usePasteStep(vizNode, AddStepMode.InsertChildStep), { wrapper });
 
@@ -96,6 +97,7 @@ describe('usePasteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const { result } = renderHook(() => usePasteStep(vizNode, AddStepMode.InsertChildStep), { wrapper });
     // Initially, isCompatible should be false
@@ -184,6 +186,7 @@ describe('usePasteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockChoiceVizNode.pasteBaseEntityStep = jest.fn();
 
@@ -239,6 +242,7 @@ describe('usePasteStep', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         }),
       ]);
 

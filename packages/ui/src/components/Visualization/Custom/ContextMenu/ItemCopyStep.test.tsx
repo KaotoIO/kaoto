@@ -18,6 +18,7 @@ describe('ItemCopyStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   const mockOnCopyStep = jest.fn();
   beforeEach(() => {

@@ -14,6 +14,7 @@ describe('RenderingAnchor', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   let renderingAnchorContext: IRenderingAnchorContext;
 

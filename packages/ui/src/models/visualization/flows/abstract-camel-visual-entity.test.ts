@@ -61,6 +61,7 @@ describe('AbstractCamelVisualEntity', () => {
     iconUrl: '',
     title: 'Log',
     description: '',
+    schema: {},
     processorIconTooltip: '',
     ...overrides,
   });
@@ -319,6 +320,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
           processorIconTooltip: '',
         },
       });
@@ -337,6 +339,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -363,6 +366,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -389,6 +393,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -415,6 +420,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -446,6 +452,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
           processorIconTooltip: '',
         },
       });
@@ -476,6 +483,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -503,6 +511,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -532,6 +541,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 
@@ -560,6 +570,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
           processorIconTooltip: '',
         },
       });
@@ -596,6 +607,7 @@ describe('AbstractCamelVisualEntity', () => {
           iconUrl: '',
           title: 'Log',
           description: '',
+          schema: {},
         },
       });
 

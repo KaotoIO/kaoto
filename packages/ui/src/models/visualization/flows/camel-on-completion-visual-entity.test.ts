@@ -82,6 +82,7 @@ describe('CamelOnCompletionVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
         processorIconTooltip: '',
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();

@@ -73,6 +73,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
@@ -88,6 +89,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const { result, rerender } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), { wrapper });
 
@@ -105,6 +107,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const { result } = renderHook(() => useAddStep(vizNode), { wrapper });
 
@@ -119,6 +122,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <EntitiesContext.Provider value={null}>
@@ -146,6 +150,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
@@ -175,6 +180,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
@@ -197,6 +203,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
@@ -222,6 +229,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 
@@ -245,6 +253,7 @@ describe('useAddStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     const addBaseEntityStepSpy = jest.spyOn(vizNode, 'addBaseEntityStep');
 

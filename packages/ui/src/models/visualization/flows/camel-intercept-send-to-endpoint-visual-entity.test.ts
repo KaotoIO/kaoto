@@ -83,6 +83,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       } as IVisualizationNodeData);
       expect(result).toMatchSnapshot();

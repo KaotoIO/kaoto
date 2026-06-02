@@ -24,6 +24,7 @@ export class OtherwiseNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     };
 
     const vizNode = createVisualizationNode(path, data);

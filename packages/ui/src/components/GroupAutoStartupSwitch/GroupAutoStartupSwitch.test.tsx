@@ -26,6 +26,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
 
     const { Provider } = TestProvidersWrapper();
@@ -51,6 +52,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const { Provider } = TestProvidersWrapper();
@@ -83,6 +85,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const { Provider } = TestProvidersWrapper();
@@ -116,6 +119,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -157,6 +161,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -195,6 +200,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -232,6 +238,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
@@ -274,6 +281,7 @@ describe('GroupAutoStartupSwitch', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const updateModelSpy = jest.spyOn(vizNode, 'updateModel');

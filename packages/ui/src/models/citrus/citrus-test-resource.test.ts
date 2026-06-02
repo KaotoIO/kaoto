@@ -282,6 +282,7 @@ describe('CitrusTestResource', () => {
         iconUrl: '',
         title: 'Print',
         description: '',
+        schema: {},
       });
 
       expect(

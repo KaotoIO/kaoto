@@ -54,6 +54,7 @@ describe('useDeleteGroup', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
     (processOnDeleteAddonRecursively as jest.Mock).mockImplementation(() => {});
@@ -182,6 +183,7 @@ describe('useDeleteGroup', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     jest.spyOn(vizNodeWithoutId, 'getId').mockReturnValueOnce(undefined);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);

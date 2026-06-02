@@ -18,6 +18,7 @@ describe('ItemPasteStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   const mockOnPasteStep = jest.fn();
 

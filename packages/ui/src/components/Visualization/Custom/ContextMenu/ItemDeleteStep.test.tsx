@@ -28,6 +28,7 @@ describe('ItemDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
   });
 
@@ -49,6 +50,7 @@ describe('ItemDeleteStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     vizNode.addChild(childNode);
 

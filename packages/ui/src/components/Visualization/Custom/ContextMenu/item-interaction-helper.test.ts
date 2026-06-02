@@ -32,6 +32,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const childVn = createVisualizationNode('child', {
         name: EntityType.Route,
@@ -40,6 +41,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const mockAddon: IRegisteredInteractionAddon = {
         type: IInteractionType.ON_DELETE,
@@ -72,6 +74,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const mockAddon: IOnDeleteAddon = {
         type: IInteractionType.ON_DELETE,
@@ -113,6 +116,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const childNode = createVisualizationNode('child', {
         name: EntityType.Route,
@@ -121,6 +125,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       parentNode.addChild(childNode);
 
@@ -167,6 +172,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const childNode = createVisualizationNode('child', {
         name: EntityType.Route,
@@ -175,6 +181,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       parentNode.addChild(childNode);
 
@@ -207,6 +214,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const mockAddon: IOnCopyAddon = {
@@ -247,6 +255,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const mockAddon: IOnDuplicateAddon = {
@@ -280,6 +289,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const mockAddon: IOnDuplicateAddon = {
@@ -302,6 +312,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const result = await processOnDuplicateAddonRecursively(vizNode, undefined, () => []);
@@ -335,6 +346,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       const childNode = createVisualizationNode('child', {
         name: 'log',
@@ -344,6 +356,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
       parentNode.addChild(childNode);
 
@@ -382,6 +395,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const mockAddon: IOnPasteAddon = {
@@ -437,6 +451,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const mockCallback = jest.fn().mockResolvedValue(undefined);
@@ -502,6 +517,7 @@ describe('item-interaction-helper', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       const mockCallback1 = jest.fn().mockResolvedValue(undefined);

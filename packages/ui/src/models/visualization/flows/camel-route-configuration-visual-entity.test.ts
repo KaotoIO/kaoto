@@ -155,6 +155,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
         processorIconTooltip: '',
       }),
     ).toEqual({
@@ -193,6 +194,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
 
     expect(superGetNodeInteractionSpy).toHaveBeenCalled();
@@ -215,6 +217,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
           processorIconTooltip: '',
         },
         targetProperty: 'intercept',
@@ -255,7 +258,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
 
       const vizNode = await entity.toVizNode();
 
-      expect(vizNode.data).toEqual({
+      expect(vizNode.data).toMatchObject({
         entity,
         name: 'routeConfiguration',
         isGroup: true,
@@ -268,6 +271,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         description: 'routeConfiguration: routeConfiguration',
         processorIconTooltip: '',
       });
+      expect(vizNode.data.schema).toBeUndefined();
     });
 
     it('should return hardcoded schema title', async () => {

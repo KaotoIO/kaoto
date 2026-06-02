@@ -100,6 +100,7 @@ describe('KameletResource', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(filterSpy).toHaveBeenCalledWith(
@@ -113,6 +114,7 @@ describe('KameletResource', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         undefined,
       );

@@ -175,7 +175,7 @@ export interface IVisualizationNodeData {
   /** Tooltip for processor icon overlay (from/to/toD/poll) resolved from the catalog at mapping time */
   processorIconTooltip?: string;
   /** Schema resolved from the catalog at mapping time */
-  schema?: KaotoSchemaDefinition['schema'];
+  schema: KaotoSchemaDefinition['schema'] | undefined;
   [key: string]: unknown;
 }
 

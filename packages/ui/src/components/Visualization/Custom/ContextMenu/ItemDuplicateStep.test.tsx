@@ -18,6 +18,7 @@ describe('ItemDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   const mockOnDuplicate = jest.fn();
 

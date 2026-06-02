@@ -115,6 +115,7 @@ describe('CustomGroupExpanded', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -140,6 +141,7 @@ describe('CustomGroupExpanded', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -163,6 +165,7 @@ describe('CustomGroupExpanded', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
     jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -195,6 +198,7 @@ describe('CustomGroupExpanded', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
     jest.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
     jest.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
@@ -208,6 +212,7 @@ describe('CustomGroupExpanded', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     }) as IVisualizationNode;
 
     const mockDraggedNode = {

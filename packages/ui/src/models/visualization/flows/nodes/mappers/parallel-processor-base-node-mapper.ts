@@ -26,6 +26,7 @@ export abstract class ParallelProcessorBaseNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     };
 
     const vizNode = createVisualizationNode(path, data);

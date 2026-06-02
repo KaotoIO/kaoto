@@ -90,6 +90,7 @@ describe('useReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.addBaseEntityStep = jest.fn();
     mockVizNode.getChildren = jest.fn().mockReturnValue([]);
@@ -183,6 +184,7 @@ describe('useReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([placeholderChild]);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
@@ -204,6 +206,7 @@ describe('useReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
@@ -231,6 +234,7 @@ describe('useReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
@@ -253,6 +257,7 @@ describe('useReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(undefined);
@@ -304,6 +309,7 @@ describe('useReplaceStep', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     mockVizNode.getChildren = jest.fn().mockReturnValue([nonPlaceholderChild]);
     (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([mockModalCustomization]);

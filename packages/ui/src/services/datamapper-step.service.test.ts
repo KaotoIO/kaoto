@@ -29,6 +29,7 @@ describe('DataMapperStepService', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
       jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'custom-metadata-id' });
@@ -50,6 +51,7 @@ describe('DataMapperStepService', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
     });
@@ -162,6 +164,7 @@ describe('DataMapperStepService', () => {
           useJsonBody: {
             type: 'boolean',
             description: 'Use JSON body',
+            schema: {},
           },
         },
       });
@@ -215,6 +218,7 @@ describe('DataMapperStepService', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
     });
@@ -365,6 +369,7 @@ describe('DataMapperStepService', () => {
         isGroup: false,
         title: '',
         description: '',
+        schema: {},
         iconUrl: '',
       });
     });

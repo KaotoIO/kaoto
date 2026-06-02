@@ -82,6 +82,7 @@ describe('CustomNode', () => {
       isGroup: false,
       title: '',
       description: '',
+      schema: {},
       iconUrl: '',
     }) as IVisualizationNode;
     jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');

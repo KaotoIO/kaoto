@@ -38,6 +38,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   const whenVizNode = createVisualizationNode('when', {
     name: 'when',
@@ -49,6 +50,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   const choiceVizNode = createVisualizationNode('choice', {
     name: 'choice',
@@ -60,6 +62,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
 
   // Set parent of when node to choice node and vice versa
@@ -76,6 +79,7 @@ describe('useDuplicateStep', () => {
     iconUrl: '',
     title: '',
     description: '',
+    schema: {},
   });
   // Set parent of viznode to route node
   vizNode.setParentNode(routeVizNode);

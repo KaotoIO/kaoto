@@ -225,6 +225,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
     });
 
@@ -296,6 +297,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
     };
 

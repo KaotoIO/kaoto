@@ -25,6 +25,7 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     };
 
     const vizNode = createVisualizationNode(path + ':' + processorName, data);

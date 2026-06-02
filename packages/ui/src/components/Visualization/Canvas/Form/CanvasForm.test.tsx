@@ -114,6 +114,7 @@ describe('CanvasForm', () => {
       iconUrl: '',
       title: 'route',
       description: '',
+      schema: {},
       isPlaceholder: false,
     });
 
@@ -155,6 +156,7 @@ describe('CanvasForm', () => {
       iconUrl: '',
       title: 'route',
       description: '',
+      schema: {},
       isPlaceholder: false,
     });
 

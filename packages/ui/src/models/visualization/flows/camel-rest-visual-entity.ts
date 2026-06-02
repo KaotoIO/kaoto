@@ -154,6 +154,7 @@ export class CamelRestVisualEntity extends AbstractCamelVisualEntity<{ rest: Res
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
       processorName: REST_ELEMENT_NAME,
     });

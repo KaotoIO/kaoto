@@ -340,6 +340,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
     });
 
@@ -425,6 +426,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
     };
 
@@ -476,6 +478,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
       path: placeholderPath,
     });
@@ -533,6 +536,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
         processorIconTooltip: '',
         path: placeholderPath,
       });
@@ -570,6 +574,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
       processorIconTooltip: '',
       path: placeholderPath,
     });

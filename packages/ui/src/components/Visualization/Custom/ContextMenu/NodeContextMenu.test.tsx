@@ -69,6 +69,7 @@ describe('NodeContextMenu', () => {
       iconUrl: '',
       title: '',
       description: '',
+      schema: {},
     });
     jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue(nodeInteractions);
     element = {

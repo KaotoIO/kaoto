@@ -38,6 +38,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -59,6 +60,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -86,6 +88,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           },
           {},
         );
@@ -106,6 +109,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           },
           { onFallback: {} },
         );
@@ -128,6 +132,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           },
           {},
         );
@@ -148,6 +153,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           },
           { otherwise: {} },
         );
@@ -170,6 +176,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           },
           {},
         );
@@ -190,6 +197,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           },
           { doFinally: {} },
         );
@@ -214,6 +222,7 @@ describe('CamelComponentFilterService', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         {},
       );
@@ -235,6 +244,7 @@ describe('CamelComponentFilterService', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         {},
       );
@@ -253,6 +263,7 @@ describe('CamelComponentFilterService', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         });
 
         expect(tiles.filter(filterFn)).toEqual([componentDirectTile]);
@@ -270,6 +281,7 @@ describe('CamelComponentFilterService', () => {
             iconUrl: '',
             title: '',
             description: '',
+            schema: {},
           });
 
           expect(tiles.filter(filterFn)).toEqual([componentDirectTile]);
@@ -288,6 +300,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -312,6 +325,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -338,6 +352,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -360,6 +375,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -387,6 +403,7 @@ describe('CamelComponentFilterService', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         {},
       );
@@ -407,6 +424,7 @@ describe('CamelComponentFilterService', () => {
           iconUrl: '',
           title: '',
           description: '',
+          schema: {},
         },
         { otherwise: {} },
       );
@@ -425,6 +443,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
@@ -450,6 +469,7 @@ describe('CamelComponentFilterService', () => {
         iconUrl: '',
         title: '',
         description: '',
+        schema: {},
       });
 
       expect(tiles.filter(filterFn)).toEqual([
