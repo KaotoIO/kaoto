@@ -70,7 +70,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         isCollapsed={false}
         childCount={5}
         ProcessorIcon={null}
@@ -232,7 +231,6 @@ describe('CustomNodeContainer', () => {
       <CustomNodeContainer
         {...defaultContainerProps}
         vizNode={vizNode}
-        tooltipContent={undefined}
         isCollapsed={true}
         childCount={1}
         hasGroupChildren={true}

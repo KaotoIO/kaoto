@@ -20,7 +20,7 @@ export interface CustomNodeContainerProps {
   childCount: number;
   hasGroupChildren?: boolean;
   ProcessorIcon: ElementType | null;
-  processorDescription: string;
+  processorDescription?: string;
   isDisabled: boolean;
 }
 
