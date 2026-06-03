@@ -53,11 +53,13 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
               <Grid>
                 <GridItem sm={12} md={6} order={titleElementOrder}>
                   <div className="catalog-data-list-item__title-div-left">
-                    <img
-                      src={props.tile.iconUrl}
-                      className="catalog-data-list-item__title-div-left__icon"
-                      alt={`${props.tile.type} icon`}
-                    />
+                    {props.tile.iconUrl && (
+                      <img
+                        src={props.tile.iconUrl}
+                        className="catalog-data-list-item__title-div-left__icon"
+                        alt={`${props.tile.type} icon`}
+                      />
+                    )}
                     <span id="clickable-action-item1" className="catalog-data-list-item__title-div-left__title">
                       {props.tile.title}
                     </span>

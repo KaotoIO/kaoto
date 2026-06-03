@@ -309,6 +309,16 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${list(val...)}",
   },
   {
+    "description": "Adds the result of the expression to the message body (or expression) which is a list",
+    "group": "Simple Language",
+    "value": "\${listAdd(source,exp)}",
+  },
+  {
+    "description": "Removes the result of the expression from the message body (or expression) which is a list",
+    "group": "Simple Language",
+    "value": "\${listRemove(source,exp)}",
+  },
+  {
     "description": "Loads the content of the resource from classpath (cannot load from file-system to avoid dangerous situations).",
     "group": "Simple Language",
     "value": "\${load(file)}",
@@ -327,6 +337,16 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "The map function creates a LinkedHashMap with the given set of pairs.",
     "group": "Simple Language",
     "value": "\${map(key1,value1,...)}",
+  },
+  {
+    "description": "Adds the result of the expression to the message body (or expression) which is a map",
+    "group": "Simple Language",
+    "value": "\${mapAdd(source,key,exp)}",
+  },
+  {
+    "description": "Removes the result of the expression from the message body (or expression) which is a map",
+    "group": "Simple Language",
+    "value": "\${mapRemove(source,key)}",
   },
   {
     "description": "Returns the maximum number from all the values (integral numbers only).",
@@ -469,6 +489,11 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${shuffle(val...)}",
   },
   {
+    "description": "When working with JSon data, then this allows using the Simple JSonPath language, for example, to extract data from the message body (in JSon format). For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${simpleJsonpath(input,exp)}",
+  },
+  {
     "description": "Returns the number of elements in collection or array based payloads. If the value is null then 0 is returned, otherwise 1.",
     "group": "Simple Language",
     "value": "\${size(exp)}",
@@ -477,6 +502,11 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
     "group": "Simple Language",
     "value": "\${skip(num)}",
+  },
+  {
+    "description": "Sorts the message body or expression in natural order",
+    "group": "Simple Language",
+    "value": "\${sort(exp,reverse)}",
   },
   {
     "description": "Splits the message body/expression as a String value using the separator into a String array",
@@ -534,6 +564,26 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "value": "\${throwException(type,msg)}",
   },
   {
+    "description": "Converts the expression to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toJson(exp)}",
+  },
+  {
+    "description": "Converts the body to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toJsonBody}",
+  },
+  {
+    "description": "Converts the expression to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toPrettyJson(exp)}",
+  },
+  {
+    "description": "Converts the body to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toPrettyJsonBody}",
+  },
+  {
     "description": "The trim function trims the message body (or expression) by removing all leading and trailing white spaces.",
     "group": "Simple Language",
     "value": "\${trim(exp)}",
@@ -557,6 +607,11 @@ exports[`Properties Suggestions should return suggestions from the catalog 1`] =
     "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
+  },
+  {
+    "description": "Returns the expression as a constant value",
+    "group": "Simple Language",
+    "value": "\${val(exp)}",
   },
   {
     "description": "Converts the variable to the given type (classname).",
@@ -885,6 +940,16 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${list(val...)}",
   },
   {
+    "description": "Adds the result of the expression to the message body (or expression) which is a list",
+    "group": "Simple Language",
+    "value": "\${listAdd(source,exp)}",
+  },
+  {
+    "description": "Removes the result of the expression from the message body (or expression) which is a list",
+    "group": "Simple Language",
+    "value": "\${listRemove(source,exp)}",
+  },
+  {
     "description": "Loads the content of the resource from classpath (cannot load from file-system to avoid dangerous situations).",
     "group": "Simple Language",
     "value": "\${load(file)}",
@@ -903,6 +968,16 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "description": "The map function creates a LinkedHashMap with the given set of pairs.",
     "group": "Simple Language",
     "value": "\${map(key1,value1,...)}",
+  },
+  {
+    "description": "Adds the result of the expression to the message body (or expression) which is a map",
+    "group": "Simple Language",
+    "value": "\${mapAdd(source,key,exp)}",
+  },
+  {
+    "description": "Removes the result of the expression from the message body (or expression) which is a map",
+    "group": "Simple Language",
+    "value": "\${mapRemove(source,key)}",
   },
   {
     "description": "Returns the maximum number from all the values (integral numbers only).",
@@ -1045,6 +1120,11 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${shuffle(val...)}",
   },
   {
+    "description": "When working with JSon data, then this allows using the Simple JSonPath language, for example, to extract data from the message body (in JSon format). For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${simpleJsonpath(input,exp)}",
+  },
+  {
     "description": "Returns the number of elements in collection or array based payloads. If the value is null then 0 is returned, otherwise 1.",
     "group": "Simple Language",
     "value": "\${size(exp)}",
@@ -1053,6 +1133,11 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
     "group": "Simple Language",
     "value": "\${skip(num)}",
+  },
+  {
+    "description": "Sorts the message body or expression in natural order",
+    "group": "Simple Language",
+    "value": "\${sort(exp,reverse)}",
   },
   {
     "description": "Splits the message body/expression as a String value using the separator into a String array",
@@ -1110,6 +1195,26 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "value": "\${throwException(type,msg)}",
   },
   {
+    "description": "Converts the expression to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toJson(exp)}",
+  },
+  {
+    "description": "Converts the body to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toJsonBody}",
+  },
+  {
+    "description": "Converts the expression to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toPrettyJson(exp)}",
+  },
+  {
+    "description": "Converts the body to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toPrettyJsonBody}",
+  },
+  {
     "description": "The trim function trims the message body (or expression) by removing all leading and trailing white spaces.",
     "group": "Simple Language",
     "value": "\${trim(exp)}",
@@ -1133,6 +1238,11 @@ exports[`Properties Suggestions should return suggestions when \`word\` it is no
     "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
+  },
+  {
+    "description": "Returns the expression as a constant value",
+    "group": "Simple Language",
+    "value": "\${val(exp)}",
   },
   {
     "description": "Converts the variable to the given type (classname).",
@@ -1483,6 +1593,16 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${list(val...)}",
   },
   {
+    "description": "Adds the result of the expression to the message body (or expression) which is a list",
+    "group": "Simple Language",
+    "value": "\${listAdd(source,exp)}",
+  },
+  {
+    "description": "Removes the result of the expression from the message body (or expression) which is a list",
+    "group": "Simple Language",
+    "value": "\${listRemove(source,exp)}",
+  },
+  {
     "description": "Loads the content of the resource from classpath (cannot load from file-system to avoid dangerous situations).",
     "group": "Simple Language",
     "value": "\${load(file)}",
@@ -1501,6 +1621,16 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "description": "The map function creates a LinkedHashMap with the given set of pairs.",
     "group": "Simple Language",
     "value": "\${map(key1,value1,...)}",
+  },
+  {
+    "description": "Adds the result of the expression to the message body (or expression) which is a map",
+    "group": "Simple Language",
+    "value": "\${mapAdd(source,key,exp)}",
+  },
+  {
+    "description": "Removes the result of the expression from the message body (or expression) which is a map",
+    "group": "Simple Language",
+    "value": "\${mapRemove(source,key)}",
   },
   {
     "description": "Returns the maximum number from all the values (integral numbers only).",
@@ -1643,6 +1773,11 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${shuffle(val...)}",
   },
   {
+    "description": "When working with JSon data, then this allows using the Simple JSonPath language, for example, to extract data from the message body (in JSon format). For input (optional), you can choose \`header:key\`, \`exchangeProperty:key\` or \`variable:key\` to use as input for the JSon payload instead of the message body.",
+    "group": "Simple Language",
+    "value": "\${simpleJsonpath(input,exp)}",
+  },
+  {
     "description": "Returns the number of elements in collection or array based payloads. If the value is null then 0 is returned, otherwise 1.",
     "group": "Simple Language",
     "value": "\${size(exp)}",
@@ -1651,6 +1786,11 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "description": "The skip function iterates the message body and skips the first number of items. This can be used with the Splitter EIP to split a message body and skip the first N number of items.",
     "group": "Simple Language",
     "value": "\${skip(num)}",
+  },
+  {
+    "description": "Sorts the message body or expression in natural order",
+    "group": "Simple Language",
+    "value": "\${sort(exp,reverse)}",
   },
   {
     "description": "Splits the message body/expression as a String value using the separator into a String array",
@@ -1708,6 +1848,26 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "value": "\${throwException(type,msg)}",
   },
   {
+    "description": "Converts the expression to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toJson(exp)}",
+  },
+  {
+    "description": "Converts the body to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toJsonBody}",
+  },
+  {
+    "description": "Converts the expression to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toPrettyJson(exp)}",
+  },
+  {
+    "description": "Converts the body to JSon String representation.",
+    "group": "Simple Language",
+    "value": "\${toPrettyJsonBody}",
+  },
+  {
     "description": "The trim function trims the message body (or expression) by removing all leading and trailing white spaces.",
     "group": "Simple Language",
     "value": "\${trim(exp)}",
@@ -1731,6 +1891,11 @@ exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
     "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
+  },
+  {
+    "description": "Returns the expression as a constant value",
+    "group": "Simple Language",
+    "value": "\${val(exp)}",
   },
   {
     "description": "Converts the variable to the given type (classname).",

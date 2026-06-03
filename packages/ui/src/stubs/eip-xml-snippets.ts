@@ -79,9 +79,7 @@ export const resequenceXml = `
 `;
 
 export const sagaXml = `
-<saga>
-  <compensation uri="direct:compensation" />
-  <completion uri="direct:completion" />
+<saga compensation="direct:compensation" completion="direct:completion">
   <option key="myOptionKey">
     <constant>myOptionValue</constant>
   </option>

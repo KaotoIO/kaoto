@@ -582,18 +582,18 @@ describe('CanvasForm', () => {
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('failover load balancer');
 
-      let inputRoundRobin = formPageObject.getFieldByDisplayName('Round Robin');
+      let inputRoundRobin = await screen.findByLabelText('Round Robin');
       expect(inputRoundRobin).toBeInTheDocument();
 
-      await formPageObject.inputText('Round Robin', 'playoff');
+      fireEvent.click(inputRoundRobin);
 
       await formPageObject.showModifiedFields();
       loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
       expect(loadbalancerField).toBeInTheDocument();
 
-      inputRoundRobin = formPageObject.getFieldByDisplayName('Round Robin');
+      inputRoundRobin = await screen.findByLabelText('Round Robin');
       expect(inputRoundRobin).toBeInTheDocument();
-      expect(inputRoundRobin).toHaveAttribute('value', 'playoff');
+      expect(inputRoundRobin).toBeChecked();
     });
   });
 

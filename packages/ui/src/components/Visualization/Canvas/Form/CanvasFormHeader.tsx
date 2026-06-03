@@ -20,7 +20,7 @@ export const CanvasFormHeader: FunctionComponent<CanvasFormHeaderProps> = ({ nod
     <>
       <Grid hasGutter>
         <GridItem className="form-header" span={11}>
-          <img src={iconUrl} className={`form-header__icon-${nodeId}`} alt={title} />
+          {iconUrl && <img src={iconUrl} className={`form-header__icon-${nodeId}`} alt={title} />}
 
           <Title className="form-header__title" headingLevel="h2">
             {title}

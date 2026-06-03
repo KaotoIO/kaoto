@@ -59,7 +59,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.interactWithConfigInputObject('outputType.validate');
     cy.interactWithConfigInputObject('precondition', 'test.precondition');
     cy.interactWithConfigInputObject('routeConfigurationId', 'test.routeConfigurationId');
-    cy.interactWithConfigInputObject('routePolicy', 'test.routePolicy');
+    cy.interactWithConfigInputObject('routePolicyRef', 'test.routePolicy');
     cy.interactWithConfigInputObject('startupOrder', '5');
     cy.interactWithConfigInputObject('trace');
     cy.interactWithConfigInputObject('streamCache');
@@ -84,7 +84,7 @@ describe('Test for camel route root containers configuration', () => {
     cy.checkCodeSpanLine('validate: true');
     cy.checkCodeSpanLine('precondition: test.precondition');
     cy.checkCodeSpanLine('routeConfigurationId: test.routeConfigurationId');
-    cy.checkCodeSpanLine('routePolicy: test.routePolicy');
+    cy.checkCodeSpanLine('routePolicyRef: test.routePolicy');
     cy.checkCodeSpanLine('startupOrder: 5');
     cy.checkCodeSpanLine('streamCache: true');
     cy.checkCodeSpanLine('trace: true');

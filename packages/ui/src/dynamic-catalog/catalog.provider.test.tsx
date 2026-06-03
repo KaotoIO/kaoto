@@ -1,4 +1,4 @@
-import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 
@@ -8,6 +8,8 @@ import { TestRuntimeProviderWrapper } from '../stubs';
 import { citrusCatalogSelector, getFirstCatalogMap, getFirstCitrusCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
+
+const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('CatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
@@ -20,7 +22,7 @@ describe('CatalogLoaderProvider', () => {
   const catalogPath = catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/'));
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary);
     catalogDefinition = catalogsMap.catalogDefinition;
   });
 
@@ -32,7 +34,7 @@ describe('CatalogLoaderProvider', () => {
           resolve({
             json: () => catalogDefinition,
             url: `http://localhost/${file}`,
-          } as unknown as Response);
+          } as unknown);
         };
         fetchReject = () => {
           reject(new Error('Error'));
@@ -295,7 +297,7 @@ describe('CitrusCatalogLoaderProvider', () => {
   const catalogPath = catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/'));
 
   beforeAll(async () => {
-    const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
+    const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary);
     catalogDefinition = catalogsMap.catalogDefinition;
   });
 
@@ -307,7 +309,7 @@ describe('CitrusCatalogLoaderProvider', () => {
           resolve({
             json: () => catalogDefinition,
             url: `http://localhost/${file}`,
-          } as unknown as Response);
+          } as unknown);
         };
         fetchReject = () => {
           reject(new Error('Error'));

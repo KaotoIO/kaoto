@@ -131,6 +131,33 @@ describe('CustomGroupExpanded', () => {
     expect(group).toHaveAttribute('data-grouplabel', 'Choice');
   });
 
+  it('should fall back to iconAlt for the image alt text when description is empty', async () => {
+    // The <img> only renders when iconUrl is truthy, and its `alt` uses
+    // `description || iconAlt`. So to reach the iconAlt fallback (CustomGroupExpanded.tsx:236)
+    // we need: iconUrl set, description empty, and iconAlt as a string.
+    const vizNode = createVisualizationNode('choice-1', {
+      name: 'choice',
+      path: 'route.from.steps.0.choice',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: 'data:image/svg+xml;base64,icon',
+      title: '',
+      description: '',
+      iconAlt: 'Choice icon',
+    }) as IVisualizationNode;
+    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
+    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+
+    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
+
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Choice icon');
+  });
+
   it('should render icon placeholder when group has validation warnings', async () => {
     const vizNode = createVisualizationNode('choice-1', {
       name: 'choice',

@@ -234,7 +234,7 @@ exports[`SettingsForm should render 1`] = `
           <span
             class="runtime-selector pf-v6-u-m-sm"
           >
-            Camel Main 4.14.2.redhat-00019
+            Camel Main 4.18.1.redhat-00019
           </span>
         </span>
         <span
@@ -346,7 +346,7 @@ exports[`SettingsForm should render 1`] = `
           <span
             class="runtime-selector pf-v6-u-m-sm"
           >
-            Citrus 4.10.0
+            Citrus 4.10.1
           </span>
         </span>
         <span

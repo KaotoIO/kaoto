@@ -183,7 +183,7 @@ describe('step-xml-serializer tests', () => {
 
     it('should not call decorateDoTry when doCatch and doFinally are in the catalog', () => {
       const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
-      StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
+      StepXmlSerializer.serialize('doTry', doTryEntity as unknown as ElementType, getDocument());
 
       expect(decorateDoTrySpy).not.toHaveBeenCalled();
       decorateDoTrySpy.mockRestore();
@@ -214,7 +214,7 @@ describe('step-xml-serializer tests', () => {
 
     it.each(testCases)('Parse $name', ({ name, xml, entity }) => {
       const document = domParser.parseFromString('', 'application/xml');
-      const result = StepXmlSerializer.serialize(name, entity, document);
+      const result = StepXmlSerializer.serialize(name, entity as unknown as ElementType, document);
       const expected = domParser.parseFromString(xml, 'application/xml').documentElement;
       const resultString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(result)));
       const expectedString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(expected)));
@@ -235,7 +235,7 @@ describe('step-xml-serializer tests', () => {
     it('should call decorateDoTry when doCatch and doFinally are not in the catalog', () => {
       const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
       const document = getDocument();
-      StepXmlSerializer.serialize('doTry', doTryEntity, document);
+      StepXmlSerializer.serialize('doTry', doTryEntity as unknown as ElementType, document);
 
       expect(decorateDoTrySpy).toHaveBeenCalledTimes(1);
       expect(decorateDoTrySpy).toHaveBeenCalledWith(
@@ -248,11 +248,123 @@ describe('step-xml-serializer tests', () => {
     });
 
     it('should decorate doTry element correctly', () => {
-      const result = StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
+      const result = StepXmlSerializer.serialize('doTry', doTryEntity as unknown as ElementType, getDocument());
       const doCatchElement = result.getElementsByTagName('doCatch')[0];
 
       expect(doCatchElement).toBeDefined();
       expect(doCatchElement.getElementsByTagName('to')[0].getAttribute('uri')).toBe('mock:catch');
     });
+  });
+
+  it('should serialize unknown type with non-object value', () => {
+    const unknownStep = {
+      someAttribute: 'value',
+      anotherAttribute: 123,
+    };
+
+    const result = StepXmlSerializer.serialize('unknownProcessor', unknownStep, getDocument());
+
+    expect(result.tagName).toBe('unknownProcessor');
+    expect(result.getAttribute('someAttribute')).toBe('value');
+    expect(result.getAttribute('anotherAttribute')).toBe('123');
+  });
+
+  it('should serialize object type with javaType string', () => {
+    const step = {
+      name: 'myHeader',
+      expression: {
+        constant: {
+          expression: 'test value',
+        },
+      },
+    };
+
+    const result = StepXmlSerializer.serialize('setHeader', step, getDocument());
+
+    expect(result.tagName).toBe('setHeader');
+    expect(result.getAttribute('name')).toBe('myHeader');
+    const constantElement = result.getElementsByTagName('constant')[0];
+    expect(constantElement).toBeDefined();
+    expect(constantElement.textContent).toBe('test value');
+  });
+
+  it('should return uri when componentName is undefined', () => {
+    const step = {
+      uri: 'unknown:component',
+    };
+
+    const result = StepXmlSerializer.createUriFromParameters(step);
+
+    expect(result).toBe('unknown:component');
+  });
+
+  it('should handle saga with compensation as attribute in catalog', () => {
+    const sagaStep = {
+      compensation: 'direct:compensation',
+      completion: 'direct:completion',
+    };
+
+    const result = StepXmlSerializer.serialize('saga', sagaStep, getDocument());
+
+    expect(result.tagName).toBe('saga');
+    expect(result.getAttribute('compensation')).toBe('direct:compensation');
+    expect(result.getAttribute('completion')).toBe('direct:completion');
+    // Should not have nested elements when attributes are in catalog
+    expect(result.getElementsByTagName('compensation').length).toBe(0);
+    expect(result.getElementsByTagName('completion').length).toBe(0);
+  });
+
+  it('should serialize saga with nested elements when not attributes in old catalog', async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    // Simulate old catalog where compensation/completion are not attributes
+    const originalSagaProps = { ...catalogsMap.modelCatalogMap['saga'].properties };
+    delete catalogsMap.modelCatalogMap['saga'].properties.compensation;
+    delete catalogsMap.modelCatalogMap['saga'].properties.completion;
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+    const sagaStep = {
+      compensation: 'direct:compensation',
+      completion: 'direct:completion',
+    };
+
+    const result = StepXmlSerializer.serialize('saga', sagaStep, getDocument());
+
+    expect(result.tagName).toBe('saga');
+    const compensationElement = result.getElementsByTagName('compensation')[0];
+    const completionElement = result.getElementsByTagName('completion')[0];
+    expect(compensationElement).toBeDefined();
+    expect(compensationElement.getAttribute('uri')).toBe('direct:compensation');
+    expect(completionElement).toBeDefined();
+    expect(completionElement.getAttribute('uri')).toBe('direct:completion');
+
+    // Restore original properties
+    catalogsMap.modelCatalogMap['saga'].properties = originalSagaProps;
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+  });
+
+  it('should serialize saga nested elements when compensation/completion are legacy object-shaped values', async () => {
+    const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+    // Simulate old catalog where compensation/completion are not attributes
+    const originalSagaProps = { ...catalogsMap.modelCatalogMap['saga'].properties };
+    delete catalogsMap.modelCatalogMap['saga'].properties.compensation;
+    delete catalogsMap.modelCatalogMap['saga'].properties.completion;
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+    // Legacy model represented these as { uri } objects rather than plain strings
+    const sagaStep = {
+      compensation: { uri: 'direct:compensation' },
+      completion: { uri: 'direct:completion' },
+    } as unknown as Parameters<typeof StepXmlSerializer.serialize>[1];
+
+    const result = StepXmlSerializer.serialize('saga', sagaStep, getDocument());
+
+    const compensationElement = result.getElementsByTagName('compensation')[0];
+    const completionElement = result.getElementsByTagName('completion')[0];
+    expect(compensationElement.getAttribute('uri')).toBe('direct:compensation');
+    expect(completionElement.getAttribute('uri')).toBe('direct:completion');
+
+    // Restore original properties
+    catalogsMap.modelCatalogMap['saga'].properties = originalSagaProps;
+    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
   });
 });

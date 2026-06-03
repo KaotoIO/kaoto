@@ -33,7 +33,9 @@ export const Tile: FunctionComponent<PropsWithChildren<TileProps>> = (props) => 
         onClick={onTileClick}
       >
         <div className="tile__header">
-          <img src={props.tile.iconUrl} className="tile__icon" alt={`${props.tile.type} icon`} />
+          {props.tile.iconUrl && (
+            <img src={props.tile.iconUrl} className="tile__icon" alt={`${props.tile.type} icon`} />
+          )}
           <LabelGroup isCompact aria-label="tile-headers-tags">
             {props.tile.headerTags?.map((tag, index) => (
               <CatalogTag key={`${props.tile.name}-${tag}-${index}`} tag={tag} />

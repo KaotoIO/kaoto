@@ -230,12 +230,77 @@ describe('parser basics', () => {
       expect(result.onWhen).toBeDefined();
     });
 
+    it('should handle intercept elements without when element', () => {
+      const interceptElement = mockDocument.createElement('interceptFrom');
+      const processor = {};
+
+      StepParser['decorateIntercept'](interceptElement, processor);
+
+      expect(processor).toEqual({});
+    });
+
     it('should handle missing catalog entries', () => {
       const unknownElement = mockDocument.createElement('unknownProcessor');
       unknownElement.setAttribute('someAttr', 'value');
 
       const result = StepParser.parseElement(unknownElement) as { someAttr?: string };
       expect(result.someAttr).toBe('value');
+    });
+
+    it('should handle saga with compensation element without uri attribute', () => {
+      const sagaElement = mockDocument.createElement('saga');
+      const compensationElement = mockDocument.createElement('compensation');
+      sagaElement.appendChild(compensationElement);
+
+      const processor = {};
+      StepParser['decorateSaga'](sagaElement, processor);
+
+      expect(processor).toEqual({});
+    });
+
+    it('should handle saga with completion element without uri attribute', () => {
+      const sagaElement = mockDocument.createElement('saga');
+      const completionElement = mockDocument.createElement('completion');
+      sagaElement.appendChild(completionElement);
+
+      const processor = {};
+      StepParser['decorateSaga'](sagaElement, processor);
+
+      expect(processor).toEqual({});
+    });
+
+    it('should read compensation/completion uri from nested elements (legacy Camel < 4.20 format)', () => {
+      const sagaXml = `
+        <saga>
+          <compensation uri="direct:compensate"/>
+          <completion uri="direct:complete"/>
+        </saga>`;
+      const element = getElementFromXml(sagaXml);
+
+      const result = StepParser.parseElement(element) as { compensation?: string; completion?: string };
+
+      expect(result.compensation).toBe('direct:compensate');
+      expect(result.completion).toBe('direct:complete');
+    });
+
+    it('should return empty object when uri attribute is empty', () => {
+      const element = mockDocument.createElement('to');
+      element.setAttribute('uri', '');
+
+      const result = StepParser['parseAttributeType']('uri', element);
+
+      expect(result).toEqual({});
+    });
+
+    it('should return undefined when findSingleElement has no oneOf and element not found', () => {
+      const element = mockDocument.createElement('parent');
+      const properties = {
+        type: 'object' as const,
+      } as unknown as ICamelProcessorProperty;
+
+      const result = StepParser['findSingleElement'](element, properties, 'nonexistent');
+
+      expect(result).toBeUndefined();
     });
   });
 

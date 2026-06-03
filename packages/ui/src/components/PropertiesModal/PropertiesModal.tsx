@@ -96,7 +96,9 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
 
   const title: ReactElement = (
     <div className="properties-modal__title-div">
-      <img src={props.tile.iconUrl} alt={`${props.tile.type} icon`} className={'properties-modal__title-image'} />
+      {props.tile.iconUrl && (
+        <img src={props.tile.iconUrl} alt={`${props.tile.type} icon`} className={'properties-modal__title-image'} />
+      )}
       <h1 className="properties-modal__title">{props.tile.title}</h1>
     </div>
   );

@@ -81,6 +81,11 @@ export class StepXmlSerializer {
       this.decorateDoTry(camelElement as DoTry, element, doc);
     }
 
+    // saga compensation/completion: support both old (nested elements) and new (attributes) formats
+    if (elementName === 'saga') {
+      this.decorateSaga(camelElement, element, doc, properties);
+    }
+
     return element;
   }
 
@@ -260,6 +265,33 @@ export class StepXmlSerializer {
 
     doTryElement.append(this.serialize('doFinally', doTry.doFinally as ElementType, doc));
     return doTryElement;
+  }
+
+  private static decorateSaga(
+    saga: ElementType,
+    sagaElement: Element,
+    doc: Document,
+    properties: Record<string, ICamelProcessorProperty>,
+  ): void {
+    // Check if catalog defines compensation/completion as attributes (Camel 4.20.0+)
+    const compensationIsAttribute = properties['compensation']?.kind === 'attribute';
+    const completionIsAttribute = properties['completion']?.kind === 'attribute';
+
+    // If not attributes in catalog, serialize as nested elements for backward compatibility.
+    // compensation/completion may be a string uri or a legacy object-shaped { uri } value.
+    const compensationUri = CamelUriHelper.getUriString(saga['compensation']);
+    if (!compensationIsAttribute && compensationUri) {
+      const compensationElement = doc.createElement('compensation');
+      compensationElement.setAttribute('uri', compensationUri);
+      sagaElement.appendChild(compensationElement);
+    }
+
+    const completionUri = CamelUriHelper.getUriString(saga['completion']);
+    if (!completionIsAttribute && completionUri) {
+      const completionElement = doc.createElement('completion');
+      completionElement.setAttribute('uri', completionUri);
+      sagaElement.appendChild(completionElement);
+    }
   }
 
   private static serializeTextType(element: Element, key: string, processor: ElementType, doc: Document) {
