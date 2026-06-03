@@ -9,6 +9,7 @@ export * from './components/Visualization/Canvas/Form/CanvasFormBody';
 export * from './components/Visualization/Canvas/Form/fields/BeanField/NewBeanModal';
 export * from './components/Visualization/Canvas/Form/fields/ExpressionField/ExpressionField';
 export * from './dynamic-catalog';
+export * from './hooks/use-visible-viz-nodes';
 export * from './layout';
 export * from './models';
 export * from './models/camel';
