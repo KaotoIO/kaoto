@@ -164,6 +164,7 @@ describe('DataMapperLauncher', () => {
     setSerializer: jest.fn(),
     getCompatibleComponents: jest.fn().mockReturnValue([]),
     getCompatibleRuntimes: jest.fn().mockReturnValue([]),
+    toStringAsync: jest.fn(),
   };
 
   const mockEntitiesContext = {

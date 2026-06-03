@@ -309,7 +309,7 @@ describe('EntitiesProvider', () => {
       expect(result.current?.isLoading).toBe(false);
     });
 
-    const serialized = await result.current?.camelResource?.toString();
+    const serialized = await result.current?.camelResource?.toStringAsync();
     expect(serialized).toContain(
       `# This is a comment
 #     An indented comment`,

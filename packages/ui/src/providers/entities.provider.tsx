@@ -126,8 +126,14 @@ export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fil
   const updateSourceCodeFromEntities = useCallback(() => {
     if (!camelResource) return;
 
-    const code = camelResource.toString();
-    eventNotifier.next('entities:updated', code);
+    camelResource
+      .toStringAsync()
+      .then((code) => {
+        eventNotifier.next('entities:updated', code);
+      })
+      .catch((error) => {
+        console.error('Error serializing resource to code:', error);
+      });
   }, [camelResource, eventNotifier]);
 
   const updateEntitiesFromCamelResource = useCallback(() => {

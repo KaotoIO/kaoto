@@ -23,7 +23,7 @@ export interface KaotoResource {
   removeEntity(ids?: string[]): void;
   supportsMultipleVisualEntities(): boolean;
   toJSON(): unknown;
-  toString(): string;
+  toStringAsync(): Promise<string>;
   getType(): SourceSchemaType;
   getCanvasEntityList(): BaseVisualEntityDefinition;
   getSerializerType(): SerializerType;
@@ -54,7 +54,7 @@ export type Metadata = { [key: string]: unknown };
 
 export interface KaotoResourceSerializer {
   parse: (code: string) => Promise<CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined>;
-  serialize: (resource: KaotoResource) => string;
+  serialize: (resource: KaotoResource) => Promise<string>;
   getComments: () => string[];
   setComments: (comments: string[]) => void;
   setMetadata: (metadata: Metadata) => void;

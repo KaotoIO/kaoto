@@ -41,13 +41,13 @@ export class XmlCamelResourceSerializer implements KaotoResourceSerializer {
     return entities as CamelYamlDsl;
   }
 
-  serialize(resource: KaotoResource): string {
+  async serialize(resource: KaotoResource): Promise<string> {
     const entities: EntityDefinition[] = resource
       .getEntities()
       .filter((entity) => entity.type === EntityType.Beans) as EntityDefinition[];
     entities.push(...(resource.getVisualEntities() as EntityDefinition[]));
 
-    const xmlDocument = KaotoXmlSerializer.serialize(entities, this.metadata.rootElementDefinitions);
+    const xmlDocument = await KaotoXmlSerializer.serialize(entities, this.metadata.rootElementDefinitions);
     const xmlString = this.xmlSerializer.serializeToString(xmlDocument);
     const formattedString = xmlFormat(xmlString);
     return this.getXmlDeclaration() + this.insertComments(formattedString);

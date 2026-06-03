@@ -16,16 +16,18 @@
 
 import { BeanFactory } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind } from '../../../models';
 import { ElementType, StepXmlSerializer } from './step-xml-serializer';
 
 export class BeansXmlSerializer {
-  static serialize(beanElement: BeanFactory, doc: Document): Element | undefined {
+  static async serialize(beanElement: BeanFactory, doc: Document): Promise<Element | undefined> {
     const bean = doc.createElement('bean');
-    const properties = CamelCatalogService.getComponent(CatalogKind.Processor, 'beanFactory')?.properties;
+    const processorDefinition = await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, 'beanFactory');
+    const properties = processorDefinition?.properties;
     if (!properties) return undefined;
 
-    StepXmlSerializer.serializeObjectProperties(bean, doc, beanElement as unknown as ElementType, properties);
+    await StepXmlSerializer.serializeObjectProperties(bean, doc, beanElement as unknown as ElementType, properties);
 
     if (beanElement['constructors']) {
       bean.appendChild(this.serializeConstructors(beanElement['constructors'], doc));

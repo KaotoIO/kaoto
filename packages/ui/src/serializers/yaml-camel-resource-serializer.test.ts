@@ -27,7 +27,7 @@ describe('YamlCamelResourceSerializer', () => {
     expect(serializer.comments.includes(' comment1')).toBeTruthy();
 
     serializer.comments.push('Comment2');
-    const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
+    const result = await serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
     expect(result).toContain('#Comment2');
   });
 
@@ -36,7 +36,7 @@ describe('YamlCamelResourceSerializer', () => {
     expect(serializer.comments.includes(' comment1')).toBeTruthy();
 
     serializer.comments.push('# Comment2');
-    const result = serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
+    const result = await serializer.serialize(new CamelRouteResource(entities as CamelYamlDsl));
     expect(result.includes(' Comment2')).toBeTruthy();
     expect(result.includes('comment1')).toBeTruthy();
   });

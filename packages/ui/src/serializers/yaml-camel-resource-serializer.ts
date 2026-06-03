@@ -32,7 +32,7 @@ export class YamlCamelResourceSerializer implements KaotoResourceSerializer {
     return json;
   }
 
-  serialize(resource: KaotoResource): string {
+  async serialize(resource: KaotoResource): Promise<string> {
     let code = stringify(resource.toJSON(), { schema: 'yaml-1.1' }) || '';
     if (this.comments.length > 0) {
       code = this.insertComments(code);
