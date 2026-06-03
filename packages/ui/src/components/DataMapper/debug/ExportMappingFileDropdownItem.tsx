@@ -1,82 +1,15 @@
-import { Monaco } from '@monaco-editor/react';
-import { CodeEditor, Language } from '@patternfly/react-code-editor';
-import { Button, DropdownItem, Modal, ModalFooter, ModalHeader } from '@patternfly/react-core';
+import { DropdownItem } from '@patternfly/react-core';
 import { ExportIcon } from '@patternfly/react-icons';
-import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { FunctionComponent, useCallback, useMemo, useState } from 'react';
+import { FunctionComponent } from 'react';
 
-import { useDataMapper } from '../../../hooks/useDataMapper';
-import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
-import IStandaloneEditorConstructionOptions = editor.IStandaloneEditorConstructionOptions;
+interface ExportMappingFileDropdownItemProps {
+  onClick: () => void;
+}
 
-export const ExportMappingFileDropdownItem: FunctionComponent<{
-  onComplete: () => void;
-}> = ({ onComplete }) => {
-  const { mappingTree, sourceParameterMap } = useDataMapper();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>();
-  const [serializedMappings, setSerializedMappings] = useState<string>();
-
-  const handleMenuClick = useCallback(() => {
-    const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
-    setSerializedMappings(serialized);
-    setIsModalOpen(true);
-  }, [mappingTree, sourceParameterMap]);
-
-  const handleModalClose = useCallback(() => {
-    setSerializedMappings('');
-    setIsModalOpen(false);
-    onComplete();
-  }, [onComplete]);
-
-  const onEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-    editor.layout();
-    editor.focus();
-    monaco.editor.getModels()[0].updateOptions({ tabSize: 2 });
-  }, []);
-
-  const modalActions = useMemo(() => {
-    return [
-      <Button
-        key="Close"
-        variant="primary"
-        onClick={handleModalClose}
-        data-testid="dm-debug-export-mappings-modal-close-btn"
-      >
-        Close
-      </Button>,
-    ];
-  }, [handleModalClose]);
-
-  const editorOptions: IStandaloneEditorConstructionOptions = useMemo(() => {
-    return { wordWrap: 'on' };
-  }, []);
-
+export const ExportMappingFileDropdownItem: FunctionComponent<ExportMappingFileDropdownItemProps> = ({ onClick }) => {
   return (
-    <>
-      <DropdownItem icon={<ExportIcon />} onClick={handleMenuClick} data-testid="dm-debug-export-mappings-button">
-        Export current mappings (.xsl)
-      </DropdownItem>
-      <Modal
-        variant="large"
-        title="Exported Mappings"
-        isOpen={isModalOpen}
-        onClose={() => handleModalClose()}
-        data-testid="dm-debug-export-mappings-modal"
-      >
-        <ModalHeader title="Exported Mappings" />
-        <CodeEditor
-          isReadOnly={false}
-          isDownloadEnabled={true}
-          code={serializedMappings}
-          language={Language.xml}
-          onEditorDidMount={onEditorDidMount}
-          height="sizeToFit"
-          width="sizeToFit"
-          options={editorOptions}
-          data-testid="dm-debug-export-mappings-code-editor"
-        />
-        <ModalFooter>{modalActions}</ModalFooter>
-      </Modal>
-    </>
+    <DropdownItem icon={<ExportIcon />} onClick={onClick} data-testid="dm-debug-export-mappings-button">
+      Export current mappings (.xsl)
+    </DropdownItem>
   );
 };
