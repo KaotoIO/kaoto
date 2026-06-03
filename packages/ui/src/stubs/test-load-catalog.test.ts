@@ -1,6 +1,9 @@
-import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { citrusCatalogSelector, testLoadCatalog, testLoadCitrusCatalog } from './test-load-catalog';
+
+const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('testLoadCatalog()', () => {
   it('should load Camel catalog', async () => {

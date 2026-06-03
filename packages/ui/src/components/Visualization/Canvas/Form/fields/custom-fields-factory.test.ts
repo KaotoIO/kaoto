@@ -1,4 +1,5 @@
-import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
+import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { EnumField, TextAreaField } from '@kaoto/forms';
 
 import { ICamelComponentDefinition } from '../../../../../models/camel/camel-components-catalog';
@@ -18,6 +19,8 @@ import { ExpressionField } from './ExpressionField/ExpressionField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { UriField } from './UriField/UriField';
 
+const catalogLibrary = catalogLibraryJson as CatalogLibrary;
+
 describe('customFieldsFactoryfactory', () => {
   let componentCatalogMap: Record<string, ICamelComponentDefinition>;
 
@@ -36,6 +39,18 @@ describe('customFieldsFactoryfactory', () => {
     const schema: KaotoSchemaDefinition['schema'] = { type: 'object', enum: ['option 1', 'option 2', 'option 3'] };
     const result = customFieldsFactoryfactory(schema);
     expect(result).toBe(EnumField);
+  });
+
+  it('returns PrefixedBeanField for Schema Resolver fields', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'string', title: 'Schema Resolver' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).toBe(PrefixedBeanField);
+  });
+
+  it('does not return PrefixedBeanField for non-string Schema Resolver schemas', () => {
+    const schema: KaotoSchemaDefinition['schema'] = { type: 'object', title: 'Schema Resolver' };
+    const result = customFieldsFactoryfactory(schema);
+    expect(result).not.toBe(PrefixedBeanField);
   });
 
   it('returns PrefixedBeanField for string type with format starting with "bean:"', () => {

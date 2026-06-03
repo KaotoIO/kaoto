@@ -24,7 +24,9 @@ const isMediaTypeField = (schema: Parameters<CustomFieldsFactory>[0]): boolean =
 };
 
 const isBeanField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
-  return schema.type === 'string' && schema.format?.startsWith('bean:') === true;
+  return (
+    schema.type === 'string' && (schema.format?.startsWith('bean:') === true || schema.title === 'Schema Resolver')
+  );
 };
 
 const isRefField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {

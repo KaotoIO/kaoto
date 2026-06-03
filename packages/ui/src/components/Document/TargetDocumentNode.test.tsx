@@ -870,8 +870,10 @@ describe('TargetDocumentNode', () => {
 
   describe('Variable Node', () => {
     afterEach(() => {
-      useDocumentTreeStore.getState().setAddingVariableTo(null);
-      useDocumentTreeStore.getState().setRenamingVariable(null);
+      act(() => {
+        useDocumentTreeStore.getState().setAddingVariableTo(null);
+        useDocumentTreeStore.getState().setRenamingVariable(null);
+      });
     });
 
     it('should render variable node with $name label', () => {
@@ -910,10 +912,8 @@ describe('TargetDocumentNode', () => {
         useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       expect(screen.getByTestId('new-variable-name-input')).toBeInTheDocument();
@@ -938,10 +938,8 @@ describe('TargetDocumentNode', () => {
         useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       const input = screen.getByTestId('new-variable-name-input');
@@ -950,7 +948,7 @@ describe('TargetDocumentNode', () => {
       expect(screen.getByTestId(`node-target-${variableNodeData.id}-renaming`)).toBeInTheDocument();
     });
 
-    it('should clear store state when cancel is clicked on add placeholder', () => {
+    it('should clear store state when cancel is clicked on add placeholder', async () => {
       const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
@@ -969,17 +967,17 @@ describe('TargetDocumentNode', () => {
         useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       act(() => {
         fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
       });
 
-      expect(useDocumentTreeStore.getState().addingVariableToNodePath).toBeNull();
+      await waitFor(() => {
+        expect(useDocumentTreeStore.getState().addingVariableToNodePath).toBeNull();
+      });
     });
 
     it('should add variable when submit is clicked on add placeholder', async () => {
@@ -1002,10 +1000,8 @@ describe('TargetDocumentNode', () => {
         useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={fieldTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       const input = screen.getByTestId('new-variable-name-input');
@@ -1041,10 +1037,8 @@ describe('TargetDocumentNode', () => {
         useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       const input = screen.getByTestId('new-variable-name-input');
@@ -1062,7 +1056,7 @@ describe('TargetDocumentNode', () => {
       updateVariableSpy.mockRestore();
     });
 
-    it('should clear store state when cancel is clicked on rename placeholder', () => {
+    it('should clear store state when cancel is clicked on rename placeholder', async () => {
       const document = TestUtil.createTargetOrderDoc();
       const mappingTree = new MappingTree(
         document.documentType,
@@ -1079,17 +1073,17 @@ describe('TargetDocumentNode', () => {
         useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
       });
 
-      act(() => {
-        render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
-          wrapper,
-        });
+      render(<TargetDocumentNode treeNode={variableTreeNode} documentId={targetDocNode.id} rank={1} />, {
+        wrapper,
       });
 
       act(() => {
         fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
       });
 
-      expect(useDocumentTreeStore.getState().renamingVariableId).toBeNull();
+      await waitFor(() => {
+        expect(useDocumentTreeStore.getState().renamingVariableId).toBeNull();
+      });
     });
   });
 

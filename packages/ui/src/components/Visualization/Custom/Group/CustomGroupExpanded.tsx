@@ -228,13 +228,15 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
                 {doesHaveWarnings ? (
                   <div className="custom-group__container__icon-placeholder" />
                 ) : (
-                  <img
-                    src={groupVizNode.data.iconUrl}
-                    alt={
-                      groupVizNode.data.description ||
-                      (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
-                    }
-                  />
+                  groupVizNode.data.iconUrl && (
+                    <img
+                      src={groupVizNode.data.iconUrl}
+                      alt={
+                        groupVizNode.data.description ||
+                        (typeof groupVizNode.data.iconAlt === 'string' ? groupVizNode.data.iconAlt : '')
+                      }
+                    />
+                  )
                 )}
                 <span title={label}>{label}</span>
 

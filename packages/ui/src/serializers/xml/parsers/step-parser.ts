@@ -227,6 +227,26 @@ export class StepParser {
     if (processorName.includes('intercept') && !processorProperties['onWhen']) {
       this.decorateIntercept(element, processor);
     }
+    // saga compensation/completion changed from nested elements to attributes in Camel 4.20.0
+    if (processorName === 'saga') {
+      this.decorateSaga(element, processor);
+    }
+  }
+
+  private static decorateSaga(element: Element, processor: { [p: string]: unknown }) {
+    // Handle old format (nested elements) if attributes are not present
+    if (!processor['compensation']) {
+      const compensationElement = element.getElementsByTagName('compensation')[0];
+      if (compensationElement?.hasAttribute('uri')) {
+        processor['compensation'] = compensationElement.getAttribute('uri');
+      }
+    }
+    if (!processor['completion']) {
+      const completionElement = element.getElementsByTagName('completion')[0];
+      if (completionElement?.hasAttribute('uri')) {
+        processor['completion'] = completionElement.getAttribute('uri');
+      }
+    }
   }
 
   private static decorateIntercept(element: Element, processor: { [p: string]: unknown }) {

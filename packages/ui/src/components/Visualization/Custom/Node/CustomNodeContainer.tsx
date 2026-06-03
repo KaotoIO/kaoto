@@ -49,7 +49,9 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   >
     <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
       <div title={vizNode.data.description} className="custom-node__container__image">
-        <img src={vizNode.data.iconUrl} alt={vizNode.data.description?.trim() || (vizNode.data.iconAlt as string)} />
+        {vizNode.data.iconUrl && (
+          <img src={vizNode.data.iconUrl} alt={vizNode.data.description?.trim() || (vizNode.data.iconAlt as string)} />
+        )}
 
         {isCollapsed && childCount > 0 && (
           <FloatingCircle
