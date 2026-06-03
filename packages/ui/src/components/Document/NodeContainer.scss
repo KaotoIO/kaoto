@@ -1,5 +1,11 @@
 @use '../../styles/dnd';
 
+.selected-container {
+  border: 1px dotted var(--pf-t--global--border--color--brand--default);
+  border-radius: var(--pf-v6-c-droppable--m-dragging--after--BorderRadius);
+  box-sizing: border-box;
+}
+
 .droppable-container {
   color: var(--pf-t--global--text--color--regular);
   border-width: var(--pf-v6-c-draggable--m-dragging--after--BorderWidth);
