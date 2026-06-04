@@ -473,6 +473,31 @@ describe('MappingSerializerService', () => {
       expect(chooseOtherwiseSelect?.nodeValue).toEqual('Title');
     });
 
+    it('should set exclude-result-prefixes to prevent namespace leakage into the output', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getShipOrderToShipOrderXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const stylesheet = domParser.parseFromString(xslt, 'text/xml').documentElement;
+      // `ns0` is declared only for matching the source document via XPath, so it
+      // must be excluded from the result to avoid leaking a redundant declaration.
+      expect(stylesheet.getAttribute('xmlns:ns0')).toEqual('io.kaoto.datamapper.poc.test');
+      expect(stylesheet.getAttribute('exclude-result-prefixes')?.split(' ')).toContain('ns0');
+    });
+
+    it('should not set exclude-result-prefixes when there are no namespaces', () => {
+      const empty = MappingSerializerService.serialize(
+        new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA),
+        sourceParameterMap,
+      );
+      const stylesheet = domParser.parseFromString(empty, 'application/xml').documentElement;
+      expect(stylesheet.hasAttribute('exclude-result-prefixes')).toBe(false);
+    });
+
     it('should round-trip UnknownMappingItem verbatim including nested children', () => {
       const xslt = getUnknownApplyTemplateXslt();
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
