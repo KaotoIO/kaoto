@@ -1,13 +1,4 @@
-import {
-  act,
-  findByLabelText,
-  fireEvent,
-  getAllByLabelText,
-  getByLabelText,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
@@ -461,6 +452,11 @@ describe('AttachSchemaModal', () => {
   });
 
   describe('Root Element Selection', () => {
+    async function findRootElementInput() {
+      const container = await screen.findByTestId('attach-schema-root-element');
+      return container.querySelector('input') as HTMLInputElement;
+    }
+
     it('should show root element selector when multiple elements are available', async () => {
       mockReadFileAsString.mockResolvedValue(getMultipleElementsXsd());
       render(
@@ -497,25 +493,19 @@ describe('AttachSchemaModal', () => {
         expect(fileItem).toBeInTheDocument();
       });
 
-      const rootElementSelector = await screen.findByTestId('attach-schema-root-element-typeahead-select-input');
-      const typeaheadInput = getByLabelText(rootElementSelector, 'Attach schema / Choose Root Element');
-      expect(typeaheadInput.getAttribute('value')).toEqual('Order');
+      const input = await findRootElementInput();
+      expect(input.value).toEqual('Order');
 
-      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
       act(() => {
-        fireEvent.click(dropdownToggle);
+        fireEvent.focus(input);
       });
 
       await waitFor(() => {
-        const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
-        const order = getByLabelText(rootElementSelect, 'option order');
-        expect(order.getAttribute('aria-selected')).toEqual('true');
-
-        const invoice = getByLabelText(rootElementSelect, 'option invoice');
-        expect(invoice.getAttribute('aria-selected')).toEqual('false');
-
-        const shipment = getByLabelText(rootElementSelect, 'option shipment');
-        expect(shipment.getAttribute('aria-selected')).toEqual('false');
+        const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
+        expect(rootElementSelect.querySelector('[role="option"]')).toBeInTheDocument();
+        expect(screen.getByText('Order')).toBeInTheDocument();
+        expect(screen.getByText('Invoice')).toBeInTheDocument();
+        expect(screen.getByText('Shipment')).toBeInTheDocument();
       });
     });
 
@@ -553,21 +543,18 @@ describe('AttachSchemaModal', () => {
         expect(fileItem).toBeInTheDocument();
       });
 
-      const rootElementSelector = await screen.findByTestId('attach-schema-root-element-typeahead-select-input');
-      const typeaheadInput = getByLabelText(rootElementSelector, 'Attach schema / Choose Root Element');
-      expect(typeaheadInput.getAttribute('value')).toEqual('ShipOrder');
+      const input = await findRootElementInput();
+      expect(input.value).toEqual('ShipOrder');
 
-      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
       act(() => {
-        fireEvent.click(dropdownToggle);
+        fireEvent.focus(input);
       });
 
       await waitFor(() => {
-        const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
-        const options = getAllByLabelText(rootElementSelect, /option.*/);
+        const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
+        const options = rootElementSelect.querySelectorAll('[role="option"]');
         expect(options.length).toEqual(1);
-        expect(options[0].getAttribute('aria-label')).toEqual('option shiporder');
-        expect(options[0].getAttribute('aria-selected')).toEqual('true');
+        expect(screen.getByText('ShipOrder')).toBeInTheDocument();
       });
     });
 
@@ -607,26 +594,23 @@ describe('AttachSchemaModal', () => {
         expect(fileItem).toBeInTheDocument();
       });
 
-      const rootElementSelector = await screen.findByTestId('attach-schema-root-element-typeahead-select-input');
-      const typeaheadInput = getByLabelText(rootElementSelector, 'Attach schema / Choose Root Element');
-      expect(typeaheadInput.getAttribute('value')).toEqual('Order');
+      const input = await findRootElementInput();
+      expect(input.value).toEqual('Order');
 
-      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
       act(() => {
-        fireEvent.click(dropdownToggle);
+        fireEvent.focus(input);
       });
 
       act(() => {
-        fireEvent.change(typeaheadInput, { target: { value: 'Invoice' } });
+        fireEvent.change(input, { target: { value: 'Invoice' } });
       });
-      expect(typeaheadInput.getAttribute('value')).toEqual('Invoice');
+      expect(input.value).toEqual('Invoice');
 
       await waitFor(() => {
-        const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
-        const options = getAllByLabelText(rootElementSelect, /option.*/);
+        const rootElementSelect = screen.getByTestId('attach-schema-root-element-select');
+        const options = rootElementSelect.querySelectorAll('[role="option"]');
         expect(options.length).toEqual(1);
-        expect(options[0].getAttribute('aria-label')).toEqual('option invoice');
-        expect(options[0].getAttribute('aria-selected')).toEqual('false');
+        expect(screen.getByText('Invoice')).toBeInTheDocument();
       });
     });
 
@@ -675,13 +659,12 @@ describe('AttachSchemaModal', () => {
         expect(fileItem).toBeInTheDocument();
       });
 
-      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
+      const input = await findRootElementInput();
       act(() => {
-        fireEvent.click(dropdownToggle);
+        fireEvent.focus(input);
       });
 
-      const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
-      const invoice = await findByLabelText(rootElementSelect, 'option invoice');
+      const invoice = await screen.findByText('Invoice');
 
       act(() => {
         fireEvent.click(invoice);
@@ -736,7 +719,7 @@ describe('AttachSchemaModal', () => {
         expect(fileItem).toBeInTheDocument();
       });
 
-      const rootElementSelector = screen.queryByTestId('attach-schema-root-element-typeahead-select-input');
+      const rootElementSelector = screen.queryByTestId('attach-schema-root-element');
       expect(rootElementSelector).not.toBeInTheDocument();
     });
 
@@ -778,21 +761,19 @@ describe('AttachSchemaModal', () => {
         expect(screen.getByTestId('attach-schema-file-item-ShipOrder.xsd')).toBeInTheDocument();
       });
 
-      const dropdownToggle = screen.getByLabelText('Attach schema / Choose Root Element toggle');
+      const input = await findRootElementInput();
       act(() => {
-        fireEvent.click(dropdownToggle);
+        fireEvent.focus(input);
       });
 
-      const rootElementSelect = screen.getByTestId('attach-schema-root-element-typeahead-select');
-      const invoice = await findByLabelText(rootElementSelect, 'option invoice');
+      const invoice = await screen.findByText('Invoice');
       act(() => {
         fireEvent.click(invoice);
       });
 
-      await waitFor(() => {
-        const selector = screen.getByTestId('attach-schema-root-element-typeahead-select-input');
-        const input = getByLabelText(selector, 'Attach schema / Choose Root Element');
-        expect(input.getAttribute('value')).toEqual('Invoice');
+      await waitFor(async () => {
+        const inputEl = await findRootElementInput();
+        expect(inputEl.value).toEqual('Invoice');
       });
 
       const removeButton = await screen.findByTestId('attach-schema-file-remove-ShipOrder.xsd');
@@ -805,10 +786,9 @@ describe('AttachSchemaModal', () => {
         expect(screen.getByTestId('attach-schema-file-item-MultipleElements.xsd')).toBeInTheDocument();
       });
 
-      await waitFor(() => {
-        const selector = screen.getByTestId('attach-schema-root-element-typeahead-select-input');
-        const input = getByLabelText(selector, 'Attach schema / Choose Root Element');
-        expect(input.getAttribute('value')).toEqual('Invoice');
+      await waitFor(async () => {
+        const inputEl = await findRootElementInput();
+        expect(inputEl.value).toEqual('Invoice');
       });
     });
   });

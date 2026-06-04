@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:a="urn:example:ns-a"
+            xmlns:b="urn:example:ns-b"
+            targetNamespace="urn:example:root">
+  <xsd:import namespace="urn:example:ns-a" schemaLocation="ns-a/main.xsd"/>
+  <xsd:import namespace="urn:example:ns-b" schemaLocation="ns-b/main.xsd"/>
+  <xsd:element name="Root">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="partA" type="a:LibType"/>
+        <xsd:element name="partB" type="b:LibType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="Order">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="item" type="a:LibType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="Invoice">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="detail" type="b:LibType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>

@@ -1,8 +1,8 @@
-import { Typeahead, TypeaheadItem } from '@kaoto/forms';
 import { InputGroup, InputGroupItem, InputGroupText } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useMemo } from 'react';
 
 import { RootElementOption } from '../../../../models/datamapper/document';
+import { TypeaheadSelect, TypeaheadSelectOption } from './TypeaheadSelect';
 
 type RootElementSelectProps = {
   rootElementOptions: RootElementOption[];
@@ -10,32 +10,29 @@ type RootElementSelectProps = {
   onChange: (option: RootElementOption) => void;
 };
 
+const toOptionKey = (option: RootElementOption): string =>
+  option.namespaceUri ? `{${option.namespaceUri}}${option.name}` : option.name;
+
 export const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
   rootElementOptions,
   selectedOption,
   onChange,
 }) => {
-  const items: TypeaheadItem[] = useMemo(
+  const options: TypeaheadSelectOption[] = useMemo(
     () =>
-      rootElementOptions.map((option) => ({
-        name: option.name,
-        value: option.name,
-        description: option.namespaceUri ? `Namespace URI: ${option.namespaceUri}` : undefined,
+      rootElementOptions.map((opt) => ({
+        value: toOptionKey(opt),
+        label: opt.name,
+        description: opt.namespaceUri ? `Namespace URI: ${opt.namespaceUri}` : '',
       })),
     [rootElementOptions],
   );
 
-  const selectedItem: TypeaheadItem | undefined = useMemo(() => {
-    if (selectedOption) {
-      return items.find((item) => item.name === selectedOption.name);
-    }
-    return items[0];
-  }, [selectedOption, items]);
+  const selectedKey = selectedOption ? toOptionKey(selectedOption) : (options[0]?.value ?? '');
 
-  const handleSelectionChange = useCallback(
-    (item?: TypeaheadItem) => {
-      if (!item?.value) return;
-      const option = rootElementOptions.find((opt) => opt.name === item.value);
+  const handleChange = useCallback(
+    (value: string) => {
+      const option = rootElementOptions.find((opt) => toOptionKey(opt) === value);
       if (option) onChange(option);
     },
     [rootElementOptions, onChange],
@@ -45,14 +42,13 @@ export const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
     <InputGroup>
       <InputGroupText>Root element</InputGroupText>
       <InputGroupItem>
-        <Typeahead
+        <TypeaheadSelect
+          value={selectedKey}
+          onChange={handleChange}
+          options={options}
           id="attach-schema-root-element"
           data-testid="attach-schema-root-element"
-          aria-label="Attach schema / Choose Root Element"
-          placeholder={selectedItem?.name}
-          selectedItem={selectedItem}
-          onChange={handleSelectionChange}
-          items={items}
+          ariaLabel="Attach schema / Choose Root Element"
         />
       </InputGroupItem>
     </InputGroup>
