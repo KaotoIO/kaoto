@@ -175,7 +175,6 @@ export class KaotoEditorApp implements Editor {
               <RuntimeProvider
                 catalogUrl={this.settingsAdapter.getSettings().catalogUrl}
                 runtimeCatalogName={this.settingsAdapter.getSettings().runtimeCatalogName}
-                testingCatalogName={this.settingsAdapter.getSettings().testingCatalogName}
               >
                 <CatalogLoaderProvider>
                   <EntitiesProvider fileExtension={this.initArgs.fileExtension}>

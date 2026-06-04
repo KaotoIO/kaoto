@@ -12,6 +12,7 @@ import { RenderingProvider } from './components/RenderingAnchor/rendering.provid
 import { ControllerService } from './components/Visualization/Canvas/controller.service';
 import { CatalogLoaderProvider } from './dynamic-catalog/catalog.provider';
 import { CatalogTilesProvider } from './dynamic-catalog/catalog-tiles.provider';
+import { CatalogAutoSwitcher } from './hooks/useAutoSwitchCatalog/CatalogAutoSwitcher';
 import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
@@ -44,35 +45,33 @@ function App() {
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider
-          catalogUrl={catalogUrl}
-          runtimeCatalogName={settingsAdapter.getSettings().runtimeCatalogName}
-          testingCatalogName={settingsAdapter.getSettings().testingCatalogName}
-        >
+        <RuntimeProvider catalogUrl={catalogUrl} runtimeCatalogName={settingsAdapter.getSettings().runtimeCatalogName}>
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
               <EntitiesProvider>
-                <Shell>
-                  <CatalogTilesProvider>
-                    <VisualizationProvider controller={controller}>
-                      <VisibleFlowsProvider>
-                        <RenderingProvider>
-                          <RegisterComponents>
-                            <NodeInteractionAddonProvider>
-                              <RegisterNodeInteractionAddons>
-                                <SuggestionRegistryProvider>
-                                  <KeyboardShortcutsProvider>
-                                    <Outlet />
-                                  </KeyboardShortcutsProvider>
-                                </SuggestionRegistryProvider>
-                              </RegisterNodeInteractionAddons>
-                            </NodeInteractionAddonProvider>
-                          </RegisterComponents>
-                        </RenderingProvider>
-                      </VisibleFlowsProvider>
-                    </VisualizationProvider>
-                  </CatalogTilesProvider>
-                </Shell>
+                <CatalogAutoSwitcher>
+                  <Shell>
+                    <CatalogTilesProvider>
+                      <VisualizationProvider controller={controller}>
+                        <VisibleFlowsProvider>
+                          <RenderingProvider>
+                            <RegisterComponents>
+                              <NodeInteractionAddonProvider>
+                                <RegisterNodeInteractionAddons>
+                                  <SuggestionRegistryProvider>
+                                    <KeyboardShortcutsProvider>
+                                      <Outlet />
+                                    </KeyboardShortcutsProvider>
+                                  </SuggestionRegistryProvider>
+                                </RegisterNodeInteractionAddons>
+                              </NodeInteractionAddonProvider>
+                            </RegisterComponents>
+                          </RenderingProvider>
+                        </VisibleFlowsProvider>
+                      </VisualizationProvider>
+                    </CatalogTilesProvider>
+                  </Shell>
+                </CatalogAutoSwitcher>
               </EntitiesProvider>
             </CatalogLoaderProvider>
           </SchemasLoaderProvider>

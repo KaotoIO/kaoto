@@ -8,6 +8,7 @@ import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntim
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';
+import { SettingsContext } from '../../../../providers/settings.provider';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
 import { findCatalog, requiresCatalogChange } from '../../../../utils/catalog-helper';
 import { FlowTypeSelector } from './FlowTypeSelector';
@@ -15,6 +16,7 @@ import { FlowTypeSelector } from './FlowTypeSelector';
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
   const runtimeContext = useRuntimeContext();
   const sourceCodeContextApi = useContext(SourceCodeApiContext);
+  const settingsAdapter = useContext(SettingsContext);
   const { currentSchemaType, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
@@ -85,10 +87,14 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
               if (proposedFlowType) {
                 sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
 
-                // Update catalog if needed when switching flow types
                 const changeCatalog = requiresCatalogChange(proposedFlowType, runtimeContext.selectedCatalog);
                 if (changeCatalog) {
-                  const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
+                  const settings = settingsAdapter.getSettings();
+                  const preferredName =
+                    proposedFlowType === SourceSchemaType.Test
+                      ? settings.testingCatalogName
+                      : settings.runtimeCatalogName;
+                  const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary, preferredName);
                   if (isDefined(matchingCatalog)) {
                     runtimeContext.setSelectedCatalog(matchingCatalog);
                   }

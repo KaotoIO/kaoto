@@ -6,16 +6,29 @@ import { versionCompare } from './version-compare';
 /**
  * Finds the appropriate catalog for a given source schema type.
  *
- * For Citrus tests (SourceSchemaType.Test), returns the first available Citrus catalog sorted by version.
+ * If a preferredCatalogName is provided and matches a catalog in the library, that catalog is returned.
+ * Otherwise, for Citrus tests (SourceSchemaType.Test), returns the first available Citrus catalog sorted by version.
  * For other source types, returns the first available RedHat Main catalog sorted by version.
  *
  * @param sourceType - The source schema type to find a catalog for
  * @param catalogLibrary - The catalog library containing available catalogs
+ * @param preferredCatalogName - Optional catalog name from settings to prefer over the default selection
  * @returns The matching catalog entry or undefined if not found or library is unavailable
  */
-export const findCatalog = (sourceType: SourceSchemaType, catalogLibrary?: CatalogLibrary) => {
+export const findCatalog = (
+  sourceType: SourceSchemaType,
+  catalogLibrary?: CatalogLibrary,
+  preferredCatalogName?: string,
+) => {
   if (!catalogLibrary) {
     return undefined;
+  }
+
+  if (preferredCatalogName) {
+    const preferred = catalogLibrary.definitions.find((c: CatalogLibraryEntry) => c.name === preferredCatalogName);
+    if (preferred) {
+      return preferred;
+    }
   }
 
   if (sourceType === SourceSchemaType.Test) {

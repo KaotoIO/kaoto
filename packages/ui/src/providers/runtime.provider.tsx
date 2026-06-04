@@ -22,7 +22,6 @@ export const RuntimeContext = createContext<IRuntimeContext | undefined>(undefin
 interface RuntimeProviderProps {
   catalogUrl: string;
   runtimeCatalogName?: string;
-  testingCatalogName?: string;
 }
 
 /**
@@ -45,9 +44,6 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<RuntimeProvide
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
   const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
 
-  const settingsCatalogName =
-    currentSchemaType === SourceSchemaType.Test ? props.testingCatalogName : props.runtimeCatalogName;
-
   useEffect(() => {
     fetch(props.catalogUrl)
       .then((response) => {
@@ -57,9 +53,9 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<RuntimeProvide
       .then((catalogLibrary: CatalogLibrary) => {
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
 
-        if (settingsCatalogName) {
+        if (props.runtimeCatalogName) {
           catalogLibraryEntry = catalogLibrary.definitions.find(
-            (c: CatalogLibraryEntry) => c.name === settingsCatalogName,
+            (c: CatalogLibraryEntry) => c.name === props.runtimeCatalogName,
           );
         }
 

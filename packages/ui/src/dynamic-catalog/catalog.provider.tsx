@@ -51,13 +51,13 @@ export const CatalogLoaderProvider: FunctionComponent<
   const selectedCatalogIndexFile = selectedCatalog?.fileName ?? '';
 
   useEffect(() => {
+    setLoadingStatus(LoadingStatus.Loading);
+    CamelCatalogService.clearCatalogs();
+    DynamicCatalogRegistry.get().clearRegistry();
+
     const indexFile = `${basePath}/${selectedCatalogIndexFile}`;
     const relativeBasePath = CatalogSchemaLoader.getRelativeBasePath(indexFile);
     fetch(indexFile)
-      .then((response) => {
-        setLoadingStatus(LoadingStatus.Loading);
-        return response;
-      })
       .then((response) => response.json())
       .then(async (catalogIndex: CatalogDefinition) => {
         if (catalogIndex.runtime === 'Citrus') {

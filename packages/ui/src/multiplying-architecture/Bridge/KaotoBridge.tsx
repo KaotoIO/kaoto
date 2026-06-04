@@ -10,6 +10,7 @@ import { RegisterNodeInteractionAddons } from '../../components/registers/Regist
 import { RenderingProvider } from '../../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogTilesProvider } from '../../dynamic-catalog/catalog-tiles.provider';
+import { useAutoSwitchCatalog } from '../../hooks/useAutoSwitchCatalog/useAutoSwitchCatalog';
 import { IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
 
 interface KaotoBridgeProps extends IMetadataApi {
@@ -80,6 +81,8 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       onStepUpdated,
     ],
   );
+
+  useAutoSwitchCatalog();
 
   /** Set editor as Ready */
   useEffect(() => {

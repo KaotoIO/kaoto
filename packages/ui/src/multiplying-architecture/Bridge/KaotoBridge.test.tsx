@@ -4,6 +4,10 @@ import { ComponentProps } from 'react';
 
 import { KaotoBridge } from './KaotoBridge';
 
+jest.mock('../../hooks/useAutoSwitchCatalog/useAutoSwitchCatalog', () => ({
+  useAutoSwitchCatalog: jest.fn(),
+}));
+
 describe('KaotoBridge', () => {
   const mockOnReady = jest.fn();
   const mockOnStateControlCommandUpdate = jest.fn();

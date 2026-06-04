@@ -5,6 +5,7 @@ import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntim
 import { SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { SourceCodeApiContext } from '../../../../providers';
+import { SettingsContext } from '../../../../providers/settings.provider';
 import { findCatalog } from '../../../../utils/catalog-helper';
 import { ChangeIntegrationTypeModal } from './ChangeIntegrationTypeModal/ChangeIntegrationTypeModal';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle/IntegrationTypeSelectorToggle';
@@ -12,6 +13,7 @@ import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle/I
 export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () => {
   const runtimeContext = useRuntimeContext();
   const sourceCodeContextApi = useContext(SourceCodeApiContext);
+  const settingsAdapter = useContext(SettingsContext);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
   const [changeCatalog, setChangeCatalog] = useState<boolean>();
@@ -31,7 +33,10 @@ export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () 
       sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
 
       if (changeCatalog) {
-        const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
+        const settings = settingsAdapter.getSettings();
+        const preferredName =
+          proposedFlowType === SourceSchemaType.Test ? settings.testingCatalogName : settings.runtimeCatalogName;
+        const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary, preferredName);
         if (isDefined(matchingCatalog)) {
           runtimeContext.setSelectedCatalog(matchingCatalog);
         }
@@ -39,7 +44,7 @@ export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () 
 
       setIsConfirmationModalOpen(false);
     }
-  }, [proposedFlowType, runtimeContext, sourceCodeContextApi, changeCatalog]);
+  }, [proposedFlowType, runtimeContext, sourceCodeContextApi, changeCatalog, settingsAdapter]);
 
   const onCancel = useCallback(() => {
     setIsConfirmationModalOpen(false);
