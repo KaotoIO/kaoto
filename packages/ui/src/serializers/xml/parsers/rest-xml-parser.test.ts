@@ -20,18 +20,40 @@ import path from 'node:path';
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelProcessorDefinition } from '../../../models';
 import { restWithVerbsStup } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
 import { RestXmlParser } from './rest-xml-parser';
 
 describe('Rest XML Parser', () => {
-  beforeAll(async () => {
+  beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+    // Set up DynamicCatalogRegistry for async catalog lookups
+    const registry = DynamicCatalogRegistry.get();
+
+    // Create processor catalog from catalogsMap.modelCatalogMap
+    const processorProvider = {
+      id: 'test-processor-provider',
+      fetch: async (key: string) => {
+        return catalogsMap.modelCatalogMap[key];
+      },
+      fetchAll: async () => {
+        return catalogsMap.modelCatalogMap;
+      },
+    };
+
+    const processorCatalog = new DynamicCatalog<ICamelProcessorDefinition>(processorProvider);
+    registry.setCatalog(CatalogKind.Processor, processorCatalog);
   });
 
-  it('should parse rest verbs correctly', () => {
+  afterEach(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
+  });
+
+  it('should parse rest verbs correctly using async DynamicCatalog', async () => {
     const xmlFilePath = path.join(__dirname, '../../../stubs/xml/rest.xml');
     const xml = fs.readFileSync(xmlFilePath, 'utf-8');
 
@@ -39,6 +61,12 @@ describe('Rest XML Parser', () => {
     const restElement = doc.getElementsByTagName('rest')[0];
     const result = RestXmlParser.parse(restElement);
 
-    expect(result).toEqual(restWithVerbsStup);
+    // Should return a Promise
+    expect(result).toBeInstanceOf(Promise);
+
+    // Await the promise and verify the result
+    const rest = await result;
+    expect(rest).toBeDefined();
+    expect(rest).toEqual(restWithVerbsStup);
   });
 });

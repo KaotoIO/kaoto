@@ -13,6 +13,7 @@ import {
 } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
+import { EntitiesContext } from '../../../../providers/entities.provider';
 import { camelRouteWithDisabledSteps, TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CanvasNode } from '../../Canvas';
@@ -36,6 +37,18 @@ describe('NodeContextMenu', () => {
   let element: GraphElement<ElementModel, CanvasNode['data']>;
   let vizNode: IVisualizationNode | undefined;
   let nodeInteractions: NodeInteraction;
+
+  const camelResource = new CamelRouteResource();
+  camelResource.initialize();
+  const mockEntitiesContext = {
+    camelResource,
+    entities: camelResource.getEntities(),
+    visualEntities: camelResource.getVisualEntities(),
+    currentSchemaType: camelResource.getType(),
+    isLoading: false,
+    updateSourceCodeFromEntities: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn(),
+  };
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
@@ -80,7 +93,11 @@ describe('NodeContextMenu', () => {
 
   const TestWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => {
     const visualizationController = ControllerService.createController();
-    return <VisualizationProvider controller={visualizationController}>{children}</VisualizationProvider>;
+    return (
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <VisualizationProvider controller={visualizationController}>{children}</VisualizationProvider>
+      </EntitiesContext.Provider>
+    );
   };
 
   it('should render an empty component when there is no vizNode', () => {

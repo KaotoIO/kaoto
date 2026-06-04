@@ -114,7 +114,7 @@ export abstract class CamelKResource implements KaotoResource {
     /** Not supported by default */
   }
 
-  toString(): string {
+  async toStringAsync(): Promise<string> {
     return this.serializer.serialize(this);
   }
 }

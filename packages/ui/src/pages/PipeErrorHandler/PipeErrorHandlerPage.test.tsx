@@ -15,6 +15,7 @@ const mockEntitiesContext = {
   entities: camelResource.getEntities(),
   visualEntities: camelResource.getVisualEntities(),
   currentSchemaType: camelResource.getType(),
+  isLoading: false,
   updateSourceCodeFromEntities: jest.fn(),
   updateEntitiesFromCamelResource: jest.fn(),
 };

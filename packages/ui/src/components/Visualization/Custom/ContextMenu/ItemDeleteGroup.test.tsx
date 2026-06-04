@@ -7,6 +7,7 @@ import {
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../../../../providers/action-confirmation-modal.provider';
+import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import {
   IInteractionType,
@@ -20,6 +21,18 @@ describe('ItemDeleteGroup', () => {
   let vizNode: IVisualizationNode;
   const mockDeleteModalContext = {
     actionConfirmation: jest.fn(),
+  };
+
+  const camelResource = new CamelRouteResource();
+  camelResource.initialize();
+  const mockEntitiesContext = {
+    camelResource,
+    entities: camelResource.getEntities(),
+    visualEntities: camelResource.getVisualEntities(),
+    currentSchemaType: camelResource.getType(),
+    isLoading: false,
+    updateSourceCodeFromEntities: jest.fn(),
+    updateEntitiesFromCamelResource: jest.fn(),
   };
 
   beforeEach(() => {
@@ -38,7 +51,11 @@ describe('ItemDeleteGroup', () => {
   });
 
   it('should render delete ContextMenuItem', () => {
-    const { container } = render(<ItemDeleteGroup vizNode={vizNode} />);
+    const { container } = render(
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ItemDeleteGroup vizNode={vizNode} />
+      </EntitiesContext.Provider>,
+    );
 
     expect(container).toMatchSnapshot();
   });
@@ -55,9 +72,11 @@ describe('ItemDeleteGroup', () => {
     vizNode.addChild(childNode);
 
     const wrapper = render(
-      <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <ItemDeleteGroup vizNode={vizNode} />
-      </ActionConfirmationModalContext.Provider>,
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+          <ItemDeleteGroup vizNode={vizNode} />
+        </ActionConfirmationModalContext.Provider>
+      </EntitiesContext.Provider>,
     );
 
     fireEvent.click(wrapper.getByText('Delete'));
@@ -112,11 +131,13 @@ describe('ItemDeleteGroup', () => {
     };
 
     const wrapper = render(
-      <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
-        <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
-          <ItemDeleteGroup vizNode={vizNode} />
-        </NodeInteractionAddonContext.Provider>
-      </ActionConfirmationModalContext.Provider>,
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
+          <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+            <ItemDeleteGroup vizNode={vizNode} />
+          </NodeInteractionAddonContext.Provider>
+        </ActionConfirmationModalContext.Provider>
+      </EntitiesContext.Provider>,
     );
     act(() => {
       fireEvent.click(wrapper.getByText('Delete'));

@@ -15,8 +15,7 @@ import { FlowTypeSelector } from './FlowTypeSelector';
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
   const runtimeContext = useRuntimeContext();
   const sourceCodeContextApi = useContext(SourceCodeApiContext);
-  const { currentSchemaType, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
-  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
+  const { currentSchemaType, camelResource, updateEntitiesFromCamelResource, isLoading } = useEntityContext();
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
@@ -31,6 +30,10 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
          * we don't need to do anything special, just add a new flow if
          * supported
          */
+        if (isLoading || !camelResource) {
+          return;
+        }
+
         const newId = camelResource.addNewEntity();
         visibleFlowsContext.visualFlowsApi.hideFlows();
         visibleFlowsContext.visualFlowsApi.toggleFlowVisible(newId);
@@ -44,8 +47,14 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         setIsConfirmationModalOpen(true);
       }
     },
-    [camelResource, currentSchemaType, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
+    [camelResource, currentSchemaType, isLoading, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
   );
+
+  if (isLoading || !currentSchemaType) {
+    return null;
+  }
+
+  const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
 
   return (
     <>

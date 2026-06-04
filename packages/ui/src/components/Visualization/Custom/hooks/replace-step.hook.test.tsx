@@ -42,6 +42,7 @@ describe('useReplaceStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
+    isLoading: false,
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
   };
@@ -132,9 +133,19 @@ describe('useReplaceStep', () => {
     expect(result.current).toBe(firstResult);
   });
 
-  it('should return early when entitiesContext is null', async () => {
+  it('should return early when entitiesContext is not ready', async () => {
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={null}>
+      <EntitiesContext.Provider
+        value={{
+          camelResource: undefined,
+          entities: [],
+          visualEntities: [],
+          currentSchemaType: undefined,
+          isLoading: true,
+          updateSourceCodeFromEntities: jest.fn(),
+          updateEntitiesFromCamelResource: jest.fn(),
+        }}
+      >
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
           <MetadataContext.Provider value={mockMetadataContext}>
             <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>

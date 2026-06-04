@@ -24,19 +24,23 @@ import { RestXmlSerializer } from './rest-xml-serializer';
 import { ElementType, StepXmlSerializer } from './step-xml-serializer';
 
 export class KaotoXmlSerializer {
-  static serializeRoute(route: RouteDefinition, doc: Document): Element {
-    const routeElement = StepXmlSerializer.serialize('route', route as unknown as { [key: string]: unknown }, doc);
+  static async serializeRoute(route: RouteDefinition, doc: Document): Promise<Element> {
+    const routeElement = await StepXmlSerializer.serialize(
+      'route',
+      route as unknown as { [key: string]: unknown },
+      doc,
+    );
 
-    const steps = StepXmlSerializer.serializeSteps(route.from.steps as ElementType[], doc, routeElement);
+    const steps = await StepXmlSerializer.serializeSteps(route.from.steps as ElementType[], doc, routeElement);
     routeElement.append(...steps);
 
     return routeElement;
   }
 
-  static serialize(
+  static async serialize(
     entityDefinitions: EntityDefinition[],
     rootElementDefinitions?: { name: string; value: string }[],
-  ): Document {
+  ): Promise<Document> {
     const parser = new DOMParser();
     const doc: XMLDocument = parser.parseFromString('<camel></camel>', 'text/xml');
     const rootElement = doc.documentElement;
@@ -51,35 +55,43 @@ export class KaotoXmlSerializer {
 
     const sortedEntities = EntityOrderingService.sortEntitiesForSerialization(entityDefinitions);
 
-    sortedEntities.forEach((entity) => {
+    for (const entity of sortedEntities) {
       const entityType = entity.type;
 
       switch (entity.type) {
         case EntityType.Beans:
-          entity.parent.beans.forEach((bean) => {
-            const beanElement = BeansXmlSerializer.serialize(bean, doc);
+          for (const bean of entity.parent.beans) {
+            const beanElement = await BeansXmlSerializer.serialize(bean, doc);
             if (beanElement) rootElement.appendChild(beanElement);
-          });
+          }
           break;
         case EntityType.Route:
           {
-            const routeElement = this.serializeRoute(entity.entityDef[EntityType.Route], doc);
+            const routeElement = await this.serializeRoute(entity.entityDef[EntityType.Route], doc);
             rootElement.appendChild(routeElement);
           }
           break;
         case EntityType.ErrorHandler:
           {
-            const element = StepXmlSerializer.serialize(entityType, entity.errorHandlerDef, doc, rootElement);
+            const element = await StepXmlSerializer.serialize(entityType, entity.errorHandlerDef, doc, rootElement);
             rootElement.appendChild(element);
           }
           break;
         case EntityType.Rest:
-          rootElement.appendChild(RestXmlSerializer.serialize(entity.restDef, doc));
+          {
+            const restElement = await RestXmlSerializer.serialize(entity.restDef, doc);
+            rootElement.appendChild(restElement);
+          }
           break;
 
         case EntityType.RestConfiguration:
           {
-            const element = StepXmlSerializer.serialize(entityType, entity.restConfigurationDef, doc, rootElement);
+            const element = await StepXmlSerializer.serialize(
+              entityType,
+              entity.restConfigurationDef,
+              doc,
+              rootElement,
+            );
             rootElement.appendChild(element);
           }
           break;
@@ -90,11 +102,11 @@ export class KaotoXmlSerializer {
         case EntityType.OnCompletion:
         case EntityType.RouteConfiguration:
         case EntityType.OnException: {
-          const element = StepXmlSerializer.serialize(entityType, entity.entityDef, doc, rootElement);
+          const element = await StepXmlSerializer.serialize(entityType, entity.entityDef, doc, rootElement);
           rootElement.appendChild(element);
         }
       }
-    });
+    }
 
     return doc;
   }

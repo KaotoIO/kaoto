@@ -217,23 +217,23 @@ describe('CitrusTestResource', () => {
     });
   });
 
-  describe('toString', () => {
-    it('should delegate to serializer serialize method', () => {
+  describe('toStringAsync', () => {
+    it('should delegate to serializer serialize method', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
-      const serialized = resource.toString();
+      const serialized = await resource.toStringAsync();
 
       expect(typeof serialized).toBe('string');
       expect(serialized.length).toBeGreaterThan(0);
     });
 
-    it('should support switching between serializer types', () => {
+    it('should support switching between serializer types', async () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
 
       // Test YAML serializer
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
-      const yamlOutput = resource.toString();
+      const yamlOutput = await resource.toStringAsync();
       expect(yamlOutput).toContain('actions:');
 
       // Test XML serializer type change

@@ -44,6 +44,7 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
           entities: camelResource.getEntities(),
           visualEntities: camelResource.getVisualEntities(),
           currentSchemaType,
+          isLoading: false,
           updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
           updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
         } as unknown as EntitiesContextResult

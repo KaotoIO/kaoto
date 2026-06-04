@@ -10,8 +10,8 @@ describe('getRestEntities', () => {
     expect(result).toEqual([]);
   });
 
-  it('should filter and return only CamelRestVisualEntity instances', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should filter and return only CamelRestVisualEntity instances', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1
     get:
@@ -38,8 +38,8 @@ describe('getRestEntities', () => {
     expect((result[1] as CamelRestVisualEntity).id).toBe('rest-2');
   });
 
-  it('should filter and return only CamelRestConfigurationVisualEntity instances', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should filter and return only CamelRestConfigurationVisualEntity instances', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
     port: "8080"
@@ -52,8 +52,8 @@ describe('getRestEntities', () => {
     expect(result[0]).toBeInstanceOf(CamelRestConfigurationVisualEntity);
   });
 
-  it('should filter and return both CamelRestVisualEntity and CamelRestConfigurationVisualEntity instances', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should filter and return both CamelRestVisualEntity and CamelRestConfigurationVisualEntity instances', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - restConfiguration:
     host: localhost
     port: "8080"
@@ -82,8 +82,8 @@ describe('getRestEntities', () => {
     expect(result[2]).toBeInstanceOf(CamelRestVisualEntity);
   });
 
-  it('should filter out non-REST entities (e.g., routes)', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should filter out non-REST entities (e.g., routes)', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - route:
     id: route-1
     from:
@@ -116,8 +116,8 @@ describe('getRestEntities', () => {
     expect((result[0] as CamelRestVisualEntity).id).toBe('rest-1');
   });
 
-  it('should handle mixed entity types and return only REST-related entities', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should handle mixed entity types and return only REST-related entities', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - route:
     id: route-1
     from:
@@ -178,8 +178,8 @@ describe('getRestEntities', () => {
     expect(restConfigEntities).toHaveLength(1);
   });
 
-  it('should return empty array when no REST entities exist', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should return empty array when no REST entities exist', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - route:
     id: route-1
     from:
@@ -203,8 +203,8 @@ describe('getRestEntities', () => {
     expect(result).toHaveLength(0);
   });
 
-  it('should preserve the order of REST entities', () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
+  it('should preserve the order of REST entities', async () => {
+    const camelResource = await CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-first
     get:

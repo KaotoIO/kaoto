@@ -16,15 +16,16 @@
 
 import { ExpressionDefinition } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind, ICamelProcessorProperty } from '../../../models';
 import { collectNamespaces, extractAttributesFromXmlElement } from '../utils/xml-utils';
 
 export class ExpressionParser {
-  static parse(
+  static async parse(
     parentElement: Element,
     properties?: ICamelProcessorProperty,
     tagName?: string,
-  ): ExpressionDefinition | undefined {
+  ): Promise<ExpressionDefinition | undefined> {
     // Find the element to parse, expression type elements are defined differently depending on the component
     const element = tagName ? parentElement.getElementsByTagName(tagName)[0] : parentElement;
     if (!element) return undefined;
@@ -36,14 +37,16 @@ export class ExpressionParser {
 
     if (!expressionElement) return undefined;
 
-    return this.buildExpressionDefinition(expressionElement);
+    const expressionDefinition = await this.buildExpressionDefinition(expressionElement);
+    return expressionDefinition;
   }
 
-  private static buildExpressionDefinition(expressionElement: Element): ExpressionDefinition | undefined {
+  private static async buildExpressionDefinition(
+    expressionElement: Element,
+  ): Promise<ExpressionDefinition | undefined> {
     const expressionType = expressionElement.tagName;
-    const expressionTypeProperties = CamelCatalogService.getComponent(
-      CatalogKind.Processor,
-      expressionType,
+    const expressionTypeProperties = (
+      await DynamicCatalogRegistry.get().getEntity(CatalogKind.Processor, expressionType)
     )?.properties;
 
     const expressionAttributes = extractAttributesFromXmlElement(expressionElement, expressionTypeProperties);

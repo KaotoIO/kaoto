@@ -17,7 +17,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
-import { CamelCatalogService, CatalogKind } from '../../../models';
+import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
+import { CatalogKind } from '../../../models';
+import { ICamelComponentDefinition } from '../../../models/camel/camel-components-catalog';
+import { ICamelProcessorDefinition } from '../../../models/camel/camel-processors-catalog';
+import { IKameletDefinition } from '../../../models/camel/kamelets-catalog';
 import {
   aggregateEntity,
   choiceEntity,
@@ -76,11 +81,34 @@ describe('step-xml-serializer tests', () => {
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-    CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
-    CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, catalogsMap.kameletsCatalogMap);
+
+    const processorCatalog = new DynamicCatalog<ICamelProcessorDefinition>({
+      id: 'test-processor-catalog',
+      fetch: async (key: string) => catalogsMap.modelCatalogMap[key],
+      fetchAll: async () => catalogsMap.modelCatalogMap,
+    });
+    DynamicCatalogRegistry.get().setCatalog(CatalogKind.Processor, processorCatalog);
+
+    const componentCatalog = new DynamicCatalog<ICamelComponentDefinition>({
+      id: 'test-component-catalog',
+      fetch: async (key: string) => catalogsMap.componentCatalogMap[key],
+      fetchAll: async () => catalogsMap.componentCatalogMap,
+    });
+    DynamicCatalogRegistry.get().setCatalog(CatalogKind.Component, componentCatalog);
+
+    const kameletCatalog = new DynamicCatalog<IKameletDefinition>({
+      id: 'test-kamelet-catalog',
+      fetch: async (key: string) => catalogsMap.kameletsCatalogMap[key],
+      fetchAll: async () => catalogsMap.kameletsCatalogMap,
+    });
+    DynamicCatalogRegistry.get().setCatalog(CatalogKind.Kamelet, kameletCatalog);
+
     domParser = new DOMParser();
     xmlSerializer = new XMLSerializer();
+  });
+
+  afterAll(() => {
+    DynamicCatalogRegistry.get().clearRegistry();
   });
 
   describe('serialize steps with string definitions', () => {
@@ -99,10 +127,10 @@ describe('step-xml-serializer tests', () => {
       { name: 'convertBodyTo', stepString: 'string', attributeName: 'type' },
     ];
 
-    it.each(testCases)('serializes $name with string definition', ({ name, stepString, attributeName }) => {
+    it.each(testCases)('serializes $name with string definition', async ({ name, stepString, attributeName }) => {
       const step = stepString as unknown as ElementType;
 
-      const result = StepXmlSerializer.serialize(name, step, getDocument());
+      const result = await StepXmlSerializer.serialize(name, step, getDocument());
 
       expect(result.tagName).toBe(name);
       expect(result.getAttribute(attributeName)).toBe(stepString);
@@ -110,7 +138,7 @@ describe('step-xml-serializer tests', () => {
   });
 
   describe('Basic serialization', () => {
-    it('serializes a to step with URI', () => {
+    it('serializes a to step with URI', async () => {
       const toStep = {
         uri: 'file:output',
         parameters: {
@@ -120,29 +148,29 @@ describe('step-xml-serializer tests', () => {
         },
       };
 
-      const result = StepXmlSerializer.serialize('to', toStep, getDocument());
+      const result = await StepXmlSerializer.serialize('to', toStep, getDocument());
       expect(result.tagName).toBe('to');
       expect(result.getAttribute('uri')).toBe('file:output?fileName=output.txt&fileExist=Append');
     });
 
-    it('serializes a step with attributes', () => {
+    it('serializes a step with attributes', async () => {
       const logStep = {
         message: 'Hello World',
         logName: 'testLogger',
       };
 
-      const result = StepXmlSerializer.serialize('log', logStep, getDocument());
+      const result = await StepXmlSerializer.serialize('log', logStep, getDocument());
       expect(result.tagName).toBe('log');
       expect(result.getAttribute('message')).toBe('Hello World');
       expect(result.getAttribute('logName')).toBe('testLogger');
     });
 
-    it('serializes a step with nested elements', () => {
+    it('serializes a step with nested elements', async () => {
       const parentStep = {
         steps: [{ to: { uri: 'direct:first' } }, { to: { uri: 'direct:second' } }],
       };
 
-      const result = StepXmlSerializer.serialize('route', parentStep, getDocument());
+      const result = await StepXmlSerializer.serialize('route', parentStep, getDocument());
       expect(result.tagName).toBe('route');
       expect(result.children.length).toBe(2);
       expect(result.children[0].tagName).toBe('to');
@@ -151,7 +179,7 @@ describe('step-xml-serializer tests', () => {
       expect(result.children[1].getAttribute('uri')).toBe('direct:second');
     });
 
-    it('creates URI from component parameters correctly', () => {
+    it('creates URI from component parameters correctly', async () => {
       const fileStep = {
         uri: 'file:data',
         parameters: {
@@ -161,12 +189,12 @@ describe('step-xml-serializer tests', () => {
         },
       };
 
-      const result = StepXmlSerializer.serialize('from', fileStep, getDocument());
+      const result = await StepXmlSerializer.serialize('from', fileStep, getDocument());
       expect(result.tagName).toBe('from');
       expect(result.getAttribute('uri')).toBe('file:data?noop=true&recursive=true&delete=false');
     });
 
-    it('creates URI from kamelet parameters correctly', () => {
+    it('creates URI from kamelet parameters correctly', async () => {
       const kameletStep = {
         uri: 'kamelet:log-action',
         parameters: {
@@ -176,14 +204,14 @@ describe('step-xml-serializer tests', () => {
         },
       };
 
-      const result = StepXmlSerializer.serialize('from', kameletStep, getDocument());
+      const result = await StepXmlSerializer.serialize('from', kameletStep, getDocument());
       expect(result.tagName).toBe('from');
       expect(result.getAttribute('uri')).toBe('kamelet:log-action?level=DEBUG&multiline=true&showHeaders=false');
     });
 
-    it('should not call decorateDoTry when doCatch and doFinally are in the catalog', () => {
+    it('should not call decorateDoTry when doCatch and doFinally are in the catalog', async () => {
       const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
-      StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
+      await StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
 
       expect(decorateDoTrySpy).not.toHaveBeenCalled();
       decorateDoTrySpy.mockRestore();
@@ -212,9 +240,9 @@ describe('step-xml-serializer tests', () => {
       { name: 'throttle', xml: throttleXml, entity: throttleEntity },
     ];
 
-    it.each(testCases)('Parse $name', ({ name, xml, entity }) => {
+    it.each(testCases)('Parse $name', async ({ name, xml, entity }) => {
       const document = domParser.parseFromString('', 'application/xml');
-      const result = StepXmlSerializer.serialize(name, entity, document);
+      const result = await StepXmlSerializer.serialize(name, entity, document);
       const expected = domParser.parseFromString(xml, 'application/xml').documentElement;
       const resultString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(result)));
       const expectedString = normalizeLineEndings(XmlFormatter.formatXml(xmlSerializer.serializeToString(expected)));
@@ -229,13 +257,23 @@ describe('step-xml-serializer tests', () => {
       delete catalogsMap.modelCatalogMap['doTry'].properties.doFinally;
 
       expect(catalogsMap.modelCatalogMap['doTry'].properties.doCatch).not.toBeDefined();
-      CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+
+      const processorCatalog = new DynamicCatalog<ICamelProcessorDefinition>({
+        id: 'test-processor-catalog-old',
+        fetch: async (key: string) => catalogsMap.modelCatalogMap[key],
+        fetchAll: async () => catalogsMap.modelCatalogMap,
+      });
+      DynamicCatalogRegistry.get().setCatalog(CatalogKind.Processor, processorCatalog);
     });
 
-    it('should call decorateDoTry when doCatch and doFinally are not in the catalog', () => {
+    afterAll(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
+
+    it('should call decorateDoTry when doCatch and doFinally are not in the catalog', async () => {
       const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
       const document = getDocument();
-      StepXmlSerializer.serialize('doTry', doTryEntity, document);
+      await StepXmlSerializer.serialize('doTry', doTryEntity, document);
 
       expect(decorateDoTrySpy).toHaveBeenCalledTimes(1);
       expect(decorateDoTrySpy).toHaveBeenCalledWith(
@@ -247,8 +285,8 @@ describe('step-xml-serializer tests', () => {
       decorateDoTrySpy.mockRestore();
     });
 
-    it('should decorate doTry element correctly', () => {
-      const result = StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
+    it('should decorate doTry element correctly', async () => {
+      const result = await StepXmlSerializer.serialize('doTry', doTryEntity, getDocument());
       const doCatchElement = result.getElementsByTagName('doCatch')[0];
 
       expect(doCatchElement).toBeDefined();

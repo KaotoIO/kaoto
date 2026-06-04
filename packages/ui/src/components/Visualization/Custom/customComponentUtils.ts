@@ -51,7 +51,7 @@ const canDropOnEdge = (
     return false;
   }
 
-  const filter = camelResource.getCompatibleComponents(
+  const filter = camelResource?.getCompatibleComponents(
     AddStepMode.PrependStep,
     followingVizNode.data,
     followingVizNode.getNodeDefinition(),

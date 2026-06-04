@@ -25,7 +25,8 @@ const DEFAULT_REST_METHOD_URI = 'direct';
  * Supports adding/editing REST configurations, REST services, and REST methods.
  */
 export const RestDslEditorPage: FunctionComponent = () => {
-  const { entities, camelResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities } = useEntityContext();
+  const { entities, camelResource, isLoading, updateEntitiesFromCamelResource, updateSourceCodeFromEntities } =
+    useEntityContext();
   const [selectedElement, setSelectedElement] = useState<IRestTreeSelection | undefined>();
   const restRelatedEntities = useMemo(() => getRestEntities(entities), [entities]);
 
@@ -55,19 +56,23 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   /** Adds a new REST configuration entity to the resource */
   const handleAddRestConfiguration = useCallback(() => {
+    if (isLoading || !camelResource) return;
+
     const newId = camelResource.addNewEntity(EntityType.RestConfiguration);
     updateEntitiesFromCamelResource();
     setSelectedElement({ modelPath: 'restConfiguration', entityId: newId });
     setTreeVersion((version) => version + 1);
-  }, [camelResource, updateEntitiesFromCamelResource]);
+  }, [camelResource, isLoading, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST service entity to the resource */
   const handleAddRest = useCallback(() => {
+    if (isLoading || !camelResource) return;
+
     const newId = camelResource.addNewEntity(EntityType.Rest);
     setSelectedElement({ modelPath: 'rest', entityId: newId });
     updateEntitiesFromCamelResource();
     setTreeVersion((version) => version + 1);
-  }, [camelResource, updateEntitiesFromCamelResource]);
+  }, [camelResource, isLoading, updateEntitiesFromCamelResource]);
 
   /** Adds a new REST method to the selected REST service */
   const handleAddMethod: RestTreeToolbarProps['onAddMethod'] = useCallback(
@@ -99,7 +104,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   /** Deletes the selected REST entity or method */
   const handleDelete = useCallback(() => {
-    if (!selectedEntity || !selectedElement) return;
+    if (isLoading || !camelResource || !selectedEntity || !selectedElement) return;
 
     if (selectedElement.modelPath === selectedEntity.getRootPath()) {
       /* Remove the entire Rest or RestConfiguration */
@@ -111,7 +116,7 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
     setSelectedElement(undefined);
     updateEntitiesFromCamelResource();
-  }, [selectedEntity, selectedElement, updateEntitiesFromCamelResource, camelResource]);
+  }, [isLoading, camelResource, selectedEntity, selectedElement, updateEntitiesFromCamelResource]);
 
   return (
     <ResizableSplitPanels

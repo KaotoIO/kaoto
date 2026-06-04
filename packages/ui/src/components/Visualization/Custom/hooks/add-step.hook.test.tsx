@@ -22,6 +22,7 @@ describe('useAddStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
+    isLoading: false,
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromCamelResource: jest.fn(),
   };
@@ -111,7 +112,7 @@ describe('useAddStep', () => {
     expect(result.current.onAddStep).toBeDefined();
   });
 
-  it('should return early when entitiesContext is null', async () => {
+  it('should return early when entitiesContext is not ready', async () => {
     const vizNode = createVisualizationNode('test', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -121,7 +122,17 @@ describe('useAddStep', () => {
       description: '',
     });
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={null}>
+      <EntitiesContext.Provider
+        value={{
+          camelResource: undefined,
+          entities: [],
+          visualEntities: [],
+          currentSchemaType: undefined,
+          isLoading: true,
+          updateSourceCodeFromEntities: jest.fn(),
+          updateEntitiesFromCamelResource: jest.fn(),
+        }}
+      >
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
           <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
         </CatalogModalContext.Provider>

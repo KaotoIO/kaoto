@@ -164,6 +164,7 @@ describe('DataMapperLauncher', () => {
     setSerializer: jest.fn(),
     getCompatibleComponents: jest.fn().mockReturnValue([]),
     getCompatibleRuntimes: jest.fn().mockReturnValue([]),
+    toStringAsync: jest.fn(),
   };
 
   const mockEntitiesContext = {
@@ -171,6 +172,7 @@ describe('DataMapperLauncher', () => {
     entities: [],
     visualEntities: [],
     camelResource: mockCamelResource,
+    isLoading: false,
     currentSchemaType: SourceSchemaType.Route,
     updateSourceCodeFromEntities: jest.fn(),
     updateEntitiesFromSource: jest.fn(),
