@@ -69,9 +69,35 @@ Before you start contributing, ensure that you have the following installed:
 - Make sure to review the full [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0) to understand the terms.
 - If the project includes a `LICENSE` file containing the Apache License 2.0 text, you can also link to that file in this section.
 
----
+## AI-Assisted Contributions
 
-Your contributions make Kaoto better, and we sincerely appreciate your support and collaboration. Happy coding!
+We welcome contributions created with AI assistance! AI tools can help accelerate development, but all contributions require human oversight and responsibility.
+
+### Guidelines for AI-Assisted Contributions
+
+- **AI Use is Permitted**: You may use AI tools (like GitHub Copilot, Claude Code, ChatGPT, etc.) to help write code, documentation, or tests.
+
+- **Disclosure is Optional but Encouraged**: While not required, mentioning your AI tool helps us improve our AI-specific documentation (AGENTS.md, CLAUDE.md). If you discover gaps in our agent documentation, please suggest improvements.
+
+- **Human Responsibility Required**:
+  - AI agents cannot submit PRs independently
+  - A human must review, approve, and sign all AI-generated code
+  - The human contributor is responsible for:
+    - Code quality and correctness
+    - Responding to maintainer feedback
+    - Following up on PR comments and requested changes
+
+- **Active Participation Expected**:
+  - PRs require active follow-up from the human contributor
+  - PRs without response after **2 weeks** will be closed
+  - We know sometimes things happen. If you need more time, please communicate with maintainers to make the necessary adjustments
+
+- **Quality Standards Apply**:
+  - All AI-generated code must pass linting and tests
+  - Follow the same code style and guidelines as manual contributions
+  - See the Testing and Code Style sections above
+
+For technical details on using AI tools with Kaoto, see [AGENTS.md](AGENTS.md) and [CLAUDE.md](CLAUDE.md).
 
 ## Questions or Need Help?
 

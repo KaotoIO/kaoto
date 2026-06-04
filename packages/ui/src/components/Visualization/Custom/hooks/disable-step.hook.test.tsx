@@ -14,6 +14,7 @@ jest.mock('@kaoto/forms', () => ({
 
 describe('useDisableStep', () => {
   const camelResource = new CamelRouteResource();
+  camelResource.initialize();
   let mockVizNode: IVisualizationNode;
 
   const mockEntitiesContext = {

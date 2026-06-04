@@ -95,6 +95,16 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getNodeSchema(this.data.path);
   }
 
+  fetchSchema(): Promise<KaotoSchemaDefinition['schema'] | undefined> {
+    const baseEntity = this.getBaseEntity();
+    if (!baseEntity) {
+      return Promise.resolve(undefined);
+    }
+    const schema = baseEntity.getNodeSchema(this.data.path);
+    this.data.schema = schema;
+    return Promise.resolve(schema);
+  }
+
   getNodeDefinition(): unknown {
     return this.getBaseEntity()?.getNodeDefinition(this.data.path);
   }

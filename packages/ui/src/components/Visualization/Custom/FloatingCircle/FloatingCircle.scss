@@ -5,11 +5,18 @@
   align-items: center;
   justify-content: center;
   background-color: var(--custom-node-BackgroundColor);
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
+  min-width: 25px;
+  min-height: 25px;
+  width: fit-content;
+  height: fit-content;
+  padding: 0 6px;
+  border-radius: 12.5px;
   border: 1px solid var(--custom-node-BorderColor);
   box-shadow: var(--custom-node-Shadow);
+
+  &.step-icon-collection {
+    gap: 4px;
+  }
 
   [data-selected='true'] & {
     @include custom.selected;

@@ -30,7 +30,16 @@ export const findCatalog = (sourceType: SourceSchemaType, catalogLibrary?: Catal
         versionCompare(c1.version.split('.redhat')[0], c2.version.split('.redhat')[0]),
       );
 
-    return redhatMainCatalogs.length > 0 ? redhatMainCatalogs[0] : undefined;
+    if (redhatMainCatalogs.length > 0) {
+      return redhatMainCatalogs[0];
+    }
+
+    // Fallback to any Main catalog if no redhat catalog is found
+    const mainCatalogs = catalogLibrary.definitions
+      .filter((c: CatalogLibraryEntry) => c.runtime === 'Main')
+      .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
+
+    return mainCatalogs.length > 0 ? mainCatalogs[0] : undefined;
   }
 };
 

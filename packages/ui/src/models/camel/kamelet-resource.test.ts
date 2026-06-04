@@ -15,6 +15,7 @@ describe('KameletResource', () => {
 
   it('should create a new KameletResource', () => {
     const kameletResource = new KameletResource();
+    kameletResource.initialize();
     expect(kameletResource).toMatchSnapshot();
   });
 
@@ -51,12 +52,14 @@ describe('KameletResource', () => {
         },
       },
     });
+    kameletResource.initialize();
 
     expect(kameletResource).toMatchSnapshot();
   });
 
   it('should remove the entity', () => {
     const kameletResource = new KameletResource();
+    kameletResource.initialize();
 
     kameletResource.removeEntity();
 
@@ -67,16 +70,19 @@ describe('KameletResource', () => {
 
   it('should get the type', () => {
     const kameletResource = new KameletResource();
+    kameletResource.initialize();
     expect(kameletResource.getType()).toEqual(SourceSchemaType.Kamelet);
   });
 
   it('should get the visual entities (Camel Route Visual Entity)', () => {
     const kameletResource = new KameletResource();
+    kameletResource.initialize();
     expect(kameletResource.getVisualEntities()).toMatchSnapshot();
   });
 
   it('should convert to JSON', () => {
     const kameletResource = new KameletResource();
+    kameletResource.initialize();
     expect(kameletResource.toJSON()).toMatchSnapshot();
   });
 
@@ -116,6 +122,7 @@ describe('KameletResource', () => {
   describe('getCompatibleRuntimes', () => {
     it('should return the correct list of compatible runtimes', () => {
       const kameletResource = new KameletResource();
+      kameletResource.initialize();
       const compatibleRuntimes = kameletResource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -123,13 +130,16 @@ describe('KameletResource', () => {
 
     it('should return the same list regardless of resource content', () => {
       const emptyResource = new KameletResource();
+      emptyResource.initialize();
       const resourceWithKamelet = new KameletResource(kameletJson);
+      resourceWithKamelet.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithKamelet.getCompatibleRuntimes());
     });
 
     it('should return an array with three runtime names', () => {
       const kameletResource = new KameletResource();
+      kameletResource.initialize();
       const compatibleRuntimes = kameletResource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -140,6 +150,7 @@ describe('KameletResource', () => {
     const model = cloneDeep(kameletJson);
     expect(model.spec.template.beans).toBeUndefined();
     const kameletResource = new KameletResource(model);
+    kameletResource.initialize();
     expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
     kameletResource.createRouteTemplateBeansEntity();
     const beansEntity = kameletResource.getRouteTemplateBeansEntity();

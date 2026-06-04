@@ -1,4 +1,5 @@
 import {
+  BaseVisualEntity,
   CamelRouteVisualEntity,
   Canvas,
   CatalogLoaderProvider,
@@ -13,11 +14,12 @@ import {
   RuntimeProvider,
   SchemasLoaderProvider,
   SourceCodeProvider,
+  useVisibleVizNodes,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn, StoryObj } from '@storybook/react';
-import { ComponentProps, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import complexRouteMock from '../../cypress/fixtures/complexRouteMock.json';
 import iconsRouteMock from '../../cypress/fixtures/iconsRouteMock.json';
@@ -51,7 +53,20 @@ const kameletEntity = new KameletVisualEntity(kameletJson);
 const emptyPipeEntity = new PipeVisualEntity(emptyPipeJson);
 const iconsRoute = new CamelRouteVisualEntity(iconsRouteMock);
 
-type CanvasProps = ComponentProps<typeof Canvas>;
+interface CanvasStoryArgs {
+  entity: BaseVisualEntity;
+}
+
+/**
+ * Resolves viz nodes inside the catalog provider tree (same as production Visualization).
+ */
+const CanvasFromEntity: StoryFn<CanvasStoryArgs> = ({ entity }) => {
+  const entities = useMemo(() => [entity], [entity]);
+  const visibleFlows = useMemo(() => ({ [entity.id]: true }), [entity.id]);
+  const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
+
+  return <Canvas vizNodes={vizNodes} entitiesCount={1} isVizNodesResolving={isResolving} />;
+};
 
 const ContextDecorator = (Story: StoryFn) => {
   const controller = useMemo(() => ControllerService.createController(), []);
@@ -81,60 +96,35 @@ export default {
   title: 'Canvas/Canvas',
   component: Canvas,
   decorators: [ContextDecorator],
-  render: (args, { loaded }) => <Canvas {...args} {...((loaded ?? {}) as Partial<CanvasProps>)} />,
 } as Meta<typeof Canvas>;
 
-export const CamelRouteVisualization: StoryObj<typeof Canvas> = {
-  loaders: [
-    async (): Promise<Pick<CanvasProps, 'vizNodes' | 'entitiesCount'>> => ({
-      vizNodes: [await camelRouteEntity.toVizNode()],
-      entitiesCount: 1,
-    }),
-  ],
+export const CamelRouteVisualization: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  args: { entity: camelRouteEntity },
 };
 
-export const PipeVisualization: StoryObj<typeof Canvas> = {
-  loaders: [
-    async (): Promise<Pick<CanvasProps, 'vizNodes' | 'entitiesCount'>> => ({
-      vizNodes: [await pipeEntity.toVizNode()],
-      entitiesCount: 1,
-    }),
-  ],
+export const PipeVisualization: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  args: { entity: pipeEntity },
 };
 
-export const KameletVisualization: StoryObj<typeof Canvas> = {
-  loaders: [
-    async (): Promise<Pick<CanvasProps, 'vizNodes' | 'entitiesCount'>> => ({
-      vizNodes: [await kameletEntity.toVizNode()],
-      entitiesCount: 1,
-    }),
-  ],
+export const KameletVisualization: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  args: { entity: kameletEntity },
 };
 
-export const EmptyPipeVisualization: StoryObj<typeof Canvas> = {
-  loaders: [
-    async (): Promise<Pick<CanvasProps, 'vizNodes' | 'entitiesCount'>> => ({
-      vizNodes: [await emptyPipeEntity.toVizNode()],
-      entitiesCount: 1,
-    }),
-  ],
+export const EmptyPipeVisualization: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  args: { entity: emptyPipeEntity },
 };
 
-export const EmptyCamelRouteVisualization: StoryObj<typeof Canvas> = {
-  loaders: [
-    async (): Promise<Pick<CanvasProps, 'vizNodes' | 'entitiesCount'>> => ({
-      vizNodes: [await emptyCamelRouteEntity.toVizNode()],
-      entitiesCount: 1,
-    }),
-  ],
+export const EmptyCamelRouteVisualization: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  args: { entity: emptyCamelRouteEntity },
 };
 
 /** reproducer for https://github.com/KaotoIO/kaoto/issues/2215 */
-export const IconsRouteVisualization: StoryObj<typeof Canvas> = {
-  loaders: [
-    async (): Promise<Pick<CanvasProps, 'vizNodes' | 'entitiesCount'>> => ({
-      vizNodes: [await iconsRoute.toVizNode()],
-      entitiesCount: 1,
-    }),
-  ],
+export const IconsRouteVisualization: StoryObj<CanvasStoryArgs> = {
+  render: CanvasFromEntity,
+  args: { entity: iconsRoute },
 };

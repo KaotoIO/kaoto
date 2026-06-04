@@ -76,6 +76,8 @@ export abstract class MappingItem {
  * in the generated XSLT template.
  */
 export class FieldItem extends MappingItem {
+  isUserCreated = false;
+
   constructor(
     public parent: MappingParentType,
     public field: IField,
@@ -84,7 +86,9 @@ export class FieldItem extends MappingItem {
     super(parent, name, getCamelRandomId(name, 4));
   }
   doClone() {
-    return new FieldItem(this.parent, this.field);
+    const cloned = new FieldItem(this.parent, this.field);
+    cloned.isUserCreated = this.isUserCreated;
+    return cloned;
   }
 }
 

@@ -25,6 +25,7 @@ describe('EndpointsEntityHandler', () => {
         actions: [],
       };
       testResource = new CitrusTestResource(testModel);
+      testResource.initialize();
       endpointsHandler = new EndpointsEntityHandler(testResource);
     });
 

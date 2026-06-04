@@ -1,5 +1,11 @@
 import { SettingsForm } from '@kaoto/kaoto';
-import { DefaultSettingsAdapter, ReloadContext, SettingsProvider } from '@kaoto/kaoto/testing';
+import {
+  CatalogSchemaLoader,
+  DefaultSettingsAdapter,
+  ReloadContext,
+  RuntimeProvider,
+  SettingsProvider,
+} from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import { reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
@@ -21,9 +27,11 @@ const Template: StoryFn<typeof SettingsForm> = (args) => {
   const settingsAdapter = new DefaultSettingsAdapter();
   return (
     <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
-      <SettingsProvider adapter={settingsAdapter}>
-        <SettingsForm {...args} />
-      </SettingsProvider>
+      <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+        <SettingsProvider adapter={settingsAdapter}>
+          <SettingsForm {...args} />
+        </SettingsProvider>
+      </RuntimeProvider>
     </ReloadContext.Provider>
   );
 };

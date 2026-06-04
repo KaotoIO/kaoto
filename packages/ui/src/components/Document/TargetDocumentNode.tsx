@@ -5,7 +5,13 @@ import { useDataMapper } from '../../hooks/useDataMapper';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingItem } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
-import { AddMappingNodeData, TargetDocumentNodeData, TargetNodeData } from '../../models/datamapper/visualization';
+import {
+  AddMappingNodeData,
+  TargetDocumentNodeData,
+  TargetNodeData,
+  VariableNodeData,
+} from '../../models/datamapper/visualization';
+import { MappingService } from '../../services/mapping/mapping.service';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
@@ -20,6 +26,7 @@ import { handleNodeKeyDown } from './document-node.utils';
 import { NodeContainer } from './NodeContainer';
 import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle/NodeTitle';
+import { VariableInputPlaceholder } from './VariableInputPlaceholder';
 
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
@@ -63,6 +70,34 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
       refreshMappingTree();
     }, [refreshMappingTree]);
 
+    const addingVariableToNodePath = useDocumentTreeStore((s) => s.addingVariableToNodePath);
+    const renamingVariableId = useDocumentTreeStore((s) => s.renamingVariableId);
+    const isAddingVariableHere = addingVariableToNodePath === nodePathString;
+    const isRenamingThisVariable = nodeData instanceof VariableNodeData && renamingVariableId === nodeData.mapping.id;
+
+    const targetNodeData = nodeData as TargetNodeData;
+    const variableParent = targetNodeData.mapping ?? targetNodeData.mappingTree;
+
+    const handleVariableConfirm = useCallback(
+      (name: string) => {
+        if (isRenamingThisVariable && nodeData instanceof VariableNodeData) {
+          MappingService.updateVariable(nodeData.mapping, name, nodeData.mapping.expression);
+        } else {
+          const parent = MappingActionService.getOrCreateParentMapping(nodeData);
+          if (parent) MappingService.addVariable(parent, name);
+        }
+        useDocumentTreeStore.getState().setAddingVariableTo(null);
+        useDocumentTreeStore.getState().setRenamingVariable(null);
+        refreshMappingTree();
+      },
+      [isRenamingThisVariable, nodeData, refreshMappingTree],
+    );
+
+    const handleVariableCancel = useCallback(() => {
+      useDocumentTreeStore.getState().setAddingVariableTo(null);
+      useDocumentTreeStore.getState().setRenamingVariable(null);
+    }, []);
+
     const isSelected = useDocumentTreeStore((state) => state.isNodeSelected(nodePathString, false));
 
     const handleClickField = useCallback(
@@ -93,6 +128,23 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
 
     if (nodeData instanceof AddMappingNodeData) {
       return <AddMappingNode nodeData={nodeData} rank={rank} />;
+    }
+
+    if (isRenamingThisVariable && nodeData instanceof VariableNodeData) {
+      return (
+        <div
+          className="node__container"
+          style={{ marginLeft: `calc(${rank} * 0.85rem)` }}
+          data-testid={`node-target-${nodeData.id}-renaming`}
+        >
+          <VariableInputPlaceholder
+            initialName={nodeData.mapping.name}
+            parent={nodeData.mapping.parent}
+            onConfirm={handleVariableConfirm}
+            onCancel={handleVariableCancel}
+          />
+        </div>
+      );
     }
 
     return (
@@ -149,6 +201,15 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
             </NodeContainer>
           </div>
         </NodeContainer>
+        {isAddingVariableHere && variableParent && (
+          <div style={{ marginLeft: `calc(${rank + 1} * 0.85rem)` }}>
+            <VariableInputPlaceholder
+              parent={variableParent}
+              onConfirm={handleVariableConfirm}
+              onCancel={handleVariableCancel}
+            />
+          </div>
+        )}
       </div>
     );
   },

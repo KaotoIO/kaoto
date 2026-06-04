@@ -6,6 +6,7 @@ import {
   ForEachItem,
   IfItem,
   MappingItem,
+  MappingParentType,
   MappingTree,
   OtherwiseItem,
   UnknownMappingItem,
@@ -24,8 +25,10 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
+import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -216,7 +219,21 @@ export class MappingActionService {
    */
   static addMapping(nodeData: AddMappingNodeData) {
     const parentItem = MappingActionService.getOrCreateFieldItem(nodeData.parent);
-    MappingService.createFieldItem(parentItem, nodeData.field);
+    const fieldItem = MappingService.createFieldItem(parentItem, nodeData.field);
+    fieldItem.isUserCreated = true;
+  }
+
+  static getOrCreateParentMapping(nodeData: TargetNodeData): MappingParentType | undefined {
+    if (nodeData instanceof TargetDocumentNodeData) return nodeData.mappingTree;
+    if (
+      nodeData instanceof AddMappingNodeData ||
+      nodeData instanceof TargetFieldNodeData ||
+      nodeData instanceof FieldItemNodeData
+    ) {
+      return MappingActionService.getOrCreateFieldItem(nodeData);
+    }
+    if (nodeData instanceof MappingNodeData) return nodeData.mapping;
+    return undefined;
   }
 
   private static createChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {
@@ -282,22 +299,6 @@ export class MappingActionService {
       MappingActionService.isMappingNode(n) && types.some((t) => n.mapping instanceof t);
   }
 
-  private static isFieldInsideForEach(n: TargetNodeData): boolean {
-    return (
-      MappingActionService.isFieldNode(n) &&
-      n.parent instanceof MappingNodeData &&
-      n.parent.mapping instanceof ForEachItem
-    );
-  }
-
-  private static isFieldInsideForEachGroup(n: TargetNodeData): boolean {
-    return (
-      MappingActionService.isFieldNode(n) &&
-      n.parent instanceof MappingNodeData &&
-      n.parent.mapping instanceof ForEachGroupItem
-    );
-  }
-
   private static isContextMenuAction(def: IMappingAction): def is IMappingContextMenuAction {
     return 'getLabel' in def;
   }
@@ -306,9 +307,9 @@ export class MappingActionService {
     {
       key: MappingActionKind.ContextMenu,
       isAllowed: (n) => {
-        if (n instanceof AddMappingNodeData || n instanceof TargetDocumentNodeData) return true;
-        if (MappingActionService.isFieldNode(n))
-          return !MappingActionService.isFieldInsideForEach(n) && !MappingActionService.isFieldInsideForEachGroup(n);
+        if (n instanceof AddMappingNodeData) return true;
+        if (n instanceof TargetDocumentNodeData) return n.isPrimitive;
+        if (MappingActionService.isFieldNode(n)) return true;
         return (
           MappingActionService.isMappingNode(n) &&
           !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, UnknownMappingItem)(n)
@@ -319,6 +320,12 @@ export class MappingActionService {
       key: MappingActionKind.Delete,
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (n instanceof FieldItemNodeData)
+          // A workaround until https://github.com/KaotoIO/kaoto/issues/3242 is solved
+          return (
+            (n.mapping instanceof FieldItem && n.mapping.isUserCreated && n.mapping.parent instanceof FieldItem) ||
+            MappingActionService.hasValueSelector(n)
+          );
         if (MappingActionService.isFieldNode(n) || n instanceof TargetDocumentNodeData)
           return MappingActionService.hasValueSelector(n);
         return MappingActionService.isMappingNode(n);
@@ -433,6 +440,34 @@ export class MappingActionService {
       isAllowed: (n) =>
         !MappingActionService.isMappingNode(n) ||
         !MappingActionService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, IfItem, ChooseItem)(n),
+    },
+    {
+      key: MappingActionKind.Variable,
+      testId: 'transformation-actions-variable',
+      getLabel: () => 'Add variable',
+      apply: (n) => {
+        useDocumentTreeStore.getState().setAddingVariableTo(n.path.toString());
+      },
+      isAllowed: (n) => {
+        if (n instanceof VariableNodeData) return false;
+        if (n instanceof TargetDocumentNodeData) return false;
+        if (MappingActionService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
+        return (
+          MappingActionService.isMappingNode(n) &&
+          !MappingActionService.mappingIsOneOf(ValueSelector, ChooseItem, UnknownMappingItem)(n)
+        );
+      },
+    },
+    {
+      key: MappingActionKind.RenameVariable,
+      testId: 'transformation-actions-rename-variable',
+      getLabel: () => 'Rename variable',
+      apply: (n) => {
+        if (n instanceof VariableNodeData) {
+          useDocumentTreeStore.getState().setRenamingVariable(n.mapping.id);
+        }
+      },
+      isAllowed: (n) => n instanceof VariableNodeData,
     },
   ];
 

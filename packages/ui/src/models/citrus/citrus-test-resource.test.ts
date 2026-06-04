@@ -11,6 +11,7 @@ import { CitrusTestResource } from './citrus-test-resource';
 describe('CitrusTestResource', () => {
   it('should initialize Citrus test if no args is specified', () => {
     const resource = new CitrusTestResource();
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(0);
@@ -18,6 +19,7 @@ describe('CitrusTestResource', () => {
 
   it('should initialize Citrus test', () => {
     const resource = new CitrusTestResource(citrusTestJson);
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
@@ -30,6 +32,7 @@ describe('CitrusTestResource', () => {
   describe('addNewEntity', () => {
     it('should add new entity and return its ID', () => {
       const resource = new CitrusTestResource();
+      resource.initialize();
       const id = resource.addNewEntity();
 
       expect(resource.getVisualEntities()).toHaveLength(1);
@@ -38,6 +41,7 @@ describe('CitrusTestResource', () => {
 
     it('should add new entities at the end of the list and return its ID', () => {
       const resource = new CitrusTestResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.Test);
 
@@ -47,6 +51,7 @@ describe('CitrusTestResource', () => {
 
     it('should add the given entities at the end of the list and return its ID', () => {
       const resource = new CitrusTestResource();
+      resource.initialize();
       resource.addNewEntity();
       const id = resource.addNewEntity(EntityType.Test, FlowTemplateService.getFlowTemplate(SourceSchemaType.Test)[0]);
 
@@ -57,16 +62,19 @@ describe('CitrusTestResource', () => {
 
   it('should return the right type', () => {
     const resource = new CitrusTestResource();
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Test);
   });
 
   it('should not allow consumers to have multiple visual entities', () => {
     const resource = new CitrusTestResource();
+    resource.initialize();
     expect(resource.supportsMultipleVisualEntities()).toEqual(false);
   });
 
   it('should return visual entities', () => {
     const resource = new CitrusTestResource(citrusTestJson);
+    resource.initialize();
     expect(resource.getVisualEntities()).toHaveLength(1);
     expect(resource.getVisualEntities()[0]).toBeInstanceOf(CitrusTestVisualEntity);
     expect(resource.getEntities()).toHaveLength(0);
@@ -74,6 +82,7 @@ describe('CitrusTestResource', () => {
 
   it('should return entities', () => {
     const resource = new CitrusTestResource(citrusTestJson);
+    resource.initialize();
     expect(resource.getEntities()).toHaveLength(0);
     expect(resource.getVisualEntities()).toHaveLength(1);
   });
@@ -81,6 +90,7 @@ describe('CitrusTestResource', () => {
   describe('toJSON', () => {
     it('should return JSON', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       expect(resource.toJSON()).toMatchSnapshot();
     });
   });
@@ -88,6 +98,7 @@ describe('CitrusTestResource', () => {
   describe('removeEntity', () => {
     it('should not do anything if the ID is not provided', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
 
       resource.removeEntity();
 
@@ -96,6 +107,7 @@ describe('CitrusTestResource', () => {
 
     it('should not do anything when providing a non existing ID', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
 
       resource.removeEntity(['non-existing-id']);
 
@@ -104,6 +116,7 @@ describe('CitrusTestResource', () => {
 
     it('should allow to remove an entity', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       resource.addNewEntity();
       expect(resource.getVisualEntities()).toHaveLength(2);
 
@@ -116,6 +129,7 @@ describe('CitrusTestResource', () => {
 
     it('should remove multiple entities when multiple IDs are provided', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       resource.addNewEntity();
       const entitiesToRemove = resource.getVisualEntities().map((e) => e.id);
 
@@ -126,6 +140,7 @@ describe('CitrusTestResource', () => {
 
     it('should NOT create a new entity after deleting them all', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       const citrusTestEntity = resource.getVisualEntities()[0];
 
       resource.removeEntity([citrusTestEntity.id]);
@@ -137,6 +152,7 @@ describe('CitrusTestResource', () => {
   describe('getCanvasEntityList', () => {
     it('should return all entities for YAML serializer', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
@@ -148,6 +164,7 @@ describe('CitrusTestResource', () => {
 
     it('should return consistent entity list structure on multiple calls', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
 
       const firstCall = resource.getCanvasEntityList();
       const secondCall = resource.getCanvasEntityList();
@@ -157,6 +174,7 @@ describe('CitrusTestResource', () => {
 
     it('should recreate entity list when called after serializer change', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const yamlEntityList = resource.getCanvasEntityList();
@@ -172,6 +190,7 @@ describe('CitrusTestResource', () => {
 
     it('should include entity titles and descriptions from catalog', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
 
       const entityList = resource.getCanvasEntityList();
 
@@ -185,6 +204,7 @@ describe('CitrusTestResource', () => {
 
     it('should properly group entities', () => {
       const resource = new CitrusTestResource();
+      resource.initialize();
       resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
@@ -200,6 +220,7 @@ describe('CitrusTestResource', () => {
   describe('toString', () => {
     it('should delegate to serializer serialize method', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       const serialized = resource.toString();
 
       expect(typeof serialized).toBe('string');
@@ -208,6 +229,7 @@ describe('CitrusTestResource', () => {
 
     it('should support switching between serializer types', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
 
       // Test YAML serializer
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
@@ -223,6 +245,7 @@ describe('CitrusTestResource', () => {
   describe('getCompatibleRuntimes', () => {
     it('should return the correct list of compatible runtimes', () => {
       const resource = new CitrusTestResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Citrus']);
@@ -230,13 +253,16 @@ describe('CitrusTestResource', () => {
 
     it('should return the same list regardless of resource content', () => {
       const emptyResource = new CitrusTestResource();
+      emptyResource.initialize();
       const resourceWithTest = new CitrusTestResource(citrusTestJson);
+      resourceWithTest.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithTest.getCompatibleRuntimes());
     });
 
     it('should return an array with one runtime name', () => {
       const resource = new CitrusTestResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Citrus']);
@@ -246,6 +272,7 @@ describe('CitrusTestResource', () => {
   describe('getCompatibleComponents', () => {
     it('should get compatible types', () => {
       const resource = new CitrusTestResource(citrusTestJson);
+      resource.initialize();
       const tileFilter = resource.getCompatibleComponents(AddStepMode.ReplaceStep, {
         name: 'print',
         path: 'actions.0',

@@ -26,6 +26,7 @@ jest.mock('../../Canvas/flow.service');
 
 describe('ExportDocumentPreviewModal', () => {
   const camelResource = new CamelRouteResource([camelRouteJson]);
+  camelResource.initialize();
   let onCloseSpy: jest.Mock;
   let wrapper: FunctionComponent<PropsWithChildren>;
   let originalCreateObjectURL: typeof URL.createObjectURL;

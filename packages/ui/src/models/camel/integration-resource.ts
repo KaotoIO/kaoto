@@ -19,6 +19,11 @@ export class IntegrationResource extends CamelKResource {
     }
   }
 
+  initialize(): void {
+    super.initialize();
+    // TODO: Initialize visual entities when implemented
+  }
+
   getEntities(): BaseEntity[] {
     return super.getEntities(); // TODO
   }

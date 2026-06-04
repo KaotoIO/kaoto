@@ -196,6 +196,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         title: 'Rest Configuration',
         description: 'restConfiguration: restConfiguration',
         processorIconTooltip: '',
+        schema: expect.any(Object),
       });
     });
 

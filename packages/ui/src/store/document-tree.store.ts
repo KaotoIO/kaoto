@@ -57,6 +57,14 @@ export interface DocumentTreeState {
 
   /** Check if the XPath input for this mapping-tree node path should receive focus. */
   shouldFocusXPathInput: (nodePath: string) => boolean;
+
+  /** Node path where the "add variable" inline input is shown. */
+  addingVariableToNodePath: string | null;
+  setAddingVariableTo: (nodePath: string | null) => void;
+
+  /** Variable mapping ID currently being renamed inline. */
+  renamingVariableId: string | null;
+  setRenamingVariable: (variableId: string | null) => void;
 }
 
 export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
@@ -69,6 +77,8 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
       selectedNodePath: null,
       selectedNodeIsSource: false,
       targetXPathInputForFocus: null,
+      addingVariableToNodePath: null,
+      renamingVariableId: null,
 
       setNodesConnectionPorts: (documentId: string, ports: TreeConnectionPorts) => {
         set((state) => ({
@@ -153,6 +163,14 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
 
       shouldFocusXPathInput: (mappingNodePath: string) => {
         return get().targetXPathInputForFocus === mappingNodePath;
+      },
+
+      setAddingVariableTo: (nodePath: string | null) => {
+        set({ addingVariableToNodePath: nodePath, renamingVariableId: null });
+      },
+
+      setRenamingVariable: (variableId: string | null) => {
+        set({ renamingVariableId: variableId, addingVariableToNodePath: null });
       },
     }),
     { name: 'Document Tree Store' },

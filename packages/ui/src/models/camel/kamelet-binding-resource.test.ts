@@ -5,6 +5,7 @@ import { SourceSchemaType } from './source-schema-type';
 describe('KameletBindingResource', () => {
   it('should create KameletBindingResource', () => {
     const resource = new KameletBindingResource(kameletBindingJson);
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0];
@@ -17,6 +18,7 @@ describe('KameletBindingResource', () => {
   describe('getCompatibleRuntimes', () => {
     it('should return the correct list of compatible runtimes', () => {
       const resource = new KameletBindingResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -24,13 +26,16 @@ describe('KameletBindingResource', () => {
 
     it('should return the same list regardless of resource content', () => {
       const emptyResource = new KameletBindingResource();
+      emptyResource.initialize();
       const resourceWithBinding = new KameletBindingResource(kameletBindingJson);
+      resourceWithBinding.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithBinding.getCompatibleRuntimes());
     });
 
     it('should return an array with three runtime names', () => {
       const resource = new KameletBindingResource();
+      resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
@@ -39,6 +44,7 @@ describe('KameletBindingResource', () => {
 
   it('should initialize KameletBinding if no args is specified', () => {
     const resource = new KameletBindingResource(undefined);
+    resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);

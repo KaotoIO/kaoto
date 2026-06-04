@@ -23,6 +23,7 @@ describe('DirectEndpointNameField', () => {
     visibleFlowsContext?: VisibleFlowsContextResult,
   ) => {
     const camelResource = new CamelRouteResource(routes as unknown as CamelYamlDsl);
+    camelResource.initialize();
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({
       camelResource,
       visibleFlowsContext,
