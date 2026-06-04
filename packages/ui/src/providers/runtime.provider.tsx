@@ -19,10 +19,16 @@ export interface IRuntimeContext {
 
 export const RuntimeContext = createContext<IRuntimeContext | undefined>(undefined);
 
+interface RuntimeProviderProps {
+  catalogUrl: string;
+  runtimeCatalogName?: string;
+  testingCatalogName?: string;
+}
+
 /**
  * Loader for the available Catalog library.
  */
-export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: string }>> = (props) => {
+export const RuntimeProvider: FunctionComponent<PropsWithChildren<RuntimeProviderProps>> = (props) => {
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
@@ -39,6 +45,9 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   const [selectedCatalog, setSelectedCatalog] = useState<CatalogLibraryEntry | undefined>(localSelectedCatalog);
   const basePath = props.catalogUrl.substring(0, props.catalogUrl.lastIndexOf('/'));
 
+  const settingsCatalogName =
+    currentSchemaType === SourceSchemaType.Test ? props.testingCatalogName : props.runtimeCatalogName;
+
   useEffect(() => {
     fetch(props.catalogUrl)
       .then((response) => {
@@ -47,7 +56,14 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
       })
       .then((catalogLibrary: CatalogLibrary) => {
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
-        if (isDefined(selectedCatalog)) {
+
+        if (settingsCatalogName) {
+          catalogLibraryEntry = catalogLibrary.definitions.find(
+            (c: CatalogLibraryEntry) => c.name === settingsCatalogName,
+          );
+        }
+
+        if (!isDefined(catalogLibraryEntry) && isDefined(selectedCatalog)) {
           catalogLibraryEntry = catalogLibrary.definitions.find(
             (c: CatalogLibraryEntry) => c.name === selectedCatalog.name,
           );

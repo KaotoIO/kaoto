@@ -44,7 +44,11 @@ function App() {
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
+        <RuntimeProvider
+          catalogUrl={catalogUrl}
+          runtimeCatalogName={settingsAdapter.getSettings().runtimeCatalogName}
+          testingCatalogName={settingsAdapter.getSettings().testingCatalogName}
+        >
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
               <EntitiesProvider>

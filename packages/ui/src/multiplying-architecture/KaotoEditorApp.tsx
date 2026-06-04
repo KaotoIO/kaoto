@@ -172,7 +172,11 @@ export class KaotoEditorApp implements Editor {
         <SettingsProvider adapter={this.settingsAdapter}>
           <SourceCodeProvider>
             <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
-              <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+              <RuntimeProvider
+                catalogUrl={this.settingsAdapter.getSettings().catalogUrl}
+                runtimeCatalogName={this.settingsAdapter.getSettings().runtimeCatalogName}
+                testingCatalogName={this.settingsAdapter.getSettings().testingCatalogName}
+              >
                 <CatalogLoaderProvider>
                   <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
                     <KaotoBridge
