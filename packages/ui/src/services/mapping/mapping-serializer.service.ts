@@ -83,9 +83,21 @@ export class MappingSerializerService {
 
   private static populateNamespaces(xslt: Document, namespaceMap: { [prefix: string]: string }) {
     const rootElement = xslt.documentElement;
-    Object.entries(namespaceMap).forEach(
-      ([prefix, uri]) => prefix && uri && rootElement.setAttribute(`xmlns:${prefix}`, uri),
-    );
+    const prefixes: string[] = [];
+    Object.entries(namespaceMap).forEach(([prefix, uri]) => {
+      if (prefix && uri) {
+        rootElement.setAttribute(`xmlns:${prefix}`, uri);
+        prefixes.push(prefix);
+      }
+    });
+    // These prefixes are only declared for matching the source document via XPath.
+    // Without `exclude-result-prefixes` they leak into the output as redundant
+    // namespace declarations, which some consumers (e.g. HAPI HL7 v2 XMLParser)
+    // fail to parse. `exclude-result-prefixes` only suppresses declarations that
+    // are not actually used by an output element, so this is safe.
+    if (prefixes.length > 0) {
+      rootElement.setAttribute('exclude-result-prefixes', prefixes.join(' '));
+    }
   }
 
   private static getRootStyleSheet(xsltDocument: Document) {
