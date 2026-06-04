@@ -18,6 +18,7 @@ export { XmlSchemaParticle } from './particle/XmlSchemaParticle';
 export { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 export type { XmlSchemaSequenceMember } from './particle/XmlSchemaSequenceMember';
 export { DefaultURIResolver } from './resolver/DefaultURIResolver';
+export type { EntityResolveResult } from './resolver/URIResolver';
 export { XmlSchemaSimpleContentExtension } from './simple/XmlSchemaSimpleContentExtension';
 export { XmlSchemaSimpleContentRestriction } from './simple/XmlSchemaSimpleContentRestriction';
 export { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';

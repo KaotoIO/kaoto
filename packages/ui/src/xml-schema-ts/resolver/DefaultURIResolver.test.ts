@@ -15,7 +15,10 @@ describe('DefaultURIResolver', () => {
 
       resolver.addFiles({ 'schema.xsd': '<schema>schema</schema>' });
 
-      expect(resolver.resolveEntity(null, 'schema.xsd', null)).toBe('<schema>schema</schema>');
+      expect(resolver.resolveEntity(null, 'schema.xsd', null)).toEqual({
+        content: '<schema>schema</schema>',
+        resolvedPath: 'schema.xsd',
+      });
     });
   });
 
@@ -30,7 +33,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, 'common.xsd', null);
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'common.xsd' });
       });
 
       it('should resolve relative path with ./ prefix', () => {
@@ -42,7 +45,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, './common.xsd', 'schemas/main.xsd');
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' });
       });
 
       it('should resolve relative path with baseUri', () => {
@@ -54,7 +57,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, 'common.xsd', 'schemas/main.xsd');
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' });
       });
 
       it('should normalize ./ in schemaLocation', () => {
@@ -65,7 +68,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, './types/./base.xsd', 'schemas/main.xsd');
 
-        expect(result).toBe('<schema>base</schema>');
+        expect(result).toEqual({ content: '<schema>base</schema>', resolvedPath: 'schemas/types/base.xsd' });
       });
 
       it('should resolve ../ in schemaLocation', () => {
@@ -77,7 +80,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, '../common.xsd', 'schemas/main.xsd');
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'common.xsd' });
       });
 
       it('should resolve nested relative paths (../../common.xsd)', () => {
@@ -89,7 +92,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, '../../common.xsd', 'schemas/types/nested/specific.xsd');
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/common.xsd' });
       });
 
       it('should fallback to filename-only match when unique', () => {
@@ -101,7 +104,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, 'common.xsd', null);
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/types/common.xsd' });
       });
 
       it('should throw error when filename match is ambiguous', () => {
@@ -114,6 +117,22 @@ describe('DefaultURIResolver', () => {
         expect(() => {
           resolver.resolveEntity(null, 'common.xsd', null);
         }).toThrow('Ambiguous filename match for "common.xsd"');
+      });
+
+      it('should resolve ambiguous filenames when baseUri provides directory context', () => {
+        const definitionFiles = {
+          'ns-a/lib.xsd': '<schema>lib-a</schema>',
+          'ns-a/shared.xsd': '<schema>shared-a</schema>',
+          'ns-b/lib.xsd': '<schema>lib-b</schema>',
+          'ns-b/shared.xsd': '<schema>shared-b</schema>',
+        };
+        const resolver = new DefaultURIResolver(definitionFiles);
+
+        const resultA = resolver.resolveEntity(null, 'shared.xsd', 'ns-a/lib.xsd');
+        expect(resultA).toEqual({ content: '<schema>shared-a</schema>', resolvedPath: 'ns-a/shared.xsd' });
+
+        const resultB = resolver.resolveEntity(null, 'shared.xsd', 'ns-b/lib.xsd');
+        expect(resultB).toEqual({ content: '<schema>shared-b</schema>', resolvedPath: 'ns-b/shared.xsd' });
       });
 
       it('should throw error when schema not found', () => {
@@ -149,7 +168,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, '/schemas/common.xsd', null);
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: '/schemas/common.xsd' });
       });
 
       it('should resolve with absolute schemaLocation ignoring baseUri', () => {
@@ -161,7 +180,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, '/absolute/common.xsd', 'schemas/main.xsd');
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: '/absolute/common.xsd' });
       });
 
       it('should resolve with normalized path when it differs from original', () => {
@@ -172,7 +191,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, 'schemas/./types/./common.xsd', null);
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'schemas/types/common.xsd' });
       });
 
       it('should handle baseUri without directory separator when no exact match', () => {
@@ -184,7 +203,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, './common.xsd', 'main.xsd');
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'common.xsd' });
       });
 
       it('should handle ../ at the beginning of path', () => {
@@ -195,7 +214,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, '../common.xsd', null);
 
-        expect(result).toBe('<schema>common</schema>');
+        expect(result).toEqual({ content: '<schema>common</schema>', resolvedPath: 'common.xsd' });
       });
     });
 
@@ -237,9 +256,9 @@ describe('DefaultURIResolver', () => {
         };
         resolver.addFiles(additionalFiles);
 
-        expect(resolver.resolveEntity(null, 'types.xsd', null)).toBe('<schema>types</schema>');
-        expect(resolver.resolveEntity(null, 'enums.xsd', null)).toBe('<schema>enums</schema>');
-        expect(resolver.resolveEntity(null, 'common.xsd', null)).toBe('<schema>common</schema>');
+        expect(resolver.resolveEntity(null, 'types.xsd', null).content).toBe('<schema>types</schema>');
+        expect(resolver.resolveEntity(null, 'enums.xsd', null).content).toBe('<schema>enums</schema>');
+        expect(resolver.resolveEntity(null, 'common.xsd', null).content).toBe('<schema>common</schema>');
       });
 
       it('should overwrite existing files with same path', () => {
@@ -254,8 +273,8 @@ describe('DefaultURIResolver', () => {
         };
         resolver.addFiles(updatedFiles);
 
-        expect(resolver.resolveEntity(null, 'main.xsd', null)).toBe('<schema>main updated</schema>');
-        expect(resolver.resolveEntity(null, 'common.xsd', null)).toBe('<schema>common</schema>');
+        expect(resolver.resolveEntity(null, 'main.xsd', null).content).toBe('<schema>main updated</schema>');
+        expect(resolver.resolveEntity(null, 'common.xsd', null).content).toBe('<schema>common</schema>');
       });
 
       it('should handle adding files to initially empty resolver', () => {
@@ -266,7 +285,7 @@ describe('DefaultURIResolver', () => {
         };
         resolver.addFiles(newFiles);
 
-        expect(resolver.resolveEntity(null, 'schema.xsd', null)).toBe('<schema>schema</schema>');
+        expect(resolver.resolveEntity(null, 'schema.xsd', null).content).toBe('<schema>schema</schema>');
       });
 
       it('should allow resolution of newly added file imports', () => {
@@ -282,7 +301,7 @@ describe('DefaultURIResolver', () => {
 
         const result = resolver.resolveEntity(null, 'imported.xsd', 'main.xsd');
 
-        expect(result).toBe('<schema>imported</schema>');
+        expect(result).toEqual({ content: '<schema>imported</schema>', resolvedPath: 'imported.xsd' });
       });
     });
   });

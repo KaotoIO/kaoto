@@ -1,4 +1,5 @@
 import { CollectionURIResolver } from './CollectionURIResolver';
+import { EntityResolveResult } from './URIResolver';
 
 export class DefaultURIResolver implements CollectionURIResolver {
   private collectionBaseUri?: string;
@@ -21,7 +22,7 @@ export class DefaultURIResolver implements CollectionURIResolver {
     Object.assign(this.definitionFiles, newFiles);
   }
 
-  resolveEntity(targetNamespace: string | null, schemaLocation: string, baseUri: string | null): string {
+  resolveEntity(targetNamespace: string | null, schemaLocation: string, baseUri: string | null): EntityResolveResult {
     if (this.definitionFiles) {
       return this.resolveFromFileMap(targetNamespace, schemaLocation, baseUri);
     }
@@ -31,25 +32,28 @@ export class DefaultURIResolver implements CollectionURIResolver {
     );
   }
 
-  private resolveFromFileMap(targetNamespace: string | null, schemaLocation: string, baseUri: string | null): string {
+  private resolveFromFileMap(
+    targetNamespace: string | null,
+    schemaLocation: string,
+    baseUri: string | null,
+  ): EntityResolveResult {
     if (this.definitionFiles![schemaLocation]) {
-      return this.definitionFiles![schemaLocation];
+      return { content: this.definitionFiles![schemaLocation], resolvedPath: schemaLocation };
     }
 
     if (baseUri) {
       const resolvedPath = this.resolvePath(schemaLocation, baseUri);
       if (this.definitionFiles![resolvedPath]) {
-        return this.definitionFiles![resolvedPath];
+        return { content: this.definitionFiles![resolvedPath], resolvedPath };
       }
     }
 
     const normalizedPath = this.normalizePath(schemaLocation);
     if (normalizedPath !== schemaLocation && this.definitionFiles![normalizedPath]) {
-      return this.definitionFiles![normalizedPath];
+      return { content: this.definitionFiles![normalizedPath], resolvedPath: normalizedPath };
     }
 
-    const filename = this.extractFilename(schemaLocation);
-    const matchByFilename = this.findByFilename(filename);
+    const matchByFilename = this.findByFilename(this.extractFilename(schemaLocation));
     if (matchByFilename) {
       return matchByFilename;
     }
@@ -108,12 +112,12 @@ export class DefaultURIResolver implements CollectionURIResolver {
     return lastSlash === -1 ? path : path.substring(lastSlash + 1);
   }
 
-  private findByFilename(filename: string): string | null {
-    const matches: string[] = [];
+  private findByFilename(filename: string): EntityResolveResult | null {
+    const matches: EntityResolveResult[] = [];
 
     for (const [path, content] of Object.entries(this.definitionFiles!)) {
       if (this.extractFilename(path) === filename) {
-        matches.push(content);
+        matches.push({ content, resolvedPath: path });
       }
     }
 

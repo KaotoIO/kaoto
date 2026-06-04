@@ -517,20 +517,16 @@ export class SchemaBuilder {
     // use the entity resolver provided if the schema location is present
     // null
     if (schemaLocation != null && '' !== schemaLocation) {
-      const source = this.collection.getSchemaResolver().resolveEntity(targetNamespace, schemaLocation, baseUri);
+      const result = this.collection.getSchemaResolver().resolveEntity(targetNamespace, schemaLocation, baseUri);
 
       // the entity resolver was unable to resolve this!!
-      if (source == null) {
+      if (result == null) {
         // try resolving it with the target namespace only with the
         // known namespace map
         return this.collection.getKnownSchema(targetNamespace);
       }
 
-      const systemId = schemaLocation;
-      // Push repaired system id back into source where read sees it.
-      // It is perhaps a bad thing to patch the source, but this fixes
-      // a problem.
-      //source.setSystemId(systemId);
+      const systemId = result.resolvedPath;
       const key = new SchemaKey(targetNamespace, systemId);
       const schema = this.collection.getSchema(key);
       if (schema != null) {
@@ -539,7 +535,7 @@ export class SchemaBuilder {
       if (this.collection.check(key)) {
         this.collection.push(key);
         try {
-          const readSchema = this.collection.read(source, validator, systemId);
+          const readSchema = this.collection.read(result.content, validator, systemId);
           this.putCachedSchema(targetNamespace, schemaLocation, baseUri || '', readSchema);
           return readSchema;
         } finally {

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:a="urn:example:ns-a"
+            targetNamespace="urn:example:ns-a">
+  <xsd:include schemaLocation="shared.xsd"/>
+  <xsd:complexType name="LibType">
+    <xsd:sequence>
+      <xsd:element name="value" type="a:SharedType"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="Document" type="a:LibType"/>
+</xsd:schema>
