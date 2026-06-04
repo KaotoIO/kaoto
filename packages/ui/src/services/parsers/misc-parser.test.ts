@@ -5,8 +5,9 @@ import { MiscParser } from './misc-parser';
 
 describe('MiscParser', () => {
   describe('parseMetadataEntity()', () => {
-    it('should parse Metadata', () => {
-      const metadataEntity = CamelResourceFactory.createCamelResource(pipeYaml)
+    it('should parse Metadata', async () => {
+      const camelResource = await CamelResourceFactory.createCamelResource(pipeYaml);
+      const metadataEntity = camelResource
         .getEntities()
         .find((entity) => entity instanceof MetadataEntity) as MetadataEntity;
       const parsedTables = MiscParser.parseMetadataEntity(metadataEntity, 'Metadata');

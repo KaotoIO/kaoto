@@ -125,13 +125,18 @@ describe('DirectEndpointNameField hooks', () => {
 
     it('allows route creation when the name is only referenced but has no direct from route', () => {
       const onChange = jest.fn();
+      const entitiesContext = {
+        isLoading: false,
+        camelResource: { addNewEntity: jest.fn() },
+        updateEntitiesFromCamelResource: jest.fn(),
+      } as unknown as EntitiesContextResult;
       const { result } = renderHook(() =>
         useCreateDirectRoute({
           disabled: false,
           typedName: 'orders',
           existingDirectRouteNames: ['start'],
           onChange,
-          entitiesContext: null,
+          entitiesContext,
           visibleFlowsContext: undefined,
         }),
       );

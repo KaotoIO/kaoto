@@ -263,11 +263,14 @@ describe('BeanField', () => {
       await formPageObject.inputText('Type', 'io.kaoto.new.MyNewBean');
       await clickCreateButton();
 
-      const visibleFlows = entitiesContext!.camelResource.getVisualEntities().reduce((acc, entity) => {
+      const camelResource = entitiesContext!.camelResource;
+      expect(camelResource).toBeDefined();
+
+      const visibleFlows = camelResource!.getVisualEntities().reduce((acc, entity) => {
         acc[entity.id] = true;
         return acc;
       }, {} as IVisibleFlows);
-      const entities = DocumentationService.getDocumentationEntities(entitiesContext!.camelResource, visibleFlows);
+      const entities = DocumentationService.getDocumentationEntities(camelResource!, visibleFlows);
       expect(entities.length).toBe(2);
       expect(entities.find((e) => e.entity instanceof BeansEntity)).toBeDefined();
     });

@@ -5,8 +5,9 @@ import { BeansParser } from './beans-parser';
 
 describe('BeansParser', () => {
   describe('parseBeansEntity()', () => {
-    it('should parse BeansEntity', () => {
-      const beansEntity = CamelResourceFactory.createCamelResource(beansYaml).getEntities()[0] as BeansEntity;
+    it('should parse BeansEntity', async () => {
+      const KaotoResource = await CamelResourceFactory.createCamelResource(beansYaml);
+      const beansEntity = KaotoResource.getEntities()[0] as BeansEntity;
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.title).toEqual('Beans');
       expect(parsedTable.data.length).toEqual(3);
@@ -23,8 +24,9 @@ describe('BeansParser', () => {
       expect(parsedTable.data[0][4]).toEqual('p1v');
     });
 
-    it('should parse BeansEntity without properties', () => {
-      const beansEntity = CamelResourceFactory.createCamelResource(beansYaml).getEntities()[0] as BeansEntity;
+    it('should parse BeansEntity without properties', async () => {
+      const KaotoResource = await CamelResourceFactory.createCamelResource(beansYaml);
+      const beansEntity = KaotoResource.getEntities()[0] as BeansEntity;
       beansEntity.parent.beans.forEach((bean) => (bean.properties = {}));
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.title).toEqual('Beans');
@@ -41,8 +43,9 @@ describe('BeansParser', () => {
       expect(parsedTable.data[1][4]).toEqual('');
     });
 
-    it('should parse BeanEntity with parameters', () => {
-      const beansEntity = CamelResourceFactory.createCamelResource(beansWithParamsYaml).getEntities()[0] as BeansEntity;
+    it('should parse BeanEntity with parameters', async () => {
+      const KaotoResource = await CamelResourceFactory.createCamelResource(beansWithParamsYaml);
+      const beansEntity = KaotoResource.getEntities()[0] as BeansEntity;
       const parsedTable = BeansParser.parseBeansEntity(beansEntity, 'Beans');
       expect(parsedTable.data.length).toEqual(7);
       expect(parsedTable.data[0][0]).toEqual('test');

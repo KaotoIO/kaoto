@@ -11,7 +11,7 @@ import {
 } from '../ContextMenu/item-interaction-helper';
 
 export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
-  const entitiesContext = useContext(EntitiesContext);
+  const { isLoading, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const deleteModalContext = useContext(ActionConfirmationModalContext);
   const childrenNodes = vizNode?.getChildren();
   const hasChildren = childrenNodes !== undefined && childrenNodes.length > 0;
@@ -19,7 +19,7 @@ export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
   const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
 
   const onDeleteStep = useCallback(async () => {
-    if (!vizNode) return;
+    if (isLoading || !camelResource || !vizNode) return;
 
     const modalCustoms = findOnDeleteModalCustomizationRecursively(
       vizNode,
@@ -48,8 +48,17 @@ export const useDeleteStep = (vizNode: IVisualizationNode | undefined) => {
     );
 
     vizNode.removeChild();
-    entitiesContext?.updateEntitiesFromCamelResource();
-  }, [deleteModalContext, entitiesContext, getRegisteredInteractionAddons, hasChildren, isPlaceholderNode, vizNode]);
+    updateEntitiesFromCamelResource();
+  }, [
+    isLoading,
+    camelResource,
+    vizNode,
+    hasChildren,
+    isPlaceholderNode,
+    updateEntitiesFromCamelResource,
+    getRegisteredInteractionAddons,
+    deleteModalContext,
+  ]);
 
   const value = useMemo(
     () => ({

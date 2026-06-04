@@ -135,7 +135,7 @@ describe('canDropOnEdge', () => {
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
     expect(result).toBe(false);
-    expect(camelResource.getCompatibleComponents).not.toHaveBeenCalled();
+    expect(camelResource?.getCompatibleComponents).not.toHaveBeenCalled();
     expect(catalogModalContext.checkCompatibility).not.toHaveBeenCalled();
   });
 
@@ -145,7 +145,7 @@ describe('canDropOnEdge', () => {
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
     expect(result).toBe(false);
-    expect(camelResource.getCompatibleComponents).not.toHaveBeenCalled();
+    expect(camelResource?.getCompatibleComponents).not.toHaveBeenCalled();
     expect(catalogModalContext.checkCompatibility).not.toHaveBeenCalled();
   });
 
@@ -155,7 +155,7 @@ describe('canDropOnEdge', () => {
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
     expect(result).toBe(false);
-    expect(camelResource.getCompatibleComponents).not.toHaveBeenCalled();
+    expect(camelResource?.getCompatibleComponents).not.toHaveBeenCalled();
     expect(catalogModalContext.checkCompatibility).not.toHaveBeenCalled();
   });
 
@@ -172,7 +172,7 @@ describe('canDropOnEdge', () => {
     const result = canDropOnEdge(draggedMockVizNode, mockEdge, camelResource, catalogModalContext);
 
     expect(result).toBe(false);
-    expect(camelResource.getCompatibleComponents).not.toHaveBeenCalled();
+    expect(camelResource?.getCompatibleComponents).not.toHaveBeenCalled();
     expect(catalogModalContext.checkCompatibility).not.toHaveBeenCalled();
   });
 
@@ -189,19 +189,19 @@ describe('canDropOnEdge', () => {
     const result = canDropOnEdge(draggedMockVizNode, mockEdge, camelResource, catalogModalContext);
 
     expect(result).toBe(true);
-    expect(camelResource.getCompatibleComponents).toHaveBeenCalled();
+    expect(camelResource?.getCompatibleComponents).toHaveBeenCalled();
     expect(catalogModalContext.checkCompatibility).toHaveBeenCalled();
   });
 
   it('should return false when checkCompatibility returns false', () => {
     const mockFilter = ['filter1', 'filter2'];
-    (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
+    (camelResource?.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
     (catalogModalContext.checkCompatibility as jest.Mock).mockReturnValue(false);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
     expect(result).toBe(false);
-    expect(camelResource.getCompatibleComponents).toHaveBeenCalledWith(
+    expect(camelResource?.getCompatibleComponents).toHaveBeenCalledWith(
       AddStepMode.PrependStep,
       targetVizNode.data,
       targetVizNode.getNodeDefinition(),
@@ -211,13 +211,13 @@ describe('canDropOnEdge', () => {
 
   it('should return true when all conditions pass and checkCompatibility returns true', () => {
     const mockFilter = ['filter1', 'filter2'];
-    (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
+    (camelResource?.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
     (catalogModalContext.checkCompatibility as jest.Mock).mockReturnValue(true);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
     expect(result).toBe(true);
-    expect(camelResource.getCompatibleComponents).toHaveBeenCalledWith(
+    expect(camelResource?.getCompatibleComponents).toHaveBeenCalledWith(
       AddStepMode.PrependStep,
       targetVizNode.data,
       targetVizNode.getNodeDefinition(),
@@ -227,7 +227,7 @@ describe('canDropOnEdge', () => {
 
   it('should return false when checkCompatibility returns undefined', () => {
     const mockFilter = ['filter1'];
-    (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
+    (camelResource?.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
     (catalogModalContext.checkCompatibility as jest.Mock).mockReturnValue(undefined);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);

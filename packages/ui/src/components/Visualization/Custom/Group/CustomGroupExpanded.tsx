@@ -139,7 +139,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupProps> = obs
             item.getData()?.vizNode,
             groupVizNode,
             (mode: AddStepMode, filterNode: IVisualizationNode, compatibilityCheckNodeName: string) => {
-              const filter = entitiesContext.camelResource.getCompatibleComponents(
+              const filter = entitiesContext.camelResource?.getCompatibleComponents(
                 mode,
                 filterNode.data,
                 filterNode.getNodeDefinition(),

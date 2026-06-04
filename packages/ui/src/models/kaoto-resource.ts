@@ -53,7 +53,7 @@ export enum SerializerType {
 export type Metadata = { [key: string]: unknown };
 
 export interface KaotoResourceSerializer {
-  parse: (code: string) => CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined;
+  parse: (code: string) => Promise<CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined>;
   serialize: (resource: KaotoResource) => string;
   getComments: () => string[];
   setComments: (comments: string[]) => void;

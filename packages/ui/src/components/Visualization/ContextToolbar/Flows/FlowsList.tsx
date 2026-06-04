@@ -24,7 +24,7 @@ interface IFlowsList {
 }
 
 export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
-  const { visualEntities, camelResource, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
+  const { visualEntities, camelResource, isLoading, updateEntitiesFromCamelResource } = useContext(EntitiesContext)!;
   const { visibleFlows, allFlowsVisible, visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const deleteModalContext = useContext(ActionConfirmationModalContext);
   const controller = useVisualizationController();
@@ -89,11 +89,16 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
       if (filteredIds.length === 0) {
         return;
       }
-      camelResource.removeEntity(filteredIds);
+      camelResource?.removeEntity(filteredIds);
       updateEntitiesFromCamelResource();
     },
     [onClose, deleteModalContext, filteredIds, camelResource, updateEntitiesFromCamelResource],
   );
+
+  if (isLoading || !camelResource) {
+    return null;
+  }
+
   return isListEmpty ? (
     <FlowsListEmptyState data-testid="flows-list-empty-state" />
   ) : (
