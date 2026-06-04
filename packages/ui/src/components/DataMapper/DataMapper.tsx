@@ -18,11 +18,7 @@ import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useStat
 import { DataMapperControl } from '../../components/DataMapper/DataMapperControl';
 import { Loading } from '../../components/Loading';
 import { IVisualizationNode } from '../../models';
-import {
-  DocumentDefinition,
-  DocumentInitializationModel,
-  DocumentType,
-} from '../../models/datamapper/document';
+import { DocumentDefinition, DocumentInitializationModel, DocumentType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, MetadataContext } from '../../providers';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';

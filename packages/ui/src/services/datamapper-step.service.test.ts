@@ -1,8 +1,8 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind, createVisualizationNode, IVisualizationNode } from '../models';
-import { MappingTree, ValueSelector } from '../models/datamapper/mapping';
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper/document';
+import { MappingTree, ValueSelector } from '../models/datamapper/mapping';
 import { CamelCatalogService } from '../models/visualization/flows/camel-catalog.service';
 import { EntitiesContextResult } from '../providers';
 import { XSLT_COMPONENT_NAME, XsltComponentDef } from '../utils';
@@ -496,8 +496,11 @@ describe('DataMapperStepService', () => {
 
       expect(updateModelSpy).toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any).setBody).toBeDefined();
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any).setBody.simple.expression).toEqual('${null}');
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect(((model.steps[1] as any).to as any)?.parameters?.useJsonBody).toBe(true);
     });
 
@@ -505,6 +508,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl`, parameters: {} } } as ProcessorDefinition,
         ],
@@ -524,6 +528,7 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalled();
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(1);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect(((model.steps[0] as any).to as any)?.parameters?.useJsonBody).toBe(true);
     });
   });
@@ -578,7 +583,9 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(2);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any).setBody).toBeDefined();
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any).setBody.simple.expression).toEqual('${null}');
     });
 
@@ -600,6 +607,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
@@ -612,6 +620,7 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(1);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any).to).toBeDefined();
     });
 
@@ -619,6 +628,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
@@ -631,6 +641,7 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(1);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any).to).toBeDefined();
     });
 
@@ -638,6 +649,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           { setBody: { id: 'set-body-id', simple: { expression: '${body}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
@@ -655,6 +667,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           { setBody: { id: 'set-body-id', simple: { expression: '${null}' } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
@@ -672,6 +685,7 @@ describe('DataMapperStepService', () => {
       const model = {
         id: 'step-id',
         steps: [
+          /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
           { setBody: { id: 'set-body-id', expression: { simple: { expression: '${body}' } } } } as any,
           { to: { uri: `${XSLT_COMPONENT_NAME}:test.xsl` } } as ProcessorDefinition,
         ],
@@ -684,6 +698,7 @@ describe('DataMapperStepService', () => {
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
       expect(model.steps).toHaveLength(2);
+      /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
       expect((model.steps[0] as any)?.setBody?.simple?.expression).toEqual('${null}');
     });
 

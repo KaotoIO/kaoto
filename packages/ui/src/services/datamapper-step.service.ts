@@ -1,5 +1,6 @@
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 
+import { getCamelRandomId } from '../camel-utils/camel-random-id';
 import { IVisualizationNode } from '../models';
 import { CatalogKind } from '../models/catalog-kind';
 import { DocumentDefinition, DocumentDefinitionType } from '../models/datamapper/document';
@@ -9,7 +10,6 @@ import { EntitiesContextResult } from '../providers';
 import { isXSLTComponent, XSLT_COMPONENT_NAME } from '../utils';
 import type { XsltComponentDef } from '../utils/is-xslt-component';
 import { XPathService } from './xpath/xpath.service';
-import { getCamelRandomId } from '../camel-utils/camel-random-id';
 
 /**
  * Service for managing DataMapper step construction.
@@ -239,7 +239,9 @@ export class DataMapperStepService {
       return acc;
     }, []);
 
-    const managedSetBodyIndexes = setBodyIndexes.filter((index) => DataMapperStepService.isManagedSetBodyStep(steps[index]));
+    const managedSetBodyIndexes = setBodyIndexes.filter((index) =>
+      DataMapperStepService.isManagedSetBodyStep(steps[index]),
+    );
 
     const managedSetBodyIndex = managedSetBodyIndexes[0];
 
