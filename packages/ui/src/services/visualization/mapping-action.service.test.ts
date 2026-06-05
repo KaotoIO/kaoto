@@ -16,6 +16,7 @@ import {
   OtherwiseItem,
   UnknownMappingItem,
   ValueSelector,
+  ValueType,
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
@@ -36,7 +37,9 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import {
   getConditionalMappingsToShipOrderXslt,
   getContactsXsd,
+  getEnvelopeXsd,
   getExtensionSimpleXsd,
+  getOrderInfoXsd,
   getOrgXsd,
   getShipOrderToShipOrderInvalidForEachXslt,
   getShipOrderToShipOrderXslt,
@@ -626,6 +629,165 @@ describe('MappingActionService', () => {
         expect(expressionItem?.expression).toEqual('/ns0:Product/ns0:price/@currency');
       });
     });
+
+    describe('container auto-mapping', () => {
+      it('should place ForEachItem with copy-of in parent when both collections share name and namespace', () => {
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+        const sourceItem = sourceShipOrderChildren[3] as FieldNodeData;
+
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem).toBeInstanceOf(FieldItem);
+
+        const forEachItem = shipOrderFieldItem.children.find((c) => c instanceof ForEachItem) as ForEachItem;
+        expect(forEachItem).toBeDefined();
+        expect(forEachItem.expression).toEqual('/ns0:ShipOrder/Item');
+
+        expect(forEachItem.children.some((c) => c instanceof FieldItem)).toBeFalsy();
+
+        const copyOf = forEachItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        expect(copyOf).toBeDefined();
+        expect(copyOf.expression).toEqual('.');
+      });
+
+      it('should place ForEachItem with inner FieldItem when collections have different names', () => {
+        const orderInfoDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'OrderInfo.xsd': getOrderInfoXsd() },
+        );
+        const orderInfoResult = XmlSchemaDocumentService.createXmlSchemaDocument(orderInfoDef);
+        expect(orderInfoResult.validationStatus).toBe('success');
+        const orderInfoDoc = orderInfoResult.document!;
+        const orderInfoDocNode = new DocumentNodeData(orderInfoDoc);
+
+        const orderInfoDocChildren = VisualizationService.generateStructuredDocumentChildren(orderInfoDocNode);
+        const orderInfoChildren = VisualizationService.generateNonDocumentNodeDataChildren(orderInfoDocChildren[0]);
+        const sourceOrderEntry = orderInfoChildren[0] as FieldNodeData;
+
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceOrderEntry, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem).toBeInstanceOf(FieldItem);
+
+        const forEachItem = shipOrderFieldItem.children.find((c) => c instanceof ForEachItem) as ForEachItem;
+        expect(forEachItem).toBeDefined();
+        expect(forEachItem.expression).toContain('OrderEntry');
+
+        const innerFieldItem = forEachItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+        expect(innerFieldItem).toBeDefined();
+        expect(innerFieldItem.field.name).toEqual('Item');
+
+        expect(innerFieldItem.children.length).toBeGreaterThan(0);
+        const titleMapping = innerFieldItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'Title',
+        ) as FieldItem;
+        expect(titleMapping).toBeDefined();
+      });
+
+      it('should not create duplicate ForEachItem on repeated DnD (copy-of case)', () => {
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+        const sourceItem = sourceShipOrderChildren[3] as FieldNodeData;
+
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        MappingActionService.engageMapping(tree, sourceItem, targetShipOrderChildren[3] as TargetNodeData);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const forEachItems = shipOrderFieldItem.children.filter((c) => c instanceof ForEachItem);
+        expect(forEachItems.length).toEqual(1);
+      });
+
+      it('should not create duplicate ForEachItem on repeated DnD (auto-child case)', () => {
+        const orderInfoDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'OrderInfo.xsd': getOrderInfoXsd() },
+        );
+        const orderInfoResult = XmlSchemaDocumentService.createXmlSchemaDocument(orderInfoDef);
+        const orderInfoDoc = orderInfoResult.document!;
+        const orderInfoDocNode = new DocumentNodeData(orderInfoDoc);
+
+        const orderInfoDocChildren = VisualizationService.generateStructuredDocumentChildren(orderInfoDocNode);
+        const orderInfoChildren = VisualizationService.generateNonDocumentNodeDataChildren(orderInfoDocChildren[0]);
+        const sourceOrderEntry = orderInfoChildren[0] as FieldNodeData;
+
+        let targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        let targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, sourceOrderEntry, targetItem);
+
+        targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+
+        MappingActionService.engageMapping(tree, sourceOrderEntry, targetShipOrderChildren[3] as TargetNodeData);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const forEachItems = shipOrderFieldItem.children.filter((c) => c instanceof ForEachItem);
+        expect(forEachItems.length).toEqual(1);
+      });
+    });
+
+    describe('xs:anyType container mapping', () => {
+      it('should create copy-of with CONTAINER_NODE when xs:anyType source is mapped to a container target', () => {
+        const anyTypeDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'Envelope.xsd': getEnvelopeXsd() },
+        );
+        const anyTypeResult = XmlSchemaDocumentService.createXmlSchemaDocument(anyTypeDef);
+        expect(anyTypeResult.validationStatus).toBe('success');
+        const anyTypeDoc = anyTypeResult.document!;
+        const anyTypeDocNode = new DocumentNodeData(anyTypeDoc);
+
+        const anyTypeDocChildren = VisualizationService.generateStructuredDocumentChildren(anyTypeDocNode);
+        const envelopeChildren = VisualizationService.generateNonDocumentNodeDataChildren(anyTypeDocChildren[0]);
+        const payloadField = envelopeChildren[0] as FieldNodeData;
+        expect(payloadField.title).toEqual('Payload');
+
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const targetItem = targetShipOrderChildren[3] as TargetFieldNodeData;
+        expect(targetItem.title).toEqual('Item');
+
+        MappingActionService.engageMapping(tree, payloadField, targetItem);
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        expect(shipOrderFieldItem).toBeInstanceOf(FieldItem);
+
+        const itemFieldItem = shipOrderFieldItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'Item',
+        ) as FieldItem;
+        expect(itemFieldItem).toBeDefined();
+
+        const copyOf = itemFieldItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        expect(copyOf).toBeDefined();
+        expect(copyOf.valueType).toEqual(ValueType.CONTAINER_NODE);
+      });
+    });
+
     it('should fill ContextItemExpr (.) and AbbrevReverseStep (..) in xpath when it maps under for-each', () => {
       const orgDefinition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'Org', {
         'Org.xsd': getOrgXsd(),

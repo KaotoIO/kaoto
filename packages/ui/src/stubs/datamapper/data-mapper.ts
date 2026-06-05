@@ -331,6 +331,12 @@ export function getVariableEmptyNameXslt(): string {
 export function getVariableNestedInForEachXslt(): string {
   return readStubFile('./xml/VariableNestedInForEach.xsl');
 }
+export function getOrderInfoXsd(): string {
+  return readStubFile('./xml/OrderInfo.xsd');
+}
+export function getEnvelopeXsd(): string {
+  return readStubFile('./xml/Envelope.xsd');
+}
 
 export class TestUtil {
   static createSourceOrderDoc() {

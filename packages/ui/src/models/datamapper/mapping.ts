@@ -317,7 +317,8 @@ export class ValueSelector extends MappingItem implements IExpressionHolder {
     public parent: MappingParentType,
     public valueType: ValueType = ValueType.VALUE,
   ) {
-    super(parent, 'value', getCamelRandomId('value', 4));
+    const label = valueType === ValueType.CONTAINER || valueType === ValueType.CONTAINER_NODE ? 'copy-of' : 'value';
+    super(parent, label, getCamelRandomId(label, 4));
   }
   expression = '';
   isLiteral = false;

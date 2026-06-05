@@ -70,6 +70,20 @@ describe('MappingValidationService', () => {
         const result = MappingValidationService.validateFieldPair(source, target);
         expect(result.isValid).toBe(true);
       });
+
+      it('should allow xs:anyType source to container target', () => {
+        const source = createMockField({ type: Types.AnyType });
+        const target = createMockField({ type: Types.Container });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
+
+      it('should allow container source to xs:anyType target', () => {
+        const source = createMockField({ type: Types.Container });
+        const target = createMockField({ type: Types.AnyType });
+        const result = MappingValidationService.validateFieldPair(source, target);
+        expect(result.isValid).toBe(true);
+      });
     });
 
     describe('choice validation', () => {
