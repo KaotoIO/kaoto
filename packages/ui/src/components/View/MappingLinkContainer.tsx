@@ -58,9 +58,14 @@ export const MappingLinksContainer: FunctionComponent = () => {
       const isSourceEdge = sourcePort.connectionTarget === 'edge';
       const isTargetEdge = targetPort.connectionTarget === 'edge';
 
+      const isSourceParent = sourcePort.connectionTarget === 'parent';
+      const isTargetParent = targetPort.connectionTarget === 'parent';
+
       let resolvedLineStyle = lineStyle;
       if (isSourceEdge || isTargetEdge) {
         resolvedLineStyle = MappingLineStyle.OUT_OF_VIEW;
+      } else if (isSourceParent || isTargetParent) {
+        resolvedLineStyle = MappingLineStyle.PARTIAL;
       } else if (
         sourcePort.connectionTarget === 'node' &&
         targetPort.connectionTarget === 'node' &&

@@ -11,9 +11,11 @@ import {
   OtherwiseItem,
   UnknownMappingItem,
   ValueSelector,
+  ValueType,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { IMappingAction, IMappingContextMenuAction, MappingActionKind } from '../../models/datamapper/mapping-action';
+import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
   ChoiceFieldNodeData,
@@ -28,7 +30,8 @@ import {
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
-// import { DocumentService } from '../document/document.service';
+import { DocumentService } from '../document/document.service';
+import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -248,8 +251,21 @@ export class MappingActionService {
     }
     const sourceFieldFromNode = sourceNode.field;
     const targetFieldFromNode = targetNode.field;
+    const sourceHasChildren = DocumentService.hasChildren(sourceFieldFromNode);
+    const targetHasChildren = DocumentService.hasChildren(targetFieldFromNode);
+    const anyTypeInvolved = sourceFieldFromNode.type === Types.AnyType || targetFieldFromNode.type === Types.AnyType;
 
-    if (!DocumentService.hasChildren(sourceFieldFromNode) || !DocumentService.hasChildren(targetFieldFromNode)) {
+    if (!sourceHasChildren && !targetHasChildren && !anyTypeInvolved) {
+      return false;
+    }
+
+    if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
+      const item = MappingActionService.getOrCreateFieldItem(targetNode);
+      MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, ValueType.CONTAINER_NODE);
+      return true;
+    }
+
+    if (!sourceHasChildren || !targetHasChildren) {
       return false;
     }
 
@@ -258,16 +274,48 @@ export class MappingActionService {
       VisualizationUtilService.isCollectionField(sourceNode) && VisualizationUtilService.isCollectionField(targetNode);
 
     if (bothCollections) {
-      if (item.children.some((c) => c instanceof ForEachItem)) return true;
-      item.children = item.children.filter((c) => !(c instanceof ValueSelector));
-      const forEachItem = new ForEachItem(item);
-      MappingService.mapToCondition(forEachItem, sourceFieldFromNode);
-      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, forEachItem);
-      item.children.push(forEachItem);
+      const guardResult = MappingActionService.guardExistingForEach(item);
+      if (guardResult !== undefined) return guardResult;
+
+      MappingActionService.createCollectionForEach(item, sourceFieldFromNode, targetFieldFromNode);
     } else {
       MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
     }
     return true;
+  }
+
+  /**
+   * Checks whether a container auto-mapping ForEachItem already exists for this target field.
+   * Returns `true` (handled), `false` (defer to regular mapping), or `undefined` (proceed with auto-mapping).
+   */
+  private static guardExistingForEach(item: MappingItem): boolean | undefined {
+    if (item.children.some((c) => c instanceof ForEachItem)) return true;
+    if (item.parent instanceof ForEachItem) return false;
+    if (item.parent.children.some((c) => c !== item && c instanceof ForEachItem)) {
+      const idx = item.parent.children.indexOf(item);
+      if (idx !== -1) item.parent.children.splice(idx, 1);
+      return true;
+    }
+    return undefined;
+  }
+
+  private static createCollectionForEach(item: MappingItem, sourceField: IField, targetField: IField): void {
+    const parentOfItem = item.parent;
+    const index = parentOfItem.children.indexOf(item);
+    if (index !== -1) parentOfItem.children.splice(index, 1);
+
+    const forEachItem = new ForEachItem(parentOfItem);
+    MappingService.mapToCondition(forEachItem, sourceField);
+
+    if (FieldMatchingService.canUseCopyOf(sourceField, targetField)) {
+      const valueType = MappingService.getContainerValueType(sourceField, targetField);
+      MappingService.mapToFieldWithValueType(sourceField, forEachItem, valueType);
+    } else {
+      const innerFieldItem = MappingService.createFieldItem(forEachItem, targetField);
+      MappingService.generateAutoChildMappings(sourceField, targetField, innerFieldItem);
+    }
+
+    parentOfItem.children.push(forEachItem);
   }
 
   private static createChooseFromChoice(sourceField: IField, targetNode: TargetNodeData) {

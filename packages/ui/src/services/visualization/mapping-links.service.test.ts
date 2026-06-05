@@ -764,7 +764,7 @@ describe('MappingLinksService', () => {
       }
     });
 
-    it('should classify copy-of with CONTAINER_NODE as COPY_OF', () => {
+    it('should classify copy-of with CONTAINER_NODE as PARTIAL (inherits from parent)', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,
         targetDoc.documentId,
@@ -784,7 +784,7 @@ describe('MappingLinksService', () => {
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
       expect(links.length).toBe(1);
-      expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+      expect(links[0].lineStyle).toBe(MappingLineStyle.PARTIAL);
     });
   });
 });

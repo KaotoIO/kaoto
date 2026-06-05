@@ -157,4 +157,43 @@ describe('MappingLinksContainer', () => {
     const link = container.querySelector('[data-testid^="mapping-link-"]');
     expect(link).toHaveClass('mapping-link--copy-of');
   });
+
+  it('should override COPY_OF to PARTIAL when target port is on a collapsed parent', () => {
+    mockGetMappingLinks.mockReturnValue([buildLink('source/1', 'target/1', false, MappingLineStyle.COPY_OF)]);
+
+    mockGetNearestVisiblePort
+      .mockReturnValueOnce({ connectionTarget: 'node', position: [10, 20] })
+      .mockReturnValueOnce({ connectionTarget: 'parent', position: [300, 400] });
+
+    const { container } = render(<MappingLinksContainer />);
+    const link = container.querySelector('[data-testid^="mapping-link-"]');
+    expect(link).toHaveClass('mapping-link--partial');
+    expect(link).not.toHaveClass('mapping-link--copy-of');
+  });
+
+  it('should override REGULAR to PARTIAL when source port is on a collapsed parent', () => {
+    mockGetMappingLinks.mockReturnValue([buildLink('source/1', 'target/1', false, MappingLineStyle.REGULAR)]);
+
+    mockGetNearestVisiblePort
+      .mockReturnValueOnce({ connectionTarget: 'parent', position: [10, 20] })
+      .mockReturnValueOnce({ connectionTarget: 'node', position: [300, 400] });
+
+    const { container } = render(<MappingLinksContainer />);
+    const link = container.querySelector('[data-testid^="mapping-link-"]');
+    expect(link).toHaveClass('mapping-link--partial');
+    expect(link).not.toHaveClass('mapping-link--regular');
+  });
+
+  it('should override COMPLETE to PARTIAL when source port is on a collapsed parent', () => {
+    mockGetMappingLinks.mockReturnValue([buildLink('source/1', 'target/1', false, MappingLineStyle.COMPLETE)]);
+
+    mockGetNearestVisiblePort
+      .mockReturnValueOnce({ connectionTarget: 'parent', position: [10, 20] })
+      .mockReturnValueOnce({ connectionTarget: 'node', position: [300, 400] });
+
+    const { container } = render(<MappingLinksContainer />);
+    const link = container.querySelector('[data-testid^="mapping-link-"]');
+    expect(link).toHaveClass('mapping-link--partial');
+    expect(link).not.toHaveClass('mapping-link--complete');
+  });
 });

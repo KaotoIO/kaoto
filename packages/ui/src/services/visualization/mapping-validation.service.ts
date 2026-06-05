@@ -180,8 +180,9 @@ export class MappingValidationService {
 
     const sourceIsContainer = MappingValidationService.isContainer(source);
     const targetIsContainer = MappingValidationService.isContainer(target);
+    const anyTypeInvolved = source.type === Types.AnyType || target.type === Types.AnyType;
 
-    if (sourceIsContainer !== targetIsContainer) {
+    if (sourceIsContainer !== targetIsContainer && !anyTypeInvolved) {
       return {
         isValid: false,
         errorMessage: 'Cannot map between a container field and a terminal field.',

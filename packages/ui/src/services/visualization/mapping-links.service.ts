@@ -174,11 +174,7 @@ export class MappingLinksService {
     const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
 
     const vs = item.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
-    if (
-      childFieldItems.length === 0 &&
-      vs &&
-      (vs.valueType === ValueType.CONTAINER || vs.valueType === ValueType.CONTAINER_NODE)
-    ) {
+    if (childFieldItems.length === 0 && vs?.valueType === ValueType.CONTAINER) {
       return MappingLineStyle.COPY_OF;
     }
 
@@ -217,7 +213,7 @@ export class MappingLinksService {
       }
     }
 
-    if (sourceParents.size !== 1) return false;
+    if (sourceParents.size !== 1) return true;
     const sourceParent = [...sourceParents][0];
     if (!('fields' in sourceParent)) return false;
     const sourceChildren = (sourceParent as IField).fields.filter(
