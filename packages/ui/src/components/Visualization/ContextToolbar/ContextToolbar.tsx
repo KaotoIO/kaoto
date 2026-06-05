@@ -1,7 +1,8 @@
 import './ContextToolbar.scss';
 
-import { Button, Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
-import { RedoIcon, UndoIcon } from '@patternfly/react-icons';
+import { Redo, Undo } from '@carbon/icons-react';
+import { IconButton } from '@carbon/react';
+import { Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
 import { useUndoRedo } from '../../../hooks/undo-redo.hook';
@@ -52,15 +53,15 @@ export const ContextToolbar: FunctionComponent<ContextToolbarProps> = ({ isSimpl
         )}
 
         <ToolbarItem key="toolbar-undo">
-          <Button aria-label="Undo" title="Undo" variant="plain" isDisabled={!canUndo} onClick={undo}>
-            <UndoIcon />
-          </Button>
+          <IconButton label="Undo" disabled={!canUndo} onClick={undo} kind="ghost">
+            <Undo />
+          </IconButton>
         </ToolbarItem>
 
         <ToolbarItem key="toolbar-redo">
-          <Button aria-label="Redo" title="Redo" variant="plain" isDisabled={!canRedo} onClick={redo}>
-            <RedoIcon />
-          </Button>
+          <IconButton label="Redo" disabled={!canRedo} onClick={redo} kind="ghost">
+            <Redo />
+          </IconButton>
         </ToolbarItem>
 
         <ToolbarItem key="toolbar-clipboard">

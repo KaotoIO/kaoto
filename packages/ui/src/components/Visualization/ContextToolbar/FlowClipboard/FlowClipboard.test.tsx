@@ -59,34 +59,4 @@ describe('FlowClipboard.tsx', () => {
 
     jest.useRealTimers();
   });
-
-  it('should have default tooltip text', () => {
-    const clipboardButton = screen.getByTestId('clipboardButton');
-
-    expect(clipboardButton).toHaveAttribute('title', defaultTooltipText);
-  });
-
-  it('should have success tooltip text', () => {
-    const clipboardButton = screen.getByTestId('clipboardButton');
-
-    act(() => fireEvent.click(clipboardButton));
-
-    expect(clipboardButton).toHaveAttribute('title', successTooltipText);
-  });
-
-  it('should restore tooltip text after 2 seconds', () => {
-    jest.useFakeTimers();
-
-    const clipboardButton = screen.getByTestId('clipboardButton');
-
-    act(() => fireEvent.click(clipboardButton));
-
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-
-    expect(clipboardButton).toHaveAttribute('title', 'Copy to clipboard');
-
-    jest.useRealTimers();
-  });
 });

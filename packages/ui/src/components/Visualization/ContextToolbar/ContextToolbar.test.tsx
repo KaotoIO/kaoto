@@ -139,7 +139,6 @@ describe('ContextToolbar', () => {
 
       const undoButton = screen.getByLabelText('Undo');
       expect(undoButton).toBeInTheDocument();
-      expect(undoButton).toHaveAttribute('title', expect.stringContaining('Undo'));
       expect(undoButton).not.toBeDisabled();
     });
 
@@ -154,7 +153,6 @@ describe('ContextToolbar', () => {
 
       const redoButton = screen.getByLabelText('Redo');
       expect(redoButton).toBeInTheDocument();
-      expect(redoButton).toHaveAttribute('title', expect.stringContaining('Redo'));
       expect(redoButton).toBeDisabled(); // canRedo is false in our mock
     });
   });
