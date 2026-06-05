@@ -28,7 +28,7 @@ import {
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
-import { DocumentService } from '../document/document.service';
+// import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -413,9 +413,11 @@ export class MappingActionService {
         MappingActionService.applyForEachGroup(n as TargetFieldNodeData | FieldItemNodeData | AddMappingNodeData);
         onUpdate();
       },
-      isAllowed: (n) =>
-        n instanceof AddMappingNodeData ||
-        (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2866 is implemented
+      // isAllowed: (n) =>
+      //   n instanceof AddMappingNodeData ||
+      //   (MappingActionService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
+      isAllowed: () => false,
     },
     {
       key: MappingActionKind.If,
@@ -448,15 +450,17 @@ export class MappingActionService {
       apply: (n) => {
         useDocumentTreeStore.getState().setAddingVariableTo(n.path.toString());
       },
-      isAllowed: (n) => {
-        if (n instanceof VariableNodeData) return false;
-        if (n instanceof TargetDocumentNodeData) return false;
-        if (MappingActionService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
-        return (
-          MappingActionService.isMappingNode(n) &&
-          !MappingActionService.mappingIsOneOf(ValueSelector, ChooseItem, UnknownMappingItem)(n)
-        );
-      },
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      // isAllowed: (n) => {
+      //   if (n instanceof VariableNodeData) return false;
+      //   if (n instanceof TargetDocumentNodeData) return false;
+      //   if (MappingActionService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
+      //   return (
+      //     MappingActionService.isMappingNode(n) &&
+      //     !MappingActionService.mappingIsOneOf(ValueSelector, ChooseItem, UnknownMappingItem)(n)
+      //   );
+      // },
+      isAllowed: () => false,
     },
     {
       key: MappingActionKind.RenameVariable,
@@ -467,7 +471,9 @@ export class MappingActionService {
           useDocumentTreeStore.getState().setRenamingVariable(n.mapping.id);
         }
       },
-      isAllowed: (n) => n instanceof VariableNodeData,
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      // isAllowed: (n) => n instanceof VariableNodeData,
+      isAllowed: () => false,
     },
   ];
 
