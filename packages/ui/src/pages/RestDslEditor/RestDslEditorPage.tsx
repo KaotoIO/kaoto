@@ -2,7 +2,7 @@ import './RestDslEditorPage.scss';
 
 import { CodeSnippet } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
+import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, Suspense, useCallback, useMemo, useState } from 'react';
 
 import { Loading } from '../../components/Loading';
@@ -12,6 +12,7 @@ import { useEntityContext } from '../../hooks/useEntityContext/useEntityContext'
 import { EntityType } from '../../models/entities';
 import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
 import { getRestEntities } from './components/get-rest-entities';
+import { RestDslFormHeader } from './components/RestDslFormHeader';
 import { restFormFieldFactory } from './components/restFormFieldFactory';
 import { IRestTreeSelection, RestTree } from './components/RestTree';
 import { RestTreeToolbar, RestTreeToolbarProps } from './components/RestTreeToolbar';
@@ -155,15 +156,18 @@ export const RestDslEditorPage: FunctionComponent = () => {
               ) : (
                 <Suspense fallback={<Loading>Loading form...</Loading>}>
                   <CanvasFormTabsProvider tab="All">
-                    <SuggestionRegistrar>
-                      <KaotoForm
-                        key={`${selectedElement.entityId}__${selectedElement.modelPath}`}
-                        schema={schema}
-                        onChangeProp={handleOnChangeIndividualProp}
-                        model={model}
-                        customFieldsFactory={restFormFieldFactory}
-                      />
-                    </SuggestionRegistrar>
+                    <FilteredFieldProvider key={`${selectedElement.entityId}__${selectedElement.modelPath}`}>
+                      <RestDslFormHeader />
+                      <SuggestionRegistrar>
+                        <KaotoForm
+                          key={`${selectedElement.entityId}__${selectedElement.modelPath}`}
+                          schema={schema}
+                          onChangeProp={handleOnChangeIndividualProp}
+                          model={model}
+                          customFieldsFactory={restFormFieldFactory}
+                        />
+                      </SuggestionRegistrar>
+                    </FilteredFieldProvider>
                   </CanvasFormTabsProvider>
                 </Suspense>
               )}

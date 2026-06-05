@@ -22,4 +22,8 @@
 
 .rest-right-panel {
   height: 100%;
+
+  .filter-fields {
+    margin-bottom: $spacing-05;
+  }
 }
