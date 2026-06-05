@@ -5,7 +5,7 @@ import { EventNotifier } from '../utils/event-notifier';
 import { SourceCodeLocalStorageProvider } from './source-code-local-storage.provider';
 
 describe('SourceCodeLocalStorageProvider', () => {
-  it('should render children within SourceCodeProvider', () => {
+  it('should render children within SourceCodeSync', () => {
     const { getByText } = render(
       <SourceCodeLocalStorageProvider>
         <div>Test Child</div>

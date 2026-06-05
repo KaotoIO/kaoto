@@ -5,9 +5,9 @@ import { datamapperRouteDefinitionStub } from '../../stubs/datamapper/data-mappe
 import { CommonParser } from './common-parser';
 
 describe('CommonParser', () => {
-  const camelRouteEntity = CamelResourceFactory.createCamelResource(
-    camelRouteYaml,
-  ).getVisualEntities()[0] as CamelRouteVisualEntity;
+  const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
+  resource.initialize();
+  const camelRouteEntity = resource.getVisualEntities()[0] as CamelRouteVisualEntity;
 
   describe('parseFrom()', () => {
     it('should parse from', () => {

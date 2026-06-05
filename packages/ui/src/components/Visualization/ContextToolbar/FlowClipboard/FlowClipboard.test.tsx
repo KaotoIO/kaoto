@@ -1,10 +1,7 @@
-import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
-import { PropsWithChildren, useContext } from 'react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { SourceCodeContext, SourceCodeProvider } from '../../../../providers/source-code.provider';
+import { useSourceCodeStore } from '../../../../store';
 import { defaultTooltipText, FlowClipboard, successTooltipText } from './FlowClipboard';
-
-const wrapper = ({ children }: PropsWithChildren) => <SourceCodeProvider>{children}</SourceCodeProvider>;
 
 Object.defineProperty(navigator, 'clipboard', {
   value: {
@@ -13,7 +10,10 @@ Object.defineProperty(navigator, 'clipboard', {
 });
 
 describe('FlowClipboard.tsx', () => {
-  beforeEach(() => render(<FlowClipboard />, { wrapper }));
+  beforeEach(() => {
+    useSourceCodeStore.setState({ sourceCode: 'my source code' });
+    render(<FlowClipboard />);
+  });
 
   afterEach(() => jest.clearAllMocks());
 
@@ -24,14 +24,12 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should be called clipboard api', () => {
-    const { result } = renderHook(() => useContext(SourceCodeContext), { wrapper });
-
     const clipboardButton = screen.getByTestId('clipboardButton');
 
     act(() => fireEvent.click(clipboardButton));
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledTimes(1);
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(result.current);
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('my source code');
   });
 
   it('should set data-copied attribute to true', () => {

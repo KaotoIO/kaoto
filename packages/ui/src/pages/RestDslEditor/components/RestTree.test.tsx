@@ -37,6 +37,7 @@ describe('RestTree', () => {
         to:
           uri: direct:deleteItem
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -66,6 +67,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -104,6 +106,7 @@ describe('RestTree', () => {
 - rest:
     id: rest-1234
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
 
@@ -126,6 +129,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     const selected = { entityId: 'rest-1234', modelPath: 'rest' };
@@ -157,6 +161,7 @@ describe('RestTree', () => {
         to:
           uri: direct:orders
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     const selected = { entityId: 'rest-1234', modelPath: 'rest.post.0' };
@@ -174,6 +179,7 @@ describe('RestTree', () => {
 - rest:
     id: rest-1234
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
 
@@ -193,6 +199,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     const initialSelected = { entityId: 'rest-1234', modelPath: 'rest' };
@@ -222,6 +229,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);
@@ -239,6 +247,7 @@ describe('RestTree', () => {
         to:
           uri: direct:test
     `);
+    camelResource.initialize();
 
     const entities = getRestEntities(camelResource.getEntities());
     render(<RestTree entities={entities} onSelect={mockOnSelect} />);

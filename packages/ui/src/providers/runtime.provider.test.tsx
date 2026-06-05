@@ -1,9 +1,19 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { act, render, screen } from '@testing-library/react';
+import { PropsWithChildren } from 'react';
 
+import { SourceSchemaType } from '../models/camel';
+import { KaotoResource } from '../models/kaoto-resource';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
+import { KaotoResourceContext } from './kaoto-resource.provider';
 import { ReloadContext } from './reload.provider';
 import { RuntimeProvider } from './runtime.provider';
+
+const kaotoResource = { getType: () => SourceSchemaType.Route } as unknown as KaotoResource;
+
+const KaotoResourceWrapper = ({ children }: PropsWithChildren) => (
+  <KaotoResourceContext.Provider value={{ kaotoResource }}>{children}</KaotoResourceContext.Provider>
+);
 
 describe('RuntimeProvider', () => {
   let fetchMock: jest.SpyInstance;
@@ -34,9 +44,11 @@ describe('RuntimeProvider', () => {
   it('should start in loading mode', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl="">
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
+        <KaotoResourceWrapper>
+          <RuntimeProvider catalogUrl="">
+            <span data-testid="library-loaded">Loaded</span>
+          </RuntimeProvider>
+        </KaotoResourceWrapper>,
       );
     });
 
@@ -48,9 +60,11 @@ describe('RuntimeProvider', () => {
     await act(async () => {
       render(
         <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
-          <RuntimeProvider catalogUrl="">
-            <span data-testid="library-loaded">Loaded</span>
-          </RuntimeProvider>
+          <KaotoResourceWrapper>
+            <RuntimeProvider catalogUrl="">
+              <span data-testid="library-loaded">Loaded</span>
+            </RuntimeProvider>
+          </KaotoResourceWrapper>
         </ReloadContext.Provider>,
       );
     });
@@ -65,9 +79,11 @@ describe('RuntimeProvider', () => {
   it('should fetch the index.json catalog file', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
+        <KaotoResourceWrapper>
+          <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+            <span data-testid="library-loaded">Loaded</span>
+          </RuntimeProvider>
+        </KaotoResourceWrapper>,
       );
     });
 
@@ -81,9 +97,11 @@ describe('RuntimeProvider', () => {
   it('should render children when the index.json file is loaded', async () => {
     await act(async () => {
       render(
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <span data-testid="library-loaded">Loaded</span>
-        </RuntimeProvider>,
+        <KaotoResourceWrapper>
+          <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+            <span data-testid="library-loaded">Loaded</span>
+          </RuntimeProvider>
+        </KaotoResourceWrapper>,
       );
     });
 

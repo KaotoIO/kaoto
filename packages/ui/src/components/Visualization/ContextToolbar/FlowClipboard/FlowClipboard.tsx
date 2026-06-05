@@ -2,22 +2,21 @@ import './FlowClipboard.scss';
 
 import { Button, Icon } from '@patternfly/react-core';
 import { CopyIcon } from '@patternfly/react-icons';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 
-import { SourceCodeContext } from '../../../../providers';
+import { useSourceCodeStore } from '../../../../store';
 
 export const successTooltipText = 'Content added to clipboard';
 
 export const defaultTooltipText = 'Copy to clipboard';
 
 export function FlowClipboard() {
-  const sourceCode = useContext(SourceCodeContext);
   const [isCopied, setIsCopied] = useState(false);
   const status = isCopied ? 'success' : undefined;
   const tooltipText = isCopied ? successTooltipText : defaultTooltipText;
 
   const onClick = () => {
-    navigator.clipboard.writeText(sourceCode);
+    navigator.clipboard.writeText(useSourceCodeStore.getState().sourceCode);
     setIsCopied(true);
 
     setTimeout(() => {

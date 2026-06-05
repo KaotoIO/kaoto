@@ -32,6 +32,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -57,6 +58,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -123,6 +125,7 @@ describe('RestTreeToolbar', () => {
 - restConfiguration:
     host: localhost
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -188,6 +191,7 @@ describe('RestTreeToolbar', () => {
     host: localhost
     port: "8080"
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
       const restConfigEntity = entities[0] as CamelRestConfigurationVisualEntity;
@@ -220,6 +224,7 @@ describe('RestTreeToolbar', () => {
         to:
           uri: direct:test
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -251,6 +256,7 @@ describe('RestTreeToolbar', () => {
         to:
           uri: direct:test
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -286,6 +292,7 @@ describe('RestTreeToolbar', () => {
     from:
       uri: direct:test
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -334,6 +341,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -360,6 +368,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -385,6 +394,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -412,6 +422,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 
@@ -443,6 +454,7 @@ describe('RestTreeToolbar', () => {
 - rest:
     id: rest-1234
       `);
+      camelResource.initialize();
 
       const entities = getRestEntities(camelResource.getEntities());
 

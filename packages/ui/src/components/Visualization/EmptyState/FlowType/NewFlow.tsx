@@ -7,14 +7,13 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
-import { SourceCodeApiContext } from '../../../../providers';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { useSourceCodeStore } from '../../../../store';
 import { findCatalog, requiresCatalogChange } from '../../../../utils/catalog-helper';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
   const runtimeContext = useRuntimeContext();
-  const sourceCodeContextApi = useContext(SourceCodeApiContext);
   const { currentSchemaType, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
@@ -83,7 +82,9 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
             data-testid="confirmation-modal-confirm"
             onClick={() => {
               if (proposedFlowType) {
-                sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
+                useSourceCodeStore
+                  .getState()
+                  .setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
 
                 // Update catalog if needed when switching flow types
                 const changeCatalog = requiresCatalogChange(proposedFlowType, runtimeContext.selectedCatalog);

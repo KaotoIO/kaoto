@@ -49,6 +49,7 @@ describe('RestDslEditorPage', () => {
    */
   const renderPage = (yamlContent: string) => {
     const camelResource = CamelResourceFactory.createCamelResource(yamlContent);
+    camelResource.initialize();
     const { Provider, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy } = TestProvidersWrapper({
       camelResource,
     });

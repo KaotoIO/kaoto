@@ -16,11 +16,12 @@ import { RouterProvider } from 'react-router-dom';
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
 import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter } from '../models/settings';
+import { KaotoResourceProvider } from '../providers';
 import { EntitiesProvider } from '../providers/entities.provider';
 import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
-import { SourceCodeProvider } from '../providers/source-code.provider';
+import { SourceCodeSync } from '../providers/source-code-sync';
 import { promiseTimeout } from '../utils';
 import { setColorScheme } from '../utils/color-scheme';
 import { SourceCodeBridgeProviderRef } from './Bridge/editor-api';
@@ -170,34 +171,36 @@ export class KaotoEditorApp implements Editor {
     return (
       <ReloadProvider>
         <SettingsProvider adapter={this.settingsAdapter}>
-          <SourceCodeProvider>
+          <SourceCodeSync>
             <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
-              <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
-                <CatalogLoaderProvider>
-                  <EntitiesProvider fileExtension={this.initArgs.fileExtension}>
-                    <KaotoBridge
-                      channelType={this.initArgs.channel}
-                      onReady={this.sendReady}
-                      setNotifications={this.sendNotifications}
-                      onStateControlCommandUpdate={this.sendStateControlCommand}
-                      getMetadata={this.getMetadata}
-                      setMetadata={this.setMetadata}
-                      getResourceContent={this.getResourceContent}
-                      saveResourceContent={this.saveResourceContent}
-                      isResourceExist={this.isResourceExist}
-                      deleteResource={this.deleteResource}
-                      askUserForFileSelection={this.askUserForFileSelection}
-                      getSuggestions={this.getSuggestions}
-                      shouldSaveSchema={false}
-                      onStepUpdated={this.onStepUpdated}
-                    >
-                      <RouterProvider router={kaotoEditorRouter} />
-                    </KaotoBridge>
-                  </EntitiesProvider>
-                </CatalogLoaderProvider>
-              </RuntimeProvider>
+              <KaotoResourceProvider fileExtension={this.initArgs.fileExtension}>
+                <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
+                  <CatalogLoaderProvider>
+                    <EntitiesProvider>
+                      <KaotoBridge
+                        channelType={this.initArgs.channel}
+                        onReady={this.sendReady}
+                        setNotifications={this.sendNotifications}
+                        onStateControlCommandUpdate={this.sendStateControlCommand}
+                        getMetadata={this.getMetadata}
+                        setMetadata={this.setMetadata}
+                        getResourceContent={this.getResourceContent}
+                        saveResourceContent={this.saveResourceContent}
+                        isResourceExist={this.isResourceExist}
+                        deleteResource={this.deleteResource}
+                        askUserForFileSelection={this.askUserForFileSelection}
+                        getSuggestions={this.getSuggestions}
+                        shouldSaveSchema={false}
+                        onStepUpdated={this.onStepUpdated}
+                      >
+                        <RouterProvider router={kaotoEditorRouter} />
+                      </KaotoBridge>
+                    </EntitiesProvider>
+                  </CatalogLoaderProvider>
+                </RuntimeProvider>
+              </KaotoResourceProvider>
             </SourceCodeBridgeProvider>
-          </SourceCodeProvider>
+          </SourceCodeSync>
         </SettingsProvider>
       </ReloadProvider>
     );

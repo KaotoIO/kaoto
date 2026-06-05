@@ -16,6 +16,7 @@ import { Shell } from './layout/Shell';
 import { LocalStorageSettingsAdapter } from './models/settings/localstorage-settings-adapter';
 import {
   EntitiesProvider,
+  KaotoResourceProvider,
   KeyboardShortcutsProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
@@ -44,35 +45,37 @@ function App() {
   return (
     <SettingsProvider adapter={settingsAdapter}>
       <SourceCodeLocalStorageProvider>
-        <RuntimeProvider catalogUrl={catalogUrl}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <EntitiesProvider>
-                <Shell>
-                  <CatalogTilesProvider>
-                    <VisualizationProvider controller={controller}>
-                      <VisibleFlowsProvider>
-                        <RenderingProvider>
-                          <RegisterComponents>
-                            <NodeInteractionAddonProvider>
-                              <RegisterNodeInteractionAddons>
-                                <SuggestionRegistryProvider>
-                                  <KeyboardShortcutsProvider>
-                                    <Outlet />
-                                  </KeyboardShortcutsProvider>
-                                </SuggestionRegistryProvider>
-                              </RegisterNodeInteractionAddons>
-                            </NodeInteractionAddonProvider>
-                          </RegisterComponents>
-                        </RenderingProvider>
-                      </VisibleFlowsProvider>
-                    </VisualizationProvider>
-                  </CatalogTilesProvider>
-                </Shell>
-              </EntitiesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
+        <KaotoResourceProvider>
+          <RuntimeProvider catalogUrl={catalogUrl}>
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <Shell>
+                    <CatalogTilesProvider>
+                      <VisualizationProvider controller={controller}>
+                        <VisibleFlowsProvider>
+                          <RenderingProvider>
+                            <RegisterComponents>
+                              <NodeInteractionAddonProvider>
+                                <RegisterNodeInteractionAddons>
+                                  <SuggestionRegistryProvider>
+                                    <KeyboardShortcutsProvider>
+                                      <Outlet />
+                                    </KeyboardShortcutsProvider>
+                                  </SuggestionRegistryProvider>
+                                </RegisterNodeInteractionAddons>
+                              </NodeInteractionAddonProvider>
+                            </RegisterComponents>
+                          </RenderingProvider>
+                        </VisibleFlowsProvider>
+                      </VisualizationProvider>
+                    </CatalogTilesProvider>
+                  </Shell>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
+        </KaotoResourceProvider>
       </SourceCodeLocalStorageProvider>
     </SettingsProvider>
   );

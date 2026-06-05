@@ -1,8 +1,6 @@
 import { EditorTheme } from '@kie-tools-core/editor/dist/api';
 import { act, renderHook } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils';
 import { useEditorApi } from './editor-api';
@@ -17,26 +15,27 @@ jest.mock('@patternfly/react-topology', () => ({
 
 describe('useEditorApi', () => {
   const mockSetCodeAndNotify = jest.fn();
-
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <SourceCodeApiContext.Provider value={{ setCodeAndNotify: mockSetCodeAndNotify }}>
-      {children}
-    </SourceCodeApiContext.Provider>
-  );
+  let originalSetCodeAndNotify: typeof mockSetCodeAndNotify;
 
   beforeEach(() => {
+    originalSetCodeAndNotify = useSourceCodeStore.getState().setCodeAndNotify as typeof mockSetCodeAndNotify;
     jest.clearAllMocks();
+    useSourceCodeStore.setState({ setCodeAndNotify: mockSetCodeAndNotify });
+  });
+
+  afterEach(() => {
+    useSourceCodeStore.setState({ setCodeAndNotify: originalSetCodeAndNotify });
   });
 
   it('should initialize editorApi and sourceCodeRef', () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     expect(result.current.editorApi).toBeDefined();
     expect(result.current.sourceCodeRef.current).toBe('');
   });
 
   it('should set content when setContent is called', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const path = 'test-path';
     const content = 'test-content';
@@ -50,7 +49,7 @@ describe('useEditorApi', () => {
   });
 
   it('should not update content if the new content is the same as the current one', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const path = 'test-path';
     const content = 'test-content';
@@ -69,7 +68,7 @@ describe('useEditorApi', () => {
   });
 
   it('should get content when getContent is called', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const content = 'test-content';
     result.current.sourceCodeRef.current = content;
@@ -80,7 +79,7 @@ describe('useEditorApi', () => {
   });
 
   it('should return undefined for getPreview', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const preview = await result.current.editorApi.getPreview();
 
@@ -90,7 +89,7 @@ describe('useEditorApi', () => {
   it('should clear pastState when loading the store for the first time', async () => {
     const clearSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
 
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await act(async () => {
       await result.current.editorApi.setContent('test-path', 'test-content 1');
@@ -105,7 +104,7 @@ describe('useEditorApi', () => {
     const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
     const storeUndoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'undo');
 
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await act(async () => {
       await result.current.editorApi.undo();
@@ -123,7 +122,7 @@ describe('useEditorApi', () => {
     const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
     const storeRedoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'redo');
 
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await act(async () => {
       await result.current.editorApi.redo();
@@ -138,7 +137,7 @@ describe('useEditorApi', () => {
   });
 
   it('should validate and return an empty array', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const validationResult = await result.current.editorApi.validate();
 
@@ -146,7 +145,7 @@ describe('useEditorApi', () => {
   });
 
   it('should resolve setTheme without errors', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await expect(result.current.editorApi.setTheme(EditorTheme.LIGHT)).resolves.toBeUndefined();
   });

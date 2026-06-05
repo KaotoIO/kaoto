@@ -1,11 +1,12 @@
 import { act, renderHook } from '@testing-library/react';
 import JSZip from 'jszip';
-import { useContext } from 'react';
+import { PropsWithChildren, useContext } from 'react';
 
 import { PipeVisualEntity } from '../models';
 import { CamelRouteResource } from '../models/camel';
 import { KaotoResource } from '../models/kaoto-resource';
 import { EntitiesContext, EntitiesProvider } from '../providers/entities.provider';
+import { KaotoResourceProvider } from '../providers/kaoto-resource.provider';
 import { camelRouteYaml, kameletYaml, mockRandomValues, pipeYaml } from '../stubs';
 import { beansYaml } from '../stubs/beans';
 import { kameletAwsCloudtailSourceYaml } from '../stubs/kamelet-aws-cloudtail-source';
@@ -23,8 +24,16 @@ describe('DocumentationService', () => {
     eventNotifier = EventNotifier.getInstance();
   });
 
+  // EntitiesProvider now derives its resource from KaotoResourceContext, which also owns the
+  // `code:updated` subscription that recreates the resource — so both providers are needed here.
+  const wrapper = ({ children }: PropsWithChildren) => (
+    <KaotoResourceProvider>
+      <EntitiesProvider>{children}</EntitiesProvider>
+    </KaotoResourceProvider>
+  );
+
   const createDocumentationEntitiesFromYaml = (yaml: string) => {
-    const { result: entitiesContext } = renderHook(() => useContext(EntitiesContext), { wrapper: EntitiesProvider });
+    const { result: entitiesContext } = renderHook(() => useContext(EntitiesContext), { wrapper });
 
     act(() => {
       eventNotifier.next('code:updated', { code: yaml });

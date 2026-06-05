@@ -1,8 +1,7 @@
 import { EditorApi } from '@kie-tools-core/editor/dist/api';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { useUndoRedo } from '../../hooks/undo-redo.hook';
-import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { useSourceCodeStore } from '../../store';
 
 export interface SourceCodeBridgeProviderRef extends EditorApi {
@@ -13,43 +12,39 @@ export interface SourceCodeBridgeProviderRef extends EditorApi {
 export const useEditorApi = () => {
   const sourceCodeRef = useRef<string>('');
   const firstSetContentRef = useRef<boolean>(true);
-  const sourceCodeApiContext = useContext(SourceCodeApiContext);
   const { undo, redo } = useUndoRedo();
 
   /**
    * Callback is exposed to the Channel that is called when a new file is opened.
    * It sets the originalContent to the received value.
    */
-  const setContent = useCallback(
-    (path: string, content: string) => {
-      /**
-       * If the new content is the same as the current one, we don't need to update the Editor,
-       * as it will regenerate the Camel Resource, hence disconnecting the configuration form (if open).
-       *
-       * This happens due to the multiplying architecture lifecycle, where the content is set
-       * after saving the file.
-       *
-       * The lifecycle is:
-       * 1. User edits the file either adding a new node or modifying an existing one using the form
-       * 2. User saves the file
-       * 3. The Envelope uses the `getContent` callback to retrieve the new content
-       * 4. The Envelope sets the new content using the `setContent` callback
-       *
-       * At this point, both the new content and the current content are the same, so the Editor
-       * don't need to be updated.
-       */
-      if (sourceCodeRef.current === content) return;
+  const setContent = useCallback((path: string, content: string) => {
+    /**
+     * If the new content is the same as the current one, we don't need to update the Editor,
+     * as it will regenerate the Camel Resource, hence disconnecting the configuration form (if open).
+     *
+     * This happens due to the multiplying architecture lifecycle, where the content is set
+     * after saving the file.
+     *
+     * The lifecycle is:
+     * 1. User edits the file either adding a new node or modifying an existing one using the form
+     * 2. User saves the file
+     * 3. The Envelope uses the `getContent` callback to retrieve the new content
+     * 4. The Envelope sets the new content using the `setContent` callback
+     *
+     * At this point, both the new content and the current content are the same, so the Editor
+     * don't need to be updated.
+     */
+    if (sourceCodeRef.current === content) return;
 
-      sourceCodeApiContext.setCodeAndNotify(content, path);
-      sourceCodeRef.current = content;
+    useSourceCodeStore.getState().setCodeAndNotify(content, path);
+    sourceCodeRef.current = content;
 
-      if (firstSetContentRef.current) {
-        useSourceCodeStore.temporal.getState().clear();
-        firstSetContentRef.current = false;
-      }
-    },
-    [sourceCodeApiContext],
-  );
+    if (firstSetContentRef.current) {
+      useSourceCodeStore.temporal.getState().clear();
+      firstSetContentRef.current = false;
+    }
+  }, []);
 
   /**
    * The useImperativeHandler gives the control of the Editor component to who has it's reference,

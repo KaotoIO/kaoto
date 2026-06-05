@@ -1,14 +1,13 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
 import { Loading } from '../components/Loading';
+import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { LoadingStatus, LocalStorageKeys } from '../models';
-import { SourceSchemaType } from '../models/camel';
 import { findCatalog } from '../utils/catalog-helper';
-import { EntitiesContext } from './entities.provider';
 
 export interface IRuntimeContext {
   basePath: string;
@@ -26,8 +25,8 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<{ catalogUrl: 
   const [loadingStatus, setLoadingStatus] = useState(LoadingStatus.Loading);
   const [errorMessage, setErrorMessage] = useState('');
   const [catalogLibrary, setCatalogLibrary] = useState<CatalogLibrary | undefined>(undefined);
-  const entitiesContext = useContext(EntitiesContext);
-  const currentSchemaType = entitiesContext?.currentSchemaType || SourceSchemaType.Route;
+  const { kaotoResource } = useKaotoResourceContext();
+  const currentSchemaType = kaotoResource.getType();
   let localSelectedCatalog: CatalogLibraryEntry | undefined = undefined;
 
   try {
