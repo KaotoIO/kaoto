@@ -791,7 +791,8 @@ describe('MappingActionService', () => {
         expect(addMappingNode.title).toEqual('Item');
         expect(addMappingNode.id).toContain('add-mapping-fx-Item');
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEach);
-        expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEachGroup);
+        // TODO enable when https://github.com/KaotoIO/kaoto/issues/2866 is implemented
+        // expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ForEachGroup);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.If);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.Choose);
         expect(MappingActionService.getAllowedActions(addMappingNode)).toContain(MappingActionKind.ContextMenu);
@@ -888,7 +889,8 @@ describe('MappingActionService', () => {
     });
 
     describe('Variable action availability', () => {
-      it('should include Variable for container FieldItemNodeData and TargetFieldNodeData', () => {
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      it.skip('should include Variable for container FieldItemNodeData and TargetFieldNodeData', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
 
@@ -920,7 +922,8 @@ describe('MappingActionService', () => {
         expect(MappingActionService.getAllowedActions(orderIdNode)).not.toContain(MappingActionKind.Variable);
       });
 
-      it('should include Variable for ForEachItem and IfItem MappingNodeData', () => {
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      it.skip('should include Variable for ForEachItem and IfItem MappingNodeData', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
 
@@ -961,7 +964,8 @@ describe('MappingActionService', () => {
     });
 
     describe('RenameVariable action availability', () => {
-      it('should include RenameVariable only for VariableNodeData', () => {
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      it.skip('should include RenameVariable only for VariableNodeData', () => {
         const variable = new VariableItem(tree, 'testVar');
         tree.children.push(variable);
         const variableNode = new VariableNodeData(targetDocNode, variable);
@@ -1112,7 +1116,8 @@ describe('MappingActionService', () => {
     });
 
     describe('Variable and RenameVariable action apply callbacks', () => {
-      it('Variable apply should call setAddingVariableTo with node path', () => {
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      it.skip('Variable apply should call setAddingVariableTo with node path', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderNode = targetDocChildren[0] as FieldItemNodeData;
         const menuItems = MappingActionService.getMappingContextMenuItems(shipOrderNode);
@@ -1126,7 +1131,8 @@ describe('MappingActionService', () => {
         useDocumentTreeStore.getState().setAddingVariableTo(null);
       });
 
-      it('RenameVariable apply should call setRenamingVariable with variable id', () => {
+      // TODO enable when https://github.com/KaotoIO/kaoto/issues/2846 is implemented
+      it.skip('RenameVariable apply should call setRenamingVariable with variable id', () => {
         const variable = new VariableItem(tree, 'testVar');
         tree.children.push(variable);
         const variableNode = new VariableNodeData(targetDocNode, variable);
