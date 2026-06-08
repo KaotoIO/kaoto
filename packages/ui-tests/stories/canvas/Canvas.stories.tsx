@@ -13,7 +13,7 @@ import {
   PipeVisualEntity,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SourceCodeProvider,
+  SourceCodeSync,
   useVisibleVizNodes,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
@@ -72,7 +72,7 @@ const ContextDecorator = (Story: StoryFn) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
-    <SourceCodeProvider>
+    <SourceCodeSync>
       <EntitiesProvider>
         <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
           <SchemasLoaderProvider>
@@ -88,7 +88,7 @@ const ContextDecorator = (Story: StoryFn) => {
           </SchemasLoaderProvider>
         </RuntimeProvider>
       </EntitiesProvider>
-    </SourceCodeProvider>
+    </SourceCodeSync>
   );
 };
 

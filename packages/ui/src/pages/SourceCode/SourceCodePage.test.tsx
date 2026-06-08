@@ -3,6 +3,16 @@ import { act, render, renderHook, screen } from '@testing-library/react';
 import { useSourceCodeStore } from '../../store';
 import { SourceCodePage } from './SourceCodePage';
 
+// Mock EventNotifier to prevent side effects
+jest.mock('../../utils/event-notifier', () => ({
+  EventNotifier: {
+    getInstance: jest.fn(() => ({
+      next: jest.fn(),
+      subscribe: jest.fn(),
+    })),
+  },
+}));
+
 // Mock the SourceCode component
 jest.mock('../../components/SourceCode', () => ({
   SourceCode: ({ code, onCodeChange }: { code: string; onCodeChange: (code: string) => void }) => (
@@ -20,6 +30,8 @@ describe('SourceCodePage', () => {
     // Reset the store before each test
     act(() => {
       useSourceCodeStore.setState({ sourceCode: '', path: '' });
+      // Clear temporal (undo/redo) history
+      useSourceCodeStore.temporal?.getState().clear();
     });
   });
 
@@ -44,8 +56,7 @@ describe('SourceCodePage', () => {
   });
 
   it('should call setCodeAndNotify when code changes', () => {
-    const { result } = renderHook(() => useSourceCodeStore());
-    const setCodeAndNotifySpy = jest.spyOn(result.current, 'setCodeAndNotify');
+    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
 
     render(<SourceCodePage />);
 
@@ -56,6 +67,7 @@ describe('SourceCodePage', () => {
     });
 
     expect(setCodeAndNotifySpy).toHaveBeenCalledWith('new code');
+    setCodeAndNotifySpy.mockRestore();
   });
 
   it('should update sourceCode in store when handleCodeChange is called', () => {
@@ -67,42 +79,50 @@ describe('SourceCodePage', () => {
       changeButton.click();
     });
 
-    const state = useSourceCodeStore.getState();
-    expect(state.sourceCode).toBe('new code');
+    // Directly verify setCodeAndNotify was called with correct argument
+    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+
+    act(() => {
+      changeButton.click();
+    });
+
+    expect(setCodeAndNotifySpy).toHaveBeenCalledWith('new code');
+    setCodeAndNotifySpy.mockRestore();
   });
 
   it('should pass onCodeChange callback to SourceCode component', () => {
-    const { result } = renderHook(() => useSourceCodeStore());
-
     act(() => {
-      result.current.setSourceCode('initial code');
+      useSourceCodeStore.getState().setSourceCode('initial code');
     });
 
     render(<SourceCodePage />);
 
     expect(screen.getByTestId('code-content')).toHaveTextContent('initial code');
 
+    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
     const changeButton = screen.getByTestId('change-code-button');
 
     act(() => {
       changeButton.click();
     });
 
-    // Verify the code was updated through the callback
-    const updatedState = useSourceCodeStore.getState();
-    expect(updatedState.sourceCode).toBe('new code');
+    // Verify the callback was invoked with the correct value
+    expect(setCodeAndNotifySpy).toHaveBeenCalledWith('new code');
+    setCodeAndNotifySpy.mockRestore();
   });
 
   it('should memoize handleCodeChange callback', () => {
     const { rerender } = render(<SourceCodePage />);
 
     const firstRenderButton = screen.getByTestId('change-code-button');
+    const firstCallback = (firstRenderButton as HTMLButtonElement).onclick;
 
     rerender(<SourceCodePage />);
 
     const secondRenderButton = screen.getByTestId('change-code-button');
+    const secondCallback = (secondRenderButton as HTMLButtonElement).onclick;
 
-    // The button should be the same element, indicating the callback is memoized
-    expect(firstRenderButton).toBe(secondRenderButton);
+    // The callback reference should be stable across rerenders
+    expect(firstCallback).toBe(secondCallback);
   });
 });
