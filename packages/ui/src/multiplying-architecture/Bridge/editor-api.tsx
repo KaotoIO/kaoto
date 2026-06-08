@@ -1,8 +1,7 @@
 import { EditorApi } from '@kie-tools-core/editor/dist/api';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 
 import { useUndoRedo } from '../../hooks/undo-redo.hook';
-import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { useSourceCodeStore } from '../../store';
 
 export interface SourceCodeBridgeProviderRef extends EditorApi {
@@ -13,7 +12,7 @@ export interface SourceCodeBridgeProviderRef extends EditorApi {
 export const useEditorApi = () => {
   const sourceCodeRef = useRef<string>('');
   const firstSetContentRef = useRef<boolean>(true);
-  const sourceCodeApiContext = useContext(SourceCodeApiContext);
+  const setCodeAndNotify = useSourceCodeStore((state) => state.setCodeAndNotify);
   const { undo, redo } = useUndoRedo();
 
   /**
@@ -40,7 +39,7 @@ export const useEditorApi = () => {
        */
       if (sourceCodeRef.current === content) return;
 
-      sourceCodeApiContext.setCodeAndNotify(content, path);
+      setCodeAndNotify(content, path);
       sourceCodeRef.current = content;
 
       if (firstSetContentRef.current) {
@@ -48,7 +47,7 @@ export const useEditorApi = () => {
         firstSetContentRef.current = false;
       }
     },
-    [sourceCodeApiContext],
+    [setCodeAndNotify],
   );
 
   /**

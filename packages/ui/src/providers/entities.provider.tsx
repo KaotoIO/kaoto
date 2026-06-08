@@ -3,7 +3,6 @@ import {
   FunctionComponent,
   PropsWithChildren,
   useCallback,
-  useContext,
   useLayoutEffect,
   useMemo,
   useState,
@@ -14,8 +13,8 @@ import { SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { BaseEntity } from '../models/entities';
 import { KaotoResource } from '../models/kaoto-resource';
+import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
-import { SourceCodeContext } from './source-code.provider';
 
 export interface EntitiesContextResult {
   entities: BaseEntity[];
@@ -50,7 +49,7 @@ interface EntitiesProviderProps extends PropsWithChildren {
 
 export const EntitiesProvider: FunctionComponent<EntitiesProviderProps> = ({ fileExtension, children }) => {
   const eventNotifier = EventNotifier.getInstance();
-  const initialSourceCode = useContext(SourceCodeContext);
+  const initialSourceCode = useSourceCodeStore.getState().sourceCode;
 
   let initialCamelResource: KaotoResource;
   try {

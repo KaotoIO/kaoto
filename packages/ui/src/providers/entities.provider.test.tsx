@@ -4,17 +4,21 @@ import { parse } from 'yaml';
 
 import { KaotoResource, SerializerType } from '../models/kaoto-resource';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
+import { useSourceCodeStore } from '../store';
 import { mockRandomValues } from '../stubs';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stubs/camel-route-yaml-1.1';
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
-import { SourceCodeContext } from './source-code.provider';
+import { SourceCodeSync } from './source-code-sync';
 
 describe('EntitiesProvider', () => {
   let eventNotifier: EventNotifier;
   beforeEach(() => {
     eventNotifier = EventNotifier.getInstance();
+    // Reset store state before each test
+    useSourceCodeStore.getState().setSourceCode('');
+    useSourceCodeStore.temporal.getState().clear();
   });
 
   it.each([
@@ -35,12 +39,14 @@ describe('EntitiesProvider', () => {
   );
 
   describe('Initialization', () => {
-    it('should use the sourceCode context to initialize the Camel Resource', () => {
+    it('should use the sourceCode store to initialize the Camel Resource', () => {
+      useSourceCodeStore.getState().setSourceCode(camelRouteYaml);
+
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: ({ children }: PropsWithChildren) => (
-          <SourceCodeContext.Provider value={camelRouteYaml}>
+          <SourceCodeSync initialSourceCode={camelRouteYaml}>
             <EntitiesProvider>{children}</EntitiesProvider>
-          </SourceCodeContext.Provider>
+          </SourceCodeSync>
         ),
       });
 
@@ -56,11 +62,13 @@ describe('EntitiesProvider', () => {
     });
 
     it('should ignore non-camel entities', () => {
+      useSourceCodeStore.getState().setSourceCode('A non camel source code');
+
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: ({ children }: PropsWithChildren) => (
-          <SourceCodeContext.Provider value="A non camel source code">
+          <SourceCodeSync initialSourceCode="A non camel source code">
             <EntitiesProvider>{children}</EntitiesProvider>
-          </SourceCodeContext.Provider>
+          </SourceCodeSync>
         ),
       });
 
@@ -68,11 +76,13 @@ describe('EntitiesProvider', () => {
     });
 
     it('should fallback to an empty Camel Resource when there is a wrong Source Code', () => {
+      useSourceCodeStore.getState().setSourceCode('- from: {');
+
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: ({ children }: PropsWithChildren) => (
-          <SourceCodeContext.Provider value={'- from: {'}>
+          <SourceCodeSync initialSourceCode={'- from: {'}>
             <EntitiesProvider>{children}</EntitiesProvider>
-          </SourceCodeContext.Provider>
+          </SourceCodeSync>
         ),
       });
 
