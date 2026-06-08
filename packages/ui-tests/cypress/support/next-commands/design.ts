@@ -223,22 +223,6 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
   cy.get(`[data-testid="new-entity-${subType}"] button.pf-v6-c-menu__item`).click({ force: true });
 });
 
-Cypress.Commands.add('selectRuntimeVersion', (type: string, version?: string) => {
-  const catalogName = version ? `Camel ${type} ${version}` : `Camel ${type}`;
-
-  cy.openSettings();
-
-  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
-
-  cy.get('[data-testid="settings-form-save-btn"]').click();
-  cy.waitSchemasLoading();
-
-  cy.get('[data-testid="visualization-empty-state"]').should('exist');
-  cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
-});
-
 Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelector: string) => {
   cy.wrap(null).then(() => {
     cy.get(dropdownSelector).click({ force: true });
@@ -252,31 +236,6 @@ Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelect
       });
     });
   });
-});
-
-Cypress.Commands.add('extractVersionFromText', (text: string) => {
-  const versionMatch = /\d+\.\d+\.\d+/.exec(text);
-  const version = versionMatch ? versionMatch[0] : '';
-  return cy.wrap(version);
-});
-
-Cypress.Commands.add('getRuntimeVersionAndCheckCatalog', (nodeName: string, nodeIndex?: number) => {
-  cy.get('[data-testid="runtime-selector-display"]')
-    .invoke('text')
-    .then((text) => {
-      cy.extractVersionFromText(text).then((version) => {
-        cy.selectAppendNode(nodeName, nodeIndex);
-        cy.checkCatalogVersion(version);
-      });
-    });
-});
-
-Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
-  cy.get('.pf-v6-c-card__title-text')
-    .eq(0)
-    .within(() => {
-      cy.get('.pf-v6-c-label__text').should('contain', version);
-    });
 });
 
 Cypress.Commands.add('switchCodeToXml', () => {

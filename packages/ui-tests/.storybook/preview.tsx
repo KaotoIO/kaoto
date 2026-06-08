@@ -6,6 +6,7 @@ import '@patternfly/patternfly/utilities/Sizing/sizing.css';
 import '@patternfly/patternfly/utilities/Spacing/spacing.css';
 
 import type { Preview } from '@storybook/react';
+import { reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
 document.documentElement.setAttribute('data-theme-setting', 'light');
 
@@ -18,9 +19,15 @@ const preview: Preview = {
         date: /Date$/,
       },
     },
+    reactRouter: reactRouterParameters({
+      routing: {
+        path: '*',
+      },
+    }),
   },
   tags: ['autodocs'],
   decorators: [
+    withRouter,
     (Story) => (
       <div style={{ height: '600px', width: '100%' }}>
         {/* 👇 Decorators in Storybook also accept a function. Replace <Story/> with Story() to enable it  */}

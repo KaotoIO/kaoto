@@ -42,6 +42,10 @@ declare global {
       selectIntegrationRuntime(catalogName: string): Chainable<JQuery<Element>>;
       selectTestingRuntime(catalogName: string): Chainable<JQuery<Element>>;
       verifySelectedRuntime(expectedName: string): Chainable<JQuery<Element>>;
+      selectRuntimeVersion(type: string, version?: string): Chainable<JQuery<Element>>;
+      extractVersionFromText(text: string): Chainable<string>;
+      getRuntimeVersionAndCheckCatalog(nodeName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
+      checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       openPipeErrorHandler(): Chainable<JQuery<Element>>;
       openCatalog(): Chainable<JQuery<Element>>;
       addNewRoute(): Chainable<JQuery<Element>>;
@@ -91,10 +95,6 @@ declare global {
       checkEdgeExists(scope: string, sourceName: string, targetName: string): Chainable<JQuery<Element>>;
       deleteBranch(branchIndex: number): Chainable<JQuery<Element>>;
       selectCamelRouteType(type: string, subType?: string): Chainable<JQuery<Element>>;
-      selectRuntimeVersion(type: string, version?: string): Chainable<JQuery<Element>>;
-      extractVersionFromText(text: string): Chainable<string>;
-      getRuntimeVersionAndCheckCatalog(nodeName: string, nodeIndex?: number): Chainable<JQuery<Element>>;
-      checkCatalogVersion(version: string): Chainable<JQuery<Element>>;
       chooseFromCatalog(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryExists(nodeType: string, name: string): Chainable<JQuery<Element>>;
       checkCatalogEntryNotExists(nodeType: string, name: string): Chainable<JQuery<Element>>;

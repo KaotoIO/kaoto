@@ -9,12 +9,10 @@ import {
   SourceSchemaType,
 } from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
-import { reactRouterParameters, withRouter } from 'storybook-addon-remix-react-router';
 
 export default {
   title: 'Navigation/Navigation',
   decorators: [
-    withRouter,
     (Story: StoryFn) => (
       <SourceCodeSync>
         <KaotoResourceProvider>
@@ -25,13 +23,6 @@ export default {
       </SourceCodeSync>
     ),
   ],
-  parameters: {
-    reactRouter: reactRouterParameters({
-      routing: {
-        path: '*',
-      },
-    }),
-  },
   component: Navigation,
 };
 
