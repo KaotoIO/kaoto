@@ -7,7 +7,6 @@ import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { IRuntimeContext, RuntimeContext } from '../../../../providers/runtime.provider';
-import { useSourceCodeStore } from '../../../../store';
 import { NewFlow } from './NewFlow';
 
 describe('NewFlow.tsx', () => {

@@ -4,7 +4,7 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { KaotoSchemaDefinition } from '../../../../models';
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { KaotoResource } from '../../../../models/kaoto-resource';
-import { RuntimeContext, SourceCodeApiContext } from '../../../../providers';
+import { RuntimeContext } from '../../../../providers';
 import { XmlCamelResourceSerializer } from '../../../../serializers';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../stubs';
 import { CatalogSchemaLoader } from '../../../../utils';
