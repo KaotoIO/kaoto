@@ -4,7 +4,7 @@ import {
   EntitiesProvider,
   Navigation,
   Shell,
-  SourceCodeProvider,
+  SourceCodeSync,
   SourceSchemaType,
 } from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
@@ -15,11 +15,11 @@ export default {
   decorators: [
     withRouter,
     (Story: StoryFn) => (
-      <EntitiesProvider>
-        <SourceCodeProvider>
+      <SourceCodeSync>
+        <EntitiesProvider>
           <Story />
-        </SourceCodeProvider>
-      </EntitiesProvider>
+        </EntitiesProvider>
+      </SourceCodeSync>
     ),
   ],
   parameters: {

@@ -10,35 +10,20 @@ import {
   pipeYaml,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SourceCodeApiContext,
-  SourceCodeProvider,
+  SourceCodeSync,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { Meta, StoryFn } from '@storybook/react';
-import { useContext, useMemo } from 'react';
+import { useMemo } from 'react';
 
 const EntitiesContextDecorator = (Story: StoryFn) => {
   const controller = useMemo(() => ControllerService.createController(), []);
   return (
-    <SourceCodeProvider>
-      <EntitiesProvider>
-        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <CatalogTilesProvider>
-                <VisibleFlowsProvider>
-                  <VisualizationProvider controller={controller}>
-                    <Story />
-                  </VisualizationProvider>
-                </VisibleFlowsProvider>
-              </CatalogTilesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
-      </EntitiesProvider>
-    </SourceCodeProvider>
+    <VisualizationProvider controller={controller}>
+      <Story />
+    </VisualizationProvider>
   );
 };
 
@@ -52,18 +37,29 @@ export default {
 } as Meta<typeof ContextToolbar>;
 
 const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }) => {
-  const sourceCodeApi = useContext(SourceCodeApiContext);
-  sourceCodeApi.setCodeAndNotify(props.sourceCode);
-
   return (
-    <Toolbar>
-      <ToolbarContent>
-        <ToolbarGroup className="pf-topology-view__project-toolbar">
-          <ContextToolbar />
-        </ToolbarGroup>
-      </ToolbarContent>
-      <Divider />
-    </Toolbar>
+    <SourceCodeSync initialSourceCode={props.sourceCode}>
+      <EntitiesProvider>
+        <RuntimeProvider catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}>
+          <SchemasLoaderProvider>
+            <CatalogLoaderProvider>
+              <CatalogTilesProvider>
+                <VisibleFlowsProvider>
+                  <Toolbar>
+                    <ToolbarContent>
+                      <ToolbarGroup className="pf-topology-view__project-toolbar">
+                        <ContextToolbar />
+                      </ToolbarGroup>
+                    </ToolbarContent>
+                    <Divider />
+                  </Toolbar>
+                </VisibleFlowsProvider>
+              </CatalogTilesProvider>
+            </CatalogLoaderProvider>
+          </SchemasLoaderProvider>
+        </RuntimeProvider>
+      </EntitiesProvider>
+    </SourceCodeSync>
   );
 };
 
