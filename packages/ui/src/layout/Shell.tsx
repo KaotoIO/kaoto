@@ -10,8 +10,8 @@ import { TopBar } from './TopBar';
 
 export const Shell: FunctionComponent<PropsWithChildren> = (props) => {
   const defaultNavState = useMemo(() => {
-    if (globalThis.window !== undefined) {
-      return globalThis.window.innerWidth >= 1200;
+    if (globalThis.innerWidth !== undefined) {
+      return globalThis.innerWidth >= 1200;
     }
     // Server Side Rendering fallback can't be tested in JSDom
     return true;

@@ -18,11 +18,11 @@ jest.mock('./TopBar', () => ({
 }));
 
 describe('Shell', () => {
-  const originalInnerWidth = globalThis.window.innerWidth;
+  const originalInnerWidth = globalThis.innerWidth;
   const mockSetNavOpen = jest.fn();
 
   const setWindowWidth = (width: number) => {
-    Object.defineProperty(globalThis.window, 'innerWidth', {
+    Object.defineProperty(globalThis, 'innerWidth', {
       writable: true,
       configurable: true,
       value: width,

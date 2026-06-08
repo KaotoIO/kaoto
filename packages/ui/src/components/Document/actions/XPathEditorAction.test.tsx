@@ -10,7 +10,7 @@ import { XPathEditorAction } from './XPathEditorAction';
 
 describe('XPathEditorAction', () => {
   it('should open xpath editor modal', async () => {
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+    globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
       disconnect: jest.fn(),

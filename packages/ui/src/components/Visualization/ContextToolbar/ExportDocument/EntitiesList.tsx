@@ -73,7 +73,7 @@ export const EntitiesList: FunctionComponent<IEntitiesList> = ({
   onToggleVisibility,
   onToggleAll,
 }) => {
-  const allEntitiesVisible = !documentationEntities.find((e) => !e.isVisible);
+  const allEntitiesVisible = !documentationEntities.some((e) => !e.isVisible);
 
   return (
     <>

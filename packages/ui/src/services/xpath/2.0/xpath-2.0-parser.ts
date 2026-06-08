@@ -175,7 +175,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     return [...allTokens];
   }
 
-  private Expr = this.RULE('Expr', () => {
+  private readonly Expr = this.RULE('Expr', () => {
     this.SUBRULE(this.ExprSingle);
     this.MANY(() => {
       this.CONSUME(Comma);
@@ -183,7 +183,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private ExprSingle = this.RULE('ExprSingle', () => {
+  private readonly ExprSingle = this.RULE('ExprSingle', () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.ForExpr) },
       { ALT: () => this.SUBRULE(this.QuantifiedExpr) },
@@ -192,7 +192,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private ForExpr = this.RULE('ForExpr', () => {
+  private readonly ForExpr = this.RULE('ForExpr', () => {
     this.CONSUME(For);
     this.SUBRULE(this.VarRef);
     this.CONSUME(In);
@@ -207,7 +207,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE3(this.ExprSingle);
   });
 
-  private QuantifiedExpr = this.RULE('QuantifiedExpr', () => {
+  private readonly QuantifiedExpr = this.RULE('QuantifiedExpr', () => {
     this.OR([{ ALT: () => this.CONSUME(Some) }, { ALT: () => this.CONSUME(Every) }]);
     this.SUBRULE(this.VarRef);
     this.CONSUME(In);
@@ -222,7 +222,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE3(this.ExprSingle);
   });
 
-  private IfExpr = this.RULE('IfExpr', () => {
+  private readonly IfExpr = this.RULE('IfExpr', () => {
     this.CONSUME(If);
     this.CONSUME(LParen);
     this.SUBRULE(this.Expr);
@@ -233,7 +233,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE2(this.ExprSingle);
   });
 
-  private OrExpr = this.RULE('OrExpr', () => {
+  private readonly OrExpr = this.RULE('OrExpr', () => {
     this.SUBRULE(this.AndExpr);
     this.MANY(() => {
       this.CONSUME(Or);
@@ -241,7 +241,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private AndExpr = this.RULE('AndExpr', () => {
+  private readonly AndExpr = this.RULE('AndExpr', () => {
     this.SUBRULE(this.ComparisonExpr);
     this.MANY(() => {
       this.CONSUME(And);
@@ -249,7 +249,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private ComparisonExpr = this.RULE('ComparisonExpr', () => {
+  private readonly ComparisonExpr = this.RULE('ComparisonExpr', () => {
     this.SUBRULE(this.RangeExpr);
     this.OPTION(() => {
       this.OR([
@@ -276,7 +276,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private RangeExpr = this.RULE('RangeExpr', () => {
+  private readonly RangeExpr = this.RULE('RangeExpr', () => {
     this.SUBRULE(this.AdditiveExpr);
     this.OPTION(() => {
       this.CONSUME(To);
@@ -284,7 +284,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private AdditiveExpr = this.RULE('AdditiveExpr', () => {
+  private readonly AdditiveExpr = this.RULE('AdditiveExpr', () => {
     this.SUBRULE(this.MultiplicativeExpr);
     this.MANY(() => {
       this.OR([{ ALT: () => this.CONSUME(Plus) }, { ALT: () => this.CONSUME(Minus) }]);
@@ -292,7 +292,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private MultiplicativeExpr = this.RULE('MultiplicativeExpr', () => {
+  private readonly MultiplicativeExpr = this.RULE('MultiplicativeExpr', () => {
     this.SUBRULE(this.UnionExpr);
     this.MANY(() => {
       this.OR([
@@ -305,7 +305,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private UnionExpr = this.RULE('UnionExpr', () => {
+  private readonly UnionExpr = this.RULE('UnionExpr', () => {
     this.SUBRULE(this.IntersectExceptExpr);
     this.MANY(() => {
       this.OR([{ ALT: () => this.CONSUME(Union) }, { ALT: () => this.CONSUME(Pipe) }]);
@@ -313,7 +313,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private IntersectExceptExpr = this.RULE('IntersectExceptExpr', () => {
+  private readonly IntersectExceptExpr = this.RULE('IntersectExceptExpr', () => {
     this.SUBRULE(this.InstanceofExpr);
     this.MANY(() => {
       this.OR([{ ALT: () => this.CONSUME(Intersect) }, { ALT: () => this.CONSUME(Except) }]);
@@ -321,7 +321,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private InstanceofExpr = this.RULE('InstanceofExpr', () => {
+  private readonly InstanceofExpr = this.RULE('InstanceofExpr', () => {
     // CastExpr
     this.MANY(() => {
       this.OR([{ ALT: () => this.CONSUME(Minus) }, { ALT: () => this.CONSUME(Plus) }]);
@@ -352,7 +352,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private PathExpr = this.RULE('PathExpr', () => {
+  private readonly PathExpr = this.RULE('PathExpr', () => {
     this.OR([
       {
         ALT: () => {
@@ -370,18 +370,18 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private ChildPathSegmentExpr = this.RULE('ChildPathSegmentExpr', () => {
+  private readonly ChildPathSegmentExpr = this.RULE('ChildPathSegmentExpr', () => {
     this.OR([{ ALT: () => this.CONSUME(Slash) }, { ALT: () => this.CONSUME(DoubleSlash) }]);
     this.SUBRULE2(this.StepExpr);
   });
 
-  private RelativePathExpr = this.RULE('RelativePathExpr', () => {
+  private readonly RelativePathExpr = this.RULE('RelativePathExpr', () => {
     this.SUBRULE(this.StepExpr);
     this.MANY(() => this.SUBRULE2(this.ChildPathSegmentExpr));
     this.OPTION(() => this.CONSUME(Slash));
   });
 
-  private StepExpr = this.RULE('StepExpr', () => {
+  private readonly StepExpr = this.RULE('StepExpr', () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.FilterExpr) },
       {
@@ -464,7 +464,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private ReverseStep = this.RULE('ReverseStep', () => {
+  private readonly ReverseStep = this.RULE('ReverseStep', () => {
     this.OR([
       {
         ALT: () => {
@@ -476,7 +476,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private ReverseAxis = this.RULE('ReverseAxis', () => {
+  private readonly ReverseAxis = this.RULE('ReverseAxis', () => {
     this.OR([
       {
         ALT: () => {
@@ -511,7 +511,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private NodeTest = this.RULE('NodeTest', () => {
+  private readonly NodeTest = this.RULE('NodeTest', () => {
     this.OR([{ ALT: () => this.SUBRULE(this.KindTest) }, { ALT: () => this.SUBRULE(this.NameTest) }]);
   });
 
@@ -582,7 +582,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private NameTest = this.RULE('NameTest', () => {
+  private readonly NameTest = this.RULE('NameTest', () => {
     this.OR([
       {
         ALT: () => {
@@ -605,7 +605,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private FilterExpr = this.RULE('FilterExpr', () => {
+  private readonly FilterExpr = this.RULE('FilterExpr', () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.Literal) },
       { ALT: () => this.SUBRULE(this.VarRef) },
@@ -616,7 +616,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE(this.PredicateList);
   });
 
-  private PredicateList = this.RULE('PredicateList', () => {
+  private readonly PredicateList = this.RULE('PredicateList', () => {
     this.MANY(() => {
       this.CONSUME(LSquare);
       this.SUBRULE(this.Expr);
@@ -624,11 +624,11 @@ export class XPath2Parser extends CstParser implements XPathParser {
     });
   });
 
-  private Literal = this.RULE('Literal', () => {
+  private readonly Literal = this.RULE('Literal', () => {
     this.OR([{ ALT: () => this.SUBRULE(this.NumericLiteral) }, { ALT: () => this.CONSUME(StringLiteral) }]);
   });
 
-  private NumericLiteral = this.RULE('NumericLiteral', () => {
+  private readonly NumericLiteral = this.RULE('NumericLiteral', () => {
     this.OR([
       { ALT: () => this.CONSUME(IntegerLiteral) },
       { ALT: () => this.CONSUME(DecimalLiteral) },
@@ -636,7 +636,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private VarRef = this.RULE('VarRef', () => {
+  private readonly VarRef = this.RULE('VarRef', () => {
     this.CONSUME(Dollar);
     this.SUBRULE(this.VarName);
   });
@@ -649,13 +649,13 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.SUBRULE2(this.Identifier);
   });
 
-  private ParenthesizedExpr = this.RULE('ParenthesizedExpr', () => {
+  private readonly ParenthesizedExpr = this.RULE('ParenthesizedExpr', () => {
     this.CONSUME(LParen);
     this.OPTION(() => this.SUBRULE(this.Expr));
     this.CONSUME(RParen);
   });
 
-  private FunctionCall = this.RULE('FunctionCall', () => {
+  private readonly FunctionCall = this.RULE('FunctionCall', () => {
     this.SUBRULE(this.QName);
     this.CONSUME(LParen);
     this.OPTION(() => {
@@ -668,12 +668,12 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.CONSUME(RParen);
   });
 
-  private SingleType = this.RULE('SingleType', () => {
+  private readonly SingleType = this.RULE('SingleType', () => {
     this.SUBRULE(this.QName);
     this.OPTION(() => this.CONSUME(Question));
   });
 
-  private SequenceType = this.RULE('SequenceType', () => {
+  private readonly SequenceType = this.RULE('SequenceType', () => {
     this.OR([
       {
         ALT: () => {
@@ -691,7 +691,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private OccurrenceIndicator = this.RULE('OccurrenceIndicator', () => {
+  private readonly OccurrenceIndicator = this.RULE('OccurrenceIndicator', () => {
     this.OR([
       { ALT: () => this.CONSUME(Question) },
       { ALT: () => this.CONSUME(Asterisk) },
@@ -699,7 +699,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private ItemType = this.RULE('ItemType', () => {
+  private readonly ItemType = this.RULE('ItemType', () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.KindTest) },
       {
@@ -713,7 +713,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private KindTest = this.RULE('KindTest', () => {
+  private readonly KindTest = this.RULE('KindTest', () => {
     this.OR([
       { ALT: () => this.SUBRULE(this.DocumentTest) },
       { ALT: () => this.SUBRULE(this.ElementTest) },
@@ -727,13 +727,13 @@ export class XPath2Parser extends CstParser implements XPathParser {
     ]);
   });
 
-  private AnyKindTest = this.RULE('AnyKindTest', () => {
+  private readonly AnyKindTest = this.RULE('AnyKindTest', () => {
     this.CONSUME(Node);
     this.CONSUME(LParen);
     this.CONSUME(RParen);
   });
 
-  private DocumentTest = this.RULE('DocumentTest', () => {
+  private readonly DocumentTest = this.RULE('DocumentTest', () => {
     this.CONSUME(DocumentNode);
     this.CONSUME(LParen);
     this.OPTION(() => {
@@ -742,19 +742,19 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.CONSUME(RParen);
   });
 
-  private TextTest = this.RULE('TextTest', () => {
+  private readonly TextTest = this.RULE('TextTest', () => {
     this.CONSUME(Text);
     this.CONSUME(LParen);
     this.CONSUME(RParen);
   });
 
-  private CommentTest = this.RULE('CommentTest', () => {
+  private readonly CommentTest = this.RULE('CommentTest', () => {
     this.CONSUME(Comment);
     this.CONSUME(LParen);
     this.CONSUME(RParen);
   });
 
-  private PITest = this.RULE('PITest', () => {
+  private readonly PITest = this.RULE('PITest', () => {
     this.CONSUME(ProcessingInstruction);
     this.CONSUME(LParen);
     this.OPTION(() => {
@@ -763,7 +763,7 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.CONSUME(RParen);
   });
 
-  private AttributeTest = this.RULE('AttributeTest', () => {
+  private readonly AttributeTest = this.RULE('AttributeTest', () => {
     this.CONSUME(Attribute);
     this.CONSUME(LParen);
     this.OPTION(() => {
@@ -776,18 +776,18 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.CONSUME(RParen);
   });
 
-  private AttribNameOrWildcard = this.RULE('AttribNameOrWildcard', () => {
+  private readonly AttribNameOrWildcard = this.RULE('AttribNameOrWildcard', () => {
     this.OR([{ ALT: () => this.SUBRULE(this.QName) }, { ALT: () => this.CONSUME(Asterisk) }]);
   });
 
-  private SchemaAttributeTest = this.RULE('SchemaAttributeTest', () => {
+  private readonly SchemaAttributeTest = this.RULE('SchemaAttributeTest', () => {
     this.CONSUME(SchemaAttribute);
     this.CONSUME(LParen);
     this.SUBRULE(this.QName);
     this.CONSUME(RParen);
   });
 
-  private ElementTest = this.RULE('ElementTest', () => {
+  private readonly ElementTest = this.RULE('ElementTest', () => {
     this.CONSUME(Element);
     this.CONSUME(LParen);
     this.OPTION(() => {
@@ -801,18 +801,18 @@ export class XPath2Parser extends CstParser implements XPathParser {
     this.CONSUME(RParen);
   });
 
-  private ElementNameOrWildcard = this.RULE('ElementNameOrWildcard', () => {
+  private readonly ElementNameOrWildcard = this.RULE('ElementNameOrWildcard', () => {
     this.OR([{ ALT: () => this.SUBRULE(this.QName) }, { ALT: () => this.CONSUME(Asterisk) }]);
   });
 
-  private SchemaElementTest = this.RULE('SchemaElementTest', () => {
+  private readonly SchemaElementTest = this.RULE('SchemaElementTest', () => {
     this.CONSUME(SchemaElement);
     this.CONSUME(LParen);
     this.SUBRULE(this.QName);
     this.CONSUME(RParen);
   });
 
-  private QName = this.RULE('QName', () => {
+  private readonly QName = this.RULE('QName', () => {
     this.OPTION(() => {
       this.CONSUME(NCName);
       this.CONSUME(Colon);

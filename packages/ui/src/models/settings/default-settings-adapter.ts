@@ -1,7 +1,7 @@
 import { AbstractSettingsAdapter, ISettingsModel, SettingsModel } from './settings.model';
 
 export class DefaultSettingsAdapter implements AbstractSettingsAdapter {
-  private settings: ISettingsModel;
+  private readonly settings: ISettingsModel;
 
   constructor(settings?: Partial<ISettingsModel>) {
     this.settings = new SettingsModel(settings);

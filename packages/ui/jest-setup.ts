@@ -46,12 +46,12 @@ Object.defineProperty(globalThis, 'MutationObserver', {
 
 enableSVGElementMocks();
 
-Object.defineProperty(window, 'fetch', {
+Object.defineProperty(globalThis, 'fetch', {
   writable: true,
   value: jest.fn(),
 });
 
-Object.defineProperty(window, 'matchMedia', {
+Object.defineProperty(globalThis, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
     matches: false,
@@ -78,10 +78,10 @@ jest.spyOn(console, 'warn').mockImplementation((...args) => {
   console.log(...args);
 });
 
-const fetchMock = jest.spyOn(window, 'fetch');
+const fetchMock = jest.spyOn(globalThis, 'fetch');
 
 beforeEach(() => {
-  fetchMock.mockResolvedValue(null as unknown as Response);
+  fetchMock.mockResolvedValue(null as Response);
   setupJestCanvasMock();
 });
 

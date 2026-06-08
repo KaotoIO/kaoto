@@ -58,8 +58,8 @@ export class MappingSerializerService {
     if (leftFields.length === 0 && rightFields.length === 0) return 0;
     if (leftFields.length === 0) return 1;
     if (rightFields.length === 0) return -1;
-    if (leftFields.find((f) => f.isAttribute)) return -1;
-    if (rightFields.find((f) => f.isAttribute)) return 1;
+    if (leftFields.some((f) => f.isAttribute)) return -1;
+    if (rightFields.some((f) => f.isAttribute)) return 1;
     const leftFirst = leftFields.sort(MappingSerializerService.sortFields)[0];
     const rightFirst = rightFields.sort(MappingSerializerService.sortFields)[0];
     return leftFirst.parent.fields.indexOf(leftFirst) - rightFirst.parent.fields.indexOf(rightFirst);

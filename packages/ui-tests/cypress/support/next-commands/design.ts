@@ -2,8 +2,7 @@ Cypress.Commands.add('fitToScreen', () => {
   cy.get('.fit-to-screen').click();
 });
 
-Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex?: number) => {
-  stepIndex = stepIndex ?? 0;
+Cypress.Commands.add('openStepConfigurationTab', (step: string, stepIndex = 0) => {
   cy.get(`g[data-nodelabel^="${step}"]`).eq(stepIndex).click({ force: true });
 });
 
@@ -11,8 +10,7 @@ Cypress.Commands.add('openStepConfigurationTabByPath', (path: string) => {
   cy.get(`g[data-testid="${path}"]`).click({ force: true });
 });
 
-Cypress.Commands.add('openGroupConfigurationTab', (group: string, groupIndex?: number) => {
-  groupIndex = groupIndex ?? 0;
+Cypress.Commands.add('openGroupConfigurationTab', (group: string, groupIndex = 0) => {
   cy.get(`g[data-grouplabel^="${group}"]`).eq(groupIndex).click({ force: true });
 });
 
@@ -124,8 +122,7 @@ Cypress.Commands.add('closeCatalogModal', () => {
   cy.get('[data-ouia-component-id="CatalogModal-ModalBoxCloseButton"]').click();
 });
 
-Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
-  nodeIndex = nodeIndex ?? 0;
+Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType, nodeIndex = 0) => {
   const nodeSelector = `foreignObject[data-nodelabel="${nodeName}"]`;
   const menuItemSelector = `[data-testid="context-menu-item-${action}"]`;
 
@@ -153,8 +150,7 @@ Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType,
   cy.get(menuItemSelector).should('be.visible').click();
 });
 
-Cypress.Commands.add('forcePerformNodeAction', (nodeName: string, action: ActionType, nodeIndex?: number) => {
-  nodeIndex = nodeIndex ?? 0;
+Cypress.Commands.add('forcePerformNodeAction', (nodeName: string, action: ActionType, nodeIndex = 0) => {
   const nodeSelector = `foreignObject[data-nodelabel="${nodeName}"]`;
   const menuItemSelector = `[data-testid="context-menu-item-${action}"]`;
 
@@ -183,8 +179,7 @@ Cypress.Commands.add('forcePerformNodeAction', (nodeName: string, action: Action
   cy.get(menuItemSelector).should('be.visible').click();
 });
 
-Cypress.Commands.add('checkNodeExist', (inputName, nodesCount) => {
-  nodesCount = nodesCount ?? 1;
+Cypress.Commands.add('checkNodeExist', (inputName, nodesCount = 1) => {
   cy.get(`foreignObject[data-nodelabel="${inputName}"]`).should('have.length', nodesCount);
 });
 
@@ -202,8 +197,7 @@ Cypress.Commands.add('checkEdgeExists', (scope: string, sourceName: string, targ
   });
 });
 
-Cypress.Commands.add('deleteBranch', (branchIndex) => {
-  branchIndex = branchIndex ?? 0;
+Cypress.Commands.add('deleteBranch', (branchIndex = 0) => {
   cy.get('[data-testid="stepNode__deleteBranch-btn"]').eq(branchIndex).click();
   cy.get('[data-testid="confirmDeleteBranchDialog__btn"]').click();
 });

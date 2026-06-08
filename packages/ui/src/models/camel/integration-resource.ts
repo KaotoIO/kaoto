@@ -6,7 +6,7 @@ import { CamelKResource } from './camel-k-resource';
 import { SourceSchemaType } from './source-schema-type';
 
 export class IntegrationResource extends CamelKResource {
-  private integration;
+  private readonly integration;
 
   constructor(integration?: IntegrationType) {
     super(integration);

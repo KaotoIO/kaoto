@@ -52,12 +52,11 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
         <Table aria-label={props.name} variant={TableVariant.compact} borders isStickyHeader>
           <Thead>
             <Tr>
-              {props.itemSchema.required &&
-                props.itemSchema.required.map((name: string) => (
-                  <Th modifier={'nowrap'} key={name}>
-                    {name.toUpperCase()}
-                  </Th>
-                ))}
+              {props.itemSchema.required?.map((name: string) => (
+                <Th modifier={'nowrap'} key={name}>
+                  {name.toUpperCase()}
+                </Th>
+              ))}
               <Td modifier="nowrap" key="buttons" isActionCell>
                 <Button
                   title={`Add new ${props.name}`}
@@ -95,12 +94,11 @@ export function TopmostArrayTable(props: TopmostArrayTableProps) {
                   onRowClick={() => props.onSelected(index)}
                   isRowSelected={props.selected === index}
                 >
-                  {props.itemSchema.required &&
-                    props.itemSchema.required.map((name: string) => (
-                      <Td key={name}>
-                        <Truncate content={item[name] ?? ''} />
-                      </Td>
-                    ))}
+                  {props.itemSchema.required?.map((name: string) => (
+                    <Td key={name}>
+                      <Truncate content={item[name] ?? ''} />
+                    </Td>
+                  ))}
                   <Td key="buttons" isActionCell>
                     <Button
                       title={`Delete ${props.name}`}

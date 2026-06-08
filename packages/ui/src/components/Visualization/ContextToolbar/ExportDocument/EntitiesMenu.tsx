@@ -15,7 +15,7 @@ type IEntitiesMenu = {
 export const EntitiesMenu: FunctionComponent<IEntitiesMenu> = ({ documentationEntities, onUpdate }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const allEntitiesVisible = !documentationEntities.find((e) => !e.isVisible);
+  const allEntitiesVisible = !documentationEntities.some((e) => !e.isVisible);
   const visibleEntitiesCount = documentationEntities.filter((e) => e.isVisible).length;
   const totalEntitiesCount = documentationEntities.length;
 
