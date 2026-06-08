@@ -84,7 +84,7 @@ export class CamelInterceptSendToEndpointVisualEntity
     const canHavePreviousStep = CamelComponentSchemaService.canHavePreviousStep(
       (data as CamelRouteVisualEntityData).processorName,
     );
-    const canHaveChildren = stepsProperties.find((property) => property.type === 'branch') !== undefined;
+    const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
     const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
     const canReplaceStep = data.path !== CamelInterceptSendToEndpointVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelInterceptSendToEndpointVisualEntity.ROOT_PATH;

@@ -1,5 +1,5 @@
 const getCryptoObj = () => {
-  return window.crypto || (window as Window & { msCrypto?: Crypto }).msCrypto;
+  return globalThis.crypto || (globalThis as typeof globalThis & { msCrypto?: Crypto }).msCrypto;
 };
 
 export const getCamelRandomId = (kind: string, length = 4): string => {

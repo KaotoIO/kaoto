@@ -2,8 +2,7 @@ Cypress.Commands.add('interactWithConfigInputObject', (inputName: string, value?
   cy.interactWithExpressionInputObject(`#.${inputName}`, value);
 });
 
-Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string, index?: number) => {
-  index = index ?? 0;
+Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, value?: string) => {
   if (value !== undefined && value !== null) {
     cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).clear();
     cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).type(value);
@@ -13,8 +12,7 @@ Cypress.Commands.add('interactWithExpressionInputObject', (inputName: string, va
   }
 });
 
-Cypress.Commands.add('addExpressionResultType', (value: string, index?: number) => {
-  index = index ?? 0;
+Cypress.Commands.add('addExpressionResultType', (value: string) => {
   cy.get(`input.pf-v6-c-text-input-group__text-input`).clear();
   cy.get(`input.pf-v6-c-text-input-group__text-input`).type(value).type('{enter}');
 });
@@ -59,8 +57,7 @@ Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string
   cy.checkExpressionConfigInputObject(`#.${inputName}`, value);
 });
 
-Cypress.Commands.add('selectExpression', (expression: string, index?: number) => {
-  index = index ?? 0;
+Cypress.Commands.add('selectExpression', (expression: string, index = 0) => {
   cy.get('[data-testid="#__expression-list-typeahead-select-input"]')
     .eq(index)
     .scrollIntoView()

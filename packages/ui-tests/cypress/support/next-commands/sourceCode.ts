@@ -34,8 +34,7 @@ Cypress.Commands.add('uploadFixture', (fixture) => {
   });
 });
 
-Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount: number) => {
-  repeatCount = repeatCount ?? 1;
+Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount = 1) => {
   cy.waitForEditorToLoad();
   // Open the Go to Line dialog
   cy.get('.pf-v6-c-code-editor')
@@ -71,8 +70,7 @@ Cypress.Commands.add('getMonacoValue', () => {
   });
 });
 
-Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount?: number) => {
-  linesCount = linesCount ?? 1;
+Cypress.Commands.add('checkCodeSpanLine', (spanText: string, linesCount = 1) => {
   cy.waitForEditorToLoad();
   cy.get('.pf-v6-c-code-editor').within(() => {
     cy.get('span:only-child').contains(spanText).should('have.length', linesCount);
@@ -113,15 +111,13 @@ Cypress.Commands.add('editorScrollToMiddle', () => {
   cy.get('.pf-v6-c-code-editor').scrollTo('center', { ensureScrollable: false });
 });
 
-Cypress.Commands.add('editorClickUndoXTimes', (repeatCount: number) => {
-  repeatCount = repeatCount ?? 1;
+Cypress.Commands.add('editorClickUndoXTimes', (repeatCount = 1) => {
   Array.from({ length: repeatCount }).forEach(() => {
     return cy.get('[data-testid="sourceCode--undoButton"]').click();
   });
 });
 
-Cypress.Commands.add('editorClickRedoXTimes', (repeatCount: number) => {
-  repeatCount = repeatCount ?? 1;
+Cypress.Commands.add('editorClickRedoXTimes', (repeatCount = 1) => {
   Array.from({ length: repeatCount }).forEach(() => {
     return cy.get('[data-testid="sourceCode--redoButton"]').click();
   });

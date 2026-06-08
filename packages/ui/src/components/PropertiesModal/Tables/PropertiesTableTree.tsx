@@ -50,10 +50,9 @@ export const PropertiesTableTree: FunctionComponent<IPropertiesTableTreeProps> =
       },
     };
 
-    const childRows =
-      node.children && node.children.length
-        ? renderTreeRows(node.children, level + 1, 1, rowIndex + 1, !isExpanded || isHidden)
-        : [];
+    const childRows = node.children?.length
+      ? renderTreeRows(node.children, level + 1, 1, rowIndex + 1, !isExpanded || isHidden)
+      : [];
 
     return [
       <TreeRowWrapper key={rowIndex} row={{ props: treeRow.props }}>

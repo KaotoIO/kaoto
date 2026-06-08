@@ -27,7 +27,7 @@ export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) =>
   const [preparedModel, setPreparedModel] = useState<any>(null);
 
   function isFormDisabled() {
-    const targetModel = preparedModel != null ? preparedModel : props.metadata;
+    const targetModel = preparedModel ?? props.metadata;
     return !targetModel || selected === -1 || selected > targetModel?.length - 1;
   }
 
@@ -37,7 +37,7 @@ export const MetadataEditor: FunctionComponent<MetadataEditorProps> = (props) =>
   }
 
   function getFormModel() {
-    const targetModel = preparedModel != null ? preparedModel : props.metadata?.slice();
+    const targetModel = preparedModel ?? props.metadata?.slice();
     return targetModel && selected !== -1 ? targetModel[selected] : undefined;
   }
 
