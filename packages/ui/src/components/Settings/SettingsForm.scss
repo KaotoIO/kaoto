@@ -18,9 +18,4 @@
   .pf-v6-c-card__footer {
     padding-block-start: var(--pf-v6-c-card--first-child--PaddingBlockStart);
   }
-
-  [data-testid='#.runtimeCatalogName__field-wrapper'],
-  [data-testid='#.testingCatalogName__field-wrapper'] {
-    display: none;
-  }
 }
