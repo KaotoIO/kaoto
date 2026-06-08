@@ -8,23 +8,14 @@ import { CamelRouteResource } from '../../../../models/camel/camel-route-resourc
 import { EntityType } from '../../../../models/entities';
 import { AddStepMode } from '../../../../models/visualization/base-visual-entity';
 import { createVisualizationNode } from '../../../../models/visualization/visualization-node';
-import { EntitiesContext } from '../../../../providers/entities.provider';
 import { IMetadataApi, MetadataContext } from '../../../../providers/metadata.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import { useAddStep } from './add-step.hook';
 
 describe('useAddStep', () => {
-  const camelResource = new CamelRouteResource();
-  camelResource.initialize();
-  const getCompatibleComponentsSpy = jest.spyOn(camelResource, 'getCompatibleComponents');
-
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
-  };
+  let camelResource: CamelRouteResource;
+  let getCompatibleComponentsSpy: jest.SpyInstance;
+  let updateEntitiesFromCamelResourceSpy: jest.Mock;
 
   const mockCatalogModalContext = {
     setIsModalOpen: jest.fn(),
@@ -53,17 +44,28 @@ describe('useAddStep', () => {
 
   const mockCompatibleComponents = (item: ITile) => ['log', 'to'].includes(item.type);
 
+  let wrapper: FunctionComponent<PropsWithChildren>;
+
+  beforeEach(() => {
+    camelResource = new CamelRouteResource();
+    camelResource.initialize();
+    getCompatibleComponentsSpy = jest.spyOn(camelResource, 'getCompatibleComponents');
+
+    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = TestProvidersWrapper({ camelResource });
+    updateEntitiesFromCamelResourceSpy = updateSpy;
+
+    wrapper = ({ children }) => (
+      <Provider>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>
+          <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
+        </CatalogModalContext.Provider>
+      </Provider>
+    );
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>
-        <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
-      </CatalogModalContext.Provider>
-    </EntitiesContext.Provider>
-  );
 
   it('should return onAddStep function', () => {
     const vizNode = createVisualizationNode('test', {
@@ -120,13 +122,18 @@ describe('useAddStep', () => {
       title: '',
       description: '',
     });
-    const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={null}>
-        <CatalogModalContext.Provider value={mockCatalogModalContext}>
-          <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
-        </CatalogModalContext.Provider>
-      </EntitiesContext.Provider>
-    );
+
+    // Create a wrapper that provides null entities context
+    const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => {
+      const { Provider } = TestProvidersWrapper({ camelResource, entitiesContextValue: null });
+      return (
+        <Provider>
+          <CatalogModalContext.Provider value={mockCatalogModalContext}>
+            <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
+          </CatalogModalContext.Provider>
+        </Provider>
+      );
+    };
 
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), {
       wrapper: nullEntitiesWrapper,
@@ -159,7 +166,7 @@ describe('useAddStep', () => {
     expect(getCompatibleComponentsSpy).toHaveBeenCalledWith(AddStepMode.AppendStep, vizNode.data);
     expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
     expect(addBaseEntityStepSpy).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.AppendStep);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     expect(mockMetadataContext.onStepUpdated).toHaveBeenCalledWith(
       StepUpdateAction.Add,
       mockDefinedComponent.type,
@@ -210,7 +217,7 @@ describe('useAddStep', () => {
     expect(getCompatibleComponentsSpy).toHaveBeenCalledWith(AddStepMode.AppendStep, vizNode.data);
     expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
     expect(addBaseEntityStepSpy).not.toHaveBeenCalled();
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
     expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
   });
 
@@ -233,7 +240,7 @@ describe('useAddStep', () => {
     await result.current.onAddStep();
 
     expect(addBaseEntityStepSpy).not.toHaveBeenCalled();
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
     expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
   });
 
@@ -251,12 +258,13 @@ describe('useAddStep', () => {
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
+    const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = TestProvidersWrapper({ camelResource });
     const noMetadataWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={mockEntitiesContext}>
+      <Provider>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
           <MetadataContext.Provider value={undefined}>{children}</MetadataContext.Provider>
         </CatalogModalContext.Provider>
-      </EntitiesContext.Provider>
+      </Provider>
     );
 
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), {
@@ -266,6 +274,6 @@ describe('useAddStep', () => {
     await result.current.onAddStep();
 
     expect(addBaseEntityStepSpy).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.AppendStep);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(localUpdateSpy).toHaveBeenCalled();
   });
 });

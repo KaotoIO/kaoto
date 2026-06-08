@@ -1,12 +1,8 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { toBlob } from 'html-to-image';
-import { PropsWithChildren } from 'react';
 
-import { EntitiesProvider } from '../../../../providers/entities.provider';
-import { KaotoResourceProvider } from '../../../../providers/kaoto-resource.provider';
-import { SourceCodeSync } from '../../../../providers/source-code-sync';
-import { VisibleFlowsProvider } from '../../../../providers/visible-flows.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import { FlowExportImage } from './FlowExportImage';
 
 jest.mock('html-to-image', () => ({
@@ -44,16 +40,6 @@ interface MockGraph {
   getLayout: jest.Mock<string, []>;
   getGraph: () => MockGraph;
 }
-
-const wrapper = ({ children }: PropsWithChildren) => (
-  <SourceCodeSync>
-    <KaotoResourceProvider>
-      <EntitiesProvider>
-        <VisibleFlowsProvider>{children}</VisibleFlowsProvider>
-      </EntitiesProvider>
-    </KaotoResourceProvider>
-  </SourceCodeSync>
-);
 
 describe('FlowExportImage', () => {
   let mockSurface: HTMLElement;
@@ -98,12 +84,22 @@ describe('FlowExportImage', () => {
   });
 
   it('renders the export button', () => {
-    render(<FlowExportImage />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    render(
+      <Provider>
+        <FlowExportImage />
+      </Provider>,
+    );
     expect(screen.getByTestId('exportImageButton')).toBeInTheDocument();
   });
 
   it('runs full export flow', async () => {
-    render(<FlowExportImage />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    render(
+      <Provider>
+        <FlowExportImage />
+      </Provider>,
+    );
 
     const button = screen.getByTestId('exportImageButton');
     fireEvent.click(button);
@@ -130,7 +126,12 @@ describe('FlowExportImage', () => {
       return realQuerySelector(selector ?? '');
     }) as unknown as typeof document.querySelector;
 
-    render(<FlowExportImage />, { wrapper });
+    const { Provider } = TestProvidersWrapper();
+    render(
+      <Provider>
+        <FlowExportImage />
+      </Provider>,
+    );
 
     fireEvent.click(screen.getByTestId('exportImageButton'));
 

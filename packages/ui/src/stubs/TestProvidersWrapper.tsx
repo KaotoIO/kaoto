@@ -16,13 +16,14 @@ import { camelRouteJson } from './camel-route';
 interface TestProviderWrapperProps extends PropsWithChildren {
   camelResource?: KaotoResource;
   visibleFlowsContext?: VisibleFlowsContextResult;
+  entitiesContextValue?: EntitiesContextResult | null;
 }
 
 interface TestProvidersWrapperResult {
   Provider: FunctionComponent<PropsWithChildren>;
   camelResource: KaotoResource;
-  updateEntitiesFromCamelResourceSpy: EntitiesContextResult['updateEntitiesFromCamelResource'];
-  updateSourceCodeFromEntitiesSpy: EntitiesContextResult['updateSourceCodeFromEntities'];
+  updateEntitiesFromCamelResourceSpy: jest.Mock;
+  updateSourceCodeFromEntitiesSpy: jest.Mock;
 }
 
 export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): TestProvidersWrapperResult => {
@@ -41,21 +42,22 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
     visualFlowsApi: props.visibleFlowsContext?.visualFlowsApi ?? new VisualFlowsApi(dispatchSpy),
   };
 
+  const entitiesContextValue: EntitiesContextResult | null =
+    props.entitiesContextValue === undefined
+      ? {
+          camelResource,
+          entities: camelResource.getEntities(),
+          visualEntities: camelResource.getVisualEntities(),
+          currentSchemaType,
+          updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
+          updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
+        }
+      : props.entitiesContextValue;
+
+  const entitiesContextKey = Date.now();
   const Provider: FunctionComponent<PropsWithChildren> = (props) => (
     <KaotoResourceProvider>
-      <EntitiesContext.Provider
-        key={Date.now()}
-        value={
-          {
-            camelResource,
-            entities: camelResource.getEntities(),
-            visualEntities: camelResource.getVisualEntities(),
-            currentSchemaType,
-            updateEntitiesFromCamelResource: updateEntitiesFromCamelResourceSpy,
-            updateSourceCodeFromEntities: updateSourceCodeFromEntitiesSpy,
-          } as unknown as EntitiesContextResult
-        }
-      >
+      <EntitiesContext.Provider key={entitiesContextKey} value={entitiesContextValue}>
         <VisibleFlowsContext.Provider value={visibleFlowsContext}>
           <SuggestionRegistryProvider>{props.children}</SuggestionRegistryProvider>
         </VisibleFlowsContext.Provider>

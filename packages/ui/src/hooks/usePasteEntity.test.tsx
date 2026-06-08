@@ -4,13 +4,13 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
+import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visibility';
 import {
   ACTION_ID_CANCEL,
   ACTION_ID_CONFIRM,
   ActionConfirmationModalContext,
 } from '../providers/action-confirmation-modal.provider';
-import { EntitiesContext } from '../providers/entities.provider';
-import { VisibleFlowsContext, VisibleFlowsContextResult } from '../providers/visible-flows.provider';
+import { TestProvidersWrapper } from '../stubs';
 import { ClipboardManager } from '../utils/ClipboardManager';
 import { usePasteEntity } from './usePasteEntity';
 
@@ -22,36 +22,12 @@ Object.assign(navigator, {
 });
 
 describe('usePasteEntity', () => {
-  const camelResource = new CamelRouteResource();
-  camelResource.initialize();
-  const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
-  const removeEntitySpy = jest.spyOn(camelResource, 'removeEntity');
-  jest.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
-  const supportsMultipleVisualEntitiesSpy = jest
-    .spyOn(camelResource, 'supportsMultipleVisualEntities')
-    .mockReturnValue(true);
-
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
-  };
-
-  const mockVisibleFlowsContext = {
-    visibleFlows: {},
-    allFlowsVisible: true,
-    visualFlowsApi: {
-      toggleFlowVisible: jest.fn(),
-      showFlows: jest.fn(),
-      hideFlows: jest.fn(),
-      clearFlows: jest.fn(),
-      initVisibleFlows: jest.fn(),
-      renameFlow: jest.fn(),
-    } as unknown as VisibleFlowsContextResult['visualFlowsApi'],
-  };
+  let camelResource: CamelRouteResource;
+  let addNewEntitySpy: jest.SpyInstance;
+  let removeEntitySpy: jest.SpyInstance;
+  let supportsMultipleVisualEntitiesSpy: jest.SpyInstance;
+  let updateEntitiesFromCamelResourceSpy: jest.Mock;
+  let toggleFlowVisibleSpy: jest.SpyInstance;
 
   const mockActionConfirmationContext = {
     actionConfirmation: jest.fn(),
@@ -63,19 +39,41 @@ describe('usePasteEntity', () => {
     definition: { id: 'test-route', from: { uri: 'timer:tick' } },
   };
 
+  beforeEach(() => {
+    camelResource = new CamelRouteResource();
+    camelResource.initialize();
+    addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
+    removeEntitySpy = jest.spyOn(camelResource, 'removeEntity');
+    jest.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
+    supportsMultipleVisualEntitiesSpy = jest
+      .spyOn(camelResource, 'supportsMultipleVisualEntities')
+      .mockReturnValue(true);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
+  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => {
+    const visualFlowsApi = new VisualFlowsApi(jest.fn());
+    toggleFlowVisibleSpy = jest.spyOn(visualFlowsApi, 'toggleFlowVisible');
+    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = TestProvidersWrapper({
+      camelResource,
+      visibleFlowsContext: {
+        allFlowsVisible: true,
+        visibleFlows: {},
+        visualFlowsApi,
+      },
+    });
+    updateEntitiesFromCamelResourceSpy = updateSpy;
+    return (
+      <Provider>
         <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
           {children}
         </ActionConfirmationModalContext.Provider>
-      </VisibleFlowsContext.Provider>
-    </EntitiesContext.Provider>
-  );
+      </Provider>
+    );
+  };
 
   it('should return isCompatible false when clipboard is empty', async () => {
     jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
@@ -189,8 +187,8 @@ describe('usePasteEntity', () => {
     });
 
     expect(addNewEntitySpy).toHaveBeenCalled();
-    expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).toHaveBeenCalledWith('new-route-id');
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(toggleFlowVisibleSpy).toHaveBeenCalledWith('new-route-id');
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
 
   describe('single-entity resources', () => {
@@ -268,18 +266,21 @@ describe('usePasteEntity', () => {
       expect(mockActionConfirmationContext.actionConfirmation).not.toHaveBeenCalled();
       expect(removeEntitySpy).not.toHaveBeenCalled();
       expect(addNewEntitySpy).toHaveBeenCalled();
-      expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).toHaveBeenCalledWith('new-route-id');
+      expect(toggleFlowVisibleSpy).toHaveBeenCalledWith('new-route-id');
     });
   });
 
   it('should handle null entitiesContext gracefully', async () => {
-    const wrapperWithoutEntities: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>
-        <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
-          {children}
-        </ActionConfirmationModalContext.Provider>
-      </VisibleFlowsContext.Provider>
-    );
+    const wrapperWithoutEntities: FunctionComponent<PropsWithChildren> = ({ children }) => {
+      const { Provider } = TestProvidersWrapper({ camelResource, entitiesContextValue: null });
+      return (
+        <Provider>
+          <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
+            {children}
+          </ActionConfirmationModalContext.Provider>
+        </Provider>
+      );
+    };
 
     jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     jest.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
@@ -298,11 +299,10 @@ describe('usePasteEntity', () => {
   });
 
   describe('should handle null actionConfirmationContext', () => {
-    const wrapperWithoutActionConfirmation: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={mockEntitiesContext}>
-        <VisibleFlowsContext.Provider value={mockVisibleFlowsContext}>{children}</VisibleFlowsContext.Provider>
-      </EntitiesContext.Provider>
-    );
+    const wrapperWithoutActionConfirmation: FunctionComponent<PropsWithChildren> = ({ children }) => {
+      const { Provider } = TestProvidersWrapper({ camelResource });
+      return <Provider>{children}</Provider>;
+    };
 
     it('when clipboard is empty', async () => {
       jest.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
@@ -380,7 +380,7 @@ describe('usePasteEntity', () => {
     });
 
     expect(addNewEntitySpy).toHaveBeenCalled();
-    expect(mockVisibleFlowsContext.visualFlowsApi.toggleFlowVisible).not.toHaveBeenCalled();
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(toggleFlowVisibleSpy).not.toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
 });
