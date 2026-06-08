@@ -14,8 +14,8 @@ import {
   ActionConfirmationModalContext,
   MetadataContext,
 } from '../../../../providers';
-import { EntitiesContext } from '../../../../providers/entities.provider';
 import { IMetadataApi } from '../../../../providers/metadata.provider';
+import { TestProvidersWrapper } from '../../../../stubs';
 import {
   IInteractionType,
   INodeInteractionAddonContext,
@@ -33,18 +33,9 @@ jest.mock('../ContextMenu/item-interaction-helper', () => ({
 }));
 
 describe('useReplaceStep', () => {
-  const camelResource = new CamelRouteResource();
-  camelResource.initialize();
+  let camelResource: CamelRouteResource;
   let mockVizNode: IVisualizationNode;
-
-  const mockEntitiesContext = {
-    camelResource,
-    entities: camelResource.getEntities(),
-    visualEntities: camelResource.getVisualEntities(),
-    currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
-  };
+  let updateEntitiesFromCamelResourceSpy: jest.Mock;
 
   const mockCatalogModalContext = {
     setIsModalOpen: jest.fn(),
@@ -82,7 +73,11 @@ describe('useReplaceStep', () => {
 
   const mockCompatibleComponents = (item: ITile) => ['log', 'to'].includes(item.type);
 
+  let wrapper: FunctionComponent<PropsWithChildren>;
+
   beforeEach(() => {
+    camelResource = new CamelRouteResource();
+    camelResource.initialize();
     mockVizNode = createVisualizationNode('test-step', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -96,25 +91,28 @@ describe('useReplaceStep', () => {
     jest.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
     (findOnDeleteModalCustomizationRecursively as jest.Mock).mockReturnValue([]);
     (processOnDeleteAddonRecursively as jest.Mock).mockImplementation(() => {});
+
+    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = TestProvidersWrapper({ camelResource });
+    updateEntitiesFromCamelResourceSpy = updateSpy;
+
+    wrapper = ({ children }) => (
+      <Provider>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>
+          <MetadataContext.Provider value={mockMetadataContext}>
+            <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
+              <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
+                {children}
+              </NodeInteractionAddonContext.Provider>
+            </ActionConfirmationModalContext.Provider>
+          </MetadataContext.Provider>
+        </CatalogModalContext.Provider>
+      </Provider>
+    );
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <EntitiesContext.Provider value={mockEntitiesContext}>
-      <CatalogModalContext.Provider value={mockCatalogModalContext}>
-        <MetadataContext.Provider value={mockMetadataContext}>
-          <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
-            <NodeInteractionAddonContext.Provider value={mockNodeInteractionAddonContext}>
-              {children}
-            </NodeInteractionAddonContext.Provider>
-          </ActionConfirmationModalContext.Provider>
-        </MetadataContext.Provider>
-      </CatalogModalContext.Provider>
-    </EntitiesContext.Provider>
-  );
 
   it('should return onReplaceNode function', () => {
     const { result } = renderHook(() => useReplaceStep(mockVizNode), { wrapper });
@@ -133,8 +131,9 @@ describe('useReplaceStep', () => {
   });
 
   it('should return early when entitiesContext is null', async () => {
+    const { Provider } = TestProvidersWrapper({ camelResource, entitiesContextValue: null });
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={null}>
+      <Provider>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
           <MetadataContext.Provider value={mockMetadataContext}>
             <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
@@ -144,7 +143,7 @@ describe('useReplaceStep', () => {
             </ActionConfirmationModalContext.Provider>
           </MetadataContext.Provider>
         </CatalogModalContext.Provider>
-      </EntitiesContext.Provider>
+      </Provider>
     );
 
     const { result } = renderHook(() => useReplaceStep(mockVizNode), { wrapper: nullEntitiesWrapper });
@@ -167,7 +166,7 @@ describe('useReplaceStep', () => {
     expect(camelResource.getCompatibleComponents).toHaveBeenCalledWith(AddStepMode.ReplaceStep, mockVizNode.data);
     expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
     expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.ReplaceStep);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     expect(mockMetadataContext.onStepUpdated).toHaveBeenCalledWith(
       StepUpdateAction.Replace,
       mockDefinedComponent.type,
@@ -193,7 +192,7 @@ describe('useReplaceStep', () => {
 
     expect(mockActionConfirmationModalContext.actionConfirmation).not.toHaveBeenCalled();
     expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.ReplaceStep);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
 
   it('should show confirmation modal when step has non-placeholder children', async () => {
@@ -220,7 +219,7 @@ describe('useReplaceStep', () => {
       buttonOptions: undefined,
     });
     expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.ReplaceStep);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
   });
 
   it('should not replace step when modal is cancelled', async () => {
@@ -276,7 +275,7 @@ describe('useReplaceStep', () => {
     expect(camelResource.getCompatibleComponents).toHaveBeenCalledWith(AddStepMode.ReplaceStep, mockVizNode.data);
     expect(mockCatalogModalContext.getNewComponent).toHaveBeenCalledWith(mockCompatibleComponents);
     expect(mockVizNode.addBaseEntityStep).not.toHaveBeenCalled();
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
     expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
   });
 
@@ -288,7 +287,7 @@ describe('useReplaceStep', () => {
     await result.current.onReplaceNode();
 
     expect(mockVizNode.addBaseEntityStep).not.toHaveBeenCalled();
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).not.toHaveBeenCalled();
+    expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
     expect(mockMetadataContext.onStepUpdated).not.toHaveBeenCalled();
   });
 
@@ -352,8 +351,9 @@ describe('useReplaceStep', () => {
   it('should handle missing metadata context gracefully', async () => {
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
+    const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = TestProvidersWrapper({ camelResource });
     const noMetadataWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <EntitiesContext.Provider value={mockEntitiesContext}>
+      <Provider>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
           <MetadataContext.Provider value={undefined}>
             <ActionConfirmationModalContext.Provider value={mockActionConfirmationModalContext}>
@@ -363,7 +363,7 @@ describe('useReplaceStep', () => {
             </ActionConfirmationModalContext.Provider>
           </MetadataContext.Provider>
         </CatalogModalContext.Provider>
-      </EntitiesContext.Provider>
+      </Provider>
     );
 
     const { result } = renderHook(() => useReplaceStep(mockVizNode), { wrapper: noMetadataWrapper });
@@ -371,6 +371,6 @@ describe('useReplaceStep', () => {
     await result.current.onReplaceNode();
 
     expect(mockVizNode.addBaseEntityStep).toHaveBeenCalledWith(mockDefinedComponent, AddStepMode.ReplaceStep);
-    expect(mockEntitiesContext.updateEntitiesFromCamelResource).toHaveBeenCalled();
+    expect(localUpdateSpy).toHaveBeenCalled();
   });
 });

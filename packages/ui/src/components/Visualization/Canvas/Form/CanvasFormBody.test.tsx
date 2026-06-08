@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
+import { CanvasFormTabsContext } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -13,7 +13,6 @@ import {
   IKameletDefinition,
 } from '../../../../models';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
@@ -66,20 +65,20 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
 
+      const { Provider } = TestProvidersWrapper();
+
       render(
         <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasFormBody vizNode={setHeaderNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
+          <Provider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: 'All',
+                setSelectedTab: jest.fn(),
+              }}
+            >
+              <CanvasFormBody vizNode={setHeaderNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
         </EntitiesContext.Provider>,
       );
 
@@ -89,14 +88,16 @@ describe('CanvasFormBody', () => {
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
 
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
-      expect((camelRoute.from.steps[0].setHeader! as any).simple.expression).toEqual('${header.foo}');
+      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toEqual(
+        '${header.foo}',
+      );
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('foo');
 
       await formPageObject.inputText('Name', 'bar');
 
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
-      expect((camelRoute.from.steps[0].setHeader! as any).simple.expression).toEqual('${header.foo}');
+      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toEqual(
+        '${header.foo}',
+      );
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
     });
 
@@ -120,20 +121,20 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
 
+      const { Provider } = TestProvidersWrapper();
+
       render(
         <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasFormBody vizNode={setHeaderNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
+          <Provider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: 'All',
+                setSelectedTab: jest.fn(),
+              }}
+            >
+              <CanvasFormBody vizNode={setHeaderNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
         </EntitiesContext.Provider>,
       );
 
@@ -148,8 +149,9 @@ describe('CanvasFormBody', () => {
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
 
-      /* eslint-disable  @typescript-eslint/no-explicit-any */
-      expect((camelRoute.from.steps[0].setHeader! as any).simple.expression).toEqual('${header.foo}');
+      expect((camelRoute.from.steps[0].setHeader!.simple as { expression: string }).expression).toEqual(
+        '${header.foo}',
+      );
       expect(camelRoute.from.steps[0].setHeader!.name).toEqual('bar');
     });
   });
@@ -179,20 +181,20 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
 
+      const { Provider } = TestProvidersWrapper();
+
       render(
         <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasFormBody vizNode={marshalNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
+          <Provider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: 'All',
+                setSelectedTab: jest.fn(),
+              }}
+            >
+              <CanvasFormBody vizNode={marshalNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
         </EntitiesContext.Provider>,
       );
 
@@ -203,7 +205,7 @@ describe('CanvasFormBody', () => {
 
       await formPageObject.inputText('Id', 'avro-id', { index: 1 });
 
-      expect((camelRoute.from.steps[0].marshal!.avro as any).id).toEqual('avro-id');
+      expect((camelRoute.from.steps[0].marshal!.avro as { id: string }).id).toEqual('avro-id');
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('ms');
 
       await formPageObject.inputText('Id', 'modified', { index: 0 });
@@ -230,20 +232,20 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
 
+      const { Provider } = TestProvidersWrapper();
+
       render(
         <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasFormBody vizNode={marshalNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
+          <Provider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: 'All',
+                setSelectedTab: jest.fn(),
+              }}
+            >
+              <CanvasFormBody vizNode={marshalNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
         </EntitiesContext.Provider>,
       );
 
@@ -256,7 +258,7 @@ describe('CanvasFormBody', () => {
       await formPageObject.selectTypeaheadItem('avro');
       await formPageObject.inputText('Id', 'avro-id', { index: 1 });
 
-      expect((camelRoute.from.steps[0].marshal!.avro as any).id).toEqual('avro-id');
+      expect((camelRoute.from.steps[0].marshal!.avro as { id: string }).id).toEqual('avro-id');
       expect(camelRoute.from.steps[0].marshal!.id).toEqual('modified');
     });
   });
@@ -286,20 +288,20 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
 
+      const { Provider } = TestProvidersWrapper();
+
       render(
         <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasFormBody vizNode={loadBalanceNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
+          <Provider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: 'All',
+                setSelectedTab: jest.fn(),
+              }}
+            >
+              <CanvasFormBody vizNode={loadBalanceNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
         </EntitiesContext.Provider>,
       );
 
@@ -309,11 +311,15 @@ describe('CanvasFormBody', () => {
       await formPageObject.selectTypeaheadItem('weighted load balancer');
 
       await formPageObject.inputText('Distribution Ratio', '3.5');
-      expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
+      expect(
+        (camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as { distributionRatio: string }).distributionRatio,
+      ).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('lb');
 
       await formPageObject.inputText('Id', 'modified', { index: 0 });
-      expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
+      expect(
+        (camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as { distributionRatio: string }).distributionRatio,
+      ).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
 
@@ -337,20 +343,20 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
 
+      const { Provider } = TestProvidersWrapper();
+
       render(
         <EntitiesContext.Provider value={null}>
-          <VisibleFlowsProvider>
-            <SuggestionRegistryProvider>
-              <CanvasFormTabsContext.Provider
-                value={{
-                  selectedTab: 'All',
-                  setSelectedTab: jest.fn(),
-                }}
-              >
-                <CanvasFormBody vizNode={loadBalanceNode} />
-              </CanvasFormTabsContext.Provider>
-            </SuggestionRegistryProvider>
-          </VisibleFlowsProvider>
+          <Provider>
+            <CanvasFormTabsContext.Provider
+              value={{
+                selectedTab: 'All',
+                setSelectedTab: jest.fn(),
+              }}
+            >
+              <CanvasFormBody vizNode={loadBalanceNode} />
+            </CanvasFormTabsContext.Provider>
+          </Provider>
         </EntitiesContext.Provider>,
       );
 
@@ -363,7 +369,9 @@ describe('CanvasFormBody', () => {
       await formPageObject.selectTypeaheadItem('weighted load balancer');
 
       await formPageObject.inputText('Distribution Ratio', '3.5');
-      expect((camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as any).distributionRatio).toEqual('3.5');
+      expect(
+        (camelRoute.from.steps[0].loadBalance!.weightedLoadBalancer as { distributionRatio: string }).distributionRatio,
+      ).toEqual('3.5');
       expect(camelRoute.from.steps[0].loadBalance!.id).toEqual('modified');
     });
   });

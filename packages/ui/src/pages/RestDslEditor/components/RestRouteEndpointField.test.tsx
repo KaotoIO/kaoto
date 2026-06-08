@@ -40,8 +40,8 @@ describe('RestRouteEndpointField', () => {
       { route: { from: { uri: 'direct:orders', steps: [] } } },
       { route: { from: { uri: 'direct:billing', steps: [] } } },
     ]);
-    const { Provider } = TestProvidersWrapper({ camelResource });
     camelResource.initialize();
+    const { Provider } = TestProvidersWrapper({ camelResource });
 
     await act(async () => {
       render(
