@@ -24,13 +24,7 @@ describe('Tests for user specified Quarkus catalog type', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.hoverOnRuntime(runtime);
-    cy.get(`[data-testid^="runtime-selector-Camel ${runtime}"]`).then(($element) => {
-      const dataTestidValue = $element.attr('data-testid');
-      const elementVersion = dataTestidValue!.substring(dataTestidValue!.lastIndexOf(' ') + 1);
-      cy.selectAppendNode('setHeader');
-      cy.checkCatalogVersion(elementVersion);
-    });
+    cy.getRuntimeVersionAndCheckCatalog('setHeader');
 
     cy.chooseFromCatalog('component', 'dropbox');
     cy.checkNodeExist('dropbox', 1);
