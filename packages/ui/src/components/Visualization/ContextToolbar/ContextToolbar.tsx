@@ -13,7 +13,7 @@ import { FlowExportImage } from './FlowExportImage/FlowExportImage';
 import { FlowsMenu } from './Flows/FlowsMenu';
 import { IntegrationTypeSelector } from './IntegrationTypeSelector/IntegrationTypeSelector';
 import { NewEntity } from './NewEntity/NewEntity';
-import { RuntimeSelector } from './RuntimeSelector/RuntimeSelector';
+import { SelectedRuntime } from './SelectedRuntime/SelectedRuntime';
 import { SerializerSelector } from './SerializerSelector/SerializerSelector';
 
 interface ContextToolbarProps {
@@ -75,7 +75,7 @@ export const ContextToolbar: FunctionComponent<ContextToolbarProps> = ({ isSimpl
           <ExportDocument />
         </ToolbarItem>
 
-        {!isSimplified && <RuntimeSelector key="runtime-selector" />}
+        {!isSimplified && <SelectedRuntime key="toolbar-selected-runtime" />}
       </ToolbarContent>
     </Toolbar>
   );

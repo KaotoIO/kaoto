@@ -41,8 +41,8 @@ jest.mock('./ExportDocument/ExportDocument', () => ({
   ExportDocument: () => <div data-testid="export-document">ExportDocument</div>,
 }));
 
-jest.mock('./RuntimeSelector/RuntimeSelector', () => ({
-  RuntimeSelector: () => <div data-testid="runtime-selector">RuntimeSelector</div>,
+jest.mock('./SelectedRuntime/SelectedRuntime', () => ({
+  SelectedRuntime: () => <div data-testid="selected-runtime">SelectedRuntime</div>,
 }));
 
 jest.mock('./IntegrationTypeSelector/IntegrationTypeSelector', () => ({
@@ -208,7 +208,7 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('export-document')).toBeInTheDocument();
     });
 
-    it('should render RuntimeSelector component', () => {
+    it('should render SelectedRuntime component', () => {
       const { Provider } = TestProvidersWrapper();
 
       render(
@@ -217,7 +217,7 @@ describe('ContextToolbar', () => {
         </Provider>,
       );
 
-      expect(screen.getByTestId('runtime-selector')).toBeInTheDocument();
+      expect(screen.getByTestId('selected-runtime')).toBeInTheDocument();
     });
 
     it('should render IntegrationTypeSelector component', () => {
@@ -304,7 +304,7 @@ describe('ContextToolbar', () => {
       expect(screen.queryByTestId('integration-type-selector')).not.toBeInTheDocument();
     });
 
-    it('should not render RuntimeSelector', () => {
+    it('should not render SelectedRuntime', () => {
       const { Provider } = TestProvidersWrapper();
 
       render(
@@ -313,7 +313,7 @@ describe('ContextToolbar', () => {
         </Provider>,
       );
 
-      expect(screen.queryByTestId('runtime-selector')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('selected-runtime')).not.toBeInTheDocument();
     });
 
     it('should still render the core toolbar items', () => {
