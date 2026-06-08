@@ -22,15 +22,8 @@ describe('Test for catalog versions', () => {
       cy.uploadFixture('flows/camelRoute/catalogConfig.yaml');
       cy.openDesignPage();
 
-      cy.hoverOnRuntime(data.type);
-      cy.get(`[data-testid^="runtime-selector-${data.version}"] button.pf-v6-c-menu__item`)
-        .first()
-        .click({ force: true });
-      cy.get('body').then((body) => {
-        if (body.find('[testid="loading-schemas"]').length > 0) {
-          cy.waitSchemasLoading();
-        }
-      });
+      cy.selectIntegrationRuntime(data.version);
+      cy.openDesignPage();
 
       cy.openStepConfigurationTab('timer', 0);
       cy.selectFormTab('All');

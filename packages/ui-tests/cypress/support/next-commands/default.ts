@@ -106,6 +106,41 @@ Cypress.Commands.add('openTopbarKebabMenu', () => {
 Cypress.Commands.add('openSettings', () => {
   cy.openTopbarKebabMenu();
   cy.get('[data-testid="settings-link"]').click();
+  cy.get('[data-testid="settings-form"]').should('be.visible');
+
+  cy.get('body').then(($body) => {
+    if ($body.text().includes('Loading catalogs...')) {
+      cy.contains('Loading catalogs...').should('not.exist', { timeout: 15000 });
+    }
+  });
+
+  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('exist');
+});
+
+Cypress.Commands.add('selectIntegrationRuntime', (catalogName: string) => {
+  cy.openSettings();
+
+  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
+
+  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+
+  cy.get('[data-testid="settings-form-save-btn"]').click();
+  cy.waitSchemasLoading();
+});
+
+Cypress.Commands.add('selectTestingRuntime', (catalogName: string) => {
+  cy.openSettings();
+
+  cy.get('[data-testid="#.testingCatalogName-catalog-selector-toggle"]').should('be.visible').click();
+
+  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+
+  cy.get('[data-testid="settings-form-save-btn"]').click();
+  cy.waitSchemasLoading();
+});
+
+Cypress.Commands.add('verifySelectedRuntime', (expectedName: string) => {
+  cy.get('[data-testid="runtime-selector-display"]').should('contain', expectedName);
 });
 
 Cypress.Commands.add('openAboutModal', () => {

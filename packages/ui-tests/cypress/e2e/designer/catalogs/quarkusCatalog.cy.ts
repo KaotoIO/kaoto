@@ -10,13 +10,7 @@ describe('Tests for Quarkus catalog type', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
 
-    cy.hoverOnRuntime(runtime);
-    cy.get(`[data-testid^="runtime-selector-Camel ${runtime}"]`).then(($element) => {
-      const dataTestidValue = $element.attr('data-testid');
-      const runtimeVersion = dataTestidValue!.substring(dataTestidValue!.lastIndexOf(' ') + 1);
-      cy.selectAppendNode('setHeader');
-      cy.checkCatalogVersion(runtimeVersion);
-    });
+    cy.getRuntimeVersionAndCheckCatalog('setHeader');
 
     cy.chooseFromCatalog('component', 'as2');
     cy.checkNodeExist('as2', 1);

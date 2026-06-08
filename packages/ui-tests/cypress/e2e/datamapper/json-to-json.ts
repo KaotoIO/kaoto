@@ -184,15 +184,9 @@ describe('Test for DataMapper : JSON to JSON', () => {
     const catalogLabel = `Camel Main ${latestMainCatalog.version}`;
     cy.uploadFixture('flows/camelRoute/catalogConfig.yaml');
     cy.openDesignPage();
-    cy.hoverOnRuntime('Main');
-    cy.get(`[data-testid^="runtime-selector-${catalogLabel}"] button.pf-v6-c-menu__item`)
-      .first()
-      .click({ force: true });
-    cy.get('body').then((body) => {
-      if (body.find('[data-testid="loading-schemas"]').length > 0) {
-        cy.waitSchemasLoading();
-      }
-    });
+
+    cy.selectIntegrationRuntime(catalogLabel);
+    cy.openDesignPage();
     cy.openDataMapper();
     cy.attachSourceBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');
     cy.attachTargetBodySchema('datamapper/jsonSchema/ShipOrder.schema.json');

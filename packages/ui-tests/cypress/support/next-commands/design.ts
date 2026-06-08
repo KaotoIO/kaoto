@@ -223,13 +223,19 @@ Cypress.Commands.add('selectCamelRouteType', (type: string, subType?: string) =>
   cy.get(`[data-testid="new-entity-${subType}"] button.pf-v6-c-menu__item`).click({ force: true });
 });
 
-Cypress.Commands.add('selectRuntimeVersion', (type: string) => {
-  cy.hoverOnRuntime(type);
-  cy.get(`[data-testid^="runtime-selector-Camel ${type}"] button.pf-v6-c-menu__item`).first().click({ force: true });
+Cypress.Commands.add('selectRuntimeVersion', (type: string, version?: string) => {
+  const catalogName = version ? `Camel ${type} ${version}` : `Camel ${type}`;
+
+  cy.openSettings();
+
+  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
+
+  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+
+  cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();
 
   cy.get('[data-testid="visualization-empty-state"]').should('exist');
-  // Wait for the element to become visible
   cy.get('[data-testid="visualization-empty-state"]').should('be.visible');
 });
 
@@ -239,7 +245,7 @@ Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelect
     cy.wait(200).then(() => {
       cy.get('body').then(($body) => {
         if ($body.find(listSelector).length === 0) {
-          cy.log('Runtime selector list not visible, retrying click...');
+          cy.log('Dropdown list not visible, retrying click...');
           cy.get(dropdownSelector).click({ force: true });
           cy.wait(200);
         }
@@ -248,17 +254,21 @@ Cypress.Commands.add('retryClickDropdown', (dropdownSelector: string, listSelect
   });
 });
 
-Cypress.Commands.add('hoverOnRuntime', (type: string) => {
-  const dropdownSelector = '[data-testid="runtime-selector-list-dropdown"]';
-  const listSelector = '[data-testid="runtime-selector-list"]';
-  cy.retryClickDropdown(dropdownSelector, listSelector);
-  // Now the list should be visible
-  cy.get(listSelector).should('exist');
-  cy.get('ul.pf-v6-c-menu__list')
-    .should('exist')
-    .find(`[data-testid="runtime-selector-${type}"]`)
-    .should('exist')
-    .trigger('mouseover');
+Cypress.Commands.add('extractVersionFromText', (text: string) => {
+  const versionMatch = /\d+\.\d+\.\d+/.exec(text);
+  const version = versionMatch ? versionMatch[0] : '';
+  return cy.wrap(version);
+});
+
+Cypress.Commands.add('getRuntimeVersionAndCheckCatalog', (nodeName: string, nodeIndex?: number) => {
+  cy.get('[data-testid="runtime-selector-display"]')
+    .invoke('text')
+    .then((text) => {
+      cy.extractVersionFromText(text).then((version) => {
+        cy.selectAppendNode(nodeName, nodeIndex);
+        cy.checkCatalogVersion(version);
+      });
+    });
 });
 
 Cypress.Commands.add('checkCatalogVersion', (version?: string) => {
