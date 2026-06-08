@@ -3,12 +3,14 @@
   /* stylelint-disable-next-line declaration-property-value-no-unknown */
   align-self: anchor-center;
 
-  > span:first-child {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .cds--toggletip-label {
     font-size: var(--cds-label-02-font-size);
     color: var(--cds-text-primary);
   }
 
-  > span:nth-child(2) {
+  /* stylelint-disable-next-line selector-class-pattern */
+  .cds--toggletip {
     align-self: center;
   }
 }
