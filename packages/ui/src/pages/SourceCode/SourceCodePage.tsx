@@ -1,19 +1,19 @@
-import { FunctionComponent, useCallback, useContext } from 'react';
+import { FunctionComponent, useCallback } from 'react';
 
 import { SourceCode } from '../../components/SourceCode';
-import { SourceCodeApiContext, SourceCodeContext } from '../../providers/source-code.provider';
+import { useSourceCodeStore } from '../../store';
 
 export const SourceCodePage: FunctionComponent = () => {
-  const sourceCodeContext = useContext(SourceCodeContext);
-  const sourceCodeApiContext = useContext(SourceCodeApiContext);
+  const sourceCode = useSourceCodeStore((state) => state.sourceCode);
+  const setCodeAndNotify = useSourceCodeStore((state) => state.setCodeAndNotify);
 
   const handleCodeChange = useCallback(
     (code: string) => {
       /** Update Entities and Visual Entities */
-      sourceCodeApiContext.setCodeAndNotify(code);
+      setCodeAndNotify(code);
     },
-    [sourceCodeApiContext],
+    [setCodeAndNotify],
   );
 
-  return <SourceCode code={sourceCodeContext ?? ''} onCodeChange={handleCodeChange} />;
+  return <SourceCode code={sourceCode} onCodeChange={handleCodeChange} />;
 };

@@ -2,7 +2,7 @@ import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { LocalStorageKeys } from '../models';
 import { EventNotifier } from '../utils';
-import { SourceCodeProvider } from './source-code.provider';
+import { SourceCodeSync } from './source-code-sync';
 
 export const SourceCodeLocalStorageProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
   const eventNotifier = EventNotifier.getInstance();
@@ -33,5 +33,5 @@ export const SourceCodeLocalStorageProvider: FunctionComponent<PropsWithChildren
     };
   }, [eventNotifier]);
 
-  return <SourceCodeProvider initialSourceCode={localSourceCode}>{children}</SourceCodeProvider>;
+  return <SourceCodeSync initialSourceCode={localSourceCode}>{children}</SourceCodeSync>;
 };

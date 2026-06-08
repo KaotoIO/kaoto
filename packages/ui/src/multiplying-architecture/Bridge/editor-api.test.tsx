@@ -1,8 +1,6 @@
 import { EditorTheme } from '@kie-tools-core/editor/dist/api';
 import { act, renderHook } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { SourceCodeApiContext } from '../../providers/source-code.provider';
 import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils';
 import { useEditorApi } from './editor-api';
@@ -16,27 +14,23 @@ jest.mock('@patternfly/react-topology', () => ({
 }));
 
 describe('useEditorApi', () => {
-  const mockSetCodeAndNotify = jest.fn();
-
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-    <SourceCodeApiContext.Provider value={{ setCodeAndNotify: mockSetCodeAndNotify }}>
-      {children}
-    </SourceCodeApiContext.Provider>
-  );
-
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset store state before each test
+    useSourceCodeStore.getState().setSourceCode('');
+    useSourceCodeStore.temporal.getState().clear();
   });
 
   it('should initialize editorApi and sourceCodeRef', () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     expect(result.current.editorApi).toBeDefined();
     expect(result.current.sourceCodeRef.current).toBe('');
   });
 
   it('should set content when setContent is called', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+    const { result } = renderHook(() => useEditorApi());
 
     const path = 'test-path';
     const content = 'test-content';
@@ -45,12 +39,13 @@ describe('useEditorApi', () => {
       await result.current.editorApi.setContent(path, content);
     });
 
-    expect(mockSetCodeAndNotify).toHaveBeenCalledWith(content, path);
+    expect(setCodeAndNotifySpy).toHaveBeenCalledWith(content, path);
     expect(result.current.sourceCodeRef.current).toBe(content);
   });
 
   it('should not update content if the new content is the same as the current one', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+    const { result } = renderHook(() => useEditorApi());
 
     const path = 'test-path';
     const content = 'test-content';
@@ -59,17 +54,17 @@ describe('useEditorApi', () => {
       await result.current.editorApi.setContent(path, content);
     });
 
-    expect(mockSetCodeAndNotify).toHaveBeenCalledTimes(1);
+    expect(setCodeAndNotifySpy).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.editorApi.setContent(path, content);
     });
 
-    expect(mockSetCodeAndNotify).toHaveBeenCalledTimes(1);
+    expect(setCodeAndNotifySpy).toHaveBeenCalledTimes(1);
   });
 
   it('should get content when getContent is called', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const content = 'test-content';
     result.current.sourceCodeRef.current = content;
@@ -80,7 +75,7 @@ describe('useEditorApi', () => {
   });
 
   it('should return undefined for getPreview', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const preview = await result.current.editorApi.getPreview();
 
@@ -90,7 +85,7 @@ describe('useEditorApi', () => {
   it('should clear pastState when loading the store for the first time', async () => {
     const clearSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
 
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await act(async () => {
       await result.current.editorApi.setContent('test-path', 'test-content 1');
@@ -105,7 +100,7 @@ describe('useEditorApi', () => {
     const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
     const storeUndoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'undo');
 
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await act(async () => {
       await result.current.editorApi.undo();
@@ -115,7 +110,7 @@ describe('useEditorApi', () => {
       nodes: [],
       edges: [],
     });
-    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', { code: '', path: '' });
+    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', expect.objectContaining({ code: '' }));
     expect(storeUndoSpy).toHaveBeenCalled();
   });
 
@@ -123,7 +118,7 @@ describe('useEditorApi', () => {
     const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
     const storeRedoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'redo');
 
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await act(async () => {
       await result.current.editorApi.redo();
@@ -133,12 +128,12 @@ describe('useEditorApi', () => {
       nodes: [],
       edges: [],
     });
-    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', { code: '', path: '' });
+    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', expect.objectContaining({ code: '' }));
     expect(storeRedoSpy).toHaveBeenCalled();
   });
 
   it('should validate and return an empty array', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     const validationResult = await result.current.editorApi.validate();
 
@@ -146,7 +141,7 @@ describe('useEditorApi', () => {
   });
 
   it('should resolve setTheme without errors', async () => {
-    const { result } = renderHook(() => useEditorApi(), { wrapper });
+    const { result } = renderHook(() => useEditorApi());
 
     await expect(result.current.editorApi.setTheme(EditorTheme.LIGHT)).resolves.toBeUndefined();
   });

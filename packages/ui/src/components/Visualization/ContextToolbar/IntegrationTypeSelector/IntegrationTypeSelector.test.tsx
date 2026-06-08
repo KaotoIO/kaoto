@@ -67,11 +67,9 @@ describe('IntegrationTypeSelector.tsx', () => {
             setSelectedCatalog: mockSetSelectedCatalog,
           }}
         >
-          <SourceCodeApiContext.Provider value={{ setCodeAndNotify: jest.fn() }}>
-            <Provider>
-              <IntegrationTypeSelector />
-            </Provider>
-          </SourceCodeApiContext.Provider>
+          <Provider>
+            <IntegrationTypeSelector />
+          </Provider>
         </RuntimeContext.Provider>,
       ),
       mockSetSelectedCatalog,

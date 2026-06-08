@@ -20,7 +20,7 @@ import { EntitiesProvider } from '../providers/entities.provider';
 import { ReloadProvider } from '../providers/reload.provider';
 import { RuntimeProvider } from '../providers/runtime.provider';
 import { SettingsProvider } from '../providers/settings.provider';
-import { SourceCodeProvider } from '../providers/source-code.provider';
+import { SourceCodeSync } from '../providers/source-code-sync';
 import { promiseTimeout } from '../utils';
 import { setColorScheme } from '../utils/color-scheme';
 import { SourceCodeBridgeProviderRef } from './Bridge/editor-api';
@@ -170,7 +170,7 @@ export class KaotoEditorApp implements Editor {
     return (
       <ReloadProvider>
         <SettingsProvider adapter={this.settingsAdapter}>
-          <SourceCodeProvider>
+          <SourceCodeSync initialSourceCode="">
             <SourceCodeBridgeProvider ref={this.editorRef} onNewEdit={this.sendNewEdit}>
               <RuntimeProvider catalogUrl={this.settingsAdapter.getSettings().catalogUrl}>
                 <CatalogLoaderProvider>
@@ -197,7 +197,7 @@ export class KaotoEditorApp implements Editor {
                 </CatalogLoaderProvider>
               </RuntimeProvider>
             </SourceCodeBridgeProvider>
-          </SourceCodeProvider>
+          </SourceCodeSync>
         </SettingsProvider>
       </ReloadProvider>
     );

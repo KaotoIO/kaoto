@@ -1,17 +1,17 @@
 import { isDefined } from '@kaoto/forms';
-import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useCallback, useState } from 'react';
 
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { SourceSchemaType } from '../../../../models/camel';
 import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
-import { SourceCodeApiContext } from '../../../../providers';
+import { useSourceCodeStore } from '../../../../store';
 import { findCatalog } from '../../../../utils/catalog-helper';
 import { ChangeIntegrationTypeModal } from './ChangeIntegrationTypeModal/ChangeIntegrationTypeModal';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle/IntegrationTypeSelectorToggle';
 
 export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () => {
   const runtimeContext = useRuntimeContext();
-  const sourceCodeContextApi = useContext(SourceCodeApiContext);
+  const setCodeAndNotify = useSourceCodeStore((state) => state.setCodeAndNotify);
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
   const [changeCatalog, setChangeCatalog] = useState<boolean>();
@@ -28,7 +28,7 @@ export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () 
 
   const onConfirm = useCallback(() => {
     if (proposedFlowType) {
-      sourceCodeContextApi.setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
+      setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
 
       if (changeCatalog) {
         const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
@@ -39,7 +39,7 @@ export const IntegrationTypeSelector: FunctionComponent<PropsWithChildren> = () 
 
       setIsConfirmationModalOpen(false);
     }
-  }, [proposedFlowType, runtimeContext, sourceCodeContextApi, changeCatalog]);
+  }, [proposedFlowType, runtimeContext, setCodeAndNotify, changeCatalog]);
 
   const onCancel = useCallback(() => {
     setIsConfirmationModalOpen(false);

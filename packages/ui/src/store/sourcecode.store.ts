@@ -4,11 +4,14 @@ import { temporal } from 'zundo';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+import { EventNotifier } from '../utils/event-notifier';
+
 interface SourceCodeState {
   sourceCode: string;
   path?: string;
   setSourceCode: (sourceCode: string) => void;
   setPath: (path?: string) => void;
+  setCodeAndNotify: (sourceCode: string, path?: string) => void;
 }
 
 export const useSourceCodeStore = create<SourceCodeState>()(
@@ -22,6 +25,10 @@ export const useSourceCodeStore = create<SourceCodeState>()(
         },
         setPath: (path?: string) => {
           set(() => ({ path }));
+        },
+        setCodeAndNotify: (sourceCode: string, path?: string) => {
+          set(() => ({ sourceCode, path }));
+          EventNotifier.getInstance().next('code:updated', { code: sourceCode, path });
         },
       }),
       {

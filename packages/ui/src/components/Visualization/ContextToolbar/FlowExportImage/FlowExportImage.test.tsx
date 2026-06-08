@@ -4,7 +4,7 @@ import { toBlob } from 'html-to-image';
 import { PropsWithChildren } from 'react';
 
 import { EntitiesProvider } from '../../../../providers/entities.provider';
-import { SourceCodeProvider } from '../../../../providers/source-code.provider';
+import { SourceCodeSync } from '../../../../providers/source-code-sync';
 import { VisibleFlowsProvider } from '../../../../providers/visible-flows.provider';
 import { FlowExportImage } from './FlowExportImage';
 
@@ -45,11 +45,11 @@ interface MockGraph {
 }
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <SourceCodeProvider>
+  <SourceCodeSync initialSourceCode="">
     <EntitiesProvider>
       <VisibleFlowsProvider>{children}</VisibleFlowsProvider>
     </EntitiesProvider>
-  </SourceCodeProvider>
+  </SourceCodeSync>
 );
 
 describe('FlowExportImage', () => {

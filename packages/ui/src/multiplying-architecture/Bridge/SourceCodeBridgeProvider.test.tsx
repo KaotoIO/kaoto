@@ -1,7 +1,7 @@
 import { act, render } from '@testing-library/react';
 import { FunctionComponent, useRef } from 'react';
 
-import { SourceCodeApiContext } from '../../providers';
+import { useSourceCodeStore } from '../../store';
 import { EventNotifier } from '../../utils/event-notifier';
 import { SourceCodeBridgeProviderRef } from './editor-api';
 import { SourceCodeBridgeProvider } from './SourceCodeBridgeProvider';
@@ -107,8 +107,8 @@ describe('SourceCodeBridgeProvider', () => {
   });
 
   it('should not call setContent if the new content is the same as the current one', () => {
-    const setCodeAndNotifyMock = jest.fn();
-    const wrapper = render(<EnvelopeProviderTestingBed setCodeAndNotify={setCodeAndNotifyMock} />);
+    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+    const wrapper = render(<EnvelopeProviderTestingBed />);
 
     act(() => {
       wrapper.getByText('Set Content').click();
@@ -118,33 +118,29 @@ describe('SourceCodeBridgeProvider', () => {
       wrapper.getByText('Set Content').click();
     });
 
-    expect(setCodeAndNotifyMock).toHaveBeenCalledTimes(1);
+    expect(setCodeAndNotifySpy).toHaveBeenCalledTimes(1);
   });
 });
 
-const EnvelopeProviderTestingBed: FunctionComponent<{
-  setCodeAndNotify: (sourceCode: string, path?: string) => void;
-}> = ({ setCodeAndNotify }) => {
+const EnvelopeProviderTestingBed: FunctionComponent = () => {
   const envelopeRef = useRef<SourceCodeBridgeProviderRef>(null);
 
   return (
-    <SourceCodeApiContext.Provider value={{ setCodeAndNotify }}>
-      <SourceCodeBridgeProvider ref={envelopeRef} onNewEdit={jest.fn()}>
-        <button
-          type="button"
-          onClick={() => {
-            envelopeRef.current?.setContent(
-              'test.camel.yaml',
-              `- from:
+    <SourceCodeBridgeProvider ref={envelopeRef} onNewEdit={jest.fn()}>
+      <button
+        type="button"
+        onClick={() => {
+          envelopeRef.current?.setContent(
+            'test.camel.yaml',
+            `- from:
             uri: "timer:foo"
             steps: []
             `,
-            );
-          }}
-        >
-          Set Content
-        </button>
-      </SourceCodeBridgeProvider>
-    </SourceCodeApiContext.Provider>
+          );
+        }}
+      >
+        Set Content
+      </button>
+    </SourceCodeBridgeProvider>
   );
 };

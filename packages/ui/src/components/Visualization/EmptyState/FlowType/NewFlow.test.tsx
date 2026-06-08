@@ -7,7 +7,7 @@ import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { IRuntimeContext, RuntimeContext } from '../../../../providers/runtime.provider';
-import { SourceCodeApiContext } from '../../../../providers/source-code.provider';
+import { useSourceCodeStore } from '../../../../store';
 import { NewFlow } from './NewFlow';
 
 describe('NewFlow.tsx', () => {
@@ -67,25 +67,19 @@ describe('NewFlow.tsx', () => {
     return {
       ...render(
         <RuntimeContext.Provider value={mergedRuntimeContext}>
-          <SourceCodeApiContext.Provider
-            value={{
-              setCodeAndNotify: jest.fn(),
-            }}
+          <EntitiesContext.Provider
+            value={
+              {
+                currentSchemaType: sourceSchemaType,
+                visualEntities: visualEntities,
+                camelResource: new CamelRouteResource(),
+              } as unknown as EntitiesContextResult
+            }
           >
-            <EntitiesContext.Provider
-              value={
-                {
-                  currentSchemaType: sourceSchemaType,
-                  visualEntities: visualEntities,
-                  camelResource: new CamelRouteResource(),
-                } as unknown as EntitiesContextResult
-              }
-            >
-              <VisibleFlowsProvider>
-                <NewFlow />
-              </VisibleFlowsProvider>
-            </EntitiesContext.Provider>
-          </SourceCodeApiContext.Provider>
+            <VisibleFlowsProvider>
+              <NewFlow />
+            </VisibleFlowsProvider>
+          </EntitiesContext.Provider>
         </RuntimeContext.Provider>,
       ),
       mockSetSelectedCatalog,
