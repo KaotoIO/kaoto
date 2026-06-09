@@ -84,7 +84,7 @@ describe('Test for Multi route actions from the canvas', () => {
   testData.forEach((data) => {
     it("User can't create multiple routes in canvas of type " + data, () => {
       cy.switchIntegrationType(data);
-      cy.get('[data-testid="integration-type-list-dropdown"]').click({ force: true });
+      cy.get('[data-testid="integration-type-list-dropdown"]').click();
       cy.get('.pf-v6-c-menu__item-text').contains(data).closest('button').should('be.disabled');
       cy.get('[data-testid="new-entity-list-dropdown"]').should('not.exist');
 
