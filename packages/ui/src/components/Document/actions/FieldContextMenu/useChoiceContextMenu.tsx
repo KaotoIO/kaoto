@@ -38,6 +38,7 @@ interface ChoiceNodeInfo {
   isChoiceWrapper: boolean;
   isSelectedChoice: boolean;
   isChoiceMember: boolean;
+  activeChoiceWrapperForMembers: IField | undefined;
   choiceWrapperField: IField | undefined;
   choiceMemberField: IField | undefined;
   parentChoiceWrapperField: IField | undefined;
@@ -66,11 +67,13 @@ function resolveChoiceNodeInfo(nodeData: NodeData): ChoiceNodeInfo {
   } else if (isChoiceWrapper) {
     choiceWrapperField = field;
   }
+  const activeChoiceWrapperForMembers = isSelectedChoice && isChoiceWrapper ? field : choiceWrapperField;
 
   return {
     isChoiceWrapper,
     isSelectedChoice,
     isChoiceMember,
+    activeChoiceWrapperForMembers,
     choiceWrapperField,
     choiceMemberField,
     parentChoiceWrapperField,
@@ -112,11 +115,14 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     isChoiceWrapper,
     isSelectedChoice,
     isChoiceMember,
+    activeChoiceWrapperForMembers,
     choiceWrapperField,
     choiceMemberField,
     parentChoiceWrapperField,
     choiceMemberIndex,
   } = resolveChoiceNodeInfo(nodeData);
+
+  const isNestedSelectedChoice = isSelectedChoice && isChoiceWrapper;
 
   const [isChoiceModalOpen, setIsChoiceModalOpen] = useState(false);
 
@@ -143,10 +149,10 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   // Case A: select a member from this node's own wrapper member list
   const handleSelectChoiceMember = useCallback(
     (selectedIndex: number) => {
-      if (!choiceWrapperField) return;
-      applyChoiceSelection(choiceWrapperField, selectedIndex);
+      if (!activeChoiceWrapperForMembers) return;
+      applyChoiceSelection(activeChoiceWrapperForMembers, selectedIndex);
     },
-    [choiceWrapperField, applyChoiceSelection],
+    [activeChoiceWrapperForMembers, applyChoiceSelection],
   );
 
   // Case A/B: clear selection on this node's wrapper (or the selected wrapper)
@@ -171,25 +177,29 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
     testId: 'clear-choice',
   };
 
-  const selectSelfAction = isChoiceMember
-    ? buildSelectSelfAction(
-        choiceMemberField,
-        parentChoiceWrapperField,
-        handleSelectSelfAsChoiceMember,
-        'select-choice-member',
-        getFieldDisplayName,
-      )
-    : undefined;
+  const selectSelfAction =
+    isChoiceMember && !isSelectedChoice
+      ? buildSelectSelfAction(
+          choiceMemberField,
+          parentChoiceWrapperField,
+          handleSelectSelfAsChoiceMember,
+          'select-choice-member',
+          getFieldDisplayName,
+        )
+      : undefined;
 
   let menuGroups: MenuGroup[];
   if (isChoiceWrapper) {
     menuGroups = buildChoiceWrapperMenuGroups(
-      choiceWrapperField,
+      activeChoiceWrapperForMembers,
       selectSelfAction,
       clearChoiceAction,
       handleSelectChoiceMember,
       handleOpenChoiceModal,
     );
+    if (isNestedSelectedChoice) {
+      menuGroups.push({ actions: [clearChoiceAction] });
+    }
   } else {
     const choiceActions: MenuAction[] = [];
     if (isSelectedChoice) choiceActions.push(clearChoiceAction);
@@ -204,10 +214,10 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   return {
     groups: menuGroups,
     modals:
-      isChoiceModalOpen && choiceWrapperField ? (
+      isChoiceModalOpen && activeChoiceWrapperForMembers ? (
         <ChoiceSelectionModal
           isOpen={isChoiceModalOpen}
-          choiceField={choiceWrapperField}
+          choiceField={activeChoiceWrapperForMembers}
           onSelect={handleSelectChoiceMember}
           onClose={closeChoiceModal}
         />

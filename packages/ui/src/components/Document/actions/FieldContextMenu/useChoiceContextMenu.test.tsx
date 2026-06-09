@@ -373,6 +373,180 @@ describe('useChoiceContextMenu', () => {
     expect(setSpy).toHaveBeenCalledWith(expect.any(Object), choiceField, 1, expect.any(Object));
     setSpy.mockRestore();
   });
-});
 
-// Made with Bob
+  describe('nested choice wrapper', () => {
+    const createNestedChoiceFieldNode = (selectInner = false) => {
+      const document = TestUtil.createSourceOrderDoc();
+      const parentField = document.fields[0];
+      const outerChoiceField = {
+        name: 'outerChoice',
+        displayName: 'Outer Choice',
+        type: Types.Container,
+        wrapperKind: 'choice' as const,
+        namedTypeFragmentRefs: [],
+        parent: parentField,
+        ownerDocument: document,
+        fields: [] as Record<string, unknown>[],
+        selectedMemberIndex: undefined as number | undefined,
+      };
+      const innerChoiceField = {
+        name: 'innerChoice',
+        displayName: 'Inner Choice',
+        type: Types.Container,
+        wrapperKind: 'choice' as const,
+        namedTypeFragmentRefs: [],
+        parent: outerChoiceField,
+        ownerDocument: document,
+        fields: [] as Record<string, unknown>[],
+        selectedMemberIndex: selectInner ? 0 : undefined,
+      };
+      const innerMembers = [
+        {
+          name: 'innerA',
+          displayName: 'InnerA',
+          type: Types.String,
+          fields: [],
+          namedTypeFragmentRefs: [],
+          parent: innerChoiceField,
+          ownerDocument: document,
+        },
+        {
+          name: 'innerB',
+          displayName: 'InnerB',
+          type: Types.String,
+          fields: [],
+          namedTypeFragmentRefs: [],
+          parent: innerChoiceField,
+          ownerDocument: document,
+        },
+        {
+          name: 'innerC',
+          displayName: 'InnerC',
+          type: Types.String,
+          fields: [],
+          namedTypeFragmentRefs: [],
+          parent: innerChoiceField,
+          ownerDocument: document,
+        },
+      ];
+      innerChoiceField.fields = innerMembers;
+      const plainMember = {
+        name: 'plain',
+        displayName: 'Plain',
+        type: Types.String,
+        fields: [],
+        namedTypeFragmentRefs: [],
+        parent: outerChoiceField,
+        ownerDocument: document,
+      };
+      outerChoiceField.fields = [innerChoiceField, plainMember];
+      outerChoiceField.selectedMemberIndex = 0;
+      parentField.fields.push(outerChoiceField as never);
+
+      const documentNodeData = new DocumentNodeData(document);
+      const tree = new DocumentTree(documentNodeData);
+      TreeParsingService.parseTree(tree);
+      const orderNode = tree.root.children[0];
+      const lastChild = orderNode.children.length - 1;
+      const choiceNode = orderNode.children[lastChild];
+      return { document, documentNodeData, choiceNode, outerChoiceField, innerChoiceField };
+    };
+
+    it('should show inner choice members and Show All Choice Options for nested choice', () => {
+      const { documentNodeData, choiceNode } = createNestedChoiceFieldNode();
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={choiceNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
+      });
+
+      expect(screen.getByText('InnerA')).toBeInTheDocument();
+      expect(screen.getByText('InnerB')).toBeInTheDocument();
+      expect(screen.getByText('InnerC')).toBeInTheDocument();
+      expect(screen.getByText('Show All Choice Options')).toBeInTheDocument();
+    });
+
+    it('should call setChoiceSelection on inner wrapper when clicking an inner member', () => {
+      const { documentNodeData, choiceNode, innerChoiceField } = createNestedChoiceFieldNode();
+
+      const setSpy = jest.spyOn(ChoiceSelectionService, 'setChoiceSelection').mockImplementation(jest.fn());
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={choiceNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByText('InnerB'));
+      });
+
+      expect(setSpy).toHaveBeenCalledWith(expect.any(Object), innerChoiceField, 1, expect.any(Object));
+      setSpy.mockRestore();
+    });
+
+    it('should call clearChoiceSelection on outer wrapper when clicking Show All Choice Options', () => {
+      const { documentNodeData, choiceNode, outerChoiceField } = createNestedChoiceFieldNode();
+
+      const clearSpy = jest.spyOn(ChoiceSelectionService, 'clearChoiceSelection').mockImplementation(jest.fn());
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={choiceNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByText('Show All Choice Options'));
+      });
+
+      expect(clearSpy).toHaveBeenCalledWith(expect.any(Object), outerChoiceField, expect.any(Object));
+      clearSpy.mockRestore();
+    });
+
+    it('should not show Select self action when choice member is already selected', () => {
+      const { documentNodeData, choiceNode } = createNestedChoiceFieldNode();
+
+      render(
+        <SourceDocumentNodeWithContextMenu
+          treeNode={choiceNode}
+          documentId={documentNodeData.id}
+          isReadOnly={false}
+          rank={1}
+        />,
+        { wrapper },
+      );
+
+      act(() => {
+        fireEvent.contextMenu(screen.getByTestId(`node-source-${choiceNode.nodeData.id}`));
+      });
+
+      expect(screen.queryByText(/Select '.*' in '.*'/)).not.toBeInTheDocument();
+    });
+  });
+});
