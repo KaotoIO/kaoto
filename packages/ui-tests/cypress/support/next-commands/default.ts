@@ -55,6 +55,12 @@ Cypress.Commands.add('waitSchemasLoading', () => {
       cy.get('[data-testid="loading-catalogs"]').should('not.exist');
     }
   });
+  // Wait for the catalog library loading to disappear
+  cy.get('body').then(($body) => {
+    if ($body.find('[data-testid="loading-library"]').length > 0) {
+      cy.get('[data-testid="loading-library"]').should('not.exist');
+    }
+  });
 });
 
 Cypress.Commands.add('expandVisualization', () => {
@@ -220,6 +226,10 @@ Cypress.Commands.add('switchIntegrationType', (type: string) => {
     .should('exist')
     .click();
   cy.get('[data-testid="confirmation-modal-confirm"]').click({ force: true });
+  // Changing the integration type can re-select the catalog (e.g. to/from a test runtime),
+  // which briefly unmounts the toolbar behind a loading indicator. Wait it out before the
+  // caller interacts with the toolbar again.
+  cy.waitSchemasLoading();
 });
 
 Cypress.Commands.add('addNewRoute', () => {
@@ -354,7 +364,10 @@ Cypress.Commands.add('allowClipboardAccess', () => {
 Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
   cy.window().then((win) => {
     if (win.navigator?.clipboard?.read) {
-      win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
+      // Return the promise so Cypress awaits the clipboard read before the command resolves.
+      // Otherwise the read floats and may resolve against a later copy's content, throwing an
+      // uncaught AssertionError (the Chromium-only "deeply equal" failure seen in CI).
+      return win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
         for (const item of text) {
           if (item.types.includes('web text/kaoto')) {
             const blob = await item.getType('web text/kaoto');
