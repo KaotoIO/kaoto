@@ -61,6 +61,7 @@ Cypress.Commands.add('selectReplaceNode', (nodeName: string, nodeIndex?: number)
 
 Cypress.Commands.add('selectCopyNode', (nodeName: string, nodeIndex?: number) => {
   cy.performNodeAction(nodeName, 'copy', nodeIndex);
+  cy.wait(100);
 });
 
 Cypress.Commands.add('selectPasteNode', (nodeName: string, pasteType: string, nodeIndex?: number) => {
