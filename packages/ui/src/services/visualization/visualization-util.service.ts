@@ -158,6 +158,17 @@ export class VisualizationUtilService {
   }
 
   /**
+   * Returns `true` if the node's field is a terminal/primitive field (has no schema children).
+   * Terminal fields can still contain XSLT instructions like for-each, choose, if, etc.
+   * @param nodeData - The node to test.
+   */
+  static isTerminalField(nodeData: NodeData): boolean {
+    const field = VisualizationUtilService.getField(nodeData);
+    if (!field) return false;
+    return !DocumentService.hasChildren(field);
+  }
+
+  /**
    * Returns the underlying {@link IField} for field-backed nodes, or `undefined` for
    * document and pure mapping nodes.
    * @param nodeData - The node to extract the field from.

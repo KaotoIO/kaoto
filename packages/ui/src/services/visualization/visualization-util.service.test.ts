@@ -295,4 +295,19 @@ describe('VisualizationUtilService', () => {
       expect(VisualizationUtilService.getSelectedChoiceDepth(choiceNode)).toEqual(3);
     });
   });
+
+  describe('isTerminalField', () => {
+    it('should return true for FieldNodeData with no children (terminal/primitive field)', () => {
+      // Create a field with no children - a primitive/terminal field
+      const terminalField = createMockField(sourceDoc.fields[0], { fields: [] });
+      const fieldNode = new FieldNodeData(sourceDocNode, terminalField);
+      expect(VisualizationUtilService.isTerminalField(fieldNode)).toBe(true);
+    });
+
+    it('should return false for FieldNodeData with children (non-terminal field)', () => {
+      // Use the existing field which has children (complex type)
+      const fieldNode = new FieldNodeData(sourceDocNode, sourceDoc.fields[0]);
+      expect(VisualizationUtilService.isTerminalField(fieldNode)).toBe(false);
+    });
+  });
 });
