@@ -1,12 +1,21 @@
-import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+import {
+  CamelYamlDsl,
+  CatalogLibrary,
+  RouteConfigurationDefinition,
+  RouteDefinition,
+} from '@kaoto/camel-catalog/types';
 
 import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
-import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
+import { camelRouteJson, camelRouteYaml, doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs/camel-route';
+import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
 import { SerializerType } from '../kaoto-resource';
 import { AddStepMode } from '../visualization/base-visual-entity';
+import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
@@ -593,6 +602,45 @@ describe('CamelRouteResource', () => {
       // Verify that comments and metadata are still preserved
       expect(resource['serializer'].getComments()).toEqual(['Initial Comment']);
       expect(resource['serializer'].getMetadata().xmlDeclaration).toBe('<?xml version="1.0" encoding="UTF-8"?>');
+    });
+  });
+
+  describe('XML entity parsing deferred until the catalog is loaded', () => {
+    // In production the XML serializer parses inside KaotoResourceProvider, which sits ABOVE the
+    // catalog loader, so parse() cannot build entities yet. CamelRouteResource.initialize() runs
+    // later (under EntitiesProvider, catalog guaranteed loaded) and is where entities materialize.
+    beforeAll(async () => {
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+    });
+
+    it('should build XML entities in initialize(), not in the factory parse()', () => {
+      const resource = CamelResourceFactory.createCamelResource(doTryCamelRouteXml, { path: 'route.xml' });
+
+      // The factory has already called serializer.parse() — entities must NOT exist yet.
+      expect(resource.getVisualEntities()).toHaveLength(0);
+
+      resource.initialize();
+
+      const visualEntities = resource.getVisualEntities();
+      expect(visualEntities).toHaveLength(1);
+      expect(visualEntities[0]).toBeInstanceOf(CamelRouteVisualEntity);
+      // Nested doTry/doCatch/doFinally steps survive the deferred parse.
+      expect(resource.toJSON()).toEqual([doTryCamelRouteJson]);
+    });
+
+    it('should preserve steps when parse() runs before the catalog is loaded', async () => {
+      // Reproduce the original timing: the catalog is empty when the source is parsed...
+      CamelCatalogService.setCatalogKey(CatalogKind.Processor, {});
+      const resource = CamelResourceFactory.createCamelResource(doTryCamelRouteXml, { path: 'route.xml' });
+
+      // ...then the catalog finishes loading before initialize() runs.
+      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
+      CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
+      resource.initialize();
+
+      // Had parse() built entities eagerly against the empty catalog, every step would be lost.
+      expect(resource.toJSON()).toEqual([doTryCamelRouteJson]);
     });
   });
 

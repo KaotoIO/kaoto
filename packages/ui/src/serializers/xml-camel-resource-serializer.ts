@@ -15,6 +15,8 @@ export type XMLMetadata = {
 export class XmlCamelResourceSerializer implements KaotoResourceSerializer {
   private comments: string[] = [];
   private metadata: XMLMetadata = { xmlDeclaration: '', rootElementDefinitions: [] };
+  /** Declaration-stripped XML retained by {@link parse} so {@link parseEntities} can parse it once the catalog is loaded. */
+  private code: string = '';
   xmlSerializer: XMLSerializer = new XMLSerializer();
 
   private static readonly COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
@@ -36,9 +38,22 @@ export class XmlCamelResourceSerializer implements KaotoResourceSerializer {
     const codeWithoutDeclaration = (code as string).replace(this.metadata.xmlDeclaration, '');
     this.extractComments(codeWithoutDeclaration);
     this.metadata.rootElementDefinitions = xmlParser.parseRootElementDefinitions(codeWithoutDeclaration);
-    const entities = xmlParser.parseXML(codeWithoutDeclaration as string);
 
-    return entities as CamelYamlDsl;
+    /**
+     * Defer the catalog-dependent entity parsing to {@link parseEntities}, invoked from the
+     * resource's `initialize()` once the catalog is loaded. Parsing XML processors here would
+     * run before the catalog is available (see {@link KaotoResource}), silently dropping every
+     * step. The entities aren't needed yet: the resource type is derived from the path, not from
+     * the parsed XML content.
+     */
+    this.code = codeWithoutDeclaration;
+
+    return [];
+  }
+
+  parseEntities(): CamelYamlDsl {
+    const xmlParser = new KaotoXmlParser();
+    return xmlParser.parseXML(this.code) as CamelYamlDsl;
   }
 
   serialize(resource: KaotoResource): string {

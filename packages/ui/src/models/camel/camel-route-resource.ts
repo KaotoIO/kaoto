@@ -121,12 +121,15 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   ) {}
 
   initialize(): void {
-    if (!this.rawEntities) {
+    // XML defers catalog-dependent parsing to here via the serializer; YAML returns its
+    // fully-parsed entities from the constructor (`rawEntities`). See KaotoResourceSerializer.
+    const rawEntities = this.serializer.parseEntities?.() ?? this.rawEntities;
+    if (!rawEntities) {
       this.entities = [];
       return;
     }
 
-    const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
+    const entities = Array.isArray(rawEntities) ? rawEntities : [rawEntities];
     const parsedEntities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {

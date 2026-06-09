@@ -54,6 +54,14 @@ export type Metadata = { [key: string]: unknown };
 
 export interface KaotoResourceSerializer {
   parse: (code: string) => CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined;
+  /**
+   * Catalog-dependent parsing deferred from {@link parse}. XML routes need a fully loaded
+   * catalog to interpret processors, but `parse()` runs before the catalog is available
+   * (see {@link KaotoResource}). The resource invokes this from `initialize()`, once the
+   * catalog is guaranteed loaded, to obtain the parsed entities. Serializers that fully
+   * parse in `parse()` (YAML) don't implement it.
+   */
+  parseEntities?: () => CamelYamlDsl | Integration | Kamelet | KameletBinding | Pipe | Test | undefined;
   serialize: (resource: KaotoResource) => string;
   getComments: () => string[];
   setComments: (comments: string[]) => void;
