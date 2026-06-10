@@ -163,6 +163,10 @@ export const camelRouteYamlWithDM = `
         - step:
             id: kaoto-datamapper-657b6637
             steps:
+              - setBody:
+                  id: kaoto-datamapper-set-body-0000
+                  simple:
+                    expression: "\${null}"
               - to:
                   id: kaoto-datamapper-xslt-3158
                   uri: xslt-saxon

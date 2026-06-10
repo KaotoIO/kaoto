@@ -30,6 +30,7 @@ import {
 import { MappingTree } from '../models/datamapper/mapping';
 import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
+import { DataMapperStepService } from '../services/datamapper-step.service';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
@@ -75,7 +76,7 @@ type DataMapperProviderProps = PropsWithChildren & {
   onDeleteParameter?: (name: string) => void;
   onRenameParameter?: (oldName: string, newName: string) => void;
   initialXsltFile?: string;
-  onUpdateMappings?: (xsltFile: string) => void;
+  onUpdateMappings?: (xsltFile: string, isSourceBodyUsed: boolean) => void;
   onUpdateNamespaceMap?: (namespaceMap: Record<string, string>) => void;
 };
 
@@ -198,17 +199,19 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       return child;
     });
     newMapping.namespaceMap = mappingTree.namespaceMap;
+    const isSourceBodyUsed = DataMapperStepService.isSourceBodyUsed(newMapping);
     setMappingTree(newMapping);
     const serialized = MappingSerializerService.serialize(newMapping, sourceParameterMap);
-    onUpdateMappings?.(serialized);
+    onUpdateMappings?.(serialized, isSourceBodyUsed);
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [mappingTree, onUpdateMappings, onUpdateNamespaceMap, sourceParameterMap, targetBodyDocument.definitionType]);
 
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
     newMapping.namespaceMap = { ...initialNamespaceMap };
+    const isSourceBodyUsed = DataMapperStepService.isSourceBodyUsed(newMapping);
     setMappingTree(newMapping);
-    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap));
+    onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap), isSourceBodyUsed);
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
   }, [
     initialNamespaceMap,
