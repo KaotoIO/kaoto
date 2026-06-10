@@ -1,9 +1,32 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{
-  processorName: 'interceptSendToEndpoint',
-  path: 'interceptSendToEndpoint'
-}' processor 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'from', path: 'from' }' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'intercept', path: 'intercept' }' processor 1`] = `
+{
+  "canBeDisabled": false,
+  "canHaveChildren": true,
+  "canHaveNextStep": false,
+  "canHavePreviousStep": false,
+  "canHaveSpecialChildren": false,
+  "canRemoveFlow": false,
+  "canRemoveStep": true,
+  "canReplaceStep": true,
+}
+`;
+
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'interceptSendToEndpoint', path: 'interceptSendToEndpoint' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -16,33 +39,7 @@ exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should retu
 }
 `;
 
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'from', path: 'from' }' processor 1`] = `
-{
-  "canBeDisabled": false,
-  "canHaveChildren": true,
-  "canHaveNextStep": false,
-  "canHavePreviousStep": false,
-  "canHaveSpecialChildren": false,
-  "canRemoveFlow": false,
-  "canRemoveStep": true,
-  "canReplaceStep": true,
-}
-`;
-
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'intercept', path: 'intercept' }' processor 1`] = `
-{
-  "canBeDisabled": false,
-  "canHaveChildren": true,
-  "canHaveNextStep": false,
-  "canHavePreviousStep": false,
-  "canHaveSpecialChildren": false,
-  "canRemoveFlow": false,
-  "canRemoveStep": true,
-  "canReplaceStep": true,
-}
-`;
-
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'log', path: 'log' }' processor 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'log', path: 'log' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -55,7 +52,7 @@ exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should retu
 }
 `;
 
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onCompletion', path: 'onCompletion' }' processor 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'onCompletion', path: 'onCompletion' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -68,7 +65,7 @@ exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should retu
 }
 `;
 
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'onException', path: 'onException' }' processor 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'onException', path: 'onException' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -81,7 +78,7 @@ exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should retu
 }
 `;
 
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'route', path: 'route' }' processor 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'route', path: 'route' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -94,7 +91,7 @@ exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should retu
 }
 `;
 
-exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should return the correct interaction for the '{ processorName: 'to', path: 'to' }' processor 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > getNodeInteraction > should return the correct interaction for the '{ processorName: 'to', path: 'to' }' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -107,7 +104,7 @@ exports[`CamelInterceptSendToEndpointVisualEntity getNodeInteraction should retu
 }
 `;
 
-exports[`CamelInterceptSendToEndpointVisualEntity should serialize the entity 1`] = `
+exports[`CamelInterceptSendToEndpointVisualEntity > should serialize the entity 1`] = `
 {
   "interceptSendToEndpoint": {
     "id": "interceptSendToEndpoint-1234",

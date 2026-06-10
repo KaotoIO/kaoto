@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { VisibleFlowsContext, VisibleFlowsContextResult } from '../../../../providers';
 import { GraphContextMenuFn } from './CustomGraph';
@@ -8,19 +9,19 @@ describe('GraphContextMenuFn', () => {
     allFlowsVisible: false,
     visibleFlows: {},
     visualFlowsApi: {
-      showFlows: jest.fn(),
-      hideFlows: jest.fn(),
-      toggleFlowVisible: jest.fn(),
-      clearFlows: jest.fn(),
-      initVisibleFlows: jest.fn(),
-      renameFlow: jest.fn(),
+      showFlows: vi.fn(),
+      hideFlows: vi.fn(),
+      toggleFlowVisible: vi.fn(),
+      clearFlows: vi.fn(),
+      initVisibleFlows: vi.fn(),
+      renameFlow: vi.fn(),
     } as unknown as VisibleFlowsContextResult['visualFlowsApi'],
   };
 
   const defaultOptions = {
-    entityContextMenuFn: jest.fn().mockReturnValue([]),
+    entityContextMenuFn: vi.fn().mockReturnValue([]),
     canPasteEntity: false,
-    pasteEntity: jest.fn(),
+    pasteEntity: vi.fn(),
   };
 
   const renderWithContext = (items: React.ReactNode) => {
@@ -28,9 +29,9 @@ describe('GraphContextMenuFn', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    defaultOptions.entityContextMenuFn = jest.fn().mockReturnValue([]);
-    defaultOptions.pasteEntity = jest.fn();
+    vi.clearAllMocks();
+    defaultOptions.entityContextMenuFn = vi.fn().mockReturnValue([]);
+    defaultOptions.pasteEntity = vi.fn();
   });
 
   it('renders Show all and Hide all menu items', () => {
@@ -64,7 +65,7 @@ describe('GraphContextMenuFn', () => {
 
   it('renders New submenu when entities exist', () => {
     const entities = [<div key="entity-1">Entity 1</div>];
-    const entityContextMenuFn = jest.fn().mockReturnValue(entities);
+    const entityContextMenuFn = vi.fn().mockReturnValue(entities);
     const items = GraphContextMenuFn({ ...defaultOptions, entityContextMenuFn });
 
     renderWithContext(<>{items}</>);

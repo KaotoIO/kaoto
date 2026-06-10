@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { toBlob } from 'html-to-image';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { DocumentationService } from '../../../../services/documentation.service';
@@ -12,46 +13,45 @@ import { ControllerService } from '../../Canvas/controller.service';
 import { FlowService } from '../../Canvas/flow.service';
 import { ExportDocumentPreviewModal } from './ExportDocumentPreviewModal';
 
-jest.mock('html-to-image', () => ({
-  toBlob: jest.fn(),
+vi.mock('html-to-image', async () => ({
+  toBlob: vi.fn(),
 }));
-
-jest.mock('@patternfly/react-topology', () => ({
-  ...jest.requireActual('@patternfly/react-topology'),
-  useEventListener: jest.fn(),
+vi.mock('@patternfly/react-topology', async () => ({
+  ...(await vi.importActual('@patternfly/react-topology')),
+  useEventListener: vi.fn(),
   GRAPH_LAYOUT_END_EVENT: 'graph.layout.end',
 }));
 
-jest.mock('../../Canvas/flow.service');
+vi.mock('../../Canvas/flow.service');
 
 describe('ExportDocumentPreviewModal', () => {
   const camelResource = new CamelRouteResource([camelRouteJson]);
   camelResource.initialize();
-  let onCloseSpy: jest.Mock;
+  let onCloseSpy: Mock;
   let wrapper: FunctionComponent<PropsWithChildren>;
   let originalCreateObjectURL: typeof URL.createObjectURL;
   let originalRevokeObjectURL: typeof URL.revokeObjectURL;
-  let clickSpy: jest.SpyInstance;
+  let clickSpy: MockInstance;
   let eventListenerCallback: ((event?: Event) => void) | null = null;
 
   beforeEach(() => {
-    onCloseSpy = jest.fn();
+    onCloseSpy = vi.fn();
 
     originalCreateObjectURL = URL.createObjectURL;
     originalRevokeObjectURL = URL.revokeObjectURL;
-    URL.createObjectURL = jest.fn(() => 'blob:mock-url');
-    URL.revokeObjectURL = jest.fn();
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    URL.revokeObjectURL = vi.fn();
 
-    clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation();
+    clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
 
-    (FlowService.getFlowDiagram as jest.Mock).mockReturnValue({
+    (FlowService.getFlowDiagram as Mock).mockReturnValue({
       nodes: [{ id: 'node-1', type: 'node' } as CanvasNode],
       edges: [{ id: 'edge-1', type: 'edge' }],
     });
 
-    (toBlob as jest.Mock).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
+    (toBlob as Mock).mockResolvedValue(new Blob(['fake-image-data'], { type: 'image/png' }));
 
-    (useEventListener as jest.Mock).mockImplementation((eventType: string, callback: (event?: Event) => void) => {
+    (useEventListener as Mock).mockImplementation((eventType: string, callback: (event?: Event) => void) => {
       if (eventType === GRAPH_LAYOUT_END_EVENT) {
         eventListenerCallback = callback;
       }
@@ -112,7 +112,7 @@ describe('ExportDocumentPreviewModal', () => {
   });
 
   it('initializes with documentation entities from DocumentationService', () => {
-    const getDocumentationEntitiesSpy = jest.spyOn(DocumentationService, 'getDocumentationEntities');
+    const getDocumentationEntitiesSpy = vi.spyOn(DocumentationService, 'getDocumentationEntities');
 
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
@@ -120,7 +120,7 @@ describe('ExportDocumentPreviewModal', () => {
   });
 
   it('creates blob URL and markdown when HiddenCanvas generates blob', async () => {
-    const generateMarkdownSpy = jest.spyOn(DocumentationService, 'generateMarkdown');
+    const generateMarkdownSpy = vi.spyOn(DocumentationService, 'generateMarkdown');
 
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
@@ -130,7 +130,7 @@ describe('ExportDocumentPreviewModal', () => {
     });
 
     await waitFor(() => {
-      expect(URL.createObjectURL as jest.Mock).toHaveBeenCalled();
+      expect(URL.createObjectURL as Mock).toHaveBeenCalled();
       expect(generateMarkdownSpy).toHaveBeenCalled();
     });
   });
@@ -153,7 +153,7 @@ describe('ExportDocumentPreviewModal', () => {
   });
 
   it('generates zip with blob and markdown when downloading', async () => {
-    const generateDocumentationZipSpy = jest
+    const generateDocumentationZipSpy = vi
       .spyOn(DocumentationService, 'generateDocumentationZip')
       .mockResolvedValue(new Blob(['fake-zip-data'], { type: 'application/zip' }));
 
@@ -182,9 +182,9 @@ describe('ExportDocumentPreviewModal', () => {
 
   it('creates download link with correct filename', async () => {
     const user = userEvent.setup();
-    jest
-      .spyOn(DocumentationService, 'generateDocumentationZip')
-      .mockResolvedValue(new Blob(['fake-zip-data'], { type: 'application/zip' }));
+    vi.spyOn(DocumentationService, 'generateDocumentationZip').mockResolvedValue(
+      new Blob(['fake-zip-data'], { type: 'application/zip' }),
+    );
 
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
@@ -217,7 +217,7 @@ describe('ExportDocumentPreviewModal', () => {
 
   it('creates blob URL for zip download', async () => {
     const zipBlob = new Blob(['fake-zip-data'], { type: 'application/zip' });
-    jest.spyOn(DocumentationService, 'generateDocumentationZip').mockResolvedValue(zipBlob);
+    vi.spyOn(DocumentationService, 'generateDocumentationZip').mockResolvedValue(zipBlob);
 
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
@@ -231,14 +231,14 @@ describe('ExportDocumentPreviewModal', () => {
     });
 
     // Clear previous calls to createObjectURL (from image blob)
-    (URL.createObjectURL as jest.Mock).mockClear();
+    (URL.createObjectURL as Mock).mockClear();
 
     // Click download button
     const downloadButton = screen.getByRole('button', { name: /download/i });
     fireEvent.click(downloadButton);
 
     await waitFor(() => {
-      expect(URL.createObjectURL as jest.Mock).toHaveBeenCalledWith(zipBlob);
+      expect(URL.createObjectURL as Mock).toHaveBeenCalledWith(zipBlob);
     });
   });
 });

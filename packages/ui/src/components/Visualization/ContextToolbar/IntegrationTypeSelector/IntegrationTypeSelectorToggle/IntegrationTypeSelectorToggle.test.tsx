@@ -1,4 +1,5 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { configureSourceSchemaTypes, TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../../stubs';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle';
@@ -24,7 +25,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
 
   it('should call onSelect when clicking on an option', async () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const onSelectSpy = jest.fn();
+    const onSelectSpy = vi.fn();
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
       <RuntimeProvider>

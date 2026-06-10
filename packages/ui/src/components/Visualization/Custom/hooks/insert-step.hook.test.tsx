@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { ITile } from '../../../../components/Catalog/Catalog.models';
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -13,10 +14,10 @@ import { EntitiesContext } from '../../../../providers/entities.provider';
 import { useInsertStep } from './insert-step.hook';
 
 const mockController = {
-  fromModel: jest.fn(),
+  fromModel: vi.fn(),
 };
 
-jest.mock('@patternfly/react-topology', () => ({
+vi.mock('@patternfly/react-topology', () => ({
   useVisualizationController: () => mockController,
 }));
 
@@ -30,14 +31,14 @@ describe('useInsertStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateSourceCodeFromEntities: vi.fn(),
+    updateEntitiesFromCamelResource: vi.fn(),
   };
 
   const mockCatalogModalContext = {
-    setIsModalOpen: jest.fn(),
-    getNewComponent: jest.fn(),
-    checkCompatibility: jest.fn(),
+    setIsModalOpen: vi.fn(),
+    getNewComponent: vi.fn(),
+    checkCompatibility: vi.fn(),
   };
 
   const mockDefinedComponent = {
@@ -47,7 +48,7 @@ describe('useInsertStep', () => {
   };
 
   const mockCompatibleComponents = (item: ITile) => ['log', 'to'].includes(item.type);
-  const getProcessorStepsPropertiesMock = jest.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
+  const getProcessorStepsPropertiesMock = vi.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties');
 
   beforeEach(() => {
     mockVizNode = createVisualizationNode('test', {
@@ -59,15 +60,15 @@ describe('useInsertStep', () => {
       title: '',
       description: '',
     });
-    mockVizNode.addBaseEntityStep = jest.fn();
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
-    mockVizNode.getChildren = jest.fn().mockReturnValue([mockVizNode]);
-    jest.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
+    mockVizNode.addBaseEntityStep = vi.fn();
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({});
+    mockVizNode.getChildren = vi.fn().mockReturnValue([mockVizNode]);
+    vi.spyOn(camelResource, 'getCompatibleComponents').mockReturnValue(mockCompatibleComponents);
     mockController.fromModel.mockClear();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -226,7 +227,7 @@ describe('useInsertStep', () => {
 
   it('should pass component definition from component schema', async () => {
     const mockComponentDefinition = { id: 'existing-component', type: 'existing' };
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockComponentDefinition);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(mockComponentDefinition);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
     const { result } = renderHook(() => useInsertStep(mockVizNode, AddStepMode.InsertChildStep), { wrapper });
@@ -241,7 +242,7 @@ describe('useInsertStep', () => {
   });
 
   it('should handle undefined component schema', async () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(undefined);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
     const { result } = renderHook(() => useInsertStep(mockVizNode, AddStepMode.InsertChildStep), { wrapper });
@@ -271,8 +272,8 @@ describe('useInsertStep', () => {
       title: '',
       description: '',
     });
-    newMockVizNode.addBaseEntityStep = jest.fn();
-    newMockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
+    newMockVizNode.addBaseEntityStep = vi.fn();
+    newMockVizNode.getNodeDefinition = vi.fn().mockReturnValue({});
 
     rerender({ vizNode: newMockVizNode, mode: AddStepMode.InsertChildStep });
 

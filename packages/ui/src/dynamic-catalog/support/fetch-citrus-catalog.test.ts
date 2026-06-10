@@ -1,5 +1,6 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind } from '../../models';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../models/citrus/citrus-catalog-index';
@@ -11,8 +12,8 @@ import { fetchCitrusCatalog } from './fetch-citrus-catalog';
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('fetchCitrusCatalog', () => {
-  let fetchFileMock: jest.SpyInstance;
-  let setCatalogKeySpy: jest.SpyInstance;
+  let fetchFileMock: SpyInstance;
+  let setCatalogKeySpy: SpyInstance;
   let catalogDefinition: Awaited<ReturnType<typeof getFirstCitrusCatalogMap>>['catalogDefinition'];
   let relativeBasePath: string;
 
@@ -27,20 +28,20 @@ describe('fetchCitrusCatalog', () => {
   beforeEach(() => {
     relativeBasePath = `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}`;
 
-    fetchFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
+    fetchFileMock = vi.spyOn(CatalogSchemaLoader, 'fetchFile');
     fetchFileMock.mockImplementation((uri: string) => {
       return Promise.resolve({ body: { [uri]: 'dummy-data' } });
     });
 
-    setCatalogKeySpy = jest.spyOn(CamelCatalogService, 'setCatalogKey');
+    setCatalogKeySpy = vi.spyOn(CamelCatalogService, 'setCatalogKey');
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should register the root test schema (citrus-yaml) as a catalog entity', async () => {
-    const setCatalogSpy = jest.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
+    const setCatalogSpy = vi.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
 
     await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
 
@@ -48,7 +49,7 @@ describe('fetchCitrusCatalog', () => {
     expect(fetchFileMock).toHaveBeenCalledWith(expect.stringContaining(`${relativeBasePath}/citrus-testcase`));
 
     // Registered into CamelCatalogService under CatalogKind.Entity, shaped like a propertiesSchema entity
-    const entityCall = setCatalogKeySpy.mock.calls.find((call) => call[0] === CatalogKind.Entity);
+    const entityCall = setCatalogKeySpy.mock.calls.find((call: CatalogKind[]) => call[0] === CatalogKind.Entity);
     expect(entityCall).toBeDefined();
     expect(entityCall![1]).toHaveProperty(CITRUS_TEST_ROOT_ENTITY_NAME);
     expect(entityCall![1][CITRUS_TEST_ROOT_ENTITY_NAME]).toHaveProperty('propertiesSchema');
@@ -84,7 +85,7 @@ describe('fetchCitrusCatalog', () => {
     await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
 
     let count = 0;
-    setCatalogKeySpy.mock.calls.forEach((call) => {
+    setCatalogKeySpy.mock.calls.forEach((call: ({ [s: string]: unknown } | ArrayLike<unknown>)[]) => {
       if (Object.keys(call[1])[0].endsWith(`${relativeBasePath}/citrus-catalog-aggregate-test-actions.json`)) {
         expect(call[0]).toEqual(CatalogKind.TestAction);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');

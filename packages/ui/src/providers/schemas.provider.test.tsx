@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../models';
 import { TestRuntimeProviderWrapper } from '../stubs';
@@ -9,8 +10,8 @@ import { ReloadContext } from './reload.provider';
 import { SchemasLoaderProvider } from './schemas.provider';
 
 describe('SchemasLoaderProvider', () => {
-  let fetchMock: jest.SpyInstance;
-  let getSchemasFilesMock: jest.SpyInstance;
+  let fetchMock: MockInstance;
+  let getSchemasFilesMock: MockInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -21,8 +22,8 @@ describe('SchemasLoaderProvider', () => {
   });
 
   beforeEach(() => {
-    fetchMock = jest.spyOn(window, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock = vi.spyOn(window, 'fetch');
+    fetchMock.mockImplementationOnce((file: string) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -36,17 +37,17 @@ describe('SchemasLoaderProvider', () => {
       });
     });
 
-    getSchemasFilesMock = jest.spyOn(CatalogSchemaLoader, 'getSchemasFiles');
+    getSchemasFilesMock = vi.spyOn(CatalogSchemaLoader, 'getSchemasFiles');
     getSchemasFilesMock.mockReturnValueOnce([Promise.resolve]);
 
-    jest.spyOn(CatalogSchemaLoader, 'fetchFile').mockResolvedValueOnce({
+    vi.spyOn(CatalogSchemaLoader, 'fetchFile').mockResolvedValueOnce({
       uri: 'http://localhost',
       body: {} as KaotoSchemaDefinition['schema'],
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should start in loading mode', async () => {
@@ -65,11 +66,11 @@ describe('SchemasLoaderProvider', () => {
   });
 
   it('should stay in Error mode when there is an error', async () => {
-    jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
           <Provider>
             <SchemasLoaderProvider>
               <span data-testid="schemas-loaded">Loaded</span>

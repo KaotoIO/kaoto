@@ -17,12 +17,12 @@ const getToggleButton = () =>
 
 describe('TypeaheadSelect', () => {
   it('should display selected option label when dropdown is closed', () => {
-    render(<TypeaheadSelect value="invoice-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="invoice-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     expect(getInput().value).toEqual('Invoice');
   });
 
   it('should open dropdown on focus regardless of current value', () => {
-    render(<TypeaheadSelect value="invoice-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="invoice-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -30,7 +30,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should show all options when dropdown opens', () => {
-    render(<TypeaheadSelect value="invoice-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="invoice-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -40,7 +40,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should not call onChange when typing', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<TypeaheadSelect value="order-key" onChange={onChange} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
@@ -52,7 +52,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should filter options when typing', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -65,7 +65,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should call onChange when option is clicked', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<TypeaheadSelect value="order-key" onChange={onChange} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
@@ -77,7 +77,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should revert to selected label on blur', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -93,7 +93,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should display label instead of value in dropdown', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -102,7 +102,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should filter by description', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -114,7 +114,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should open dropdown via toggle click', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     const toggle = getToggleButton();
     act(() => {
       fireEvent.click(toggle);
@@ -125,7 +125,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should close dropdown via toggle click when open', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -139,7 +139,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should clear filter text when clear button is clicked', () => {
-    render(<TypeaheadSelect value="order-key" onChange={jest.fn()} options={OPTIONS} data-testid="select-input" />);
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -157,7 +157,7 @@ describe('TypeaheadSelect', () => {
   });
 
   it('should not open dropdown on focus when no options exist', () => {
-    render(<TypeaheadSelect value="" onChange={jest.fn()} options={[]} data-testid="select-input" />);
+    render(<TypeaheadSelect value="" onChange={vi.fn()} options={[]} data-testid="select-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });

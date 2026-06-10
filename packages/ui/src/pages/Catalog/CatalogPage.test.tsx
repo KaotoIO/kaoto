@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { ITile } from '../../components/Catalog';
 import { CatalogTilesContext } from '../../dynamic-catalog/catalog-tiles.provider';
@@ -7,12 +8,12 @@ import { ReloadContext, SettingsProvider } from '../../providers';
 import { CatalogPage } from './CatalogPage';
 
 describe('CatalogPage', () => {
-  let reloadPage: jest.Mock;
+  let reloadPage: Mock;
   let settingsAdapter: AbstractSettingsAdapter;
   const getTilesSpy = () => [];
 
   beforeEach(() => {
-    reloadPage = jest.fn();
+    reloadPage = vi.fn();
     settingsAdapter = new DefaultSettingsAdapter();
   });
   const mockTiles: ITile[] = [
@@ -39,14 +40,14 @@ describe('CatalogPage', () => {
   ];
 
   it('should display loading spinner when fetching catalogs', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const promise = new Promise<ITile[]>((resolve) =>
       setTimeout(() => {
         resolve([]);
       }, 1_000),
     );
-    const fetchTiles = jest.fn().mockReturnValue(promise);
+    const fetchTiles = vi.fn().mockReturnValue(promise);
 
     render(
       <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -59,16 +60,16 @@ describe('CatalogPage', () => {
     expect(fetchTiles).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      jest.advanceTimersByTime(1_000);
+      vi.advanceTimersByTime(1_000);
     });
 
     expect(screen.queryByText('Fetching catalogs')).not.toBeInTheDocument();
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   describe('Success state', () => {
     it('should render Catalog component with tiles on successful fetch', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -84,7 +85,7 @@ describe('CatalogPage', () => {
     });
 
     it('should open modal when a tile is clicked', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       const { baseElement } = render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -109,7 +110,7 @@ describe('CatalogPage', () => {
     });
 
     it('should close modal when onClose is called', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       const { baseElement } = render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -143,7 +144,7 @@ describe('CatalogPage', () => {
     });
 
     it('should render modal only when modalTile is set', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       const { baseElement } = render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -163,7 +164,7 @@ describe('CatalogPage', () => {
   describe('Error state', () => {
     it('should display LoadDefaultCatalog component on error', async () => {
       const errorMessage = 'Failed to fetch catalog';
-      const fetchTiles = jest.fn(() => Promise.reject(new Error(errorMessage)));
+      const fetchTiles = vi.fn(() => Promise.reject(new Error(errorMessage)));
 
       render(
         <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
@@ -184,7 +185,7 @@ describe('CatalogPage', () => {
 
     it('should pass error message to LoadDefaultCatalog component', async () => {
       const errorMessage = 'Network error occurred';
-      const fetchTiles = jest.fn(() => Promise.reject(new Error(errorMessage)));
+      const fetchTiles = vi.fn(() => Promise.reject(new Error(errorMessage)));
 
       render(
         <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
@@ -203,7 +204,7 @@ describe('CatalogPage', () => {
 
     it('should clear tiles on error', async () => {
       const errorMessage = 'Failed to load';
-      const fetchTiles = jest.fn(() => Promise.reject(new Error(errorMessage)));
+      const fetchTiles = vi.fn(() => Promise.reject(new Error(errorMessage)));
 
       render(
         <ReloadContext.Provider value={{ reloadPage, lastRender: 0 }}>
@@ -227,7 +228,7 @@ describe('CatalogPage', () => {
 
   describe('Tiles retrieval', () => {
     it('should call fetchTiles only once on mount', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -243,7 +244,7 @@ describe('CatalogPage', () => {
     });
 
     it('should handle empty tiles array', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve([]));
+      const fetchTiles = vi.fn(() => Promise.resolve([]));
 
       render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -261,7 +262,7 @@ describe('CatalogPage', () => {
 
   describe('Modal tile management', () => {
     it('should set modal tile when onTileClick is called', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       const { baseElement } = render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -284,7 +285,7 @@ describe('CatalogPage', () => {
     });
 
     it('should clear modal tile when modal is closed', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       const { baseElement } = render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
@@ -321,7 +322,7 @@ describe('CatalogPage', () => {
     });
 
     it('should allow opening modal for different tiles', async () => {
-      const fetchTiles = jest.fn(() => Promise.resolve(mockTiles));
+      const fetchTiles = vi.fn(() => Promise.resolve(mockTiles));
 
       const { baseElement } = render(
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>

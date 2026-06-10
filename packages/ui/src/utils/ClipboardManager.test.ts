@@ -1,18 +1,20 @@
+import { Mock, vi } from 'vitest';
+
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
 import { ClipboardManager } from './ClipboardManager';
 import { updateIds } from './update-ids';
 
 // Mock the `updateIds` function
-jest.mock('./update-ids', () => ({
-  updateIds: jest.fn((node) => node),
+vi.mock('./update-ids', () => ({
+  updateIds: vi.fn((node) => node),
 }));
 
 // Mock the clipboard API
 Object.assign(navigator, {
   clipboard: {
-    write: jest.fn(),
-    read: jest.fn(),
+    write: vi.fn(),
+    read: vi.fn(),
   },
 });
 
@@ -21,7 +23,7 @@ Object.assign(navigator, {
 Object.defineProperty(globalThis, 'ClipboardItem', {
   writable: true,
   value: class {
-    static supports: jest.Mock = jest.fn();
+    static supports: Mock = vi.fn();
     constructor() {}
   },
 });
@@ -34,13 +36,13 @@ describe('ClipboardManager', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('copy', () => {
     it('should copy only TEXT_MIME_TYPE content to the clipboard', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((ClipboardItem as any).supports as jest.Mock).mockReturnValueOnce(false);
+      ((ClipboardItem as any).supports as Mock).mockReturnValueOnce(false);
 
       const markedObject = {
         ...testClipboardObject,
@@ -58,7 +60,7 @@ describe('ClipboardManager', () => {
 
     it('should copy both TEXT_MIME_TYPE & KAOTO_MIME_TYPE content to the clipboard', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((ClipboardItem as any).supports as jest.Mock).mockReturnValueOnce(true);
+      ((ClipboardItem as any).supports as Mock).mockReturnValueOnce(true);
 
       const markedObject = {
         ...testClipboardObject,
@@ -78,8 +80,8 @@ describe('ClipboardManager', () => {
     });
 
     it('should handle errors during copy', async () => {
-      jest.spyOn(navigator.clipboard, 'write').mockRejectedValue(new Error('Clipboard write error'));
-      const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+      vi.spyOn(navigator.clipboard, 'write').mockRejectedValue(new Error('Clipboard write error'));
+      const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       await ClipboardManager.copy(testClipboardObject);
 
@@ -91,7 +93,7 @@ describe('ClipboardManager', () => {
   describe('paste', () => {
     it('should fetch from the TEXT_MIME_TYPE content from the clipboard', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((ClipboardItem as any).supports as jest.Mock).mockReturnValueOnce(false);
+      ((ClipboardItem as any).supports as Mock).mockReturnValueOnce(false);
 
       const clipboardContent = {
         ...testClipboardObject,
@@ -100,13 +102,13 @@ describe('ClipboardManager', () => {
 
       // Mock the Blob object with a `text()` method
       const blob = {
-        text: jest.fn().mockResolvedValue(JSON.stringify(clipboardContent)),
+        text: vi.fn().mockResolvedValue(JSON.stringify(clipboardContent)),
       };
 
-      jest.spyOn(navigator.clipboard, 'read').mockResolvedValue([
+      vi.spyOn(navigator.clipboard, 'read').mockResolvedValue([
         {
           types: [ClipboardManager.TEXT_MIME_TYPE],
-          getType: jest.fn().mockResolvedValue(blob),
+          getType: vi.fn().mockResolvedValue(blob),
         },
       ]);
 
@@ -117,21 +119,21 @@ describe('ClipboardManager', () => {
 
     it('should fetch fm the KAOTO_MIME_TYPE content from the clipboard', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((ClipboardItem as any).supports as jest.Mock).mockReturnValueOnce(true);
+      ((ClipboardItem as any).supports as Mock).mockReturnValueOnce(true);
 
       // Mock the Blob object with a `text()` method
       const blob = {
-        text: jest.fn().mockResolvedValue(JSON.stringify(testClipboardObject)),
+        text: vi.fn().mockResolvedValue(JSON.stringify(testClipboardObject)),
       };
 
-      jest.spyOn(navigator.clipboard, 'read').mockResolvedValue([
+      vi.spyOn(navigator.clipboard, 'read').mockResolvedValue([
         {
           types: [ClipboardManager.KAOTO_MIME_TYPE],
-          getType: jest.fn().mockResolvedValue(blob),
+          getType: vi.fn().mockResolvedValue(blob),
         },
         {
           types: [ClipboardManager.TEXT_MIME_TYPE],
-          getType: jest.fn().mockResolvedValue(blob),
+          getType: vi.fn().mockResolvedValue(blob),
         },
       ]);
 
@@ -142,17 +144,17 @@ describe('ClipboardManager', () => {
 
     it('should return null if clipboard content is not Kaoto-specific', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((ClipboardItem as any).supports as jest.Mock).mockReturnValueOnce(false);
+      ((ClipboardItem as any).supports as Mock).mockReturnValueOnce(false);
 
       // Mock the Blob object with a `text()` method
       const blob = {
-        text: jest.fn().mockResolvedValue(JSON.stringify(testClipboardObject)),
+        text: vi.fn().mockResolvedValue(JSON.stringify(testClipboardObject)),
       };
 
-      jest.spyOn(navigator.clipboard, 'read').mockResolvedValue([
+      vi.spyOn(navigator.clipboard, 'read').mockResolvedValue([
         {
           types: [ClipboardManager.TEXT_MIME_TYPE],
-          getType: jest.fn().mockResolvedValue(blob),
+          getType: vi.fn().mockResolvedValue(blob),
         },
       ]);
 
@@ -163,8 +165,8 @@ describe('ClipboardManager', () => {
     });
 
     it('should handle errors during paste', async () => {
-      jest.spyOn(navigator.clipboard, 'read').mockRejectedValue(new Error('Clipboard read error'));
-      const consoleErrorMock = jest.spyOn(console, 'error').mockImplementation(() => {});
+      vi.spyOn(navigator.clipboard, 'read').mockRejectedValue(new Error('Clipboard read error'));
+      const consoleErrorMock = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       const result = await ClipboardManager.paste();
       expect(result).toBeNull();
@@ -173,12 +175,12 @@ describe('ClipboardManager', () => {
 
     it('should return null if clipboard content does not include the MIME type', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ((ClipboardItem as any).supports as jest.Mock).mockReturnValueOnce(true);
+      ((ClipboardItem as any).supports as Mock).mockReturnValueOnce(true);
 
-      jest.spyOn(navigator.clipboard, 'read').mockResolvedValue([
+      vi.spyOn(navigator.clipboard, 'read').mockResolvedValue([
         {
           types: ['application/json'],
-          getType: jest.fn(),
+          getType: vi.fn(),
         },
       ]);
 

@@ -122,16 +122,26 @@ describe('CamelCatalogService', () => {
     });
 
     it('should return a kamelet from the catalog lookup', () => {
+      // Add a test kamelet to the catalog
+      const testKameletCatalog = {
+        ...kameletCatalogMap,
+        'chuck-norris-source': {
+          kind: 'Kamelet',
+          metadata: { name: 'chuck-norris-source' },
+          spec: { definition: {} },
+        } as IKameletDefinition,
+      };
+
       CamelCatalogService.setCatalogKey(
         CatalogKind.Kamelet,
-        kameletCatalogMap as unknown as Record<string, IKameletDefinition>,
+        testKameletCatalog as unknown as Record<string, IKameletDefinition>,
       );
 
       const lookup = CamelCatalogService.getCatalogLookup('kamelet:chuck-norris-source');
 
       expect(lookup).toEqual({
         catalogKind: CatalogKind.Kamelet,
-        definition: (kameletCatalogMap as Record<string, unknown>)['chuck-norris-source'],
+        definition: testKameletCatalog['chuck-norris-source'],
       });
     });
 

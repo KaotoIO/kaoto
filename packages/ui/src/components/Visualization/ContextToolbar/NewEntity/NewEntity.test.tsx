@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel';
@@ -222,7 +223,7 @@ describe('NewEntity', () => {
 
       // Mock empty groups scenario
       const originalGetCanvasEntityList = mockResource.getCanvasEntityList;
-      mockResource.getCanvasEntityList = jest.fn().mockReturnValue({
+      mockResource.getCanvasEntityList = vi.fn().mockReturnValue({
         common: [{ name: 'route', title: 'Route', description: 'Route description' }],
         groups: {},
       });

@@ -3,6 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { ElementModel, GraphElement, Model, VisualizationProvider } from '@patternfly/react-topology';
 import { render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import {
   CamelCatalogService,
@@ -23,13 +24,13 @@ import { usePasteStep } from '../hooks/paste-step.hook';
 import { NodeContextMenu } from './NodeContextMenu';
 
 // Mock the `usePasteStep` hook
-jest.mock('../hooks/paste-step.hook', () => ({
-  usePasteStep: jest.fn(),
+vi.mock('../hooks/paste-step.hook', () => ({
+  usePasteStep: vi.fn(),
 }));
 
 // Mock the `useDuplicateStep` hook
-jest.mock('../hooks/duplicate-step.hook', () => ({
-  useDuplicateStep: jest.fn(),
+vi.mock('../hooks/duplicate-step.hook', () => ({
+  useDuplicateStep: vi.fn(),
 }));
 
 describe('NodeContextMenu', () => {
@@ -42,11 +43,11 @@ describe('NodeContextMenu', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Pattern, catalogsMap.patternCatalogMap);
     CamelCatalogService.setCatalogKey(CatalogKind.Component, catalogsMap.componentCatalogMap);
 
-    (useDuplicateStep as jest.Mock).mockReturnValue({
+    (useDuplicateStep as Mock).mockReturnValue({
       canDuplicate: false,
     });
 
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       isCompatible: false,
     });
   });
@@ -70,7 +71,7 @@ describe('NodeContextMenu', () => {
       title: '',
       description: '',
     });
-    jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue(nodeInteractions);
+    vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValue(nodeInteractions);
     element = {
       getData: () => {
         return { vizNode } as CanvasNode['data'];
@@ -119,7 +120,7 @@ describe('NodeContextMenu', () => {
   it('should render a Duplicate item if canDuplicate is true ', () => {
     nodeInteractions.canHaveNextStep = true;
     // Mock the `useDuplicateStep` hook
-    (useDuplicateStep as jest.Mock).mockReturnValue({
+    (useDuplicateStep as Mock).mockReturnValue({
       canDuplicate: true,
     });
 
@@ -142,7 +143,7 @@ describe('NodeContextMenu', () => {
   it('should render an Paste as child item if canHaveChildren and isCompatible is true', () => {
     nodeInteractions.canHaveChildren = true;
     // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       isCompatible: true,
     });
 
@@ -156,7 +157,7 @@ describe('NodeContextMenu', () => {
   it('should render a Paste as next step item if canHaveNextStep and isCompatible is true ', () => {
     nodeInteractions.canHaveNextStep = true;
     // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       isCompatible: true,
     });
 
@@ -179,7 +180,7 @@ describe('NodeContextMenu', () => {
   it('should render an Paste as special child item if canHaveSpecialChildren and isCompatible is true', () => {
     nodeInteractions.canHaveSpecialChildren = true;
     // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       isCompatible: true,
     });
 

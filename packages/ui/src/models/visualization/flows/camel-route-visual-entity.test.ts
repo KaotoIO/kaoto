@@ -1,5 +1,6 @@
 import { ProcessorDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { vi } from 'vitest';
 
 import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
@@ -88,8 +89,8 @@ describe('Camel Route', () => {
         processorName: 'from' as keyof ProcessorDefinition,
         componentName: 'timer',
       };
-      const getNodeLabelSpy = jest.spyOn(CamelComponentSchemaService, 'getNodeLabel');
-      jest.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup').mockReturnValueOnce(lookupValue);
+      const getNodeLabelSpy = vi.spyOn(CamelComponentSchemaService, 'getNodeLabel');
+      vi.spyOn(CamelComponentSchemaService, 'getCamelComponentLookup').mockReturnValueOnce(lookupValue);
 
       const label = camelEntity.getNodeLabel('route.from', NodeLabelType.Id);
 
@@ -110,7 +111,7 @@ describe('Camel Route', () => {
     });
 
     it('should return the component schema', () => {
-      const spy = jest.spyOn(CamelComponentSchemaService, 'getSchema');
+      const spy = vi.spyOn(CamelComponentSchemaService, 'getSchema');
       spy.mockReturnValueOnce({ type: 'string' });
 
       camelEntity.getNodeSchema('route.from');
@@ -131,7 +132,7 @@ describe('Camel Route', () => {
     });
 
     it('should return the updated definition for a valid path', () => {
-      const getUpdatedDefinitionSpy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
 
       const result = camelEntity.getNodeDefinition('route.from.steps.2.to');
 
@@ -148,7 +149,7 @@ describe('Camel Route', () => {
     });
 
     it('should override null parameters with an empty object', () => {
-      const getUpdatedDefinitionSpy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
       const mockDefinition = { uri: 'timer', parameters: null };
       getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
 
@@ -158,7 +159,7 @@ describe('Camel Route', () => {
     });
 
     it('should handle nested step definitions', () => {
-      const getUpdatedDefinitionSpy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const getUpdatedDefinitionSpy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
       const mockDefinition = { message: 'We got a one.', id: 'log-1' };
       getUpdatedDefinitionSpy.mockReturnValueOnce(mockDefinition);
 
@@ -171,7 +172,7 @@ describe('Camel Route', () => {
     });
 
     it('should preserve original definition when parameters is undefined', () => {
-      const spy = jest.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
+      const spy = vi.spyOn(CamelComponentSchemaService, 'getUpdatedDefinition');
       const mockDefinition = { uri: 'direct' };
       spy.mockReturnValueOnce(mockDefinition);
 

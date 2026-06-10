@@ -10,7 +10,7 @@ describe('useSourceCodeStore', () => {
   describe('setSourceCode', () => {
     it('should set sourceCode without emitting event', () => {
       const notifier = EventNotifier.getInstance();
-      const nextSpy = jest.spyOn(notifier, 'next');
+      const nextSpy = vi.spyOn(notifier, 'next');
 
       useSourceCodeStore.getState().setSourceCode('test code');
 
@@ -62,7 +62,7 @@ describe('useSourceCodeStore', () => {
   describe('setCodeAndNotify', () => {
     it('should set sourceCode/path and emit code:updated', () => {
       const notifier = EventNotifier.getInstance();
-      const nextSpy = jest.spyOn(notifier, 'next');
+      const nextSpy = vi.spyOn(notifier, 'next');
 
       useSourceCodeStore.getState().setCodeAndNotify('my code', 'my.yaml');
 
@@ -75,7 +75,7 @@ describe('useSourceCodeStore', () => {
 
     it('should set sourceCode without path', () => {
       const notifier = EventNotifier.getInstance();
-      const nextSpy = jest.spyOn(notifier, 'next');
+      const nextSpy = vi.spyOn(notifier, 'next');
 
       useSourceCodeStore.getState().setCodeAndNotify('code only');
 
@@ -88,7 +88,7 @@ describe('useSourceCodeStore', () => {
 
     it('should emit event every time it is called', () => {
       const notifier = EventNotifier.getInstance();
-      const nextSpy = jest.spyOn(notifier, 'next');
+      const nextSpy = vi.spyOn(notifier, 'next');
 
       useSourceCodeStore.getState().setCodeAndNotify('first', 'first.yaml');
       useSourceCodeStore.getState().setCodeAndNotify('second', 'second.yaml');
@@ -102,7 +102,7 @@ describe('useSourceCodeStore', () => {
 
     it('should handle empty code and undefined path', () => {
       const notifier = EventNotifier.getInstance();
-      const nextSpy = jest.spyOn(notifier, 'next');
+      const nextSpy = vi.spyOn(notifier, 'next');
 
       useSourceCodeStore.getState().setCodeAndNotify('');
 

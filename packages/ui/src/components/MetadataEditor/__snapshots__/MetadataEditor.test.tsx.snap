@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`MetadataEditor.tsx component renders 1`] = `
+exports[`MetadataEditor.tsx > component renders 1`] = `
 {
   "asFragment": [Function],
   "baseElement": <body>
@@ -65,29 +65,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           class="pf-v6-c-button__icon"
                         >
                           <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
+                            data-testid="plus-circle-icon"
                             role="img"
-                            width="1em"
                           >
-                            <svg
-                              class="pf-v6-icon-default"
-                              viewBox="0 0 512 512"
-                            >
-                              <path
-                                d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                              />
-                            </svg>
-                            <svg
-                              class="pf-v6-icon-rh-ui"
-                              viewBox="0 0 32 32"
-                            >
-                              <path
-                                d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
-                              />
-                            </svg>
+                            <path />
                           </svg>
                         </span>
                       </button>
@@ -136,29 +117,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                               class="pf-v6-c-button__icon pf-m-start"
                             >
                               <svg
-                                aria-hidden="true"
-                                class="pf-v6-svg"
-                                fill="currentColor"
-                                height="1em"
+                                data-testid="plus-circle-icon"
                                 role="img"
-                                width="1em"
                               >
-                                <svg
-                                  class="pf-v6-icon-default"
-                                  viewBox="0 0 512 512"
-                                >
-                                  <path
-                                    d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                  />
-                                </svg>
-                                <svg
-                                  class="pf-v6-icon-rh-ui"
-                                  viewBox="0 0 32 32"
-                                >
-                                  <path
-                                    d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
-                                  />
-                                </svg>
+                                <path />
                               </svg>
                             </span>
                             <span
@@ -306,17 +268,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             class="pf-v6-c-button__icon"
                           >
                             <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
+                              data-testid="lightbulb-icon"
                               role="img"
-                              viewBox="0 0 352 512"
-                              width="1em"
                             >
-                              <path
-                                d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
-                              />
+                              <path />
                             </svg>
                           </span>
                         </button>
@@ -334,29 +289,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             class="pf-v6-c-menu-toggle__icon"
                           >
                             <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
+                              data-testid="ellipsis-v-icon"
                               role="img"
-                              width="1em"
                             >
-                              <svg
-                                class="pf-v6-icon-default"
-                                viewBox="0 0 192 512"
-                              >
-                                <path
-                                  d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                                />
-                              </svg>
-                              <svg
-                                class="pf-v6-icon-rh-ui"
-                                viewBox="0 0 32 32"
-                              >
-                                <path
-                                  d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
-                                />
-                              </svg>
+                              <path />
                             </svg>
                           </span>
                         </button>
@@ -468,17 +404,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             class="pf-v6-c-button__icon"
                           >
                             <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
+                              data-testid="lightbulb-icon"
                               role="img"
-                              viewBox="0 0 352 512"
-                              width="1em"
                             >
-                              <path
-                                d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
-                              />
+                              <path />
                             </svg>
                           </span>
                         </button>
@@ -496,29 +425,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             class="pf-v6-c-menu-toggle__icon"
                           >
                             <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
+                              data-testid="ellipsis-v-icon"
                               role="img"
-                              width="1em"
                             >
-                              <svg
-                                class="pf-v6-icon-default"
-                                viewBox="0 0 192 512"
-                              >
-                                <path
-                                  d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                                />
-                              </svg>
-                              <svg
-                                class="pf-v6-icon-rh-ui"
-                                viewBox="0 0 32 32"
-                              >
-                                <path
-                                  d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
-                                />
-                              </svg>
+                              <path />
                             </svg>
                           </span>
                         </button>
@@ -622,29 +532,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             class="pf-v6-c-button__icon"
                           >
                             <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
+                              data-testid="plus-icon"
                               role="img"
-                              width="1em"
                             >
-                              <svg
-                                class="pf-v6-icon-default"
-                                viewBox="0 0 448 512"
-                              >
-                                <path
-                                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                                />
-                              </svg>
-                              <svg
-                                class="pf-v6-icon-rh-ui"
-                                viewBox="0 0 32 32"
-                              >
-                                <path
-                                  d="M29 15H17V3a1 1 0 0 0-2 0v12H3a1 1 0 0 0 0 2h12v12a1 1 0 0 0 2 0V17h12a1 1 0 0 0 0-2Z"
-                                />
-                              </svg>
+                              <path />
                             </svg>
                           </span>
                         </button>
@@ -797,29 +688,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         class="pf-v6-c-button__icon"
                       >
                         <svg
-                          aria-hidden="true"
-                          class="pf-v6-svg"
-                          fill="currentColor"
-                          height="1em"
+                          data-testid="plus-circle-icon"
                           role="img"
-                          width="1em"
                         >
-                          <svg
-                            class="pf-v6-icon-default"
-                            viewBox="0 0 512 512"
-                          >
-                            <path
-                              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                            />
-                          </svg>
-                          <svg
-                            class="pf-v6-icon-rh-ui"
-                            viewBox="0 0 32 32"
-                          >
-                            <path
-                              d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
-                            />
-                          </svg>
+                          <path />
                         </svg>
                       </span>
                     </button>
@@ -868,29 +740,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             class="pf-v6-c-button__icon pf-m-start"
                           >
                             <svg
-                              aria-hidden="true"
-                              class="pf-v6-svg"
-                              fill="currentColor"
-                              height="1em"
+                              data-testid="plus-circle-icon"
                               role="img"
-                              width="1em"
                             >
-                              <svg
-                                class="pf-v6-icon-default"
-                                viewBox="0 0 512 512"
-                              >
-                                <path
-                                  d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                />
-                              </svg>
-                              <svg
-                                class="pf-v6-icon-rh-ui"
-                                viewBox="0 0 32 32"
-                              >
-                                <path
-                                  d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
-                                />
-                              </svg>
+                              <path />
                             </svg>
                           </span>
                           <span
@@ -1038,17 +891,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           class="pf-v6-c-button__icon"
                         >
                           <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
+                            data-testid="lightbulb-icon"
                             role="img"
-                            viewBox="0 0 352 512"
-                            width="1em"
                           >
-                            <path
-                              d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
-                            />
+                            <path />
                           </svg>
                         </span>
                       </button>
@@ -1066,29 +912,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           class="pf-v6-c-menu-toggle__icon"
                         >
                           <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
+                            data-testid="ellipsis-v-icon"
                             role="img"
-                            width="1em"
                           >
-                            <svg
-                              class="pf-v6-icon-default"
-                              viewBox="0 0 192 512"
-                            >
-                              <path
-                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                              />
-                            </svg>
-                            <svg
-                              class="pf-v6-icon-rh-ui"
-                              viewBox="0 0 32 32"
-                            >
-                              <path
-                                d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
-                              />
-                            </svg>
+                            <path />
                           </svg>
                         </span>
                       </button>
@@ -1200,17 +1027,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           class="pf-v6-c-button__icon"
                         >
                           <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
+                            data-testid="lightbulb-icon"
                             role="img"
-                            viewBox="0 0 352 512"
-                            width="1em"
                           >
-                            <path
-                              d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
-                            />
+                            <path />
                           </svg>
                         </span>
                       </button>
@@ -1228,29 +1048,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           class="pf-v6-c-menu-toggle__icon"
                         >
                           <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
+                            data-testid="ellipsis-v-icon"
                             role="img"
-                            width="1em"
                           >
-                            <svg
-                              class="pf-v6-icon-default"
-                              viewBox="0 0 192 512"
-                            >
-                              <path
-                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                              />
-                            </svg>
-                            <svg
-                              class="pf-v6-icon-rh-ui"
-                              viewBox="0 0 32 32"
-                            >
-                              <path
-                                d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
-                              />
-                            </svg>
+                            <path />
                           </svg>
                         </span>
                       </button>
@@ -1354,29 +1155,10 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           class="pf-v6-c-button__icon"
                         >
                           <svg
-                            aria-hidden="true"
-                            class="pf-v6-svg"
-                            fill="currentColor"
-                            height="1em"
+                            data-testid="plus-icon"
                             role="img"
-                            width="1em"
                           >
-                            <svg
-                              class="pf-v6-icon-default"
-                              viewBox="0 0 448 512"
-                            >
-                              <path
-                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                              />
-                            </svg>
-                            <svg
-                              class="pf-v6-icon-rh-ui"
-                              viewBox="0 0 32 32"
-                            >
-                              <path
-                                d="M29 15H17V3a1 1 0 0 0-2 0v12H3a1 1 0 0 0 0 2h12v12a1 1 0 0 0 2 0V17h12a1 1 0 0 0 0-2Z"
-                              />
-                            </svg>
+                            <path />
                           </svg>
                         </span>
                       </button>

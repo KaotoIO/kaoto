@@ -2,6 +2,7 @@ import * as ReactTopology from '@patternfly/react-topology';
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
+import { Mock, vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { NodeToolbarTrigger, SettingsModel } from '../../../../models/settings/settings.model';
@@ -13,13 +14,13 @@ import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 const mockRef = { current: null };
 
-jest.mock('@patternfly/react-topology', () => {
-  const actual = jest.requireActual('@patternfly/react-topology');
+vi.mock('@patternfly/react-topology', async () => {
+  const actual = await vi.importActual('@patternfly/react-topology');
   return {
     ...actual,
     Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
-    useDragNode: jest.fn(() => [{ node: undefined, dragEvent: undefined }, mockRef]),
-    useDndDrop: jest.fn(() => [
+    useDragNode: vi.fn(() => [{ node: undefined, dragEvent: undefined }, mockRef]),
+    useDndDrop: vi.fn(() => [
       {
         droppable: false,
         hover: false,
@@ -34,22 +35,22 @@ jest.mock('@patternfly/react-topology', () => {
   };
 });
 
-jest.mock('../../../../utils/processor-icon', () => ({
+vi.mock('../../../../utils/processor-icon', async () => ({
   getProcessorIcon: () => null,
 }));
 
-jest.mock('../../../../models/visualization/flows/nodes/resolvers/icon-resolver/node-icon-resolver', () => ({
+vi.mock('../../../../models/visualization/flows/nodes/resolvers/icon-resolver/node-icon-resolver', async () => ({
   NodeIconResolver: {
-    getIcon: jest.fn(() => Promise.resolve('data:image/svg+xml;base64,test')),
-    getDefaultCamelIcon: jest.fn(() => 'data:image/svg+xml;base64,default'),
+    getIcon: vi.fn(() => Promise.resolve('data:image/svg+xml;base64,test')),
+    getDefaultCamelIcon: vi.fn(() => 'data:image/svg+xml;base64,default'),
   },
 }));
 
-jest.mock('../Node/CustomNodeUtils', () => {
-  const actual = jest.requireActual('../Node/CustomNodeUtils');
+vi.mock('../Node/CustomNodeUtils', async () => {
+  const actual = await vi.importActual('../Node/CustomNodeUtils');
   return {
     ...actual,
-    getNodeDragAndDropDirection: jest.fn(() => null),
+    getNodeDragAndDropDirection: vi.fn(() => null),
   };
 });
 
@@ -68,7 +69,7 @@ describe('CustomGroupExpanded', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   async function renderInContext(children: React.ReactNode) {
@@ -88,7 +89,7 @@ describe('CustomGroupExpanded', () => {
   }
 
   it('should throw when element is not a Node', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const edgeElement = new BaseEdge();
 
     expect(() => {
@@ -99,7 +100,7 @@ describe('CustomGroupExpanded', () => {
   });
 
   it('should return null when element has no vizNode in data', async () => {
-    jest.spyOn(element, 'getData').mockReturnValue({});
+    vi.spyOn(element, 'getData').mockReturnValue({});
 
     const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
 
@@ -116,13 +117,13 @@ describe('CustomGroupExpanded', () => {
       title: '',
       description: '',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
 
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-choice-1');
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 
@@ -145,13 +146,13 @@ describe('CustomGroupExpanded', () => {
       description: '',
       iconAlt: 'Choice icon',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
 
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-choice-1');
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 
@@ -168,13 +169,13 @@ describe('CustomGroupExpanded', () => {
       title: '',
       description: '',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue('Some validation warning');
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('Choice');
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue('Some validation warning');
 
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-choice-1');
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 
@@ -191,17 +192,17 @@ describe('CustomGroupExpanded', () => {
       title: '',
       description: '',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('when-setHeader');
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
 
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-when-0');
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-when-0');
 
     const onSelectionAdapter = {
       getSettings: () => new SettingsModel({ nodeToolbarTrigger: NodeToolbarTrigger.onSelection }),
-      saveSettings: jest.fn(),
+      saveSettings: vi.fn(),
     };
 
     await renderInContext(
@@ -223,9 +224,9 @@ describe('CustomGroupExpanded', () => {
       title: '',
       description: '',
     }) as IVisualizationNode;
-    jest.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
-    jest.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(groupVizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(groupVizNode, 'getNodeLabel').mockReturnValue('Choice');
+    vi.spyOn(groupVizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(groupVizNode, 'getNodeValidationText').mockReturnValue(undefined);
 
     const draggedVizNode = createVisualizationNode('when-0', {
       name: 'when',
@@ -242,19 +243,16 @@ describe('CustomGroupExpanded', () => {
       getId: () => 'node-when-0',
     };
 
-    (ReactTopology.useDragNode as jest.Mock).mockReturnValueOnce([
-      { node: mockDraggedNode, dragEvent: undefined },
-      mockRef,
-    ]);
-    (ReactTopology.useDndDrop as jest.Mock).mockReturnValueOnce([
+    (ReactTopology.useDragNode as Mock).mockReturnValueOnce([{ node: mockDraggedNode, dragEvent: undefined }, mockRef]);
+    (ReactTopology.useDndDrop as Mock).mockReturnValueOnce([
       { droppable: true, canDrop: true, hover: true, dragItemType: undefined, dragItem: undefined },
       mockRef,
     ]);
 
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode: groupVizNode });
-    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-choice-1');
-    jest.spyOn(element, 'getBounds').mockReturnValue({ x: 0, y: 0, width: 100, height: 50 } as never);
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode: groupVizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-choice-1');
+    vi.spyOn(element, 'getBounds').mockReturnValue({ x: 0, y: 0, width: 100, height: 50 } as never);
 
     await renderInContext(<CustomGroupExpanded element={element} />);
 

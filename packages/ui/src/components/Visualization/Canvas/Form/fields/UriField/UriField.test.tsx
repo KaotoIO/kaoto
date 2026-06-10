@@ -1,8 +1,7 @@
-import '@testing-library/jest-dom';
-
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
+import { vi } from 'vitest';
 
 import { UriField } from './UriField';
 
@@ -14,7 +13,7 @@ describe('UriField', () => {
     description: 'Sets the URI of the endpoint to use',
   };
 
-  const renderField = (model: Record<string, unknown> = {}, onChange = jest.fn()) => {
+  const renderField = (model: Record<string, unknown> = {}, onChange = vi.fn()) => {
     render(
       <SchemaProvider schema={schema}>
         <ModelContextProvider model={model} onPropertyChange={onChange}>
@@ -53,7 +52,7 @@ describe('UriField', () => {
   });
 
   it('should call onChange when editing URI value', () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderField({ uri: 'timer:test' }, onChangeMock);
 
     const editButton = screen.getByTestId('uri--edit');
@@ -75,7 +74,7 @@ describe('UriField', () => {
   });
 
   it('should call onChange with undefined when clearing URI value', () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderField({ uri: 'timer:test' }, onChangeMock);
 
     const editButton = screen.getByTestId('uri--edit');
@@ -97,7 +96,7 @@ describe('UriField', () => {
   });
 
   it('should not call onChange when canceling edit', () => {
-    const onChangeMock = jest.fn();
+    const onChangeMock = vi.fn();
     renderField({ uri: 'timer:test' }, onChangeMock);
 
     const editButton = screen.getByTestId('uri--edit');

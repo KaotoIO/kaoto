@@ -1,14 +1,15 @@
 import { act, fireEvent, render } from '@testing-library/react';
 import { useState } from 'react';
+import { vi } from 'vitest';
 
 import { ErrorBoundary } from './ErrorBoundary';
 
 describe('ErrorBoundary', () => {
   beforeAll(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
   afterAll(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   const MockComponent = () => {

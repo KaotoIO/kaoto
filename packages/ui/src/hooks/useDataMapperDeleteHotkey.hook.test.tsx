@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
+import { Mock, vi } from 'vitest';
 
 import { IDocument } from '../models/datamapper';
 import { MappingActionKind } from '../models/datamapper/mapping-action';
@@ -11,56 +12,56 @@ import { useDataMapper } from './useDataMapper';
 import { useDataMapperDeleteHotkey } from './useDataMapperDeleteHotkey.hook';
 
 // Mock dependencies
-jest.mock('hotkeys-js');
-jest.mock('./useDataMapper');
-jest.mock('../services/visualization/mapping-action.service');
-jest.mock('../services/visualization/tree-ui.service');
+vi.mock('hotkeys-js');
+vi.mock('./useDataMapper');
+vi.mock('../services/visualization/mapping-action.service');
+vi.mock('../services/visualization/tree-ui.service');
 
 describe('useDataMapperDeleteHotkey', () => {
-  let mockOnUpdate: jest.Mock;
-  let mockClearSelection: jest.Mock;
-  let mockHotkeys: jest.MockedFunction<typeof hotkeys>;
-  let mockHotkeysUnbind: jest.Mock;
-  let mockUseDataMapper: jest.MockedFunction<typeof useDataMapper>;
-  let mockGetAllowedActions: jest.Mock;
-  let mockDeleteMappingItem: jest.Mock;
-  let mockGetTree: jest.Mock;
-  let mockFindNodeByPath: jest.Mock;
+  let mockOnUpdate: Mock;
+  let mockClearSelection: Mock;
+  let mockHotkeys: MockedFunction<typeof hotkeys>;
+  let mockHotkeysUnbind: Mock;
+  let mockUseDataMapper: MockedFunction<typeof useDataMapper>;
+  let mockGetAllowedActions: Mock;
+  let mockDeleteMappingItem: Mock;
+  let mockGetTree: Mock;
+  let mockFindNodeByPath: Mock;
   let mockTargetBodyDocument: { id: string; documentType: string; documentId: string };
   let mockTreeNode: { nodeData: TargetDocumentNodeData };
   let mockTargetDocumentNodeData: TargetDocumentNodeData;
 
   beforeEach(() => {
     // Reset all mocks
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     // Setup basic mocks
-    mockOnUpdate = jest.fn();
-    mockClearSelection = jest.fn();
-    mockHotkeysUnbind = jest.fn();
-    mockGetAllowedActions = jest.fn();
-    mockDeleteMappingItem = jest.fn();
-    mockGetTree = jest.fn();
-    mockFindNodeByPath = jest.fn();
+    mockOnUpdate = vi.fn();
+    mockClearSelection = vi.fn();
+    mockHotkeysUnbind = vi.fn();
+    mockGetAllowedActions = vi.fn();
+    mockDeleteMappingItem = vi.fn();
+    mockGetTree = vi.fn();
+    mockFindNodeByPath = vi.fn();
 
     // Mock hotkeys
-    mockHotkeys = hotkeys as jest.MockedFunction<typeof hotkeys>;
+    mockHotkeys = hotkeys as MockedFunction<typeof hotkeys>;
     mockHotkeys.unbind = mockHotkeysUnbind;
 
     // Mock useDataMapper
     mockTargetBodyDocument = { id: 'target-doc', documentType: 'targetBody', documentId: 'Body' };
-    mockUseDataMapper = useDataMapper as jest.MockedFunction<typeof useDataMapper>;
+    mockUseDataMapper = useDataMapper as MockedFunction<typeof useDataMapper>;
     mockUseDataMapper.mockReturnValue({
       targetBodyDocument: mockTargetBodyDocument,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     // Mock MappingActionService
-    (MappingActionService.getAllowedActions as jest.Mock) = mockGetAllowedActions;
-    (MappingActionService.deleteMappingItem as jest.Mock) = mockDeleteMappingItem;
+    (MappingActionService.getAllowedActions as Mock) = mockGetAllowedActions;
+    (MappingActionService.deleteMappingItem as Mock) = mockDeleteMappingItem;
 
     // Mock TreeUIService
-    (TreeUIService.getTree as jest.Mock) = mockGetTree;
+    (TreeUIService.getTree as Mock) = mockGetTree;
 
     // Setup mock node data
     mockTargetDocumentNodeData = { id: 'test-node' } as TargetDocumentNodeData;
@@ -68,7 +69,7 @@ describe('useDataMapperDeleteHotkey', () => {
       nodeData: mockTargetDocumentNodeData,
     };
 
-    mockFindNodeByPath = jest.fn();
+    mockFindNodeByPath = vi.fn();
     mockGetTree.mockReturnValue({
       findNodeByPath: mockFindNodeByPath,
     });
@@ -82,7 +83,7 @@ describe('useDataMapperDeleteHotkey', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('successful deletion', () => {
@@ -101,7 +102,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -112,7 +113,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -123,7 +124,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -142,7 +143,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -164,7 +165,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -186,7 +187,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -208,7 +209,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -230,7 +231,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
 
       hotkeyCallback(mockEvent);
 
@@ -260,7 +261,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
       hotkeyCallback(mockEvent);
 
       expect(mockGetTree).toHaveBeenCalledWith(DocumentNodeData.getId(mockTargetBodyDocument as unknown as IDocument));
@@ -278,7 +279,7 @@ describe('useDataMapperDeleteHotkey', () => {
       renderHook(() => useDataMapperDeleteHotkey(mockOnUpdate));
 
       const hotkeyCallback = mockHotkeys.mock.calls[0][1] as (event: KeyboardEvent) => void;
-      const mockEvent = { preventDefault: jest.fn() } as unknown as KeyboardEvent;
+      const mockEvent = { preventDefault: vi.fn() } as unknown as KeyboardEvent;
       hotkeyCallback(mockEvent);
 
       expect(mockDeleteMappingItem).not.toHaveBeenCalled();

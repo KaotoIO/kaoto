@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { ICamelProcessorDefinition } from '../../../../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../../../../catalog-kind';
@@ -18,7 +20,7 @@ const createMockProcessorDefinition = (schema: KaotoSchemaDefinition['schema']):
 
 describe('NodeSchemaResolver.getProcessorSchema', () => {
   it('should return empty schema when processor has no propertiesSchema', async () => {
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(undefined);
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(undefined);
 
     const result = await NodeSchemaResolver.getProcessorSchema('from.steps.0.log', { log: {} });
 
@@ -33,7 +35,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(createMockProcessorDefinition(mockSchema));
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(createMockProcessorDefinition(mockSchema));
 
     const result = await NodeSchemaResolver.getProcessorSchema('from.steps.0.log', { log: {} });
 
@@ -61,7 +63,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(createMockProcessorDefinition(mockSchema));
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(createMockProcessorDefinition(mockSchema));
 
     const result = await NodeSchemaResolver.getProcessorSchema(processorName, {});
 
@@ -86,7 +88,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       required: ['period'],
     };
 
-    const getEntitySpy = jest
+    const getEntitySpy = vi
       .spyOn(DynamicCatalogRegistry.get(), 'getEntity')
       .mockResolvedValueOnce(createMockProcessorDefinition(processorSchema))
       .mockResolvedValueOnce(createMockProcessorDefinition(componentSchema));
@@ -117,8 +119,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest
-      .spyOn(DynamicCatalogRegistry.get(), 'getEntity')
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity')
       .mockResolvedValueOnce(createMockProcessorDefinition(processorSchema))
       .mockResolvedValueOnce(createMockProcessorDefinition(componentSchema));
 
@@ -147,8 +148,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest
-      .spyOn(DynamicCatalogRegistry.get(), 'getEntity')
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity')
       .mockResolvedValueOnce(createMockProcessorDefinition(processorSchema))
       .mockResolvedValueOnce(createMockProcessorDefinition(componentSchema));
 
@@ -175,8 +175,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest
-      .spyOn(DynamicCatalogRegistry.get(), 'getEntity')
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity')
       .mockResolvedValueOnce(createMockProcessorDefinition(processorSchema))
       .mockResolvedValueOnce(createMockProcessorDefinition(kameletSchema));
 
@@ -201,8 +200,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest
-      .spyOn(DynamicCatalogRegistry.get(), 'getEntity')
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity')
       .mockResolvedValueOnce(createMockProcessorDefinition(processorSchema))
       .mockResolvedValueOnce(undefined) // Kamelet not found
       .mockResolvedValueOnce(createMockProcessorDefinition(kameletComponentSchema));
@@ -215,7 +213,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
   });
 
   it('should handle missing KameletConfiguration for Kamelet root', async () => {
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(undefined);
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(undefined);
 
     const result = await NodeSchemaResolver.getProcessorSchema('template', {});
 
@@ -236,8 +234,7 @@ describe('NodeSchemaResolver.getProcessorSchema', () => {
       },
     };
 
-    jest
-      .spyOn(DynamicCatalogRegistry.get(), 'getEntity')
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity')
       .mockResolvedValueOnce(createMockProcessorDefinition(processorSchemaWithoutProps))
       .mockResolvedValueOnce(createMockProcessorDefinition(componentSchema));
 
@@ -258,7 +255,7 @@ describe('NodeSchemaResolver.getEntitySchema', () => {
       },
     };
 
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(createMockProcessorDefinition(mockSchema));
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue(createMockProcessorDefinition(mockSchema));
 
     const result = await NodeSchemaResolver.getEntitySchema('routeConfiguration');
 
@@ -267,8 +264,8 @@ describe('NodeSchemaResolver.getEntitySchema', () => {
   });
 
   it('should handle errors gracefully and return empty object', async () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockRejectedValue(new Error('Catalog unavailable'));
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockRejectedValue(new Error('Catalog unavailable'));
 
     const result = await NodeSchemaResolver.getEntitySchema('routeConfiguration');
 
@@ -282,7 +279,7 @@ describe('NodeSchemaResolver.getEntitySchema', () => {
   });
 
   it('should return empty object when entity definition has no schema', async () => {
-    jest.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue({
+    vi.spyOn(DynamicCatalogRegistry.get(), 'getEntity').mockResolvedValue({
       // No propertiesSchema field
     });
 

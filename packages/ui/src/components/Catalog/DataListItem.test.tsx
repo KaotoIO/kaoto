@@ -1,4 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { ITile } from './Catalog.models';
 import { CatalogDataListItem } from './DataListItem';
@@ -17,14 +18,14 @@ describe('DataListItem', () => {
 
   it('renders correctly', async () => {
     const { container } = await act(async () =>
-      render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={jest.fn()} />),
+      render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={vi.fn()} />),
     );
 
     expect(container.firstChild).toMatchSnapshot();
   });
 
   it('calls onTagClick prop when clicked', async () => {
-    const onTagClick = jest.fn();
+    const onTagClick = vi.fn();
 
     const { getByTestId } = await act(async () =>
       render(<CatalogDataListItem key={tile.name} tile={tile} onTagClick={onTagClick} />),

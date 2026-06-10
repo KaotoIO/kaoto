@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { IVisualizationNode } from '../../../../models';
 import { useDeleteGroup } from '../../Custom/hooks/delete-group.hook';
@@ -12,29 +13,29 @@ import { useReplaceStep } from '../../Custom/hooks/replace-step.hook';
 import { StepToolbar } from './StepToolbar';
 
 // Mock all hooks
-jest.mock('../../Custom/hooks/delete-group.hook');
-jest.mock('../../Custom/hooks/delete-step.hook');
-jest.mock('../../Custom/hooks/disable-step.hook');
-jest.mock('../../Custom/hooks/duplicate-step.hook');
-jest.mock('../../Custom/hooks/move-step.hook');
-jest.mock('../../Custom/hooks/enable-all-steps.hook');
-jest.mock('../../Custom/hooks/insert-step.hook');
-jest.mock('../../Custom/hooks/replace-step.hook');
+vi.mock('../../Custom/hooks/delete-group.hook');
+vi.mock('../../Custom/hooks/delete-step.hook');
+vi.mock('../../Custom/hooks/disable-step.hook');
+vi.mock('../../Custom/hooks/duplicate-step.hook');
+vi.mock('../../Custom/hooks/move-step.hook');
+vi.mock('../../Custom/hooks/enable-all-steps.hook');
+vi.mock('../../Custom/hooks/insert-step.hook');
+vi.mock('../../Custom/hooks/replace-step.hook');
 
-const mockUseDeleteGroup = useDeleteGroup as jest.MockedFunction<typeof useDeleteGroup>;
-const mockUseDeleteStep = useDeleteStep as jest.MockedFunction<typeof useDeleteStep>;
-const mockUseDisableStep = useDisableStep as jest.MockedFunction<typeof useDisableStep>;
-const mockUseDuplicateStep = useDuplicateStep as jest.MockedFunction<typeof useDuplicateStep>;
-const mockUseMoveStep = useMoveStep as jest.MockedFunction<typeof useMoveStep>;
-const mockUseEnableAllSteps = useEnableAllSteps as jest.MockedFunction<typeof useEnableAllSteps>;
-const mockUseInsertStep = useInsertStep as jest.MockedFunction<typeof useInsertStep>;
-const mockUseReplaceStep = useReplaceStep as jest.MockedFunction<typeof useReplaceStep>;
+const mockUseDeleteGroup = useDeleteGroup as MockedFunction<typeof useDeleteGroup>;
+const mockUseDeleteStep = useDeleteStep as MockedFunction<typeof useDeleteStep>;
+const mockUseDisableStep = useDisableStep as MockedFunction<typeof useDisableStep>;
+const mockUseDuplicateStep = useDuplicateStep as MockedFunction<typeof useDuplicateStep>;
+const mockUseMoveStep = useMoveStep as MockedFunction<typeof useMoveStep>;
+const mockUseEnableAllSteps = useEnableAllSteps as MockedFunction<typeof useEnableAllSteps>;
+const mockUseInsertStep = useInsertStep as MockedFunction<typeof useInsertStep>;
+const mockUseReplaceStep = useReplaceStep as MockedFunction<typeof useReplaceStep>;
 
 describe('StepToolbar', () => {
-  const mockGetNodeInteraction = jest.fn();
+  const mockGetNodeInteraction = vi.fn();
   const mockVizNode = {
     getNodeInteraction: mockGetNodeInteraction,
-    getNodeLabel: jest.fn().mockReturnValue('Test Node'),
+    getNodeLabel: vi.fn().mockReturnValue('Test Node'),
   } as unknown as IVisualizationNode;
 
   const defaultNodeInteraction = {
@@ -50,20 +51,20 @@ describe('StepToolbar', () => {
 
   beforeEach(() => {
     // Default hook implementations
-    mockUseDeleteGroup.mockReturnValue({ onDeleteGroup: jest.fn() });
-    mockUseDeleteStep.mockReturnValue({ onDeleteStep: jest.fn() });
-    mockUseDisableStep.mockReturnValue({ onToggleDisableNode: jest.fn(), isDisabled: false });
-    mockUseDuplicateStep.mockReturnValue({ canDuplicate: false, onDuplicate: jest.fn() });
-    mockUseMoveStep.mockReturnValue({ canBeMoved: false, onMoveStep: jest.fn() });
-    mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: false, onEnableAllSteps: jest.fn() });
-    mockUseInsertStep.mockReturnValue({ onInsertStep: jest.fn() });
-    mockUseReplaceStep.mockReturnValue({ onReplaceNode: jest.fn() });
+    mockUseDeleteGroup.mockReturnValue({ onDeleteGroup: vi.fn() });
+    mockUseDeleteStep.mockReturnValue({ onDeleteStep: vi.fn() });
+    mockUseDisableStep.mockReturnValue({ onToggleDisableNode: vi.fn(), isDisabled: false });
+    mockUseDuplicateStep.mockReturnValue({ canDuplicate: false, onDuplicate: vi.fn() });
+    mockUseMoveStep.mockReturnValue({ canBeMoved: false, onMoveStep: vi.fn() });
+    mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: false, onEnableAllSteps: vi.fn() });
+    mockUseInsertStep.mockReturnValue({ onInsertStep: vi.fn() });
+    mockUseReplaceStep.mockReturnValue({ onReplaceNode: vi.fn() });
 
     mockGetNodeInteraction.mockReturnValue(defaultNodeInteraction);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Rendering', () => {
@@ -93,7 +94,7 @@ describe('StepToolbar', () => {
 
   describe('Duplicate button', () => {
     it('should render duplicate button when canDuplicate is true and call onDuplicate when duplicate button is clicked', async () => {
-      const mockOnDuplicate = jest.fn();
+      const mockOnDuplicate = vi.fn();
       mockUseDuplicateStep.mockReturnValue({ canDuplicate: true, onDuplicate: mockOnDuplicate });
 
       await act(async () => {
@@ -113,7 +114,7 @@ describe('StepToolbar', () => {
 
   describe('Move button', () => {
     it('should render Move Before button when canBeMoved is true and call onMoveStep when Move button is clicked', async () => {
-      const mockOnMoveStep = jest.fn();
+      const mockOnMoveStep = vi.fn();
       mockUseMoveStep.mockReturnValue({ canBeMoved: true, onMoveStep: mockOnMoveStep });
 
       await act(async () => {
@@ -131,7 +132,7 @@ describe('StepToolbar', () => {
     });
 
     it('should render Move After button when canBeMoved is true and call onMoveStep when Move button is clicked', async () => {
-      const mockOnMoveStep = jest.fn();
+      const mockOnMoveStep = vi.fn();
       mockUseMoveStep.mockReturnValue({ canBeMoved: true, onMoveStep: mockOnMoveStep });
 
       await act(async () => {
@@ -151,7 +152,7 @@ describe('StepToolbar', () => {
 
   describe('Add special children button', () => {
     it('should render add special button when canHaveSpecialChildren is true and call onInsertStep when add special button is clicked', async () => {
-      const mockOnInsertStep = jest.fn();
+      const mockOnInsertStep = vi.fn();
       mockUseInsertStep.mockReturnValue({ onInsertStep: mockOnInsertStep });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
@@ -175,7 +176,7 @@ describe('StepToolbar', () => {
 
   describe('Disable button', () => {
     it('should show "Disable step" title when step is enabled', async () => {
-      mockUseDisableStep.mockReturnValue({ onToggleDisableNode: jest.fn(), isDisabled: false });
+      mockUseDisableStep.mockReturnValue({ onToggleDisableNode: vi.fn(), isDisabled: false });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
         canBeDisabled: true,
@@ -190,7 +191,7 @@ describe('StepToolbar', () => {
     });
 
     it('should show "Enable step" title when step is disabled', async () => {
-      mockUseDisableStep.mockReturnValue({ onToggleDisableNode: jest.fn(), isDisabled: true });
+      mockUseDisableStep.mockReturnValue({ onToggleDisableNode: vi.fn(), isDisabled: true });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
         canBeDisabled: true,
@@ -205,7 +206,7 @@ describe('StepToolbar', () => {
     });
 
     it('should call onToggleDisableNode when disable button is clicked', async () => {
-      const mockOnToggleDisableNode = jest.fn();
+      const mockOnToggleDisableNode = vi.fn();
       mockUseDisableStep.mockReturnValue({ onToggleDisableNode: mockOnToggleDisableNode, isDisabled: false });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
@@ -226,7 +227,7 @@ describe('StepToolbar', () => {
 
   describe('Enable all button', () => {
     it('should render enable all button when areMultipleStepsDisabled is true and call onEnableAllSteps when enable all button is clicked', async () => {
-      const mockOnEnableAllSteps = jest.fn();
+      const mockOnEnableAllSteps = vi.fn();
       mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: true, onEnableAllSteps: mockOnEnableAllSteps });
 
       await act(async () => {
@@ -246,7 +247,7 @@ describe('StepToolbar', () => {
 
   describe('Replace button', () => {
     it('should render replace button when canReplaceStep is true and call onReplaceNode when replace button is clicked', async () => {
-      const mockOnReplaceNode = jest.fn();
+      const mockOnReplaceNode = vi.fn();
       mockUseReplaceStep.mockReturnValue({ onReplaceNode: mockOnReplaceNode });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
@@ -270,7 +271,7 @@ describe('StepToolbar', () => {
 
   describe('Collapse button', () => {
     it('should show "Collapse step" title when not collapsed', async () => {
-      const mockOnCollapseToggle = jest.fn();
+      const mockOnCollapseToggle = vi.fn();
 
       await act(async () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={false} />);
@@ -281,7 +282,7 @@ describe('StepToolbar', () => {
     });
 
     it('should show "Expand step" title when collapsed', async () => {
-      const mockOnCollapseToggle = jest.fn();
+      const mockOnCollapseToggle = vi.fn();
 
       await act(async () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} isCollapsed={true} />);
@@ -292,7 +293,7 @@ describe('StepToolbar', () => {
     });
 
     it('should call onCollapseToggle when collapse button is clicked', async () => {
-      const mockOnCollapseToggle = jest.fn();
+      const mockOnCollapseToggle = vi.fn();
 
       await act(async () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);
@@ -316,7 +317,7 @@ describe('StepToolbar', () => {
 
   describe('Delete step button', () => {
     it('should render delete step button when canRemoveStep is true and call onDeleteStep when delete step button is clicked', async () => {
-      const mockOnDeleteStep = jest.fn();
+      const mockOnDeleteStep = vi.fn();
       mockUseDeleteStep.mockReturnValue({ onDeleteStep: mockOnDeleteStep });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
@@ -340,7 +341,7 @@ describe('StepToolbar', () => {
 
   describe('Delete group button', () => {
     it('should render delete group button when canRemoveFlow is true and call onDeleteGroup when delete group button is clicked', async () => {
-      const mockOnDeleteGroup = jest.fn();
+      const mockOnDeleteGroup = vi.fn();
       mockUseDeleteGroup.mockReturnValue({ onDeleteGroup: mockOnDeleteGroup });
       mockGetNodeInteraction.mockReturnValue({
         ...defaultNodeInteraction,
@@ -364,7 +365,7 @@ describe('StepToolbar', () => {
 
   describe('Multiple buttons rendering', () => {
     it('should render all available buttons when all interactions are enabled', async () => {
-      const mockOnCollapseToggle = jest.fn();
+      const mockOnCollapseToggle = vi.fn();
       mockGetNodeInteraction.mockReturnValue({
         canHavePreviousStep: true,
         canHaveNextStep: true,
@@ -375,9 +376,9 @@ describe('StepToolbar', () => {
         canRemoveFlow: true,
         canBeDisabled: true,
       });
-      mockUseDuplicateStep.mockReturnValue({ canDuplicate: true, onDuplicate: jest.fn() });
-      mockUseDisableStep.mockReturnValue({ onToggleDisableNode: jest.fn(), isDisabled: false });
-      mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: true, onEnableAllSteps: jest.fn() });
+      mockUseDuplicateStep.mockReturnValue({ canDuplicate: true, onDuplicate: vi.fn() });
+      mockUseDisableStep.mockReturnValue({ onToggleDisableNode: vi.fn(), isDisabled: false });
+      mockUseEnableAllSteps.mockReturnValue({ areMultipleStepsDisabled: true, onEnableAllSteps: vi.fn() });
 
       await act(async () => {
         render(<StepToolbar vizNode={mockVizNode} onCollapseToggle={mockOnCollapseToggle} />);

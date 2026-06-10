@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`AbstractCamelVisualEntity addStep should append a new step to the model 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should append a new step to the model 1`] = `
 {
   "to": {
     "id": "to-1234",
@@ -10,7 +10,7 @@ exports[`AbstractCamelVisualEntity addStep should append a new step to the model
 }
 `;
 
-exports[`AbstractCamelVisualEntity addStep should insert a new child step 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should insert a new child step 1`] = `
 [
   {
     "to": {
@@ -73,7 +73,7 @@ exports[`AbstractCamelVisualEntity addStep should insert a new child step 1`] = 
 ]
 `;
 
-exports[`AbstractCamelVisualEntity addStep should insert a new special child step belonging to a single property like otherwise or doFinally 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should insert a new special child step belonging to a single property like otherwise or doFinally 1`] = `
 {
   "choice": {
     "otherwise": {
@@ -104,7 +104,7 @@ exports[`AbstractCamelVisualEntity addStep should insert a new special child ste
 }
 `;
 
-exports[`AbstractCamelVisualEntity addStep should insert a new special child step belonging to an array like when or doCatch 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should insert a new special child step belonging to an array like when or doCatch 1`] = `
 {
   "choice": {
     "otherwise": {
@@ -149,7 +149,7 @@ exports[`AbstractCamelVisualEntity addStep should insert a new special child ste
 }
 `;
 
-exports[`AbstractCamelVisualEntity addStep should prepend a new step to the model 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should prepend a new step to the model 1`] = `
 {
   "to": {
     "id": "to-1234",
@@ -159,7 +159,7 @@ exports[`AbstractCamelVisualEntity addStep should prepend a new step to the mode
 }
 `;
 
-exports[`AbstractCamelVisualEntity addStep should replace a placeholder step 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should replace a placeholder step 1`] = `
 {
   "multicast": {
     "id": "multicast-1234",
@@ -176,7 +176,7 @@ exports[`AbstractCamelVisualEntity addStep should replace a placeholder step 1`]
 }
 `;
 
-exports[`AbstractCamelVisualEntity addStep should replace a step 1`] = `
+exports[`AbstractCamelVisualEntity > addStep > should replace a step 1`] = `
 {
   "to": {
     "id": "to-1234",
@@ -186,7 +186,7 @@ exports[`AbstractCamelVisualEntity addStep should replace a step 1`] = `
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'from' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'from' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": true,
@@ -199,7 +199,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'intercept' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'intercept' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": true,
@@ -212,7 +212,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'interceptFrom' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'interceptFrom' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": true,
@@ -225,7 +225,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'interceptSendToEndpoint' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'interceptSendToEndpoint' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": true,
@@ -238,7 +238,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'log' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'log' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": false,
@@ -251,7 +251,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'onCompletion' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'onCompletion' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": true,
@@ -264,7 +264,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'onException' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'onException' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": true,
@@ -277,7 +277,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'route' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'route' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -290,7 +290,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct interaction for the 'to' processor 1`] = `
+exports[`AbstractCamelVisualEntity > getNodeInteraction > should return the correct interaction for the 'to' processor 1`] = `
 {
   "canBeDisabled": true,
   "canHaveChildren": false,
@@ -303,7 +303,7 @@ exports[`AbstractCamelVisualEntity getNodeInteraction should return the correct 
 }
 `;
 
-exports[`AbstractCamelVisualEntity pasteStep should append a new step to the model 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should append a new step to the model 1`] = `
 {
   "log": {
     "id": "test-id",
@@ -312,7 +312,7 @@ exports[`AbstractCamelVisualEntity pasteStep should append a new step to the mod
 }
 `;
 
-exports[`AbstractCamelVisualEntity pasteStep should insert a new child step 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should insert a new child step 1`] = `
 [
   {
     "log": {
@@ -374,7 +374,7 @@ exports[`AbstractCamelVisualEntity pasteStep should insert a new child step 1`] 
 ]
 `;
 
-exports[`AbstractCamelVisualEntity pasteStep should insert a new special child step belonging to a single property like otherwise or doFinally 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should insert a new special child step belonging to a single property like otherwise or doFinally 1`] = `
 {
   "choice": {
     "otherwise": {
@@ -398,7 +398,7 @@ exports[`AbstractCamelVisualEntity pasteStep should insert a new special child s
 }
 `;
 
-exports[`AbstractCamelVisualEntity pasteStep should insert a new special child step belonging to an array like when or doCatch 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should insert a new special child step belonging to an array like when or doCatch 1`] = `
 {
   "choice": {
     "otherwise": {
@@ -441,7 +441,7 @@ exports[`AbstractCamelVisualEntity pasteStep should insert a new special child s
 }
 `;
 
-exports[`AbstractCamelVisualEntity pasteStep should repace the special child step belonging to an array like when or doCatch 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should repace the special child step belonging to an array like when or doCatch 1`] = `
 {
   "choice": {
     "otherwise": {
@@ -481,7 +481,7 @@ exports[`AbstractCamelVisualEntity pasteStep should repace the special child ste
 }
 `;
 
-exports[`AbstractCamelVisualEntity pasteStep should replace the step 1`] = `
+exports[`AbstractCamelVisualEntity > pasteStep > should replace the step 1`] = `
 [
   {
     "set-header": {

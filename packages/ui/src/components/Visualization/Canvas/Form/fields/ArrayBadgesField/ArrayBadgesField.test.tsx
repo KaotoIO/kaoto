@@ -1,5 +1,6 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { ArrayBadgesField } from './ArrayBadgesField';
@@ -17,7 +18,7 @@ describe('ArrayBadgesField', () => {
   describe('Rendering', () => {
     it('should render empty field with no items message', () => {
       render(
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName={ROOT_PATH} />
           </SchemaProvider>
@@ -32,7 +33,7 @@ describe('ArrayBadgesField', () => {
 
     it('should render with existing items', () => {
       render(
-        <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName="testArray" />
           </SchemaProvider>
@@ -47,7 +48,7 @@ describe('ArrayBadgesField', () => {
 
     it('should render with schema title and description', () => {
       const { container } = render(
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName={ROOT_PATH} />
           </SchemaProvider>
@@ -59,7 +60,7 @@ describe('ArrayBadgesField', () => {
 
     it('should display items in alphabetical order', () => {
       render(
-        <ModelContextProvider model={{ testArray: ['zebra', 'apple', 'banana'] }} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{ testArray: ['zebra', 'apple', 'banana'] }} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName="testArray" />
           </SchemaProvider>
@@ -78,7 +79,7 @@ describe('ArrayBadgesField', () => {
 
   describe('Add Functionality', () => {
     it('should add new item when clicking Add button', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       render(
         <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
           <SchemaProvider schema={mockSchema}>
@@ -97,7 +98,7 @@ describe('ArrayBadgesField', () => {
     });
 
     it('should trim whitespace from input before adding', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       render(
         <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
           <SchemaProvider schema={mockSchema}>
@@ -116,7 +117,7 @@ describe('ArrayBadgesField', () => {
     });
 
     it('should not add empty strings', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       render(
         <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
           <SchemaProvider schema={mockSchema}>
@@ -135,7 +136,7 @@ describe('ArrayBadgesField', () => {
     });
 
     it('should not add duplicate items', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       render(
         <ModelContextProvider model={{ testArray: ['existing'] }} onPropertyChange={onPropertyChange}>
           <SchemaProvider schema={mockSchema}>
@@ -155,7 +156,7 @@ describe('ArrayBadgesField', () => {
 
     it('should clear input after adding item', () => {
       render(
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName={ROOT_PATH} />
           </SchemaProvider>
@@ -173,7 +174,7 @@ describe('ArrayBadgesField', () => {
 
     it('should disable Add button when input is empty', () => {
       render(
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName={ROOT_PATH} />
           </SchemaProvider>
@@ -186,7 +187,7 @@ describe('ArrayBadgesField', () => {
 
     it('should enable Add button when input has value', () => {
       render(
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName={ROOT_PATH} />
           </SchemaProvider>
@@ -203,7 +204,7 @@ describe('ArrayBadgesField', () => {
 
   describe('Remove Functionality', () => {
     it('should remove specific item when clicking close button', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
 
       render(
         <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={onPropertyChange}>
@@ -221,7 +222,7 @@ describe('ArrayBadgesField', () => {
     });
 
     it('should update array correctly after removal', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
 
       render(
         <ModelContextProvider model={{ testArray: ['apple', 'banana', 'cherry'] }} onPropertyChange={onPropertyChange}>
@@ -243,7 +244,7 @@ describe('ArrayBadgesField', () => {
 
   describe('Clear All Functionality', () => {
     it('should clear all items when clicking Clear all', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
 
       render(
         <ModelContextProvider model={{ testArray: ['item1', 'item2', 'item3'] }} onPropertyChange={onPropertyChange}>
@@ -262,7 +263,7 @@ describe('ArrayBadgesField', () => {
 
     it('should disable Clear all button when array is empty', () => {
       render(
-        <ModelContextProvider model={{}} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName={ROOT_PATH} />
           </SchemaProvider>
@@ -275,7 +276,7 @@ describe('ArrayBadgesField', () => {
 
     it('should enable Clear all button when array has items', () => {
       render(
-        <ModelContextProvider model={{ testArray: ['item1'] }} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{ testArray: ['item1'] }} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName="testArray" />
           </SchemaProvider>
@@ -290,7 +291,7 @@ describe('ArrayBadgesField', () => {
   describe('Edge Cases', () => {
     it('should handle undefined value gracefully', () => {
       render(
-        <ModelContextProvider model={{ testArray: undefined }} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{ testArray: undefined }} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName="testArray" />
           </SchemaProvider>
@@ -302,7 +303,7 @@ describe('ArrayBadgesField', () => {
 
     it('should handle null value gracefully', () => {
       render(
-        <ModelContextProvider model={{ testArray: null }} onPropertyChange={jest.fn()}>
+        <ModelContextProvider model={{ testArray: null }} onPropertyChange={vi.fn()}>
           <SchemaProvider schema={mockSchema}>
             <ArrayBadgesField propName="testArray" />
           </SchemaProvider>
@@ -313,7 +314,7 @@ describe('ArrayBadgesField', () => {
     });
 
     it('should handle adding to undefined array', () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       render(
         <ModelContextProvider model={{}} onPropertyChange={onPropertyChange}>
           <SchemaProvider schema={mockSchema}>

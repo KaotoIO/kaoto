@@ -1,4 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CamelResourceFactory.createCamelResource > should create an empty KameletResource if no args is specified 1`] = `
+[
+  {
+    "from": {},
+  },
+]
+`;
 
 exports[`CamelResourceFactory.createCamelResource should create an empty KameletResource if no args is specified 1`] = `
 [

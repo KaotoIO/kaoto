@@ -1,15 +1,17 @@
+import { Mock, vi } from 'vitest';
+
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../catalog-kind';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
-jest.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
+vi.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('ProcessorIconTooltipResolver', () => {
-  const mockGetEntity = jest.fn();
+  const mockGetEntity = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue({
+    vi.clearAllMocks();
+    (DynamicCatalogRegistry.get as Mock).mockReturnValue({
       getEntity: mockGetEntity,
     });
   });
@@ -39,7 +41,7 @@ describe('ProcessorIconTooltipResolver', () => {
     });
 
     it('should handle catalog errors and return undefined', async () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockGetEntity.mockRejectedValue(new Error('Catalog fetch failed'));
 
       const result = await ProcessorIconTooltipResolver.getProcessorIconTooltip('from');

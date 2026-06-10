@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
+import { vi } from 'vitest';
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
@@ -9,7 +10,7 @@ import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { Visualization } from './Visualization';
 
-jest.mock('./Canvas', () => ({
+vi.mock('./Canvas', () => ({
   Canvas: ({
     vizNodes,
     entitiesCount,
@@ -28,8 +29,8 @@ jest.mock('./Canvas', () => ({
   ),
 }));
 
-jest.mock('../../hooks/use-visible-viz-nodes');
-const mockUseVisibleVizNodes = jest.mocked(useVisibleVizNodes);
+vi.mock('../../hooks/use-visible-viz-nodes');
+const mockUseVisibleVizNodes = vi.mocked(useVisibleVizNodes);
 
 const mockVizNode = { id: 'node-1' } as unknown as IVisualizationNode;
 
@@ -40,12 +41,12 @@ function renderWithVisibleFlows(ui: ReactElement, visibleFlows: Record<string, b
         visibleFlows,
         allFlowsVisible: true,
         visualFlowsApi: {
-          toggleFlowVisible: jest.fn(),
-          showFlows: jest.fn(),
-          hideFlows: jest.fn(),
-          clearFlows: jest.fn(),
-          initVisibleFlows: jest.fn(),
-          renameFlow: jest.fn(),
+          toggleFlowVisible: vi.fn(),
+          showFlows: vi.fn(),
+          hideFlows: vi.fn(),
+          clearFlows: vi.fn(),
+          initVisibleFlows: vi.fn(),
+          renameFlow: vi.fn(),
         } as unknown as VisualFlowsApi,
       }}
     >

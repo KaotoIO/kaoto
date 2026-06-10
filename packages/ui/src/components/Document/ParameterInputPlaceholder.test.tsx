@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
@@ -7,10 +8,10 @@ import { DocumentService } from '../../services/document/document.service';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 
 describe('ParameterInputPlaceholder', () => {
-  let mockSendAlert: jest.Mock;
-  let mockOnComplete: jest.Mock;
-  let mockRenameSourceParameter: jest.Mock;
-  let mockCreatePrimitiveDocument: jest.SpyInstance;
+  let mockSendAlert: Mock;
+  let mockOnComplete: Mock;
+  let mockRenameSourceParameter: Mock;
+  let mockCreatePrimitiveDocument: MockInstance;
 
   const AlertCapture: FunctionComponent<PropsWithChildren> = ({ children }) => {
     const dataMapper = useDataMapper();
@@ -20,9 +21,9 @@ describe('ParameterInputPlaceholder', () => {
   };
 
   beforeEach(() => {
-    mockSendAlert = jest.fn();
-    mockOnComplete = jest.fn();
-    mockRenameSourceParameter = jest.fn();
+    mockSendAlert = vi.fn();
+    mockOnComplete = vi.fn();
+    mockRenameSourceParameter = vi.fn();
   });
 
   afterEach(() => {
@@ -50,7 +51,7 @@ describe('ParameterInputPlaceholder', () => {
   }
 
   it('should send error alert when createPrimitiveDocument returns error', () => {
-    mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
+    mockCreatePrimitiveDocument = vi.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'error',
       errors: [{ message: 'Failed to create primitive document' }],
@@ -66,7 +67,7 @@ describe('ParameterInputPlaceholder', () => {
   });
 
   it('should send warning alert when createPrimitiveDocument returns warning', () => {
-    mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
+    mockCreatePrimitiveDocument = vi.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'warning',
       warnings: [{ message: 'Warning during document creation' }],

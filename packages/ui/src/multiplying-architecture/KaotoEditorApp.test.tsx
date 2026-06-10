@@ -1,4 +1,4 @@
-jest.mock('react-router-dom');
+vi.mock('react-router-dom');
 import { SuggestionRequestContext } from '@kaoto/forms';
 import {
   ChannelType,
@@ -13,6 +13,7 @@ import { I18nService } from '@kie-tools-core/i18n/dist/envelope/I18nService';
 import { KeyboardShortcutsService } from '@kie-tools-core/keyboard-shortcuts/dist/envelope/KeyboardShortcutsService';
 import { OperatingSystem } from '@kie-tools-core/operating-system/dist/OperatingSystem';
 import { RefObject } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { CatalogKind, StepUpdateAction } from '../models';
 import { AbstractSettingsAdapter, ColorScheme, DefaultSettingsAdapter } from '../models/settings';
@@ -21,7 +22,7 @@ import { EditService } from './EditService';
 import { KaotoEditorApp } from './KaotoEditorApp';
 import { KaotoEditorChannelApi } from './KaotoEditorChannelApi';
 
-jest.mock('../utils/color-scheme');
+vi.mock('../utils/color-scheme');
 
 describe('KaotoEditorApp', () => {
   let kaotoEditorApp: KaotoEditorAppTest;
@@ -32,17 +33,17 @@ describe('KaotoEditorApp', () => {
   let settingsAdapter: AbstractSettingsAdapter;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     editService = EditService.getInstance();
     editorRef = {
       current: {
-        setContent: jest.fn(),
-        getContent: jest.fn(),
-        getPreview: jest.fn(),
-        undo: jest.fn(),
-        redo: jest.fn(),
-        setTheme: jest.fn(),
-        validate: jest.fn(),
+        setContent: vi.fn(),
+        getContent: vi.fn(),
+        getPreview: vi.fn(),
+        undo: vi.fn(),
+        redo: vi.fn(),
+        setTheme: vi.fn(),
+        validate: vi.fn(),
       },
     };
 
@@ -60,15 +61,15 @@ describe('KaotoEditorApp', () => {
           kogitoWorkspace_openFile: getNotificationMock(),
         },
         requests: {
-          getMetadata: jest.fn(),
-          setMetadata: jest.fn(),
-          getResourceContent: jest.fn(),
-          saveResourceContent: jest.fn(),
-          isResourceExist: jest.fn(),
-          deleteResource: jest.fn(),
-          askUserForFileSelection: jest.fn(),
-          getSuggestions: jest.fn(),
-          onStepUpdated: jest.fn(),
+          getMetadata: vi.fn(),
+          setMetadata: vi.fn(),
+          getResourceContent: vi.fn(),
+          saveResourceContent: vi.fn(),
+          isResourceExist: vi.fn(),
+          deleteResource: vi.fn(),
+          askUserForFileSelection: vi.fn(),
+          getSuggestions: vi.fn(),
+          onStepUpdated: vi.fn(),
         } as unknown as ApiRequests<KaotoEditorChannelApi>,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         shared: {} as any,
@@ -101,7 +102,7 @@ describe('KaotoEditorApp', () => {
 
   describe('setContent', () => {
     it('should check if the edit is stale', async () => {
-      const isStaleEditSpy = jest.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(true);
+      const isStaleEditSpy = vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(true);
 
       await kaotoEditorApp.setContent('path', 'content');
 
@@ -109,7 +110,7 @@ describe('KaotoEditorApp', () => {
     });
 
     it('should not do anything if the edit is stale', async () => {
-      jest.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(true);
+      vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(true);
 
       await kaotoEditorApp.setContent('path', 'content');
 
@@ -117,8 +118,8 @@ describe('KaotoEditorApp', () => {
     });
 
     it('should clear the hashes when the edit is not stale', async () => {
-      jest.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(false);
-      const clearHashesSpy = jest.spyOn(editService, 'clearEdits');
+      vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(false);
+      const clearHashesSpy = vi.spyOn(editService, 'clearEdits');
 
       await kaotoEditorApp.setContent('path', 'content');
 
@@ -126,7 +127,7 @@ describe('KaotoEditorApp', () => {
     });
 
     it('should delegate to the channelApi if the edit is not stale', async () => {
-      jest.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(false);
+      vi.spyOn(editService, 'isStaleEdit').mockResolvedValueOnce(false);
 
       await kaotoEditorApp.setContent('path', 'content');
 
@@ -135,7 +136,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('getContent', async () => {
-    (editorRef.current!.getContent as jest.Mock).mockResolvedValue('content');
+    (editorRef.current!.getContent as Mock).mockResolvedValue('content');
 
     const content = await kaotoEditorApp.getContent();
 
@@ -143,7 +144,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('getPreview', async () => {
-    (editorRef.current!.getPreview as jest.Mock).mockResolvedValue('preview');
+    (editorRef.current!.getPreview as Mock).mockResolvedValue('preview');
 
     const preview = await kaotoEditorApp.getPreview();
 
@@ -163,7 +164,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('validate', async () => {
-    (editorRef.current!.validate as jest.Mock).mockResolvedValue([]);
+    (editorRef.current!.validate as Mock).mockResolvedValue([]);
 
     const notifications = await kaotoEditorApp.validate();
 
@@ -184,7 +185,7 @@ describe('KaotoEditorApp', () => {
 
   describe('sendNewEdit', () => {
     it('should register the content with the EditService', async () => {
-      const registerSpy = jest.spyOn(editService, 'registerEdit');
+      const registerSpy = vi.spyOn(editService, 'registerEdit');
       await kaotoEditorApp.sendNewEdit('content');
 
       expect(registerSpy).toHaveBeenCalledWith('content');
@@ -244,7 +245,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should delegate to the channelApi checking if a resource exists', async () => {
-    (envelopeContext.channelApi.requests.isResourceExist as jest.Mock).mockResolvedValue(true);
+    (envelopeContext.channelApi.requests.isResourceExist as Mock).mockResolvedValue(true);
 
     const exists = await kaotoEditorApp.isResourceExist('path');
 
@@ -253,7 +254,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should return false when resource does not exist', async () => {
-    (envelopeContext.channelApi.requests.isResourceExist as jest.Mock).mockResolvedValue(false);
+    (envelopeContext.channelApi.requests.isResourceExist as Mock).mockResolvedValue(false);
 
     const exists = await kaotoEditorApp.isResourceExist('path');
 
@@ -262,7 +263,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should delegate to the channelApi deleting a resource', async () => {
-    (envelopeContext.channelApi.requests.deleteResource as jest.Mock).mockResolvedValue(true);
+    (envelopeContext.channelApi.requests.deleteResource as Mock).mockResolvedValue(true);
 
     const result = await kaotoEditorApp.deleteResource('path');
 
@@ -271,7 +272,7 @@ describe('KaotoEditorApp', () => {
   });
 
   it('should delegate to the channelApi asking user for file selection', async () => {
-    (envelopeContext.channelApi.requests.askUserForFileSelection as jest.Mock).mockResolvedValue(['file1.txt']);
+    (envelopeContext.channelApi.requests.askUserForFileSelection as Mock).mockResolvedValue(['file1.txt']);
 
     const result = await kaotoEditorApp.askUserForFileSelection('**/*.txt', '**/*.log', { multiSelect: true });
 
@@ -284,7 +285,7 @@ describe('KaotoEditorApp', () => {
   it('should delegate to the channelApi getting suggestions', async () => {
     const mockSuggestions = [{ label: 'test', value: 'test' }];
     const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as jest.Mock).mockResolvedValue(mockSuggestions);
+    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockResolvedValue(mockSuggestions);
 
     const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
 
@@ -294,7 +295,7 @@ describe('KaotoEditorApp', () => {
 
   it('should return empty array when getSuggestions times out', async () => {
     const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as jest.Mock).mockImplementation(
+    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve([{ label: 'test' }]), 3000)),
     );
 
@@ -305,7 +306,7 @@ describe('KaotoEditorApp', () => {
 
   it('should return empty array when getSuggestions throws an error', async () => {
     const mockContext = {} as SuggestionRequestContext;
-    (envelopeContext.channelApi.requests.getSuggestions as jest.Mock).mockRejectedValue(new Error('test error'));
+    (envelopeContext.channelApi.requests.getSuggestions as Mock).mockRejectedValue(new Error('test error'));
 
     const result = await kaotoEditorApp.getSuggestions('topic', 'word', mockContext);
 
@@ -327,9 +328,9 @@ describe('KaotoEditorApp', () => {
 });
 
 const getNotificationMock = () => ({
-  subscribe: jest.fn(),
-  unsubscribe: jest.fn(),
-  send: jest.fn(),
+  subscribe: vi.fn(),
+  unsubscribe: vi.fn(),
+  send: vi.fn(),
 });
 
 class KaotoEditorAppTest extends KaotoEditorApp {

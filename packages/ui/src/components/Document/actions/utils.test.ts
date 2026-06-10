@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { DocumentType } from '../../../models/datamapper/document';
 import { DataMapperStepService } from '../../../services/datamapper-step.service';
 import {
@@ -63,13 +65,13 @@ describe('utils', () => {
     });
 
     it('should return error for JSON on SOURCE_BODY when not supported', () => {
-      jest.spyOn(DataMapperStepService, 'supportsJsonBody').mockReturnValue(false);
+      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockReturnValue(false);
       const result = validateFileExtension('.json', DocumentType.SOURCE_BODY);
       expect(result).toContain('JSON source body is not supported');
     });
 
     it('should return undefined for JSON on SOURCE_BODY when supported', () => {
-      jest.spyOn(DataMapperStepService, 'supportsJsonBody').mockReturnValue(true);
+      vi.spyOn(DataMapperStepService, 'supportsJsonBody').mockReturnValue(true);
       expect(validateFileExtension('.json', DocumentType.SOURCE_BODY)).toBeUndefined();
     });
 

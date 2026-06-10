@@ -8,6 +8,7 @@ import {
 } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind } from '../../../../../../models';
 import { setHeaderExpressionSchema } from '../../../../../../stubs/expression-definition-schema';
@@ -23,7 +24,7 @@ describe('ExpressionField', () => {
 
   it('renders empty expression field with schema', () => {
     const { container } = render(
-      <ModelContextProvider model={{ id: 'setHeader-1361' }} onPropertyChange={jest.fn()}>
+      <ModelContextProvider model={{ id: 'setHeader-1361' }} onPropertyChange={vi.fn()}>
         <SchemaProvider schema={setHeaderExpressionSchema}>
           <ExpressionField propName={ROOT_PATH} required={true} />
         </SchemaProvider>
@@ -43,7 +44,7 @@ describe('ExpressionField', () => {
               simple: {},
             },
           }}
-          onPropertyChange={jest.fn()}
+          onPropertyChange={vi.fn()}
         >
           <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
             <SchemaProvider schema={setHeaderExpressionSchema}>
@@ -67,7 +68,7 @@ describe('ExpressionField', () => {
               simple: {},
             },
           }}
-          onPropertyChange={jest.fn()}
+          onPropertyChange={vi.fn()}
         >
           <SchemaDefinitionsProvider schema={setHeaderExpressionSchema} omitFields={[]}>
             <SchemaProvider schema={setHeaderExpressionSchema}>
@@ -87,7 +88,7 @@ describe('ExpressionField', () => {
   });
 
   it('onExpressionChange should handle empty string values', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     const EXPRESSION_STRING = 'Test';
 
     render(
@@ -121,7 +122,7 @@ describe('ExpressionField', () => {
   });
 
   it('should call onPropertyChange with the preserved expression after selection change', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
     const EXPRESSION_STRING = 'Test';
 
     render(
@@ -156,7 +157,7 @@ describe('ExpressionField', () => {
   });
 
   it('should clear the expression when using the clear button', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     render(
       <ModelContextProvider
@@ -184,7 +185,7 @@ describe('ExpressionField', () => {
   });
 
   it('should update the model with `undefined` when the model is empty after clearing the expression', async () => {
-    const onPropertyChangeSpy = jest.fn();
+    const onPropertyChangeSpy = vi.fn();
 
     const wrapper = render(
       <ModelContextProvider

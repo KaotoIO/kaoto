@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, IExpressionHolder, MappingItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
@@ -7,16 +8,11 @@ import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { XPathEditorModal } from './XPathEditorModal';
 
 describe('XPathEditorModal', () => {
-  globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
-  }));
   const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
   const mapping: IExpressionHolder & MappingItem = new ValueSelector(tree);
   mapping.expression = '/to/some/field';
-  const onClose = jest.fn();
-  const onUpdate = jest.fn();
+  const onClose = vi.fn();
+  const onUpdate = vi.fn();
 
   const setup = () => {
     render(
@@ -36,7 +32,7 @@ describe('XPathEditorModal', () => {
     const xpathEditor = screen.getByTestId('xpath-editor');
     expect(xpathEditor).toBeInTheDocument();
 
-    /* TODO ATM it doesn't render the expression content in Jest
+    /* TODO ATM it doesn't render the expression content in vi
     const expression = await screen.findByText('/to/some/field');
      */
   });

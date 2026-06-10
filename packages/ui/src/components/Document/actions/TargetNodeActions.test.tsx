@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import {
   BODY_DOCUMENT_ID,
@@ -22,7 +23,7 @@ describe('TargetNodeActions', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <TargetNodeActions nodeData={nodeData} onUpdate={jest.fn()} />
+          <TargetNodeActions nodeData={nodeData} onUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
@@ -38,7 +39,7 @@ describe('TargetNodeActions', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <TargetNodeActions nodeData={nodeData} onUpdate={jest.fn()} />
+          <TargetNodeActions nodeData={nodeData} onUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );
@@ -55,7 +56,7 @@ describe('TargetNodeActions', () => {
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <TargetNodeActions nodeData={mappingData} onUpdate={jest.fn()} />
+          <TargetNodeActions nodeData={mappingData} onUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );

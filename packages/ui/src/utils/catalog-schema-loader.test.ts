@@ -1,14 +1,15 @@
 import { CatalogDefinitionEntry } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { CatalogSchemaLoader } from './catalog-schema-loader';
 
 describe('CatalogSchemaLoader', () => {
   Object.defineProperty(window, 'fetch', {
     writable: true,
-    value: jest.fn(),
+    value: vi.fn(),
   });
 
-  const fetchMock = jest.spyOn(window, 'fetch');
+  const fetchMock = vi.spyOn(window, 'fetch');
 
   beforeEach(() => {
     fetchMock.mockImplementation((file) =>
@@ -107,7 +108,7 @@ describe('CatalogSchemaLoader', () => {
     };
 
     beforeEach(() => {
-      jest.spyOn(CatalogSchemaLoader, 'fetchFile').mockResolvedValue({
+      vi.spyOn(CatalogSchemaLoader, 'fetchFile').mockResolvedValue({
         body: {
           content: 'file-content',
         },

@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { DataMapperDnDMonitor } from './DataMapperDndMonitor';
 
@@ -11,8 +12,8 @@ type DndHandlers = {
 
 let capturedHandlers: DndHandlers | undefined;
 
-jest.mock('@dnd-kit/core', () => ({
-  ...jest.requireActual('@dnd-kit/core'),
+vi.mock('@dnd-kit/core', async () => ({
+  ...(await vi.importActual('@dnd-kit/core')),
   useDndMonitor: (handlers: DndHandlers) => {
     capturedHandlers = handlers;
   },
@@ -24,11 +25,11 @@ const mockEvent = {
 };
 
 describe('DataMapperDnDMonitor', () => {
-  let consoleSpy: jest.SpyInstance;
+  let consoleSpy: MockInstance;
 
   beforeEach(() => {
     capturedHandlers = undefined;
-    consoleSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+    consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
   });
 
   afterEach(() => {

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`FloatingCircle applies custom className 1`] = `
+exports[`FloatingCircle > applies custom className 1`] = `
 <div>
   <div
     class="floating-circle my-class"
@@ -10,7 +10,7 @@ exports[`FloatingCircle applies custom className 1`] = `
 </div>
 `;
 
-exports[`FloatingCircle renders children correctly 1`] = `
+exports[`FloatingCircle > renders children correctly 1`] = `
 <div>
   <div
     class="floating-circle"
@@ -20,7 +20,7 @@ exports[`FloatingCircle renders children correctly 1`] = `
 </div>
 `;
 
-exports[`FloatingCircle renders without children 1`] = `
+exports[`FloatingCircle > renders without children 1`] = `
 <div>
   <div
     class="floating-circle"

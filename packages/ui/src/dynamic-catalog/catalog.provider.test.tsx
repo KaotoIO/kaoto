@@ -1,6 +1,7 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
+import { Mock } from 'vitest';
 
 import { ReloadContext } from '../providers/reload.provider';
 import { TestRuntimeProviderWrapper } from '../stubs';
@@ -10,13 +11,13 @@ import { CatalogLoaderProvider } from './catalog.provider';
 import { fetchCamelCatalog } from './support/fetch-camel-catalog';
 import { fetchCitrusCatalog } from './support/fetch-citrus-catalog';
 
-jest.mock('./support/fetch-camel-catalog');
-jest.mock('./support/fetch-citrus-catalog');
+vi.mock('./support/fetch-camel-catalog');
+vi.mock('./support/fetch-citrus-catalog');
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('CatalogLoaderProvider', () => {
-  let fetchMock: jest.SpyInstance;
+  let fetchMock: SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -27,10 +28,10 @@ describe('CatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
-    (fetchCamelCatalog as jest.Mock).mockResolvedValue(undefined);
+    (fetchCamelCatalog as Mock).mockResolvedValue(undefined);
 
-    fetchMock = jest.spyOn(globalThis, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock = vi.spyOn(globalThis, 'fetch');
+    fetchMock.mockImplementationOnce((file: string | Request) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -46,7 +47,7 @@ describe('CatalogLoaderProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should start in loading mode', async () => {
@@ -65,11 +66,11 @@ describe('CatalogLoaderProvider', () => {
   });
 
   it('should stay in Error mode when there is an error', async () => {
-    jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
-        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
           <Provider>
             <CatalogLoaderProvider>
               <span data-testid="catalogs-loaded">Loaded</span>
@@ -147,7 +148,7 @@ describe('CatalogLoaderProvider', () => {
 });
 
 describe('CitrusCatalogLoaderProvider', () => {
-  let fetchMock: jest.SpyInstance;
+  let fetchMock: SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
@@ -158,10 +159,10 @@ describe('CitrusCatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
-    (fetchCitrusCatalog as jest.Mock).mockResolvedValue(undefined);
+    (fetchCitrusCatalog as Mock).mockResolvedValue(undefined);
 
-    fetchMock = jest.spyOn(globalThis, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock = vi.spyOn(globalThis, 'fetch');
+    fetchMock.mockImplementationOnce((file: string | Request) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -177,7 +178,7 @@ describe('CitrusCatalogLoaderProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should start in loading mode', async () => {
@@ -196,11 +197,11 @@ describe('CitrusCatalogLoaderProvider', () => {
   });
 
   it('should stay in Error mode when there is an error', async () => {
-    jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
     await act(async () => {
       render(
-        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
           <Provider>
             <CatalogLoaderProvider>
               <span data-testid="catalogs-loaded">Loaded</span>

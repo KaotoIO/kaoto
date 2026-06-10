@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 import { ReactNode } from 'react';
+import { vi } from 'vitest';
 
 import { useRuntimeContext } from '../hooks/useRuntimeContext/useRuntimeContext';
 import { SourceSchemaType } from '../models/camel';
@@ -41,13 +42,13 @@ const SelectedCatalogProbe = () => {
 };
 
 describe('RuntimeProvider', () => {
-  let fetchMock: jest.SpyInstance;
+  let fetchMock: MockInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
 
   beforeEach(() => {
-    fetchMock = jest.spyOn(window, 'fetch');
-    fetchMock.mockImplementationOnce((file) => {
+    fetchMock = vi.spyOn(window, 'fetch');
+    fetchMock.mockImplementationOnce((file: string) => {
       return new Promise((resolve, reject) => {
         fetchResolve = () => {
           resolve({
@@ -63,7 +64,7 @@ describe('RuntimeProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should start in loading mode', async () => {
@@ -79,10 +80,10 @@ describe('RuntimeProvider', () => {
   });
 
   it('should stay in Error mode when there is an error', async () => {
-    jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+    vi.spyOn(console, 'error').mockImplementationOnce(() => {});
     await act(async () => {
       renderInRuntime(
-        <ReloadContext.Provider value={{ reloadPage: jest.fn(), lastRender: 0 }}>
+        <ReloadContext.Provider value={{ reloadPage: vi.fn(), lastRender: 0 }}>
           <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
             <span data-testid="library-loaded">Loaded</span>
           </RuntimeProvider>

@@ -1,13 +1,14 @@
 import { act, render } from '@testing-library/react';
 import hotkeys from 'hotkeys-js';
+import { vi } from 'vitest';
 
 import { KeyboardShortcutsProvider } from './keyboard-shortcuts.provider';
 
 // Mock the useUndoRedo hook
-const mockUndo = jest.fn();
-const mockRedo = jest.fn();
+const mockUndo = vi.fn();
+const mockRedo = vi.fn();
 
-jest.mock('../hooks/undo-redo.hook', () => ({
+vi.mock('../hooks/undo-redo.hook', () => ({
   useUndoRedo: () => ({
     undo: mockUndo,
     redo: mockRedo,
@@ -15,9 +16,9 @@ jest.mock('../hooks/undo-redo.hook', () => ({
 }));
 
 // Mock hotkeys
-jest.mock('hotkeys-js', () => {
-  const hotkeyMock = jest.fn();
-  (hotkeyMock as unknown as typeof hotkeys).unbind = jest.fn();
+vi.mock('hotkeys-js', () => {
+  const hotkeyMock = vi.fn();
+  (hotkeyMock as unknown as typeof hotkeys).unbind = vi.fn();
 
   return {
     __esModule: true,
@@ -25,11 +26,11 @@ jest.mock('hotkeys-js', () => {
   };
 });
 
-const mockHotkeys = hotkeys as jest.MockedFunction<typeof hotkeys>;
+const mockHotkeys = hotkeys as MockedFunction<typeof hotkeys>;
 
 describe('KeyboardShortcutsProvider', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render children', () => {

@@ -4,10 +4,10 @@ import { IClipboardCopyObject } from '../../models/visualization/clipboard';
 import { onCopyDataMapper } from './on-copy-datamapper';
 
 describe('onCopyDataMapper', () => {
-  let mockVizNode: jest.Mocked<IVisualizationNode>;
+  let mockVizNode: Mocked<IVisualizationNode>;
 
   beforeEach(() => {
-    mockVizNode = {} as jest.Mocked<IVisualizationNode>;
+    mockVizNode = {} as Mocked<IVisualizationNode>;
   });
 
   it('should fix the processor name from kaoto-datamapper to step', () => {

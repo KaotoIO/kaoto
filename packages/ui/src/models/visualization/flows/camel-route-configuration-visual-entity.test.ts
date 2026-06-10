@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteConfigurationDefinition } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { routeConfigurationStub } from '../../../stubs/route-configuration';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
@@ -67,7 +68,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   it('should delegate to super return node label', () => {
-    const superGetNodeLabelSpy = jest
+    const superGetNodeLabelSpy = vi
       .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeLabel')
       .mockReturnValueOnce('label');
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
@@ -90,7 +91,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   });
 
   it('should return schema from store', () => {
-    const catalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+    const catalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
     const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
     entity.getNodeSchema(CamelRouteConfigurationVisualEntity.ROOT_PATH);
@@ -180,7 +181,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       canRemoveFlow: true,
       canBeDisabled: true,
     };
-    const superGetNodeInteractionSpy = jest
+    const superGetNodeInteractionSpy = vi
       .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction')
       .mockReturnValueOnce(mockInteractions);
 
@@ -202,7 +203,7 @@ describe('CamelRouteConfigurationVisualEntity', () => {
   describe('addStep', () => {
     it('should strip placeholder from path when adding step', () => {
       const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
-      const superAddStepSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
+      const superAddStepSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
 
       entity.addStep({
         definedComponent: { type: CatalogKind.Processor, name: 'intercept' } as DefinedComponent,
@@ -262,11 +263,12 @@ describe('CamelRouteConfigurationVisualEntity', () => {
         path: 'routeConfiguration',
         processorName: 'routeConfiguration',
         iconAlt: 'Entity icon',
-        iconUrl: 'file-mock-data',
+        iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Route Configuration',
         description: 'routeConfiguration: routeConfiguration',
         processorIconTooltip: '',
+        schema: undefined,
       });
     });
 

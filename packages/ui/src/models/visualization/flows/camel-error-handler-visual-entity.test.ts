@@ -166,7 +166,7 @@ describe('CamelErrorHandlerVisualEntity', () => {
         path: 'errorHandler',
         processorName: 'errorHandler',
         iconAlt: 'Entity icon',
-        iconUrl: 'file-mock-data',
+        iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Error Handler',
         description: 'errorHandler: errorHandler',

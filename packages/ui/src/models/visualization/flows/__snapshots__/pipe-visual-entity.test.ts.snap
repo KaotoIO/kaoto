@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Pipe getNodeInteraction should return the correct interaction for the '#' processor 1`] = `
+exports[`Pipe > getNodeInteraction > should return the correct interaction for the '#' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -13,7 +13,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 }
 `;
 
-exports[`Pipe getNodeInteraction should return the correct interaction for the 'sink' processor 1`] = `
+exports[`Pipe > getNodeInteraction > should return the correct interaction for the 'sink' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -26,7 +26,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 }
 `;
 
-exports[`Pipe getNodeInteraction should return the correct interaction for the 'source' processor 1`] = `
+exports[`Pipe > getNodeInteraction > should return the correct interaction for the 'source' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -39,7 +39,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 }
 `;
 
-exports[`Pipe getNodeInteraction should return the correct interaction for the 'steps.1' processor 1`] = `
+exports[`Pipe > getNodeInteraction > should return the correct interaction for the 'steps.1' processor 1`] = `
 {
   "canBeDisabled": false,
   "canHaveChildren": false,
@@ -52,7 +52,7 @@ exports[`Pipe getNodeInteraction should return the correct interaction for the '
 }
 `;
 
-exports[`Pipe pasteStep should append a new step to the model 1`] = `
+exports[`Pipe > pasteStep > should append a new step to the model 1`] = `
 [
   {
     "ref": {

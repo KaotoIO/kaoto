@@ -1,5 +1,6 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind } from '../../models';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
@@ -9,8 +10,8 @@ import { fetchCamelCatalog } from './fetch-camel-catalog';
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('fetchCamelCatalog', () => {
-  let fetchFileMock: jest.SpyInstance;
-  let setCatalogKeySpy: jest.SpyInstance;
+  let fetchFileMock: SpyInstance;
+  let setCatalogKeySpy: SpyInstance;
   let catalogDefinition: Awaited<ReturnType<typeof getFirstCatalogMap>>['catalogDefinition'];
   let relativeBasePath: string;
 
@@ -25,16 +26,16 @@ describe('fetchCamelCatalog', () => {
   beforeEach(() => {
     relativeBasePath = `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}`;
 
-    fetchFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
+    fetchFileMock = vi.spyOn(CatalogSchemaLoader, 'fetchFile');
     fetchFileMock.mockImplementation((uri: string) => {
       return Promise.resolve({ body: { [uri]: 'dummy-data' } });
     });
 
-    setCatalogKeySpy = jest.spyOn(CamelCatalogService, 'setCatalogKey');
+    setCatalogKeySpy = vi.spyOn(CamelCatalogService, 'setCatalogKey');
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should fetch all expected catalog files', async () => {
@@ -72,7 +73,7 @@ describe('fetchCamelCatalog', () => {
     await fetchCamelCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
 
     let count = 0;
-    setCatalogKeySpy.mock.calls.forEach((call) => {
+    setCatalogKeySpy.mock.calls.forEach((call: (ArrayLike<unknown> | { [s: string]: unknown })[]) => {
       if (Object.keys(call[1])[0].includes(`${relativeBasePath}/camel-catalog-aggregate-components`)) {
         expect(call[0]).toEqual(CatalogKind.Component);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');

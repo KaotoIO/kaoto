@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { ColorScheme } from '../models';
 import { DARK_MODE_PATTERN_FLY_CLASS_NAME, isDarkModeEnabled, setColorScheme } from './color-scheme';
 
@@ -6,11 +8,11 @@ describe('color-scheme utilities', () => {
 
   beforeEach(() => {
     htmlElement = document.createElement('html');
-    document.querySelector = jest.fn().mockReturnValue(htmlElement);
+    document.querySelector = vi.fn().mockReturnValue(htmlElement);
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('setColorScheme', () => {
@@ -29,7 +31,7 @@ describe('color-scheme utilities', () => {
     });
 
     it('sets color scheme to system preference when scheme is Auto', () => {
-      const mockMatchMedia = jest.fn().mockImplementation((query) => ({
+      const mockMatchMedia = vi.fn().mockImplementation((query) => ({
         matches: query === '(prefers-color-scheme: dark)',
       }));
       globalThis.matchMedia = mockMatchMedia;
@@ -40,7 +42,7 @@ describe('color-scheme utilities', () => {
     });
 
     it('does nothing if the HTML element is not found', () => {
-      document.querySelector = jest.fn().mockReturnValue(null);
+      document.querySelector = vi.fn().mockReturnValue(null);
 
       expect(() => setColorScheme(ColorScheme.Light)).not.toThrow();
     });
@@ -58,7 +60,7 @@ describe('color-scheme utilities', () => {
     });
 
     it('returns false if the HTML element is not found', () => {
-      document.querySelector = jest.fn().mockReturnValue(null);
+      document.querySelector = vi.fn().mockReturnValue(null);
 
       expect(isDarkModeEnabled()).toBe(false);
     });

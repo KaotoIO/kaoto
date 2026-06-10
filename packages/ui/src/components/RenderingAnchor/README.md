@@ -266,8 +266,8 @@ import { render } from '@testing-library/react';
 import { RenderingAnchorContext } from './rendering.provider';
 
 const mockContext = {
-  registerComponent: jest.fn(),
-  getRegisteredComponents: jest.fn(() => [
+  registerComponent: vi.fn(),
+  getRegisteredComponents: vi.fn(() => [
     { key: 'test-key', Component: MockComponent }
   ]),
 };

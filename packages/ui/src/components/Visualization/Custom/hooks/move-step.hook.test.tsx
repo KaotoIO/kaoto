@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
@@ -15,20 +16,20 @@ import { RegisterNodeInteractionAddons } from '../../../registers/RegisterNodeIn
 import { useMoveStep } from './move-step.hook';
 
 const mockController = {
-  getGraph: jest.fn(),
+  getGraph: vi.fn(),
 };
 
-jest.mock('@patternfly/react-topology', () => ({
+vi.mock('@patternfly/react-topology', () => ({
   useVisualizationController: () => mockController,
 }));
 
-jest.mock('../../../../utils/get-viznodes-from-graph');
-const mockGetVisualizationNodesFromGraph = getVisualizationNodesFromGraph as jest.MockedFunction<
+vi.mock('../../../../utils/get-viznodes-from-graph');
+const mockGetVisualizationNodesFromGraph = getVisualizationNodesFromGraph as MockedFunction<
   typeof getVisualizationNodesFromGraph
 >;
 
-jest.mock('../../../../utils/get-potential-path');
-const mockGetPotentialPath = getPotentialPath as jest.MockedFunction<typeof getPotentialPath>;
+vi.mock('../../../../utils/get-potential-path');
+const mockGetPotentialPath = getPotentialPath as MockedFunction<typeof getPotentialPath>;
 
 describe('useMoveStep', () => {
   const visualEntity = new CamelRouteVisualEntity(camelRouteJson);
@@ -50,8 +51,8 @@ describe('useMoveStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateSourceCodeFromEntities: vi.fn(),
+    updateEntitiesFromCamelResource: vi.fn(),
   };
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -75,8 +76,8 @@ describe('useMoveStep', () => {
   };
 
   beforeEach(() => {
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'testSchema' });
-    jest.clearAllMocks();
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue({ id: 'testSchema' });
+    vi.clearAllMocks();
   });
 
   it('should maintain stable reference when dependencies do not change', () => {
@@ -189,8 +190,8 @@ describe('useMoveStep', () => {
         title: '',
         description: '',
       });
-      const longPathVizNodeSpy = jest.spyOn(longPathVizNode, 'getCopiedContent');
-      const shortPathVizNodeSpy = jest.spyOn(shortPathVizNode, 'getCopiedContent');
+      const longPathVizNodeSpy = vi.spyOn(longPathVizNode, 'getCopiedContent');
+      const shortPathVizNodeSpy = vi.spyOn(shortPathVizNode, 'getCopiedContent');
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
       mockGetVisualizationNodesFromGraph.mockReturnValue([longPathVizNode, shortPathVizNode]);
@@ -206,16 +207,16 @@ describe('useMoveStep', () => {
 
   describe('onMoveStep functionality', () => {
     it('should return without calling pasteBaseEntityStep() and updateEntitiesFromCamelResource()', () => {
-      const VizNodeGetCopiedContentSpy = jest
+      const VizNodeGetCopiedContentSpy = vi
         .spyOn(vizNode, 'getCopiedContent')
         .mockReturnValueOnce(vizNodeCopiedContent);
-      const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
+      const VizNodePasteBaseEntityStepSpy = vi.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
         data: {},
-        getCopiedContent: jest.fn().mockReturnValue(undefined),
-        pasteBaseEntityStep: jest.fn(),
-        getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
+        getCopiedContent: vi.fn().mockReturnValue(undefined),
+        pasteBaseEntityStep: vi.fn(),
+        getNodeDefinition: vi.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
@@ -230,7 +231,7 @@ describe('useMoveStep', () => {
       expect(VizNodePasteBaseEntityStepSpy).not.toHaveBeenCalled();
       expect(targetVizNode.pasteBaseEntityStep).not.toHaveBeenCalled();
 
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).not.toHaveBeenCalled();
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).not.toHaveBeenCalled();
     });
 
     it('should call getCopiedContent(), processOnCopyAddon(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource() in case of datamapper step', () => {
@@ -284,14 +285,14 @@ describe('useMoveStep', () => {
         },
       };
 
-      const dataMapperVizNodeGetCopiedContentSpy = jest.spyOn(dataMapperVizNode, 'getCopiedContent');
-      const dataMapperVizNodePasteBaseEntityStepSpy = jest.spyOn(dataMapperVizNode, 'pasteBaseEntityStep');
+      const dataMapperVizNodeGetCopiedContentSpy = vi.spyOn(dataMapperVizNode, 'getCopiedContent');
+      const dataMapperVizNodePasteBaseEntityStepSpy = vi.spyOn(dataMapperVizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
         data: {},
-        getCopiedContent: jest.fn().mockReturnValue(targetVizNodeCopiedContent),
-        pasteBaseEntityStep: jest.fn(),
-        getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
+        getCopiedContent: vi.fn().mockReturnValue(targetVizNodeCopiedContent),
+        pasteBaseEntityStep: vi.fn(),
+        getNodeDefinition: vi.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.1');
@@ -310,20 +311,20 @@ describe('useMoveStep', () => {
         AddStepMode.ReplaceStep,
       );
 
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
     });
 
     it('should call getCopiedContent(), pasteBaseEntityStep() and finally updateEntitiesFromCamelResource()', () => {
-      const VizNodeGetCopiedContentSpy = jest
+      const VizNodeGetCopiedContentSpy = vi
         .spyOn(vizNode, 'getCopiedContent')
         .mockReturnValueOnce(vizNodeCopiedContent);
-      const VizNodePasteBaseEntityStepSpy = jest.spyOn(vizNode, 'pasteBaseEntityStep');
+      const VizNodePasteBaseEntityStepSpy = vi.spyOn(vizNode, 'pasteBaseEntityStep');
 
       const targetVizNode = {
         data: {},
-        getCopiedContent: jest.fn().mockReturnValue(targetVizNodeCopiedContent),
-        pasteBaseEntityStep: jest.fn(),
-        getNodeDefinition: jest.fn().mockReturnValue({ id: 'test' }),
+        getCopiedContent: vi.fn().mockReturnValue(targetVizNodeCopiedContent),
+        pasteBaseEntityStep: vi.fn(),
+        getNodeDefinition: vi.fn().mockReturnValue({ id: 'test' }),
       } as unknown as IVisualizationNode;
 
       mockGetPotentialPath.mockReturnValue('route.from.steps.2');
@@ -338,7 +339,7 @@ describe('useMoveStep', () => {
       expect(VizNodePasteBaseEntityStepSpy).toHaveBeenCalledTimes(1);
       expect(targetVizNode.pasteBaseEntityStep).toHaveBeenCalledTimes(1);
 
-      expect(mockEntitiesContext.updateEntitiesFromCamelResource as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateEntitiesFromCamelResource as Mock).toHaveBeenCalledTimes(1);
     });
   });
 });

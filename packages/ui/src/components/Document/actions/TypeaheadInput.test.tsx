@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { TypeaheadInput, TypeaheadInputOption } from './TypeaheadInput';
 
@@ -15,7 +16,7 @@ describe('TypeaheadInput', () => {
     render(
       <TypeaheadInput
         value=""
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         options={OPTIONS}
         data-testid="xpath-input"
         placeholder="Enter XPath"
@@ -27,12 +28,12 @@ describe('TypeaheadInput', () => {
   });
 
   it('should render with default placeholder when not provided', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(getInput()).toHaveAttribute('placeholder', 'Type to search');
   });
 
   it('should call onChange when typing', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'Ti' } });
@@ -42,19 +43,19 @@ describe('TypeaheadInput', () => {
 
   it('should show only matching options when value filters', () => {
     const { rerender } = render(
-      <TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />,
+      <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'Ti' } });
     });
-    rerender(<TypeaheadInput value="Ti" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    rerender(<TypeaheadInput value="Ti" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Title')).toBeInTheDocument();
     expect(screen.queryByText('Price')).not.toBeInTheDocument();
   });
 
   it('should close dropdown when no options match', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'string-length(' } });
@@ -64,19 +65,19 @@ describe('TypeaheadInput', () => {
 
   it('should filter options by description as well', () => {
     const { rerender } = render(
-      <TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />,
+      <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
     act(() => {
       fireEvent.change(getInput(), { target: { value: 'decimal' } });
     });
-    rerender(<TypeaheadInput value="decimal" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    rerender(<TypeaheadInput value="decimal" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(screen.getByRole('listbox')).toBeInTheDocument();
     expect(screen.getByText('Price')).toBeInTheDocument();
     expect(screen.queryByText('Title')).not.toBeInTheDocument();
   });
 
   it('should call onChange with selected value and close dropdown', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<TypeaheadInput value="" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
 
     act(() => {
@@ -92,7 +93,7 @@ describe('TypeaheadInput', () => {
   });
 
   it('should open dropdown on focus when value is empty and options exist', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -100,7 +101,7 @@ describe('TypeaheadInput', () => {
   });
 
   it('should not open dropdown on focus when value is non-empty', () => {
-    render(<TypeaheadInput value="Title" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -108,7 +109,7 @@ describe('TypeaheadInput', () => {
   });
 
   it('should not open dropdown on focus when no options exist', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={[]} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={[]} data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -116,7 +117,7 @@ describe('TypeaheadInput', () => {
   });
 
   it('should close dropdown on blur', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -129,17 +130,17 @@ describe('TypeaheadInput', () => {
   });
 
   it('should show clear button when value is non-empty', () => {
-    render(<TypeaheadInput value="Title" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(screen.getByLabelText('Clear expression')).toBeInTheDocument();
   });
 
   it('should not show clear button when value is empty', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     expect(screen.queryByLabelText('Clear expression')).not.toBeInTheDocument();
   });
 
   it('should call onChange with empty string when clear button is clicked', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<TypeaheadInput value="Title" onChange={onChange} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.click(screen.getByLabelText('Clear expression'));
@@ -148,7 +149,7 @@ describe('TypeaheadInput', () => {
   });
 
   it('should set Select id with suffix when id is provided', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} id="my-input" data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} id="my-input" data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -159,7 +160,7 @@ describe('TypeaheadInput', () => {
     render(
       <TypeaheadInput
         value=""
-        onChange={jest.fn()}
+        onChange={vi.fn()}
         options={OPTIONS}
         data-testid="xpath-input"
         ariaLabel="Sort expression 1"
@@ -170,9 +171,9 @@ describe('TypeaheadInput', () => {
 
   it('should not open dropdown on focus after external value update from empty to non-empty', () => {
     const { rerender } = render(
-      <TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />,
+      <TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />,
     );
-    rerender(<TypeaheadInput value="Title" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    rerender(<TypeaheadInput value="Title" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });
@@ -180,7 +181,7 @@ describe('TypeaheadInput', () => {
   });
 
   it('should show all options when value is empty and dropdown is open', () => {
-    render(<TypeaheadInput value="" onChange={jest.fn()} options={OPTIONS} data-testid="xpath-input" />);
+    render(<TypeaheadInput value="" onChange={vi.fn()} options={OPTIONS} data-testid="xpath-input" />);
     act(() => {
       fireEvent.focus(getInput());
     });

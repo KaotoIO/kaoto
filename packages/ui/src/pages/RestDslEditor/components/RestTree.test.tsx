@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
@@ -6,10 +7,10 @@ import { getRestEntities } from './get-rest-entities';
 import { RestTree } from './RestTree';
 
 describe('RestTree', () => {
-  const mockOnSelect = jest.fn();
+  const mockOnSelect = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render tree structure with RestConfiguration, Rest entities, and methods', () => {

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { Types } from '../../../models/datamapper';
 import { IField } from '../../../models/datamapper/document';
@@ -56,8 +57,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     expect(screen.getByText('Substitution: Test Abstract')).toBeInTheDocument();
@@ -76,8 +77,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     expect(screen.getByText('Substitution: rawAbstract')).toBeInTheDocument();
@@ -96,8 +97,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     expect(screen.getByText('Substitution: Abstract')).toBeInTheDocument();
@@ -113,8 +114,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     const input = getTypeaheadInput();
@@ -134,8 +135,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     const input = getTypeaheadInput();
@@ -152,8 +153,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
@@ -172,15 +173,15 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
     expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
   });
 
   it('should call onClose when Cancel is clicked', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     const { abstractField, candidatesMap } = createMockAbstractField([
       { qname: 'ns:Email', displayName: 'Email' },
       { qname: 'ns:Phone', displayName: 'Phone' },
@@ -190,7 +191,7 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
+        onSelect={vi.fn()}
         onClose={onClose}
       />,
     );
@@ -201,8 +202,8 @@ describe('SubstitutionSelectionModal', () => {
   });
 
   it('should call onSelect and onClose when Save is clicked with pre-selected substitute', () => {
-    const onSelect = jest.fn();
-    const onClose = jest.fn();
+    const onSelect = vi.fn();
+    const onClose = vi.fn();
     const { abstractField, candidatesMap } = createMockAbstractField(
       [
         { qname: 'ns:Email', displayName: 'Email', localPart: 'Email', namespaceURI: 'http://example.com' },
@@ -227,8 +228,8 @@ describe('SubstitutionSelectionModal', () => {
   });
 
   it('should allow selecting a substitute from the typeahead and saving', async () => {
-    const onSelect = jest.fn();
-    const onClose = jest.fn();
+    const onSelect = vi.fn();
+    const onClose = vi.fn();
     const { abstractField, candidatesMap } = createMockAbstractField([
       { qname: 'ns:Email', displayName: 'Email' },
       { qname: 'ns:Phone', displayName: 'Phone' },
@@ -265,7 +266,7 @@ describe('SubstitutionSelectionModal', () => {
   });
 
   it('should not call onSelect when Save is clicked without selection', () => {
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     const { abstractField, candidatesMap } = createMockAbstractField([
       { qname: 'ns:Email', displayName: 'Email' },
       { qname: 'ns:Phone', displayName: 'Phone' },
@@ -276,7 +277,7 @@ describe('SubstitutionSelectionModal', () => {
         abstractField={abstractField}
         candidates={candidatesMap}
         onSelect={onSelect}
-        onClose={jest.fn()}
+        onClose={vi.fn()}
       />,
     );
 
@@ -296,8 +297,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
 
@@ -323,8 +324,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
 
@@ -356,8 +357,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={{}}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
 
@@ -377,8 +378,8 @@ describe('SubstitutionSelectionModal', () => {
         isOpen={true}
         abstractField={abstractField}
         candidates={candidatesMap}
-        onSelect={jest.fn()}
-        onClose={jest.fn()}
+        onSelect={vi.fn()}
+        onClose={vi.fn()}
       />,
     );
 

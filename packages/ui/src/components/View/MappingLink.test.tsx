@@ -1,16 +1,17 @@
 import { fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { MappingLineStyle } from '../../models/datamapper';
 import { useDocumentTreeStore } from '../../store';
 import { MappingLink } from './MappingLink';
 
-const mockToggleSelectedNode = jest.fn();
+const mockToggleSelectedNode = vi.fn();
 
-jest.mock('../../hooks/useMappingLinks', () => ({
+vi.mock('../../hooks/useMappingLinks', () => ({
   useMappingLinks: () => ({
     mappingLinkCanvasRef: { current: { getBoundingClientRect: () => ({ left: 10, right: 110 }) } },
-    getMappingLinks: jest.fn().mockReturnValue([]),
-    isNodeInSelectedMapping: jest.fn().mockReturnValue(false),
+    getMappingLinks: vi.fn().mockReturnValue([]),
+    isNodeInSelectedMapping: vi.fn().mockReturnValue(false),
   }),
 }));
 

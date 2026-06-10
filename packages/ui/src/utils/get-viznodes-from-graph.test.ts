@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2024 Red Hat, Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed underthe Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -15,6 +15,7 @@
  */
 
 import { Graph, Model } from '@patternfly/react-topology';
+import { vi } from 'vitest';
 
 import { ControllerService } from '../components/Visualization/Canvas/controller.service';
 import { FlowService } from '../components/Visualization/Canvas/flow.service';
@@ -25,7 +26,7 @@ import { getVisualizationNodesFromGraph } from './get-viznodes-from-graph';
 describe('getVisualizationNodesFromGraph', () => {
   it('should return an empty array if there are no nodes in the graph', () => {
     const graph = {
-      getNodes: jest.fn().mockReturnValue([]),
+      getNodes: vi.fn().mockReturnValue([]),
     } as unknown as Graph;
 
     const result = getVisualizationNodesFromGraph(graph);

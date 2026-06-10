@@ -1,14 +1,16 @@
+import { Mock, vi } from 'vitest';
+
 import { CatalogKind } from '../../../../../catalog-kind';
 import { getIconRequest } from './getIconRequest';
 import { NodeIconResolver } from './node-icon-resolver';
 
-jest.mock('./node-icon-resolver');
+vi.mock('./node-icon-resolver');
 
 describe('getIconRequest', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    (NodeIconResolver.getIcon as jest.Mock).mockResolvedValue('mock-icon-url');
-    (NodeIconResolver.getDefaultCamelIcon as jest.Mock).mockReturnValue('default-camel-icon-url');
+    vi.clearAllMocks();
+    (NodeIconResolver.getIcon as Mock).mockResolvedValue('mock-icon-url');
+    (NodeIconResolver.getDefaultCamelIcon as Mock).mockReturnValue('default-camel-icon-url');
   });
 
   it('should resolve component icon request with default alt text', async () => {

@@ -1,25 +1,26 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { ExpansionContext } from './ExpansionContext';
 import { ExpansionPanel } from './ExpansionPanel';
 
 describe('ExpansionPanel', () => {
-  let mockRegister: jest.Mock;
-  let mockUnregister: jest.Mock;
-  let mockResize: jest.Mock;
-  let mockSetExpanded: jest.Mock;
-  let mockQueueLayoutChange: jest.Mock;
-  let mockRegisterLayoutCallback: jest.Mock;
-  let mockUnregisterLayoutCallback: jest.Mock;
+  let mockRegister: Mock;
+  let mockUnregister: Mock;
+  let mockResize: Mock;
+  let mockSetExpanded: Mock;
+  let mockQueueLayoutChange: Mock;
+  let mockRegisterLayoutCallback: Mock;
+  let mockUnregisterLayoutCallback: Mock;
 
   beforeEach(() => {
-    mockRegister = jest.fn();
-    mockUnregister = jest.fn();
-    mockResize = jest.fn();
-    mockSetExpanded = jest.fn();
-    mockQueueLayoutChange = jest.fn();
-    mockRegisterLayoutCallback = jest.fn();
-    mockUnregisterLayoutCallback = jest.fn();
+    mockRegister = vi.fn();
+    mockUnregister = vi.fn();
+    mockResize = vi.fn();
+    mockSetExpanded = vi.fn();
+    mockQueueLayoutChange = vi.fn();
+    mockRegisterLayoutCallback = vi.fn();
+    mockUnregisterLayoutCallback = vi.fn();
   });
 
   const renderPanel = (props: Partial<React.ComponentProps<typeof ExpansionPanel>> = {}) => {
@@ -229,7 +230,7 @@ describe('ExpansionPanel', () => {
     });
 
     it('should queue layout change callback when onLayoutChange is provided and panel is toggled', () => {
-      const onLayoutChange = jest.fn();
+      const onLayoutChange = vi.fn();
       renderPanel({ id: 'test-panel', defaultExpanded: true, onLayoutChange });
 
       const summary = screen.getByText('Test Summary');
@@ -361,7 +362,7 @@ describe('ExpansionPanel', () => {
 
   describe('Event Listener Cleanup', () => {
     it('should remove event listeners on unmount', () => {
-      const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
+      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
 
       const { unmount } = renderPanel({ id: 'test-panel' });
 
@@ -375,7 +376,7 @@ describe('ExpansionPanel', () => {
     });
 
     it('should remove event listeners after resize completes', () => {
-      const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
+      const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
 
       renderPanel({ id: 'test-panel', defaultExpanded: true });
 
@@ -400,7 +401,7 @@ describe('ExpansionPanel', () => {
 
   describe('Scroll Callback', () => {
     it('should call onScroll callback when content is scrolled', () => {
-      const onScroll = jest.fn();
+      const onScroll = vi.fn();
       renderPanel({ onScroll });
 
       const content = document.querySelector('.expansion-panel__content') as HTMLElement;
@@ -476,7 +477,7 @@ describe('ExpansionPanel', () => {
 
   describe('Layout Callback Registration', () => {
     it('should register layout callback when onLayoutChange is provided', () => {
-      const onLayoutChange = jest.fn();
+      const onLayoutChange = vi.fn();
       renderPanel({ id: 'test-panel', onLayoutChange });
 
       // Should register the callback
@@ -484,7 +485,7 @@ describe('ExpansionPanel', () => {
     });
 
     it('should unregister layout callback on unmount when onLayoutChange was provided', () => {
-      const onLayoutChange = jest.fn();
+      const onLayoutChange = vi.fn();
       const { unmount } = renderPanel({ id: 'test-panel', onLayoutChange });
 
       unmount();

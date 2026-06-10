@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
+import { vi } from 'vitest';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
@@ -9,6 +10,37 @@ import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
 import { ParametersSection } from './Parameters';
 
 describe('ParametersSection', () => {
+  beforeEach(() => {
+    // Mock RAF to execute immediately for tests that don't use fake timers
+    const rafMock = (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    };
+    const cafMock = () => {};
+
+    // Use Object.defineProperty for more persistent mocks that survive async callbacks
+    Object.defineProperty(globalThis, 'requestAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: rafMock,
+    });
+    Object.defineProperty(globalThis, 'cancelAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: cafMock,
+    });
+    Object.defineProperty(window, 'requestAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: rafMock,
+    });
+    Object.defineProperty(window, 'cancelAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: cafMock,
+    });
+  });
+
   // Helper to wrap components with VirtuosoMockContext for testing
   const renderWithVirtuoso = (component: React.ReactElement) => {
     return render(component, {
@@ -21,9 +53,9 @@ describe('ParametersSection', () => {
   };
 
   it('should add, rename, and remove a parameter', async () => {
-    const mockUpdateDocument = jest.fn();
-    const mockDeleteParameter = jest.fn();
-    const mockRenameParameter = jest.fn();
+    const mockUpdateDocument = vi.fn();
+    const mockDeleteParameter = vi.fn();
+    const mockRenameParameter = vi.fn();
     renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider
@@ -86,8 +118,8 @@ describe('ParametersSection', () => {
   });
 
   it('should show validation error for invalid parameter name', async () => {
-    const mockUpdateDocument = jest.fn();
-    const mockDeleteParameter = jest.fn();
+    const mockUpdateDocument = vi.fn();
+    const mockDeleteParameter = vi.fn();
     renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
@@ -337,7 +369,7 @@ describe('ParametersSection', () => {
   });
 
   it('should handle parameter submission with duplicate parameter check', async () => {
-    const mockUpdateDocument = jest.fn();
+    const mockUpdateDocument = vi.fn();
     renderWithVirtuoso(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
@@ -386,7 +418,7 @@ describe('ParametersSection', () => {
 
   describe('Show/Hide All Parameters Toggle', () => {
     it('should hide all parameters when toggle button is clicked', async () => {
-      const mockUpdateDocument = jest.fn();
+      const mockUpdateDocument = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
@@ -431,7 +463,7 @@ describe('ParametersSection', () => {
     });
 
     it('should show all parameters when toggle button is clicked again', async () => {
-      const mockUpdateDocument = jest.fn();
+      const mockUpdateDocument = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
@@ -555,8 +587,8 @@ describe('ParametersSection', () => {
 
   describe('Cancel Delete Parameter Modal', () => {
     it('should keep parameter when cancel button is clicked in delete modal', async () => {
-      const mockUpdateDocument = jest.fn();
-      const mockDeleteParameter = jest.fn();
+      const mockUpdateDocument = vi.fn();
+      const mockDeleteParameter = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
@@ -615,7 +647,7 @@ describe('ParametersSection', () => {
 
   describe('Multiple Parameters Interaction', () => {
     it('should handle multiple parameters independently', async () => {
-      const mockUpdateDocument = jest.fn();
+      const mockUpdateDocument = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
@@ -683,8 +715,8 @@ describe('ParametersSection', () => {
     });
 
     it('should delete one parameter while keeping others', async () => {
-      const mockUpdateDocument = jest.fn();
-      const mockDeleteParameter = jest.fn();
+      const mockUpdateDocument = vi.fn();
+      const mockDeleteParameter = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument} onDeleteParameter={mockDeleteParameter}>
@@ -749,7 +781,7 @@ describe('ParametersSection', () => {
     });
 
     it('should hide/show all parameters simultaneously', async () => {
-      const mockUpdateDocument = jest.fn();
+      const mockUpdateDocument = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>
@@ -870,7 +902,7 @@ describe('ParametersSection', () => {
 
   describe('Parameter Actions Visibility', () => {
     it('should show rename and delete buttons for each parameter', async () => {
-      const mockUpdateDocument = jest.fn();
+      const mockUpdateDocument = vi.fn();
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider onUpdateDocument={mockUpdateDocument}>

@@ -4,6 +4,7 @@ import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { Suspense } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
@@ -32,7 +33,7 @@ describe('RestRouteEndpointField', () => {
 
   const renderField = async (
     model: Record<string, unknown>,
-    onPropertyChange: jest.Mock = jest.fn(),
+    onPropertyChange: Mock = vi.fn(),
     options: { disabled?: boolean; required?: boolean } = {},
   ) => {
     const camelResource = new CamelRouteResource([
@@ -116,7 +117,7 @@ describe('RestRouteEndpointField', () => {
 
   describe('value changes', () => {
     it('should call onPropertyChange with updated To object when value changes', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const initialTo: To = {
         uri: 'direct',
         parameters: {
@@ -148,7 +149,7 @@ describe('RestRouteEndpointField', () => {
     });
 
     it('should preserve existing parameters when updating name', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const initialTo: To = {
         uri: 'direct',
         parameters: {
@@ -183,7 +184,7 @@ describe('RestRouteEndpointField', () => {
     });
 
     it('should handle clearing the input', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const initialTo: To = 'direct:orders';
       const { getInput } = await renderField({ to: initialTo }, onPropertyChange);
 
@@ -209,7 +210,7 @@ describe('RestRouteEndpointField', () => {
     });
 
     it('should update when selecting from dropdown suggestions', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const { getInput } = await renderField({ to: undefined }, onPropertyChange);
 
       getInput(); // Ensure component is loaded
@@ -247,7 +248,7 @@ describe('RestRouteEndpointField', () => {
   });
 
   it('should forward required prop to DirectEndpointNameField', async () => {
-    const { getInput } = await renderField({ to: undefined }, jest.fn(), { required: true });
+    const { getInput } = await renderField({ to: undefined }, vi.fn(), { required: true });
 
     const input = getInput();
     // The field should show required indicator when required prop is passed
@@ -291,7 +292,7 @@ describe('RestRouteEndpointField', () => {
     });
 
     it('should create a new direct route when Create Route is clicked', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const { getInput, getCreateButton } = await renderField({ to: undefined }, onPropertyChange);
 
       const input = getInput();

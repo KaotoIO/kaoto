@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
@@ -8,7 +9,7 @@ import { ItemHideOtherFlows } from './ItemHideOtherFlows';
 
 describe('ItemHideOtherFlows', () => {
   let vizNode: IVisualizationNode;
-  let dispatchSpy: jest.Mock;
+  let dispatchSpy: Mock;
   let visibleFlowsContext: VisibleFlowsContextResult;
 
   beforeEach(() => {
@@ -20,9 +21,9 @@ describe('ItemHideOtherFlows', () => {
       title: '',
       description: '',
     });
-    jest.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
+    vi.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
 
-    dispatchSpy = jest.fn();
+    dispatchSpy = vi.fn();
     visibleFlowsContext = {
       allFlowsVisible: true,
       visibleFlows: {
@@ -35,7 +36,7 @@ describe('ItemHideOtherFlows', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the "Hide rest" context menu item', () => {
@@ -69,7 +70,7 @@ describe('ItemHideOtherFlows', () => {
   });
 
   it('should not dispatch if flowId is undefined', () => {
-    jest.spyOn(vizNode, 'getId').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getId').mockReturnValue(undefined);
 
     const wrapper = render(
       <VisibleFlowsContext.Provider value={visibleFlowsContext}>

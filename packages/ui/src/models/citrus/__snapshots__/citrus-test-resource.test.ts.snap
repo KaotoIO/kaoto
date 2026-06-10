@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CitrusTestResource toJSON should return JSON 1`] = `
+exports[`CitrusTestResource > toJSON > should return JSON 1`] = `
 {
   "actions": [
     {

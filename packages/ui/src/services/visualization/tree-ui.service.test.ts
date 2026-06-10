@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -170,7 +172,7 @@ describe('TreeUIService', () => {
     });
 
     it('should parse unparsed node before toggling', () => {
-      const parseTreeNodeSpy = jest.spyOn(TreeParsingService, 'parseTreeNode');
+      const parseTreeNodeSpy = vi.spyOn(TreeParsingService, 'parseTreeNode');
 
       // Find an unparsed node by navigating the tree
       // Level 1 nodes are parsed (depth 1 < 3)

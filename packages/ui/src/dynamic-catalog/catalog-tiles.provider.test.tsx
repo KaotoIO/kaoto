@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { useContext } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { camelComponentToTile, camelProcessorToTile, citrusComponentToTile, kameletToTile } from '../camel-utils';
 import {
@@ -26,16 +27,16 @@ import {
   CitrusTestEndpointsProvider,
 } from './providers/citrus-components.provider';
 
-jest.mock('../camel-utils', () => {
-  const actual = jest.requireActual('../camel-utils');
+vi.mock('../camel-utils', async () => {
+  const actual = await vi.importActual('../camel-utils');
 
   return {
     ...actual,
-    camelComponentToTile: jest.fn(),
-    camelProcessorToTile: jest.fn(),
-    camelEntityToTile: jest.fn(),
-    kameletToTile: jest.fn(),
-    citrusComponentToTile: jest.fn(),
+    camelComponentToTile: vi.fn(),
+    camelProcessorToTile: vi.fn(),
+    camelEntityToTile: vi.fn(),
+    kameletToTile: vi.fn(),
+    citrusComponentToTile: vi.fn(),
   };
 });
 
@@ -90,7 +91,7 @@ describe('CatalogTilesProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render children', async () => {
@@ -163,13 +164,13 @@ describe('CatalogTilesProvider', () => {
     const testContainerCatalog = mockRegistry.getCatalog(CatalogKind.TestContainer);
     const testEndpointCatalog = mockRegistry.getCatalog(CatalogKind.TestEndpoint);
 
-    const getAllSpyComponent = jest.spyOn(componentCatalog!, 'getAll');
-    const getAllSpyPattern = jest.spyOn(patternCatalog!, 'getAll');
-    const getAllSpyEntity = jest.spyOn(entityCatalog!, 'getAll');
-    const getAllSpyKamelet = jest.spyOn(kameletCatalog!, 'getAll');
-    const getAllSpyTestAction = jest.spyOn(testActionCatalog!, 'getAll');
-    const getAllSpyTestContainer = jest.spyOn(testContainerCatalog!, 'getAll');
-    const getAllSpyTestEndpoint = jest.spyOn(testEndpointCatalog!, 'getAll');
+    const getAllSpyComponent = vi.spyOn(componentCatalog!, 'getAll');
+    const getAllSpyPattern = vi.spyOn(patternCatalog!, 'getAll');
+    const getAllSpyEntity = vi.spyOn(entityCatalog!, 'getAll');
+    const getAllSpyKamelet = vi.spyOn(kameletCatalog!, 'getAll');
+    const getAllSpyTestAction = vi.spyOn(testActionCatalog!, 'getAll');
+    const getAllSpyTestContainer = vi.spyOn(testContainerCatalog!, 'getAll');
+    const getAllSpyTestEndpoint = vi.spyOn(testEndpointCatalog!, 'getAll');
 
     await act(async () => {
       await context?.fetchTiles();
@@ -186,10 +187,10 @@ describe('CatalogTilesProvider', () => {
 
   it('should avoid building the tiles if the catalog is empty', async () => {
     const emptyRegistry: IDynamicCatalogRegistry = {
-      setCatalog: jest.fn(),
-      getCatalog: jest.fn().mockReturnValue(undefined),
-      getEntity: jest.fn(),
-      clearRegistry: jest.fn(),
+      setCatalog: vi.fn(),
+      getCatalog: vi.fn().mockReturnValue(undefined),
+      getEntity: vi.fn(),
+      clearRegistry: vi.fn(),
     };
 
     const {
@@ -218,10 +219,10 @@ describe('CatalogTilesProvider', () => {
     const mockKameletTile = { id: 'kamelet-1', name: 'Kamelet', type: 'kamelet' };
     const mockTestAction = { id: 'action-1', name: 'Action', type: 'test-action' };
 
-    (camelComponentToTile as jest.Mock).mockReturnValue(mockComponentTile);
-    (camelProcessorToTile as jest.Mock).mockReturnValue(mockProcessorTile);
-    (kameletToTile as jest.Mock).mockReturnValue(mockKameletTile);
-    (citrusComponentToTile as jest.Mock).mockReturnValue(mockTestAction);
+    (camelComponentToTile as Mock).mockReturnValue(mockComponentTile);
+    (camelProcessorToTile as Mock).mockReturnValue(mockProcessorTile);
+    (kameletToTile as Mock).mockReturnValue(mockKameletTile);
+    (citrusComponentToTile as Mock).mockReturnValue(mockTestAction);
 
     const {
       result: { current: context },
@@ -266,10 +267,10 @@ describe('CatalogTilesProvider', () => {
     const mockKameletTile = { id: 'kamelet-1', name: 'Kamelet', type: 'kamelet' };
     const mockTestAction = { id: 'action-1', name: 'Action', type: 'test-action' };
 
-    (camelComponentToTile as jest.Mock).mockReturnValue(mockComponentTile);
-    (camelProcessorToTile as jest.Mock).mockReturnValue(mockProcessorTile);
-    (kameletToTile as jest.Mock).mockReturnValue(mockKameletTile);
-    (citrusComponentToTile as jest.Mock).mockReturnValue(mockTestAction);
+    (camelComponentToTile as Mock).mockReturnValue(mockComponentTile);
+    (camelProcessorToTile as Mock).mockReturnValue(mockProcessorTile);
+    (kameletToTile as Mock).mockReturnValue(mockKameletTile);
+    (citrusComponentToTile as Mock).mockReturnValue(mockTestAction);
 
     const {
       result: { current: context },
@@ -305,13 +306,13 @@ describe('CatalogTilesProvider', () => {
     const testContainerCatalog = mockRegistry.getCatalog(CatalogKind.TestContainer);
     const testEndpointCatalog = mockRegistry.getCatalog(CatalogKind.TestEndpoint);
 
-    const getAllSpyComponent = jest.spyOn(componentCatalog!, 'getAll');
-    const getAllSpyPattern = jest.spyOn(patternCatalog!, 'getAll');
-    const getAllSpyEntity = jest.spyOn(entityCatalog!, 'getAll');
-    const getAllSpyKamelet = jest.spyOn(kameletCatalog!, 'getAll');
-    const getAllSpyTestAction = jest.spyOn(testActionCatalog!, 'getAll');
-    const getAllSpyTestContainer = jest.spyOn(testContainerCatalog!, 'getAll');
-    const getAllSpyTestEndpoint = jest.spyOn(testEndpointCatalog!, 'getAll');
+    const getAllSpyComponent = vi.spyOn(componentCatalog!, 'getAll');
+    const getAllSpyPattern = vi.spyOn(patternCatalog!, 'getAll');
+    const getAllSpyEntity = vi.spyOn(entityCatalog!, 'getAll');
+    const getAllSpyKamelet = vi.spyOn(kameletCatalog!, 'getAll');
+    const getAllSpyTestAction = vi.spyOn(testActionCatalog!, 'getAll');
+    const getAllSpyTestContainer = vi.spyOn(testContainerCatalog!, 'getAll');
+    const getAllSpyTestEndpoint = vi.spyOn(testEndpointCatalog!, 'getAll');
 
     render(
       <CatalogContext.Provider value={mockRegistry}>

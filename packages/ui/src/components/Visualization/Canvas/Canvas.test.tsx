@@ -1,6 +1,7 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
+import { vi } from 'vitest';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
@@ -19,8 +20,8 @@ import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
 
-jest.mock('./apply-collapse-state', () => ({
-  applyCollapseState: jest.fn(),
+vi.mock('./apply-collapse-state', () => ({
+  applyCollapseState: vi.fn(),
 }));
 
 import { applyCollapseState } from './apply-collapse-state';
@@ -29,15 +30,15 @@ describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
 
   beforeEach(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should render correctly', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
@@ -54,7 +55,7 @@ describe('Canvas', () => {
     });
 
     await act(async () => {
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
     });
 
     await waitFor(async () => expect(screen.getByText('Reset View')).toBeInTheDocument());
@@ -62,11 +63,11 @@ describe('Canvas', () => {
   });
 
   it('should schedule a graph.fit(80) upon loading', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
     const controller = ControllerService.createController();
-    const fromModelSpy = jest.spyOn(controller, 'fromModel');
+    const fromModelSpy = vi.spyOn(controller, 'fromModel');
 
     await act(async () => {
       render(
@@ -80,11 +81,11 @@ describe('Canvas', () => {
 
     // The graph has been initialized with the .fromModel method, but the requestAnimationFrame
     // has not been called yet, so the graph.fit(80) is not called yet.
-    const fitSpy = jest.spyOn(controller.getGraph(), 'fit');
-    const layoutSpy = jest.spyOn(controller.getGraph(), 'layout');
+    const fitSpy = vi.spyOn(controller.getGraph(), 'fit');
+    const layoutSpy = vi.spyOn(controller.getGraph(), 'layout');
 
     await act(async () => {
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
     });
 
     expect(fromModelSpy).toHaveBeenCalledWith(
@@ -99,10 +100,10 @@ describe('Canvas', () => {
   });
 
   it('when initialized is true, runs fromModel(model, true), and applyCollapseState', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = TestProvidersWrapper();
     const controller = ControllerService.createController();
-    const fromModelSpy = jest.spyOn(controller, 'fromModel');
+    const fromModelSpy = vi.spyOn(controller, 'fromModel');
     const vizNode = await entity.toVizNode();
 
     // Stateful child so we can update entities without re-rendering Provider
@@ -123,7 +124,7 @@ describe('Canvas', () => {
       </Provider>,
     );
     await act(async () => {
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
     });
     expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), false);
 
@@ -133,7 +134,7 @@ describe('Canvas', () => {
       setVizNodesState([vizNode].slice());
     });
     await act(async () => {
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
     });
 
     expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
@@ -145,7 +146,7 @@ describe('Canvas', () => {
     camelResource.initialize();
     const routeEntities = camelResource.getVisualEntities();
     const vizNode = await routeEntities[0].toVizNode();
-    const removeSpy = jest.spyOn(camelResource, 'removeEntity');
+    const removeSpy = vi.spyOn(camelResource, 'removeEntity');
 
     const { Provider } = TestProvidersWrapper({
       camelResource,
@@ -166,7 +167,7 @@ describe('Canvas', () => {
     });
 
     await act(async () => {
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
     });
 
     const route = result?.getByText('route-8888');
@@ -205,7 +206,7 @@ describe('Canvas', () => {
     kameletResource.initialize();
     const kameletEntities = kameletResource.getVisualEntities();
     const vizNode = await kameletEntities[0].toVizNode();
-    const removeSpy = jest.spyOn(kameletResource, 'removeEntity');
+    const removeSpy = vi.spyOn(kameletResource, 'removeEntity');
 
     const { Provider } = TestProvidersWrapper({
       camelResource: kameletResource,
@@ -226,7 +227,7 @@ describe('Canvas', () => {
     });
 
     await act(async () => {
-      await jest.runAllTimersAsync();
+      await vi.runAllTimersAsync();
     });
 
     const kamelet = result?.getByText('Produces periodic events about random users!');
@@ -268,7 +269,7 @@ describe('Canvas', () => {
 
       await act(async () => {
         result = render(
-          <CatalogModalContext.Provider value={{ getNewComponent: jest.fn(), checkCompatibility: jest.fn() }}>
+          <CatalogModalContext.Provider value={{ getNewComponent: vi.fn(), checkCompatibility: vi.fn() }}>
             <Provider>
               <VisualizationProvider controller={ControllerService.createController()}>
                 <Canvas vizNodes={[vizNode]} entitiesCount={1} />
@@ -279,7 +280,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(async () => expect(screen.getByText('Open Catalog')).toBeInTheDocument());
@@ -303,7 +304,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(async () => expect(screen.queryByText('Open Catalog')).not.toBeInTheDocument());
@@ -333,7 +334,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
@@ -358,7 +359,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(async () => expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument());
@@ -382,7 +383,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
@@ -429,7 +430,7 @@ describe('Canvas', () => {
         const { Provider } = TestProvidersWrapper();
 
         const controller = ControllerService.createController();
-        const fromModelSpy = jest.spyOn(controller, 'fromModel');
+        const fromModelSpy = vi.spyOn(controller, 'fromModel');
 
         await act(async () => {
           render(
@@ -444,7 +445,7 @@ describe('Canvas', () => {
         });
 
         await act(async () => {
-          await jest.runAllTimersAsync();
+          await vi.runAllTimersAsync();
         });
 
         expect(fromModelSpy).toHaveBeenCalledWith(
@@ -472,7 +473,7 @@ describe('Canvas', () => {
       const { Provider } = TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
-      const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+      const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
       await act(async () => {
         render(
@@ -487,7 +488,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => expect(screen.getByText('Horizontal Layout')).toBeInTheDocument());
@@ -512,7 +513,7 @@ describe('Canvas', () => {
       const { Provider } = TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
-      const localStorageSetItemSpy = jest.spyOn(Storage.prototype, 'setItem');
+      const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
       await act(async () => {
         render(
@@ -527,7 +528,7 @@ describe('Canvas', () => {
       });
 
       await act(async () => {
-        await jest.runAllTimersAsync();
+        await vi.runAllTimersAsync();
       });
 
       await waitFor(() => expect(screen.getByText('Vertical Layout')).toBeInTheDocument());
@@ -565,7 +566,7 @@ describe('Canvas', () => {
         });
 
         await act(async () => {
-          await jest.runAllTimersAsync();
+          await vi.runAllTimersAsync();
         });
 
         expect(screen.queryByText('Horizontal Layout')).not.toBeInTheDocument();

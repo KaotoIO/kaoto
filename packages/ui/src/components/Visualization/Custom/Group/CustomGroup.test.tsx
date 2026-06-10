@@ -1,17 +1,18 @@
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { TestProvidersWrapper } from '../../../../stubs';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CustomGroup } from './CustomGroup';
 
-jest.mock('../Node/CustomNode', () => ({
+vi.mock('../Node/CustomNode', () => ({
   CustomNodeWithSelection: ({ element }: { element: { getId: () => string } }) => (
     <div data-testid="custom-node-collapsed">{element.getId?.() ?? 'collapsed'}</div>
   ),
 }));
 
-jest.mock('./CustomGroupExpanded', () => ({
+vi.mock('./CustomGroupExpanded', () => ({
   CustomGroupExpanded: ({ element }: { element: { getId: () => string } }) => (
     <div data-testid="custom-group-expanded">{element.getId?.() ?? 'expanded'}</div>
   ),
@@ -19,11 +20,11 @@ jest.mock('./CustomGroupExpanded', () => ({
 
 describe('CustomGroup', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should throw when element is not a Node', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const edgeElement = new BaseEdge();
 
     expect(() => {

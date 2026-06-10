@@ -1,17 +1,19 @@
+import { Mock, vi } from 'vitest';
+
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../catalog-kind';
 import { NodeTitleResolver } from './node-title-resolver';
 
-jest.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
+vi.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('NodeTitleResolver', () => {
   const mockRegistry = {
-    getEntity: jest.fn(),
+    getEntity: vi.fn(),
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue(mockRegistry);
+    vi.clearAllMocks();
+    (DynamicCatalogRegistry.get as Mock).mockReturnValue(mockRegistry);
   });
 
   describe('getComponentTitle', () => {

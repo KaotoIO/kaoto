@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';
@@ -7,13 +8,13 @@ import { VariableInputPlaceholder } from './VariableInputPlaceholder';
 
 describe('VariableInputPlaceholder', () => {
   let tree: MappingTree;
-  let mockOnConfirm: jest.Mock;
-  let mockOnCancel: jest.Mock;
+  let mockOnConfirm: Mock;
+  let mockOnCancel: Mock;
 
   beforeEach(() => {
     tree = new MappingTree(DocumentType.TARGET_BODY, 'test-doc', DocumentDefinitionType.XML_SCHEMA);
-    mockOnConfirm = jest.fn();
-    mockOnCancel = jest.fn();
+    mockOnConfirm = vi.fn();
+    mockOnCancel = vi.fn();
   });
 
   describe('add mode', () => {

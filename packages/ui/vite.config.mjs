@@ -1,6 +1,7 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+
 import packageJson from './package.json';
 import { camelCatalogPlugin } from './scripts/camel-catalog-plugin.mjs';
 import { getCatalogFiles } from './scripts/get-catalog-files.mjs';
@@ -13,10 +14,7 @@ const lastCommitInfo = await getLastCommitInfo();
 const { basePath, files: catalogFiles } = getCatalogFiles();
 
 export default defineConfig({
-  plugins: [
-    react(),
-    camelCatalogPlugin(basePath, catalogFiles),
-  ],
+  plugins: [react(), camelCatalogPlugin(basePath, catalogFiles)],
   define: {
     __GIT_HASH: JSON.stringify(lastCommitInfo.hash),
     __GIT_DATE: JSON.stringify(lastCommitInfo.date),

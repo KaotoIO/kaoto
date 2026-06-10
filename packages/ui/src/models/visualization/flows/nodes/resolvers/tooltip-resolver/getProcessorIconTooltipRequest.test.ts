@@ -1,13 +1,15 @@
+import { vi } from 'vitest';
+
 import { getProcessorIconTooltipRequest } from './getProcessorIconTooltipRequest';
 import { ProcessorIconTooltipResolver } from './processor-icon-tooltip-resolver';
 
-jest.mock('./processor-icon-tooltip-resolver');
+vi.mock('./processor-icon-tooltip-resolver');
 
 describe('getProcessorIconTooltipRequest', () => {
-  const mockGetProcessorIconTooltip = jest.mocked(ProcessorIconTooltipResolver.getProcessorIconTooltip);
+  const mockGetProcessorIconTooltip = vi.mocked(ProcessorIconTooltipResolver.getProcessorIconTooltip);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should call resolver and return tooltip for valid processors', async () => {

@@ -1,6 +1,7 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { Mock, vi } from 'vitest';
 
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';
@@ -8,7 +9,7 @@ import { TestRuntimeProviderWrapper } from '../../stubs/TestRuntimeProviderWrapp
 import { SettingsForm } from './SettingsForm';
 
 describe('SettingsForm', () => {
-  let reloadPage: jest.Mock;
+  let reloadPage: Mock;
   let settingsAdapter: AbstractSettingsAdapter;
   const { Provider: RuntimeProvider } = TestRuntimeProviderWrapper();
 
@@ -27,7 +28,7 @@ describe('SettingsForm', () => {
   };
 
   beforeEach(() => {
-    reloadPage = jest.fn();
+    reloadPage = vi.fn();
     settingsAdapter = new DefaultSettingsAdapter();
     render(<SettingsForm />, { wrapper });
   });
@@ -71,7 +72,7 @@ describe('SettingsForm', () => {
   it('should display error alert when save fails', async () => {
     // Mock saveSettings to throw an error
     const errorMessage = 'Failed to save settings to storage';
-    settingsAdapter.saveSettings = jest.fn().mockRejectedValue(new Error(errorMessage));
+    settingsAdapter.saveSettings = vi.fn().mockRejectedValue(new Error(errorMessage));
 
     await act(async () => {
       const button = screen.getByTestId('settings-form-save-btn');

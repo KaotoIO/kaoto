@@ -4,6 +4,7 @@ import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog';
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
@@ -24,10 +25,10 @@ describe('EndpointField', () => {
   ];
 
   const mockCatalogRegistry: IDynamicCatalogRegistry = {
-    getEntity: jest.fn(),
-    getCatalog: jest.fn(),
-    setCatalog: jest.fn(),
-    clearRegistry: jest.fn(),
+    getEntity: vi.fn(),
+    getCatalog: vi.fn(),
+    setCatalog: vi.fn(),
+    clearRegistry: vi.fn(),
   };
 
   const createWrapper = (
@@ -45,7 +46,7 @@ describe('EndpointField', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeAll(async () => {
@@ -65,7 +66,7 @@ describe('EndpointField', () => {
   const renderField = async (
     model: Record<string, unknown>,
     testModel: Test,
-    onPropertyChange: jest.Mock = jest.fn(),
+    onPropertyChange: Mock = vi.fn(),
     options: { disabled?: boolean; required?: boolean } = {},
   ) => {
     const camelResource = createTestResource(testModel);
@@ -133,7 +134,7 @@ describe('EndpointField', () => {
         actions: [],
       };
 
-      await renderField({ endpoint: undefined }, testModel, jest.fn(), { disabled: true });
+      await renderField({ endpoint: undefined }, testModel, vi.fn(), { disabled: true });
 
       // When disabled, the component should render but interaction should be prevented
       // Note: The Typeahead component may not set the disabled attribute on the input itself
@@ -147,7 +148,7 @@ describe('EndpointField', () => {
         actions: [],
       };
 
-      const { getInput } = await renderField({ endpoint: undefined }, testModel, jest.fn(), { required: true });
+      const { getInput } = await renderField({ endpoint: undefined }, testModel, vi.fn(), { required: true });
 
       const input = getInput();
       const formGroup = input.closest('.pf-v6-c-form__group');
@@ -202,7 +203,7 @@ describe('EndpointField', () => {
 
   describe('create endpoint', () => {
     it('should create new endpoint', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -269,7 +270,7 @@ describe('EndpointField', () => {
 
   describe('value changes', () => {
     it('should call onPropertyChange when selecting an endpoint', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -323,7 +324,7 @@ describe('EndpointField', () => {
     });
 
     it('should handle clearing the input', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -358,7 +359,7 @@ describe('EndpointField', () => {
     });
 
     it('should change selected endpoint', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -411,7 +412,7 @@ describe('EndpointField', () => {
     });
 
     it('should allow a custom endpoint name', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],

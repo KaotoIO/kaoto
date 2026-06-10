@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
 import { MappingTree, ValueSelector } from '../../../../../models/datamapper/mapping';
@@ -7,14 +8,14 @@ import { CommentModal } from './CommentModal';
 describe('CommentModal', () => {
   let tree: MappingTree;
   let mapping: ValueSelector;
-  let onCloseMock: jest.Mock;
-  let onUpdateMock: jest.Mock;
+  let onCloseMock: Mock;
+  let onUpdateMock: Mock;
 
   beforeEach(() => {
     tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     mapping = new ValueSelector(tree);
-    onCloseMock = jest.fn();
-    onUpdateMock = jest.fn();
+    onCloseMock = vi.fn();
+    onUpdateMock = vi.fn();
   });
 
   describe('Modal Visibility', () => {

@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { AddStepMode, createVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
@@ -6,8 +7,8 @@ import { usePasteStep } from '../hooks/paste-step.hook';
 import { ItemPasteStep } from './ItemPasteStep';
 
 // Mock the `usePasteStep` hook
-jest.mock('../hooks/paste-step.hook', () => ({
-  usePasteStep: jest.fn(),
+vi.mock('../hooks/paste-step.hook', () => ({
+  usePasteStep: vi.fn(),
 }));
 
 describe('ItemPasteStep', () => {
@@ -19,15 +20,15 @@ describe('ItemPasteStep', () => {
     title: '',
     description: '',
   });
-  const mockOnPasteStep = jest.fn();
+  const mockOnPasteStep = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render Paste ContextMenuItem', () => {
     // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       onPasteStep: mockOnPasteStep,
       isCompatible: true,
     });
@@ -41,7 +42,7 @@ describe('ItemPasteStep', () => {
 
   it('should not render Paste ContextMenuItem', () => {
     // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       onPasteStep: mockOnPasteStep,
       isCompatible: false,
     });
@@ -55,7 +56,7 @@ describe('ItemPasteStep', () => {
 
   it('should call onPasteStep when the context menu item is clicked', () => {
     // Mock the `usePasteStep` hook to return compatible state
-    (usePasteStep as jest.Mock).mockReturnValue({
+    (usePasteStep as Mock).mockReturnValue({
       onPasteStep: mockOnPasteStep,
       isCompatible: true,
     });

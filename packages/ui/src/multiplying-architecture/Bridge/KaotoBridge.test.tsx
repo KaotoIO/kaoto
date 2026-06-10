@@ -1,21 +1,22 @@
 import { ChannelType } from '@kie-tools-core/editor/dist/api';
 import { render } from '@testing-library/react';
 import { ComponentProps } from 'react';
+import { vi } from 'vitest';
 
 import { KaotoBridge } from './KaotoBridge';
 
 describe('KaotoBridge', () => {
-  const mockOnReady = jest.fn();
-  const mockOnStateControlCommandUpdate = jest.fn();
-  const mockSetNotifications = jest.fn();
-  const mockGetMetadata = jest.fn();
-  const mockSetMetadata = jest.fn();
-  const mockGetResourceContent = jest.fn();
-  const mockIsResourceExist = jest.fn();
-  const mockSaveResourceContent = jest.fn();
-  const mockDeleteResource = jest.fn();
-  const mockAskUserForFileSelection = jest.fn();
-  const mockGetSuggestions = jest.fn();
+  const mockOnReady = vi.fn();
+  const mockOnStateControlCommandUpdate = vi.fn();
+  const mockSetNotifications = vi.fn();
+  const mockGetMetadata = vi.fn();
+  const mockSetMetadata = vi.fn();
+  const mockGetResourceContent = vi.fn();
+  const mockIsResourceExist = vi.fn();
+  const mockSaveResourceContent = vi.fn();
+  const mockDeleteResource = vi.fn();
+  const mockAskUserForFileSelection = vi.fn();
+  const mockGetSuggestions = vi.fn();
 
   const defaultProps: ComponentProps<typeof KaotoBridge> = {
     onReady: mockOnReady,
@@ -30,12 +31,12 @@ describe('KaotoBridge', () => {
     askUserForFileSelection: mockAskUserForFileSelection,
     getSuggestions: mockGetSuggestions,
     shouldSaveSchema: false,
-    onStepUpdated: jest.fn(),
+    onStepUpdated: vi.fn(),
     channelType: ChannelType.VSCODE_DESKTOP,
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render children components', () => {

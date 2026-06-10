@@ -1,4 +1,5 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
@@ -17,7 +18,7 @@ import { ItemDeleteStep } from './ItemDeleteStep';
 describe('ItemDeleteStep', () => {
   let vizNode: IVisualizationNode;
   const mockDeleteModalContext = {
-    actionConfirmation: jest.fn(),
+    actionConfirmation: vi.fn(),
   };
 
   beforeEach(() => {
@@ -32,7 +33,7 @@ describe('ItemDeleteStep', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render delete ContextMenuItem', () => {
@@ -67,7 +68,7 @@ describe('ItemDeleteStep', () => {
   });
 
   it('should call removechild if deletion is confirmed', async () => {
-    const removeChildSpy = jest.spyOn(vizNode, 'removeChild');
+    const removeChildSpy = vi.spyOn(vizNode, 'removeChild');
     mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
     const wrapper = render(
       <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
@@ -85,9 +86,9 @@ describe('ItemDeleteStep', () => {
     const mockDeleteModalContext = {
       actionConfirmation: () => Promise.resolve(ACTION_ID_CONFIRM),
     };
-    const mockAddon = jest.fn();
+    const mockAddon = vi.fn();
     const mockNodeInteractionAddonContext = {
-      registerInteractionAddon: jest.fn(),
+      registerInteractionAddon: vi.fn(),
       getRegisteredInteractionAddons: (
         _interaction: IInteractionType,
         _vizNode?: IVisualizationNode,

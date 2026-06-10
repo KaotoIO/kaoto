@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -347,7 +349,7 @@ describe('MappingSerializerService', () => {
 
     it('should deserialize multiple indexed collection mappings on a same target collection', () => {
       const mockCrypto = { getRandomValues: () => [Math.random() * 10000] };
-      jest.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
+      vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => mockCrypto as unknown as Crypto);
       let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       ({ mappingTree } = MappingSerializerService.deserialize(
         getShipOrderToShipOrderCollectionIndexXslt(),

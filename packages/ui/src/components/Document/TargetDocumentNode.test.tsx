@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import {
   BODY_DOCUMENT_ID,
@@ -274,7 +275,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const toggleNodeSpy = jest.spyOn(TreeUIService, 'toggleNode');
+      const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -390,7 +391,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const toggleNodeSpy = jest.spyOn(TreeUIService, 'toggleNode');
+      const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -507,7 +508,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const parentClickHandler = jest.fn();
+      const parentClickHandler = vi.fn();
 
       act(() => {
         render(
@@ -684,7 +685,7 @@ describe('TargetDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const parentClickHandler = jest.fn();
+      const parentClickHandler = vi.fn();
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -720,7 +721,7 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const parentClickHandler = jest.fn();
+      const parentClickHandler = vi.fn();
 
       render(
         <div onClick={parentClickHandler}>
@@ -773,10 +774,10 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const getAllowedActionsSpy = jest
+      const getAllowedActionsSpy = vi
         .spyOn(MappingActionService, 'getAllowedActions')
         .mockReturnValue([MappingActionKind.ValueSelector]);
-      const applyValueSelectorSpy = jest.spyOn(MappingActionService, 'applyValueSelector');
+      const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
       act(() => {
         render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
@@ -804,8 +805,8 @@ describe('TargetDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const getAllowedActionsSpy = jest.spyOn(MappingActionService, 'getAllowedActions').mockReturnValue([]);
-      const applyValueSelectorSpy = jest.spyOn(MappingActionService, 'applyValueSelector');
+      const getAllowedActionsSpy = vi.spyOn(MappingActionService, 'getAllowedActions').mockReturnValue([]);
+      const applyValueSelectorSpy = vi.spyOn(MappingActionService, 'applyValueSelector');
 
       act(() => {
         render(<TargetDocumentNode treeNode={tree.root} documentId={documentNodeData.id} rank={0} />, { wrapper });
@@ -994,7 +995,7 @@ describe('TargetDocumentNode', () => {
       const fieldNode = targetDocChildren[0] as FieldItemNodeData;
       const fieldTreeNode = new DocumentTreeNode(fieldNode);
 
-      const addVariableSpy = jest.spyOn(MappingService, 'addVariable');
+      const addVariableSpy = vi.spyOn(MappingService, 'addVariable');
       const nodePath = fieldNode.path.toString();
       act(() => {
         useDocumentTreeStore.getState().setAddingVariableTo(nodePath);
@@ -1032,7 +1033,7 @@ describe('TargetDocumentNode', () => {
       const variableNodeData = new VariableNodeData(targetDocNode, variableItem);
       const variableTreeNode = new DocumentTreeNode(variableNodeData);
 
-      const updateVariableSpy = jest.spyOn(MappingService, 'updateVariable');
+      const updateVariableSpy = vi.spyOn(MappingService, 'updateVariable');
       act(() => {
         useDocumentTreeStore.getState().setRenamingVariable(variableItem.id);
       });

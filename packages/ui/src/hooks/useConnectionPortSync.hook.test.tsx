@@ -1,15 +1,16 @@
 import { act, render, renderHook } from '@testing-library/react';
 import React from 'react';
+import { Mock, vi } from 'vitest';
 
 import { DocumentTreeState, useDocumentTreeStore } from '../store/document-tree.store';
 import { useConnectionPortSync } from './useConnectionPortSync.hook';
 
 describe('useConnectionPortSync', () => {
   const documentId = 'test-document-id';
-  let mockSetNodesConnectionPorts: jest.Mock;
+  let mockSetNodesConnectionPorts: Mock;
 
   beforeEach(() => {
-    mockSetNodesConnectionPorts = jest.fn();
+    mockSetNodesConnectionPorts = vi.fn();
     useDocumentTreeStore.setState({
       nodesConnectionPorts: {},
       nodesConnectionPortsArray: {},
@@ -17,15 +18,15 @@ describe('useConnectionPortSync', () => {
     } as Partial<DocumentTreeState>);
 
     // Mock requestAnimationFrame
-    jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb) => {
+    vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb) => {
       cb(0);
       return 0;
     });
-    jest.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
+    vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('hook return value', () => {
@@ -79,7 +80,7 @@ describe('useConnectionPortSync', () => {
     });
 
     it('should query for connection port elements with correct selector', () => {
-      const querySelectorAllSpy = jest
+      const querySelectorAllSpy = vi
         .spyOn(document, 'querySelectorAll')
         .mockReturnValue([] as unknown as NodeListOf<Element>);
 
@@ -96,7 +97,7 @@ describe('useConnectionPortSync', () => {
     });
 
     it('should not set connection ports when no elements found', () => {
-      const querySelectorAllSpy = jest
+      const querySelectorAllSpy = vi
         .spyOn(document, 'querySelectorAll')
         .mockReturnValue([] as unknown as NodeListOf<Element>);
 
@@ -113,9 +114,9 @@ describe('useConnectionPortSync', () => {
     it('should skip elements without nodePath data attribute', () => {
       const mockElement = {
         dataset: {},
-        getBoundingClientRect: jest.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
+        getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -131,10 +132,10 @@ describe('useConnectionPortSync', () => {
         dataset: {
           nodePath: 'test-path:EDGE:top',
         },
-        getBoundingClientRect: jest.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
-        closest: jest.fn().mockReturnValue(null),
+        getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
+        closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -152,10 +153,10 @@ describe('useConnectionPortSync', () => {
         dataset: {
           nodePath: 'test-path:EDGE:bottom',
         },
-        getBoundingClientRect: jest.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
-        closest: jest.fn().mockReturnValue(null),
+        getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
+        closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -170,18 +171,18 @@ describe('useConnectionPortSync', () => {
 
     it('should check visibility for non-EDGE elements', () => {
       const mockContainer = {
-        getBoundingClientRect: jest.fn().mockReturnValue({ top: 0, bottom: 500 }),
+        getBoundingClientRect: vi.fn().mockReturnValue({ top: 0, bottom: 500 }),
       };
       const mockElement = {
         dataset: {
           nodePath: 'test-path',
         },
-        getBoundingClientRect: jest
+        getBoundingClientRect: vi
           .fn()
           .mockReturnValue({ x: 100, y: 200, width: 50, height: 30, top: 200, bottom: 230 }),
-        closest: jest.fn().mockReturnValue(mockContainer),
+        closest: vi.fn().mockReturnValue(mockContainer),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -197,18 +198,18 @@ describe('useConnectionPortSync', () => {
 
     it('should exclude non-visible elements', () => {
       const mockContainer = {
-        getBoundingClientRect: jest.fn().mockReturnValue({ top: 0, bottom: 100 }),
+        getBoundingClientRect: vi.fn().mockReturnValue({ top: 0, bottom: 100 }),
       };
       const mockElement = {
         dataset: {
           nodePath: 'test-path',
         },
-        getBoundingClientRect: jest
+        getBoundingClientRect: vi
           .fn()
           .mockReturnValue({ x: 100, y: 200, width: 50, height: 30, top: 200, bottom: 230 }),
-        closest: jest.fn().mockReturnValue(mockContainer),
+        closest: vi.fn().mockReturnValue(mockContainer),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -222,13 +223,13 @@ describe('useConnectionPortSync', () => {
     it('should handle multiple elements', () => {
       const mockElement1 = {
         dataset: { nodePath: 'path1:EDGE:top' },
-        getBoundingClientRect: jest.fn().mockReturnValue({ x: 0, y: 0, width: 10, height: 10 }),
+        getBoundingClientRect: vi.fn().mockReturnValue({ x: 0, y: 0, width: 10, height: 10 }),
       };
       const mockElement2 = {
         dataset: { nodePath: 'path2:EDGE:bottom' },
-        getBoundingClientRect: jest.fn().mockReturnValue({ x: 50, y: 50, width: 20, height: 20 }),
+        getBoundingClientRect: vi.fn().mockReturnValue({ x: 50, y: 50, width: 20, height: 20 }),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement1, mockElement2]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement1, mockElement2]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -245,10 +246,10 @@ describe('useConnectionPortSync', () => {
     it('should assume element is visible when no scroll container found', () => {
       const mockElement = {
         dataset: { nodePath: 'test-path' },
-        getBoundingClientRect: jest.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
-        closest: jest.fn().mockReturnValue(null),
+        getBoundingClientRect: vi.fn().mockReturnValue({ x: 100, y: 200, width: 50, height: 30 }),
+        closest: vi.fn().mockReturnValue(null),
       };
-      document.querySelectorAll = jest.fn().mockReturnValue([mockElement]);
+      document.querySelectorAll = vi.fn().mockReturnValue([mockElement]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
 
@@ -284,7 +285,7 @@ describe('useConnectionPortSync', () => {
     });
 
     it('should call syncConnectionPorts on scroll event', () => {
-      document.querySelectorAll = jest.fn().mockReturnValue([]);
+      document.querySelectorAll = vi.fn().mockReturnValue([]);
 
       const { result } = renderHook(() => useConnectionPortSync(documentId));
       const Scroller = result.current.virtuosoComponents?.Scroller as React.ComponentType<

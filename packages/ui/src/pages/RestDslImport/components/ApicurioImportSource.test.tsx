@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { ApicurioImportSource } from './ApicurioImportSource';
 
 describe('ApicurioImportSource', () => {
-  const fetchSpy = jest.spyOn(globalThis, 'fetch');
-  const mockOnSchemaLoaded = jest.fn();
+  const fetchSpy = vi.spyOn(globalThis, 'fetch');
+  const mockOnSchemaLoaded = vi.fn();
   const registryUrl = 'http://registry.example.com';
 
   afterEach(() => {
@@ -28,7 +29,7 @@ describe('ApicurioImportSource', () => {
 
     fetchSpy.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue(mockArtifacts),
+      json: vi.fn().mockResolvedValue(mockArtifacts),
     } as unknown as Response);
 
     render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
@@ -55,7 +56,7 @@ describe('ApicurioImportSource', () => {
 
     fetchSpy.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue(mockArtifacts),
+      json: vi.fn().mockResolvedValue(mockArtifacts),
     } as unknown as Response);
 
     render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
@@ -82,11 +83,11 @@ describe('ApicurioImportSource', () => {
     fetchSpy
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValue(mockArtifacts),
+        json: vi.fn().mockResolvedValue(mockArtifacts),
       } as unknown as Response)
       .mockResolvedValueOnce({
         ok: true,
-        text: jest.fn().mockResolvedValue(artifactContent),
+        text: vi.fn().mockResolvedValue(artifactContent),
       } as unknown as Response);
     mockOnSchemaLoaded.mockReturnValue({});
 
@@ -118,11 +119,11 @@ describe('ApicurioImportSource', () => {
     fetchSpy
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValue(mockArtifacts),
+        json: vi.fn().mockResolvedValue(mockArtifacts),
       } as unknown as Response)
       .mockResolvedValueOnce({
         ok: true,
-        text: jest.fn().mockResolvedValue('<html>error</html>'),
+        text: vi.fn().mockResolvedValue('<html>error</html>'),
       } as unknown as Response);
     mockOnSchemaLoaded.mockReturnValue({ error: 'Invalid OpenAPI specification.' });
 
@@ -150,7 +151,7 @@ describe('ApicurioImportSource', () => {
     fetchSpy
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValue(mockArtifacts),
+        json: vi.fn().mockResolvedValue(mockArtifacts),
       } as unknown as Response)
       .mockResolvedValueOnce({
         ok: false,
@@ -178,7 +179,7 @@ describe('ApicurioImportSource', () => {
 
     fetchSpy.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue(mockArtifacts),
+      json: vi.fn().mockResolvedValue(mockArtifacts),
     } as unknown as Response);
 
     render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
@@ -204,7 +205,7 @@ describe('ApicurioImportSource', () => {
 
     fetchSpy.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue(mockArtifacts),
+      json: vi.fn().mockResolvedValue(mockArtifacts),
     } as unknown as Response);
 
     render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
@@ -255,7 +256,7 @@ describe('ApicurioImportSource', () => {
     fetchSpy
       .mockResolvedValueOnce({
         ok: true,
-        json: jest.fn().mockResolvedValue(mockArtifacts),
+        json: vi.fn().mockResolvedValue(mockArtifacts),
       } as unknown as Response)
       .mockRejectedValueOnce('non-error rejection');
 
@@ -280,7 +281,7 @@ describe('ApicurioImportSource', () => {
 
     fetchSpy.mockResolvedValue({
       ok: true,
-      json: jest.fn().mockResolvedValue(mockArtifacts),
+      json: vi.fn().mockResolvedValue(mockArtifacts),
     } as unknown as Response);
 
     render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);

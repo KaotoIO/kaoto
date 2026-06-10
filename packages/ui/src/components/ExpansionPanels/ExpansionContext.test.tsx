@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { useContext } from 'react';
+import { vi } from 'vitest';
 
 import { ExpansionContext } from './ExpansionContext';
 
@@ -89,7 +90,7 @@ describe('ExpansionContext', () => {
     it('should have queueLayoutChange method that does nothing by default', () => {
       const TestComponent = () => {
         const context = useContext(ExpansionContext);
-        const mockCallback = jest.fn();
+        const mockCallback = vi.fn();
 
         // Should not throw
         expect(() => {
@@ -108,7 +109,7 @@ describe('ExpansionContext', () => {
     it('should have registerLayoutCallback method that does nothing by default', () => {
       const TestComponent = () => {
         const context = useContext(ExpansionContext);
-        const mockCallback = jest.fn();
+        const mockCallback = vi.fn();
 
         // Should not throw
         expect(() => {
@@ -140,7 +141,7 @@ describe('ExpansionContext', () => {
       const TestComponent = () => {
         const context = useContext(ExpansionContext);
         const mockElement = document.createElement('div');
-        const mockCallback = jest.fn();
+        const mockCallback = vi.fn();
 
         // Should not throw when calling multiple methods in sequence
         expect(() => {
@@ -162,13 +163,13 @@ describe('ExpansionContext', () => {
 
   describe('Context Provider Override', () => {
     it('should allow custom context values to override defaults', () => {
-      const mockRegister = jest.fn();
-      const mockUnregister = jest.fn();
-      const mockResize = jest.fn();
-      const mockSetExpanded = jest.fn();
-      const mockQueueLayoutChange = jest.fn();
-      const mockRegisterLayoutCallback = jest.fn();
-      const mockUnregisterLayoutCallback = jest.fn();
+      const mockRegister = vi.fn();
+      const mockUnregister = vi.fn();
+      const mockResize = vi.fn();
+      const mockSetExpanded = vi.fn();
+      const mockQueueLayoutChange = vi.fn();
+      const mockRegisterLayoutCallback = vi.fn();
+      const mockUnregisterLayoutCallback = vi.fn();
 
       const customContextValue = {
         register: mockRegister,
@@ -183,7 +184,7 @@ describe('ExpansionContext', () => {
       const TestComponent = () => {
         const context = useContext(ExpansionContext);
         const mockElement = document.createElement('div');
-        const mockCallback = jest.fn();
+        const mockCallback = vi.fn();
 
         context.register('test-id', 100, 200, mockElement, true);
         context.unregister('test-id');

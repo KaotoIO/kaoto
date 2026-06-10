@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
+import { Mock } from 'vitest';
 
 import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
 import { SourceCodeSync } from '../../providers/source-code-sync';
@@ -13,9 +14,9 @@ const wrapper = ({ children }: PropsWithChildren) => (
 
 describe('useKaotoResourceContext', () => {
   it('should be throw when use hook without provider', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => null);
+    vi.spyOn(console, 'error').mockImplementation(() => null);
     expect(() => renderHook(() => useKaotoResourceContext())).toThrow(errorMessage);
-    (console.error as jest.Mock).mockRestore();
+    (console.error as Mock).mockRestore();
   });
 
   it('should return EntityContext', () => {

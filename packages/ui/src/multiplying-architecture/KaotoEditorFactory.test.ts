@@ -1,6 +1,7 @@
-jest.mock('./KaotoEditorApp');
-jest.mock('react-router-dom');
+vi.mock('./KaotoEditorApp');
+vi.mock('react-router-dom');
 import { EditorInitArgs, KogitoEditorEnvelopeContextType } from '@kie-tools-core/editor/dist/api';
+import { vi } from 'vitest';
 
 import { CanvasLayoutDirection, ColorScheme, ISettingsModel, NodeLabelType, NodeToolbarTrigger } from '../models';
 import { KaotoEditorApp } from './KaotoEditorApp';
@@ -9,7 +10,7 @@ import { KaotoEditorFactory } from './KaotoEditorFactory';
 
 describe('KaotoEditorFactory', () => {
   afterAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should create editor', async () => {
@@ -60,8 +61,8 @@ describe('KaotoEditorFactory', () => {
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 
-    const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
-    const getCatalogURLSpy = jest.fn().mockRejectedValue(settingsModel);
+    const getVSCodeKaotoSettingsSpy = vi.fn().mockResolvedValue(settingsModel);
+    const getCatalogURLSpy = vi.fn().mockRejectedValue(settingsModel);
 
     const envelopeContext = {
       channelApi: {
@@ -82,8 +83,8 @@ describe('KaotoEditorFactory', () => {
   });
 
   it('should fallback to previous API if getVSCodeKaotoSettings is not implemented', async () => {
-    const getVSCodeKaotoSettingsSpy = jest.fn().mockImplementation(() => new Promise(() => {}));
-    const getCatalogURLSpy = jest.fn().mockResolvedValue('');
+    const getVSCodeKaotoSettingsSpy = vi.fn().mockImplementation(() => new Promise(() => {}));
+    const getCatalogURLSpy = vi.fn().mockResolvedValue('');
 
     const envelopeContext = {
       channelApi: {
@@ -131,8 +132,8 @@ describe('KaotoEditorFactory', () => {
       canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
     };
 
-    const getVSCodeKaotoSettingsSpy = jest.fn().mockResolvedValue(settingsModel);
-    const getCatalogURLSpy = jest.fn().mockRejectedValue(settingsModel);
+    const getVSCodeKaotoSettingsSpy = vi.fn().mockResolvedValue(settingsModel);
+    const getCatalogURLSpy = vi.fn().mockRejectedValue(settingsModel);
 
     const envelopeContext = {
       channelApi: {

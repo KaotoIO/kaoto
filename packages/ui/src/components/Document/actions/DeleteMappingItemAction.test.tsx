@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { ForEachItem, MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
@@ -15,7 +16,7 @@ describe('DeleteMappingItemAction', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const docData = new TargetDocumentNodeData(targetDoc, mappingTree);
     const nodeData = new MappingNodeData(docData, new ValueSelector(mappingTree));
-    const onDeleteMock = jest.fn();
+    const onDeleteMock = vi.fn();
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
@@ -50,7 +51,7 @@ describe('DeleteMappingItemAction', () => {
 
     const docData = new TargetDocumentNodeData(targetDoc, tree);
     const nodeData = new MappingNodeData(docData, tree.children[0].children[0] as ForEachItem);
-    const onDeleteMock = jest.fn();
+    const onDeleteMock = vi.fn();
     render(
       <DataMapperProvider>
         <MappingLinksProvider>

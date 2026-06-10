@@ -1,5 +1,6 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { DefaultSettingsAdapter } from '../../../../../../models/settings';
@@ -15,7 +16,7 @@ describe('MediaTypeField', () => {
 
   let settingsAdapter: DefaultSettingsAdapter;
 
-  const renderMediaTypeField = (model: Record<string, unknown> = {}, onPropertyChange = jest.fn()) => {
+  const renderMediaTypeField = (model: Record<string, unknown> = {}, onPropertyChange = vi.fn()) => {
     return render(
       <SettingsProvider adapter={settingsAdapter}>
         <ModelContextProvider model={model} onPropertyChange={onPropertyChange}>
@@ -54,7 +55,7 @@ describe('MediaTypeField', () => {
       const disabledSchema = { ...mockSchema };
       render(
         <SettingsProvider adapter={settingsAdapter}>
-          <ModelContextProvider model={{}} onPropertyChange={jest.fn()} disabled>
+          <ModelContextProvider model={{}} onPropertyChange={vi.fn()} disabled>
             <SchemaProvider schema={disabledSchema}>
               <MediaTypeField propName="mediaType" />
             </SchemaProvider>
@@ -82,7 +83,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should select a media type when clicking an option', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
@@ -103,7 +104,7 @@ describe('MediaTypeField', () => {
 
     it('should select multiple media types', async () => {
       const model: Record<string, unknown> = {};
-      const onPropertyChange = jest.fn((propName: string, value: unknown) => {
+      const onPropertyChange = vi.fn((propName: string, value: unknown) => {
         model[propName] = value;
       });
       const { rerender } = renderMediaTypeField(model, onPropertyChange);
@@ -143,7 +144,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should deselect a media type when clicking a selected option', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/json, text/plain' }, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /application\/json, text\/plain/i });
@@ -163,7 +164,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should set value to undefined when deselecting the last item', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/json' }, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /application\/json/i });
@@ -213,7 +214,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should add custom media type when clicking Add button', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
@@ -237,7 +238,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should add custom media type when pressing Enter key', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
@@ -283,7 +284,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should trim whitespace from custom media type', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
@@ -307,7 +308,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should not add empty custom media type', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /select media types/i });
@@ -364,7 +365,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should add custom media type to existing selection', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/json' }, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /application\/json/i });
@@ -510,7 +511,7 @@ describe('MediaTypeField', () => {
     });
 
     it('should not add duplicate custom media type to selection', async () => {
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/custom' }, onPropertyChange);
 
       const toggle = screen.getByRole('button', { name: /application\/custom/i });
@@ -539,7 +540,7 @@ describe('MediaTypeField', () => {
     it('should disable the toggle when field is disabled', () => {
       render(
         <SettingsProvider adapter={settingsAdapter}>
-          <ModelContextProvider model={{}} onPropertyChange={jest.fn()} disabled>
+          <ModelContextProvider model={{}} onPropertyChange={vi.fn()} disabled>
             <SchemaProvider schema={mockSchema}>
               <MediaTypeField propName="mediaType" />
             </SchemaProvider>

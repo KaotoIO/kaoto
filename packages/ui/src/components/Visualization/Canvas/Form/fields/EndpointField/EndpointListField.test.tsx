@@ -4,6 +4,7 @@ import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { CatalogContext, CatalogTilesContext } from '../../../../../../dynamic-catalog';
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
@@ -25,10 +26,10 @@ describe('EndpointListField', () => {
   ];
 
   const mockCatalogRegistry: IDynamicCatalogRegistry = {
-    getEntity: jest.fn(),
-    getCatalog: jest.fn(),
-    setCatalog: jest.fn(),
-    clearRegistry: jest.fn(),
+    getEntity: vi.fn(),
+    getCatalog: vi.fn(),
+    setCatalog: vi.fn(),
+    clearRegistry: vi.fn(),
   };
 
   const createWrapper = (
@@ -46,7 +47,7 @@ describe('EndpointListField', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeAll(async () => {
@@ -62,7 +63,7 @@ describe('EndpointListField', () => {
   };
 
   const mockActionConfirmationModalContext = {
-    actionConfirmation: jest.fn(),
+    actionConfirmation: vi.fn(),
   };
 
   const createTestResource = (testModel: Test) => new CitrusTestResource(testModel);
@@ -70,7 +71,7 @@ describe('EndpointListField', () => {
   const renderField = async (
     model: Record<string, unknown>,
     testModel: Test,
-    onPropertyChange: jest.Mock = jest.fn(),
+    onPropertyChange: Mock = vi.fn(),
     options: { disabled?: boolean; required?: boolean } = {},
   ) => {
     const camelResource = createTestResource(testModel);
@@ -196,7 +197,7 @@ describe('EndpointListField', () => {
         actions: [],
       };
 
-      await renderField({ endpoints: [] }, testModel, jest.fn(), { required: true });
+      await renderField({ endpoints: [] }, testModel, vi.fn(), { required: true });
 
       const fieldWrapper = screen.getByTestId('endpoints__field-wrapper');
       expect(fieldWrapper).toBeInTheDocument();
@@ -341,7 +342,7 @@ describe('EndpointListField', () => {
     it('should show confirmation modal when renaming an endpoint', async () => {
       mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -391,7 +392,7 @@ describe('EndpointListField', () => {
     it('should not show confirmation modal when update arbitrary properties', async () => {
       mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
 
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -441,7 +442,7 @@ describe('EndpointListField', () => {
     it('should not update endpoint when rename is cancelled', async () => {
       mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
 
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -494,7 +495,7 @@ describe('EndpointListField', () => {
     it('should remove endpoint when delete button is clicked', async () => {
       mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -549,7 +550,7 @@ describe('EndpointListField', () => {
     it('should handle deleting all endpoints', async () => {
       mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
 
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -591,7 +592,7 @@ describe('EndpointListField', () => {
     it('should not remove endpoint when deletion is canceled', async () => {
       mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CANCEL);
 
-      const onPropertyChange = jest.fn();
+      const onPropertyChange = vi.fn();
       const testModel: Test = {
         name: 'test',
         actions: [],
@@ -739,7 +740,7 @@ describe('EndpointListField', () => {
   describe('handle create or edit', () => {
     describe('validation logic', () => {
       it('should return early when type parameter is empty', async () => {
-        const onPropertyChange = jest.fn();
+        const onPropertyChange = vi.fn();
         const testModel: Test = {
           name: 'test',
           actions: [],
@@ -767,7 +768,7 @@ describe('EndpointListField', () => {
       });
 
       it('should return early when model is undefined', async () => {
-        const onPropertyChange = jest.fn();
+        const onPropertyChange = vi.fn();
         const testModel: Test = {
           name: 'test',
           actions: [],

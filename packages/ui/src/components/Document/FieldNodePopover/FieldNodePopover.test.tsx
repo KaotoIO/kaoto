@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { IField } from '../../../models/datamapper/document';
 import { DocumentNodeData, FieldNodeData } from '../../../models/datamapper/visualization';
@@ -32,7 +33,7 @@ describe('FieldNodePopover', () => {
 
   it('should not render when getField returns undefined', () => {
     const fieldNodeData = createFieldNodeData();
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(undefined);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(undefined);
 
     const { container } = render(<FieldNodePopover nodeData={fieldNodeData} />, { wrapper });
 
@@ -122,7 +123,7 @@ describe('FieldNodePopover', () => {
   it('should stop event propagation when popover button is clicked', async () => {
     const user = userEvent.setup();
     const fieldNodeData = createFieldNodeData();
-    const parentClickHandler = jest.fn();
+    const parentClickHandler = vi.fn();
 
     render(
       <div onClick={parentClickHandler}>
@@ -179,7 +180,7 @@ describe('FieldNodePopover', () => {
     const documentNodeData = new DocumentNodeData(shipOrderDoc);
     const baseField = shipOrderDoc.fields[0];
     const fieldWithDescription = { ...baseField, description: 'Test description' } as unknown as IField;
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithDescription);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithDescription);
     const fieldNodeData = new FieldNodeData(documentNodeData, baseField);
 
     render(<FieldNodePopover nodeData={fieldNodeData} />, { wrapper });
@@ -205,7 +206,7 @@ describe('FieldNodePopover', () => {
       namespaceURI: 'http://example.com/schema',
       namespacePrefix: 'ex',
     } as unknown as IField;
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithNamespace);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithNamespace);
     const fieldNodeData = new FieldNodeData(documentNodeData, baseField);
     const namespaceMap = { ex: 'http://example.com/schema' };
 
@@ -232,7 +233,7 @@ describe('FieldNodePopover', () => {
       namespaceURI: 'http://example.com/schema',
       namespacePrefix: 'ex',
     } as unknown as IField;
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithNamespace);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithNamespace);
     const fieldNodeData = new FieldNodeData(documentNodeData, baseField);
     const namespaceMap = {}; // Empty namespace map
 
@@ -255,7 +256,7 @@ describe('FieldNodePopover', () => {
     const documentNodeData = new DocumentNodeData(shipOrderDoc);
     const baseField = shipOrderDoc.fields[0];
     const attributeField = { ...baseField, isAttribute: true } as unknown as IField;
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(attributeField);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(attributeField);
     const fieldNodeData = new FieldNodeData(documentNodeData, baseField);
 
     render(<FieldNodePopover nodeData={fieldNodeData} />, { wrapper });
@@ -277,7 +278,7 @@ describe('FieldNodePopover', () => {
     const documentNodeData = new DocumentNodeData(shipOrderDoc);
     const baseField = shipOrderDoc.fields[0];
     const fieldWithWrapper = { ...baseField, wrapperKind: 'COLLECTION' } as unknown as IField;
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithWrapper);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithWrapper);
     const fieldNodeData = new FieldNodeData(documentNodeData, baseField);
 
     render(<FieldNodePopover nodeData={fieldNodeData} />, { wrapper });
@@ -303,7 +304,7 @@ describe('FieldNodePopover', () => {
       typeOverride: 'string',
       namespaceOverride: 'https://override.com',
     } as unknown as IField;
-    const getFieldSpy = jest.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithOverride);
+    const getFieldSpy = vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(fieldWithOverride);
     const fieldNodeData = new FieldNodeData(documentNodeData, baseField);
     const namespaceMap = { 'https://override.com': 'override' };
 

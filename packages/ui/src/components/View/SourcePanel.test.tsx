@@ -1,23 +1,11 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { SourcePanel } from './SourcePanel';
 
-// Mock ResizeObserver for ExpansionPanels
-beforeAll(() => {
-  globalThis.ResizeObserver = class ResizeObserver {
-    observe() {
-      // intentional noop for test mock
-    }
-    unobserve() {
-      // intentional noop for test mock
-    }
-    disconnect() {
-      // intentional noop for test mock
-    }
-  };
-});
+// Mock ResizeObserver and RAF are already handled globally in vitest-setup.ts
 
 describe('SourcePanel', () => {
   it('should render action buttons by default', () => {
@@ -46,8 +34,29 @@ describe('SourcePanel', () => {
   });
 
   it('should trigger handleLayoutChange when panel is toggled', async () => {
-    jest.useFakeTimers();
-    render(
+    vi.useFakeTimers();
+
+    // Ensure RAF is accessible in fake timer context - execute callbacks synchronously for tests
+    // Store original RAF to restore later
+    const originalRAF = globalThis.requestAnimationFrame;
+
+    // Create RAF mock that executes immediately and is accessible globally
+    const rafCallbacks: Array<FrameRequestCallback> = [];
+    const rafMock = (cb: FrameRequestCallback): number => {
+      rafCallbacks.push(cb);
+      // Execute in next microtask to avoid immediate nested execution issues
+      queueMicrotask(() => {
+        const callback = rafCallbacks.shift();
+        if (callback) callback(Date.now());
+      });
+      return rafCallbacks.length;
+    };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).requestAnimationFrame = rafMock;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).requestAnimationFrame = rafMock;
+
+    const { unmount } = render(
       <DataMapperProvider>
         <MappingLinksProvider>
           <SourcePanel />
@@ -59,21 +68,29 @@ describe('SourcePanel', () => {
     const bodyPanel = screen.getByText('Source Body').closest('.expansion-panel__summary') as HTMLElement;
     expect(bodyPanel).toBeInTheDocument();
 
-    act(() => {
-      bodyPanel.click();
-    });
-
-    // Advance timers to trigger onLayoutChange (160ms delay)
     await act(async () => {
-      jest.advanceTimersByTime(200);
+      bodyPanel.click();
+      // Advance timers to trigger onLayoutChange (160ms delay)
+      // Also run all pending timers including RAF callbacks
+      await vi.advanceTimersByTimeAsync(200);
+      await vi.runAllTimersAsync();
+      // Wait for any queued RAF callbacks
+      await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
     });
 
     // The panel should now be collapsed (data-expanded=false)
-    await waitFor(() => {
-      const panel = screen.getByText('Source Body').closest('.expansion-panel');
-      expect(panel).toHaveAttribute('data-expanded', 'false');
-    });
+    const panel = screen.getByText('Source Body').closest('.expansion-panel');
+    expect(panel).toHaveAttribute('data-expanded', 'false');
 
-    jest.useRealTimers();
+    // Clean up
+    unmount();
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined))); // Wait for cleanup RAF calls
+
+    // Restore original RAF
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (globalThis as any).requestAnimationFrame = originalRAF;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).requestAnimationFrame = originalRAF;
+    vi.useRealTimers();
   });
 });

@@ -1,6 +1,7 @@
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
 import React from 'react';
+import { vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -9,8 +10,8 @@ import { CustomNodeObserver } from './CustomNode';
 
 const mockRef = { current: null };
 
-jest.mock('@patternfly/react-topology', () => {
-  const actual = jest.requireActual('@patternfly/react-topology');
+vi.mock('@patternfly/react-topology', async () => {
+  const actual = await vi.importActual('@patternfly/react-topology');
   return {
     ...actual,
     Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
@@ -30,17 +31,17 @@ jest.mock('@patternfly/react-topology', () => {
   };
 });
 
-jest.mock('../../../../utils/processor-icon', () => ({
+vi.mock('../../../../utils/processor-icon', () => ({
   getProcessorIcon: () => null,
 }));
 
 describe('CustomNode', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should throw when element is not a Node', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const edgeElement = new BaseEdge();
 
     expect(() => {
@@ -57,7 +58,7 @@ describe('CustomNode', () => {
     parentElement.setController(controller);
     element.setController(controller);
     element.setParent(parentElement);
-    jest.spyOn(element, 'getData').mockReturnValue({});
+    vi.spyOn(element, 'getData').mockReturnValue({});
 
     const { Provider } = TestProvidersWrapper();
 
@@ -84,11 +85,11 @@ describe('CustomNode', () => {
       description: '',
       iconUrl: '',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
-    jest.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeValidationText').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
 
     const parentElement = new BaseGraph();
     const element = new BaseNode();
@@ -96,9 +97,9 @@ describe('CustomNode', () => {
     parentElement.setController(controller);
     element.setController(controller);
     element.setParent(parentElement);
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    jest.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
-    jest.spyOn(element, 'getId').mockReturnValue('node-log');
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
+    vi.spyOn(element, 'getId').mockReturnValue('node-log');
 
     const { Provider } = TestProvidersWrapper();
 

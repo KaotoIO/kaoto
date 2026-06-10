@@ -16,6 +16,7 @@
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind } from '../../../models';
 import {
@@ -182,7 +183,7 @@ describe('step-xml-serializer tests', () => {
     });
 
     it('should not call decorateDoTry when doCatch and doFinally are in the catalog', () => {
-      const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
+      const decorateDoTrySpy = vi.spyOn(StepXmlSerializer, 'decorateDoTry');
       StepXmlSerializer.serialize('doTry', doTryEntity as unknown as ElementType, getDocument());
 
       expect(decorateDoTrySpy).not.toHaveBeenCalled();
@@ -233,7 +234,7 @@ describe('step-xml-serializer tests', () => {
     });
 
     it('should call decorateDoTry when doCatch and doFinally are not in the catalog', () => {
-      const decorateDoTrySpy = jest.spyOn(StepXmlSerializer, 'decorateDoTry');
+      const decorateDoTrySpy = vi.spyOn(StepXmlSerializer, 'decorateDoTry');
       const document = getDocument();
       StepXmlSerializer.serialize('doTry', doTryEntity as unknown as ElementType, document);
 

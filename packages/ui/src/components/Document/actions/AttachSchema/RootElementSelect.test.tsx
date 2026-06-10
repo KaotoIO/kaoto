@@ -17,20 +17,20 @@ describe('RootElementSelect', () => {
 
   it('should render with selected option', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
-    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={jest.fn()} />);
+    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
     expect(getInput().value).toEqual('Order');
   });
 
   it('should reflect new selectedOption on re-render', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
     const { rerender } = render(
-      <RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={jest.fn()} />,
+      <RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />,
     );
     expect(getInput().value).toEqual('Order');
 
     const updatedOptions = createOptions(['Shipment']);
     rerender(
-      <RootElementSelect rootElementOptions={updatedOptions} selectedOption={updatedOptions[0]} onChange={jest.fn()} />,
+      <RootElementSelect rootElementOptions={updatedOptions} selectedOption={updatedOptions[0]} onChange={vi.fn()} />,
     );
     await waitFor(() => {
       expect(getInput().value).toEqual('Shipment');
@@ -39,13 +39,13 @@ describe('RootElementSelect', () => {
 
   it('should default to first option when selectedOption is undefined', async () => {
     const options = createOptions(['Order', 'Invoice']);
-    render(<RootElementSelect rootElementOptions={options} selectedOption={undefined} onChange={jest.fn()} />);
+    render(<RootElementSelect rootElementOptions={options} selectedOption={undefined} onChange={vi.fn()} />);
     expect(getInput().value).toEqual('Order');
   });
 
   it('should call onChange with the matching RootElementOption when user selects', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
     openDropdown();
@@ -60,7 +60,7 @@ describe('RootElementSelect', () => {
   it('should preserve selection when unrelated file is removed', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
     const { rerender } = render(
-      <RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={jest.fn()} />,
+      <RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={vi.fn()} />,
     );
     expect(getInput().value).toEqual('Invoice');
 
@@ -69,7 +69,7 @@ describe('RootElementSelect', () => {
       <RootElementSelect
         rootElementOptions={remainingOptions}
         selectedOption={remainingOptions[1]}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
       />,
     );
     await waitFor(() => {
@@ -80,7 +80,7 @@ describe('RootElementSelect', () => {
   it('should default to first remaining option when selected root element is removed', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
     const { rerender } = render(
-      <RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={jest.fn()} />,
+      <RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={vi.fn()} />,
     );
     expect(getInput().value).toEqual('Invoice');
 
@@ -89,7 +89,7 @@ describe('RootElementSelect', () => {
       <RootElementSelect
         rootElementOptions={remainingOptions}
         selectedOption={remainingOptions[0]}
-        onChange={jest.fn()}
+        onChange={vi.fn()}
       />,
     );
     await waitFor(() => {
@@ -102,7 +102,7 @@ describe('RootElementSelect', () => {
       { name: 'Root', namespaceUri: 'urn:ns-a' },
       { name: 'Root', namespaceUri: 'urn:ns-b' },
     ];
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[1]} onChange={onChange} />);
     expect(getInput().value).toEqual('Root');
 
@@ -122,7 +122,7 @@ describe('RootElementSelect', () => {
       { name: 'Root', namespaceUri: 'urn:ns-a' },
       { name: 'Root', namespaceUri: 'urn:ns-b' },
     ];
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
     openDropdown();
@@ -137,7 +137,7 @@ describe('RootElementSelect', () => {
 
   it('should omit description when namespaceUri is empty', async () => {
     const options = createOptions(['Order', 'Invoice'], '');
-    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={jest.fn()} />);
+    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
     const orderOption = screen.getByText('Order');
@@ -147,7 +147,7 @@ describe('RootElementSelect', () => {
 
   it('should filter options by typing', async () => {
     const options = createOptions(['Order', 'Invoice', 'Shipment']);
-    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={jest.fn()} />);
+    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
     act(() => {
@@ -165,7 +165,7 @@ describe('RootElementSelect', () => {
       { name: 'Root', namespaceUri: 'urn:ns-b' },
       { name: 'Other', namespaceUri: 'urn:ns-c' },
     ];
-    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={jest.fn()} />);
+    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
     act(() => {
@@ -178,7 +178,7 @@ describe('RootElementSelect', () => {
 
   it('should not call onChange when typing', async () => {
     const options = createOptions(['Order', 'Invoice']);
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
 
     openDropdown();
@@ -190,7 +190,7 @@ describe('RootElementSelect', () => {
 
   it('should revert to selected option label on blur', async () => {
     const options = createOptions(['Order', 'Invoice']);
-    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={jest.fn()} />);
+    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     openDropdown();
     act(() => {

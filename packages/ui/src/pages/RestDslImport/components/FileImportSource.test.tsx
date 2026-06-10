@@ -1,12 +1,13 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { FileImportSource } from './FileImportSource';
 
 describe('FileImportSource', () => {
-  const mockOnSchemaLoaded = jest.fn();
+  const mockOnSchemaLoaded = vi.fn();
 
   beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it('renders file upload component', () => {

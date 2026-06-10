@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`PipeErrorHandlerPage renders "Not applicable" when the resource type is not supported 1`] = `
+exports[`PipeErrorHandlerPage > renders "Not applicable" when the resource type is not supported 1`] = `
 <div>
   <div
     class="pf-v6-c-content"
@@ -14,7 +14,7 @@ exports[`PipeErrorHandlerPage renders "Not applicable" when the resource type is
 </div>
 `;
 
-exports[`PipeErrorHandlerPage renders the KaotoForm when the resource type is supported 1`] = `
+exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is supported 1`] = `
 <div>
   <form
     class="pf-v6-c-form kaoto-form kaoto-form__label"
@@ -256,29 +256,10 @@ exports[`PipeErrorHandlerPage renders the KaotoForm when the resource type is su
                     class="pf-v6-c-button__icon"
                   >
                     <svg
-                      aria-hidden="true"
-                      class="pf-v6-svg"
-                      fill="currentColor"
-                      height="1em"
+                      data-testid="plus-icon"
                       role="img"
-                      width="1em"
                     >
-                      <svg
-                        class="pf-v6-icon-default"
-                        viewBox="0 0 448 512"
-                      >
-                        <path
-                          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                        />
-                      </svg>
-                      <svg
-                        class="pf-v6-icon-rh-ui"
-                        viewBox="0 0 32 32"
-                      >
-                        <path
-                          d="M29 15H17V3a1 1 0 0 0-2 0v12H3a1 1 0 0 0 0 2h12v12a1 1 0 0 0 2 0V17h12a1 1 0 0 0 0-2Z"
-                        />
-                      </svg>
+                      <path />
                     </svg>
                   </span>
                 </button>

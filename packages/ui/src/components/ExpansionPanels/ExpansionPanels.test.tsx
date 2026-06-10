@@ -1,5 +1,6 @@
 import { act, render, screen } from '@testing-library/react';
 import { useContext, useEffect } from 'react';
+import { vi } from 'vitest';
 
 import { ExpansionContext } from './ExpansionContext';
 import { ExpansionPanel } from './ExpansionPanel';
@@ -172,9 +173,9 @@ describe('ExpansionPanels', () => {
 
   beforeEach(() => {
     originalResizeObserver = globalThis.ResizeObserver;
-    globalThis.ResizeObserver = jest.fn((callback) => {
+    globalThis.ResizeObserver = vi.fn(function (callback: ResizeObserverCallback) {
       mockResizeObserver = new MockResizeObserver(callback);
-      return mockResizeObserver as unknown as ResizeObserver;
+      return mockResizeObserver;
     }) as unknown as typeof ResizeObserver;
 
     globalThis.queueMicrotask ??= (callback: () => void) => {
@@ -509,7 +510,7 @@ describe('ExpansionPanels', () => {
     it('should cleanup ResizeObserver on unmount', () => {
       const { unmount } = renderPanels([{ id: 'panel-1', summary: 'Panel 1' }]);
 
-      const disconnectSpy = jest.spyOn(mockResizeObserver, 'disconnect');
+      const disconnectSpy = vi.spyOn(mockResizeObserver, 'disconnect');
 
       unmount();
 

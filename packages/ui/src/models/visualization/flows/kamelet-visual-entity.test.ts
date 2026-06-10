@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { mockRandomValues } from '../../../stubs';
 import { camelFromJson } from '../../../stubs/camel-from';
@@ -126,7 +127,7 @@ describe('KameletVisualEntity', () => {
   });
 
   it('getNodeSchema should return the component schema from the underlying AbstractCamelVisualEntity', () => {
-    const getNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
+    const getNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
     const kamelet = new KameletVisualEntity(kameletDef);
     kamelet.getNodeSchema('test-path');
@@ -146,7 +147,7 @@ describe('KameletVisualEntity', () => {
 
   describe('toVizNode', () => {
     it('should delegate to the super class toVizNode', async () => {
-      const toVizNodeSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'toVizNode');
+      const toVizNodeSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'toVizNode');
       const kamelet = new KameletVisualEntity(kameletDef);
       await kamelet.toVizNode();
 

@@ -1,11 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { useSourceCodeStore } from '../../../../store';
 import { defaultTooltipText, FlowClipboard, successTooltipText } from './FlowClipboard';
 
 Object.defineProperty(navigator, 'clipboard', {
   value: {
-    writeText: jest.fn(),
+    writeText: vi.fn(),
   },
 });
 
@@ -17,7 +18,7 @@ describe('FlowClipboard.tsx', () => {
     render(<FlowClipboard />);
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => vi.clearAllMocks());
 
   it('should be render', () => {
     const clipboardButton = screen.getByTestId('clipboardButton');
@@ -43,7 +44,7 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should set data-copied attribute to false after 2 seconds', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const clipboardButton = screen.getByTestId('clipboardButton');
 
@@ -52,12 +53,12 @@ describe('FlowClipboard.tsx', () => {
     expect(clipboardButton).toHaveAttribute('data-copied', 'true');
 
     act(() => {
-      jest.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2000);
     });
 
     expect(clipboardButton).toHaveAttribute('data-copied', 'false');
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should have default tooltip text', () => {
@@ -75,18 +76,18 @@ describe('FlowClipboard.tsx', () => {
   });
 
   it('should restore tooltip text after 2 seconds', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
 
     const clipboardButton = screen.getByTestId('clipboardButton');
 
     act(() => fireEvent.click(clipboardButton));
 
     act(() => {
-      jest.advanceTimersByTime(2000);
+      vi.advanceTimersByTime(2000);
     });
 
     expect(clipboardButton).toHaveAttribute('title', 'Copy to clipboard');
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 });

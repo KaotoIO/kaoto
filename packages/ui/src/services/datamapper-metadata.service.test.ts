@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../models/datamapper';
 import {
   IChoiceSelection,
@@ -13,25 +15,25 @@ import { JsonSchemaDocumentService } from './document/json-schema/json-schema-do
 import { EMPTY_XSL } from './mapping/mapping-serializer.service';
 
 describe('DataMapperMetadataService', () => {
-  let mockApi: jest.Mocked<IMetadataApi>;
+  let mockApi: Mocked<IMetadataApi>;
 
   beforeEach(() => {
     mockApi = {
-      getMetadata: jest.fn(),
-      setMetadata: jest.fn(),
-      getResourceContent: jest.fn(),
-      isResourceExist: jest.fn(),
-      saveResourceContent: jest.fn(),
-      deleteResource: jest.fn(),
-      askUserForFileSelection: jest.fn(),
-      getSuggestions: jest.fn(),
+      getMetadata: vi.fn(),
+      setMetadata: vi.fn(),
+      getResourceContent: vi.fn(),
+      isResourceExist: vi.fn(),
+      saveResourceContent: vi.fn(),
+      deleteResource: vi.fn(),
+      askUserForFileSelection: vi.fn(),
+      getSuggestions: vi.fn(),
       shouldSaveSchema: false,
-      onStepUpdated: jest.fn(),
-    } as jest.Mocked<IMetadataApi>;
+      onStepUpdated: vi.fn(),
+    } as Mocked<IMetadataApi>;
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('createMetadata', () => {
@@ -171,8 +173,8 @@ describe('DataMapperMetadataService', () => {
         if (path === 'param1.json') return '{"type":"object"}';
         return undefined;
       });
-
-      const spy = jest.spyOn(DataMapperMetadataService as never, 'doLoadDocument');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const spy = vi.spyOn(DataMapperMetadataService as any, 'doLoadDocument');
 
       const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
 
@@ -242,7 +244,7 @@ describe('DataMapperMetadataService', () => {
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
       };
 
-      mockApi.getResourceContent.mockImplementation((path) => {
+      mockApi.getResourceContent.mockImplementation((path: string) => {
         if (path === 'Order.schema.json') return Promise.resolve(getOrderJsonSchema());
         if (path === 'Customer.schema.json') return Promise.resolve(getCustomerJsonSchema());
         if (path === 'CommonTypes.schema.json') return Promise.resolve(getCommonTypesJsonSchema());
@@ -274,7 +276,7 @@ describe('DataMapperMetadataService', () => {
         targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
       };
 
-      mockApi.getResourceContent.mockImplementation((path) => {
+      mockApi.getResourceContent.mockImplementation((path: string) => {
         if (path === 'Order.schema.json') return Promise.resolve(getOrderJsonSchema());
         if (path === 'Customer.schema.json') return Promise.resolve(getCustomerJsonSchema());
         if (path === 'CommonTypes.schema.json') return Promise.resolve(getCommonTypesJsonSchema());
@@ -313,7 +315,7 @@ describe('DataMapperMetadataService', () => {
       };
 
       mockApi.getResourceContent.mockRejectedValue(new Error('File not found'));
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
 
@@ -901,7 +903,7 @@ describe('DataMapperMetadataService', () => {
     it('should handle file save errors gracefully', async () => {
       mockApi.shouldSaveSchema = true;
       mockApi.saveResourceContent.mockRejectedValue(new Error('Save failed'));
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
       const metadata: IDataMapperMetadata = {
         sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },

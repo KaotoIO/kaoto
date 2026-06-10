@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -922,8 +924,8 @@ describe('DocumentUtilService', () => {
         { schemaPath: '/ns0:ShipOrder/{choice:0}', selectedMemberIndex: 1 },
       ];
 
-      const typeSpy = jest.spyOn(DocumentUtilService, 'processTypeOverride');
-      const choiceSpy = jest.spyOn(DocumentUtilService, 'processChoiceSelection');
+      const typeSpy = vi.spyOn(DocumentUtilService, 'processTypeOverride');
+      const choiceSpy = vi.spyOn(DocumentUtilService, 'processChoiceSelection');
 
       try {
         DocumentUtilService.processOverrides(
@@ -1530,7 +1532,7 @@ describe('DocumentUtilService', () => {
         typeQName: null,
         namedTypeFragmentRefs: [],
       };
-      const resolveSubstituteFn = jest.fn().mockReturnValue(info);
+      const resolveSubstituteFn = vi.fn().mockReturnValue(info);
 
       DocumentUtilService.processFieldSubstitution(doc, substitution, namespaceMap, resolveSubstituteFn);
 
@@ -1546,7 +1548,7 @@ describe('DocumentUtilService', () => {
         name: 'Cat',
         originalName: 'NonExistent',
       };
-      const resolveSubstituteFn = jest.fn();
+      const resolveSubstituteFn = vi.fn();
 
       DocumentUtilService.processFieldSubstitution(doc, substitution, {}, resolveSubstituteFn);
 
@@ -1561,7 +1563,7 @@ describe('DocumentUtilService', () => {
         name: 'Cat',
         originalName: 'ns0:OrderPerson',
       };
-      const resolveSubstituteFn = jest.fn().mockReturnValue(undefined);
+      const resolveSubstituteFn = vi.fn().mockReturnValue(undefined);
       const field = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
       const originalType = field.type;
 
@@ -1588,8 +1590,8 @@ describe('DocumentUtilService', () => {
           variant: FieldOverrideVariant.FORCE,
         },
       ];
-      const substitutionSpy = jest.spyOn(DocumentUtilService, 'processFieldSubstitution');
-      const typeSpy = jest.spyOn(DocumentUtilService, 'processTypeOverride');
+      const substitutionSpy = vi.spyOn(DocumentUtilService, 'processFieldSubstitution');
+      const typeSpy = vi.spyOn(DocumentUtilService, 'processTypeOverride');
 
       try {
         DocumentUtilService.processOverrides(

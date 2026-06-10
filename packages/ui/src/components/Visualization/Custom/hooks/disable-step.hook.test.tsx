@@ -1,6 +1,7 @@
 import { setValue } from '@kaoto/forms';
 import { renderHook } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
@@ -8,8 +9,8 @@ import { createVisualizationNode } from '../../../../models/visualization/visual
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { useDisableStep } from './disable-step.hook';
 
-jest.mock('@kaoto/forms', () => ({
-  setValue: jest.fn(),
+vi.mock('@kaoto/forms', () => ({
+  setValue: vi.fn(),
 }));
 
 describe('useDisableStep', () => {
@@ -22,8 +23,8 @@ describe('useDisableStep', () => {
     entities: camelResource.getEntities(),
     visualEntities: camelResource.getVisualEntities(),
     currentSchemaType: camelResource.getType(),
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
+    updateSourceCodeFromEntities: vi.fn(),
+    updateEntitiesFromCamelResource: vi.fn(),
   };
 
   beforeEach(() => {
@@ -35,12 +36,12 @@ describe('useDisableStep', () => {
       title: '',
       description: '',
     });
-    mockVizNode.getNodeDefinition = jest.fn();
-    mockVizNode.updateModel = jest.fn();
+    mockVizNode.getNodeDefinition = vi.fn();
+    mockVizNode.updateModel = vi.fn();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -48,7 +49,7 @@ describe('useDisableStep', () => {
   );
 
   it('should return onToggleDisableNode function and isDisabled status', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: false });
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -59,7 +60,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as false when step is not disabled', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: false });
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -67,7 +68,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as true when step is disabled', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: true });
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -75,7 +76,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as false when disabled property is undefined', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({});
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({});
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -83,7 +84,7 @@ describe('useDisableStep', () => {
   });
 
   it('should return isDisabled as false when definition is undefined', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(undefined);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -92,7 +93,7 @@ describe('useDisableStep', () => {
 
   it('should enable step when currently disabled', () => {
     const mockDefinition = { disabled: true, id: 'test-step' };
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(mockDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -105,7 +106,7 @@ describe('useDisableStep', () => {
 
   it('should disable step when currently enabled', () => {
     const mockDefinition = { disabled: false, id: 'test-step' };
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(mockDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -118,7 +119,7 @@ describe('useDisableStep', () => {
 
   it('should work with empty definition object', () => {
     const mockDefinition = {};
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(mockDefinition);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(mockDefinition);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -130,7 +131,7 @@ describe('useDisableStep', () => {
   });
 
   it('should create new definition object when undefined', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue(undefined);
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue(undefined);
 
     const { result } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -142,7 +143,7 @@ describe('useDisableStep', () => {
   });
 
   it('should maintain stable reference when dependencies do not change', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: false });
 
     const { result, rerender } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
@@ -153,12 +154,12 @@ describe('useDisableStep', () => {
   });
 
   it('should update references when disabled status changes', () => {
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: false });
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: false });
 
     const { result, rerender } = renderHook(() => useDisableStep(mockVizNode), { wrapper });
 
     const firstResult = result.current;
-    mockVizNode.getNodeDefinition = jest.fn().mockReturnValue({ disabled: true });
+    mockVizNode.getNodeDefinition = vi.fn().mockReturnValue({ disabled: true });
 
     rerender();
 

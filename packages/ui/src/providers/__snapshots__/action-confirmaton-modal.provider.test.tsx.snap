@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ActionConfirmationModalProvider should allow consumers to update the modal title and text 1`] = `
+exports[`ActionConfirmationModalProvider > should allow consumers to update the modal title and text 1`] = `
 <div
   aria-labelledby="pf-modal-part-2"
   aria-modal="true"

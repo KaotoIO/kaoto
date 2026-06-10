@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MockedFunction } from 'vitest';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
@@ -18,8 +19,8 @@ import {
 import { readFileAsString } from '../../../../stubs/read-file-as-string';
 import { AttachSchemaModal } from './AttachSchemaModal';
 
-jest.mock('../../../../stubs/read-file-as-string');
-const mockReadFileAsString = readFileAsString as jest.MockedFunction<typeof readFileAsString>;
+vi.mock('../../../../stubs/read-file-as-string');
+const mockReadFileAsString = readFileAsString as MockedFunction<typeof readFileAsString>;
 
 describe('AttachSchemaModal', () => {
   afterAll(() => {
@@ -33,7 +34,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -78,7 +79,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -123,7 +124,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -159,7 +160,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -197,7 +198,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -238,7 +239,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -281,7 +282,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -320,7 +321,7 @@ describe('AttachSchemaModal', () => {
   });
 
   it('should close modal when cancel is clicked', async () => {
-    const onModalClose = jest.fn();
+    const onModalClose = vi.fn();
     render(
       <BrowserFilePickerMetadataProvider>
         <DataMapperProvider>
@@ -356,7 +357,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -394,7 +395,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.SOURCE_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -417,7 +418,7 @@ describe('AttachSchemaModal', () => {
         <DataMapperProvider>
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -464,7 +465,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -516,7 +517,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -565,7 +566,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -623,7 +624,7 @@ describe('AttachSchemaModal', () => {
         return (
           <AttachSchemaModal
             isModalOpen={true}
-            onModalClose={jest.fn()}
+            onModalClose={vi.fn()}
             documentType={DocumentType.TARGET_BODY}
             documentId={BODY_DOCUMENT_ID}
             documentReferenceId={BODY_DOCUMENT_ID}
@@ -692,7 +693,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -731,7 +732,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -803,7 +804,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -853,7 +854,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -900,7 +901,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.TARGET_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -949,7 +950,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -992,7 +993,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -1041,7 +1042,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -1092,7 +1093,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.SOURCE_BODY}
               documentId={BODY_DOCUMENT_ID}
               documentReferenceId={BODY_DOCUMENT_ID}
@@ -1113,7 +1114,7 @@ describe('AttachSchemaModal', () => {
           <DataMapperProvider>
             <AttachSchemaModal
               isModalOpen={true}
-              onModalClose={jest.fn()}
+              onModalClose={vi.fn()}
               documentType={DocumentType.PARAM}
               documentId="myParam"
               documentReferenceId="myParam"

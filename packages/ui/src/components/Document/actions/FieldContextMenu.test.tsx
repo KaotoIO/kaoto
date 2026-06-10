@@ -1,13 +1,14 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { FieldContextMenu, MenuGroup } from './FieldContextMenu';
 
 describe('FieldContextMenu', () => {
   const overrideGroup: MenuGroup = {
-    actions: [{ label: 'Override Field...', onClick: jest.fn(), testId: 'override-field' }],
+    actions: [{ label: 'Override Field...', onClick: vi.fn(), testId: 'override-field' }],
   };
 
-  const resetGroup = (onClick: jest.Mock): MenuGroup => ({
+  const resetGroup = (onClick: Mock): MenuGroup => ({
     actions: [{ label: 'Reset Override', onClick }],
   });
 
@@ -18,8 +19,8 @@ describe('FieldContextMenu', () => {
   });
 
   it('should call onClick and onClose when Override type is clicked', () => {
-    const onClick = jest.fn();
-    const onClose = jest.fn();
+    const onClick = vi.fn();
+    const onClose = vi.fn();
     const group: MenuGroup = { actions: [{ label: 'Override Field...', onClick }] };
 
     render(<FieldContextMenu groups={[group]} onClose={onClose} />);
@@ -31,14 +32,14 @@ describe('FieldContextMenu', () => {
   });
 
   it('should show Reset override option when included in groups', () => {
-    render(<FieldContextMenu groups={[overrideGroup, resetGroup(jest.fn())]} />);
+    render(<FieldContextMenu groups={[overrideGroup, resetGroup(vi.fn())]} />);
 
     expect(screen.getByText('Reset Override')).toBeInTheDocument();
   });
 
   it('should call onClick and onClose when Reset override is clicked', () => {
-    const onReset = jest.fn();
-    const onClose = jest.fn();
+    const onReset = vi.fn();
+    const onClose = vi.fn();
 
     render(<FieldContextMenu groups={[overrideGroup, resetGroup(onReset)]} onClose={onClose} />);
 
@@ -64,8 +65,8 @@ describe('FieldContextMenu', () => {
   });
 
   it('should render dividers between non-empty groups', () => {
-    const group1: MenuGroup = { actions: [{ label: 'Action 1', onClick: jest.fn() }] };
-    const group2: MenuGroup = { actions: [{ label: 'Action 2', onClick: jest.fn() }] };
+    const group1: MenuGroup = { actions: [{ label: 'Action 1', onClick: vi.fn() }] };
+    const group2: MenuGroup = { actions: [{ label: 'Action 2', onClick: vi.fn() }] };
 
     const { container } = render(<FieldContextMenu groups={[group1, group2]} />);
 
@@ -76,8 +77,8 @@ describe('FieldContextMenu', () => {
     const buildChoiceMemberGroups = (
       members: string[],
       selectedIndex?: number,
-      onSelect = jest.fn(),
-      onClear = jest.fn(),
+      onSelect = vi.fn(),
+      onClear = vi.fn(),
     ): MenuGroup[] => {
       const ChoicesIcon = () => <span data-testid="choices-icon" />;
       const CheckIcon = () => <span data-testid="check-icon" />;
@@ -129,8 +130,8 @@ describe('FieldContextMenu', () => {
     });
 
     it('should call onSelectChoiceMember with index when member is clicked', () => {
-      const onSelect = jest.fn();
-      const onClose = jest.fn();
+      const onSelect = vi.fn();
+      const onClose = vi.fn();
       const groups = buildChoiceMemberGroups(['Email', 'Phone', 'Fax'], undefined, onSelect);
 
       render(<FieldContextMenu groups={groups} onClose={onClose} />);
@@ -142,9 +143,9 @@ describe('FieldContextMenu', () => {
     });
 
     it('should call onClearChoice and onClose when Show All Choice Options is clicked', () => {
-      const onClear = jest.fn();
-      const onClose = jest.fn();
-      const groups = buildChoiceMemberGroups(['Email', 'Phone'], undefined, jest.fn(), onClear);
+      const onClear = vi.fn();
+      const onClose = vi.fn();
+      const groups = buildChoiceMemberGroups(['Email', 'Phone'], undefined, vi.fn(), onClear);
 
       render(<FieldContextMenu groups={groups} onClose={onClose} />);
 
@@ -155,13 +156,13 @@ describe('FieldContextMenu', () => {
     });
 
     it('should show Select Member... for large choice lists', () => {
-      const onOpenModal = jest.fn();
-      const onClose = jest.fn();
+      const onOpenModal = vi.fn();
+      const onClose = vi.fn();
       const modalGroup: MenuGroup = {
         actions: [{ label: 'Select Member...', onClick: onOpenModal, testId: 'open-choice-modal' }],
       };
       const clearGroup: MenuGroup = {
-        actions: [{ label: 'Show All Choice Options', onClick: jest.fn(), testId: 'clear-choice' }],
+        actions: [{ label: 'Show All Choice Options', onClick: vi.fn(), testId: 'clear-choice' }],
       };
 
       render(<FieldContextMenu groups={[modalGroup, clearGroup]} onClose={onClose} />);
@@ -187,7 +188,7 @@ describe('FieldContextMenu', () => {
   describe('Selected choice context menu (Case B)', () => {
     it('should show Show All Choice Options above Override Field', () => {
       const clearGroup: MenuGroup = {
-        actions: [{ label: 'Show All Choice Options', onClick: jest.fn(), testId: 'clear-choice' }],
+        actions: [{ label: 'Show All Choice Options', onClick: vi.fn(), testId: 'clear-choice' }],
       };
 
       render(<FieldContextMenu groups={[clearGroup, overrideGroup]} />);
@@ -197,8 +198,8 @@ describe('FieldContextMenu', () => {
     });
 
     it('should call onClearChoice when Show All Choice Options is clicked', () => {
-      const onClear = jest.fn();
-      const onClose = jest.fn();
+      const onClear = vi.fn();
+      const onClose = vi.fn();
       const clearGroup: MenuGroup = {
         actions: [{ label: 'Show All Choice Options', onClick: onClear, testId: 'clear-choice' }],
       };
@@ -215,7 +216,7 @@ describe('FieldContextMenu', () => {
   describe('Choice member context menu (Case C)', () => {
     it('should show Select with member name above Override Field', () => {
       const selectGroup: MenuGroup = {
-        actions: [{ label: "Select 'Fax'", onClick: jest.fn(), testId: 'select-choice-member' }],
+        actions: [{ label: "Select 'Fax'", onClick: vi.fn(), testId: 'select-choice-member' }],
       };
 
       render(<FieldContextMenu groups={[selectGroup, overrideGroup]} />);
@@ -227,7 +228,7 @@ describe('FieldContextMenu', () => {
     it('should include parent wrapper name when provided', () => {
       const selectAction = {
         label: "Select 'Fax' in 'contactChoice'",
-        onClick: jest.fn(),
+        onClick: vi.fn(),
         testId: 'select-choice-member',
       };
       const selectGroup: MenuGroup = { actions: [selectAction] };
@@ -238,8 +239,8 @@ describe('FieldContextMenu', () => {
     });
 
     it('should call onSelectSelfAsChoiceMember when Select is clicked', () => {
-      const onSelectSelf = jest.fn();
-      const onClose = jest.fn();
+      const onSelectSelf = vi.fn();
+      const onClose = vi.fn();
       const selectGroup: MenuGroup = {
         actions: [{ label: "Select 'Fax'", onClick: onSelectSelf, testId: 'select-choice-member' }],
       };

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, IExpressionHolder, MappingItem, MappingTree, ValueSelector } from '../../models/datamapper';
 import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
@@ -7,11 +8,17 @@ import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { XPathEditorLayout } from './XPathEditorLayout';
 
 // Shared test setup
-globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
-}));
+globalThis.ResizeObserver = class ResizeObserver {
+  observe() {
+    // intentional noop for test mock
+  }
+  unobserve() {
+    // intentional noop for test mock
+  }
+  disconnect() {
+    // intentional noop for test mock
+  }
+};
 
 const createTestMapping = () => {
   const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
@@ -20,7 +27,7 @@ const createTestMapping = () => {
   return mapping;
 };
 
-const setupComponent = (mapping: IExpressionHolder & MappingItem, onUpdate: jest.Mock) => {
+const setupComponent = (mapping: IExpressionHolder & MappingItem, onUpdate: Mock) => {
   return render(
     <DataMapperProvider>
       <MappingLinksProvider>
@@ -32,7 +39,7 @@ const setupComponent = (mapping: IExpressionHolder & MappingItem, onUpdate: jest
 
 describe('XPathEditorLayout - Search Field', () => {
   const mapping = createTestMapping();
-  const onUpdate = jest.fn();
+  const onUpdate = vi.fn();
   const setup = () => setupComponent(mapping, onUpdate);
 
   it('renders the search field', () => {
@@ -85,7 +92,7 @@ describe('XPathEditorLayout - Search Field', () => {
 
 describe('XPathEditorLayout - Collapsible MenuGroups', () => {
   const mapping = createTestMapping();
-  const onUpdate = jest.fn();
+  const onUpdate = vi.fn();
   const setup = () => setupComponent(mapping, onUpdate);
 
   beforeEach(() => {

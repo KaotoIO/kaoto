@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`VisibleFlowsProvider should initialize visible flows correctly 1`] = `
+exports[`VisibleFlowsProvider > should initialize visible flows correctly 1`] = `
 <DocumentFragment>
   <div
     data-testid="visible-flows"
@@ -17,7 +17,7 @@ exports[`VisibleFlowsProvider should initialize visible flows correctly 1`] = `
 </DocumentFragment>
 `;
 
-exports[`VisibleFlowsProvider should initialize visible flows with an empty context 1`] = `
+exports[`VisibleFlowsProvider > should initialize visible flows with an empty context 1`] = `
 <DocumentFragment>
   <div
     data-testid="visible-flows"
