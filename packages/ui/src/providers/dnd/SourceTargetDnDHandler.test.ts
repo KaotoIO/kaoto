@@ -1,4 +1,5 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { Mock, vi } from 'vitest';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { NodeData } from '../../models/datamapper/visualization';
@@ -6,16 +7,16 @@ import { MappingActionService } from '../../services/visualization/mapping-actio
 import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
 import { SourceTargetDnDHandler } from './SourceTargetDnDHandler';
 
-jest.mock('../../services/visualization/mapping-validation.service', () => ({
+vi.mock('../../services/visualization/mapping-validation.service', () => ({
   MappingValidationService: {
-    validateMappingPair: jest.fn(),
-    isDraggable: jest.fn(),
+    validateMappingPair: vi.fn(),
+    isDraggable: vi.fn(),
   },
 }));
 
-jest.mock('../../services/visualization/mapping-action.service', () => ({
+vi.mock('../../services/visualization/mapping-action.service', () => ({
   MappingActionService: {
-    engageMapping: jest.fn(),
+    engageMapping: vi.fn(),
   },
 }));
 
@@ -28,19 +29,19 @@ const makeDragEvent = (fromNode?: NodeData, toNode?: NodeData) =>
 describe('SourceTargetDnDHandler', () => {
   let handler: SourceTargetDnDHandler;
   let mockMappingTree: MappingTree;
-  let mockOnUpdate: jest.Mock;
-  let mockValidateMappingPair: jest.Mock;
-  let mockEngageMapping: jest.Mock;
-  let mockIsDraggable: jest.Mock;
+  let mockOnUpdate: Mock;
+  let mockValidateMappingPair: Mock;
+  let mockEngageMapping: Mock;
+  let mockIsDraggable: Mock;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     handler = new SourceTargetDnDHandler();
     mockMappingTree = {} as MappingTree;
-    mockOnUpdate = jest.fn();
-    mockValidateMappingPair = MappingValidationService.validateMappingPair as jest.Mock;
-    mockEngageMapping = MappingActionService.engageMapping as jest.Mock;
-    mockIsDraggable = MappingValidationService.isDraggable as jest.Mock;
+    mockOnUpdate = vi.fn();
+    mockValidateMappingPair = MappingValidationService.validateMappingPair as Mock;
+    mockEngageMapping = MappingActionService.engageMapping as Mock;
+    mockIsDraggable = MappingValidationService.isDraggable as Mock;
   });
 
   describe('handleDragEnd', () => {

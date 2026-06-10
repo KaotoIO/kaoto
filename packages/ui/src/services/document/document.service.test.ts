@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -32,7 +34,7 @@ describe('DocumentService', () => {
   describe('createDocument()', () => {
     it('should create a XML schema document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        getResourceContent: vi.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
                    <xs:element name="test" type="xs:string" />
                  </xs:schema>`),
       };
@@ -56,7 +58,7 @@ describe('DocumentService', () => {
 
     it('should create XML schema document with multiple root elements', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -81,7 +83,7 @@ describe('DocumentService', () => {
 
     it('should return error if XML schema is not parseable', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(JSON.stringify({ type: 'string' })),
+        getResourceContent: vi.fn().mockResolvedValue(JSON.stringify({ type: 'string' })),
       };
 
       const result = await DocumentService.createDocument(
@@ -100,7 +102,7 @@ describe('DocumentService', () => {
 
     it('should create a JSON schema document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(JSON.stringify({ type: 'string' })),
+        getResourceContent: vi.fn().mockResolvedValue(JSON.stringify({ type: 'string' })),
       };
 
       const result = await DocumentService.createDocument(
@@ -120,7 +122,7 @@ describe('DocumentService', () => {
 
     it('should return error if JSON schema is not parseable', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        getResourceContent: vi.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
                    <xs:element name="test" type="xs:string" />
                  </xs:schema>`),
       };
@@ -141,7 +143,7 @@ describe('DocumentService', () => {
 
     it('should return error if file content is empty', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(''),
+        getResourceContent: vi.fn().mockResolvedValue(''),
       };
 
       const result = await DocumentService.createDocument(
@@ -430,7 +432,7 @@ describe('DocumentService', () => {
   describe('hasChildren()', () => {
     it('should return false for attributes even with namedTypeFragmentRefs', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        getResourceContent: vi.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
                    <xs:complexType name="TestType">
                      <xs:attribute name="testAttr" type="xs:string" />
                    </xs:complexType>
@@ -476,7 +478,7 @@ describe('DocumentService', () => {
 
     it('should return false for elements without children', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        getResourceContent: vi.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
                    <xs:element name="simpleElement" type="xs:string" />
                  </xs:schema>`),
       };
@@ -516,7 +518,7 @@ describe('DocumentService', () => {
 
     it('should identify members of collection choice as collection fields', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getTestDocumentXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getTestDocumentXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -560,7 +562,7 @@ describe('DocumentService', () => {
 
     it('should not treat members of non-collection choice as collection fields', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getTestDocumentXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getTestDocumentXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -597,7 +599,7 @@ describe('DocumentService', () => {
   describe('isFieldInsideCollectionChoiceWrapper()', () => {
     it('should return true for fields inside collection choice wrapper', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getTestDocumentXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getTestDocumentXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -619,7 +621,7 @@ describe('DocumentService', () => {
 
     it('should return false for fields inside non-collection choice wrapper', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getTestDocumentXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getTestDocumentXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -648,7 +650,7 @@ describe('DocumentService', () => {
   describe('createDocument() error handling', () => {
     it('should handle API errors gracefully', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockRejectedValue(new Error('Network error')),
+        getResourceContent: vi.fn().mockRejectedValue(new Error('Network error')),
       };
 
       const result = await DocumentService.createDocument(
@@ -667,7 +669,7 @@ describe('DocumentService', () => {
 
     it('should handle malformed JSON for JSON schema', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue('{invalid json'),
+        getResourceContent: vi.fn().mockResolvedValue('{invalid json'),
       };
 
       const result = await DocumentService.createDocument(
@@ -687,7 +689,7 @@ describe('DocumentService', () => {
     it('should handle invalid XML content that looks valid initially', async () => {
       // Mock XML that passes initial validation but fails during processing
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        getResourceContent: vi.fn().mockResolvedValue(`<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
                    <xs:element name="test" type="xs:invalid-type" />
                  </xs:schema>`),
       };
@@ -709,7 +711,7 @@ describe('DocumentService', () => {
   describe('createDocument() with multiple files', () => {
     it('should handle multiple schema files', async () => {
       const mockApi = {
-        getResourceContent: jest
+        getResourceContent: vi
           .fn()
           .mockResolvedValueOnce(
             `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns1" xmlns:tns="http://example.com/ns1">
@@ -764,7 +766,7 @@ describe('DocumentService', () => {
 
     it('should return QName for XML schema document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -799,7 +801,7 @@ describe('DocumentService', () => {
 
     it('should create new document with different root element for XML schema documents', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -835,7 +837,7 @@ describe('DocumentService', () => {
 
     it('should clear fieldTypeOverrides and choiceSelections from the definition when root element changes', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -941,7 +943,7 @@ describe('DocumentService', () => {
 
     it('should rename a XML document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getMultipleElementsXsd()),
+        getResourceContent: vi.fn().mockResolvedValue(getMultipleElementsXsd()),
       };
 
       const result = await DocumentService.createDocument(
@@ -966,7 +968,7 @@ describe('DocumentService', () => {
 
     it('should rename a JSON document', async () => {
       const mockApi = {
-        getResourceContent: jest.fn().mockResolvedValue(getCartJsonSchema()),
+        getResourceContent: vi.fn().mockResolvedValue(getCartJsonSchema()),
       };
 
       const result = await DocumentService.createDocument(

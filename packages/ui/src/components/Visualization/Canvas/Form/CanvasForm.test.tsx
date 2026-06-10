@@ -3,6 +3,7 @@ import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, CanvasFormTabsProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import {
   CamelCatalogService,
@@ -55,7 +56,7 @@ describe('CanvasForm', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render', async () => {
@@ -117,8 +118,8 @@ describe('CanvasForm', () => {
       },
     };
 
-    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
     const { Provider } = TestProvidersWrapper();
     const { container } = await act(async () =>
@@ -155,8 +156,8 @@ describe('CanvasForm', () => {
       },
     };
 
-    jest.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
-    jest.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
+    vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
+    vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
 
     const { Provider } = TestProvidersWrapper();
     const { container } = await act(async () =>
@@ -174,7 +175,7 @@ describe('CanvasForm', () => {
 
   it("should serialize empty strings `''` as `undefined`", async () => {
     const flowId = camelRouteVisualEntity.id;
-    const dispatchSpy = jest.fn();
+    const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
@@ -189,7 +190,7 @@ describe('CanvasForm', () => {
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
-              setSelectedTab: jest.fn(),
+              setSelectedTab: vi.fn(),
             }}
           >
             <CanvasForm selectedNode={selectedNode} />
@@ -213,7 +214,7 @@ describe('CanvasForm', () => {
 
   it("should serialize empty strings(with space characters) `' '` as `undefined`", async () => {
     const flowId = camelRouteVisualEntity.id;
-    const dispatchSpy = jest.fn();
+    const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
@@ -228,7 +229,7 @@ describe('CanvasForm', () => {
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
-              setSelectedTab: jest.fn(),
+              setSelectedTab: vi.fn(),
             }}
           >
             <CanvasForm selectedNode={selectedNode} />
@@ -253,7 +254,7 @@ describe('CanvasForm', () => {
   it('should allow consumers to update the Camel Route ID', async () => {
     const flowId = camelRouteVisualEntity.id;
     const newName = 'MyNewId';
-    const dispatchSpy = jest.fn();
+    const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
@@ -268,7 +269,7 @@ describe('CanvasForm', () => {
           <CanvasFormTabsContext.Provider
             value={{
               selectedTab: 'All',
-              setSelectedTab: jest.fn(),
+              setSelectedTab: vi.fn(),
             }}
           >
             <CanvasForm selectedNode={selectedNode} />
@@ -295,7 +296,7 @@ describe('CanvasForm', () => {
     const kameletVisualEntity = new KameletVisualEntity(kameletJson);
     const flowId = kameletVisualEntity.id;
     const newName = 'MyNewName';
-    const dispatchSpy = jest.fn();
+    const dispatchSpy = vi.fn();
     const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];

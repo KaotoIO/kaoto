@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { EntitiesContextResult } from '../../../../../providers/entities.provider';
 import { VisibleFlowsContextResult } from '../../../../../providers/visible-flows.provider';
@@ -33,7 +34,7 @@ describe('DirectEndpointNameField hooks', () => {
     ];
 
     it('lists and sorts direct endpoint names from entities', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
 
       const { result } = renderHook(() =>
         useDirectEndpointNameOptions({
@@ -50,7 +51,7 @@ describe('DirectEndpointNameField hooks', () => {
     });
 
     it('handles typeahead callbacks', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const { result } = renderHook(() =>
         useDirectEndpointNameOptions({
           value: 'start',
@@ -72,10 +73,10 @@ describe('DirectEndpointNameField hooks', () => {
 
   describe('useCreateDirectRoute', () => {
     it('creates a route for a new direct name', () => {
-      const onChange = jest.fn();
-      const addNewEntity = jest.fn().mockReturnValue('new-route-id');
-      const toggleFlowVisible = jest.fn();
-      const updateEntitiesFromCamelResource = jest.fn();
+      const onChange = vi.fn();
+      const addNewEntity = vi.fn().mockReturnValue('new-route-id');
+      const toggleFlowVisible = vi.fn();
+      const updateEntitiesFromCamelResource = vi.fn();
       const entitiesContext = {
         camelResource: { addNewEntity },
         updateEntitiesFromCamelResource,
@@ -108,7 +109,7 @@ describe('DirectEndpointNameField hooks', () => {
     });
 
     it('disables route creation for existing names', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const { result } = renderHook(() =>
         useCreateDirectRoute({
           disabled: false,
@@ -124,7 +125,7 @@ describe('DirectEndpointNameField hooks', () => {
     });
 
     it('allows route creation when the name is only referenced but has no direct from route', () => {
-      const onChange = jest.fn();
+      const onChange = vi.fn();
       const { result } = renderHook(() =>
         useCreateDirectRoute({
           disabled: false,

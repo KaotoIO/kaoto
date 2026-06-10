@@ -1,5 +1,6 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { SourceSchemaType } from '../../../models/camel';
 import { RuntimeContext } from '../../../providers';
@@ -8,8 +9,8 @@ import { CatalogSchemaLoader } from '../../../utils';
 import { ConfirmIntegrationTypeChangeModal } from './ConfirmIntegrationTypeChangeModal';
 
 describe('ConfirmIntegrationTypeChangeModal', () => {
-  let mockSetSelectedCatalog = jest.fn();
-  let onClose = jest.fn();
+  let mockSetSelectedCatalog = vi.fn();
+  let onClose = vi.fn();
 
   const mockCamelCatalog: CatalogLibraryEntry = {
     name: 'Camel Main',
@@ -54,8 +55,8 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   };
 
   beforeEach(() => {
-    mockSetSelectedCatalog = jest.fn();
-    onClose = jest.fn();
+    mockSetSelectedCatalog = vi.fn();
+    onClose = vi.fn();
   });
 
   it('should be hidden when proposedFlowType is undefined', () => {

@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { vi } from 'vitest';
 
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { citrusTestJson } from '../../../stubs/citrus-test';
@@ -152,7 +153,7 @@ describe('CitrusTestVisualEntity', () => {
     });
 
     it('should return the component schema', () => {
-      const spy = jest.spyOn(CitrusTestSchemaService, 'extractTestActionName');
+      const spy = vi.spyOn(CitrusTestSchemaService, 'extractTestActionName');
       spy.mockReturnValueOnce('print');
 
       citrusTestEntity.getNodeSchema('actions.0.print');
@@ -855,7 +856,7 @@ describe('CitrusTestVisualEntity', () => {
       setValue(invalidModel, 'actions[0].print.message', undefined);
       const entity = new CitrusTestVisualEntity(invalidModel);
 
-      const spy = jest.spyOn(CitrusTestSchemaService, 'extractTestActionName');
+      const spy = vi.spyOn(CitrusTestSchemaService, 'extractTestActionName');
       spy.mockReturnValueOnce('print');
 
       const result = entity.getNodeValidationText('actions.0.print');

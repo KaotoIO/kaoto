@@ -1,9 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { ExportMappingFileDropdownItem } from './ExportMappingFileDropdownItem';
 
 describe('ExportMappingFileDropdownItem', () => {
-  const mockOnClick = jest.fn();
+  const mockOnClick = vi.fn();
 
   beforeEach(() => {
     mockOnClick.mockClear();

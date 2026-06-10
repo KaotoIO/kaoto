@@ -1,14 +1,15 @@
 import { SchemaContext } from '@kaoto/forms';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { vi } from 'vitest';
 
 import { EndpointPropertiesField } from './EndpointPropertiesField';
 
-const mockOnChange = jest.fn();
-const mockUseFieldValue = jest.fn();
+const mockOnChange = vi.fn();
+const mockUseFieldValue = vi.fn();
 
-jest.mock('@kaoto/forms', () => ({
-  ...jest.requireActual('@kaoto/forms'),
+vi.mock('@kaoto/forms', async () => ({
+  ...(await vi.importActual('@kaoto/forms')),
   ObjectField: ({ propName, required }: { propName: string; required?: boolean }) => (
     <div data-testid={`object-field-${propName}`} data-required={required}>
       ObjectField: {propName}

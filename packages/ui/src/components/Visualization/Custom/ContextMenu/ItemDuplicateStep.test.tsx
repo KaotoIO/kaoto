@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { createVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
@@ -6,8 +7,8 @@ import { useDuplicateStep } from '../hooks/duplicate-step.hook';
 import { ItemDuplicateStep } from './ItemDuplicateStep';
 
 // Mock the `useDuplicateStep` hook
-jest.mock('../hooks/duplicate-step.hook', () => ({
-  useDuplicateStep: jest.fn(),
+vi.mock('../hooks/duplicate-step.hook', () => ({
+  useDuplicateStep: vi.fn(),
 }));
 
 describe('ItemDuplicateStep', () => {
@@ -19,15 +20,15 @@ describe('ItemDuplicateStep', () => {
     title: '',
     description: '',
   });
-  const mockOnDuplicate = jest.fn();
+  const mockOnDuplicate = vi.fn();
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render Duplicate ContextMenuItem', () => {
     // Mock the `useDuplicateStep` hook to return compatible state
-    (useDuplicateStep as jest.Mock).mockReturnValue({
+    (useDuplicateStep as Mock).mockReturnValue({
       onDuplicate: mockOnDuplicate,
       canDuplicate: true,
     });
@@ -39,7 +40,7 @@ describe('ItemDuplicateStep', () => {
 
   it('should not render Paste ContextMenuItem', () => {
     // Mock the `useDuplicateStep` hook to return compatible state
-    (useDuplicateStep as jest.Mock).mockReturnValue({
+    (useDuplicateStep as Mock).mockReturnValue({
       onDuplicate: mockOnDuplicate,
       canDuplicate: false,
     });
@@ -51,7 +52,7 @@ describe('ItemDuplicateStep', () => {
 
   it('should call onDuplicate when the context menu item is clicked', () => {
     // Mock the `useDuplicateStep` hook to return compatible state
-    (useDuplicateStep as jest.Mock).mockReturnValue({
+    (useDuplicateStep as Mock).mockReturnValue({
       onDuplicate: mockOnDuplicate,
       canDuplicate: true,
     });

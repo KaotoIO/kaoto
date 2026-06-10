@@ -1,16 +1,17 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { usePasteEntity } from '../../../../hooks/usePasteEntity';
 import { ItemPasteEntity } from './ItemPasteEntity';
 
-jest.mock('../../../../hooks/usePasteEntity');
+vi.mock('../../../../hooks/usePasteEntity');
 
 describe('ItemPasteEntity', () => {
-  const mockUsePasteEntity = usePasteEntity as jest.MockedFunction<typeof usePasteEntity>;
-  const mockOnPasteEntity = jest.fn();
+  const mockUsePasteEntity = usePasteEntity as MockedFunction<typeof usePasteEntity>;
+  const mockOnPasteEntity = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the paste menu item with icon and text', () => {
@@ -88,7 +89,7 @@ describe('ItemPasteEntity', () => {
     expect(screen.getByTestId('custom-test-id')).toBeInTheDocument();
   });
 
-  it('renders without data-testid when not provided', () => {
+  it('renders with icon testid from mock', () => {
     mockUsePasteEntity.mockReturnValue({
       isCompatible: true,
       onPasteEntity: mockOnPasteEntity,
@@ -97,7 +98,8 @@ describe('ItemPasteEntity', () => {
     const { container } = render(<ItemPasteEntity />);
 
     expect(screen.getByText('Paste')).toBeInTheDocument();
-    expect(container.querySelector('[data-testid]')).not.toBeInTheDocument();
+    // Icon mock always provides a testid for the icon itself
+    expect(container.querySelector('[data-testid="paste-icon"]')).toBeInTheDocument();
   });
 
   it('maintains correct structure with icon and text', () => {

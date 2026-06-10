@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { vi } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingTree } from '../../../models/datamapper/mapping';
@@ -26,8 +27,8 @@ const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (
 
 describe('DebugLayout', () => {
   afterAll(() => {
-    jest.resetModules();
-    jest.resetAllMocks();
+    vi.resetModules();
+    vi.resetAllMocks();
   });
 
   afterEach(() => {
@@ -62,7 +63,7 @@ describe('DebugLayout', () => {
       }, [mappingTree, sourceBodyDocument, sourceParameterMap]);
       return <>{children}</>;
     };
-    const mockDebug = jest.fn();
+    const mockDebug = vi.fn();
     console.debug = mockDebug;
     render(
       <TestProviders>
@@ -98,7 +99,7 @@ describe('DebugLayout', () => {
       }, []);
       return <>{children}</>;
     };
-    console.debug = jest.fn();
+    console.debug = vi.fn();
     render(
       <TestProviders>
         <LoadMappings>
@@ -143,7 +144,7 @@ describe('DebugLayout', () => {
         }, [mappingTree]);
         return <>{children}</>;
       };
-      const mockDebug = jest.fn();
+      const mockDebug = vi.fn();
       console.debug = mockDebug;
       render(
         <TestProviders>
@@ -218,8 +219,8 @@ describe('DebugLayout', () => {
         }, []);
         return <>{children}</>;
       };
-      const mockLog = jest.fn();
-      const mockDebug = jest.fn();
+      const mockLog = vi.fn();
+      const mockDebug = vi.fn();
       console.log = mockLog;
       console.debug = mockDebug;
       render(

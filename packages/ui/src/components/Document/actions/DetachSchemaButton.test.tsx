@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { vi } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType, IDocument, PrimitiveDocument } from '../../../models/datamapper/document';
@@ -86,8 +87,8 @@ describe('DetachSchemaButton', () => {
   });
 
   it('should handle detach with parameter document type', async () => {
-    const mockSendAlert = jest.fn();
-    const mockUpdateDocument = jest.fn();
+    const mockSendAlert = vi.fn();
+    const mockUpdateDocument = vi.fn();
 
     const DetachTestParam: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const dataMapper = useDataMapper();
@@ -125,8 +126,8 @@ describe('DetachSchemaButton', () => {
   });
 
   it('should handle detach with target body document type', async () => {
-    const mockSendAlert = jest.fn();
-    const mockUpdateDocument = jest.fn();
+    const mockSendAlert = vi.fn();
+    const mockUpdateDocument = vi.fn();
 
     const DetachTestTarget: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const dataMapper = useDataMapper();
@@ -165,13 +166,13 @@ describe('DetachSchemaButton', () => {
 
   it('should handle error when document creation fails', async () => {
     // Mock DocumentService to simulate failure
-    const mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
+    const mockCreatePrimitiveDocument = vi.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'error',
       errors: [{ message: 'Failed to create primitive document' }],
     });
 
-    const mockSendAlert = jest.fn();
+    const mockSendAlert = vi.fn();
 
     const DetachTestError: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const dataMapper = useDataMapper();
@@ -213,13 +214,13 @@ describe('DetachSchemaButton', () => {
 
   it('should handle warning when document creation returns warning', async () => {
     // Mock DocumentService to simulate warning
-    const mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
+    const mockCreatePrimitiveDocument = vi.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'warning',
       warnings: [{ message: 'Warning during document creation' }],
     });
 
-    const mockSendAlert = jest.fn();
+    const mockSendAlert = vi.fn();
 
     const DetachTestWarning: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const dataMapper = useDataMapper();
@@ -261,14 +262,14 @@ describe('DetachSchemaButton', () => {
 
   it('should handle case when document or documentDefinition is missing', async () => {
     // Mock DocumentService to return success but with missing document/documentDefinition
-    const mockCreatePrimitiveDocument = jest.spyOn(DocumentService, 'createPrimitiveDocument');
+    const mockCreatePrimitiveDocument = vi.spyOn(DocumentService, 'createPrimitiveDocument');
     mockCreatePrimitiveDocument.mockReturnValue({
       validationStatus: 'success',
       document: undefined,
       documentDefinition: undefined,
     });
 
-    const mockSendAlert = jest.fn();
+    const mockSendAlert = vi.fn();
 
     const DetachTestMissing: FunctionComponent<PropsWithChildren> = ({ children }) => {
       const dataMapper = useDataMapper();

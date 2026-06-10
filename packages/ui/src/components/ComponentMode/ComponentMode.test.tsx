@@ -1,23 +1,24 @@
 import { act, render } from '@testing-library/react';
+import { Mock, MockedFunction, vi } from 'vitest';
 
 import { useProcessorTooltips } from '../../hooks/use-processor-tooltips.hook';
 import { IVisualizationNode } from '../../models';
 import { ComponentMode } from './ComponentMode';
 
-let mockUpdateSourceCodeFromEntities: jest.Mock;
-jest.mock('../../hooks/useEntityContext/useEntityContext', () => ({
+let mockUpdateSourceCodeFromEntities: Mock;
+vi.mock('../../hooks/useEntityContext/useEntityContext', () => ({
   useEntityContext: () => ({ updateSourceCodeFromEntities: mockUpdateSourceCodeFromEntities }),
 }));
 
-jest.mock('../../hooks/use-processor-tooltips.hook', () => ({
-  useProcessorTooltips: jest.fn(),
+vi.mock('../../hooks/use-processor-tooltips.hook', () => ({
+  useProcessorTooltips: vi.fn(),
 }));
 
-const mockUseProcessorTooltips = useProcessorTooltips as jest.MockedFunction<typeof useProcessorTooltips>;
+const mockUseProcessorTooltips = useProcessorTooltips as MockedFunction<typeof useProcessorTooltips>;
 
 describe('ComponentMode', () => {
   beforeEach(() => {
-    mockUpdateSourceCodeFromEntities = jest.fn();
+    mockUpdateSourceCodeFromEntities = vi.fn();
     // Set default tooltips before each test
     mockUseProcessorTooltips.mockReturnValue({
       to: 'To: Sends messages to an endpoint',
@@ -31,7 +32,7 @@ describe('ComponentMode', () => {
       data: { processorName, path: `route.from.steps.0.${processorName}` },
       getNodeSchema: () => undefined,
       getNodeDefinition: () => ({}),
-      updateModel: jest.fn(),
+      updateModel: vi.fn(),
     } as unknown as IVisualizationNode;
   };
 

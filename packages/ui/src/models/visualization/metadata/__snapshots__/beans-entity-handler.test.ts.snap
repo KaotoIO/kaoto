@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`BeansEntityHandler should handle beans in CamelRouteResource initial state 1`] = `
+exports[`BeansEntityHandler > should handle beans in CamelRouteResource > initial state 1`] = `
 {
   "additionalProperties": false,
   "description": "Define custom beans that can be used in your Camel routes and in general.",

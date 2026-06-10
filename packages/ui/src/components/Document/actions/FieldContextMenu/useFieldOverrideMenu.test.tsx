@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { DocumentTree } from '../../../../models/datamapper/document-tree';
@@ -125,7 +126,7 @@ describe('useFieldOverrideMenu', () => {
       namedTypeFragmentRefs: [],
     };
 
-    const revertSpy = jest.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
+    const revertSpy = vi.spyOn(FieldOverrideService, 'revertFieldTypeOverride');
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -152,7 +153,7 @@ describe('useFieldOverrideMenu', () => {
   it('should call applyFieldTypeOverride when saving type override', async () => {
     const { documentNodeData, fieldNode } = createFieldNode();
 
-    const applySpy = jest.spyOn(FieldOverrideService, 'applyFieldTypeOverride');
+    const applySpy = vi.spyOn(FieldOverrideService, 'applyFieldTypeOverride');
     const mockCandidates = {
       'xs:int': {
         typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
@@ -162,7 +163,7 @@ describe('useFieldOverrideMenu', () => {
         isBuiltIn: true,
       },
     };
-    const getSafeSpy = jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+    const getSafeSpy = vi.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -299,7 +300,7 @@ describe('useFieldOverrideMenu', () => {
     it('should call revertFieldSubstitution when clicking Reset Override on a selected abstract field', () => {
       const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode();
 
-      const revertSpy = jest.spyOn(FieldOverrideService, 'revertFieldSubstitution');
+      const revertSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution');
 
       render(
         <SourceDocumentNodeWithContextMenu

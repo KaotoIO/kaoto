@@ -1,5 +1,6 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { KaotoResource } from '../models/kaoto-resource';
@@ -22,8 +23,8 @@ interface TestProviderWrapperProps extends PropsWithChildren {
 interface TestProvidersWrapperResult {
   Provider: FunctionComponent<PropsWithChildren>;
   camelResource: KaotoResource;
-  updateEntitiesFromCamelResourceSpy: jest.Mock;
-  updateSourceCodeFromEntitiesSpy: jest.Mock;
+  updateEntitiesFromCamelResourceSpy: Mock;
+  updateSourceCodeFromEntitiesSpy: Mock;
 }
 
 export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): TestProvidersWrapperResult => {
@@ -32,10 +33,10 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
     camelResource.initialize();
   }
   const currentSchemaType = camelResource.getType();
-  const updateEntitiesFromCamelResourceSpy = jest.fn();
-  const updateSourceCodeFromEntitiesSpy = jest.fn();
+  const updateEntitiesFromCamelResourceSpy = vi.fn();
+  const updateSourceCodeFromEntitiesSpy = vi.fn();
 
-  const dispatchSpy = jest.fn();
+  const dispatchSpy = vi.fn();
   const visibleFlowsContext: VisibleFlowsContextResult = {
     allFlowsVisible: props.visibleFlowsContext?.allFlowsVisible ?? false,
     visibleFlows: props.visibleFlowsContext?.visibleFlows ?? {},

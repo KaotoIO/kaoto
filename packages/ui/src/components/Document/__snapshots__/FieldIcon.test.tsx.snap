@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`FieldIcon date and time types should render CalendarHeatMap icon for Date type 1`] = `
+exports[`FieldIcon > date and time types > should render CalendarHeatMap icon for Date type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -28,7 +28,7 @@ exports[`FieldIcon date and time types should render CalendarHeatMap icon for Da
 </DocumentFragment>
 `;
 
-exports[`FieldIcon date and time types should render EventSchedule icon for DateTime type 1`] = `
+exports[`FieldIcon > date and time types > should render EventSchedule icon for DateTime type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -62,7 +62,7 @@ exports[`FieldIcon date and time types should render EventSchedule icon for Date
 </DocumentFragment>
 `;
 
-exports[`FieldIcon date and time types should render Hourglass icon for dayTimeDuration 1`] = `
+exports[`FieldIcon > date and time types > should render Hourglass icon for dayTimeDuration 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -93,7 +93,7 @@ exports[`FieldIcon date and time types should render Hourglass icon for dayTimeD
 </DocumentFragment>
 `;
 
-exports[`FieldIcon date and time types should render Hourglass icon for duration 1`] = `
+exports[`FieldIcon > date and time types > should render Hourglass icon for duration 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -124,7 +124,7 @@ exports[`FieldIcon date and time types should render Hourglass icon for duration
 </DocumentFragment>
 `;
 
-exports[`FieldIcon date and time types should render Time icon for Time type 1`] = `
+exports[`FieldIcon > date and time types > should render Time icon for Time type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -155,7 +155,7 @@ exports[`FieldIcon date and time types should render Time icon for Time type 1`]
 </DocumentFragment>
 `;
 
-exports[`FieldIcon numeric types should render CharacterDecimal icon for decimal 1`] = `
+exports[`FieldIcon > numeric types > should render CharacterDecimal icon for decimal 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -189,7 +189,7 @@ exports[`FieldIcon numeric types should render CharacterDecimal icon for decimal
 </DocumentFragment>
 `;
 
-exports[`FieldIcon numeric types should render CharacterDecimal icon for double 1`] = `
+exports[`FieldIcon > numeric types > should render CharacterDecimal icon for double 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -223,7 +223,7 @@ exports[`FieldIcon numeric types should render CharacterDecimal icon for double 
 </DocumentFragment>
 `;
 
-exports[`FieldIcon numeric types should render CharacterDecimal icon for float 1`] = `
+exports[`FieldIcon > numeric types > should render CharacterDecimal icon for float 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -257,7 +257,7 @@ exports[`FieldIcon numeric types should render CharacterDecimal icon for float 1
 </DocumentFragment>
 `;
 
-exports[`FieldIcon numeric types should render CharacterDecimal icon for numeric 1`] = `
+exports[`FieldIcon > numeric types > should render CharacterDecimal icon for numeric 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -291,7 +291,7 @@ exports[`FieldIcon numeric types should render CharacterDecimal icon for numeric
 </DocumentFragment>
 `;
 
-exports[`FieldIcon numeric types should render StringInteger icon for integer 1`] = `
+exports[`FieldIcon > numeric types > should render StringInteger icon for integer 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -319,7 +319,7 @@ exports[`FieldIcon numeric types should render StringInteger icon for integer 1`
 </DocumentFragment>
 `;
 
-exports[`FieldIcon numeric types should render StringInteger icon for positiveInteger 1`] = `
+exports[`FieldIcon > numeric types > should render StringInteger icon for positiveInteger 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -347,7 +347,7 @@ exports[`FieldIcon numeric types should render StringInteger icon for positiveIn
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Array icon for Array type 1`] = `
+exports[`FieldIcon > other types > should render Array icon for Array type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -375,7 +375,7 @@ exports[`FieldIcon other types should render Array icon for Array type 1`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Boolean icon for Boolean type 1`] = `
+exports[`FieldIcon > other types > should render Boolean icon for Boolean type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -408,7 +408,7 @@ exports[`FieldIcon other types should render Boolean icon for Boolean type 1`] =
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Document icon for DocumentNode type 1`] = `
+exports[`FieldIcon > other types > should render Document icon for DocumentNode type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -439,7 +439,7 @@ exports[`FieldIcon other types should render Document icon for DocumentNode type
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Help icon for anyAtomicType 1`] = `
+exports[`FieldIcon > other types > should render Help icon for anyAtomicType 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -475,7 +475,7 @@ exports[`FieldIcon other types should render Help icon for anyAtomicType 1`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Help icon for anyType 1`] = `
+exports[`FieldIcon > other types > should render Help icon for anyType 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -511,7 +511,7 @@ exports[`FieldIcon other types should render Help icon for anyType 1`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Http icon for AnyURI type 1`] = `
+exports[`FieldIcon > other types > should render Http icon for AnyURI type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -539,7 +539,7 @@ exports[`FieldIcon other types should render Http icon for AnyURI type 1`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon other types should render Object icon for Container type 1`] = `
+exports[`FieldIcon > other types > should render Object icon for Container type 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -567,7 +567,7 @@ exports[`FieldIcon other types should render Object icon for Container type 1`] 
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should not render anything for special types 1`] = `
+exports[`FieldIcon > should not render anything for special types 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -580,7 +580,7 @@ exports[`FieldIcon should not render anything for special types 1`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should not render anything for special types 2`] = `
+exports[`FieldIcon > should not render anything for special types 2`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -593,7 +593,7 @@ exports[`FieldIcon should not render anything for special types 2`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should not render anything for special types 3`] = `
+exports[`FieldIcon > should not render anything for special types 3`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -606,7 +606,7 @@ exports[`FieldIcon should not render anything for special types 3`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should not render anything for special types 4`] = `
+exports[`FieldIcon > should not render anything for special types 4`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -619,7 +619,7 @@ exports[`FieldIcon should not render anything for special types 4`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should not render anything for special types 5`] = `
+exports[`FieldIcon > should not render anything for special types 5`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -632,7 +632,7 @@ exports[`FieldIcon should not render anything for special types 5`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should not render anything missing types 1`] = `
+exports[`FieldIcon > should not render anything missing types 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"
@@ -644,7 +644,7 @@ exports[`FieldIcon should not render anything missing types 1`] = `
 </DocumentFragment>
 `;
 
-exports[`FieldIcon should render an icon for known types 1`] = `
+exports[`FieldIcon > should render an icon for known types 1`] = `
 <DocumentFragment>
   <span
     class="pf-v6-c-icon"

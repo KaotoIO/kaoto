@@ -1,6 +1,7 @@
 import type { Controller, ElementModel, Graph, GraphElement, Node } from '@patternfly/react-topology';
 import { Dimensions } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { useCollapseStep } from './collapse-step.hook';
@@ -12,38 +13,38 @@ describe('useCollapseStep', () => {
 
   beforeEach(() => {
     mockGraph = {
-      layout: jest.fn(),
+      layout: vi.fn(),
     } as unknown as Graph;
 
     mockController = {
-      getGraph: jest.fn().mockReturnValue(mockGraph),
-      getState: jest.fn().mockReturnValue({ collapsedIds: [] }),
-      setState: jest.fn(),
+      getGraph: vi.fn().mockReturnValue(mockGraph),
+      getState: vi.fn().mockReturnValue({ collapsedIds: [] }),
+      setState: vi.fn(),
     } as unknown as Controller;
 
     mockElement = {
-      setDimensions: jest.fn(),
-      setCollapsed: jest.fn(),
-      getController: jest.fn().mockReturnValue(mockController),
-      getKind: jest.fn().mockReturnValue('node'),
-      getId: jest.fn().mockReturnValue('mock-node-id'),
-      getData: jest.fn().mockReturnValue({
+      setDimensions: vi.fn(),
+      setCollapsed: vi.fn(),
+      getController: vi.fn().mockReturnValue(mockController),
+      getKind: vi.fn().mockReturnValue('node'),
+      getId: vi.fn().mockReturnValue('mock-node-id'),
+      getData: vi.fn().mockReturnValue({
         vizNode: {
-          getNodeDefinition: jest.fn().mockReturnValue({ id: 'mock-node-id' }),
+          getNodeDefinition: vi.fn().mockReturnValue({ id: 'mock-node-id' }),
         },
       }),
     } as unknown as Node<ElementModel, unknown>;
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should throw error when element is not a node', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => null);
+    vi.spyOn(console, 'error').mockImplementation(() => null);
 
     const nonNodeElement = {
-      getKind: jest.fn().mockReturnValue('edge'),
+      getKind: vi.fn().mockReturnValue('edge'),
     } as unknown as GraphElement<ElementModel, unknown>;
 
     expect(() => {
@@ -78,7 +79,7 @@ describe('useCollapseStep', () => {
 
   it('should collapse node, set dimensions and not update the state when the node is already collapsed', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
 
     result.current.onCollapseNode();
 
@@ -95,7 +96,7 @@ describe('useCollapseStep', () => {
 
   it('should collapse node, set dimensions and not update state when node id is not found', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
-    mockElement.getData = jest.fn().mockReturnValue(undefined);
+    mockElement.getData = vi.fn().mockReturnValue(undefined);
 
     result.current.onCollapseNode();
 
@@ -112,7 +113,7 @@ describe('useCollapseStep', () => {
 
   it('should expand node without setting dimensions, but updating the state when onExpandNode is called', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
 
     result.current.onExpandNode();
 
@@ -145,8 +146,8 @@ describe('useCollapseStep', () => {
 
     const newMockElement = {
       ...mockElement,
-      setDimensions: jest.fn(),
-      setCollapsed: jest.fn(),
+      setDimensions: vi.fn(),
+      setCollapsed: vi.fn(),
     };
 
     rerender({ element: newMockElement });
@@ -163,8 +164,8 @@ describe('useCollapseStep', () => {
     expect(mockController.setState).toHaveBeenCalledWith({ collapsedIds: ['mock-node-id'] });
 
     // Update mock state to reflect the change
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
-    mockController.setState = jest.fn();
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
+    mockController.setState = vi.fn();
 
     // Try to collapse again - should not update state
     result.current.onCollapseNode();
@@ -174,7 +175,7 @@ describe('useCollapseStep', () => {
 
   it('should handle expand of non-collapsed node', () => {
     const { result } = renderHook(() => useCollapseStep(mockElement));
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: [] });
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: [] });
 
     // Expand a node that is not collapsed
     result.current.onExpandNode();
@@ -185,7 +186,7 @@ describe('useCollapseStep', () => {
   });
 
   it('should handle state with multiple collapsed nodes', () => {
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: ['other-node-1', 'other-node-2'] });
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['other-node-1', 'other-node-2'] });
 
     const { result } = renderHook(() => useCollapseStep(mockElement));
 
@@ -198,7 +199,7 @@ describe('useCollapseStep', () => {
   });
 
   it('should remove only the target node from collapsed state on expand', () => {
-    mockController.getState = jest.fn().mockReturnValue({
+    mockController.getState = vi.fn().mockReturnValue({
       collapsedIds: ['other-node-1', 'mock-node-id', 'other-node-2'],
     });
 
@@ -220,9 +221,9 @@ describe('useCollapseStep', () => {
     expect(mockElement.setCollapsed).toHaveBeenCalledWith(true);
 
     // Update state to reflect collapse
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
-    mockController.setState = jest.fn();
-    (mockElement.setCollapsed as jest.Mock).mockClear();
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: ['mock-node-id'] });
+    mockController.setState = vi.fn();
+    (mockElement.setCollapsed as Mock).mockClear();
 
     // Rapid expand
     result.current.onExpandNode();
@@ -231,9 +232,9 @@ describe('useCollapseStep', () => {
   });
 
   it('should handle elements with no node definition id', () => {
-    mockElement.getData = jest.fn().mockReturnValue({
+    mockElement.getData = vi.fn().mockReturnValue({
       vizNode: {
-        getNodeDefinition: jest.fn().mockReturnValue({}),
+        getNodeDefinition: vi.fn().mockReturnValue({}),
       },
     });
 
@@ -247,7 +248,7 @@ describe('useCollapseStep', () => {
 
   it('should preserve immutability when updating collapsed state', () => {
     const initialState = ['node-1', 'node-2'];
-    mockController.getState = jest.fn().mockReturnValue({ collapsedIds: initialState });
+    mockController.getState = vi.fn().mockReturnValue({ collapsedIds: initialState });
 
     const { result } = renderHook(() => useCollapseStep(mockElement));
 

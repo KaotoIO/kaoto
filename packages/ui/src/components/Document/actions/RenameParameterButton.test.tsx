@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { vi } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import {
@@ -14,7 +15,7 @@ import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { RenameParameterButton } from './RenameParameterButton';
 
 describe('RenameParameterButton', () => {
-  const renameAction = jest.fn();
+  const renameAction = vi.fn();
 
   it('should rename a parameter', async () => {
     let parameterMap: Map<string, IDocument>;

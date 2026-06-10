@@ -29,7 +29,7 @@ describe('KaotoResourceProvider', () => {
   });
 
   it('subscribes to the code:updated notification', () => {
-    const subscribeSpy = jest.spyOn(EventNotifier.getInstance(), 'subscribe');
+    const subscribeSpy = vi.spyOn(EventNotifier.getInstance(), 'subscribe');
 
     renderHook(() => useContext(KaotoResourceContext), {
       wrapper: ({ children }: PropsWithChildren) => (
@@ -77,7 +77,7 @@ describe('KaotoResourceProvider', () => {
 
   it('keeps resource undefined when the factory throws on malformed code at mount', () => {
     const real = CamelResourceFactory.createCamelResource.bind(CamelResourceFactory);
-    const createSpy = jest.spyOn(CamelResourceFactory, 'createCamelResource').mockImplementation((code, opts) => {
+    const createSpy = vi.spyOn(CamelResourceFactory, 'createCamelResource').mockImplementation((code, opts) => {
       if (code === '- from: {') throw new Error('parse error');
       return real(code, opts);
     });

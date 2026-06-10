@@ -1,27 +1,28 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
 import { NameInputPlaceholder } from './NameInputPlaceholder';
 
 describe('NameInputPlaceholder', () => {
-  let mockValidate: jest.Mock<NameValidation, [string]>;
-  let mockOnSubmit: jest.Mock;
-  let mockOnCancel: jest.Mock;
+  let mockValidate: Mock<(name: string) => NameValidation>;
+  let mockOnSubmit: Mock<(name: string) => void>;
+  let mockOnCancel: Mock<() => void>;
 
   const TEST_PREFIX = 'test-name';
 
   beforeEach(() => {
-    mockValidate = jest.fn((name: string) => {
+    mockValidate = vi.fn((name: string) => {
       if (!name) return { status: NameValidationStatus.EMPTY };
       if (name.startsWith('invalid')) return { status: NameValidationStatus.ERROR, error: 'Invalid name' };
       return { status: NameValidationStatus.SUCCESS };
     });
-    mockOnSubmit = jest.fn();
-    mockOnCancel = jest.fn();
+    mockOnSubmit = vi.fn();
+    mockOnCancel = vi.fn();
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   function renderPlaceholder(initialName?: string) {
@@ -54,7 +55,7 @@ describe('NameInputPlaceholder', () => {
   });
 
   it('should auto-select text when initialName is provided', () => {
-    const selectSpy = jest.spyOn(HTMLInputElement.prototype, 'select');
+    const selectSpy = vi.spyOn(HTMLInputElement.prototype, 'select');
     renderPlaceholder('existing');
 
     expect(selectSpy).toHaveBeenCalled();

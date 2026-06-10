@@ -16,6 +16,7 @@
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, DoTry } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind, ICamelProcessorProperty } from '../../../models';
 import {
@@ -71,7 +72,7 @@ describe('parser basics', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeAll(async () => {
@@ -327,7 +328,7 @@ describe('parser basics', () => {
       const child = mockDocument.createElement('item');
       parent.appendChild(child);
 
-      const transformer = jest.fn().mockReturnValue({ transformed: true });
+      const transformer = vi.fn().mockReturnValue({ transformed: true });
       const properties = {} as unknown as ICamelProcessorProperty;
 
       StepParser.parseElementsArray('item', parent, properties, transformer);
@@ -338,7 +339,7 @@ describe('parser basics', () => {
 
 describe('ProcessorParser', () => {
   beforeAll(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
   });

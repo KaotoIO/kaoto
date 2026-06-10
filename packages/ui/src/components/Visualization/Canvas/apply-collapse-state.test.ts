@@ -1,11 +1,12 @@
 import type { Controller } from '@patternfly/react-topology';
 import { Dimensions, ModelKind } from '@patternfly/react-topology';
+import { Mock, vi } from 'vitest';
 
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { COLLAPSE_STATE } from './collapse-handler-state';
 
-const createMockNode = (nodeId: string, setCollapsed: jest.Mock, setDimensions: jest.Mock) => ({
+const createMockNode = (nodeId: string, setCollapsed: Mock, setDimensions: Mock) => ({
   getKind: () => ModelKind.node,
   getData: () => ({ vizNode: { getNodeDefinition: () => ({ id: nodeId }) } }),
   setCollapsed,
@@ -14,12 +15,12 @@ const createMockNode = (nodeId: string, setCollapsed: jest.Mock, setDimensions: 
 
 describe('applyCollapseState', () => {
   it('does nothing when collapsedIds is undefined', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const mockNode = createMockNode('node-1', setCollapsed, setDimensions);
     const controller = {
-      getState: jest.fn().mockReturnValue({}),
-      getElements: jest.fn().mockReturnValue([mockNode]),
+      getState: vi.fn().mockReturnValue({}),
+      getElements: vi.fn().mockReturnValue([mockNode]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -30,12 +31,12 @@ describe('applyCollapseState', () => {
   });
 
   it('does nothing when collapsedIds is empty', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const mockNode = createMockNode('node-1', setCollapsed, setDimensions);
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: [] }),
-      getElements: jest.fn().mockReturnValue([mockNode]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: [] }),
+      getElements: vi.fn().mockReturnValue([mockNode]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -45,18 +46,18 @@ describe('applyCollapseState', () => {
   });
 
   it('calls setCollapsed and setDimensions for each matching node', () => {
-    const setCollapsed1 = jest.fn();
-    const setDimensions1 = jest.fn();
-    const setCollapsed2 = jest.fn();
-    const setDimensions2 = jest.fn();
-    const setCollapsed3 = jest.fn();
-    const setDimensions3 = jest.fn();
+    const setCollapsed1 = vi.fn();
+    const setDimensions1 = vi.fn();
+    const setCollapsed2 = vi.fn();
+    const setDimensions2 = vi.fn();
+    const setCollapsed3 = vi.fn();
+    const setDimensions3 = vi.fn();
     const node1 = createMockNode('choice-1', setCollapsed1, setDimensions1);
     const node2 = createMockNode('choice-2', setCollapsed2, setDimensions2);
     const node3 = createMockNode('choice-3', setCollapsed3, setDimensions3);
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1', 'choice-3'] }),
-      getElements: jest.fn().mockReturnValue([node1, node2, node3]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1', 'choice-3'] }),
+      getElements: vi.fn().mockReturnValue([node1, node2, node3]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -77,8 +78,8 @@ describe('applyCollapseState', () => {
   });
 
   it('handles nodes without vizNode data gracefully', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const mockNode = {
       getKind: () => ModelKind.node,
       getData: () => ({ vizNode: null }),
@@ -87,8 +88,8 @@ describe('applyCollapseState', () => {
     };
 
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['node-1'] }),
-      getElements: jest.fn().mockReturnValue([mockNode]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['node-1'] }),
+      getElements: vi.fn().mockReturnValue([mockNode]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -98,8 +99,8 @@ describe('applyCollapseState', () => {
   });
 
   it('handles nodes without valid node id', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const mockNode = {
       getKind: () => ModelKind.node,
       getData: () => ({ vizNode: { getNodeDefinition: () => ({ id: undefined }) } }),
@@ -108,8 +109,8 @@ describe('applyCollapseState', () => {
     };
 
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['node-1'] }),
-      getElements: jest.fn().mockReturnValue([mockNode]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['node-1'] }),
+      getElements: vi.fn().mockReturnValue([mockNode]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -119,8 +120,8 @@ describe('applyCollapseState', () => {
   });
 
   it('filters out non-node elements', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const mockNode = createMockNode('choice-1', setCollapsed, setDimensions);
     const mockEdge = {
       getKind: () => ModelKind.edge,
@@ -128,8 +129,8 @@ describe('applyCollapseState', () => {
     };
 
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1', 'edge-1'] }),
-      getElements: jest.fn().mockReturnValue([mockNode, mockEdge]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1', 'edge-1'] }),
+      getElements: vi.fn().mockReturnValue([mockNode, mockEdge]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -142,13 +143,13 @@ describe('applyCollapseState', () => {
   });
 
   it('handles duplicate ids in collapsedIds array', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const node = createMockNode('choice-1', setCollapsed, setDimensions);
 
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1', 'choice-1', 'choice-1'] }),
-      getElements: jest.fn().mockReturnValue([node]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1', 'choice-1', 'choice-1'] }),
+      getElements: vi.fn().mockReturnValue([node]),
     } as unknown as Controller;
 
     applyCollapseState(controller);
@@ -161,8 +162,8 @@ describe('applyCollapseState', () => {
 
   it('handles empty controller elements array', () => {
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1'] }),
-      getElements: jest.fn().mockReturnValue([]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['choice-1'] }),
+      getElements: vi.fn().mockReturnValue([]),
     } as unknown as Controller;
 
     // Should not throw
@@ -171,8 +172,8 @@ describe('applyCollapseState', () => {
   });
 
   it('handles null or undefined node data', () => {
-    const setCollapsed = jest.fn();
-    const setDimensions = jest.fn();
+    const setCollapsed = vi.fn();
+    const setDimensions = vi.fn();
     const mockNode = {
       getKind: () => ModelKind.node,
       getData: () => null,
@@ -181,8 +182,8 @@ describe('applyCollapseState', () => {
     };
 
     const controller = {
-      getState: jest.fn().mockReturnValue({ [COLLAPSE_STATE]: ['node-1'] }),
-      getElements: jest.fn().mockReturnValue([mockNode]),
+      getState: vi.fn().mockReturnValue({ [COLLAPSE_STATE]: ['node-1'] }),
+      getElements: vi.fn().mockReturnValue([mockNode]),
     } as unknown as Controller;
 
     applyCollapseState(controller);

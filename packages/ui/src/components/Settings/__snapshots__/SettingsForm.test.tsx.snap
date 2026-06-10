@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SettingsForm should render 1`] = `
+exports[`SettingsForm > should render 1`] = `
 <form
   class="pf-v6-c-form kaoto-form kaoto-form__label"
   data-testid="settings-form"
@@ -103,17 +103,10 @@ exports[`SettingsForm should render 1`] = `
               class="pf-v6-c-button__icon"
             >
               <svg
-                aria-hidden="true"
-                class="pf-v6-svg"
-                fill="currentColor"
-                height="1em"
+                data-testid="lightbulb-icon"
                 role="img"
-                viewBox="0 0 352 512"
-                width="1em"
               >
-                <path
-                  d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
-                />
+                <path />
               </svg>
             </span>
           </button>
@@ -131,29 +124,10 @@ exports[`SettingsForm should render 1`] = `
               class="pf-v6-c-menu-toggle__icon"
             >
               <svg
-                aria-hidden="true"
-                class="pf-v6-svg"
-                fill="currentColor"
-                height="1em"
+                data-testid="ellipsis-v-icon"
                 role="img"
-                width="1em"
               >
-                <svg
-                  class="pf-v6-icon-default"
-                  viewBox="0 0 192 512"
-                >
-                  <path
-                    d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                  />
-                </svg>
-                <svg
-                  class="pf-v6-icon-rh-ui"
-                  viewBox="0 0 32 32"
-                >
-                  <path
-                    d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
-                  />
-                </svg>
+                <path />
               </svg>
             </span>
           </button>
@@ -239,7 +213,7 @@ exports[`SettingsForm should render 1`] = `
             >
               <img
                 alt="Red Hat logo"
-                src="file-mock-data"
+                src="data:image/svg+xml,%3csvg%20id='Layer_1'%20data-name='Layer%201'%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20192%20145'%20height='145'%20width='192'%3e%3e%3cdefs%3e%3cstyle%3e.cls-1{fill:%23e00;}%3c/style%3e%3c/defs%3e%3ctitle%3eThe%20hat%3c/title%3e%3cmetadata%3e%3c?xpacket%20begin='%20'%20id='W5M0MpCehiHzreSzNTczkc9d'?%3e%3cx:xmpmeta%20xmlns:x='adobe:ns:meta/'%20x:xmptk='Adobe%20XMP%20Core%208.0-c001%201.000000,%200000/00/00-00:00:00%20'%3e%3crdf:RDF%20xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23'%3e%3crdf:Description%20rdf:about=''%20xmlns:xmp='http://ns.adobe.com/xap/1.0/'%20xmlns:dc='http://purl.org/dc/elements/1.1/'%20xmlns:xmpRights='http://ns.adobe.com/xap/1.0/rights/'%3e%3cxmp:rhcc-effective-on%3e2023-12-08T20:43:03.460Z%3c/xmp:rhcc-effective-on%3e%3cxmp:brand-content-subtype%3eRed%20Hat%3c/xmp:brand-content-subtype%3e%3cxmp:rhcc-rights-restricted%3eno%3c/xmp:rhcc-rights-restricted%3e%3cxmp:rhcc-metadata-complete-moderator%3epending%3c/xmp:rhcc-metadata-complete-moderator%3e%3cxmp:rhcc-translation-id%3eTRA022cc40f-37b3-4d53-bf2b-e3126cad8ffc%3c/xmp:rhcc-translation-id%3e%3cxmp:brand-content-type%3eLogo%3c/xmp:brand-content-type%3e%3cxmp:CreateDate%3e2023-12-08T20:43:03.460Z%3c/xmp:CreateDate%3e%3cxmp:brand-color-mode%3eRGB%3c/xmp:brand-color-mode%3e%3cxmp:rhcc-derivative-id%3eDER022cc40f-37b3-4d53-bf2b-e3126cad8ffc%3c/xmp:rhcc-derivative-id%3e%3cxmp:rhcc-effective-on-set-on-upload%3etrue%3c/xmp:rhcc-effective-on-set-on-upload%3e%3cxmp:brand-logo-color%3eStandard%3c/xmp:brand-logo-color%3e%3cxmp:brand-logo-version%3eHat%20only%3c/xmp:brand-logo-version%3e%3cxmp:rhcc-metadata-complete-uploader%3epending%3c/xmp:rhcc-metadata-complete-uploader%3e%3cxmp:rhcc-file-last-modified%3e2024-05-28T20:46:42.467Z%3c/xmp:rhcc-file-last-modified%3e%3cxmp:rhcc-audience%3erhcc-audience:internal%3c/xmp:rhcc-audience%3e%3cxmp:rhcc-notify-portal-subscribers-on-change%3eyes%3c/xmp:rhcc-notify-portal-subscribers-on-change%3e%3cdc:format%3eimage/svg+xml%3c/dc:format%3e%3cdc:modified%3e2024-05-29T00:37:14.455Z%3c/dc:modified%3e%3cdc:title%3e%3crdf:Alt%3e%3crdf:li%20xml:lang='x-default'%3eThe%20hat%3c/rdf:li%3e%3c/rdf:Alt%3e%3c/dc:title%3e%3cxmpRights:UsageTerms%3e%3crdf:Alt%3e%3crdf:li%20xml:lang='x-default'%3eHow%20we%20use%20the%20hat%20depends%20on%20what%20it%20represents%20in%20the%20design.%20When%20we%20use%20the%20hat%20to%20represent%20Red%20Hat%20in%20lieu%20of%20the%20full%20logo,%20the%20hat%20should%20always%20appear%20in%20red.&%23xD;&%23xA;&%23xD;&%23xA;When%20we%20use%20the%20hat%20as%20a%20decorative%20element,%20the%20full%20Red%20Hat%20logo%20should%20always%20be%20nearby.%3c/rdf:li%3e%3c/rdf:Alt%3e%3c/xmpRights:UsageTerms%3e%3c/rdf:Description%3e%3c/rdf:RDF%3e%3c/x:xmpmeta%3e%3c?xpacket%20end='w'?%3e%3c/metadata%3e%3cpath%20d='M157.77,62.61a14,14,0,0,1,.31,3.42c0,14.88-18.1,17.46-30.61,17.46C78.83,83.49,42.53,53.26,42.53,44a6.43,6.43,0,0,1,.22-1.94l-3.66,9.06a18.45,18.45,0,0,0-1.51,7.33c0,18.11,41,45.48,87.74,45.48,20.69,0,36.43-7.76,36.43-21.77,0-1.08,0-1.94-1.73-10.13Z'/%3e%3cpath%20class='cls-1'%20d='M127.47,83.49c12.51,0,30.61-2.58,30.61-17.46a14,14,0,0,0-.31-3.42l-7.45-32.36c-1.72-7.12-3.23-10.35-15.73-16.6C124.89,8.69,103.76.5,97.51.5,91.69.5,90,8,83.06,8c-6.68,0-11.64-5.6-17.89-5.6-6,0-9.91,4.09-12.93,12.5,0,0-8.41,23.72-9.49,27.16A6.43,6.43,0,0,0,42.53,44c0,9.22,36.3,39.45,84.94,39.45M160,72.07c1.73,8.19,1.73,9.05,1.73,10.13,0,14-15.74,21.77-36.43,21.77C78.54,104,37.58,76.6,37.58,58.49a18.45,18.45,0,0,1,1.51-7.33C22.27,52,.5,55,.5,74.22c0,31.48,74.59,70.28,133.65,70.28,45.28,0,56.7-20.48,56.7-36.65,0-12.72-11-27.16-30.83-35.78'/%3e%3c/svg%3e"
               />
             </span>
           </span>
@@ -363,7 +337,7 @@ exports[`SettingsForm should render 1`] = `
             >
               <img
                 alt="Citrus logo"
-                src="file-mock-data"
+                src="/src/assets/citrus-logo.png"
               />
             </span>
           </span>
@@ -509,28 +483,10 @@ exports[`SettingsForm should render 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
+                  data-testid="times-icon"
                   role="img"
-                  width="1em"
                 >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 352 512"
-                  >
-                    <path
-                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="M28.707 27.293a.999.999 0 1 1-1.414 1.414L16 17.414 4.707 28.707a.997.997 0 0 1-1.414 0 .999.999 0 0 1 0-1.414L14.586 16 3.293 4.707a.999.999 0 1 1 1.414-1.414L16 14.586 27.293 3.293a.999.999 0 1 1 1.414 1.414L17.414 16l11.293 11.293Z"
-                    />
-                  </svg>
+                  <path />
                 </svg>
               </span>
             </button>
@@ -683,28 +639,10 @@ exports[`SettingsForm should render 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
+                  data-testid="times-icon"
                   role="img"
-                  width="1em"
                 >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 352 512"
-                  >
-                    <path
-                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="M28.707 27.293a.999.999 0 1 1-1.414 1.414L16 17.414 4.707 28.707a.997.997 0 0 1-1.414 0 .999.999 0 0 1 0-1.414L14.586 16 3.293 4.707a.999.999 0 1 1 1.414-1.414L16 14.586 27.293 3.293a.999.999 0 1 1 1.414 1.414L17.414 16l11.293 11.293Z"
-                    />
-                  </svg>
+                  <path />
                 </svg>
               </span>
             </button>
@@ -857,28 +795,10 @@ exports[`SettingsForm should render 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
+                  data-testid="times-icon"
                   role="img"
-                  width="1em"
                 >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 352 512"
-                  >
-                    <path
-                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="M28.707 27.293a.999.999 0 1 1-1.414 1.414L16 17.414 4.707 28.707a.997.997 0 0 1-1.414 0 .999.999 0 0 1 0-1.414L14.586 16 3.293 4.707a.999.999 0 1 1 1.414-1.414L16 14.586 27.293 3.293a.999.999 0 1 1 1.414 1.414L17.414 16l11.293 11.293Z"
-                    />
-                  </svg>
+                  <path />
                 </svg>
               </span>
             </button>
@@ -1031,28 +951,10 @@ exports[`SettingsForm should render 1`] = `
               >
                 <svg
                   aria-hidden="true"
-                  class="pf-v6-svg"
-                  fill="currentColor"
-                  height="1em"
+                  data-testid="times-icon"
                   role="img"
-                  width="1em"
                 >
-                  <svg
-                    class="pf-v6-icon-default"
-                    viewBox="0 0 352 512"
-                  >
-                    <path
-                      d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                    />
-                  </svg>
-                  <svg
-                    class="pf-v6-icon-rh-ui"
-                    viewBox="0 0 32 32"
-                  >
-                    <path
-                      d="M28.707 27.293a.999.999 0 1 1-1.414 1.414L16 17.414 4.707 28.707a.997.997 0 0 1-1.414 0 .999.999 0 0 1 0-1.414L14.586 16 3.293 4.707a.999.999 0 1 1 1.414-1.414L16 14.586 27.293 3.293a.999.999 0 1 1 1.414 1.414L17.414 16l11.293 11.293Z"
-                    />
-                  </svg>
+                  <path />
                 </svg>
               </span>
             </button>
@@ -1133,29 +1035,10 @@ exports[`SettingsForm should render 1`] = `
             class="pf-v6-c-button__icon"
           >
             <svg
-              aria-hidden="true"
-              class="pf-v6-svg"
-              fill="currentColor"
-              height="1em"
+              data-testid="trash-icon"
               role="img"
-              width="1em"
             >
-              <svg
-                class="pf-v6-icon-default"
-                viewBox="0 0 448 512"
-              >
-                <path
-                  d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"
-                />
-              </svg>
-              <svg
-                class="pf-v6-icon-rh-ui"
-                viewBox="0 0 32 32"
-              >
-                <path
-                  d="M12 24v-8a1 1 0 1 1 2 0v8a1 1 0 1 1-2 0Zm7 1a1 1 0 0 0 1-1v-8a1 1 0 1 0-2 0v8a1 1 0 0 0 1 1Zm8-14a1 1 0 0 1-1 1h-1v16.5c0 .827-.673 1.5-1.5 1.5h-15c-.827 0-1.5-.673-1.5-1.5V12H6a1 1 0 1 1 0-2h20a1 1 0 0 1 1 1Zm-4 1H9v16h14V12ZM5 6a1 1 0 0 1 1-1h5.101c.465-2.279 2.484-4 4.899-4s4.434 1.721 4.899 4H26a1 1 0 1 1 0 2H6a1 1 0 0 1-1-1Zm8.184-1h5.631c-.414-1.161-1.514-2-2.816-2s-2.402.839-2.816 2Z"
-                />
-              </svg>
+              <path />
             </svg>
           </span>
         </button>
@@ -1309,17 +1192,10 @@ exports[`SettingsForm should render 1`] = `
                   class="pf-v6-c-button__icon"
                 >
                   <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
+                    data-testid="lightbulb-icon"
                     role="img"
-                    viewBox="0 0 352 512"
-                    width="1em"
                   >
-                    <path
-                      d="M96.06 454.35c.01 6.29 1.87 12.45 5.36 17.69l17.09 25.69a31.99 31.99 0 0 0 26.64 14.28h61.71a31.99 31.99 0 0 0 26.64-14.28l17.09-25.69a31.989 31.989 0 0 0 5.36-17.69l.04-38.35H96.01l.05 38.35zM0 176c0 44.37 16.45 84.85 43.56 115.78 16.52 18.85 42.36 58.23 52.21 91.45.04.26.07.52.11.78h160.24c.04-.26.07-.51.11-.78 9.85-33.22 35.69-72.6 52.21-91.45C335.55 260.85 352 220.37 352 176 352 78.61 272.91-.3 175.45 0 73.44.31 0 82.97 0 176zm176-80c-44.11 0-80 35.89-80 80 0 8.84-7.16 16-16 16s-16-7.16-16-16c0-61.76 50.24-112 112-112 8.84 0 16 7.16 16 16s-7.16 16-16 16z"
-                    />
+                    <path />
                   </svg>
                 </span>
               </button>
@@ -1337,29 +1213,10 @@ exports[`SettingsForm should render 1`] = `
                   class="pf-v6-c-menu-toggle__icon"
                 >
                   <svg
-                    aria-hidden="true"
-                    class="pf-v6-svg"
-                    fill="currentColor"
-                    height="1em"
+                    data-testid="ellipsis-v-icon"
                     role="img"
-                    width="1em"
                   >
-                    <svg
-                      class="pf-v6-icon-default"
-                      viewBox="0 0 192 512"
-                    >
-                      <path
-                        d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                      />
-                    </svg>
-                    <svg
-                      class="pf-v6-icon-rh-ui"
-                      viewBox="0 0 32 32"
-                    >
-                      <path
-                        d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
-                      />
-                    </svg>
+                    <path />
                   </svg>
                 </span>
               </button>

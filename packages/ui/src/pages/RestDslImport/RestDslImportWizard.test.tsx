@@ -1,14 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { RestDslImportWizard } from './RestDslImportWizard';
 import { useRestDslImportWizard } from './useRestDslImportWizard';
 
-jest.mock('./useRestDslImportWizard');
+vi.mock('./useRestDslImportWizard');
 
 describe('RestDslImportWizard', () => {
-  const fetchSpy = jest.spyOn(globalThis, 'fetch');
-  const mockOnClose = jest.fn();
-  const mockOnGoToDesigner = jest.fn();
+  const fetchSpy = vi.spyOn(globalThis, 'fetch');
+  const mockOnClose = vi.fn();
+  const mockOnGoToDesigner = vi.fn();
 
   const mockWizard = {
     importSource: 'file' as const,
@@ -22,20 +23,20 @@ describe('RestDslImportWizard', () => {
     importOperations: [],
     importStatus: null,
     apicurioRegistryUrl: 'http://registry.example.com',
-    handleSchemaLoaded: jest.fn(),
-    handleImportSourceChange: jest.fn(),
-    setOpenApiSpecText: jest.fn(),
-    handleParseOpenApiSpec: jest.fn(),
-    setImportCreateRest: jest.fn(),
-    setImportCreateRoutes: jest.fn(),
-    handleToggleSelectAllOperations: jest.fn(),
-    handleToggleOperation: jest.fn(),
-    handleImportOpenApi: jest.fn(),
-    resetImportWizard: jest.fn(),
+    handleSchemaLoaded: vi.fn(),
+    handleImportSourceChange: vi.fn(),
+    setOpenApiSpecText: vi.fn(),
+    handleParseOpenApiSpec: vi.fn(),
+    setImportCreateRest: vi.fn(),
+    setImportCreateRoutes: vi.fn(),
+    handleToggleSelectAllOperations: vi.fn(),
+    handleToggleOperation: vi.fn(),
+    handleImportOpenApi: vi.fn(),
+    resetImportWizard: vi.fn(),
   };
 
   beforeEach(() => {
-    (useRestDslImportWizard as jest.Mock).mockReturnValue(mockWizard);
+    (useRestDslImportWizard as Mock).mockReturnValue(mockWizard);
   });
 
   afterEach(() => {
@@ -66,7 +67,7 @@ describe('RestDslImportWizard', () => {
     });
 
     it('shows UriImportSource when URI source is selected', () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({ ...mockWizard, importSource: 'uri' });
+      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importSource: 'uri' });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       // UriImportSource renders a text input and Fetch button
       expect(screen.getByPlaceholderText('https://example.com/openapi.yaml')).toBeInTheDocument();
@@ -77,10 +78,10 @@ describe('RestDslImportWizard', () => {
       // Mock the Apicurio fetch call
       fetchSpy.mockResolvedValue({
         ok: true,
-        json: jest.fn().mockResolvedValue({ artifacts: [] }),
+        json: vi.fn().mockResolvedValue({ artifacts: [] }),
       } as unknown as Response);
 
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({ ...mockWizard, importSource: 'apicurio' });
+      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importSource: 'apicurio' });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 
       // ApicurioImportSource renders search input and refresh button
@@ -125,7 +126,7 @@ describe('RestDslImportWizard', () => {
     });
 
     it('shows error message in operations step', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({
+      (useRestDslImportWizard as Mock).mockReturnValue({
         ...mockWizard,
         importStatus: { type: 'error', message: 'Invalid specification' },
       });
@@ -168,7 +169,7 @@ describe('RestDslImportWizard', () => {
           routeExists: false,
         },
       ];
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
+      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
@@ -188,7 +189,7 @@ describe('RestDslImportWizard', () => {
           routeExists: false,
         },
       ];
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
+      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
       fireEvent.click(operationsNav);
@@ -202,11 +203,11 @@ describe('RestDslImportWizard', () => {
 
   describe('Result step', () => {
     it('shows success alert when import succeeds', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({
+      (useRestDslImportWizard as Mock).mockReturnValue({
         ...mockWizard,
         isOpenApiParsed: true,
         importStatus: { type: 'success', message: 'Import succeeded. 2 operations added.' },
-        handleImportOpenApi: jest.fn().mockReturnValue(true),
+        handleImportOpenApi: vi.fn().mockReturnValue(true),
       });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 
@@ -233,11 +234,11 @@ describe('RestDslImportWizard', () => {
     });
 
     it('calls onGoToDesigner when Go to Designer button is clicked', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({
+      (useRestDslImportWizard as Mock).mockReturnValue({
         ...mockWizard,
         isOpenApiParsed: true,
         importStatus: { type: 'success', message: 'Import succeeded.' },
-        handleImportOpenApi: jest.fn().mockReturnValue(true),
+        handleImportOpenApi: vi.fn().mockReturnValue(true),
       });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 
@@ -262,7 +263,7 @@ describe('RestDslImportWizard', () => {
     });
 
     it('disables Import button when spec is not parsed', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({ ...mockWizard, isOpenApiParsed: false });
+      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, isOpenApiParsed: false });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 
       // Navigate to Operations step
@@ -276,7 +277,7 @@ describe('RestDslImportWizard', () => {
     });
 
     it('disables Import button when neither REST nor routes are selected', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({
+      (useRestDslImportWizard as Mock).mockReturnValue({
         ...mockWizard,
         isOpenApiParsed: true,
         importCreateRest: false,
@@ -295,11 +296,11 @@ describe('RestDslImportWizard', () => {
     });
 
     it('calls resetImportWizard and onClose when Go to Rest Editor is clicked on result step', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({
+      (useRestDslImportWizard as Mock).mockReturnValue({
         ...mockWizard,
         isOpenApiParsed: true,
         importStatus: { type: 'success', message: 'Import succeeded.' },
-        handleImportOpenApi: jest.fn().mockReturnValue(true),
+        handleImportOpenApi: vi.fn().mockReturnValue(true),
       });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 
@@ -324,7 +325,7 @@ describe('RestDslImportWizard', () => {
           routeExists: true,
         },
       ];
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
+      (useRestDslImportWizard as Mock).mockReturnValue({ ...mockWizard, importOperations: operations });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 
       const operationsNav = screen.getByRole('button', { name: /^Operations$/i });
@@ -338,11 +339,11 @@ describe('RestDslImportWizard', () => {
     });
 
     it('does not advance to result when import fails', async () => {
-      (useRestDslImportWizard as jest.Mock).mockReturnValue({
+      (useRestDslImportWizard as Mock).mockReturnValue({
         ...mockWizard,
         isOpenApiParsed: true,
         importCreateRoutes: true,
-        handleImportOpenApi: jest.fn().mockReturnValue(false),
+        handleImportOpenApi: vi.fn().mockReturnValue(false),
       });
       render(<RestDslImportWizard onClose={mockOnClose} onGoToDesigner={mockOnGoToDesigner} />);
 

@@ -1,12 +1,28 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
-import { CamelRouteResource, SourceSchemaType } from '../../../../models/camel';
+import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { KaotoSchemaDefinition } from '../../../../models/kaoto-schema';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { configureSourceSchemaTypes } from '../../../../stubs';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
-const onSelect = jest.fn();
+const config = sourceSchemaConfig;
+config.config[SourceSchemaType.Pipe].schema = {
+  name: 'Pipe',
+  schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
+} as KaotoSchemaDefinition;
+config.config[SourceSchemaType.Kamelet].schema = {
+  name: 'Kamelet',
+  schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
+} as KaotoSchemaDefinition;
+config.config[SourceSchemaType.Route].schema = {
+  name: 'route',
+  schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
+} as KaotoSchemaDefinition;
+
+const onSelect = vi.fn();
 const FlowTypeSelectorWithContext: React.FunctionComponent<{
   currentSchemaType?: SourceSchemaType;
 }> = ({ currentSchemaType }) => {

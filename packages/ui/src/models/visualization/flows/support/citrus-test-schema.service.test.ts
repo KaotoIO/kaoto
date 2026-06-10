@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { getFirstCitrusCatalogMap } from '../../../../stubs/test-load-catalog';
 import { CatalogKind } from '../../../catalog-kind';
@@ -15,7 +16,7 @@ describe('CitrusTestSchemaService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
@@ -29,7 +30,7 @@ describe('CitrusTestSchemaService', () => {
       ['kubernetes-createService', CatalogKind.TestAction],
       ['camel-jbang-run', CatalogKind.TestAction],
     ])('should leverage the CamelCatalogService.getComponent method', (actionName, catalogKind) => {
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
       CitrusTestSchemaService.getNodeSchema(actionName);
 
@@ -39,7 +40,7 @@ describe('CitrusTestSchemaService', () => {
     it.each([undefined, { kind: CatalogKind.TestAction, name: 'test-action', propertiesSchema: undefined } as const])(
       'should return an empty schema when the action is not found',
       (schema) => {
-        jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema);
+        vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema);
         const result = CitrusTestSchemaService.getNodeSchema('non-existing');
         expect(result).toEqual({});
       },

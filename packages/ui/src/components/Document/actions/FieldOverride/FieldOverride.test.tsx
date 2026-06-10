@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 
+import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { MappingTree } from '../../../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldTypeInfo, Types } from '../../../../models/datamapper/types';
@@ -7,10 +9,18 @@ import { FieldOverrideService } from '../../../../services/document/field-overri
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../../xml-schema-ts/QName';
 import { FieldOverride, revertOverride } from './FieldOverride';
+import { FieldOverrideModal } from './FieldOverrideModal';
+
+const mockSelectedType: IFieldTypeInfo = {
+  typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
+  displayName: 'int',
+  type: Types.Integer,
+  isBuiltIn: true,
+};
 
 // Mock FieldOverrideModal to expose the onSave/onAttach/onRemove callbacks
-jest.mock('./FieldOverrideModal', () => ({
-  FieldOverrideModal: jest.fn(({ isOpen, onSave, onAttach, onRemove }) => {
+vi.mock('./FieldOverrideModal', () => ({
+  FieldOverrideModal: vi.fn(({ isOpen, onSave, onAttach, onRemove }) => {
     if (!isOpen) return null;
     return (
       <div data-testid="field-override-modal">
@@ -32,52 +42,44 @@ jest.mock('./FieldOverrideModal', () => ({
 }));
 
 // Mock FieldOverrideService
-jest.mock('../../../../services/document/field-override.service', () => ({
+vi.mock('../../../../services/document/field-override.service', () => ({
   FieldOverrideService: {
-    applyFieldTypeOverride: jest.fn(),
-    applyFieldSubstitution: jest.fn(),
-    revertFieldTypeOverride: jest.fn(),
-    revertFieldSubstitution: jest.fn(),
-    addSchemaFilesForTypeOverride: jest.fn(),
+    applyFieldTypeOverride: vi.fn(),
+    applyFieldSubstitution: vi.fn(),
+    revertFieldTypeOverride: vi.fn(),
+    revertFieldSubstitution: vi.fn(),
+    addSchemaFilesForTypeOverride: vi.fn(),
   },
 }));
 
 // Mock useDataMapper hook
-jest.mock('../../../../hooks/useDataMapper', () => ({
-  useDataMapper: jest.fn(),
+vi.mock('../../../../hooks/useDataMapper', () => ({
+  useDataMapper: vi.fn(),
 }));
-
-const mockSelectedType: IFieldTypeInfo = {
-  typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
-  displayName: 'int',
-  type: Types.Integer,
-  isBuiltIn: true,
-};
 
 describe('FieldOverride', () => {
   let testTargetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let testMappingTree: MappingTree;
-  const mockUpdateDocument = jest.fn();
-  const mockOnComplete = jest.fn();
-  const mockOnClose = jest.fn();
+  const mockUpdateDocument = vi.fn();
+  const mockOnComplete = vi.fn();
+  const mockOnClose = vi.fn();
 
   beforeEach(() => {
     testTargetDoc = TestUtil.createTargetOrderDoc();
     testMappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    jest.clearAllMocks();
-    const { useDataMapper } = jest.requireMock('../../../../hooks/useDataMapper');
-    useDataMapper.mockReturnValue({
+    vi.clearAllMocks();
+    vi.mocked(useDataMapper).mockReturnValue({
       mappingTree: testMappingTree,
       updateDocument: mockUpdateDocument,
-    });
+    } as never);
   });
 
   it('should pass field to FieldOverrideModal when open', () => {
     const field = testTargetDoc.fields[0];
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     expect(lastCall[0].field).toBe(field);
   });
 
@@ -85,16 +87,16 @@ describe('FieldOverride', () => {
     const field = testTargetDoc.fields[0];
     render(<FieldOverride isOpen={false} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    expect(FieldOverrideModalMock).not.toHaveBeenCalled();
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    expect(mockFieldOverrideModal).not.toHaveBeenCalled();
   });
 
   it('should call applyFieldTypeOverride and updateDocument on save', () => {
     const field = testTargetDoc.fields[0];
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     const onSaveCallback = lastCall[0].onSave;
 
     onSaveCallback({ mode: 'type', selectedType: mockSelectedType, selectedKey: 'xs:int' });
@@ -115,8 +117,8 @@ describe('FieldOverride', () => {
 
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     const onSaveCallback = lastCall[0].onSave;
 
     onSaveCallback({ mode: 'type', selectedType: mockSelectedType, selectedKey: 'xs:int' });
@@ -131,8 +133,8 @@ describe('FieldOverride', () => {
 
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     const onAttachCallback = lastCall[0].onAttach;
 
     onAttachCallback(schemas);
@@ -148,8 +150,8 @@ describe('FieldOverride', () => {
     const field = testTargetDoc.fields[0];
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     const onSaveCallback = lastCall[0].onSave;
 
     onSaveCallback({ mode: 'substitution', selectedKey: 'sub:Cat' });
@@ -170,8 +172,8 @@ describe('FieldOverride', () => {
     field.typeOverride = FieldOverrideVariant.SAFE;
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     const onRemoveCallback = lastCall[0].onRemove;
 
     onRemoveCallback();
@@ -186,8 +188,8 @@ describe('FieldOverride', () => {
     const field = testTargetDoc.fields[0];
     render(<FieldOverride isOpen={true} field={field} onComplete={mockOnComplete} onClose={mockOnClose} />);
 
-    const FieldOverrideModalMock = jest.requireMock('./FieldOverrideModal').FieldOverrideModal;
-    const lastCall = FieldOverrideModalMock.mock.calls[FieldOverrideModalMock.mock.calls.length - 1];
+    const mockFieldOverrideModal = vi.mocked(FieldOverrideModal);
+    const lastCall = mockFieldOverrideModal.mock.calls[mockFieldOverrideModal.mock.calls.length - 1];
     const onCloseCallback = lastCall[0].onClose;
 
     onCloseCallback();
@@ -200,7 +202,7 @@ describe('FieldOverride', () => {
 
 describe('revertOverride', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should call revertFieldSubstitution when field has SUBSTITUTION override', () => {
@@ -208,7 +210,7 @@ describe('revertOverride', () => {
     const field = testTargetDoc.fields[0];
     field.typeOverride = FieldOverrideVariant.SUBSTITUTION;
     const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-    const mockUpdateDocument = jest.fn();
+    const mockUpdateDocument = vi.fn();
 
     revertOverride(field, namespaceMap, mockUpdateDocument);
 
@@ -222,7 +224,7 @@ describe('revertOverride', () => {
     const field = testTargetDoc.fields[0];
     field.typeOverride = FieldOverrideVariant.NONE;
     const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-    const mockUpdateDocument = jest.fn();
+    const mockUpdateDocument = vi.fn();
 
     revertOverride(field, namespaceMap, mockUpdateDocument);
 
@@ -236,7 +238,7 @@ describe('revertOverride', () => {
     const field = testTargetDoc.fields[0];
     field.typeOverride = FieldOverrideVariant.SAFE;
     const namespaceMap = { xs: 'http://www.w3.org/2001/XMLSchema' };
-    const mockUpdateDocument = jest.fn();
+    const mockUpdateDocument = vi.fn();
 
     revertOverride(field, namespaceMap, mockUpdateDocument);
 

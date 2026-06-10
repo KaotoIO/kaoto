@@ -1,18 +1,20 @@
+import { vi } from 'vitest';
+
 import { CatalogKind } from '../../../../../catalog-kind';
 import { getTitleRequest } from './getTitleRequest';
 import { NodeTitleResolver } from './node-title-resolver';
 
-jest.mock('./node-title-resolver');
+vi.mock('./node-title-resolver');
 
 describe('getTitleRequest', () => {
-  const mockGetComponentTitle = jest.mocked(NodeTitleResolver.getComponentTitle);
-  const mockGetKameletTitle = jest.mocked(NodeTitleResolver.getKameletTitle);
-  const mockGetProcessorTitle = jest.mocked(NodeTitleResolver.getProcessorTitle);
-  const mockGetEntityTitle = jest.mocked(NodeTitleResolver.getEntityTitle);
-  const mockGetTestActionTitle = jest.mocked(NodeTitleResolver.getTestActionTitle);
+  const mockGetComponentTitle = vi.mocked(NodeTitleResolver.getComponentTitle);
+  const mockGetKameletTitle = vi.mocked(NodeTitleResolver.getKameletTitle);
+  const mockGetProcessorTitle = vi.mocked(NodeTitleResolver.getProcessorTitle);
+  const mockGetEntityTitle = vi.mocked(NodeTitleResolver.getEntityTitle);
+  const mockGetTestActionTitle = vi.mocked(NodeTitleResolver.getTestActionTitle);
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should get component title for Component catalog kind', async () => {

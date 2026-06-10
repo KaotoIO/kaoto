@@ -1,6 +1,7 @@
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { Ref } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { sourceSchemaConfig, SourceSchemaType } from '../../../models/camel';
 import { EntitiesContext, EntitiesContextResult } from '../../../providers/entities.provider';
@@ -21,7 +22,7 @@ const makeGetOption = () => (sourceType: SourceSchemaType) => ({
 });
 
 const renderSelector = (
-  onSelect?: jest.Mock,
+  onSelect?: Mock,
   currentSchemaType: SourceSchemaType = SourceSchemaType.Route,
   overrideGetOption?: (sourceType: SourceSchemaType) => {
     description: string;
@@ -77,7 +78,7 @@ describe('IntegrationTypeSelector', () => {
   });
 
   it('calls onSelect with the chosen SourceSchemaType when an option is clicked', async () => {
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     const wrapper = renderSelector(onSelect);
 
     act(() => {
@@ -95,7 +96,7 @@ describe('IntegrationTypeSelector', () => {
   });
 
   it('closes the dropdown after selecting an option', async () => {
-    const wrapper = renderSelector(jest.fn());
+    const wrapper = renderSelector(vi.fn());
 
     act(() => {
       fireEvent.click(wrapper.getByTestId('test-toggle'));
@@ -179,7 +180,7 @@ describe('IntegrationTypeSelector', () => {
   });
 
   it('does not call onSelect when no valid flowType is provided', async () => {
-    const onSelect = jest.fn();
+    const onSelect = vi.fn();
     const wrapper = renderSelector(onSelect);
 
     act(() => {

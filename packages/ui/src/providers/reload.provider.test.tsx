@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { useContext } from 'react';
+import { vi } from 'vitest';
 
 import { ReloadContext, ReloadProvider } from './reload.provider';
 
@@ -17,13 +18,13 @@ describe('ReloadProvider', () => {
   });
 
   it('should update lastRender when reloadPage is called', async () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     const wrapper = renderHook(() => useContext(ReloadContext), { wrapper: ReloadProvider });
 
     const initialLastRender = wrapper.result.current?.lastRender;
 
     act(() => {
-      jest.advanceTimersByTime(1000);
+      vi.advanceTimersByTime(1000);
     });
 
     await act(async () => {
@@ -32,6 +33,6 @@ describe('ReloadProvider', () => {
 
     expect(wrapper.result.current?.lastRender).not.toEqual(initialLastRender);
 
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 });

@@ -2,6 +2,7 @@ import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
+import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../../models/camel/camel-route-resource';
 import { EntityType } from '../../../../../models/entities';
@@ -32,7 +33,7 @@ describe('DirectEndpointNameField', () => {
     render(
       <Provider>
         <SchemaProvider schema={schema}>
-          <ModelContextProvider model={model} onPropertyChange={jest.fn()}>
+          <ModelContextProvider model={model} onPropertyChange={vi.fn()}>
             <DirectEndpointNameField propName={PROP_NAME} />
           </ModelContextProvider>
         </SchemaProvider>
@@ -75,7 +76,7 @@ describe('DirectEndpointNameField', () => {
   });
 
   it('creates a new route with direct from and typed name', async () => {
-    const toggleFlowVisibleSpy = jest.fn();
+    const toggleFlowVisibleSpy = vi.fn();
     const visibleFlowsContext = {
       allFlowsVisible: true,
       visibleFlows: {},
@@ -87,7 +88,7 @@ describe('DirectEndpointNameField', () => {
       [{ from: { uri: 'direct:start', steps: [] } }],
       visibleFlowsContext,
     );
-    const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
+    const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
     const input = screen.getByRole('textbox', { name: 'Name' });
     const button = screen.getByRole('button', { name: 'Create Route' });

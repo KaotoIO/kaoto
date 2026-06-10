@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { OpenApi } from 'openapi-v3';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../models/camel/camel-route-resource';
 import { KaotoResource } from '../../models/kaoto-resource';
@@ -9,11 +10,11 @@ import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
 import { useRestDslImportWizard } from './useRestDslImportWizard';
 
 describe('useRestDslImportWizard', () => {
-  const fetchSpy = jest.spyOn(globalThis, 'fetch');
+  const fetchSpy = vi.spyOn(globalThis, 'fetch');
   let wrapper: FunctionComponent<PropsWithChildren>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     fetchSpy.mockClear();
 
     const { Provider } = TestProvidersWrapper();
@@ -187,7 +188,7 @@ describe('useRestDslImportWizard', () => {
 
     camelResource.initialize();
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
-    const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
+    const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <SettingsContext.Provider value={mockSettingsContext}>
@@ -248,7 +249,7 @@ describe('useRestDslImportWizard', () => {
     camelResource.initialize();
 
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
-    const addNewEntitySpy = jest.spyOn(camelResource, 'addNewEntity');
+    const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <SettingsContext.Provider value={mockSettingsContext}>
@@ -599,10 +600,10 @@ describe('useRestDslImportWizard', () => {
       const mockRouteEntity = {
         id: 'new-route-1',
         type: 'route',
-        updateModel: jest.fn(),
+        updateModel: vi.fn(),
       };
-      camelResource.addNewEntity = jest.fn().mockReturnValue('new-route-1');
-      camelResource.getVisualEntities = jest.fn().mockReturnValue([mockRouteEntity]);
+      camelResource.addNewEntity = vi.fn().mockReturnValue('new-route-1');
+      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRouteEntity]);
 
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: routeWrapper });
 
@@ -634,11 +635,11 @@ describe('useRestDslImportWizard', () => {
       const mockRestEntity = {
         id: 'new-rest-1',
         type: 'rest',
-        updateModel: jest.fn(),
-        getRootPath: jest.fn().mockReturnValue('rest'),
+        updateModel: vi.fn(),
+        getRootPath: vi.fn().mockReturnValue('rest'),
       };
-      camelResource.addNewEntity = jest.fn().mockReturnValue('new-rest-1');
-      camelResource.getVisualEntities = jest.fn().mockReturnValue([mockRestEntity]);
+      camelResource.addNewEntity = vi.fn().mockReturnValue('new-rest-1');
+      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRestEntity]);
 
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: routeWrapper });
 
@@ -667,17 +668,17 @@ describe('useRestDslImportWizard', () => {
     });
 
     it('creates both routes and REST definitions when both are enabled', () => {
-      const mockRouteEntity = { id: 'new-route-1', type: 'route', updateModel: jest.fn() };
+      const mockRouteEntity = { id: 'new-route-1', type: 'route', updateModel: vi.fn() };
       const mockRestEntity = {
         id: 'new-rest-1',
         type: 'rest',
-        updateModel: jest.fn(),
-        getRootPath: jest.fn().mockReturnValue('rest'),
+        updateModel: vi.fn(),
+        getRootPath: vi.fn().mockReturnValue('rest'),
       };
-      camelResource.addNewEntity = jest.fn().mockImplementation((type) => {
+      camelResource.addNewEntity = vi.fn().mockImplementation((type) => {
         return type === 'rest' ? 'new-rest-1' : 'new-route-1';
       });
-      camelResource.getVisualEntities = jest.fn().mockReturnValue([mockRouteEntity, mockRestEntity]);
+      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRouteEntity, mockRestEntity]);
 
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: routeWrapper });
 
@@ -706,14 +707,14 @@ describe('useRestDslImportWizard', () => {
     });
 
     it('reports plural message for multiple operations', () => {
-      const mockRouteEntity1 = { id: 'new-route-1', type: 'route', updateModel: jest.fn() };
-      const mockRouteEntity2 = { id: 'new-route-2', type: 'route', updateModel: jest.fn() };
+      const mockRouteEntity1 = { id: 'new-route-1', type: 'route', updateModel: vi.fn() };
+      const mockRouteEntity2 = { id: 'new-route-2', type: 'route', updateModel: vi.fn() };
       let routeCount = 0;
-      camelResource.addNewEntity = jest.fn().mockImplementation(() => {
+      camelResource.addNewEntity = vi.fn().mockImplementation(() => {
         routeCount++;
         return `new-route-${routeCount}`;
       });
-      camelResource.getVisualEntities = jest.fn().mockReturnValue([mockRouteEntity1, mockRouteEntity2]);
+      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRouteEntity1, mockRouteEntity2]);
 
       const multiOpSpec = JSON.stringify({
         openapi: '3.0.0',

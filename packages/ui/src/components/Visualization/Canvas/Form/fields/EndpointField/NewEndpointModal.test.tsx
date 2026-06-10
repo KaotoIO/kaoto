@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
@@ -12,9 +13,9 @@ import { EndpointModalProps, NewEndpointModal } from './NewEndpointModal';
 describe('NewEndpointModal', () => {
   let endpointsSchema: KaotoSchemaDefinition['schema'];
   let defaultProps: EndpointModalProps;
-  let mockOnConfirm: jest.Mock;
-  let mockOnCancel: jest.Mock;
-  let mockGetNewComponent: jest.Mock;
+  let mockOnConfirm: Mock;
+  let mockOnCancel: Mock;
+  let mockGetNewComponent: Mock;
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary as CatalogLibrary);
@@ -41,9 +42,9 @@ describe('NewEndpointModal', () => {
   });
 
   beforeEach(() => {
-    mockOnConfirm = jest.fn();
-    mockOnCancel = jest.fn();
-    mockGetNewComponent = jest.fn();
+    mockOnConfirm = vi.fn();
+    mockOnCancel = vi.fn();
+    mockGetNewComponent = vi.fn();
 
     defaultProps = {
       mode: 'Create',
@@ -57,7 +58,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -70,7 +71,7 @@ describe('NewEndpointModal', () => {
 
   it('should not render anything if there is no schema', () => {
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} endpointsSchema={undefined} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -83,7 +84,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} mode="Create" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -99,7 +100,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} mode="Update" endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -114,7 +115,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -133,7 +134,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -154,7 +155,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue(undefined);
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -170,7 +171,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue(undefined);
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} endpoint={{}} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -188,7 +189,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'jms-queue' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -212,7 +213,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -239,7 +240,7 @@ describe('NewEndpointModal', () => {
     mockGetNewComponent.mockResolvedValue({ name: 'http-client' });
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },
@@ -258,7 +259,7 @@ describe('NewEndpointModal', () => {
     const endpoint = { name: 'existingEndpoint', url: 'http://test.com' };
 
     render(
-      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: jest.fn() }}>
+      <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
         <NewEndpointModal {...defaultProps} endpoint={endpoint} type="http-client" />
       </CatalogModalContext.Provider>,
       { wrapper: SuggestionRegistryProvider },

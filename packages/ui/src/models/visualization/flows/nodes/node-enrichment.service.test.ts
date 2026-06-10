@@ -1,3 +1,5 @@
+import { MockInstance, vi } from 'vitest';
+
 import { CatalogKind } from '../../../catalog-kind';
 import { KaotoSchemaDefinition } from '../../../kaoto-schema';
 import { BaseVisualEntity, IVisualizationNode } from '../../base-visual-entity';
@@ -9,22 +11,22 @@ import { getTitleRequest } from './resolvers/title-resolver/getTitleRequest';
 import { getProcessorIconTooltipRequest } from './resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
 import { getTooltipRequest } from './resolvers/tooltip-resolver/getTooltipRequest';
 
-jest.mock('./resolvers/icon-resolver/getIconRequest');
-jest.mock('./resolvers/tooltip-resolver/getTooltipRequest');
-jest.mock('./resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
-jest.mock('./resolvers/title-resolver/getTitleRequest');
+vi.mock('./resolvers/icon-resolver/getIconRequest');
+vi.mock('./resolvers/tooltip-resolver/getTooltipRequest');
+vi.mock('./resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
+vi.mock('./resolvers/title-resolver/getTitleRequest');
 
 describe('NodeEnrichmentService', () => {
-  const mockGetIconRequest = jest.mocked(getIconRequest);
-  const mockGetTooltipRequest = jest.mocked(getTooltipRequest);
-  const mockGetProcessorIconTooltipRequest = jest.mocked(getProcessorIconTooltipRequest);
-  const mockGetTitleRequest = jest.mocked(getTitleRequest);
+  const mockGetIconRequest = vi.mocked(getIconRequest);
+  const mockGetTooltipRequest = vi.mocked(getTooltipRequest);
+  const mockGetProcessorIconTooltipRequest = vi.mocked(getProcessorIconTooltipRequest);
+  const mockGetTitleRequest = vi.mocked(getTitleRequest);
 
-  let consoleWarnSpy: jest.SpyInstance;
+  let consoleWarnSpy: MockInstance;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    vi.clearAllMocks();
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -47,7 +49,7 @@ describe('NodeEnrichmentService', () => {
 
     // Mock fetchSchema method
     if (fetchSchemaImpl) {
-      vizNode.fetchSchema = jest.fn(fetchSchemaImpl);
+      vizNode.fetchSchema = vi.fn(fetchSchemaImpl);
     }
 
     return vizNode;
@@ -187,7 +189,7 @@ describe('NodeEnrichmentService', () => {
       description: '',
     } as unknown as CamelRouteVisualEntityData);
 
-    vizNode.fetchSchema = jest.fn(async () => rootSchema);
+    vizNode.fetchSchema = vi.fn(async () => rootSchema);
 
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Entity);
 
@@ -220,7 +222,7 @@ describe('NodeEnrichmentService', () => {
       description: '',
     } as unknown as CamelRouteVisualEntityData);
 
-    vizNode.fetchSchema = jest.fn(async () => standardSchema);
+    vizNode.fetchSchema = vi.fn(async () => standardSchema);
 
     await NodeEnrichmentService.enrichNodeFromCatalog(vizNode, CatalogKind.Processor);
 

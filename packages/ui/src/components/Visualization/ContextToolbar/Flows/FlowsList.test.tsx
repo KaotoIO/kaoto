@@ -1,4 +1,5 @@
 import { act, fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
@@ -12,10 +13,10 @@ import { mockRandomValues, TestProvidersWrapper } from '../../../../stubs';
 import { FlowsList } from './FlowsList';
 
 const mockController = {
-  fromModel: jest.fn(),
+  fromModel: vi.fn(),
 };
 
-jest.mock('@patternfly/react-topology', () => ({
+vi.mock('@patternfly/react-topology', () => ({
   useVisualizationController: () => mockController,
 }));
 
@@ -27,7 +28,7 @@ describe('FlowsList.tsx', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     camelResource.addNewEntity(EntityType.RouteConfiguration);
@@ -77,8 +78,8 @@ describe('FlowsList.tsx', () => {
 
   it('should make the selected flow visible by clicking on its ID', async () => {
     let resId = '';
-    const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    jest.spyOn(visualFlowsApi, 'toggleFlowVisible').mockImplementation((id: string) => {
+    const visualFlowsApi = new VisualFlowsApi(vi.fn());
+    vi.spyOn(visualFlowsApi, 'toggleFlowVisible').mockImplementation((id: string) => {
       resId = id;
     });
 
@@ -104,7 +105,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should call onClose when clicking on a flow ID', async () => {
-    const onCloseSpy = jest.fn();
+    const onCloseSpy = vi.fn();
     const { Provider } = TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
@@ -123,7 +124,7 @@ describe('FlowsList.tsx', () => {
 
   it('should show delete confirmation modal when clicking on a delete icon', async () => {
     const mockDeleteModalContext = {
-      actionConfirmation: jest.fn(),
+      actionConfirmation: vi.fn(),
     };
 
     const { Provider } = TestProvidersWrapper({ camelResource });
@@ -193,8 +194,8 @@ describe('FlowsList.tsx', () => {
 
   it('should toggle the visibility of a flow clicking on the Eye icon', async () => {
     let resId = '';
-    const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    jest.spyOn(visualFlowsApi, 'toggleFlowVisible').mockImplementation((id: string) => {
+    const visualFlowsApi = new VisualFlowsApi(vi.fn());
+    vi.spyOn(visualFlowsApi, 'toggleFlowVisible').mockImplementation((id: string) => {
       resId = id;
     });
 
@@ -224,7 +225,7 @@ describe('FlowsList.tsx', () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
-      visualFlowsApi: new VisualFlowsApi(jest.fn),
+      visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
     const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
@@ -246,7 +247,7 @@ describe('FlowsList.tsx', () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
       visibleFlows: { ['route-1234']: false, ['routeConfiguration-1234']: true },
-      visualFlowsApi: new VisualFlowsApi(jest.fn),
+      visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
     const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
@@ -271,8 +272,8 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should rename a flow', async () => {
-    const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    const renameSpy = jest.spyOn(visualFlowsApi, 'renameFlow');
+    const visualFlowsApi = new VisualFlowsApi(vi.fn());
+    const renameSpy = vi.spyOn(visualFlowsApi, 'renameFlow');
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
@@ -312,8 +313,8 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should show all flows when not all flows are visible', async () => {
-    const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    const showAllFlowsSpy = jest.spyOn(visualFlowsApi, 'showFlows');
+    const visualFlowsApi = new VisualFlowsApi(vi.fn());
+    const showAllFlowsSpy = vi.spyOn(visualFlowsApi, 'showFlows');
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
@@ -338,8 +339,8 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should hide all flows when all flows are visible', async () => {
-    const visualFlowsApi = new VisualFlowsApi(jest.fn);
-    const hideAllFlowsSpy = jest.spyOn(visualFlowsApi, 'hideFlows');
+    const visualFlowsApi = new VisualFlowsApi(vi.fn());
+    const hideAllFlowsSpy = vi.spyOn(visualFlowsApi, 'hideFlows');
 
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: true,
@@ -367,7 +368,7 @@ describe('FlowsList.tsx', () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: true,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
-      visualFlowsApi: new VisualFlowsApi(jest.fn),
+      visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
     const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
@@ -386,7 +387,7 @@ describe('FlowsList.tsx', () => {
     const visibleFlowsContext: VisibleFlowsContextResult = {
       allFlowsVisible: false,
       visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: false },
-      visualFlowsApi: new VisualFlowsApi(jest.fn),
+      visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
     const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
@@ -408,7 +409,7 @@ describe('FlowsList.tsx', () => {
         ['route-1234']: false,
         ['routeConfiguration-1234']: true,
       },
-      visualFlowsApi: new VisualFlowsApi(jest.fn),
+      visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
     const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });

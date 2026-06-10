@@ -1,16 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { vi } from 'vitest';
 
 import { ValidationResult, ValidationStatus } from '../../models';
 import { XsltDocumentRenameInput } from './XsltDocumentRenameInput';
 
-// Mocking PatternFly icons to clean up the DOM / snapshots if needed
-jest.mock('@patternfly/react-icons', () => ({
-  PencilAltIcon: () => <span data-testid="pencil-icon" />,
-  CheckIcon: () => <span data-testid="check-icon" />,
-  TimesIcon: () => <span data-testid="times-icon" />,
-  ExclamationCircleIcon: () => <span data-testid="error-icon" />,
-}));
+// Note: Using global PatternFly icons mock from vitest-mocks-setup.ts
+// No need for local mock here
 
 describe('XsltDocumentRenameInput', () => {
   const defaultProps = {
@@ -72,7 +68,7 @@ describe('XsltDocumentRenameInput', () => {
 
     it('should stop event propagation when clicking the edit button', () => {
       const mouseEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = jest.spyOn(mouseEvent, 'stopPropagation');
+      const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
 
       render(<XsltDocumentRenameInput {...defaultProps} />);
       const editButton = screen.getByTestId('rename-input--edit');
@@ -83,7 +79,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should call onEditingStateChange with true when entering edit mode', async () => {
-      const mockOnEditingStateChange = jest.fn();
+      const mockOnEditingStateChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onEditingStateChange={mockOnEditingStateChange} />);
       const user = userEvent.setup();
 
@@ -129,7 +125,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should trigger validation on input change', async () => {
-      const mockValidator = jest.fn().mockImplementation((val: string): ValidationResult => {
+      const mockValidator = vi.fn().mockImplementation((val: string): ValidationResult => {
         if (val.length < 3) {
           return { status: ValidationStatus.Error, errMessages: ['Name is too short'] };
         }
@@ -149,7 +145,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should display validation error messages', async () => {
-      const mockValidator = jest.fn().mockImplementation((val: string): ValidationResult => {
+      const mockValidator = vi.fn().mockImplementation((val: string): ValidationResult => {
         if (val.length < 3) {
           return { status: ValidationStatus.Error, errMessages: ['Name is too short'] };
         }
@@ -170,7 +166,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should disable save button when validation fails', async () => {
-      const mockValidator = jest.fn().mockImplementation((val: string): ValidationResult => {
+      const mockValidator = vi.fn().mockImplementation((val: string): ValidationResult => {
         if (val.length < 3) {
           return { status: ValidationStatus.Error, errMessages: ['Name is too short'] };
         }
@@ -190,7 +186,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should reset validation when input value matches the original prop value', async () => {
-      const mockValidator = jest.fn().mockReturnValue({
+      const mockValidator = vi.fn().mockReturnValue({
         status: ValidationStatus.Error,
         errMessages: ['Invalid value'],
       });
@@ -216,7 +212,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should handle async validator that returns a Promise', async () => {
-      const mockValidator = jest
+      const mockValidator = vi
         .fn()
         .mockImplementation(
           (val: string): Promise<ValidationResult> =>
@@ -253,7 +249,7 @@ describe('XsltDocumentRenameInput', () => {
       const input = screen.getByTestId('rename-input--text-input');
 
       const keyDownEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
-      const stopPropagationSpy = jest.spyOn(keyDownEvent, 'stopPropagation');
+      const stopPropagationSpy = vi.spyOn(keyDownEvent, 'stopPropagation');
 
       fireEvent(input, keyDownEvent);
 
@@ -261,7 +257,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should handle validator throwing an error', async () => {
-      const mockValidator = jest.fn().mockImplementation(() => {
+      const mockValidator = vi.fn().mockImplementation(() => {
         throw new Error('Validator crashed');
       });
 
@@ -283,7 +279,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should handle async validator throwing an error', async () => {
-      const mockValidator = jest.fn().mockRejectedValue(new Error('Async validator crashed'));
+      const mockValidator = vi.fn().mockRejectedValue(new Error('Async validator crashed'));
 
       render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
       const user = userEvent.setup();
@@ -305,7 +301,7 @@ describe('XsltDocumentRenameInput', () => {
 
   describe('Save functionality', () => {
     it('should call onChange with the new value on save', async () => {
-      const mockOnChange = jest.fn().mockResolvedValue(undefined);
+      const mockOnChange = vi.fn().mockResolvedValue(undefined);
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -319,7 +315,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should return to read-only mode after saving', async () => {
-      const mockOnChange = jest.fn().mockResolvedValue(undefined);
+      const mockOnChange = vi.fn().mockResolvedValue(undefined);
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -336,7 +332,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should save the value when hitting the Enter key', async () => {
-      const mockOnChange = jest.fn();
+      const mockOnChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -349,8 +345,8 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should not save when validation status is Error', async () => {
-      const mockOnChange = jest.fn();
-      const mockValidator = jest.fn().mockReturnValue({
+      const mockOnChange = vi.fn();
+      const mockValidator = vi.fn().mockReturnValue({
         status: ValidationStatus.Error,
         errMessages: ['Invalid'],
       });
@@ -368,7 +364,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should not call onChange when value has not changed', async () => {
-      const mockOnChange = jest.fn();
+      const mockOnChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -379,7 +375,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should handle synchronous onChange (non-Promise)', async () => {
-      const mockOnChange = jest.fn(); // Returns undefined (not a Promise)
+      const mockOnChange = vi.fn(); // Returns undefined (not a Promise)
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -397,7 +393,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should stop event propagation when clicking the save button', async () => {
-      const mockOnChange = jest.fn();
+      const mockOnChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -406,7 +402,7 @@ describe('XsltDocumentRenameInput', () => {
       await user.type(input, ' Change');
 
       const mouseEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = jest.spyOn(mouseEvent, 'stopPropagation');
+      const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
 
       const saveButton = screen.getByTestId('rename-input--save');
       fireEvent(saveButton, mouseEvent);
@@ -416,7 +412,7 @@ describe('XsltDocumentRenameInput', () => {
 
     it('should disable input and buttons while saving', async () => {
       let resolveSave: (value: unknown) => void = () => {};
-      const mockOnChange = jest.fn().mockImplementation(() => {
+      const mockOnChange = vi.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolveSave = resolve;
         });
@@ -451,7 +447,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should handle onChange throwing an error', async () => {
-      const mockOnChange = jest.fn().mockRejectedValue(new Error('Save failed'));
+      const mockOnChange = vi.fn().mockRejectedValue(new Error('Save failed'));
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -473,8 +469,8 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should call onEditingStateChange with false when saving successfully', async () => {
-      const mockOnChange = jest.fn().mockResolvedValue(undefined);
-      const mockOnEditingStateChange = jest.fn();
+      const mockOnChange = vi.fn().mockResolvedValue(undefined);
+      const mockOnEditingStateChange = vi.fn();
       render(
         <XsltDocumentRenameInput
           {...defaultProps}
@@ -499,7 +495,7 @@ describe('XsltDocumentRenameInput', () => {
 
   describe('Cancel functionality', () => {
     it('should revert to original value when canceling', async () => {
-      const mockOnChange = jest.fn();
+      const mockOnChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
@@ -515,7 +511,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should reset validation when canceling', async () => {
-      const mockValidator = jest.fn().mockReturnValue({
+      const mockValidator = vi.fn().mockReturnValue({
         status: ValidationStatus.Error,
         errMessages: ['Invalid'],
       });
@@ -558,7 +554,7 @@ describe('XsltDocumentRenameInput', () => {
       await user.click(screen.getByTestId('rename-input--edit'));
 
       const mouseEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = jest.spyOn(mouseEvent, 'stopPropagation');
+      const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
 
       const cancelButton = screen.getByTestId('rename-input--cancel');
       fireEvent(cancelButton, mouseEvent);
@@ -567,7 +563,7 @@ describe('XsltDocumentRenameInput', () => {
     });
 
     it('should call onEditingStateChange with false when canceling', async () => {
-      const mockOnEditingStateChange = jest.fn();
+      const mockOnEditingStateChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onEditingStateChange={mockOnEditingStateChange} />);
       const user = userEvent.setup();
 
@@ -594,7 +590,7 @@ describe('XsltDocumentRenameInput', () => {
       expect(form).toBeInTheDocument();
 
       const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-      const preventDefaultSpy = jest.spyOn(submitEvent, 'preventDefault');
+      const preventDefaultSpy = vi.spyOn(submitEvent, 'preventDefault');
 
       form?.dispatchEvent(submitEvent);
 

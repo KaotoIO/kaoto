@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { IVisualizationNode } from '../../models';
 import { SourceSchemaType } from '../../models/camel/source-schema-type';
 import { DocumentDefinitionType } from '../../models/datamapper';
@@ -10,30 +12,30 @@ import { XSLT_COMPONENT_NAME } from '../../utils';
 import { onDuplicateDataMapper } from './on-duplicate-datamapper';
 
 describe('onDuplicateDataMapper', () => {
-  let mockApi: jest.Mocked<IMetadataApi>;
-  let mockVizNode: jest.Mocked<IVisualizationNode>;
+  let mockApi: Mocked<IMetadataApi>;
+  let mockVizNode: Mocked<IVisualizationNode>;
   const originalMetadataId = 'kaoto-datamapper-original-id';
   const newStepId = 'kaoto-datamapper-new-id';
 
   beforeEach(() => {
     mockApi = {
-      getMetadata: jest.fn(),
-      setMetadata: jest.fn(),
-      getResourceContent: jest.fn(),
-      isResourceExist: jest.fn(),
-      saveResourceContent: jest.fn(),
-      deleteResource: jest.fn(),
-      askUserForFileSelection: jest.fn(),
+      getMetadata: vi.fn(),
+      setMetadata: vi.fn(),
+      getResourceContent: vi.fn(),
+      isResourceExist: vi.fn(),
+      saveResourceContent: vi.fn(),
+      deleteResource: vi.fn(),
+      askUserForFileSelection: vi.fn(),
       shouldSaveSchema: true,
-    } as unknown as jest.Mocked<IMetadataApi>;
+    } as unknown as Mocked<IMetadataApi>;
 
-    mockVizNode = {} as jest.Mocked<IVisualizationNode>;
+    mockVizNode = {} as Mocked<IVisualizationNode>;
 
-    jest.spyOn(DataMapperStepService, 'getDataMapperMetadataId').mockReturnValue(originalMetadataId);
+    vi.spyOn(DataMapperStepService, 'getDataMapperMetadataId').mockReturnValue(originalMetadataId);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should create metadata and copy XSLT file for duplicated DataMapper step', async () => {

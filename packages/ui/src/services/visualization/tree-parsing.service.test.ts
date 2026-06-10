@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -147,7 +149,7 @@ describe('TreeParsingService', () => {
     });
 
     it('should use VisualizationService to generate children', () => {
-      const spy = jest.spyOn(VisualizationService, 'generateNodeDataChildren');
+      const spy = vi.spyOn(VisualizationService, 'generateNodeDataChildren');
 
       TreeParsingService.parseTreeNode(tree.root);
 

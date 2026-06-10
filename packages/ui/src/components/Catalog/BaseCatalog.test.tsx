@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { longTileList } from '../../stubs';
 import { BaseCatalog } from './BaseCatalog';
@@ -14,7 +15,7 @@ describe('BaseCatalog', () => {
           className="catalog__base"
           tiles={longTileList}
           catalogLayout={CatalogLayout.Gallery}
-          onTagClick={jest.fn()}
+          onTagClick={vi.fn()}
         />,
       ),
     );
@@ -31,7 +32,7 @@ describe('BaseCatalog', () => {
           className="catalog__base"
           tiles={longTileList}
           catalogLayout={CatalogLayout.List}
-          onTagClick={jest.fn()}
+          onTagClick={vi.fn()}
         />,
       ),
     );
@@ -46,7 +47,7 @@ describe('BaseCatalog', () => {
           className="catalog__base"
           tiles={longTileList}
           catalogLayout={CatalogLayout.List}
-          onTagClick={jest.fn()}
+          onTagClick={vi.fn()}
         />,
       );
     });
@@ -77,7 +78,7 @@ describe('BaseCatalog', () => {
           className="catalog__base"
           tiles={longTileList}
           catalogLayout={CatalogLayout.List}
-          onTagClick={jest.fn()}
+          onTagClick={vi.fn()}
         />,
       );
     });

@@ -191,7 +191,7 @@ describe('CamelRestConfigurationVisualEntity', () => {
         path: 'restConfiguration',
         processorName: 'restConfiguration',
         iconAlt: 'Entity icon',
-        iconUrl: 'file-mock-data',
+        iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Rest Configuration',
         description: 'restConfiguration: restConfiguration',

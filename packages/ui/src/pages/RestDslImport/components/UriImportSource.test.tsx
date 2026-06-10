@@ -1,10 +1,11 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { UriImportSource } from './UriImportSource';
 
 describe('UriImportSource', () => {
-  const fetchSpy = jest.spyOn(globalThis, 'fetch');
-  const mockOnSchemaLoaded = jest.fn();
+  const fetchSpy = vi.spyOn(globalThis, 'fetch');
+  const mockOnSchemaLoaded = vi.fn();
 
   afterEach(() => {
     fetchSpy.mockRestore();
@@ -35,7 +36,7 @@ describe('UriImportSource', () => {
     const specContent = 'openapi: 3.0.0';
     fetchSpy.mockResolvedValue({
       ok: true,
-      text: jest.fn().mockResolvedValue(specContent),
+      text: vi.fn().mockResolvedValue(specContent),
     } as unknown as Response);
     mockOnSchemaLoaded.mockReturnValue({});
 
@@ -63,7 +64,7 @@ describe('UriImportSource', () => {
     const specContent = '<html>Not Found</html>';
     fetchSpy.mockResolvedValue({
       ok: true,
-      text: jest.fn().mockResolvedValue(specContent),
+      text: vi.fn().mockResolvedValue(specContent),
     } as unknown as Response);
     mockOnSchemaLoaded.mockReturnValue({ error: 'Invalid OpenAPI specification.' });
 
@@ -135,7 +136,7 @@ describe('UriImportSource', () => {
             () =>
               resolve({
                 ok: true,
-                text: jest.fn().mockResolvedValue('openapi: 3.0.0'),
+                text: vi.fn().mockResolvedValue('openapi: 3.0.0'),
               } as unknown as Response),
             100,
           ),

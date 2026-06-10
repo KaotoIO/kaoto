@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react';
+import { vi } from 'vitest';
 
 import { CamelRouteVisualEntity, createVisualizationNode, IVisualizationNode } from '../../models';
 import { TestProvidersWrapper } from '../../stubs';
@@ -118,7 +119,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+    const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
 
     render(
@@ -159,7 +160,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+    const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
 
     render(
@@ -197,7 +198,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+    const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
 
     render(
@@ -234,7 +235,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+    const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
     const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
 
     render(
@@ -276,7 +277,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const updateModelSpy = jest.spyOn(vizNode, 'updateModel');
+    const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
     const { Provider } = TestProvidersWrapper();
 
     render(

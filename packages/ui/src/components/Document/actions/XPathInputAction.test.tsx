@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
@@ -24,7 +25,7 @@ describe('XPathInputAction', () => {
   });
 
   it('should update xpath', () => {
-    const onUpdateMock = jest.fn();
+    const onUpdateMock = vi.fn();
     render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={onUpdateMock} />);
     expect(mapping.expression).toBeFalsy();
     const input = screen.getByTestId('transformation-xpath-input');
@@ -37,15 +38,15 @@ describe('XPathInputAction', () => {
 
   it('should show error popover button if xpath has a parse error', async () => {
     mapping.expression = '{{';
-    const onUpdateMock = jest.fn();
+    const onUpdateMock = vi.fn();
     render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={onUpdateMock} />);
     const btn = await screen.findByTestId('xpath-input-error-btn');
     expect(btn).toBeInTheDocument();
   });
 
   it('should stop event propagation on handleXPathChange', () => {
-    const stopPropagationSpy = jest.fn();
-    const wrapper = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    const stopPropagationSpy = vi.fn();
+    const wrapper = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     act(() => {
       const input = wrapper.getByTestId('transformation-xpath-input');
@@ -61,7 +62,7 @@ describe('XPathInputAction', () => {
     // Request focus using the tree's nodePath (which is what nodeData.mapping.nodePath refers to)
     useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
 
-    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     const input = await screen.findByTestId('transformation-xpath-input');
 
@@ -72,7 +73,7 @@ describe('XPathInputAction', () => {
   it('should NOT focus input when store does not indicate focus', async () => {
     mapping.expression = 'existing/xpath';
 
-    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     const input = await screen.findByTestId('transformation-xpath-input');
 
@@ -84,7 +85,7 @@ describe('XPathInputAction', () => {
 
     useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
 
-    const { rerender } = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    const { rerender } = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     const input = await screen.findByTestId('transformation-xpath-input');
     expect(input).toHaveFocus();
@@ -94,7 +95,7 @@ describe('XPathInputAction', () => {
     });
     expect(input).not.toHaveFocus();
 
-    rerender(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    rerender(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     expect(input).not.toHaveFocus();
   });
@@ -104,7 +105,7 @@ describe('XPathInputAction', () => {
 
     useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
 
-    const { rerender } = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    const { rerender } = render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     const input = await screen.findByTestId('transformation-xpath-input');
     expect(input).toHaveFocus();
@@ -114,7 +115,7 @@ describe('XPathInputAction', () => {
     });
 
     mapping.expression = 'new/path';
-    rerender(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={jest.fn()} />);
+    rerender(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
 
     expect(input).not.toHaveFocus();
   });

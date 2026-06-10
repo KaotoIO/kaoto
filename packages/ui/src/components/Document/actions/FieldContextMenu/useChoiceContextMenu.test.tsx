@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { DocumentTree } from '../../../../models/datamapper/document-tree';
 import { Types } from '../../../../models/datamapper/types';
@@ -155,7 +156,7 @@ describe('useChoiceContextMenu', () => {
   it('should call setChoiceSelection when clicking a choice member', () => {
     const { documentNodeData, choiceNode, choiceField } = createChoiceFieldNode(false);
 
-    const setSpy = jest.spyOn(ChoiceSelectionService, 'setChoiceSelection');
+    const setSpy = vi.spyOn(ChoiceSelectionService, 'setChoiceSelection');
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -183,7 +184,7 @@ describe('useChoiceContextMenu', () => {
     const { documentNodeData, choiceNode, choiceField } = createChoiceFieldNode(false);
     choiceField.selectedMemberIndex = 1;
 
-    const clearSpy = jest.spyOn(ChoiceSelectionService, 'clearChoiceSelection');
+    const clearSpy = vi.spyOn(ChoiceSelectionService, 'clearChoiceSelection');
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -350,7 +351,7 @@ describe('useChoiceContextMenu', () => {
     const { documentNodeData, choiceNode, choiceField } = createChoiceFieldNode(false);
     const memberNode = choiceNode.children[1];
 
-    const setSpy = jest.spyOn(ChoiceSelectionService, 'setChoiceSelection').mockImplementation(jest.fn());
+    const setSpy = vi.spyOn(ChoiceSelectionService, 'setChoiceSelection').mockImplementation(vi.fn());
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -478,7 +479,7 @@ describe('useChoiceContextMenu', () => {
     it('should call setChoiceSelection on inner wrapper when clicking an inner member', () => {
       const { documentNodeData, choiceNode, innerChoiceField } = createNestedChoiceFieldNode();
 
-      const setSpy = jest.spyOn(ChoiceSelectionService, 'setChoiceSelection').mockImplementation(jest.fn());
+      const setSpy = vi.spyOn(ChoiceSelectionService, 'setChoiceSelection').mockImplementation(vi.fn());
 
       render(
         <SourceDocumentNodeWithContextMenu
@@ -505,7 +506,7 @@ describe('useChoiceContextMenu', () => {
     it('should call clearChoiceSelection on outer wrapper when clicking Show All Choice Options', () => {
       const { documentNodeData, choiceNode, outerChoiceField } = createNestedChoiceFieldNode();
 
-      const clearSpy = jest.spyOn(ChoiceSelectionService, 'clearChoiceSelection').mockImplementation(jest.fn());
+      const clearSpy = vi.spyOn(ChoiceSelectionService, 'clearChoiceSelection').mockImplementation(vi.fn());
 
       render(
         <SourceDocumentNodeWithContextMenu

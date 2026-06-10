@@ -1,4 +1,5 @@
 import { KeyboardEvent } from 'react';
+import { vi } from 'vitest';
 
 import { handleNodeKeyDown } from './document-node.utils';
 
@@ -9,13 +10,13 @@ describe('handleNodeKeyDown', () => {
       key,
       target,
       currentTarget: sameTarget ? target : {},
-      preventDefault: jest.fn(),
-      stopPropagation: jest.fn(),
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
     };
   };
 
   it('should call callback and prevent default on Enter', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     const event = makeEvent('Enter');
     handleNodeKeyDown(event as unknown as KeyboardEvent, callback);
     expect(callback).toHaveBeenCalled();
@@ -24,7 +25,7 @@ describe('handleNodeKeyDown', () => {
   });
 
   it('should call callback and prevent default on Space', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     const event = makeEvent(' ');
     handleNodeKeyDown(event as unknown as KeyboardEvent, callback);
     expect(callback).toHaveBeenCalled();
@@ -33,7 +34,7 @@ describe('handleNodeKeyDown', () => {
   });
 
   it('should not call callback when event originated from a child element', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     const event = makeEvent('Enter', false);
     handleNodeKeyDown(event as unknown as KeyboardEvent, callback);
     expect(callback).not.toHaveBeenCalled();
@@ -42,7 +43,7 @@ describe('handleNodeKeyDown', () => {
   });
 
   it('should not call callback for other keys', () => {
-    const callback = jest.fn();
+    const callback = vi.fn();
     const event = makeEvent('Tab');
     handleNodeKeyDown(event as unknown as KeyboardEvent, callback);
     expect(callback).not.toHaveBeenCalled();

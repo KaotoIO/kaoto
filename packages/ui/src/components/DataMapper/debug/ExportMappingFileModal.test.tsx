@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
+import { vi } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
@@ -11,8 +12,8 @@ import { getShipOrderToShipOrderXslt, TestUtil } from '../../../stubs/datamapper
 import { ExportMappingFileModal } from './ExportMappingFileModal';
 
 // Mock CodeEditor to capture onEditorDidMount callback
-jest.mock('@patternfly/react-code-editor', () => {
-  const actual = jest.requireActual('@patternfly/react-code-editor');
+vi.mock('@patternfly/react-code-editor', async () => {
+  const actual = await vi.importActual('@patternfly/react-code-editor');
   return {
     ...actual,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +49,7 @@ const TestProviders: FunctionComponent<PropsWithChildren> = ({ children }) => (
 );
 
 describe('ExportMappingFileModal', () => {
-  const mockOnClose = jest.fn();
+  const mockOnClose = vi.fn();
 
   beforeEach(() => {
     mockOnClose.mockClear();
@@ -301,25 +302,25 @@ describe('ExportMappingFileModal', () => {
 
       // Create mock model with updateOptions
       mockModel = {
-        updateOptions: jest.fn(),
+        updateOptions: vi.fn(),
       };
 
       // Create mock editor with layout and focus methods
       mockEditor = {
-        layout: jest.fn(),
-        focus: jest.fn(),
+        layout: vi.fn(),
+        focus: vi.fn(),
       };
 
       // Create mock monaco with getModels method
       mockMonaco = {
         editor: {
-          getModels: jest.fn().mockReturnValue([mockModel]),
+          getModels: vi.fn().mockReturnValue([mockModel]),
         },
       };
     });
 
     afterEach(() => {
-      jest.clearAllMocks();
+      vi.clearAllMocks();
     });
 
     it('should call editor.layout() when editor mounts', () => {

@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { resolveSchemaWithRef, SuggestionRegistryProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { getFirstCatalogMap } from '../../../../../../stubs/test-load-catalog';
@@ -25,8 +26,8 @@ describe('NewBeanModal', () => {
       javaType: 'java.lang.String',
       propertyTitle: 'Test Property',
       beanSchema,
-      onCreateBean: jest.fn(),
-      onCancelCreateBean: jest.fn(),
+      onCreateBean: vi.fn(),
+      onCancelCreateBean: vi.fn(),
     };
   });
 

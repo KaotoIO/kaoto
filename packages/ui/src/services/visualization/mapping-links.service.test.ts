@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BaseField,
   BODY_DOCUMENT_ID,
@@ -542,7 +544,7 @@ describe('MappingLinksService', () => {
 
   describe('when XPath validation fails', () => {
     it('should return empty links for invalid XPath expressions', () => {
-      const validateSpy = jest.spyOn(XPathService, 'validate').mockReturnValue({
+      const validateSpy = vi.spyOn(XPathService, 'validate').mockReturnValue({
         getExprNode: () => null,
         dataMapperErrors: [],
       } as never);

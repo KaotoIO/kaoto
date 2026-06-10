@@ -1,4 +1,5 @@
 import { DagreGroupsLayout, ModelKind, Visualization } from '@patternfly/react-topology';
+import { vi } from 'vitest';
 
 import { CustomGroupWithSelection } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
@@ -9,7 +10,7 @@ import { ControllerService } from './controller.service';
 
 describe('ControllerService', () => {
   it('should not enable setFitToScreenOnLayout when creating the controller', () => {
-    const setFitToScreenOnLayoutSpy = jest.spyOn(Visualization.prototype, 'setFitToScreenOnLayout');
+    const setFitToScreenOnLayoutSpy = vi.spyOn(Visualization.prototype, 'setFitToScreenOnLayout');
 
     const controller = ControllerService.createController();
 
@@ -18,9 +19,9 @@ describe('ControllerService', () => {
   });
 
   it('should allow consumers to create a new controller and register its factories', () => {
-    const layoutFactorySpy = jest.spyOn(Visualization.prototype, 'registerLayoutFactory');
-    const componentFactorySpy = jest.spyOn(Visualization.prototype, 'registerComponentFactory');
-    const baselineElementFactorySpy = jest.spyOn(Visualization.prototype, 'registerElementFactory');
+    const layoutFactorySpy = vi.spyOn(Visualization.prototype, 'registerLayoutFactory');
+    const componentFactorySpy = vi.spyOn(Visualization.prototype, 'registerComponentFactory');
+    const baselineElementFactorySpy = vi.spyOn(Visualization.prototype, 'registerElementFactory');
 
     const controller = ControllerService.createController();
 
@@ -31,7 +32,7 @@ describe('ControllerService', () => {
   });
 
   it('should generate an empty graph when creating a controller to force computing dimensions right away', () => {
-    const fromModelSpy = jest.spyOn(Visualization.prototype, 'fromModel');
+    const fromModelSpy = vi.spyOn(Visualization.prototype, 'fromModel');
 
     const controller = ControllerService.createController();
 

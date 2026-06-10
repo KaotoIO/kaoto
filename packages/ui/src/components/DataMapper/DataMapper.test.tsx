@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { fail } from 'assert';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { IVisualizationNode } from '../../models';
@@ -62,6 +63,35 @@ describe('DataMapperPage', () => {
   };
 
   beforeEach(() => {
+    // Mock RAF to execute immediately for tests that don't use fake timers
+    const rafMock = (cb: FrameRequestCallback) => {
+      cb(0);
+      return 0;
+    };
+    const cafMock = () => {};
+
+    // Use Object.defineProperty for more persistent mocks that survive async callbacks
+    Object.defineProperty(globalThis, 'requestAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: rafMock,
+    });
+    Object.defineProperty(globalThis, 'cancelAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: cafMock,
+    });
+    Object.defineProperty(window, 'requestAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: rafMock,
+    });
+    Object.defineProperty(window, 'cancelAnimationFrame', {
+      writable: true,
+      configurable: true,
+      value: cafMock,
+    });
+
     metadata = defaultMetadata;
     fileContents = {};
   });
@@ -150,7 +180,7 @@ describe('DataMapperPage', () => {
     metadata = existingMetadata;
     fileContents['kaoto-datamapper-1234.xsl'] = '<xsl/>';
 
-    const updateMappingFileSpy = jest.spyOn(DataMapperMetadataService, 'updateMappingFile').mockResolvedValue();
+    const updateMappingFileSpy = vi.spyOn(DataMapperMetadataService, 'updateMappingFile').mockResolvedValue();
 
     renderWithVirtuoso(
       <MetadataProvider api={api}>
@@ -185,7 +215,7 @@ describe('DataMapperPage', () => {
     // File does not exist initially
     fileContents = {};
 
-    const saveResourceContentSpy = jest.spyOn(api, 'saveResourceContent');
+    const saveResourceContentSpy = vi.spyOn(api, 'saveResourceContent');
 
     renderWithVirtuoso(
       <MetadataProvider api={api}>
@@ -220,7 +250,7 @@ describe('DataMapperPage', () => {
     metadata = existingMetadata;
     fileContents['kaoto-datamapper-1234.xsl'] = '<existing xslt content/>';
 
-    const saveResourceContentSpy = jest.spyOn(api, 'saveResourceContent');
+    const saveResourceContentSpy = vi.spyOn(api, 'saveResourceContent');
 
     renderWithVirtuoso(
       <MetadataProvider api={api}>

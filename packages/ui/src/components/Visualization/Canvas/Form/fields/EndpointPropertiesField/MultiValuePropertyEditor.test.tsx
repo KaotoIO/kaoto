@@ -1,11 +1,12 @@
 import { FieldProps, ModelContextProvider, SchemaProvider, setValue, useFieldValue } from '@kaoto/forms';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
 
-jest.mock('@kaoto/forms', () => ({
-  ...jest.requireActual('@kaoto/forms'),
+vi.mock('@kaoto/forms', async () => ({
+  ...(await vi.importActual('@kaoto/forms')),
   ObjectField: (props: FieldProps) => {
     const { value, onChange, disabled } = useFieldValue(props.propName);
     return (
@@ -18,16 +19,13 @@ jest.mock('@kaoto/forms', () => ({
       </div>
     );
   },
-  setValue: jest.fn(),
+  setValue: vi.fn(),
 }));
 
 describe('MultiValuePropertyEditor', () => {
-  const mockOnPropertyChange = jest.fn();
-  const readMultiValueSpy = jest.spyOn(MultiValuePropertyService, 'readMultiValue');
-  const getMultiValueSerializedDefinitionSpy = jest.spyOn(
-    MultiValuePropertyService,
-    'getMultiValueSerializedDefinition',
-  );
+  const mockOnPropertyChange = vi.fn();
+  const readMultiValueSpy = vi.spyOn(MultiValuePropertyService, 'readMultiValue');
+  const getMultiValueSerializedDefinitionSpy = vi.spyOn(MultiValuePropertyService, 'getMultiValueSerializedDefinition');
 
   const defaultProps: FieldProps = {
     propName: 'parameters',
@@ -43,7 +41,7 @@ describe('MultiValuePropertyEditor', () => {
     schema?: Record<string, unknown>;
     model?: Record<string, unknown>;
     disabled?: boolean;
-    onPropertyChange?: jest.Mock;
+    onPropertyChange?: Mock;
   } = {}) =>
     render(
       <SchemaProvider schema={schema}>
@@ -54,7 +52,7 @@ describe('MultiValuePropertyEditor', () => {
     );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
     readMultiValueSpy.mockReturnValue({ jobParameters: { name: 'daily' } });
     getMultiValueSerializedDefinitionSpy.mockReturnValue({

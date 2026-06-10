@@ -35,55 +35,77 @@ export const testLoadCatalog = async (catalogLibraryEntry: CatalogLibraryEntry) 
 
   const catalogPath = `@kaoto/camel-catalog/${catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/') + 1)}`;
 
-  const componentCatalogMap: Record<string, ICamelComponentDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.components.file}`
-  );
-  delete componentCatalogMap.default;
+  const componentCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.components.file}`);
+  const componentCatalogMap: Record<string, ICamelComponentDefinition> =
+    componentCatalogMapImport.default || componentCatalogMapImport;
+  if (componentCatalogMapImport.default) {
+    delete componentCatalogMapImport.default;
+  }
 
-  const modelCatalogMap: Record<string, ICamelProcessorDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.models.file}`
-  );
-  delete modelCatalogMap.default;
+  const modelCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.models.file}`);
+  const modelCatalogMap: Record<string, ICamelProcessorDefinition> =
+    modelCatalogMapImport.default || modelCatalogMapImport;
+  if (modelCatalogMapImport.default) {
+    delete modelCatalogMapImport.default;
+  }
 
-  const patternCatalogMap: Record<string, ICamelProcessorDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.patterns.file}`
-  );
-  delete patternCatalogMap.default;
+  const patternCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.patterns.file}`);
+  const patternCatalogMap: Record<string, ICamelProcessorDefinition> =
+    patternCatalogMapImport.default || patternCatalogMapImport;
+  if (patternCatalogMapImport.default) {
+    delete patternCatalogMapImport.default;
+  }
 
-  const kameletsCatalogMap: Record<string, IKameletDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.kamelets.file}`
-  );
-  delete kameletsCatalogMap.default;
+  const kameletsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.kamelets.file}`);
+  const kameletsCatalogMap: Record<string, IKameletDefinition> =
+    kameletsCatalogMapImport.default || kameletsCatalogMapImport;
+  if (kameletsCatalogMapImport.default) {
+    delete kameletsCatalogMapImport.default;
+  }
 
-  const kameletsBoundariesCatalog: Record<string, IKameletDefinition> = await import(
+  const kameletsBoundariesCatalogImport = await import(
     `${catalogPath}${catalogDefinition.catalogs.kameletBoundaries.file}`
   );
-  delete kameletsBoundariesCatalog.default;
+  const kameletsBoundariesCatalog: Record<string, IKameletDefinition> =
+    kameletsBoundariesCatalogImport.default || kameletsBoundariesCatalogImport;
+  if (kameletsBoundariesCatalogImport.default) {
+    delete kameletsBoundariesCatalogImport.default;
+  }
 
-  const languageCatalog: Record<string, ICamelLanguageDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.languages.file}`
-  );
-  delete languageCatalog.default;
+  const languageCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.languages.file}`);
+  const languageCatalog: Record<string, ICamelLanguageDefinition> =
+    languageCatalogImport.default || languageCatalogImport;
+  if (languageCatalogImport.default) {
+    delete languageCatalogImport.default;
+  }
 
-  const dataformatCatalog: Record<string, ICamelDataformatDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.dataformats.file}`
-  );
-  delete dataformatCatalog.default;
+  const dataformatCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.dataformats.file}`);
+  const dataformatCatalog: Record<string, ICamelDataformatDefinition> =
+    dataformatCatalogImport.default || dataformatCatalogImport;
+  if (dataformatCatalogImport.default) {
+    delete dataformatCatalogImport.default;
+  }
 
-  const loadbalancerCatalog: Record<string, ICamelLoadBalancerDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.loadbalancers.file}`
-  );
-  delete loadbalancerCatalog.default;
+  const loadbalancerCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.loadbalancers.file}`);
+  const loadbalancerCatalog: Record<string, ICamelLoadBalancerDefinition> =
+    loadbalancerCatalogImport.default || loadbalancerCatalogImport;
+  if (loadbalancerCatalogImport.default) {
+    delete loadbalancerCatalogImport.default;
+  }
 
-  const entitiesCatalog: Record<string, ICamelProcessorDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.entities.file}`
-  );
-  delete entitiesCatalog.default;
+  const entitiesCatalogImport = await import(`${catalogPath}${catalogDefinition.catalogs.entities.file}`);
+  const entitiesCatalog: Record<string, ICamelProcessorDefinition> =
+    entitiesCatalogImport.default || entitiesCatalogImport;
+  if (entitiesCatalogImport.default) {
+    delete entitiesCatalogImport.default;
+  }
 
-  const functionsCatalogMap: Record<string, Record<string, KaotoFunction>> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.functions.file}`
-  );
-  delete functionsCatalogMap.default;
+  const functionsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.functions.file}`);
+  const functionsCatalogMap: Record<string, Record<string, KaotoFunction>> = functionsCatalogMapImport.default ||
+  functionsCatalogMapImport;
+  if (functionsCatalogMapImport.default) {
+    delete functionsCatalogMapImport.default;
+  }
 
   return {
     catalogDefinition,
@@ -120,20 +142,26 @@ export const testLoadCitrusCatalog = async (catalogLibraryEntry: CatalogLibraryE
 
   const catalogPath = `@kaoto/camel-catalog/${catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/') + 1)}`;
 
-  const actionsCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.actions.file}`
-  );
-  delete actionsCatalogMap.default;
+  const actionsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.actions.file}`);
+  const actionsCatalogMap: Record<string, ICitrusComponentDefinition> =
+    actionsCatalogMapImport.default || actionsCatalogMapImport;
+  if (actionsCatalogMapImport.default) {
+    delete actionsCatalogMapImport.default;
+  }
 
-  const containersCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.containers.file}`
-  );
-  delete containersCatalogMap.default;
+  const containersCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.containers.file}`);
+  const containersCatalogMap: Record<string, ICitrusComponentDefinition> =
+    containersCatalogMapImport.default || containersCatalogMapImport;
+  if (containersCatalogMapImport.default) {
+    delete containersCatalogMapImport.default;
+  }
 
-  const endpointsCatalogMap: Record<string, ICitrusComponentDefinition> = await import(
-    `${catalogPath}${catalogDefinition.catalogs.endpoints.file}`
-  );
-  delete endpointsCatalogMap.default;
+  const endpointsCatalogMapImport = await import(`${catalogPath}${catalogDefinition.catalogs.endpoints.file}`);
+  const endpointsCatalogMap: Record<string, ICitrusComponentDefinition> =
+    endpointsCatalogMapImport.default || endpointsCatalogMapImport;
+  if (endpointsCatalogMapImport.default) {
+    delete endpointsCatalogMapImport.default;
+  }
 
   return {
     catalogDefinition,

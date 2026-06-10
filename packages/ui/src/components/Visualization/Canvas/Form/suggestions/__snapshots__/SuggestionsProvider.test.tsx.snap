@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`SuggestionRegistrar renders children 1`] = `
+exports[`SuggestionRegistrar > renders children 1`] = `
 <div>
   <span>
     Snapshot Child

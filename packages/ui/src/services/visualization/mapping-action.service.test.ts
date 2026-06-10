@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import {
   BODY_DOCUMENT_ID,
   DocumentDefinition,
@@ -1540,7 +1542,7 @@ describe('MappingActionService', () => {
         expect(variableAction).toBeDefined();
         expect(variableAction!.getLabel(shipOrderNode)).toEqual('Add variable');
 
-        variableAction!.apply(shipOrderNode, { onUpdate: jest.fn(), openModal: jest.fn() });
+        variableAction!.apply(shipOrderNode, { onUpdate: vi.fn(), openModal: vi.fn() });
         expect(useDocumentTreeStore.getState().addingVariableToNodePath).toEqual(shipOrderNode.path.toString());
 
         useDocumentTreeStore.getState().setAddingVariableTo(null);
@@ -1557,7 +1559,7 @@ describe('MappingActionService', () => {
         expect(renameAction).toBeDefined();
         expect(renameAction!.getLabel(variableNode)).toEqual('Rename variable');
 
-        renameAction!.apply(variableNode, { onUpdate: jest.fn(), openModal: jest.fn() });
+        renameAction!.apply(variableNode, { onUpdate: vi.fn(), openModal: vi.fn() });
         expect(useDocumentTreeStore.getState().renamingVariableId).toEqual(variable.id);
 
         useDocumentTreeStore.getState().setRenamingVariable(null);
@@ -1664,8 +1666,8 @@ describe('MappingActionService', () => {
         const freshShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(freshDocChildren[0]);
         const freshAddMappingNode = freshShipOrderChildren[4] as AddMappingNodeData;
 
-        const onUpdate = jest.fn();
-        const openModal = jest.fn();
+        const onUpdate = vi.fn();
+        const openModal = vi.fn();
         expect(() => {
           item.apply(freshAddMappingNode, { onUpdate, openModal });
         }).not.toThrow();

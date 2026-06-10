@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { PipeResource } from '../../models/camel';
 import { CatalogKind } from '../../models/catalog-kind';
@@ -15,13 +16,13 @@ const mockEntitiesContext = {
   entities: camelResource.getEntities(),
   visualEntities: camelResource.getVisualEntities(),
   currentSchemaType: camelResource.getType(),
-  updateSourceCodeFromEntities: jest.fn(),
-  updateEntitiesFromCamelResource: jest.fn(),
+  updateSourceCodeFromEntities: vi.fn(),
+  updateEntitiesFromCamelResource: vi.fn(),
 };
 
 describe('PipeErrorHandlerPage', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   beforeAll(async () => {

@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { ReloadContext } from '../../providers';
 import { errorMessage, useReloadContext } from './useReloadContext';
@@ -10,9 +11,9 @@ const wrapper = ({ children }: PropsWithChildren) => (
 
 describe('useReloadContext', () => {
   it('should be throw when use hook without provider', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => null);
+    vi.spyOn(console, 'error').mockImplementation(() => null);
     expect(() => renderHook(() => useReloadContext())).toThrow(errorMessage);
-    (console.error as jest.Mock).mockRestore();
+    (console.error as Mock).mockRestore();
   });
 
   it('should return ReloadContext', () => {

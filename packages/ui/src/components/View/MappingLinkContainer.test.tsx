@@ -1,21 +1,22 @@
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { IMappingLink, MappingLineStyle } from '../../models/datamapper';
 import { MappingLinksContainer } from './MappingLinkContainer';
 
-const mockGetNearestVisiblePort = jest.fn();
-jest.mock('../../utils', () => ({
+const mockGetNearestVisiblePort = vi.fn();
+vi.mock('../../utils', () => ({
   getNearestVisiblePort: (...args: unknown[]) => mockGetNearestVisiblePort(...args),
 }));
 
-const mockGetMappingLinks = jest.fn<IMappingLink[], []>();
-jest.mock('../../hooks/useMappingLinks', () => ({
+const mockGetMappingLinks = vi.fn<() => IMappingLink[]>();
+vi.mock('../../hooks/useMappingLinks', () => ({
   useMappingLinks: () => ({
     getMappingLinks: mockGetMappingLinks,
   }),
 }));
 
-jest.mock('../../store', () => ({
+vi.mock('../../store', () => ({
   useDocumentTreeStore: (selector: (state: Record<string, unknown>) => unknown) =>
     selector({
       nodesConnectionPorts: {},
@@ -45,7 +46,7 @@ describe('MappingLinksContainer', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render the svg container', () => {

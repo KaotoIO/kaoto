@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`updateKameletFromCustomSchema should get the kamelet schema from the custom schema 1`] = `
+exports[`updateKameletFromCustomSchema > should get the kamelet schema from the custom schema 1`] = `
 {
   "apiVersion": "camel.apache.org/v1",
   "kind": "Kamelet",
@@ -71,7 +71,7 @@ exports[`updateKameletFromCustomSchema should get the kamelet schema from the cu
 }
 `;
 
-exports[`updateKameletFromCustomSchema should get the kamelet schema from the custom schema, special case on the UI when there are no properties set from before and user click on the add property button 1`] = `
+exports[`updateKameletFromCustomSchema > should get the kamelet schema from the custom schema, special case on the UI when there are no properties set from before and user click on the add property button 1`] = `
 {
   "apiVersion": "camel.apache.org/v1",
   "kind": "Kamelet",
@@ -135,7 +135,7 @@ exports[`updateKameletFromCustomSchema should get the kamelet schema from the cu
 }
 `;
 
-exports[`updateKameletFromCustomSchema should not preserve kamelet properties original values while custom schema changed with kameletproperties 1`] = `
+exports[`updateKameletFromCustomSchema > should not preserve kamelet properties original values while custom schema changed with kameletproperties 1`] = `
 {
   "apiVersion": "camel.apache.org/v1",
   "kind": "Kamelet",
@@ -199,7 +199,7 @@ exports[`updateKameletFromCustomSchema should not preserve kamelet properties or
 }
 `;
 
-exports[`updateKameletFromCustomSchema should preserve kamelet properties original values while custom schema changed(not kameletProperties) 1`] = `
+exports[`updateKameletFromCustomSchema > should preserve kamelet properties original values while custom schema changed(not kameletProperties) 1`] = `
 {
   "apiVersion": "camel.apache.org/v1",
   "kind": "Kamelet",

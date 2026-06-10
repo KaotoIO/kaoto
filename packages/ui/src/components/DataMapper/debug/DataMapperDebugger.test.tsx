@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { DataMapperDebugger } from './DataMapperDebugger';
 
 describe('Debug', () => {
   it('should render and log connection ports', async () => {
-    const debugSpy = jest.spyOn(console, 'debug').mockImplementation(() => {});
+    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     render(<DataMapperDebugger />);
     await screen.findByTestId('dm-debug-main-menu-button');
     const connectionPortsLog = debugSpy.mock.calls.filter(

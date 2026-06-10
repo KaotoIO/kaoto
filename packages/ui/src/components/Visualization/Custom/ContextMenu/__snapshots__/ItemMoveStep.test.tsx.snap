@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ItemMoveStep should not render Move Before ContextMenuItem 1`] = `<div />`;
+exports[`ItemMoveStep > should not render Move Before ContextMenuItem 1`] = `<div />`;
 
-exports[`ItemMoveStep should render Move Next ContextMenuItem 1`] = `
+exports[`ItemMoveStep > should render Move Next ContextMenuItem 1`] = `
 <div>
   <li
     class="pf-v6-c-menu__list-item"
@@ -24,29 +24,10 @@ exports[`ItemMoveStep should render Move Next ContextMenuItem 1`] = `
           class="pf-v6-c-menu__item-text"
         >
           <svg
-            aria-hidden="true"
-            class="pf-v6-svg"
-            fill="currentColor"
-            height="1em"
+            data-testid="angle-double-down-icon"
             role="img"
-            width="1em"
           >
-            <svg
-              class="pf-v6-icon-default"
-              viewBox="0 0 320 512"
-            >
-              <path
-                d="M143 256.3L7 120.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0L313 86.3c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.4 9.5-24.6 9.5-34 .1zm34 192l136-136c9.4-9.4 9.4-24.6 0-33.9l-22.6-22.6c-9.4-9.4-24.6-9.4-33.9 0L160 352.1l-96.4-96.4c-9.4-9.4-24.6-9.4-33.9 0L7 278.3c-9.4 9.4-9.4 24.6 0 33.9l136 136c9.4 9.5 24.6 9.5 34 .1z"
-              />
-            </svg>
-            <svg
-              class="pf-v6-icon-rh-ui"
-              viewBox="0 0 32 32"
-            >
-              <path
-                d="M29.707 16.293a.999.999 0 0 1 0 1.414L17.061 30.353c-.292.292-.677.438-1.061.438s-.769-.146-1.061-.438L2.293 17.707a.999.999 0 1 1 1.414-1.414L16 28.586l12.293-12.293a.999.999 0 0 1 1.414 0Zm-14.768.061c.292.292.677.438 1.061.438s.769-.146 1.061-.438L29.707 3.707a.999.999 0 1 0-1.414-1.414L16 14.586 3.707 2.293a.999.999 0 1 0-1.414 1.414l12.646 12.646Z"
-              />
-            </svg>
+            <path />
           </svg>
            Move Next
         </span>

@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { IMetadataApi } from '../../../../../../providers';
 import { getPropertiesSuggestionProvider } from './properties.suggestions';
 
@@ -36,7 +38,7 @@ describe('Properties Suggestions', () => {
   });
 
   it('should use metadata API for application.properties suggestions', async () => {
-    const metadataMock: IMetadataApi['getSuggestions'] = jest.fn().mockResolvedValue([
+    const metadataMock: IMetadataApi['getSuggestions'] = vi.fn().mockResolvedValue([
       {
         value: 'quarkus.http.port',
         description: `8080`,
@@ -64,7 +66,7 @@ describe('Properties Suggestions', () => {
   });
 
   it('should use metadata API for suggestions', async () => {
-    const metadataMock: IMetadataApi['getSuggestions'] = jest.fn().mockResolvedValue([{ value: 'mocked-suggestion' }]);
+    const metadataMock: IMetadataApi['getSuggestions'] = vi.fn().mockResolvedValue([{ value: 'mocked-suggestion' }]);
 
     const provider = getPropertiesSuggestionProvider(metadataMock);
     const suggestions = await provider.getSuggestions('test', { inputValue: '', cursorPosition: 0, propertyName: '' });

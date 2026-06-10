@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Properties Suggestions should return suggestions 1`] = `
+exports[`Properties Suggestions > should return suggestions 1`] = `
 [
   {
     "description": "Use 'test' as a property reference",
@@ -80,7 +80,7 @@ exports[`Properties Suggestions should return suggestions 1`] = `
 ]
 `;
 
-exports[`Properties Suggestions should use \`foo\` if word is empty 1`] = `
+exports[`Properties Suggestions > should use \`foo\` if word is empty 1`] = `
 [
   {
     "description": "Use 'foo' as a property reference",

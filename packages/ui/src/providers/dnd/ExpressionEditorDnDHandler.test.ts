@@ -1,4 +1,5 @@
 import { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { Mock, vi } from 'vitest';
 
 import { DocumentType, IField } from '../../models/datamapper/document';
 import { IExpressionHolder, IFunctionDefinition, MappingItem, MappingTree } from '../../models/datamapper/mapping';
@@ -8,10 +9,10 @@ import { EditorNodeData, FieldNodeData, FunctionNodeData, NodeData } from '../..
 import { MappingService } from '../../services/mapping/mapping.service';
 import { ExpressionEditorDnDHandler } from './ExpressionEditorDnDHandler';
 
-jest.mock('../../services/mapping/mapping.service', () => ({
+vi.mock('../../services/mapping/mapping.service', () => ({
   MappingService: {
-    mapToCondition: jest.fn(),
-    wrapWithFunction: jest.fn(),
+    mapToCondition: vi.fn(),
+    wrapWithFunction: vi.fn(),
   },
 }));
 
@@ -24,9 +25,9 @@ const makeDragEvent = (fromNode?: NodeData, toNode?: NodeData) =>
 describe('ExpressionEditorDnDHandler', () => {
   let handler: ExpressionEditorDnDHandler;
   let mockMappingTree: MappingTree;
-  let mockOnUpdate: jest.Mock;
-  let mockMapToCondition: jest.Mock;
-  let mockWrapWithFunction: jest.Mock;
+  let mockOnUpdate: Mock;
+  let mockMapToCondition: Mock;
+  let mockWrapWithFunction: Mock;
 
   const mockParentNode = {
     path: NodePath.fromDocument(DocumentType.SOURCE_BODY, 'Body'),
@@ -51,12 +52,12 @@ describe('ExpressionEditorDnDHandler', () => {
   const mockMapping = {} as unknown as IExpressionHolder & MappingItem;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     handler = new ExpressionEditorDnDHandler();
     mockMappingTree = {} as MappingTree;
-    mockOnUpdate = jest.fn();
-    mockMapToCondition = MappingService.mapToCondition as jest.Mock;
-    mockWrapWithFunction = MappingService.wrapWithFunction as jest.Mock;
+    mockOnUpdate = vi.fn();
+    mockMapToCondition = MappingService.mapToCondition as Mock;
+    mockWrapWithFunction = MappingService.wrapWithFunction as Mock;
   });
 
   describe('handleDragEnd', () => {

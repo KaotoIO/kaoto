@@ -2,6 +2,7 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { KaotoForm } from '@kaoto/forms';
 import { render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../../models';
 import { getFirstCatalogMap } from '../../../../../stubs/test-load-catalog';
@@ -22,11 +23,11 @@ export const FormTest = (target: {
     CamelCatalogService.setCatalogKey(CatalogKind.Language, catalogsMap.languageCatalog);
 
     schemas = getSchemasSlice(CamelCatalogService.getCatalogByKey(target.kind), target.range);
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterAll(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should have schemas', () => {
@@ -36,7 +37,7 @@ export const FormTest = (target: {
   it('should render the form without an error', () => {
     schemas.forEach(([name, schema]) => {
       try {
-        render(<KaotoForm schema={schema} onChangeProp={jest.fn()} model={{}} />);
+        render(<KaotoForm schema={schema} onChangeProp={vi.fn()} model={{}} />);
       } catch (e) {
         console.error(e);
         throw new Error(`Error rendering ${name} ${target.kind}`);

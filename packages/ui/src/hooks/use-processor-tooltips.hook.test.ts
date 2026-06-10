@@ -1,12 +1,13 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { getProcessorIconTooltipRequest } from '../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest';
 import { useProcessorTooltips } from './use-processor-tooltips.hook';
 
-jest.mock('../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
+vi.mock('../models/visualization/flows/nodes/resolvers/tooltip-resolver/getProcessorIconTooltipRequest');
 
 describe('useProcessorTooltips', () => {
-  const mockGetRequest = jest.mocked(getProcessorIconTooltipRequest);
+  const mockGetRequest = vi.mocked(getProcessorIconTooltipRequest);
 
   // Use stable array references to match real-world usage with constants
   const STABLE_THREE_PROCESSORS = ['to', 'toD', 'poll'];
@@ -14,7 +15,7 @@ describe('useProcessorTooltips', () => {
   const STABLE_ONE_PROCESSOR = ['to'];
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should fetch tooltips for multiple processors', async () => {
@@ -78,7 +79,7 @@ describe('useProcessorTooltips', () => {
       return '';
     });
 
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const { result } = renderHook(() => useProcessorTooltips(STABLE_THREE_PROCESSORS));
 
@@ -98,7 +99,7 @@ describe('useProcessorTooltips', () => {
   it('should handle all requests failing gracefully', async () => {
     mockGetRequest.mockRejectedValue(new Error('Catalog service unavailable'));
 
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
     const { result } = renderHook(() => useProcessorTooltips(STABLE_TWO_PROCESSORS));
 

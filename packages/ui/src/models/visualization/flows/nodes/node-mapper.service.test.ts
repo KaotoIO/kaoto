@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { DATAMAPPER_ID_PREFIX } from '../../../../utils';
 import { BaseNodeMapper } from './mappers/base-node-mapper';
 import { ChoiceNodeMapper } from './mappers/choice-node-mapper';
@@ -12,8 +14,8 @@ import { RootNodeMapper } from './root-node-mapper';
 
 describe('NodeMapperService', () => {
   it('should initialize the root node mapper', () => {
-    const registerDefaultMapperSpy = jest.spyOn(RootNodeMapper.prototype, 'registerDefaultMapper');
-    const registerMapperSpy = jest.spyOn(RootNodeMapper.prototype, 'registerMapper');
+    const registerDefaultMapperSpy = vi.spyOn(RootNodeMapper.prototype, 'registerDefaultMapper');
+    const registerMapperSpy = vi.spyOn(RootNodeMapper.prototype, 'registerMapper');
 
     NodeMapperService.getVizNode('path', { processorName: 'log' }, {});
 

@@ -1,11 +1,13 @@
+import { Mock, vi } from 'vitest';
+
 import { VisibleFlowAction, VisibleFlowsReducer, VisualFlowsApi } from './flows-visibility';
 
 describe('VisualFlowsApi', () => {
-  let dispatch: jest.Mock;
+  let dispatch: Mock;
   let visualFlowsApi: VisualFlowsApi;
 
   beforeEach(() => {
-    dispatch = jest.fn();
+    dispatch = vi.fn();
     visualFlowsApi = new VisualFlowsApi(dispatch);
   });
 

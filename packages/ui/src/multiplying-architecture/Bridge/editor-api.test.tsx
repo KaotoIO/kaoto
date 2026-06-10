@@ -6,20 +6,20 @@ import { EventNotifier } from '../../utils';
 import { useEditorApi } from './editor-api';
 
 const mockController = {
-  fromModel: jest.fn(),
+  fromModel: vi.fn(),
 };
 
-jest.mock('@patternfly/react-topology', () => ({
+vi.mock('@patternfly/react-topology', () => ({
   useVisualizationController: () => mockController,
 }));
 
 describe('useEditorApi', () => {
-  const mockSetCodeAndNotify = jest.fn();
+  const mockSetCodeAndNotify = vi.fn();
   let originalSetCodeAndNotify: typeof mockSetCodeAndNotify;
 
   beforeEach(() => {
     originalSetCodeAndNotify = useSourceCodeStore.getState().setCodeAndNotify as typeof mockSetCodeAndNotify;
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     act(() => {
       useSourceCodeStore.setState({ setCodeAndNotify: mockSetCodeAndNotify });
     });
@@ -91,7 +91,7 @@ describe('useEditorApi', () => {
   });
 
   it('should clear pastState when loading the store for the first time', async () => {
-    const clearSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
+    const clearSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
 
     const { result } = renderHook(() => useEditorApi());
 
@@ -105,8 +105,8 @@ describe('useEditorApi', () => {
   });
 
   it('should call undo when the editor is asked to undo', async () => {
-    const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
-    const storeUndoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'undo');
+    const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
+    const storeUndoSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'undo');
 
     const { result } = renderHook(() => useEditorApi());
 
@@ -123,8 +123,8 @@ describe('useEditorApi', () => {
   });
 
   it('should call redo when the editor is asked to redo', async () => {
-    const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
-    const storeRedoSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'redo');
+    const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
+    const storeRedoSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'redo');
 
     const { result } = renderHook(() => useEditorApi());
 

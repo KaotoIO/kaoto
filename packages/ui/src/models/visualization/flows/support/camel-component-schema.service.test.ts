@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { DynamicCatalog } from '../../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
@@ -26,7 +27,7 @@ describe('CamelComponentSchemaService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   afterAll(() => {
@@ -46,7 +47,7 @@ describe('CamelComponentSchemaService', () => {
       ['choice', CatalogKind.Pattern],
       ['to', CatalogKind.Pattern],
     ])('should leverage the CamelComponentSchemaService.getComponent method', (processorName, catalogKind) => {
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
       CamelComponentSchemaService.getSchema({ processorName: processorName as keyof ProcessorDefinition });
 
@@ -57,7 +58,7 @@ describe('CamelComponentSchemaService', () => {
       'should return an empty schema when the processor it is not found',
       (schema) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema as any);
+        vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(schema as any);
         const result = CamelComponentSchemaService.getSchema({
           processorName: 'non-existing-processor' as keyof ProcessorDefinition,
         });
@@ -76,7 +77,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should build the appropriate schema for entities', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const camelCatalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
       const result = CamelComponentSchemaService.getSchema({ processorName: 'from' as keyof ProcessorDefinition });
 
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Entity, 'from');
@@ -84,7 +85,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should build the appropriate schema for standalone processors', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const camelCatalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
       const result = CamelComponentSchemaService.getSchema({ processorName: 'log' });
 
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'log');
@@ -92,7 +93,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should build the appropriate schema for processors combined that holds a component', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const camelCatalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
       const result = CamelComponentSchemaService.getSchema({ processorName: 'to', componentName: 'log' });
 
       expect(camelCatalogServiceSpy).toHaveBeenCalledWith(CatalogKind.Pattern, 'to');
@@ -122,7 +123,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should build the appropriate schema for kamelets', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const camelCatalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
       const result = CamelComponentSchemaService.getSchema({
         processorName: 'to',
@@ -227,7 +228,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('should not build a schema for an unknown component', () => {
-      const camelCatalogServiceSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const camelCatalogServiceSpy = vi.spyOn(CamelCatalogService, 'getComponent');
       const toNonExistingDefinition = {
         id: 'to-3044',
         uri: 'non-existing-component',
@@ -642,12 +643,12 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('returns undefined for unknown component', () => {
-      jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
+      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
       expect(CamelComponentSchemaService.getComponentDefinitionFromUri('unknown:foo')).toEqual({ uri: 'unknown:foo' });
     });
 
     it('parses simple component uri', () => {
-      jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce({
+      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce({
         component: { syntax: 'timer:timerName' },
         propertiesSchema: { required: ['timerName'] },
       } as ICamelComponentDefinition);
@@ -658,7 +659,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('parses uri with query parameters', () => {
-      jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce({
+      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce({
         component: { syntax: 'timer:timerName' },
         propertiesSchema: {
           required: ['timerName'],
@@ -671,7 +672,7 @@ describe('CamelComponentSchemaService', () => {
     });
 
     it('parses kamelet uri', () => {
-      jest.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
+      vi.spyOn(CamelCatalogService, 'getComponent').mockReturnValueOnce(undefined);
       expect(CamelComponentSchemaService.getComponentDefinitionFromUri('kamelet:beer-source')).toEqual({
         uri: 'kamelet:beer-source',
       });
@@ -773,7 +774,7 @@ describe('CamelComponentSchemaService', () => {
 
     it('should pass forceFresh to underlying catalog lookups', async () => {
       const componentCatalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.Component)!;
-      const getSpy = jest.spyOn(componentCatalog, 'get');
+      const getSpy = vi.spyOn(componentCatalog, 'get');
 
       await CamelComponentSchemaService.resolveCatalogLookup('timer', { forceFresh: true });
 

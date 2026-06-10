@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, ProcessorDefinition, Rest, To2 } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { restStub } from '../../../stubs/rest';
 import { getFirstCatalogMap } from '../../../stubs/test-load-catalog';
@@ -78,7 +79,7 @@ describe('CamelRestVisualEntity', () => {
   });
 
   it('should delegate to super return node label', () => {
-    const superGetNodeLabelSpy = jest
+    const superGetNodeLabelSpy = vi
       .spyOn(AbstractCamelVisualEntity.prototype, 'getNodeLabel')
       .mockReturnValueOnce('label');
     const entity = new CamelRestVisualEntity(restDef);
@@ -129,7 +130,7 @@ describe('CamelRestVisualEntity', () => {
 
     it('should delegate to super for non-REST method paths', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const superGetNodeDefinitionSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeDefinition');
+      const superGetNodeDefinitionSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeDefinition');
 
       // Use a path where method is NOT in REST_DSL_METHODS
       entity.getNodeDefinition('rest.unknown.0');
@@ -163,7 +164,7 @@ describe('CamelRestVisualEntity', () => {
   describe('getNodeSchema', () => {
     it('should return REST method schema for REST DSL methods', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
       entity.getNodeSchema('rest.get.0');
 
@@ -172,7 +173,7 @@ describe('CamelRestVisualEntity', () => {
 
     it('should return REST method schema for POST method', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const getComponentSpy = jest.spyOn(CamelCatalogService, 'getComponent');
+      const getComponentSpy = vi.spyOn(CamelCatalogService, 'getComponent');
 
       entity.getNodeSchema('rest.post.0');
 
@@ -181,7 +182,7 @@ describe('CamelRestVisualEntity', () => {
 
     it('should delegate to super for non-REST method paths', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const superGetNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
+      const superGetNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
       // Use a path where method is NOT in REST_DSL_METHODS
       entity.getNodeSchema('rest.unknown.0');
@@ -191,7 +192,7 @@ describe('CamelRestVisualEntity', () => {
 
     it('should handle undefined path by delegating to super', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const superGetNodeSchemaSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
+      const superGetNodeSchemaSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeSchema');
 
       entity.getNodeSchema();
 
@@ -326,7 +327,7 @@ describe('CamelRestVisualEntity', () => {
         },
       };
       const entity = new CamelRestVisualEntity(restDefWithGet);
-      const superGetNodeInteractionSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction');
+      const superGetNodeInteractionSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'getNodeInteraction');
 
       entity.getNodeInteraction({
         name: 'get',
@@ -346,7 +347,7 @@ describe('CamelRestVisualEntity', () => {
   describe('addStep', () => {
     it('should delegate to super for root path', () => {
       const entity = new CamelRestVisualEntity(restDef);
-      const superAddStepSpy = jest.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
+      const superAddStepSpy = vi.spyOn(AbstractCamelVisualEntity.prototype, 'addStep');
 
       entity.addStep({
         definedComponent: { type: CatalogKind.Processor, name: 'get' } as DefinedComponent,
@@ -464,7 +465,7 @@ describe('CamelRestVisualEntity', () => {
         path: 'rest',
         processorName: 'rest',
         iconAlt: 'Entity icon',
-        iconUrl: 'file-mock-data',
+        iconUrl: '/src/assets/components/generic-component.png',
         isPlaceholder: false,
         title: 'Rest',
         description: 'rest: rest',

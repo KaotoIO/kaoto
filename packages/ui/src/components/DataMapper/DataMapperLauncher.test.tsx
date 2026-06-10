@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, SetStateAction } from 'react';
 import { MemoryRouter } from 'react-router-dom';
+import { Mock, vi } from 'vitest';
 
 import { IVisualizationNode } from '../../models';
 import { SourceSchemaType } from '../../models/camel';
@@ -14,13 +15,13 @@ import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { DataMapperLauncher } from './DataMapperLauncher';
 
 // Mock XsltDocumentRenameInput component
-jest.mock('./XsltDocumentRenameInput', () => {
+vi.mock('./XsltDocumentRenameInput', async () => {
   // Import React hooks from the outer scope
   const {
     useState: useStateHook,
     useEffect: useEffectHook,
     createElement: createElementFn,
-  } = jest.requireActual('react');
+  } = await vi.importActual<typeof import('react')>('react');
 
   const MockXsltDocumentRenameInput = ({
     value,
@@ -49,7 +50,7 @@ jest.mock('./XsltDocumentRenameInput', () => {
       if (isEditing) {
         validator(currentValue).then((result: { status: string; errMessages: string[] }) => {
           setIsValid(result.status === 'success');
-          setValidationError(result.errMessages[0] || null);
+          setValidationError((result.errMessages[0] || null) as SetStateAction<null>);
         });
       }
     }, [currentValue, isEditing, validator]);
@@ -121,50 +122,50 @@ jest.mock('./XsltDocumentRenameInput', () => {
 });
 
 // Mock the navigate function
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
   useNavigate: () => mockNavigate,
 }));
 
 // Mock the services
-jest.mock('../../services/datamapper-step.service');
-jest.mock('../../services/datamapper-metadata.service');
+vi.mock('../../services/datamapper-step.service');
+vi.mock('../../services/datamapper-metadata.service');
 
 describe('DataMapperLauncher', () => {
   const mockMetadataContext: IMetadataApi = {
-    onStepUpdated: jest.fn(),
-    getMetadata: jest.fn(),
-    setMetadata: jest.fn(),
-    getResourceContent: jest.fn().mockResolvedValue('mock xslt content'), // Mock file exists
-    saveResourceContent: jest.fn(),
-    isResourceExist: jest.fn().mockResolvedValue(true), // Mock file exists
-    deleteResource: jest.fn(),
-    askUserForFileSelection: jest.fn(),
-    getSuggestions: jest.fn(),
+    onStepUpdated: vi.fn(),
+    getMetadata: vi.fn(),
+    setMetadata: vi.fn(),
+    getResourceContent: vi.fn().mockResolvedValue('mock xslt content'), // Mock file exists
+    saveResourceContent: vi.fn(),
+    isResourceExist: vi.fn().mockResolvedValue(true), // Mock file exists
+    deleteResource: vi.fn(),
+    askUserForFileSelection: vi.fn(),
+    getSuggestions: vi.fn(),
     shouldSaveSchema: false,
   };
 
   const mockCamelResource = {
-    initialize: jest.fn(),
-    getVisualEntities: jest.fn().mockReturnValue([]),
-    getEntities: jest.fn().mockReturnValue([]),
-    addNewEntity: jest.fn(),
-    removeEntity: jest.fn(),
-    updateEntity: jest.fn(),
-    toJSON: jest.fn(),
-    sortEntities: jest.fn(),
-    getType: jest.fn().mockReturnValue(SourceSchemaType.Route),
-    setComments: jest.fn(),
-    getComments: jest.fn().mockReturnValue([]),
-    supportsMultipleVisualEntities: jest.fn().mockReturnValue(false),
-    createEntityFromStepCatalog: jest.fn(),
-    getCanvasEntityList: jest.fn().mockReturnValue([]),
+    initialize: vi.fn(),
+    getVisualEntities: vi.fn().mockReturnValue([]),
+    getEntities: vi.fn().mockReturnValue([]),
+    addNewEntity: vi.fn(),
+    removeEntity: vi.fn(),
+    updateEntity: vi.fn(),
+    toJSON: vi.fn(),
+    sortEntities: vi.fn(),
+    getType: vi.fn().mockReturnValue(SourceSchemaType.Route),
+    setComments: vi.fn(),
+    getComments: vi.fn().mockReturnValue([]),
+    supportsMultipleVisualEntities: vi.fn().mockReturnValue(false),
+    createEntityFromStepCatalog: vi.fn(),
+    getCanvasEntityList: vi.fn().mockReturnValue([]),
     supportedEntities: [],
-    getSerializerType: jest.fn(),
-    setSerializer: jest.fn(),
-    getCompatibleComponents: jest.fn().mockReturnValue([]),
-    getCompatibleRuntimes: jest.fn().mockReturnValue([]),
+    getSerializerType: vi.fn(),
+    setSerializer: vi.fn(),
+    getCompatibleComponents: vi.fn().mockReturnValue([]),
+    getCompatibleRuntimes: vi.fn().mockReturnValue([]),
   };
 
   const mockEntitiesContext = {
@@ -173,10 +174,10 @@ describe('DataMapperLauncher', () => {
     visualEntities: [],
     camelResource: mockCamelResource,
     currentSchemaType: SourceSchemaType.Route,
-    updateSourceCodeFromEntities: jest.fn(),
-    updateEntitiesFromSource: jest.fn(),
-    updateEntitiesFromCamelResource: jest.fn(),
-    setCurrentEntity: jest.fn(),
+    updateSourceCodeFromEntities: vi.fn(),
+    updateEntitiesFromSource: vi.fn(),
+    updateEntitiesFromCamelResource: vi.fn(),
+    setCurrentEntity: vi.fn(),
   };
 
   const createMockVizNode = (xsltDocument?: string): IVisualizationNode => {
@@ -196,8 +197,8 @@ describe('DataMapperLauncher', () => {
     };
 
     return {
-      getNodeDefinition: jest.fn().mockReturnValue(mockModel),
-      updateModel: jest.fn(),
+      getNodeDefinition: vi.fn().mockReturnValue(mockModel),
+      updateModel: vi.fn(),
     } as unknown as IVisualizationNode;
   };
 
@@ -216,10 +217,10 @@ describe('DataMapperLauncher', () => {
   );
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     const originalConsoleError = console.error;
     // Suppress act() warnings for async useEffect in component
-    jest.spyOn(console, 'error').mockImplementation((message) => {
+    vi.spyOn(console, 'error').mockImplementation((message) => {
       if (typeof message === 'string' && message.includes('not wrapped in act')) {
         return;
       }
@@ -228,7 +229,7 @@ describe('DataMapperLauncher', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('when metadata context is not available', () => {
@@ -257,7 +258,7 @@ describe('DataMapperLauncher', () => {
   describe('when metadata context is available', () => {
     it('should render the data mapper launcher form', async () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -270,7 +271,7 @@ describe('DataMapperLauncher', () => {
 
     it('should display the XSLT document name when defined', async () => {
       const vizNode = createMockVizNode('my-transformation.xsl');
-      (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('my-transformation.xsl');
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('my-transformation.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -280,7 +281,7 @@ describe('DataMapperLauncher', () => {
 
     it('should show error state when XSLT document is not defined', () => {
       const vizNode = createMockVizNode();
-      (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue(undefined);
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue(undefined);
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -293,7 +294,7 @@ describe('DataMapperLauncher', () => {
 
     it('should navigate to DataMapper page when Configure button is clicked', () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -314,7 +315,7 @@ describe('DataMapperLauncher', () => {
 
     it('should render help icon with popover', async () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -324,7 +325,7 @@ describe('DataMapperLauncher', () => {
 
     it('should render Configure button with wrench icon', () => {
       const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+      (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -336,8 +337,8 @@ describe('DataMapperLauncher', () => {
     describe('file existence checking', () => {
       it('should not show form when file does not exist', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
-        mockMetadataContext.isResourceExist = jest.fn().mockResolvedValue(false);
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(false);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -348,8 +349,8 @@ describe('DataMapperLauncher', () => {
 
       it('should show form when file exists', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
-        mockMetadataContext.isResourceExist = jest.fn().mockResolvedValue(true);
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -360,8 +361,8 @@ describe('DataMapperLauncher', () => {
 
       it('should not check file existence when xsltDocumentName is undefined', async () => {
         const vizNode = createMockVizNode();
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue(undefined);
-        const isResourceExistSpy = jest.fn();
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue(undefined);
+        const isResourceExistSpy = vi.fn();
         mockMetadataContext.isResourceExist = isResourceExistSpy;
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
@@ -374,7 +375,7 @@ describe('DataMapperLauncher', () => {
 
       it('should not check file existence when metadata is undefined', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper: noMetadataWrapper });
 
@@ -389,7 +390,7 @@ describe('DataMapperLauncher', () => {
     describe('document name validation', () => {
       beforeEach(() => {
         // Mock isResourceExist to return true for existing file, false for new files
-        mockMetadataContext.isResourceExist = jest.fn().mockImplementation((path: string) => {
+        mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl') return Promise.resolve(true); // Original file exists
           return Promise.resolve(false); // New files don't exist
         });
@@ -397,7 +398,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show specific error message for required field', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -418,7 +419,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show specific error message for invalid format', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -439,9 +440,9 @@ describe('DataMapperLauncher', () => {
 
       it('should show specific error message for existing file', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
-        mockMetadataContext.isResourceExist = jest.fn().mockImplementation((path: string) => {
+        mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl' || path === 'existing.xsl') return Promise.resolve(true);
           return Promise.resolve(false);
         });
@@ -468,12 +469,12 @@ describe('DataMapperLauncher', () => {
 
     describe('inline edit integration', () => {
       beforeEach(() => {
-        mockMetadataContext.isResourceExist = jest.fn().mockResolvedValue(true);
+        mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
       });
 
       it('should render InlineEdit component with correct props', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -486,7 +487,7 @@ describe('DataMapperLauncher', () => {
 
       it('should allow editing the document name', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -504,7 +505,7 @@ describe('DataMapperLauncher', () => {
 
       it('should show save and cancel buttons in edit mode', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -523,7 +524,7 @@ describe('DataMapperLauncher', () => {
 
       it('should cancel editing and restore original value', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -547,7 +548,7 @@ describe('DataMapperLauncher', () => {
 
       it('should disable save button when validation fails', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -569,9 +570,9 @@ describe('DataMapperLauncher', () => {
 
       it('should enable save button when validation passes', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
-        mockMetadataContext.isResourceExist = jest.fn().mockImplementation((path: string) => {
+        mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl') return Promise.resolve(true);
           return Promise.resolve(false);
         });
@@ -596,7 +597,7 @@ describe('DataMapperLauncher', () => {
 
       it('should display error message below input when errorPosition is bottom', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -624,7 +625,7 @@ describe('DataMapperLauncher', () => {
 
     describe('save button behavior with inline edit', () => {
       beforeEach(() => {
-        mockMetadataContext.isResourceExist = jest.fn().mockImplementation((path: string) => {
+        mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl') return Promise.resolve(true);
           return Promise.resolve(false);
         });
@@ -632,8 +633,8 @@ describe('DataMapperLauncher', () => {
 
       it('should trigger rename when save button is clicked after editing', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
-        (DataMapperStepService.getDataMapperMetadataId as jest.Mock) = jest.fn().mockReturnValue('test-node-id');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getDataMapperMetadataId as Mock) = vi.fn().mockReturnValue('test-node-id');
 
         const mockMetadata: IDataMapperMetadata = {
           sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [], fieldTypeOverrides: [] },
@@ -643,12 +644,12 @@ describe('DataMapperLauncher', () => {
           namespaceMap: {},
         };
 
-        mockMetadataContext.getMetadata = jest.fn().mockResolvedValue(mockMetadata);
-        mockMetadataContext.getResourceContent = jest.fn().mockResolvedValue('mock xslt content');
-        mockMetadataContext.saveResourceContent = jest.fn().mockResolvedValue(undefined);
-        mockMetadataContext.deleteResource = jest.fn().mockResolvedValue(undefined);
-        (DataMapperMetadataService.updateXsltPath as jest.Mock) = jest.fn().mockResolvedValue(undefined);
-        (DataMapperStepService.updateXsltFileName as jest.Mock) = jest.fn();
+        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(mockMetadata);
+        mockMetadataContext.getResourceContent = vi.fn().mockResolvedValue('mock xslt content');
+        mockMetadataContext.saveResourceContent = vi.fn().mockResolvedValue(undefined);
+        mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(undefined);
+        (DataMapperMetadataService.updateXsltPath as Mock) = vi.fn().mockResolvedValue(undefined);
+        (DataMapperStepService.updateXsltFileName as Mock) = vi.fn();
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -678,10 +679,10 @@ describe('DataMapperLauncher', () => {
 
       it('should not trigger rename when save is clicked without changes', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
 
-        mockMetadataContext.saveResourceContent = jest.fn();
-        mockMetadataContext.deleteResource = jest.fn();
+        mockMetadataContext.saveResourceContent = vi.fn();
+        mockMetadataContext.deleteResource = vi.fn();
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -707,13 +708,13 @@ describe('DataMapperLauncher', () => {
 
       it('should handle case when metadata is not found', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
-        (DataMapperStepService.getDataMapperMetadataId as jest.Mock) = jest.fn().mockReturnValue('test-node-id');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getDataMapperMetadataId as Mock) = vi.fn().mockReturnValue('test-node-id');
 
         // Mock getMetadata to return null (metadata not found)
-        mockMetadataContext.getMetadata = jest.fn().mockResolvedValue(null);
-        mockMetadataContext.saveResourceContent = jest.fn();
-        mockMetadataContext.deleteResource = jest.fn();
+        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(null);
+        mockMetadataContext.saveResourceContent = vi.fn();
+        mockMetadataContext.deleteResource = vi.fn();
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -739,8 +740,8 @@ describe('DataMapperLauncher', () => {
 
       it('should return to readonly mode after successful save', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
-        (DataMapperStepService.getXsltFileName as jest.Mock).mockReturnValue('test-document.xsl');
-        (DataMapperStepService.getDataMapperMetadataId as jest.Mock) = jest.fn().mockReturnValue('test-node-id');
+        (DataMapperStepService.getXsltFileName as Mock).mockReturnValue('test-document.xsl');
+        (DataMapperStepService.getDataMapperMetadataId as Mock) = vi.fn().mockReturnValue('test-node-id');
 
         const mockMetadata: IDataMapperMetadata = {
           sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [], fieldTypeOverrides: [] },
@@ -752,20 +753,20 @@ describe('DataMapperLauncher', () => {
 
         let fileRenamed = false;
         // Mock file existence - track when file is renamed
-        mockMetadataContext.isResourceExist = jest.fn().mockImplementation((path: string) => {
+        mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
           if (path === 'test-document.xsl' && !fileRenamed) return Promise.resolve(true); // Original file exists before rename
           if (path === 'renamed.xsl' && fileRenamed) return Promise.resolve(true); // New file exists after rename
           return Promise.resolve(false);
         });
-        mockMetadataContext.getMetadata = jest.fn().mockResolvedValue(mockMetadata);
-        mockMetadataContext.getResourceContent = jest.fn().mockResolvedValue('mock xslt content');
-        mockMetadataContext.saveResourceContent = jest.fn().mockImplementation(() => {
+        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(mockMetadata);
+        mockMetadataContext.getResourceContent = vi.fn().mockResolvedValue('mock xslt content');
+        mockMetadataContext.saveResourceContent = vi.fn().mockImplementation(() => {
           fileRenamed = true; // Mark file as renamed when save is called
           return Promise.resolve(undefined);
         });
-        mockMetadataContext.deleteResource = jest.fn().mockResolvedValue(undefined);
-        (DataMapperMetadataService.updateXsltPath as jest.Mock) = jest.fn().mockResolvedValue(undefined);
-        (DataMapperStepService.updateXsltFileName as jest.Mock) = jest.fn();
+        mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(undefined);
+        (DataMapperMetadataService.updateXsltPath as Mock) = vi.fn().mockResolvedValue(undefined);
+        (DataMapperStepService.updateXsltFileName as Mock) = vi.fn();
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 

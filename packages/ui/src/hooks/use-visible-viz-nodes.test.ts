@@ -1,4 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { BaseVisualEntity, IVisualizationNode } from '../models/visualization/base-visual-entity';
 import { IVisibleFlows } from '../utils/init-visible-flows';
@@ -7,7 +8,7 @@ import { useVisibleVizNodes } from './use-visible-viz-nodes';
 function mockEntity(id: string, vizNode: IVisualizationNode): BaseVisualEntity {
   return {
     id,
-    toVizNode: jest.fn().mockResolvedValue(vizNode),
+    toVizNode: vi.fn().mockResolvedValue(vizNode),
   } as unknown as BaseVisualEntity;
 }
 

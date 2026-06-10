@@ -66,7 +66,8 @@ export class XDOMUtil {
   /**
    * Finds and returns the next sibling node with the given qualified name.
    */
-  static getNextSiblingElementNS(node: Node, uri: string, localpart?: string) {
+  static getNextSiblingElementNS(node: Node | null, uri: string, localpart?: string) {
+    if (!node) return null;
     // search for node
     let sibling = node.nextSibling;
     while (sibling !== null) {

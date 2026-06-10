@@ -1,5 +1,6 @@
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { act, useContext, useEffect } from 'react';
+import { vi } from 'vitest';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { SendAlertProps } from '../models/datamapper';
@@ -233,7 +234,7 @@ describe('DataMapperProvider', () => {
   });
 
   it('updateDocument() should call onUpdateDocument callback if provided', async () => {
-    const mockOnUpdateDocument = jest.fn();
+    const mockOnUpdateDocument = vi.fn();
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider onUpdateDocument={mockOnUpdateDocument}>{children}</DataMapperProvider>
     );
@@ -275,7 +276,7 @@ describe('DataMapperProvider', () => {
   });
 
   it('deleteSourceParameter() should call onDeleteParameter callback if provided', async () => {
-    const mockOnDeleteParameter = jest.fn();
+    const mockOnDeleteParameter = vi.fn();
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider onDeleteParameter={mockOnDeleteParameter}>{children}</DataMapperProvider>
@@ -321,9 +322,9 @@ describe('DataMapperProvider', () => {
   });
 
   it('renameSourceParameter() should renameDocument, renameParameterInMappings, and call onRenameParameter callback(if provided)', async () => {
-    const mockOnRenameParameter = jest.fn();
-    const renameDocSpy = jest.spyOn(DocumentService, 'renameDocument');
-    const renameParameterInMappingsSpy = jest.spyOn(MappingService, 'renameParameterInMappings');
+    const mockOnRenameParameter = vi.fn();
+    const renameDocSpy = vi.spyOn(DocumentService, 'renameDocument');
+    const renameParameterInMappingsSpy = vi.spyOn(MappingService, 'renameParameterInMappings');
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider onRenameParameter={mockOnRenameParameter}>{children}</DataMapperProvider>
@@ -413,7 +414,7 @@ describe('DataMapperProvider', () => {
   });
 
   it('should handle onUpdateDocument callback when provided', async () => {
-    const mockOnUpdateDocument = jest.fn();
+    const mockOnUpdateDocument = vi.fn();
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider onUpdateDocument={mockOnUpdateDocument}>{children}</DataMapperProvider>
@@ -603,8 +604,8 @@ describe('DataMapperProvider', () => {
   });
 
   it('should return early when old and new names are the same', async () => {
-    const mockOnRenameParameter = jest.fn();
-    const renameDocSpy = jest.spyOn(DocumentService, 'renameDocument');
+    const mockOnRenameParameter = vi.fn();
+    const renameDocSpy = vi.spyOn(DocumentService, 'renameDocument');
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider onRenameParameter={mockOnRenameParameter}>{children}</DataMapperProvider>
@@ -637,7 +638,7 @@ describe('DataMapperProvider', () => {
   });
 
   it('should handle deleting non-existent parameter', async () => {
-    const mockOnDeleteParameter = jest.fn();
+    const mockOnDeleteParameter = vi.fn();
 
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <DataMapperProvider onDeleteParameter={mockOnDeleteParameter}>{children}</DataMapperProvider>
@@ -834,7 +835,7 @@ describe('DataMapperProvider', () => {
 
   describe('Namespace synchronization', () => {
     it('should call onUpdateNamespaceMap when refreshMappingTree is called', async () => {
-      const mockOnUpdateNamespaceMap = jest.fn();
+      const mockOnUpdateNamespaceMap = vi.fn();
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <DataMapperProvider onUpdateNamespaceMap={mockOnUpdateNamespaceMap}>{children}</DataMapperProvider>
@@ -855,7 +856,7 @@ describe('DataMapperProvider', () => {
     });
 
     it('should call onUpdateNamespaceMap when resetMappingTree is called', async () => {
-      const mockOnUpdateNamespaceMap = jest.fn();
+      const mockOnUpdateNamespaceMap = vi.fn();
 
       const wrapper = ({ children }: { children: React.ReactNode }) => (
         <DataMapperProvider onUpdateNamespaceMap={mockOnUpdateNamespaceMap}>{children}</DataMapperProvider>

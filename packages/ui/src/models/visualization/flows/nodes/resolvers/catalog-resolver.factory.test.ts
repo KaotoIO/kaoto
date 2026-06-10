@@ -1,15 +1,17 @@
+import { vi } from 'vitest';
+
 import { DynamicCatalogRegistry } from '../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../catalog-kind';
 import { CatalogResolverFactory } from './catalog-resolver.factory';
 
-jest.mock('../../../../../dynamic-catalog/dynamic-catalog-registry');
+vi.mock('../../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('CatalogResolverFactory', () => {
-  const mockGetEntity = jest.fn();
+  const mockGetEntity = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    jest.mocked(DynamicCatalogRegistry.get).mockReturnValue({
+    vi.clearAllMocks();
+    vi.mocked(DynamicCatalogRegistry.get).mockReturnValue({
       getEntity: mockGetEntity,
     } as unknown as ReturnType<typeof DynamicCatalogRegistry.get>);
   });
@@ -53,7 +55,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should handle errors and return fallback', async () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockGetEntity.mockRejectedValue(new Error('Catalog error'));
 
       const result = await CatalogResolverFactory.resolveProperty(
@@ -134,7 +136,7 @@ describe('CatalogResolverFactory', () => {
     });
 
     it('should continue after catalog errors', async () => {
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       mockGetEntity.mockRejectedValueOnce(new Error('Error')).mockResolvedValueOnce({ model: { title: 'Success' } });
 
       const result = await CatalogResolverFactory.resolvePropertyWithFallbacks(

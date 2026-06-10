@@ -1,4 +1,5 @@
 import { KaotoFunction } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import {
   ICamelComponentDefinition,
@@ -192,7 +193,7 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Component, catalog);
@@ -216,10 +217,10 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
+      vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
-      const getSpy = jest.spyOn(catalog, 'get');
+      const getSpy = vi.spyOn(catalog, 'get');
       registry.setCatalog(CatalogKind.Component, catalog);
 
       await registry.getEntity(CatalogKind.Component, 'test-key', { forceFresh: true });
@@ -239,10 +240,10 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
+      vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
-      const getSpy = jest.spyOn(catalog, 'get');
+      const getSpy = vi.spyOn(catalog, 'get');
       registry.setCatalog(CatalogKind.Kamelet, catalog);
 
       await registry.getEntity(CatalogKind.Kamelet, 'test-key');
@@ -262,7 +263,7 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Language, catalog);
@@ -295,7 +296,7 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      const fetchSpy = jest.spyOn(mockProvider, 'fetch');
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch');
       fetchSpy.mockResolvedValueOnce(mockEntity1).mockResolvedValueOnce(mockEntity2);
 
       const catalog = new DynamicCatalog(mockProvider);
@@ -317,7 +318,7 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      const fetchSpy = jest.spyOn(mockProvider, 'fetch').mockResolvedValue(undefined);
+      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(undefined);
 
       const catalog = new DynamicCatalog(mockProvider);
       registry.setCatalog(CatalogKind.Processor, catalog);
@@ -345,7 +346,7 @@ describe('DynamicCatalogRegistry', () => {
         fetch: () => Promise.resolve(undefined),
         fetchAll: () => Promise.resolve({}),
       };
-      jest.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
+      vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);
 
       const catalog = new DynamicCatalog<Record<string, KaotoFunction>>(mockProvider);
       registry.setCatalog(CatalogKind.Function, catalog);

@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { ResizableSplitPanels } from './ResizableSplitPanels';
 
@@ -9,7 +10,7 @@ const GAP_PERCENT = 4.2; // 42px / 1000px * 100
 // Helper to mock getComputedStyle for handle dimensions
 const mockHandleStyles = (handle: HTMLElement) => {
   const originalGetComputedStyle = globalThis.getComputedStyle;
-  globalThis.getComputedStyle = jest.fn((element) => {
+  globalThis.getComputedStyle = vi.fn((element) => {
     if (element === handle) {
       return {
         width: '20px',
@@ -120,7 +121,7 @@ describe('ResizableSplitPanels - Resize Behavior', () => {
 
   it('should call onResizeStart when drag begins', () => {
     // Test callback
-    const onResizeStart = jest.fn();
+    const onResizeStart = vi.fn();
     render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -138,7 +139,7 @@ describe('ResizableSplitPanels - Resize Behavior', () => {
 
   it('should call onResize during drag with current widths', () => {
     // Test callback with values
-    const onResize = jest.fn();
+    const onResize = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -166,7 +167,7 @@ describe('ResizableSplitPanels - Resize Behavior', () => {
 
   it('should call onResizeEnd when drag completes', () => {
     // Test callback
-    const onResizeEnd = jest.fn();
+    const onResizeEnd = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -194,7 +195,7 @@ describe('ResizableSplitPanels - Resize Behavior', () => {
 
   it('should handle rapid mouse movements smoothly', () => {
     // Performance test
-    const onResize = jest.fn();
+    const onResize = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -225,7 +226,7 @@ describe('ResizableSplitPanels - Resize Behavior', () => {
 
   it('should stop resize when mouse leaves window', () => {
     // Test mouseleave handling
-    const onResizeEnd = jest.fn();
+    const onResizeEnd = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -284,7 +285,7 @@ describe('ResizableSplitPanels - Edge Cases', () => {
     fireEvent.mouseDown(resizeHandle, { clientX: 100 });
     expect(rootElement).toHaveAttribute('data-resizing');
 
-    const removeEventListenerSpy = jest.spyOn(document, 'removeEventListener');
+    const removeEventListenerSpy = vi.spyOn(document, 'removeEventListener');
     unmount();
     expect(removeEventListenerSpy).toHaveBeenCalledWith('mousemove', expect.any(Function));
     expect(removeEventListenerSpy).toHaveBeenCalledWith('mouseup', expect.any(Function));
@@ -394,9 +395,9 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
   });
 
   it('should resize with arrow keys and handle lifecycle callbacks', () => {
-    const onResize = jest.fn();
-    const onResizeStart = jest.fn();
-    const onResizeEnd = jest.fn();
+    const onResize = vi.fn();
+    const onResizeStart = vi.fn();
+    const onResizeEnd = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -461,7 +462,7 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
   });
 
   it('should support Home and End keys for min/max widths', () => {
-    const onResize = jest.fn();
+    const onResize = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -490,7 +491,7 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
   });
 
   it('should restore previous width with Escape key', () => {
-    const onResizeEnd = jest.fn();
+    const onResizeEnd = vi.fn();
     const { container } = render(
       <ResizableSplitPanels
         leftPanel={<div>Left Panel</div>}
@@ -526,7 +527,7 @@ describe('ResizableSplitPanels - Keyboard Navigation', () => {
     const { originalGetComputedStyle } = setupResizeTest(container);
 
     const arrowRightEvent = new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true });
-    const preventDefaultSpy = jest.spyOn(arrowRightEvent, 'preventDefault');
+    const preventDefaultSpy = vi.spyOn(arrowRightEvent, 'preventDefault');
     resizeHandle.dispatchEvent(arrowRightEvent);
 
     expect(preventDefaultSpy).toHaveBeenCalled();

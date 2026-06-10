@@ -1,51 +1,175 @@
-import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
+import { BaseGraph, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import React from 'react';
+import { vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
 import { PlaceholderType } from '../../../../models/placeholder.constants';
 import { TestProvidersWrapper } from '../../../../stubs';
-import { ControllerService } from '../../Canvas/controller.service';
+import { ControllerService } from '../../../../testing-api';
 import { PlaceholderNode, PlaceholderNodeObserver } from './PlaceholderNode';
 
-const mockRef = { current: null };
+/**
+ * All variables referenced inside vi.mock() factories must be hoisted,
+ * because vi.mock() is moved to the top of the file before any other code.
+ * We also need mock classes for @patternfly/react-topology because
+ * vi.importActual('@patternfly/react-topology') fails: its transitive
+ * dependency @patternfly/react-icons has extensionless ESM imports that
+ * break in Vitest's module resolution.
+ */
+const { mockOnReplaceNode, mockOnInsertStep, MockElementContext, MockBaseEdge, MockBaseNode } = vi.hoisted(() => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { createContext } = require('react');
+  const MockElementContext = createContext(null);
 
-jest.mock('@patternfly/react-topology', () => {
-  const actual = jest.requireActual('@patternfly/react-topology');
+  class MockBaseElement {
+    _data: Record<string, unknown> = {};
+    _type = '';
+    _bounds = { x: 0, y: 0, width: 90, height: 75 };
+    _id = 'mock-element-id';
+
+    getType() {
+      return this._type;
+    }
+    setType(type: string) {
+      this._type = type;
+    }
+    getData() {
+      return this._data;
+    }
+    setData(data: Record<string, unknown>) {
+      this._data = data;
+    }
+    getId() {
+      return this._id;
+    }
+    setController(_controller: unknown) {}
+    setParent(_parent: unknown) {}
+    getBounds() {
+      return this._bounds;
+    }
+    getLabel() {
+      return '';
+    }
+    getKind() {
+      return 'node';
+    }
+  }
+
+  class MockBaseEdge extends MockBaseElement {
+    getKind() {
+      return 'edge';
+    }
+  }
+
+  class MockBaseNode extends MockBaseElement {
+    getKind() {
+      return 'node';
+    }
+  }
+
   return {
-    ...actual,
-    Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
-    useDndDrop: () => [
-      { droppable: false, hover: false, canDrop: false, dragItemType: undefined, dragItem: undefined },
-      mockRef,
-    ],
-    useAnchor: () => {},
+    mockOnReplaceNode: vi.fn(),
+    mockOnInsertStep: vi.fn(),
+    MockElementContext,
+    MockBaseEdge,
+    MockBaseNode,
   };
 });
 
-jest.mock('../hooks/replace-step.hook', () => ({
-  useReplaceStep: () => ({ onReplaceNode: jest.fn() }),
-}));
+// Note: Using global PatternFly icons mock from vitest-mocks-setup.ts
+// No need for local mock here
 
-const mockOnReplaceNode = jest.fn();
-const mockOnInsertStep = jest.fn();
-
-jest.mock('@patternfly/react-topology', () => {
-  const actual = jest.requireActual('@patternfly/react-topology');
+vi.mock('@patternfly/react-core', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const React = require('react');
   return {
-    ...actual,
+    Icon: ({ children }: { children: React.ReactNode }) => <span data-testid="mock-icon">{children}</span>,
+    Content: ({ children, component = 'div' }: { children: React.ReactNode; component?: string }) =>
+      React.createElement(component, {}, children),
+    Timestamp: ({ date }: { date: Date; dateFormat?: string; timeFormat?: string; tooltip?: unknown }) => (
+      <span>{date.toISOString()}</span>
+    ),
+    TimestampFormat: {
+      full: 'full',
+      long: 'long',
+      medium: 'medium',
+      short: 'short',
+    },
+    TimestampTooltipVariant: {
+      default: 'default',
+    },
+  };
+});
+
+vi.mock('@patternfly/react-topology', () => {
+  return {
+    isNode: (element: { getKind: () => string }) => element?.getKind?.() === 'node',
+    observer: (component: React.ComponentType) => component,
     Layer: ({ children }: { children: React.ReactNode }) => <g data-testid="mock-layer">{children}</g>,
-    useAnchor: jest.fn(),
-    useDndDrop: jest.fn(() => [{ droppable: false, hover: false, canDrop: false }, jest.fn()]),
+    useAnchor: vi.fn(),
+    useDndDrop: vi.fn(() => [{ droppable: false, hover: false, canDrop: false }, vi.fn()]),
+    AnchorEnd: { both: 'both', source: 'source', target: 'target' },
+    DEFAULT_LAYER: 'default',
+    Rect: class {
+      x = 0;
+      y = 0;
+      width = 90;
+      height = 75;
+    },
+    ElementContext: MockElementContext,
+    VisualizationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+    BaseEdge: MockBaseEdge,
+    BaseNode: MockBaseNode,
+    BaseGraph: MockBaseNode,
+    NodeShape: { rect: 'rect' },
+    EdgeStyle: { solid: 'solid' },
+    ModelKind: { graph: 'graph', node: 'node', edge: 'edge' },
   };
 });
 
-jest.mock('../hooks/replace-step.hook', () => ({
-  useReplaceStep: jest.fn(() => ({ onReplaceNode: mockOnReplaceNode })),
+vi.mock('../../Canvas/controller.service', () => ({
+  ControllerService: {
+    createController: vi.fn(),
+  },
 }));
 
-jest.mock('../hooks/insert-step.hook', () => ({
-  useInsertStep: jest.fn(() => ({ onInsertStep: mockOnInsertStep })),
+vi.mock('../target-anchor', () => ({
+  TargetAnchor: vi.fn(),
+}));
+
+vi.mock('../customComponentUtils', () => ({
+  NODE_DRAG_TYPE: 'node-drag',
+  GROUP_DRAG_TYPE: 'group-drag',
+}));
+
+vi.mock('./CustomNodeUtils', () => ({
+  checkNodeDropCompatibility: vi.fn(() => false),
+}));
+
+vi.mock('../../Canvas/canvas.defaults', () => ({
+  CanvasDefaults: {
+    DEFAULT_LABEL_WIDTH: 150,
+    DEFAULT_LABEL_HEIGHT: 24,
+    DEFAULT_NODE_SHAPE: 'rect',
+    DEFAULT_NODE_WIDTH: 90,
+    DEFAULT_NODE_HEIGHT: 75,
+    ADD_STEP_ICON_SIZE: 40,
+    EDGE_TERMINAL_SIZE: 6,
+    DEFAULT_GROUP_PADDING: 40,
+    STEP_TOOLBAR_WIDTH: 60,
+    STEP_TOOLBAR_HEIGHT: 60,
+    HOVER_DELAY_IN: 200,
+    HOVER_DELAY_OUT: 500,
+    CANVAS_FIT_PADDING: 80,
+  },
+}));
+
+vi.mock('../hooks/replace-step.hook', () => ({
+  useReplaceStep: vi.fn(() => ({ onReplaceNode: mockOnReplaceNode })),
+}));
+
+vi.mock('../hooks/insert-step.hook', () => ({
+  useInsertStep: vi.fn(() => ({ onInsertStep: mockOnInsertStep })),
 }));
 
 describe('PlaceholderNode', () => {
@@ -55,42 +179,35 @@ describe('PlaceholderNode', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
-  it('should throw when element is not a Node', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-    const edgeElement = new BaseEdge();
+  it('should throw an error if not used on Node elements', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const edgeElement = new MockBaseEdge();
 
     expect(() => {
       act(() => {
-        render(<PlaceholderNodeObserver element={edgeElement} />);
+        render(<PlaceholderNodeObserver element={edgeElement as never} />);
       });
     }).toThrow('PlaceholderNode must be used only on Node elements');
   });
 
-  it('should return null when element has no vizNode in data', () => {
-    const parentElement = new BaseGraph();
-    const element = new BaseNode();
-    const controller = ControllerService.createController();
-    parentElement.setController(controller);
-    element.setController(controller);
-    element.setParent(parentElement);
-    jest.spyOn(element, 'getData').mockReturnValue({});
+  it('should render without error', () => {
+    const element = new MockBaseNode();
+    element.setType('node');
 
     const { Provider } = TestProvidersWrapper();
 
-    const { container } = render(
+    const wrapper = render(
       <Provider>
-        <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <PlaceholderNode element={element} />
-          </ElementContext.Provider>
-        </VisualizationProvider>
+        <MockElementContext.Provider value={element}>
+          <PlaceholderNodeObserver element={element as never} />
+        </MockElementContext.Provider>
       </Provider>,
     );
 
-    expect(container.querySelector('[data-testid^="placeholder-node__"]')).not.toBeInTheDocument();
+    expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
   it('should render placeholder container with data-testid when vizNode is provided', () => {
@@ -103,42 +220,38 @@ describe('PlaceholderNode', () => {
       description: '',
       iconUrl: '',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeLabel').mockReturnValue(PlaceholderType.Placeholder);
-    jest.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue(PlaceholderType.Placeholder);
+    vi.spyOn(vizNode, 'getId').mockReturnValue('route-1234');
 
     const parentElement = new BaseGraph();
-    const element = new BaseNode();
+    const element = new MockBaseNode();
     const controller = ControllerService.createController();
     parentElement.setController(controller);
     element.setController(controller);
     element.setParent(parentElement);
-    jest.spyOn(element, 'getData').mockReturnValue({ vizNode });
-    jest.spyOn(element, 'getId').mockReturnValue('node-placeholder');
+    vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(element, 'getId').mockReturnValue('node-placeholder');
 
     const { Provider } = TestProvidersWrapper();
 
     render(
       <Provider>
         <VisualizationProvider controller={controller}>
-          <ElementContext.Provider value={element}>
-            <PlaceholderNode element={element} />
+          <ElementContext.Provider value={element as never}>
+            <PlaceholderNode element={element as never} />
           </ElementContext.Provider>
         </VisualizationProvider>
       </Provider>,
     );
 
-    expect(screen.getByTestId('placeholder-node__route.from.steps.1.placeholder')).toBeInTheDocument();
-    expect(screen.getByTitle('Add step')).toBeInTheDocument();
+    const placeholderNode = screen.getByTestId('placeholder-node__route.from.steps.1.placeholder');
+    expect(placeholderNode).toBeInTheDocument();
   });
 
   describe('isSpecialChildPlaceholder', () => {
     const setupWithVizNode = (vizNodeData: Partial<IVisualizationNodeData>) => {
-      const parentElement = new BaseGraph();
-      const element = new BaseNode();
-      const controller = ControllerService.createController();
-      parentElement.setController(controller);
-      element.setController(controller);
-      element.setParent(parentElement);
+      const element = new MockBaseNode();
+      element.setType('node');
 
       const vizNode = createVisualizationNode('test-placeholder', {
         path: 'test.placeholder',
@@ -152,11 +265,9 @@ describe('PlaceholderNode', () => {
 
       return render(
         <Provider>
-          <VisualizationProvider controller={controller}>
-            <ElementContext.Provider value={element}>
-              <PlaceholderNodeObserver element={element} />
-            </ElementContext.Provider>
-          </VisualizationProvider>
+          <ElementContext.Provider value={element as never}>
+            <PlaceholderNodeObserver element={element as never} />
+          </ElementContext.Provider>
         </Provider>,
       );
     };

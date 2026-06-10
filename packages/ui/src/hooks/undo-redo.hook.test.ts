@@ -1,14 +1,15 @@
 import { act, renderHook } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
 import { useUndoRedo } from './undo-redo.hook';
 
-const mockController = {
-  fromModel: jest.fn(),
-};
+const mockController = vi.hoisted(() => ({
+  fromModel: vi.fn(),
+}));
 
-jest.mock('@patternfly/react-topology', () => ({
+vi.mock('@patternfly/react-topology', () => ({
   useVisualizationController: () => mockController,
 }));
 
@@ -46,7 +47,7 @@ describe('useUndoRedo', () => {
   });
 
   it('should notify the code has changed upon undo', () => {
-    const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
+    const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
 
     const { result } = renderHook(() => useUndoRedo());
 
@@ -67,7 +68,7 @@ describe('useUndoRedo', () => {
   });
 
   it('should notify the code has changed upon redo', () => {
-    const eventNotifierSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
+    const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
 
     const { result } = renderHook(() => useUndoRedo());
 

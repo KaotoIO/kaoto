@@ -1,4 +1,5 @@
 import { cloneDeep } from 'lodash';
+import { vi } from 'vitest';
 
 import { mockRandomValues } from '../../stubs';
 import { kameletJson } from '../../stubs/kamelet-route';
@@ -93,7 +94,7 @@ describe('KameletResource', () => {
 
   describe('getCompatibleComponents', () => {
     it('should delegate to the CamelComponentFilterService', () => {
-      const filterSpy = jest.spyOn(CamelComponentFilterService, 'getKameletCompatibleComponents');
+      const filterSpy = vi.spyOn(CamelComponentFilterService, 'getKameletCompatibleComponents');
 
       const resource = CamelKResourceFactory.getCamelKResource(kameletJson)!;
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {

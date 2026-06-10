@@ -1,16 +1,18 @@
+import { Mock, vi } from 'vitest';
+
 import { DynamicCatalogRegistry } from '../../../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../../../catalog-kind';
 import { getTooltipRequest } from './getTooltipRequest';
 
-jest.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
+vi.mock('../../../../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('getTooltipRequest', () => {
-  let mockGetEntity: jest.Mock;
+  let mockGetEntity: Mock;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    mockGetEntity = jest.fn();
-    (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue({
+    vi.clearAllMocks();
+    mockGetEntity = vi.fn();
+    (DynamicCatalogRegistry.get as Mock).mockReturnValue({
       getEntity: mockGetEntity,
     });
   });

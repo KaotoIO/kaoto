@@ -1,5 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, To } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
@@ -27,7 +28,7 @@ describe('CatalogTilesProvider', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   const TEST_CASES: [To, Exclude<To, 'string'> | undefined][] = [

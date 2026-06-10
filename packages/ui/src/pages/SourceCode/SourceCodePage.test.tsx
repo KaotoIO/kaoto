@@ -4,17 +4,17 @@ import { useSourceCodeStore } from '../../store';
 import { SourceCodePage } from './SourceCodePage';
 
 // Mock EventNotifier to prevent side effects
-jest.mock('../../utils/event-notifier', () => ({
+vi.mock('../../utils/event-notifier', () => ({
   EventNotifier: {
-    getInstance: jest.fn(() => ({
-      next: jest.fn(),
-      subscribe: jest.fn(),
+    getInstance: vi.fn(() => ({
+      next: vi.fn(),
+      subscribe: vi.fn(),
     })),
   },
 }));
 
 // Mock the SourceCode component
-jest.mock('../../components/SourceCode', () => ({
+vi.mock('../../components/SourceCode', () => ({
   SourceCode: ({ code, onCodeChange }: { code: string; onCodeChange: (code: string) => void }) => (
     <div data-testid="source-code-component">
       <div data-testid="code-content">{code}</div>
@@ -56,7 +56,7 @@ describe('SourceCodePage', () => {
   });
 
   it('should call setCodeAndNotify when code changes', () => {
-    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+    const setCodeAndNotifySpy = vi.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
 
     render(<SourceCodePage />);
 
@@ -80,7 +80,7 @@ describe('SourceCodePage', () => {
     });
 
     // Directly verify setCodeAndNotify was called with correct argument
-    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+    const setCodeAndNotifySpy = vi.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
 
     act(() => {
       changeButton.click();
@@ -99,7 +99,7 @@ describe('SourceCodePage', () => {
 
     expect(screen.getByTestId('code-content')).toHaveTextContent('initial code');
 
-    const setCodeAndNotifySpy = jest.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
+    const setCodeAndNotifySpy = vi.spyOn(useSourceCodeStore.getState(), 'setCodeAndNotify');
     const changeButton = screen.getByTestId('change-code-button');
 
     act(() => {

@@ -711,7 +711,7 @@ describe('CamelRouteResource', () => {
 
   describe('getCompatibleComponents', () => {
     it('should delegate to the CamelComponentFilterService', () => {
-      const filterSpy = jest.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
+      const filterSpy = vi.spyOn(CamelComponentFilterService, 'getCamelCompatibleComponents');
 
       const resource = CamelResourceFactory.createCamelResource(camelRouteYaml);
       resource.getCompatibleComponents(AddStepMode.ReplaceStep, {

@@ -1,21 +1,22 @@
 import { useVisualizationController } from '@patternfly/react-topology';
 import { renderHook } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { LayoutType } from '../../Canvas/canvas.models';
 import { useGraphLayout } from './use-graph-layout.hook';
 
-jest.mock('@patternfly/react-topology', () => ({
-  useVisualizationController: jest.fn(),
+vi.mock('@patternfly/react-topology', () => ({
+  useVisualizationController: vi.fn(),
 }));
 
 describe('useGraphLayout', () => {
   it('should return the layout from the controller', () => {
     const mockController = {
-      getGraph: jest.fn(() => ({
-        getLayout: jest.fn(() => LayoutType.DagreVertical),
+      getGraph: vi.fn(() => ({
+        getLayout: vi.fn(() => LayoutType.DagreVertical),
       })),
     };
-    (useVisualizationController as jest.Mock).mockReturnValue(mockController);
+    (useVisualizationController as Mock).mockReturnValue(mockController);
 
     const { result } = renderHook(() => useGraphLayout());
 
@@ -24,11 +25,11 @@ describe('useGraphLayout', () => {
 
   it('should return default layout when getLayout is not available', () => {
     const mockController = {
-      getGraph: jest.fn(() => ({
+      getGraph: vi.fn(() => ({
         getLayout: undefined,
       })),
     };
-    (useVisualizationController as jest.Mock).mockReturnValue(mockController);
+    (useVisualizationController as Mock).mockReturnValue(mockController);
 
     const { result } = renderHook(() => useGraphLayout());
 
@@ -37,9 +38,9 @@ describe('useGraphLayout', () => {
 
   it('should return default layout when getGraph returns undefined', () => {
     const mockController = {
-      getGraph: jest.fn(() => undefined),
+      getGraph: vi.fn(() => undefined),
     };
-    (useVisualizationController as jest.Mock).mockReturnValue(mockController);
+    (useVisualizationController as Mock).mockReturnValue(mockController);
 
     const { result } = renderHook(() => useGraphLayout());
 
@@ -50,7 +51,7 @@ describe('useGraphLayout', () => {
     const mockController = {
       getGraph: undefined,
     };
-    (useVisualizationController as jest.Mock).mockReturnValue(mockController);
+    (useVisualizationController as Mock).mockReturnValue(mockController);
 
     const { result } = renderHook(() => useGraphLayout());
 

@@ -5,7 +5,7 @@ describe('EditService', () => {
   let service: EditService;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     service = EditService.getInstance();
     service.clearEdits();
   });

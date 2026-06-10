@@ -1,12 +1,14 @@
 import { renderHook } from '@testing-library/react';
+import { vi } from 'vitest';
 
+import { useDataMapper } from '../../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../../models/datamapper/document';
 import { ForEachItem, MappingTree } from '../../../../../models/datamapper/mapping';
 import { TestUtil } from '../../../../../stubs/datamapper/data-mapper';
 import { useSortKeyItems } from './useSortKeyItems';
 
-jest.mock('../../../../../hooks/useDataMapper', () => ({
-  useDataMapper: jest.fn(),
+vi.mock('../../../../../hooks/useDataMapper', () => ({
+  useDataMapper: vi.fn(),
 }));
 
 describe('useSortKeyItems', () => {
@@ -16,12 +18,11 @@ describe('useSortKeyItems', () => {
   beforeEach(() => {
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
 
-    const { useDataMapper } = jest.requireMock('../../../../../hooks/useDataMapper');
-    useDataMapper.mockReturnValue({
+    vi.mocked(useDataMapper).mockReturnValue({
       sourceBodyDocument: sourceDoc,
       sourceParameterMap: new Map(),
       mappingTree,
-    });
+    } as never);
   });
 
   it('should return empty items when expression is empty', () => {

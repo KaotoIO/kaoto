@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { getCamelRandomId, getHexaDecimalRandomId } from './camel-random-id';
 
 describe('camel-random-id', () => {
@@ -6,9 +8,9 @@ describe('camel-random-id', () => {
   });
 
   it('should return a random number with a given length', () => {
-    jest
-      .spyOn(globalThis, 'crypto', 'get')
-      .mockImplementationOnce(() => ({ getRandomValues: () => [19508888] }) as unknown as Crypto);
+    vi.spyOn(globalThis, 'crypto', 'get').mockImplementationOnce(
+      () => ({ getRandomValues: () => [19508888] }) as unknown as Crypto,
+    );
     expect(getCamelRandomId('route', 6)).toEqual('route-195088');
   });
 
@@ -17,8 +19,8 @@ describe('camel-random-id', () => {
       value: undefined,
       writable: true,
     });
-    jest.spyOn(globalThis, 'crypto', 'get').mockImplementationOnce(() => undefined as unknown as Crypto);
-    jest.spyOn(globalThis.Date, 'now').mockReturnValueOnce(888);
+    vi.spyOn(globalThis, 'crypto', 'get').mockImplementationOnce(() => undefined as unknown as Crypto);
+    vi.spyOn(globalThis.Date, 'now').mockReturnValueOnce(888);
 
     const result = getCamelRandomId('route');
 
@@ -31,7 +33,7 @@ describe('camel-random-id', () => {
       writable: true,
     });
 
-    jest.spyOn(globalThis, 'crypto', 'get').mockImplementationOnce(() => undefined as unknown as Crypto);
+    vi.spyOn(globalThis, 'crypto', 'get').mockImplementationOnce(() => undefined as unknown as Crypto);
 
     expect(getCamelRandomId('route')).toEqual(expect.any(String));
   });
@@ -39,10 +41,10 @@ describe('camel-random-id', () => {
 
 describe('getHexaDecimalRandomId()', () => {
   it('should return a random number with Hexadecimal format', async () => {
-    // crypto.getRandomValues() in Jest returns a fixed number 12345678. Replacing with Date.now()
-    jest
-      .spyOn(globalThis, 'crypto', 'get')
-      .mockImplementation(() => ({ getRandomValues: () => [Date.now()] }) as unknown as Crypto);
+    // crypto.getRandomValues() in vi returns a fixed number 12345678. Replacing with Date.now()
+    vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(
+      () => ({ getRandomValues: () => [Date.now()] }) as unknown as Crypto,
+    );
 
     const one = getHexaDecimalRandomId('test');
     expect(one).toMatch(/test-[0-9a-f]{1,8}/);

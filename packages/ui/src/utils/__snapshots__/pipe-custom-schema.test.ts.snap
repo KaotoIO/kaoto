@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`pipeCustomSchema updatePipeFromCustomSchema should preserve Pipe's original values when loading a malformed custom schema 1`] = `
+exports[`pipeCustomSchema > updatePipeFromCustomSchema > should preserve Pipe's original values when loading a malformed custom schema 1`] = `
 {
   "apiVersion": "camel.apache.org/v1",
   "kind": "Pipe",

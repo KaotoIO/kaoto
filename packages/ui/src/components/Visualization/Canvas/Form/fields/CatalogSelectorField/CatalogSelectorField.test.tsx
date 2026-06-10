@@ -1,6 +1,7 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { RuntimeContext } from '../../../../../../providers/runtime.provider';
@@ -48,13 +49,13 @@ describe('CatalogSelectorField', () => {
     basePath: '/catalogs',
     catalogLibrary,
     selectedCatalog,
-    setSelectedCatalog: jest.fn(),
+    setSelectedCatalog: vi.fn(),
   });
 
   const renderWithProviders = (
     component: React.ReactElement,
     model = {},
-    onPropertyChange = jest.fn(),
+    onPropertyChange = vi.fn(),
     runtimeContext = createRuntimeContext(mockCatalogLibrary),
   ) => {
     return render(
@@ -72,7 +73,7 @@ describe('CatalogSelectorField', () => {
         renderWithProviders(
           <RuntimeCatalogNameField propName="runtimeCatalogName" />,
           {},
-          jest.fn(),
+          vi.fn(),
           createRuntimeContext(),
         );
 
@@ -150,7 +151,7 @@ describe('CatalogSelectorField', () => {
       });
 
       it('should select catalog when clicking menu item', () => {
-        const onPropertyChange = jest.fn();
+        const onPropertyChange = vi.fn();
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
 
         const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
@@ -237,7 +238,7 @@ describe('CatalogSelectorField', () => {
         renderWithProviders(
           <RuntimeCatalogNameField propName="runtimeCatalogName" />,
           {},
-          jest.fn(),
+          vi.fn(),
           createRuntimeContext(emptyCatalogLibrary),
         );
 
@@ -266,7 +267,7 @@ describe('CatalogSelectorField', () => {
         renderWithProviders(
           <RuntimeCatalogNameField propName="runtimeCatalogName" />,
           {},
-          jest.fn(),
+          vi.fn(),
           createRuntimeContext(nonMatchingCatalogLibrary),
         );
 
@@ -278,7 +279,7 @@ describe('CatalogSelectorField', () => {
       });
 
       it('should not call onChange when selecting invalid catalog', async () => {
-        const onPropertyChange = jest.fn();
+        const onPropertyChange = vi.fn();
         renderWithProviders(<RuntimeCatalogNameField propName="runtimeCatalogName" />, {}, onPropertyChange);
 
         const toggle = screen.getByTestId('runtimeCatalogName-catalog-selector-toggle');
@@ -302,7 +303,7 @@ describe('CatalogSelectorField', () => {
         renderWithProviders(
           <TestingCatalogNameField propName="testingCatalogName" />,
           {},
-          jest.fn(),
+          vi.fn(),
           createRuntimeContext(),
         );
 
@@ -355,7 +356,7 @@ describe('CatalogSelectorField', () => {
       });
 
       it('should select catalog when clicking menu item', () => {
-        const onPropertyChange = jest.fn();
+        const onPropertyChange = vi.fn();
         renderWithProviders(<TestingCatalogNameField propName="testingCatalogName" />, {}, onPropertyChange);
 
         const toggle = screen.getByTestId('testingCatalogName-catalog-selector-toggle');
@@ -423,7 +424,7 @@ describe('CatalogSelectorField', () => {
         renderWithProviders(
           <TestingCatalogNameField propName="testingCatalogName" />,
           {},
-          jest.fn(),
+          vi.fn(),
           createRuntimeContext(emptyCatalogLibrary),
         );
 
@@ -451,7 +452,7 @@ describe('CatalogSelectorField', () => {
         renderWithProviders(
           <TestingCatalogNameField propName="testingCatalogName" />,
           {},
-          jest.fn(),
+          vi.fn(),
           createRuntimeContext(nonMatchingCatalogLibrary),
         );
 
@@ -494,7 +495,7 @@ describe('CatalogSelectorField', () => {
       renderWithProviders(
         <RuntimeCatalogNameField propName="runtimeCatalogName" />,
         {},
-        jest.fn(),
+        vi.fn(),
         createRuntimeContext(multiCatalogLibrary),
       );
 

@@ -1,4 +1,5 @@
 import { OnCompletion } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { mockRandomValues } from '../../../stubs';
 import { IVisualizationNodeData } from '../base-visual-entity';
@@ -89,7 +90,7 @@ describe('CamelOnCompletionVisualEntity', () => {
   });
 
   it('should delegate the validation text to the ModelValidationService', () => {
-    const validateNodeStatusSpy = jest.spyOn(ModelValidationService, 'validateNodeStatus');
+    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus');
 
     const onCompletionVisualEntity = new CamelOnCompletionVisualEntity({
       onCompletion: { id: 'id', mode: 'AfterConsumer' },

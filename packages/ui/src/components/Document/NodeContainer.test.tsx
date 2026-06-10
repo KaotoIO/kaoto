@@ -1,27 +1,28 @@
 import { useDroppable } from '@dnd-kit/core';
 import { render } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { NodeData } from '../../models/datamapper/visualization';
 import { DataMapperDndContext } from '../../providers/datamapper-dnd.provider';
 import { MappingValidationService } from '../../services/visualization/mapping-validation.service';
 import { DroppableContainer } from './NodeContainer';
 
-jest.mock('@dnd-kit/core', () => ({
-  useDroppable: jest.fn().mockReturnValue({ isOver: false, setNodeRef: jest.fn() }),
-  useDraggable: jest.fn().mockReturnValue({
+vi.mock('@dnd-kit/core', () => ({
+  useDroppable: vi.fn().mockReturnValue({ isOver: false, setNodeRef: vi.fn() }),
+  useDraggable: vi.fn().mockReturnValue({
     isDragging: false,
     attributes: {},
     listeners: {},
-    setNodeRef: jest.fn(),
+    setNodeRef: vi.fn(),
     transform: null,
   }),
 }));
 
-jest.mock('../../services/visualization/mapping-validation.service', () => ({
+vi.mock('../../services/visualization/mapping-validation.service', () => ({
   MappingValidationService: {
-    validateMappingPair: jest.fn().mockReturnValue({ isValid: true }),
-    isDraggable: jest.fn().mockReturnValue(true),
-    isDroppable: jest.fn().mockReturnValue(true),
+    validateMappingPair: vi.fn().mockReturnValue({ isValid: true }),
+    isDraggable: vi.fn().mockReturnValue(true),
+    isDroppable: vi.fn().mockReturnValue(true),
   },
 }));
 
@@ -43,10 +44,10 @@ describe('DroppableContainer', () => {
   } as unknown as NodeData;
 
   beforeEach(() => {
-    (useDroppable as jest.Mock).mockReturnValue({ isOver: false, setNodeRef: jest.fn() });
-    (MappingValidationService.validateMappingPair as jest.Mock).mockReturnValue({ isValid: true });
-    (MappingValidationService.isDraggable as jest.Mock).mockReturnValue(true);
-    (MappingValidationService.isDroppable as jest.Mock).mockReturnValue(true);
+    (useDroppable as Mock).mockReturnValue({ isOver: false, setNodeRef: vi.fn() });
+    (MappingValidationService.validateMappingPair as Mock).mockReturnValue({ isValid: true });
+    (MappingValidationService.isDraggable as Mock).mockReturnValue(true);
+    (MappingValidationService.isDroppable as Mock).mockReturnValue(true);
   });
 
   it('should call useDroppable with disabled: false when there is no active node', () => {
@@ -61,7 +62,7 @@ describe('DroppableContainer', () => {
   });
 
   it('should call useDroppable with disabled: true when isDroppable returns false', () => {
-    (MappingValidationService.isDroppable as jest.Mock).mockReturnValue(false);
+    (MappingValidationService.isDroppable as Mock).mockReturnValue(false);
     const sameSideNode = { ...mockNodeData, id: 'same-side', isSource: false } as unknown as NodeData;
     render(
       <DataMapperDndContext.Provider value={{ activeNode: sameSideNode }}>
@@ -74,8 +75,8 @@ describe('DroppableContainer', () => {
   });
 
   it('should apply droppable-invalid class when hovering over an invalid cross-side drop', () => {
-    (MappingValidationService.validateMappingPair as jest.Mock).mockReturnValue({ isValid: false });
-    (useDroppable as jest.Mock).mockReturnValue({ isOver: true, setNodeRef: jest.fn() });
+    (MappingValidationService.validateMappingPair as Mock).mockReturnValue({ isValid: false });
+    (useDroppable as Mock).mockReturnValue({ isOver: true, setNodeRef: vi.fn() });
 
     const { container } = render(
       <DataMapperDndContext.Provider value={{ activeNode: activeSourceNode }}>
@@ -90,8 +91,8 @@ describe('DroppableContainer', () => {
   });
 
   it('should apply droppable-container class when hovering over a valid cross-side drop', () => {
-    (MappingValidationService.validateMappingPair as jest.Mock).mockReturnValue({ isValid: true });
-    (useDroppable as jest.Mock).mockReturnValue({ isOver: true, setNodeRef: jest.fn() });
+    (MappingValidationService.validateMappingPair as Mock).mockReturnValue({ isValid: true });
+    (useDroppable as Mock).mockReturnValue({ isOver: true, setNodeRef: vi.fn() });
 
     const { container } = render(
       <DataMapperDndContext.Provider value={{ activeNode: activeSourceNode }}>

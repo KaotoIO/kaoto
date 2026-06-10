@@ -1,4 +1,5 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 import { parse } from 'yaml';
 
 import { DATAMAPPER_ID_PREFIX } from '../../../../../utils';
@@ -61,7 +62,7 @@ describe('StepNodeMapper', () => {
   });
 
   it('should verify if this step node is a Kaoto DataMapper one', async () => {
-    const dataMapperNodeSpy = jest.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
+    const dataMapperNodeSpy = vi.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
 
     await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);
 
@@ -69,8 +70,8 @@ describe('StepNodeMapper', () => {
   });
 
   it('should delegate to the rootNodeMapper if this step node is a Kaoto DataMapper one', async () => {
-    const rootNodeMapperSpy = jest.spyOn(rootNodeMapper, 'getVizNodeFromProcessor');
-    const dataMapperNodeSpy = jest.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
+    const rootNodeMapperSpy = vi.spyOn(rootNodeMapper, 'getVizNodeFromProcessor');
+    const dataMapperNodeSpy = vi.spyOn(DataMapperNodeMapper, 'isDataMapperNode');
     dataMapperNodeSpy.mockReturnValue(true);
 
     await mapper.getVizNodeFromProcessor(path, { processorName: 'step' }, routeDefinition);

@@ -1,5 +1,6 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { KaotoResource } from '../../../../models/kaoto-resource';
 import { RuntimeContext } from '../../../../providers';
@@ -34,7 +35,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     selectedCatalog: CatalogLibraryEntry = mockCamelCatalog,
     camelResource?: KaotoResource,
   ) => {
-    const mockSetSelectedCatalog = jest.fn();
+    const mockSetSelectedCatalog = vi.fn();
     const { Provider } = TestProvidersWrapper({ camelResource });
 
     return {

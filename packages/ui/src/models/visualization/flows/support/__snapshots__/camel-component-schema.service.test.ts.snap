@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CamelComponentSchemaService getSchema should build the appropriate schema for entities 1`] = `
+exports[`CamelComponentSchemaService > getSchema > should build the appropriate schema for entities 1`] = `
 {
   "$ref": "#/items/definitions/org.apache.camel.dsl.yaml.deserializers.OutputAwareFromDefinition",
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -44,7 +44,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
 }
 `;
 
-exports[`CamelComponentSchemaService getSchema should build the appropriate schema for kamelets 1`] = `
+exports[`CamelComponentSchemaService > getSchema > should build the appropriate schema for kamelets 1`] = `
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
@@ -176,7 +176,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
 }
 `;
 
-exports[`CamelComponentSchemaService getSchema should build the appropriate schema for processors combined that holds a component 1`] = `
+exports[`CamelComponentSchemaService > getSchema > should build the appropriate schema for processors combined that holds a component 1`] = `
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
@@ -501,7 +501,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
 }
 `;
 
-exports[`CamelComponentSchemaService getSchema should build the appropriate schema for producer/consumer components 1`] = `
+exports[`CamelComponentSchemaService > getSchema > should build the appropriate schema for producer/consumer components 1`] = `
 [
   "directoryName",
   "charset",
@@ -590,7 +590,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
 ]
 `;
 
-exports[`CamelComponentSchemaService getSchema should build the appropriate schema for producer/consumer components 2`] = `
+exports[`CamelComponentSchemaService > getSchema > should build the appropriate schema for producer/consumer components 2`] = `
 [
   "directoryName",
   "charset",
@@ -674,7 +674,7 @@ exports[`CamelComponentSchemaService getSchema should build the appropriate sche
 ]
 `;
 
-exports[`CamelComponentSchemaService getSchema should build the appropriate schema for standalone processors 1`] = `
+exports[`CamelComponentSchemaService > getSchema > should build the appropriate schema for standalone processors 1`] = `
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,

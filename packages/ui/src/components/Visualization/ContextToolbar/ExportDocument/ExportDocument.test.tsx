@@ -1,5 +1,6 @@
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
@@ -16,10 +17,10 @@ describe('FlowExportDocument.tsx', () => {
     camelResource.addNewEntity(EntityType.RouteConfiguration);
   });
 
-  afterEach(() => jest.clearAllMocks());
+  afterEach(() => vi.clearAllMocks());
 
   it('should be render', async () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const { Provider } = TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <VisualizationProvider controller={ControllerService.createController()}>

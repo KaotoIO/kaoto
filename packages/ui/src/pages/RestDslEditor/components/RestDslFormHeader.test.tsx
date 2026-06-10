@@ -8,7 +8,7 @@ describe('RestDslFormHeader', () => {
   it('should render the search input', () => {
     const mockFilteredFieldContext = {
       filteredFieldText: '',
-      onFilterChange: jest.fn(),
+      onFilterChange: vi.fn(),
       isGroupExpanded: false,
     };
 
@@ -25,7 +25,7 @@ describe('RestDslFormHeader', () => {
   it('should display the filtered text from context', () => {
     const mockFilteredFieldContext = {
       filteredFieldText: 'test search',
-      onFilterChange: jest.fn(),
+      onFilterChange: vi.fn(),
       isGroupExpanded: false,
     };
 
@@ -42,7 +42,7 @@ describe('RestDslFormHeader', () => {
 
   it('should call onFilterChange when input changes', async () => {
     const user = userEvent.setup();
-    const mockOnFilterChange = jest.fn();
+    const mockOnFilterChange = vi.fn();
     const mockFilteredFieldContext = {
       filteredFieldText: '',
       onFilterChange: mockOnFilterChange,
@@ -63,7 +63,7 @@ describe('RestDslFormHeader', () => {
 
   it('should call onFilterChange when reset button is clicked', async () => {
     const user = userEvent.setup();
-    const mockOnFilterChange = jest.fn();
+    const mockOnFilterChange = vi.fn();
     const mockFilteredFieldContext = {
       filteredFieldText: 'test search',
       onFilterChange: mockOnFilterChange,

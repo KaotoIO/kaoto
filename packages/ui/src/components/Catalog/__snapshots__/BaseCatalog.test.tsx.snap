@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
+exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
 <div>
   <div
     class="pf-v6-c-pagination"
@@ -5308,7 +5308,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
 </div>
 `;
 
-exports[`BaseCatalog renders correctly with List Layout 1`] = `
+exports[`BaseCatalog > renders correctly with List Layout 1`] = `
 <div>
   <div
     class="pf-v6-c-pagination"

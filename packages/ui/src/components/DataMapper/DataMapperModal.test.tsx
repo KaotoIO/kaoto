@@ -9,6 +9,7 @@ import {
   TouchEvent,
   useCallback,
 } from 'react';
+import { vi } from 'vitest';
 
 import { DataMapperModal } from './DataMapperModal';
 
@@ -54,7 +55,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should stop click propagation to parent handlers', () => {
-    const outerHandler = jest.fn();
+    const outerHandler = vi.fn();
     render(
       <DnDParent onClick={outerHandler}>
         <DataMapperModal isOpen aria-label="Test Modal">
@@ -68,7 +69,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should stop mousedown propagation to parent DnD handlers', () => {
-    const outerHandler = jest.fn();
+    const outerHandler = vi.fn();
     render(
       <DnDParent onMouseDown={outerHandler}>
         <DataMapperModal isOpen aria-label="Test Modal">
@@ -82,7 +83,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should stop pointerdown propagation to parent DnD handlers', () => {
-    const outerHandler = jest.fn();
+    const outerHandler = vi.fn();
     render(
       <DnDParent onPointerDown={outerHandler}>
         <DataMapperModal isOpen aria-label="Test Modal">
@@ -96,7 +97,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should allow keydown events to propagate for keyboard DnD support', () => {
-    const outerHandler = jest.fn();
+    const outerHandler = vi.fn();
     render(
       <DnDParent onKeyDown={outerHandler}>
         <DataMapperModal isOpen aria-label="Test Modal">
@@ -110,7 +111,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should stop touchstart propagation to parent DnD handlers', () => {
-    const outerHandler = jest.fn();
+    const outerHandler = vi.fn();
     render(
       <DnDParent onTouchStart={outerHandler}>
         <DataMapperModal isOpen aria-label="Test Modal">
@@ -124,7 +125,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should still allow interaction with inner elements', () => {
-    const innerClickHandler = jest.fn();
+    const innerClickHandler = vi.fn();
     render(
       <DataMapperModal isOpen aria-label="Test Modal">
         <button data-testid="inner-btn" onClick={innerClickHandler}>
@@ -138,7 +139,7 @@ describe('DataMapperModal', () => {
   });
 
   it('should call onClose when the modal close mechanism is triggered', () => {
-    const onClose = jest.fn();
+    const onClose = vi.fn();
     render(
       <DataMapperModal isOpen onClose={onClose} aria-label="Test Modal">
         <button>Content</button>

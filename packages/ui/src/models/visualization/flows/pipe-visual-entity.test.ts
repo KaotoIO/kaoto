@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, Pipe } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { Mock, vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { pipeJson } from '../../../stubs/pipe';
@@ -15,7 +16,7 @@ import { CamelCatalogService } from './camel-catalog.service';
 import { PipeVisualEntity } from './pipe-visual-entity';
 import { KameletSchemaService } from './support/kamelet-schema.service';
 
-jest.mock('../../../dynamic-catalog/dynamic-catalog-registry');
+vi.mock('../../../dynamic-catalog/dynamic-catalog-registry');
 
 describe('Pipe', () => {
   let pipeCR: Pipe;
@@ -27,11 +28,57 @@ describe('Pipe', () => {
     pipeVisualEntity = new PipeVisualEntity(pipeCR);
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     kameletCatalogMap = catalogsMap.kameletsCatalogMap;
+
+    // Add kamelets with proper schemas and titles for tests
+    kameletCatalogMap['webhook-source'] = {
+      ...kameletCatalogMap['webhook-source'],
+      spec: {
+        ...kameletCatalogMap['webhook-source']?.spec,
+        definition: {
+          ...kameletCatalogMap['webhook-source']?.spec?.definition,
+          title: 'Webhook Source',
+        },
+      },
+    } as IKameletDefinition;
+
+    kameletCatalogMap['delay-action'] = {
+      ...kameletCatalogMap['delay-action'],
+      spec: {
+        ...kameletCatalogMap['delay-action']?.spec,
+        definition: {
+          ...kameletCatalogMap['delay-action']?.spec?.definition,
+          title: 'Delay Action',
+        },
+      },
+      propertiesSchema: {
+        type: 'object',
+        properties: {
+          milliseconds: {
+            type: 'integer',
+            title: 'Milliseconds',
+            description: 'The number of milliseconds to wait',
+          },
+        },
+        required: ['milliseconds'],
+      },
+    } as IKameletDefinition;
+
+    kameletCatalogMap['log-sink'] = {
+      ...kameletCatalogMap['log-sink'],
+      spec: {
+        ...kameletCatalogMap['log-sink']?.spec,
+        definition: {
+          ...kameletCatalogMap['log-sink']?.spec?.definition,
+          title: 'Log Sink',
+        },
+      },
+    } as IKameletDefinition;
+
     CamelCatalogService.setCatalogKey(CatalogKind.Kamelet, kameletCatalogMap);
 
     // Mock DynamicCatalogRegistry to return kamelets from the catalog map
-    (DynamicCatalogRegistry.get as jest.Mock).mockReturnValue({
-      getEntity: jest.fn((kind: CatalogKind, name: string) => {
+    (DynamicCatalogRegistry.get as Mock).mockReturnValue({
+      getEntity: vi.fn((kind: CatalogKind, name: string) => {
         if (kind === CatalogKind.Kamelet) {
           return Promise.resolve(kameletCatalogMap[name]);
         }
@@ -116,7 +163,7 @@ describe('Pipe', () => {
     });
 
     it('should delegate to KameletSchemaService for step paths', () => {
-      const spy = jest.spyOn(KameletSchemaService, 'getNodeLabel');
+      const spy = vi.spyOn(KameletSchemaService, 'getNodeLabel');
       pipeVisualEntity.getNodeLabel('source');
       expect(spy).toHaveBeenCalled();
     });
@@ -139,7 +186,7 @@ describe('Pipe', () => {
     });
 
     it('should return the node schema', () => {
-      const spy = jest.spyOn(KameletSchemaService, 'getKameletCatalogEntry');
+      const spy = vi.spyOn(KameletSchemaService, 'getKameletCatalogEntry');
 
       pipeVisualEntity.getNodeSchema('source');
       expect(spy).toHaveBeenCalledTimes(1);
@@ -395,7 +442,7 @@ describe('Pipe', () => {
 
   describe('canDropOnNode', () => {
     it('should delegate to canDragNode', () => {
-      const spy = jest.spyOn(pipeVisualEntity, 'canDragNode');
+      const spy = vi.spyOn(pipeVisualEntity, 'canDragNode');
       pipeVisualEntity.canDropOnNode('steps.0');
       expect(spy).toHaveBeenCalledWith('steps.0');
     });

@@ -1,12 +1,14 @@
+import { vi } from 'vitest';
+
 import { promiseTimeout } from './promise-timeout';
 
 describe('promiseTimeout', () => {
   beforeAll(() => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterAll(() => {
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('should resolve the promise if it resolves before the timeout', async () => {
@@ -31,7 +33,7 @@ describe('promiseTimeout', () => {
 
     const promiseTimeoutResult = promiseTimeout(promise, 500, 'Lighting fast');
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     const result = await promiseTimeoutResult;
 
@@ -47,7 +49,7 @@ describe('promiseTimeout', () => {
 
     const promiseTimeoutResult = promiseTimeout(promise, 500);
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     await expect(promiseTimeoutResult).rejects.toThrow('Promise timed out');
   });

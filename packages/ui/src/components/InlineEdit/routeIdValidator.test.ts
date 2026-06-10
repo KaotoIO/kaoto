@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { ValidationStatus } from '../../models';
 import { CamelRouteResource } from '../../models/camel';
 import { camelRouteJson } from '../../stubs';
@@ -21,7 +23,7 @@ describe('routeIdValidator', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     resource.initialize();
     const visualEntities = resource.getVisualEntities();
-    jest.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
+    vi.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
 
     const result = RouteIdValidator.validateUniqueName('unique-name', visualEntities);
     expect(result.status).toEqual(ValidationStatus.Success);
@@ -32,7 +34,7 @@ describe('routeIdValidator', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     resource.initialize();
     const visualEntities = resource.getVisualEntities();
-    jest.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
+    vi.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
 
     const result = RouteIdValidator.validateUniqueName('flow-1234', visualEntities);
 
@@ -44,7 +46,7 @@ describe('routeIdValidator', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     resource.initialize();
     const visualEntities = resource.getVisualEntities();
-    jest.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
+    vi.spyOn(visualEntities[0], 'getId').mockReturnValue('flow-1234');
 
     const result = RouteIdValidator.validateUniqueName('The amazing Route', visualEntities);
 
@@ -56,7 +58,7 @@ describe('routeIdValidator', () => {
     const resource = new CamelRouteResource([camelRouteJson]);
     resource.initialize();
     const visualEntities = resource.getVisualEntities();
-    jest.spyOn(visualEntities[0], 'getId').mockReturnValue('The amazing Route');
+    vi.spyOn(visualEntities[0], 'getId').mockReturnValue('The amazing Route');
 
     const result = RouteIdValidator.validateUniqueName('The amazing Route', visualEntities);
 

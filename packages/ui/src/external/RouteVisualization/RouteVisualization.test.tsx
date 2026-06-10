@@ -17,7 +17,7 @@ describe('RouteVisualization', () => {
   });
 
   beforeEach(() => {
-    const fetchMock = jest.spyOn(window, 'fetch');
+    const fetchMock = vi.spyOn(window, 'fetch');
 
     // The first fetch (RuntimeProvider) loads the catalog library index, while
     // the subsequent fetches (Schemas/Catalog loaders) load the catalog
@@ -43,13 +43,13 @@ describe('RouteVisualization', () => {
       });
     });
 
-    jest.spyOn(CatalogSchemaLoader, 'fetchFile').mockImplementation((uri: string) => {
+    vi.spyOn(CatalogSchemaLoader, 'fetchFile').mockImplementation((uri: string) => {
       return Promise.resolve({ uri, body: { [uri]: 'dummy-data' } });
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders the canvas from the code prop without throwing', async () => {
@@ -59,7 +59,7 @@ describe('RouteVisualization', () => {
         runtimeCatalogName=""
         testingCatalogName=""
         code={camelRouteYaml}
-        codeChange={jest.fn()}
+        codeChange={vi.fn()}
       />,
     );
 

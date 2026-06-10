@@ -1,6 +1,7 @@
 import { BaseEdge, BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render } from '@testing-library/react';
 import React from 'react';
+import { vi } from 'vitest';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -9,8 +10,8 @@ import { CustomEdge } from './CustomEdge';
 
 const mockRef = { current: null };
 
-jest.mock('@patternfly/react-topology', () => {
-  const actual = jest.requireActual('@patternfly/react-topology');
+vi.mock('@patternfly/react-topology', async () => {
+  const actual = await vi.importActual('@patternfly/react-topology');
   return {
     ...actual,
     Layer: ({ children }: { children?: React.ReactNode }) => <>{children}</>,
@@ -29,11 +30,11 @@ jest.mock('@patternfly/react-topology', () => {
 
 describe('CustomEdge', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should throw when element is not an Edge', () => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => {});
     const nodeElement = new BaseNode();
 
     expect(() => {
@@ -53,7 +54,7 @@ describe('CustomEdge', () => {
       description: '',
       iconUrl: '',
     }) as IVisualizationNode;
-    jest.spyOn(vizNode, 'getNodeInteraction').mockReturnValue({
+    vi.spyOn(vizNode, 'getNodeInteraction').mockReturnValue({
       canHavePreviousStep: true,
       canHaveNextStep: true,
       canHaveChildren: false,
@@ -69,7 +70,7 @@ describe('CustomEdge', () => {
     const targetNode = new BaseNode();
     sourceNode.setParent(parentElement);
     targetNode.setParent(parentElement);
-    jest.spyOn(targetNode, 'getData').mockReturnValue({ vizNode });
+    vi.spyOn(targetNode, 'getData').mockReturnValue({ vizNode });
 
     const element = new BaseEdge();
     const controller = ControllerService.createController();

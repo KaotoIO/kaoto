@@ -1,5 +1,6 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelRouteResource, SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
@@ -36,7 +37,7 @@ describe('NewFlow.tsx', () => {
     runtimeContextValue?: Partial<IRuntimeContext>,
     sourceSchemaType: SourceSchemaType = SourceSchemaType.Integration,
   ) => {
-    const mockSetSelectedCatalog = jest.fn();
+    const mockSetSelectedCatalog = vi.fn();
     const defaultRuntimeContext: IRuntimeContext = {
       basePath: '',
       selectedCatalog: mockCamelCatalog,
@@ -105,7 +106,7 @@ describe('NewFlow.tsx', () => {
   });
 
   it('should update catalog when switching to Citrus test', async () => {
-    const mockSetSelectedCatalog = jest.fn();
+    const mockSetSelectedCatalog = vi.fn();
     const { findByTestId, getByText } = renderWithContext(
       {
         selectedCatalog: mockCamelCatalog,
@@ -139,7 +140,7 @@ describe('NewFlow.tsx', () => {
   });
 
   it('should not update catalog when switching between Camel flow types', async () => {
-    const mockSetSelectedCatalog = jest.fn();
+    const mockSetSelectedCatalog = vi.fn();
     const { findByTestId, getByText } = renderWithContext(
       {
         selectedCatalog: mockCamelCatalog,

@@ -1,6 +1,7 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { AddMethodModal } from './AddMethodModal';
 
@@ -9,8 +10,8 @@ const renderWithProviders = (component: React.ReactElement) => {
 };
 
 describe('AddMethodModal', () => {
-  const mockOnClose = jest.fn();
-  const mockOnAddMethod = jest.fn();
+  const mockOnClose = vi.fn();
+  const mockOnAddMethod = vi.fn();
 
   // Helper to render modal and return common test utilities
   const setupModal = async (options: { expandFields?: boolean } = {}) => {
@@ -34,7 +35,7 @@ describe('AddMethodModal', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render modal with correct title and structure', () => {

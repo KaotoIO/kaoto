@@ -11,7 +11,7 @@ describe('SourceCodeSync', () => {
   });
 
   it('seeds the store and emits code:updated on mount with the initial source code', () => {
-    const nextSpy = jest.spyOn(EventNotifier.getInstance(), 'next');
+    const nextSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
 
     render(
       <SourceCodeSync initialSourceCode={camelRouteYaml}>
@@ -26,7 +26,7 @@ describe('SourceCodeSync', () => {
   });
 
   it('clears the undo/redo history on mount', () => {
-    const clearSpy = jest.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
+    const clearSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
 
     render(
       <SourceCodeSync>

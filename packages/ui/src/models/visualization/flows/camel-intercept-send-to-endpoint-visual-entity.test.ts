@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { mockRandomValues } from '../../../stubs';
 import { IVisualizationNodeData } from '../base-visual-entity';
 import { CamelInterceptSendToEndpointVisualEntity } from './camel-intercept-send-to-endpoint-visual-entity';
@@ -90,7 +92,7 @@ describe('CamelInterceptSendToEndpointVisualEntity', () => {
   });
 
   it('should delegate the validation text to the ModelValidationService', () => {
-    const validateNodeStatusSpy = jest.spyOn(ModelValidationService, 'validateNodeStatus');
+    const validateNodeStatusSpy = vi.spyOn(ModelValidationService, 'validateNodeStatus');
 
     const interceptSendToEndpointVisualEntity = new CamelInterceptSendToEndpointVisualEntity({
       interceptSendToEndpoint: { id: 'id', uri: 'direct:a-reference' },

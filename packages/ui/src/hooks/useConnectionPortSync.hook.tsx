@@ -29,7 +29,7 @@ export const useConnectionPortSync = (documentId: string) => {
 
   useEffect(() => {
     return () => {
-      if (rafId.current !== null) {
+      if (rafId.current !== null && typeof cancelAnimationFrame !== 'undefined') {
         cancelAnimationFrame(rafId.current);
       }
     };
@@ -37,12 +37,15 @@ export const useConnectionPortSync = (documentId: string) => {
 
   const syncConnectionPorts = useCallback(() => {
     /* Cancel any pending update */
-    if (rafId.current !== null) {
+    if (rafId.current !== null && typeof cancelAnimationFrame !== 'undefined') {
       cancelAnimationFrame(rafId.current);
     }
 
     rafId.current = requestAnimationFrame(() => {
       rafId.current = null;
+
+      /* Guard against document being undefined (during test cleanup) */
+      if (typeof document === 'undefined') return;
 
       /* Query document-specific ports (includes both node ports and EDGE markers) */
       const documentPortElements = document.querySelectorAll<HTMLElement>(

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`DataListItem renders correctly 1`] = `
+exports[`DataListItem > renders correctly 1`] = `
 <li
   class="pf-v6-c-data-list__item catalog-data-list-item"
   id="tile-name-component"

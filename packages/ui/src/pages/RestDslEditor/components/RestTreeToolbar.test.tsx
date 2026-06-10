@@ -1,5 +1,6 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
@@ -14,13 +15,13 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
 );
 
 describe('RestTreeToolbar', () => {
-  const mockOnAddRestConfiguration = jest.fn();
-  const mockOnAddRest = jest.fn();
-  const mockOnAddMethod = jest.fn();
-  const mockOnDelete = jest.fn();
+  const mockOnAddRestConfiguration = vi.fn();
+  const mockOnAddRest = vi.fn();
+  const mockOnAddMethod = vi.fn();
+  const mockOnDelete = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('Add RestConfiguration button', () => {

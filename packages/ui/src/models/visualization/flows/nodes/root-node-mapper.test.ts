@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { noopNodeMapper } from './mappers/testing/noop-node-mapper';
 import { RootNodeMapper } from './root-node-mapper';
 
@@ -30,7 +32,7 @@ describe('RootNodeMapper', () => {
     it('should delegate to the default mapper when no mapper is found', async () => {
       const rootNodeMapper = new RootNodeMapper();
       rootNodeMapper.registerDefaultMapper(noopNodeMapper);
-      jest.spyOn(noopNodeMapper, 'getVizNodeFromProcessor');
+      vi.spyOn(noopNodeMapper, 'getVizNodeFromProcessor');
 
       const vizNode = await rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {});
 
@@ -41,7 +43,7 @@ describe('RootNodeMapper', () => {
     it('should delegate to the registered mapper', async () => {
       const rootNodeMapper = new RootNodeMapper();
       rootNodeMapper.registerMapper('log', noopNodeMapper);
-      jest.spyOn(noopNodeMapper, 'getVizNodeFromProcessor');
+      vi.spyOn(noopNodeMapper, 'getVizNodeFromProcessor');
 
       const vizNode = await rootNodeMapper.getVizNodeFromProcessor('path', { processorName: 'log' }, {});
 

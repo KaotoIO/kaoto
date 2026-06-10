@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { DocumentDefinitionType, DocumentType, IDocument, IField } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -291,8 +293,8 @@ describe('MappingService', () => {
     });
 
     it('should handle XPath extractFieldPaths throwing in hasStaleSourceDocument', () => {
-      const consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
-      const extractSpy = jest.spyOn(XPathService, 'extractFieldPaths').mockImplementation(() => {
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const extractSpy = vi.spyOn(XPathService, 'extractFieldPaths').mockImplementation(() => {
         throw new Error('Unexpected XPath error');
       });
 
@@ -598,8 +600,8 @@ describe('MappingService', () => {
     });
 
     it('should handle XPath extractFieldPaths throwing in hasStaleSourceField', () => {
-      const consoleSpy = jest.spyOn(console, 'debug').mockImplementation();
-      const extractSpy = jest.spyOn(XPathService, 'extractFieldPaths').mockImplementation(() => {
+      const consoleSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+      const extractSpy = vi.spyOn(XPathService, 'extractFieldPaths').mockImplementation(() => {
         throw new Error('Unexpected XPath error');
       });
 
@@ -1061,12 +1063,12 @@ describe('MappingService', () => {
       const shipToItem = new FieldItem(rootItem, targetShipTo);
       rootItem.children.push(shipToItem);
 
-      jest.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
+      vi.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
       MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
 
       const childFieldItems = shipToItem.children.filter((c) => c instanceof FieldItem);
       expect(childFieldItems.length).toBe(4);
-      jest.restoreAllMocks();
+      vi.restoreAllMocks();
     });
 
     it('getContainerValueType should return CONTAINER for normal fields', () => {

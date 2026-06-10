@@ -1,4 +1,5 @@
 import { Edge, EdgeModel } from '@patternfly/react-topology';
+import { Mock, vi } from 'vitest';
 
 import { CatalogModalContextValue } from '../../../dynamic-catalog/catalog-modal.provider';
 import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
@@ -75,10 +76,10 @@ describe('canDropOnEdge', () => {
     return {
       id,
       data: { path: `route.from.steps.${id}` },
-      getNextNode: jest.fn(),
-      getPreviousNode: jest.fn(),
-      getCopiedContent: jest.fn().mockReturnValue({ name: 'test-component' }),
-      getNodeDefinition: jest.fn().mockReturnValue({}),
+      getNextNode: vi.fn(),
+      getPreviousNode: vi.fn(),
+      getCopiedContent: vi.fn().mockReturnValue({ name: 'test-component' }),
+      getNodeDefinition: vi.fn().mockReturnValue({}),
     } as unknown as IVisualizationNode;
   };
 
@@ -87,29 +88,29 @@ describe('canDropOnEdge', () => {
     targetVizNode: IVisualizationNode,
   ): Edge<EdgeModel, unknown> => {
     const mockSource = {
-      getData: jest.fn().mockReturnValue({ vizNode: sourceVizNode }),
+      getData: vi.fn().mockReturnValue({ vizNode: sourceVizNode }),
     };
     const mockTarget = {
-      getData: jest.fn().mockReturnValue({ vizNode: targetVizNode }),
+      getData: vi.fn().mockReturnValue({ vizNode: targetVizNode }),
     };
 
     return {
-      getSource: jest.fn().mockReturnValue(mockSource),
-      getTarget: jest.fn().mockReturnValue(mockTarget),
+      getSource: vi.fn().mockReturnValue(mockSource),
+      getTarget: vi.fn().mockReturnValue(mockTarget),
     } as unknown as Edge<EdgeModel, unknown>;
   };
 
   const createMockCamelResource = (): EntitiesContextResult['camelResource'] => {
     return {
-      getCompatibleComponents: jest.fn().mockReturnValue([]),
+      getCompatibleComponents: vi.fn().mockReturnValue([]),
     } as unknown as EntitiesContextResult['camelResource'];
   };
 
   const createMockCatalogModalContext = (): CatalogModalContextValue => {
     return {
-      checkCompatibility: jest.fn().mockReturnValue(true),
-      setIsModalOpen: jest.fn(),
-      getNewComponent: jest.fn(),
+      checkCompatibility: vi.fn().mockReturnValue(true),
+      setIsModalOpen: vi.fn(),
+      getNewComponent: vi.fn(),
     } as unknown as CatalogModalContextValue;
   };
 
@@ -130,7 +131,7 @@ describe('canDropOnEdge', () => {
   });
 
   it("should return false when dragged node's next node is the following node", () => {
-    (draggedVizNode.getNextNode as jest.Mock).mockReturnValue(targetVizNode);
+    (draggedVizNode.getNextNode as Mock).mockReturnValue(targetVizNode);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
@@ -140,7 +141,7 @@ describe('canDropOnEdge', () => {
   });
 
   it("should return false when dragged node's previous node is the preceding node", () => {
-    (draggedVizNode.getPreviousNode as jest.Mock).mockReturnValue(sourceVizNode);
+    (draggedVizNode.getPreviousNode as Mock).mockReturnValue(sourceVizNode);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
@@ -164,8 +165,8 @@ describe('canDropOnEdge', () => {
     const sourceMockVizNode = getMockVizNode('0.choice.when.0.steps.0.to');
     const targetMockVizNode = getMockVizNode('0.choice.when.0.steps.1.log');
 
-    draggedMockVizNode.getId = jest.fn().mockReturnValue('test-id');
-    targetMockVizNode.getId = jest.fn().mockReturnValue('test-id');
+    draggedMockVizNode.getId = vi.fn().mockReturnValue('test-id');
+    targetMockVizNode.getId = vi.fn().mockReturnValue('test-id');
 
     const mockEdge = createMockEdge(sourceMockVizNode, targetMockVizNode);
 
@@ -181,8 +182,8 @@ describe('canDropOnEdge', () => {
     const sourceMockVizNode = getMockVizNode('0.choice.when.0.steps.0.to');
     const targetMockVizNode = getMockVizNode('0.choice.when.0.steps.1.log');
 
-    draggedMockVizNode.getId = jest.fn().mockReturnValue('test-id1');
-    targetMockVizNode.getId = jest.fn().mockReturnValue('test-id2');
+    draggedMockVizNode.getId = vi.fn().mockReturnValue('test-id1');
+    targetMockVizNode.getId = vi.fn().mockReturnValue('test-id2');
 
     const mockEdge = createMockEdge(sourceMockVizNode, targetMockVizNode);
 
@@ -195,8 +196,8 @@ describe('canDropOnEdge', () => {
 
   it('should return false when checkCompatibility returns false', () => {
     const mockFilter = ['filter1', 'filter2'];
-    (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
-    (catalogModalContext.checkCompatibility as jest.Mock).mockReturnValue(false);
+    (camelResource.getCompatibleComponents as Mock).mockReturnValue(mockFilter);
+    (catalogModalContext.checkCompatibility as Mock).mockReturnValue(false);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
@@ -211,8 +212,8 @@ describe('canDropOnEdge', () => {
 
   it('should return true when all conditions pass and checkCompatibility returns true', () => {
     const mockFilter = ['filter1', 'filter2'];
-    (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
-    (catalogModalContext.checkCompatibility as jest.Mock).mockReturnValue(true);
+    (camelResource.getCompatibleComponents as Mock).mockReturnValue(mockFilter);
+    (catalogModalContext.checkCompatibility as Mock).mockReturnValue(true);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
@@ -227,8 +228,8 @@ describe('canDropOnEdge', () => {
 
   it('should return false when checkCompatibility returns undefined', () => {
     const mockFilter = ['filter1'];
-    (camelResource.getCompatibleComponents as jest.Mock).mockReturnValue(mockFilter);
-    (catalogModalContext.checkCompatibility as jest.Mock).mockReturnValue(undefined);
+    (camelResource.getCompatibleComponents as Mock).mockReturnValue(mockFilter);
+    (catalogModalContext.checkCompatibility as Mock).mockReturnValue(undefined);
 
     const result = canDropOnEdge(draggedVizNode, edge, camelResource, catalogModalContext);
 
@@ -244,16 +245,16 @@ describe('canDragGroup', () => {
     return {
       id: 'group-1',
       data: { path, name, isPlaceholder: false, isGroup: false, iconUrl: '', title: '', description: '' },
-      getParentNode: jest.fn().mockReturnValue(parentData ? { data: parentData } : undefined),
+      getParentNode: vi.fn().mockReturnValue(parentData ? { data: parentData } : undefined),
     } as unknown as IVisualizationNode;
   };
 
   beforeEach(() => {
-    jest.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties').mockReturnValue([]);
+    vi.spyOn(CamelComponentSchemaService, 'getProcessorStepsProperties').mockReturnValue([]);
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should return false when groupVizNode is undefined', () => {
@@ -275,7 +276,7 @@ describe('canDragGroup', () => {
   });
 
   it('should return true when group does not match single-clause property', () => {
-    (CamelComponentSchemaService.getProcessorStepsProperties as jest.Mock).mockReturnValue([
+    (CamelComponentSchemaService.getProcessorStepsProperties as Mock).mockReturnValue([
       { name: 'otherwise', type: 'single-clause' },
       { name: 'when', type: 'array-clause' },
     ]);

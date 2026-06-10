@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper';
 import { DocumentTree } from '../../../../models/datamapper/document-tree';
@@ -96,7 +97,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
 
   it('should call applyFieldSubstitution when clicking a substitution candidate', () => {
     const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode(false);
-    const applySpy = jest.spyOn(FieldOverrideService, 'applyFieldSubstitution');
+    const applySpy = vi.spyOn(FieldOverrideService, 'applyFieldSubstitution');
 
     render(
       <SourceDocumentNodeWithContextMenu
@@ -122,7 +123,7 @@ describe('useAbstractFieldSubstitutionMenu', () => {
 
   it('should call revertFieldSubstitution when clicking "Show All Substitution Options"', () => {
     const { documentNodeData, abstractNode, abstractAnimalField } = createAbstractFieldNode(true);
-    const revertSpy = jest.spyOn(FieldOverrideService, 'revertFieldSubstitution');
+    const revertSpy = vi.spyOn(FieldOverrideService, 'revertFieldSubstitution');
 
     render(
       <SourceDocumentNodeWithContextMenu

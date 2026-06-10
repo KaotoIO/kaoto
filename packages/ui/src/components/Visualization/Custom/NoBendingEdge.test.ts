@@ -1,16 +1,17 @@
 import { getTopCollapsedParent, Point } from '@patternfly/react-topology';
+import { Mock, vi } from 'vitest';
 
 import { NoBendpointsEdge } from './NoBendingEdge';
 
-jest.mock('@patternfly/react-topology', () => {
-  const actual = jest.requireActual('@patternfly/react-topology');
+vi.mock('@patternfly/react-topology', async () => {
+  const actual = await vi.importActual('@patternfly/react-topology');
   return {
     ...actual,
-    getTopCollapsedParent: jest.fn(),
+    getTopCollapsedParent: vi.fn(),
   };
 });
 
-const mockGetTopCollapsedParent = getTopCollapsedParent as jest.Mock;
+const mockGetTopCollapsedParent = getTopCollapsedParent as Mock;
 
 describe('NoBendpointsEdge', () => {
   let edge: NoBendpointsEdge;
@@ -25,9 +26,9 @@ describe('NoBendpointsEdge', () => {
     const parent = mockParent(parentType, { x: 10, y: 20 }, { width: 100, height: 50 });
     const mockNode = {};
     mockGetTopCollapsedParent.mockReturnValue(parent);
-    jest.spyOn(edge, 'getSource').mockReturnValue(mockNode as never);
-    jest.spyOn(edge, 'getTarget').mockReturnValue(mockNode as never);
-    jest.spyOn(edge, 'getGraph').mockReturnValue({
+    vi.spyOn(edge, 'getSource').mockReturnValue(mockNode as never);
+    vi.spyOn(edge, 'getTarget').mockReturnValue(mockNode as never);
+    vi.spyOn(edge, 'getGraph').mockReturnValue({
       getLayout: () => layout,
     } as never);
   };
@@ -37,7 +38,7 @@ describe('NoBendpointsEdge', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should return empty bendpoints', () => {
@@ -100,11 +101,11 @@ describe('NoBendpointsEdge', () => {
     it('getStartPoint should delegate to super', () => {
       const mockSource = { id: 'source' };
       const mockTarget = { id: 'target' };
-      jest.spyOn(edge, 'getSource').mockReturnValue(mockSource as never);
-      jest.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
+      vi.spyOn(edge, 'getSource').mockReturnValue(mockSource as never);
+      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
 
       const superStartPoint = new Point(0, 0);
-      jest.spyOn(Object.getPrototypeOf(NoBendpointsEdge.prototype), 'getStartPoint').mockReturnValue(superStartPoint);
+      vi.spyOn(Object.getPrototypeOf(NoBendpointsEdge.prototype), 'getStartPoint').mockReturnValue(superStartPoint);
 
       expect(edge.getStartPoint()).toBe(superStartPoint);
     });
@@ -112,11 +113,11 @@ describe('NoBendpointsEdge', () => {
     it('getEndPoint should delegate to super', () => {
       const mockSource = { id: 'source' };
       const mockTarget = { id: 'target' };
-      jest.spyOn(edge, 'getSource').mockReturnValue(mockSource as never);
-      jest.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
+      vi.spyOn(edge, 'getSource').mockReturnValue(mockSource as never);
+      vi.spyOn(edge, 'getTarget').mockReturnValue(mockTarget as never);
 
       const superEndPoint = new Point(5, 5);
-      jest.spyOn(Object.getPrototypeOf(NoBendpointsEdge.prototype), 'getEndPoint').mockReturnValue(superEndPoint);
+      vi.spyOn(Object.getPrototypeOf(NoBendpointsEdge.prototype), 'getEndPoint').mockReturnValue(superEndPoint);
 
       expect(edge.getEndPoint()).toBe(superEndPoint);
     });

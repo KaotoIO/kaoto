@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { vi } from 'vitest';
 
 import {
   BODY_DOCUMENT_ID,
@@ -275,7 +276,7 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const toggleNodeSpy = jest.spyOn(TreeUIService, 'toggleNode');
+      const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -403,7 +404,7 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const toggleNodeSpy = jest.spyOn(TreeUIService, 'toggleNode');
+      const toggleNodeSpy = vi.spyOn(TreeUIService, 'toggleNode');
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -529,7 +530,7 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const parentClickHandler = jest.fn();
+      const parentClickHandler = vi.fn();
 
       act(() => {
         render(
@@ -694,7 +695,7 @@ describe('SourceDocumentNode', () => {
       const tree = new DocumentTree(documentNodeData);
       TreeParsingService.parseTree(tree);
 
-      const parentClickHandler = jest.fn();
+      const parentClickHandler = vi.fn();
 
       act(() => {
         useDocumentTreeStore.setState({
@@ -730,7 +731,7 @@ describe('SourceDocumentNode', () => {
       const documentNodeData = new DocumentNodeData(document);
       const tree = new DocumentTree(documentNodeData);
 
-      const parentClickHandler = jest.fn();
+      const parentClickHandler = vi.fn();
 
       render(
         <div onClick={parentClickHandler}>

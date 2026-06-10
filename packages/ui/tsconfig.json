@@ -22,7 +22,7 @@
     /* Typings */
     "types": [
       "@testing-library/jest-dom",
-      "@types/jest",
+      "vitest/globals",
       "@types/node",
     ]
   },

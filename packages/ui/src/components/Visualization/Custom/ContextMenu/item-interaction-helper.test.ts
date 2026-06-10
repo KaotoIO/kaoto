@@ -1,4 +1,5 @@
 import { ButtonVariant } from '@patternfly/react-core';
+import { vi } from 'vitest';
 
 import { createVisualizationNode } from '../../../../models';
 import { SourceSchemaType } from '../../../../models/camel/source-schema-type';
@@ -44,7 +45,7 @@ describe('item-interaction-helper', () => {
       const mockAddon: IRegisteredInteractionAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
-        callback: jest.fn(),
+        callback: vi.fn(),
       };
       addons[childVn.id] = [mockAddon];
       vizNode.addChild(childVn);
@@ -76,7 +77,7 @@ describe('item-interaction-helper', () => {
       const mockAddon: IOnDeleteAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
-        callback: jest.fn(),
+        callback: vi.fn(),
         modalCustomization: mockCustomization,
       };
 
@@ -127,13 +128,13 @@ describe('item-interaction-helper', () => {
       const parentAddon: IOnDeleteAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
-        callback: jest.fn(),
+        callback: vi.fn(),
         modalCustomization: parentCustomization,
       };
       const childAddon: IOnDeleteAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
-        callback: jest.fn(),
+        callback: vi.fn(),
         modalCustomization: childCustomization,
       };
 
@@ -181,7 +182,7 @@ describe('item-interaction-helper', () => {
       const addon: IOnDeleteAddon = {
         type: IInteractionType.ON_DELETE,
         activationFn: () => true,
-        callback: jest.fn(),
+        callback: vi.fn(),
         modalCustomization: sharedCustomization,
       };
 
@@ -199,7 +200,7 @@ describe('item-interaction-helper', () => {
         name: 'log',
         definition: { log: { message: 'test' } },
       };
-      const mockCallback = jest.fn().mockReturnValue(mockContent);
+      const mockCallback = vi.fn().mockReturnValue(mockContent);
       const vizNode = createVisualizationNode('test', {
         name: EntityType.Route,
         isPlaceholder: false,
@@ -238,7 +239,7 @@ describe('item-interaction-helper', () => {
         definition: { log: { message: 'transformed' } },
       };
 
-      const mockCallback = jest.fn().mockResolvedValue(transformedContent);
+      const mockCallback = vi.fn().mockResolvedValue(transformedContent);
       const vizNode = createVisualizationNode('test', {
         name: 'log',
         path: 'route.from.steps.0.log',
@@ -271,7 +272,7 @@ describe('item-interaction-helper', () => {
         definition: { log: { message: 'test' } },
       };
 
-      const mockCallback = jest.fn().mockResolvedValue(undefined);
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
       const vizNode = createVisualizationNode('test', {
         name: 'log',
         path: 'route.from.steps.0.log',
@@ -347,12 +348,12 @@ describe('item-interaction-helper', () => {
       });
       parentNode.addChild(childNode);
 
-      jest.spyOn(childNode, 'getCopiedContent').mockReturnValue(childContent);
+      vi.spyOn(childNode, 'getCopiedContent').mockReturnValue(childContent);
 
       const mockAddon: IOnDuplicateAddon = {
         type: IInteractionType.ON_DUPLICATE,
         activationFn: () => true,
-        callback: jest.fn().mockImplementation(({ content }) => Promise.resolve(content)),
+        callback: vi.fn().mockImplementation(({ content }) => Promise.resolve(content)),
       };
 
       const result = await processOnDuplicateAddonRecursively(parentNode, parentContent, () => [mockAddon]);
@@ -374,7 +375,7 @@ describe('item-interaction-helper', () => {
         definition: { log: { message: 'updated' } },
       };
 
-      const mockCallback = jest.fn().mockResolvedValue(undefined);
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
       const vizNode = createVisualizationNode('test', {
         name: EntityType.Route,
         isPlaceholder: false,
@@ -439,7 +440,7 @@ describe('item-interaction-helper', () => {
         description: '',
       });
 
-      const mockCallback = jest.fn().mockResolvedValue(undefined);
+      const mockCallback = vi.fn().mockResolvedValue(undefined);
 
       const mockAddon: IOnPasteAddon = {
         type: IInteractionType.ON_PASTE,
@@ -504,8 +505,8 @@ describe('item-interaction-helper', () => {
         description: '',
       });
 
-      const mockCallback1 = jest.fn().mockResolvedValue(undefined);
-      const mockCallback2 = jest.fn().mockResolvedValue(undefined);
+      const mockCallback1 = vi.fn().mockResolvedValue(undefined);
+      const mockCallback2 = vi.fn().mockResolvedValue(undefined);
 
       const mockAddon1: IOnPasteAddon = {
         type: IInteractionType.ON_PASTE,

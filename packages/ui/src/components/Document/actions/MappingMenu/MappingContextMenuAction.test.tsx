@@ -1,6 +1,7 @@
 import { DraggableObject } from '@patternfly/react-drag-drop';
 import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent } from 'react';
+import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../../models/datamapper/document';
 import { ChooseItem, FieldItem, ForEachItem, MappingTree, SortItem } from '../../../../models/datamapper/mapping';
@@ -15,7 +16,7 @@ import { MappingActionService } from '../../../../services/visualization/mapping
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
 
-jest.mock('@patternfly/react-drag-drop', () => ({
+vi.mock('@patternfly/react-drag-drop', () => ({
   DragDropSort: (({ items }: { items: DraggableObject[] }) => (
     <div data-testid="drag-drop-sort">
       {items.map((item) => (
@@ -25,8 +26,8 @@ jest.mock('@patternfly/react-drag-drop', () => ({
   )) as FunctionComponent<{ items: DraggableObject[] }>,
 }));
 
-jest.mock('../../../../hooks/useDataMapper', () => ({
-  useDataMapper: jest.fn().mockReturnValue({
+vi.mock('../../../../hooks/useDataMapper', () => ({
+  useDataMapper: vi.fn().mockReturnValue({
     sourceBodyDocument: { fields: [], getReferenceId: () => '' },
     sourceParameterMap: new Map(),
     mappingTree: { namespaceMap: {} },
@@ -45,7 +46,7 @@ describe('MappingContextMenuAction', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('should apply ValueSelector', async () => {
@@ -54,8 +55,8 @@ describe('MappingContextMenuAction', () => {
       targetDoc.fields[0],
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
-    const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(MappingActionService, 'applyValueSelector');
+    const onUpdateMock = vi.fn();
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyValueSelector');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -78,8 +79,8 @@ describe('MappingContextMenuAction', () => {
       targetDoc.fields[0],
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
-    const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(MappingActionService, 'applyIf');
+    const onUpdateMock = vi.fn();
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -102,8 +103,8 @@ describe('MappingContextMenuAction', () => {
       targetDoc.fields[0],
       new FieldItem(mappingTree, targetDoc.fields[0]),
     );
-    const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
+    const onUpdateMock = vi.fn();
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -122,8 +123,8 @@ describe('MappingContextMenuAction', () => {
 
   it('should apply when', async () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
-    const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(MappingService, 'addWhen');
+    const onUpdateMock = vi.fn();
+    const spyOnApply = vi.spyOn(MappingService, 'addWhen');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -143,8 +144,8 @@ describe('MappingContextMenuAction', () => {
 
   it('should apply otherwise', async () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
-    const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(MappingService, 'addOtherwise');
+    const onUpdateMock = vi.fn();
+    const spyOnApply = vi.spyOn(MappingService, 'addOtherwise');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -168,8 +169,8 @@ describe('MappingContextMenuAction', () => {
       targetDoc.fields[0].fields[3],
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
-    const onUpdateMock = jest.fn();
-    const spyOnApply = jest.spyOn(MappingActionService, 'applyForEach');
+    const onUpdateMock = vi.fn();
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyForEach');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     act(() => {
@@ -197,7 +198,7 @@ describe('MappingContextMenuAction', () => {
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
     const clickEvent = createEvent.click(actionToggle);
-    const stopPropagationSpy = jest.spyOn(clickEvent, 'stopPropagation');
+    const stopPropagationSpy = vi.spyOn(clickEvent, 'stopPropagation');
 
     act(() => {
       fireEvent(actionToggle, clickEvent);
@@ -221,7 +222,7 @@ describe('MappingContextMenuAction', () => {
 
     const selectorButton = wrapper.getByTestId('transformation-actions-selector').getElementsByTagName('button')[0];
     const clickEvent = createEvent.click(selectorButton);
-    const stopPropagationSpy = jest.spyOn(clickEvent, 'stopPropagation');
+    const stopPropagationSpy = vi.spyOn(clickEvent, 'stopPropagation');
 
     act(() => {
       fireEvent(selectorButton, clickEvent);
@@ -231,7 +232,7 @@ describe('MappingContextMenuAction', () => {
   });
 
   it('should render Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
-    const onUpdateSpy = jest.fn();
+    const onUpdateSpy = vi.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
@@ -253,9 +254,9 @@ describe('MappingContextMenuAction', () => {
   });
 
   it('should apply If from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
-    const onUpdateSpy = jest.fn();
+    const onUpdateSpy = vi.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
-    const spyOnApply = jest.spyOn(MappingActionService, 'applyIf');
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
     );
@@ -276,9 +277,9 @@ describe('MappingContextMenuAction', () => {
   });
 
   it('should apply Choose from the Add Conditional Mapping dropdown for the add mapping placeholder', async () => {
-    const onUpdateSpy = jest.fn();
+    const onUpdateSpy = vi.fn();
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
-    const spyOnApply = jest.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
+    const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Conditional Mapping" onUpdate={onUpdateSpy} />,
     );
@@ -306,7 +307,7 @@ describe('MappingContextMenuAction', () => {
           targetDoc.fields[0],
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -323,7 +324,7 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         fieldItem.comment = 'Existing comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -344,7 +345,7 @@ describe('MappingContextMenuAction', () => {
           targetDoc.fields[0],
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -370,7 +371,7 @@ describe('MappingContextMenuAction', () => {
       it('should render CommentModal when mappingItem exists', async () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -394,7 +395,7 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         fieldItem.comment = 'Test comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -419,7 +420,7 @@ describe('MappingContextMenuAction', () => {
       it('should close CommentModal when handleCloseCommentModal is called', async () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -453,7 +454,7 @@ describe('MappingContextMenuAction', () => {
       it('should update comment and close modal when Create is clicked', async () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
-        const onUpdateMock = jest.fn();
+        const onUpdateMock = vi.fn();
         render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
@@ -494,7 +495,7 @@ describe('MappingContextMenuAction', () => {
     it('should open SortModal when Sort action is clicked on a ForEachItem', async () => {
       const forEachItem = new ForEachItem(mappingTree);
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
-      const onUpdateMock = jest.fn();
+      const onUpdateMock = vi.fn();
       render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -518,7 +519,7 @@ describe('MappingContextMenuAction', () => {
       sort.expression = 'Title';
       forEachItem.sortItems = [sort];
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={jest.fn()} />);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       act(() => {

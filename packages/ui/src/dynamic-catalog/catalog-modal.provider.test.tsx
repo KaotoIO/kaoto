@@ -1,5 +1,6 @@
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { ITile } from '../components/Catalog';
 import { CatalogKind, DefinedComponent } from '../models';
@@ -17,10 +18,10 @@ describe('CatalogModalProvider', () => {
   ];
 
   const mockCatalogRegistry: IDynamicCatalogRegistry = {
-    getEntity: jest.fn(),
-    getCatalog: jest.fn(),
-    setCatalog: jest.fn(),
-    clearRegistry: jest.fn(),
+    getEntity: vi.fn(),
+    getCatalog: vi.fn(),
+    setCatalog: vi.fn(),
+    clearRegistry: vi.fn(),
   };
 
   const createWrapper = (
@@ -43,7 +44,7 @@ describe('CatalogModalProvider', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('checkCompatibility', () => {
@@ -157,7 +158,7 @@ describe('CatalogModalProvider', () => {
 
     it('should resolve with selected component when tile is clicked', async () => {
       const mockDefinition = { component: { name: 'amqp' } };
-      (mockCatalogRegistry.getEntity as jest.Mock).mockResolvedValue(mockDefinition);
+      (mockCatalogRegistry.getEntity as Mock).mockResolvedValue(mockDefinition);
 
       const wrapper = createWrapper();
       render(<div>Test</div>, { wrapper });
@@ -192,7 +193,7 @@ describe('CatalogModalProvider', () => {
 
     it('should call getEntity with forceFresh true for Kamelet tiles', async () => {
       const mockDefinition = { metadata: { name: 'sink' } };
-      (mockCatalogRegistry.getEntity as jest.Mock).mockResolvedValue(mockDefinition);
+      (mockCatalogRegistry.getEntity as Mock).mockResolvedValue(mockDefinition);
 
       const wrapper = createWrapper();
       render(<div>Test</div>, { wrapper });
@@ -242,7 +243,7 @@ describe('CatalogModalProvider', () => {
     });
 
     it('should handle fetchTiles error gracefully', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const fetchTilesError = () => Promise.reject(new Error('Failed to fetch tiles'));
 
       const wrapper = createWrapper(fetchTilesError);
@@ -267,7 +268,7 @@ describe('CatalogModalProvider', () => {
     it('should support multiple sequential getNewComponent calls', async () => {
       const mockDefinition1 = { component: { name: 'amqp' } };
       const mockDefinition2 = { processor: { name: 'log' } };
-      (mockCatalogRegistry.getEntity as jest.Mock)
+      (mockCatalogRegistry.getEntity as Mock)
         .mockResolvedValueOnce(mockDefinition1)
         .mockResolvedValueOnce(mockDefinition2);
 
@@ -335,7 +336,7 @@ describe('CatalogModalProvider', () => {
 
     it('should close modal and resolve promise when component is selected', async () => {
       const mockDefinition = { component: { name: 'amqp' } };
-      (mockCatalogRegistry.getEntity as jest.Mock).mockResolvedValue(mockDefinition);
+      (mockCatalogRegistry.getEntity as Mock).mockResolvedValue(mockDefinition);
 
       const wrapper = createWrapper();
       render(<div>Test</div>, { wrapper });

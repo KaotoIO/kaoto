@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { MappingTree, ValueSelector } from '../../../models/datamapper/mapping';
@@ -10,18 +11,13 @@ import { XPathEditorAction } from './XPathEditorAction';
 
 describe('XPathEditorAction', () => {
   it('should open xpath editor modal', async () => {
-    globalThis.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }));
     const doc = TestUtil.createTargetOrderDoc();
     const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const docData = new TargetDocumentNodeData(doc, tree);
     render(
       <DataMapperProvider>
         <MappingLinksProvider>
-          <XPathEditorAction mapping={new ValueSelector(tree)} nodeData={docData} onUpdate={jest.fn()} />
+          <XPathEditorAction mapping={new ValueSelector(tree)} nodeData={docData} onUpdate={vi.fn()} />
         </MappingLinksProvider>
       </DataMapperProvider>,
     );

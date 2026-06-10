@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { DocumentDefinitionType, FieldOverrideVariant, IField, NodePath, Types } from '../../../models/datamapper';
 import {
@@ -210,7 +211,7 @@ describe('BaseNode', () => {
     });
 
     it('should call onExpandChange when expand icon is clicked', () => {
-      const onExpandChange = jest.fn();
+      const onExpandChange = vi.fn();
       render(
         <BaseNode
           nodeData={createMockNodeData()}
@@ -463,12 +464,12 @@ describe('BaseNode', () => {
 
   describe('Comment Functionality', () => {
     let mockMapping: ValueSelector;
-    let mockOnUpdate: jest.Mock;
+    let mockOnUpdate: Mock;
 
     beforeEach(() => {
       const tree = new MappingTree(DocumentType.SOURCE_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       mockMapping = new ValueSelector(tree);
-      mockOnUpdate = jest.fn();
+      mockOnUpdate = vi.fn();
     });
 
     describe('Comment Indicator Icon', () => {
@@ -538,7 +539,7 @@ describe('BaseNode', () => {
         );
 
         const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
-        const stopPropagationSpy = jest.fn();
+        const stopPropagationSpy = vi.fn();
 
         // Create a click event
         const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });

@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`CustomNodeContainer should render the CustomNodeContainer correctly 1`] = `
+exports[`CustomNodeContainer > should render the CustomNodeContainer correctly 1`] = `
 <div>
   <foreignobject
     height="75"
@@ -37,29 +37,10 @@ exports[`CustomNodeContainer should render the CustomNodeContainer correctly 1`]
               class="pf-v6-c-icon__content pf-m-danger"
             >
               <svg
-                aria-hidden="true"
-                class="pf-v6-svg"
-                fill="currentColor"
-                height="1em"
+                data-testid="ban-icon"
                 role="img"
-                width="1em"
               >
-                <svg
-                  class="pf-v6-icon-default"
-                  viewBox="0 0 512 512"
-                >
-                  <path
-                    d="M256 8C119.034 8 8 119.033 8 256s111.034 248 248 248 248-111.034 248-248S392.967 8 256 8zm130.108 117.892c65.448 65.448 70 165.481 20.677 235.637L150.47 105.216c70.204-49.356 170.226-44.735 235.638 20.676zM125.892 386.108c-65.448-65.448-70-165.481-20.677-235.637L361.53 406.784c-70.203 49.356-170.226 44.736-235.638-20.676z"
-                  />
-                </svg>
-                <svg
-                  class="pf-v6-icon-rh-ui"
-                  viewBox="0 0 32 32"
-                >
-                  <path
-                    d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1ZM3 16c0-3.241 1.2-6.201 3.169-8.48.04.064.069.132.124.187l18 18c.055.055.124.085.187.124A12.932 12.932 0 0 1 16 29C8.832 29 3 23.168 3 16Zm22.831 8.48c-.04-.064-.069-.132-.124-.187l-18-18c-.055-.055-.124-.085-.187-.124A12.932 12.932 0 0 1 16 3c7.168 0 13 5.832 13 13 0 3.241-1.2 6.201-3.169 8.48Z"
-                  />
-                </svg>
+                <path />
               </svg>
             </span>
           </span>

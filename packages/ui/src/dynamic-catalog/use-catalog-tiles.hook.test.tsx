@@ -1,12 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
+import { vi } from 'vitest';
 
 import { CatalogTilesContext } from './catalog-tiles.provider';
 import { useCatalogTiles } from './use-catalog-tiles.hook';
 
 describe('useCatalogTiles', () => {
   it('should throw an error when used outside of CatalogTilesProvider', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     expect(() => {
       renderHook(() => useCatalogTiles());
@@ -16,8 +17,8 @@ describe('useCatalogTiles', () => {
   });
 
   it('should return the context value when used within CatalogTilesProvider', () => {
-    const mockFetchTiles = jest.fn();
-    const mockGetTiles = jest.fn();
+    const mockFetchTiles = vi.fn();
+    const mockGetTiles = vi.fn();
 
     const mockContextValue = {
       fetchTiles: mockFetchTiles,
@@ -36,8 +37,8 @@ describe('useCatalogTiles', () => {
   });
 
   it('should return fetchTiles function from context', () => {
-    const mockFetchTiles = jest.fn();
-    const mockGetTiles = jest.fn();
+    const mockFetchTiles = vi.fn();
+    const mockGetTiles = vi.fn();
 
     const mockContextValue = {
       fetchTiles: mockFetchTiles,
@@ -55,8 +56,8 @@ describe('useCatalogTiles', () => {
   });
 
   it('should return getTiles function from context', () => {
-    const mockFetchTiles = jest.fn();
-    const mockGetTiles = jest.fn();
+    const mockFetchTiles = vi.fn();
+    const mockGetTiles = vi.fn();
 
     const mockContextValue = {
       fetchTiles: mockFetchTiles,
@@ -74,8 +75,8 @@ describe('useCatalogTiles', () => {
   });
 
   it('should maintain stable reference across re-renders when context does not change', () => {
-    const mockFetchTiles = jest.fn();
-    const mockGetTiles = jest.fn();
+    const mockFetchTiles = vi.fn();
+    const mockGetTiles = vi.fn();
 
     const mockContextValue = {
       fetchTiles: mockFetchTiles,

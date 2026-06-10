@@ -2,33 +2,34 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { AlertVariant } from '@patternfly/react-core';
 import { act, render } from '@testing-library/react';
 import { ReactNode } from 'react';
+import { Mock, vi } from 'vitest';
 
 import { useDataMapper } from '../hooks/useDataMapper';
 import { MappingTree } from '../models/datamapper/mapping';
 import { canScrollPanel, DataMapperDndProvider, scrollAwareCollision } from './datamapper-dnd.provider';
 
 // Mock rectIntersection to control collision detection in tests
-jest.mock('@dnd-kit/core', () => {
-  const actual = jest.requireActual('@dnd-kit/core');
+vi.mock('@dnd-kit/core', async () => {
+  const actual = await vi.importActual('@dnd-kit/core');
   return {
     ...actual,
-    rectIntersection: jest.fn((args: { droppableContainers: Array<{ id: string }> }) => {
+    rectIntersection: vi.fn((args: { droppableContainers: Array<{ id: string }> }) => {
       // Return all droppables as potential collisions (let the filtering handle it)
       return Array.from(args.droppableContainers).map((container) => ({
         id: container.id,
         data: { droppableContainer: container, value: 55.9017 },
       }));
     }),
-    pointerWithin: jest.fn(() => []),
-    DndContext: jest.fn(),
-    DragOverlay: jest.fn(() => null),
-    useSensor: jest.fn(),
-    useSensors: jest.fn().mockReturnValue([]),
+    pointerWithin: vi.fn(() => []),
+    DndContext: vi.fn(),
+    DragOverlay: vi.fn(() => null),
+    useSensor: vi.fn(),
+    useSensors: vi.fn().mockReturnValue([]),
   };
 });
 
-jest.mock('../hooks/useDataMapper', () => ({
-  useDataMapper: jest.fn(),
+vi.mock('../hooks/useDataMapper', () => ({
+  useDataMapper: vi.fn(),
 }));
 
 // Helper to create mock rect object
@@ -54,7 +55,7 @@ const createScrollContainer = (rect: DOMRect): HTMLDivElement => {
 const createMockElement = (scrollContainerRect?: DOMRect | null): HTMLDivElement => {
   const element = document.createElement('div');
 
-  element.closest = jest.fn((selector: string) => {
+  element.closest = vi.fn((selector: string) => {
     if (selector === '.expansion-panel__content' && scrollContainerRect !== undefined) {
       if (scrollContainerRect === null) return null;
       return createScrollContainer(scrollContainerRect);
@@ -67,7 +68,7 @@ const createMockElement = (scrollContainerRect?: DOMRect | null): HTMLDivElement
 
 describe('datamapper-dnd.provider', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('scrollAwareCollision', () => {
@@ -284,7 +285,7 @@ describe('datamapper-dnd.provider', () => {
   describe('canScrollPanel', () => {
     const createMockElement = (panelId: string | null) => {
       const element = document.createElement('div');
-      element.closest = jest.fn((selector: string) => {
+      element.closest = vi.fn((selector: string) => {
         if (selector === '#panel-source' && panelId === 'panel-source') {
           return document.createElement('div');
         }
@@ -353,8 +354,8 @@ describe('datamapper-dnd.provider', () => {
 });
 
 describe('DataMapperDndProvider', () => {
-  const mockSendAlert = jest.fn();
-  const mockRefreshMappingTree = jest.fn();
+  const mockSendAlert = vi.fn();
+  const mockRefreshMappingTree = vi.fn();
   const mockMappingTree = {} as MappingTree;
 
   const mockDragEndEvent = {
@@ -363,9 +364,9 @@ describe('DataMapperDndProvider', () => {
   } as unknown as DragEndEvent;
 
   beforeEach(() => {
-    jest.clearAllMocks();
-    (DndContext as unknown as jest.Mock).mockImplementation(({ children }: { children: ReactNode }) => children);
-    (useDataMapper as jest.Mock).mockReturnValue({
+    vi.clearAllMocks();
+    (DndContext as unknown as Mock).mockImplementation(({ children }: { children: ReactNode }) => children);
+    (useDataMapper as Mock).mockReturnValue({
       mappingTree: mockMappingTree,
       refreshMappingTree: mockRefreshMappingTree,
       sendAlert: mockSendAlert,
@@ -373,7 +374,7 @@ describe('DataMapperDndProvider', () => {
   });
 
   const invokeOnDragEnd = async (event: DragEndEvent) => {
-    const onDragEnd = (DndContext as unknown as jest.Mock).mock.calls.at(-1)[0].onDragEnd as (e: DragEndEvent) => void;
+    const onDragEnd = (DndContext as unknown as Mock).mock.calls.at(-1)![0].onDragEnd as (e: DragEndEvent) => void;
     await act(async () => {
       onDragEnd(event);
     });
@@ -381,9 +382,9 @@ describe('DataMapperDndProvider', () => {
 
   it('should call sendAlert with danger variant when handler returns failure with error message', async () => {
     const mockHandler = {
-      handleDragEnd: jest.fn().mockReturnValue({ success: false, errorMessage: 'error msg' }),
-      handleDragStart: jest.fn(),
-      handleDragOver: jest.fn(),
+      handleDragEnd: vi.fn().mockReturnValue({ success: false, errorMessage: 'error msg' }),
+      handleDragStart: vi.fn(),
+      handleDragOver: vi.fn(),
     };
 
     render(
@@ -399,9 +400,9 @@ describe('DataMapperDndProvider', () => {
 
   it('should not call sendAlert when handler returns success', async () => {
     const mockHandler = {
-      handleDragEnd: jest.fn().mockReturnValue({ success: true }),
-      handleDragStart: jest.fn(),
-      handleDragOver: jest.fn(),
+      handleDragEnd: vi.fn().mockReturnValue({ success: true }),
+      handleDragStart: vi.fn(),
+      handleDragOver: vi.fn(),
     };
 
     render(

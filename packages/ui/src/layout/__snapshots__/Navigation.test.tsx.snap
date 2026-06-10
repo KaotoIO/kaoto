@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Navigation Component navigation sidebar for: Integration 1`] = `
+exports[`Navigation Component > navigation sidebar for: Integration 1`] = `
 <DocumentFragment>
   <div
     aria-hidden="false"
@@ -260,7 +260,7 @@ exports[`Navigation Component navigation sidebar for: Integration 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
+exports[`Navigation Component > navigation sidebar for: Kamelet 1`] = `
 <DocumentFragment>
   <div
     aria-hidden="false"
@@ -521,7 +521,7 @@ exports[`Navigation Component navigation sidebar for: Kamelet 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
+exports[`Navigation Component > navigation sidebar for: KameletBinding 1`] = `
 <DocumentFragment>
   <div
     aria-hidden="false"
@@ -782,7 +782,7 @@ exports[`Navigation Component navigation sidebar for: KameletBinding 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
+exports[`Navigation Component > navigation sidebar for: Pipe 1`] = `
 <DocumentFragment>
   <div
     aria-hidden="false"
@@ -1043,7 +1043,7 @@ exports[`Navigation Component navigation sidebar for: Pipe 1`] = `
 </DocumentFragment>
 `;
 
-exports[`Navigation Component navigation sidebar for: Route 1`] = `
+exports[`Navigation Component > navigation sidebar for: Route 1`] = `
 <DocumentFragment>
   <div
     aria-hidden="false"

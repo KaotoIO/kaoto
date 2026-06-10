@@ -1,15 +1,16 @@
 import { render } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';
 import { LoadDefaultCatalog } from './LoadDefaultCatalog';
 
 describe('LoadDefaultCatalog', () => {
-  let reloadPage: jest.Mock;
+  let reloadPage: Mock;
   let settingsAdapter: AbstractSettingsAdapter;
 
   beforeEach(() => {
-    reloadPage = jest.fn();
+    reloadPage = vi.fn();
     settingsAdapter = new DefaultSettingsAdapter();
   });
 

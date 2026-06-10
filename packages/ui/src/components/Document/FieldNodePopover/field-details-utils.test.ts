@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { IField } from '../../../models/datamapper/document';
 import { FieldItem, MappingTree } from '../../../models/datamapper/mapping';
 import {
@@ -14,7 +16,7 @@ import { formatTypeQName, isFieldNode, prepareFieldDetails } from './field-detai
 
 describe('field-details-utils', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('isFieldNode', () => {
@@ -74,7 +76,7 @@ describe('field-details-utils', () => {
 
     it('should return "N/A" when getLocalPart returns null', () => {
       const qname = new QName('http://example.com', 'test');
-      jest.spyOn(qname, 'getLocalPart').mockReturnValue(null);
+      vi.spyOn(qname, 'getLocalPart').mockReturnValue(null);
       expect(formatTypeQName(qname)).toBe('N/A (http://example.com)');
     });
 

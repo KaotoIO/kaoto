@@ -1,4 +1,5 @@
 import { fireEvent, render } from '@testing-library/react';
+import { Mock, vi } from 'vitest';
 
 import { createVisualizationNode } from '../../../../models';
 import { EntityType } from '../../../../models/entities';
@@ -6,8 +7,8 @@ import { useCopyStep } from '../hooks/copy-step.hook';
 import { ItemCopyStep } from './ItemCopyStep';
 
 // Mock the `useCopyStep` hook
-jest.mock('../hooks/copy-step.hook', () => ({
-  useCopyStep: jest.fn(),
+vi.mock('../hooks/copy-step.hook', () => ({
+  useCopyStep: vi.fn(),
 }));
 
 describe('ItemCopyStep', () => {
@@ -19,16 +20,16 @@ describe('ItemCopyStep', () => {
     title: '',
     description: '',
   });
-  const mockOnCopyStep = jest.fn();
+  const mockOnCopyStep = vi.fn();
   beforeEach(() => {
     // Mock the `useCopyStep` hook to return the `onCopyStep` function
-    (useCopyStep as jest.Mock).mockReturnValue({
+    (useCopyStep as Mock).mockReturnValue({
       onCopyStep: mockOnCopyStep,
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should render Copy ContextMenuItem', () => {

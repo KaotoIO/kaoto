@@ -16,6 +16,7 @@
 
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { vi } from 'vitest';
 
 import { CamelCatalogService, CamelRouteVisualEntity, CatalogKind } from '../../../models';
 import { EntityOrderingService } from '../../../models/camel/entity-ordering.service';
@@ -198,7 +199,7 @@ describe('ToXMLConverter', () => {
     });
 
     it('should use EntityOrderingService for sorting entities', () => {
-      const sortSpy = jest.spyOn(EntityOrderingService, 'sortEntitiesForSerialization');
+      const sortSpy = vi.spyOn(EntityOrderingService, 'sortEntitiesForSerialization');
 
       const entities = [
         {

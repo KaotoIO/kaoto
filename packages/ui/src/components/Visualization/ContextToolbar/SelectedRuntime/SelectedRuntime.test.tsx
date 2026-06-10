@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { Mock, vi } from 'vitest';
 
 import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { Links } from '../../../../router/links.models';
@@ -8,21 +9,19 @@ import * as RuntimeIconModule from '../../../Icons/RuntimeIcon';
 import { SelectedRuntime } from './SelectedRuntime';
 
 // Mock the useRuntimeContext hook
-jest.mock('../../../../hooks/useRuntimeContext/useRuntimeContext');
+vi.mock('../../../../hooks/useRuntimeContext/useRuntimeContext');
 
 // Mock the getRuntimeIcon function
-jest.mock('../../../Icons/RuntimeIcon', () => ({
-  getRuntimeIcon: jest.fn(),
+vi.mock('../../../Icons/RuntimeIcon', () => ({
+  getRuntimeIcon: vi.fn(),
 }));
 
-const mockUseRuntimeContext = useRuntimeContext as jest.MockedFunction<typeof useRuntimeContext>;
-const mockGetRuntimeIcon = RuntimeIconModule.getRuntimeIcon as jest.MockedFunction<
-  typeof RuntimeIconModule.getRuntimeIcon
->;
+const mockUseRuntimeContext = useRuntimeContext as Mock<typeof useRuntimeContext>;
+const mockGetRuntimeIcon = RuntimeIconModule.getRuntimeIcon as Mock<typeof RuntimeIconModule.getRuntimeIcon>;
 
 describe('SelectedRuntime', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     mockGetRuntimeIcon.mockReturnValue(<span data-testid="runtime-icon">Icon</span>);
   });
 
@@ -45,7 +44,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -65,7 +64,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Quarkus',
           fileName: 'camel-quarkus-3.8.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -84,7 +83,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Spring Boot',
           fileName: 'camel-springboot-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -102,7 +101,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -122,7 +121,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -142,7 +141,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -164,7 +163,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -184,7 +183,7 @@ describe('SelectedRuntime', () => {
         basePath: '/catalogs',
         catalogLibrary: undefined,
         selectedCatalog: undefined,
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -204,7 +203,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -232,7 +231,7 @@ describe('SelectedRuntime', () => {
           runtime,
           fileName: `${runtime.toLowerCase()}.json`,
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -253,7 +252,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();
@@ -272,7 +271,7 @@ describe('SelectedRuntime', () => {
           runtime: 'Main',
           fileName: 'camel-main-4.0.0.json',
         },
-        setSelectedCatalog: jest.fn(),
+        setSelectedCatalog: vi.fn(),
       });
 
       renderComponent();

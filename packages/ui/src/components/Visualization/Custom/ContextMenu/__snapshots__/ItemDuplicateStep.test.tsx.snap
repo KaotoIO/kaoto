@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`ItemDuplicateStep should not render Paste ContextMenuItem 1`] = `<div />`;
+exports[`ItemDuplicateStep > should not render Paste ContextMenuItem 1`] = `<div />`;
 
-exports[`ItemDuplicateStep should render Duplicate ContextMenuItem 1`] = `
+exports[`ItemDuplicateStep > should render Duplicate ContextMenuItem 1`] = `
 <div>
   <li
     class="pf-v6-c-menu__list-item"
