@@ -4,10 +4,8 @@ describe('Tests for basic XML operations', () => {
   });
 
   it('Design - add steps to XML camel route', () => {
-    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.xml');
     cy.openDesignPage();
-
-    cy.switchCodeToXml();
 
     cy.selectAppendNode('setHeader');
     cy.chooseFromCatalog('component', 'as2');
@@ -29,14 +27,13 @@ describe('Tests for basic XML operations', () => {
       '<marshal id="marshal-3801"/>',
       '<to uri="log:test"/>',
     ];
+
     cy.checkMultiLineContent(xmlRoute);
   });
 
   it('Design - remove steps from XML camel route', () => {
-    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.xml');
     cy.openDesignPage();
-
-    cy.switchCodeToXml();
 
     cy.removeNodeByName('setHeader');
 
@@ -47,10 +44,9 @@ describe('Tests for basic XML operations', () => {
   });
 
   it('Design - expression configuration in XML camel route', () => {
-    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.xml');
     cy.openDesignPage();
 
-    cy.switchCodeToXml();
     cy.openStepConfigurationTab('setHeader');
     cy.selectFormTab('All');
     cy.selectExpression('Simple');
@@ -73,10 +69,8 @@ describe('Tests for basic XML operations', () => {
   });
 
   it('Design - dataformat configuration in XML camel route', () => {
-    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.xml');
     cy.openDesignPage();
-
-    cy.switchCodeToXml();
 
     cy.openStepConfigurationTab('marshal');
     cy.selectFormTab('All');

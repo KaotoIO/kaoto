@@ -150,14 +150,12 @@ describe('CitrusTestResource', () => {
   });
 
   describe('getCanvasEntityList', () => {
-    it('should return all entities for YAML serializer', () => {
+    it('should return all entities', () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
 
-      // YAML should include all entities including YAML-only ones
       expect(entityList.common).toHaveLength(1); // Test
       expect(entityList.groups).toEqual({});
     });
@@ -170,22 +168,6 @@ describe('CitrusTestResource', () => {
       const secondCall = resource.getCanvasEntityList();
 
       expect(firstCall).toStrictEqual(secondCall);
-    });
-
-    it('should recreate entity list when called after serializer change', () => {
-      const resource = new CitrusTestResource(citrusTestJson);
-      resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
-
-      const yamlEntityList = resource.getCanvasEntityList();
-
-      resource.setSerializer(SerializerType.XML);
-      const xmlEntityList = resource.getCanvasEntityList();
-
-      // Should be different objects with different content
-      expect(yamlEntityList).not.toBe(xmlEntityList);
-      expect(yamlEntityList.common).toHaveLength(1);
-      expect(xmlEntityList.common).toHaveLength(1);
     });
 
     it('should include entity titles and descriptions from catalog', () => {
@@ -205,7 +187,6 @@ describe('CitrusTestResource', () => {
     it('should properly group entities', () => {
       const resource = new CitrusTestResource();
       resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
 
@@ -227,18 +208,13 @@ describe('CitrusTestResource', () => {
       expect(serialized.length).toBeGreaterThan(0);
     });
 
-    it('should support switching between serializer types', () => {
+    it('should always report YAML serializer type', () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
 
-      // Test YAML serializer
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
       const yamlOutput = resource.toString();
       expect(yamlOutput).toContain('actions:');
-
-      // Test XML serializer type change
-      resource.setSerializer(SerializerType.XML);
-      expect(resource.getSerializerType()).toBe(SerializerType.XML);
     });
   });
 
@@ -308,5 +284,12 @@ describe('CitrusTestResource', () => {
         } as ITile),
       ).toBeFalsy();
     });
+  });
+
+  it('serializes to YAML and reports YAML format without a serializer', () => {
+    const resource = new CitrusTestResource({ name: 't', actions: [] } as unknown as import('./entities/Test').Test);
+    resource.initialize();
+    expect(resource.getSerializerType()).toBe(SerializerType.YAML);
+    expect(typeof resource.toString()).toBe('string');
   });
 });

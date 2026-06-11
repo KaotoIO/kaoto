@@ -1,0 +1,11 @@
+<camel xmlns="http://camel.apache.org/schema/xml-io">
+  <route id="route-1234">
+    <from id="from-3362" uri="timer:template?period=1000"/>
+    <log id="log-6809" message="${body}"/>
+  </route>
+
+  <route id="route-4321">
+    <from id="from-3576" uri="timer:template?period=1000"/>
+    <log id="log-2966" message="${body}"/>
+  </route>
+</camel>

@@ -16,18 +16,13 @@
 
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
+import { stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
-import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
+import { insertYamlComments } from '../../serializers/yaml-comments';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
-import {
-  BaseVisualEntityDefinition,
-  BeansAwareResource,
-  KaotoResource,
-  KaotoResourceSerializer,
-  SerializerType,
-} from '../kaoto-resource';
+import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource, SerializerType } from '../kaoto-resource';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
@@ -115,21 +110,27 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
   private entities: BaseEntity[] = [];
   private resolvedEntities: BaseVisualEntityDefinition | undefined;
 
+  /**
+   * Entities this resource supports. Polymorphic so subclasses (e.g. CamelXMLRouteResource)
+   * can restrict the set. Statics are not polymorphic, so all internal logic must read this,
+   * never `CamelRouteResource.SUPPORTED_ENTITIES` directly.
+   */
+  get supportedEntities() {
+    return CamelRouteResource.SUPPORTED_ENTITIES;
+  }
+
   constructor(
-    private readonly rawEntities?: CamelYamlDsl,
-    private serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
+    private rawEntities?: CamelYamlDsl,
+    protected comments: string[] = [],
   ) {}
 
   initialize(): void {
-    // XML defers catalog-dependent parsing to here via the serializer; YAML returns its
-    // fully-parsed entities from the constructor (`rawEntities`). See KaotoResourceSerializer.
-    const rawEntities = this.serializer.parseEntities?.() ?? this.rawEntities;
-    if (!rawEntities) {
+    if (!this.rawEntities) {
       this.entities = [];
       return;
     }
 
-    const entities = Array.isArray(rawEntities) ? rawEntities : [rawEntities];
+    const entities = Array.isArray(this.rawEntities) ? this.rawEntities : [this.rawEntities];
     const parsedEntities = entities.reduce((acc, rawItem) => {
       const entity = this.getEntity(rawItem);
       if (isDefined(entity) && typeof entity === 'object') {
@@ -141,53 +142,44 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     this.entities = EntityOrderingService.sortEntitiesForSerialization(parsedEntities);
   }
 
+  protected setRawEntities(rawEntities?: CamelYamlDsl): void {
+    this.rawEntities = rawEntities;
+  }
+
   getCanvasEntityList(): BaseVisualEntityDefinition {
-    this.resolvedEntities = CamelRouteResource.SUPPORTED_ENTITIES.filter(
-      ({ isVisualEntity, isYamlOnly }) =>
-        isVisualEntity &&
-        (this.serializer.getType() === SerializerType.YAML ||
-          (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly)),
-    ).reduce(
-      (acc, { type, group }) => {
-        const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
-        const entityDefinition = {
-          name: type,
-          title: catalogEntity?.model.title || type,
-          description: catalogEntity?.model.description || '',
-        };
+    this.resolvedEntities = this.supportedEntities
+      .filter(({ isVisualEntity }) => isVisualEntity)
+      .reduce(
+        (acc, { type, group }) => {
+          const catalogEntity = CamelCatalogService.getComponent(CatalogKind.Entity, type);
+          const entityDefinition = {
+            name: type,
+            title: catalogEntity?.model.title || type,
+            description: catalogEntity?.model.description || '',
+          };
 
-        if (group === '') {
-          acc.common.push(entityDefinition);
+          if (group === '') {
+            acc.common.push(entityDefinition);
+            return acc;
+          }
+
+          acc.groups[group] ??= [];
+          acc.groups[group].push(entityDefinition);
           return acc;
-        }
-
-        acc.groups[group] ??= [];
-        acc.groups[group].push(entityDefinition);
-        return acc;
-      },
-      { common: [], groups: {} } as BaseVisualEntityDefinition,
-    );
+        },
+        { common: [], groups: {} } as BaseVisualEntityDefinition,
+      );
 
     return this.resolvedEntities;
   }
 
-  getSerializerType() {
-    return this.serializer.getType();
-  }
-
-  setSerializer(serializerType: SerializerType): void {
-    // Preserve comments
-    const serializer = serializerType === 'XML' ? new XmlCamelResourceSerializer() : new YamlCamelResourceSerializer();
-
-    serializer.setComments(this.serializer.getComments());
-    serializer.setMetadata(this.serializer.getMetadata());
-
-    this.serializer = serializer;
+  getSerializerType(): SerializerType {
+    return SerializerType.YAML;
   }
 
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string {
     if (entityType && entityType !== EntityType.Route) {
-      const supportedEntity = CamelRouteResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
+      const supportedEntity = this.supportedEntities.find(({ type }) => type === entityType);
       if (supportedEntity) {
         const entity = new supportedEntity.Entity(entityTemplate);
 
@@ -239,9 +231,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
 
   getVisualEntities(): CamelRouteVisualEntity[] {
     return this.entities.filter((entity) =>
-      CamelRouteResource.SUPPORTED_ENTITIES.some(
-        ({ Entity, isVisualEntity }) => entity instanceof Entity && isVisualEntity,
-      ),
+      this.supportedEntities.some(({ Entity, isVisualEntity }) => entity instanceof Entity && isVisualEntity),
     ) as CamelRouteVisualEntity[];
   }
 
@@ -254,8 +244,9 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     return this.entities.map((entity) => entity.toJSON());
   }
 
-  toString() {
-    return this.serializer.serialize(this);
+  toString(): string {
+    const code = stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
+    return insertYamlComments(code, this.comments);
   }
 
   createBeansEntity(): BeansEntity {
@@ -300,7 +291,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
       return new BeansEntity(rawItem);
     }
 
-    for (const { Entity } of CamelRouteResource.SUPPORTED_ENTITIES) {
+    for (const { Entity } of this.supportedEntities) {
       if (Entity.isApplicable(rawItem)) {
         return new Entity(rawItem);
       }

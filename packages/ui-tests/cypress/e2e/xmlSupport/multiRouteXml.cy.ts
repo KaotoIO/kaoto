@@ -4,10 +4,8 @@ describe('Test for Multi route for XML', () => {
   });
 
   it('User imports Yaml multi route and transforms to XML', () => {
-    cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.uploadFixture('flows/camelRoute/multiflow.xml');
     cy.openDesignPage();
-    cy.switchCodeToXml();
-
     const xml = [
       '<route id="route-1234">',
       '<from id="from-3362" uri="timer:template?period=1000"/>',

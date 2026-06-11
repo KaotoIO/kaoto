@@ -60,7 +60,7 @@ describe('Test URI node config', () => {
     cy.uploadFixture('flows/camelRoute/uriConf.yaml');
     cy.openSourceCode();
     const stepToInsert = `        - to: aws2-s3:testBucket?autoCreateBucket=true`;
-    cy.editorAddText(11, stepToInsert);
+    cy.editorAddText(12, stepToInsert);
     cy.openDesignPage();
 
     // CHECK the insert-field-action step was added

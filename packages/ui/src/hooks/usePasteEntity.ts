@@ -2,7 +2,6 @@ import { ButtonVariant } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { SourceSchemaType } from '../models/camel/source-schema-type';
 import { EntityType } from '../models/entities';
 import { IClipboardCopyObject } from '../models/visualization/clipboard';
@@ -34,7 +33,7 @@ export const usePasteEntity = () => {
 
       if (
         resourceType === SourceSchemaType.Route &&
-        CamelRouteResource.SUPPORTED_ENTITIES.some((entity) => pastedEntityValue.name === entity.type)
+        entitiesContext.camelResource.supportedEntities.some((entity) => pastedEntityValue.name === entity.type)
       ) {
         return true;
       }
