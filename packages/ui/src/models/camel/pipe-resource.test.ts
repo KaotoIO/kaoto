@@ -1,4 +1,5 @@
 import { pipeJson } from '../../stubs/pipe';
+import { SerializerType } from '../kaoto-resource';
 import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
 
@@ -82,5 +83,12 @@ describe('PipeResource', () => {
     expect(resource.getMetadataEntity()).toBeUndefined();
     expect(resource.getEntities().length).toEqual(0);
     expect(resource.toJSON().metadata).toBeUndefined();
+  });
+
+  it('serializes to YAML and reports YAML format without a serializer', () => {
+    const resource = new PipeResource(pipeJson);
+    resource.initialize();
+    expect(resource.getSerializerType()).toBe(SerializerType.YAML);
+    expect(resource.toString()).toContain('apiVersion: camel.apache.org/v1');
   });
 });

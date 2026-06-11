@@ -3,11 +3,11 @@ import {
   KameletBinding as KameletBindingType,
   Pipe as PipeType,
 } from '@kaoto/camel-catalog/types';
+import { stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
-import { YamlCamelResourceSerializer } from '../../serializers';
-import { BaseEntity } from '../entities';
-import { BaseVisualEntityDefinition, KaotoResource, KaotoResourceSerializer, SerializerType } from '../kaoto-resource';
+import { BaseEntity, EntityType } from '../entities';
+import { BaseVisualEntityDefinition, KaotoResource, SerializerType } from '../kaoto-resource';
 import { AddStepMode, BaseVisualEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { MetadataEntity } from '../visualization/metadata';
 import { IKameletDefinition } from './kamelets-catalog';
@@ -28,10 +28,7 @@ export abstract class CamelKResource implements KaotoResource {
   protected resource: CamelKType;
   private metadata?: MetadataEntity;
 
-  constructor(
-    parsedResource: unknown,
-    private readonly serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
-  ) {
+  constructor(parsedResource: unknown) {
     if (parsedResource) {
       this.resource = parsedResource as CamelKType;
     } else {
@@ -41,6 +38,10 @@ export abstract class CamelKResource implements KaotoResource {
       };
     }
     this.metadata = this.resource.metadata && new MetadataEntity(this.resource);
+  }
+
+  get supportedEntities(): ReadonlyArray<{ type: EntityType }> {
+    return [];
   }
 
   initialize(): void {
@@ -112,15 +113,11 @@ export abstract class CamelKResource implements KaotoResource {
     return ['Main', 'Quarkus', 'Spring Boot'];
   }
 
-  getSerializerType() {
-    return this.serializer.getType();
-  }
-
-  setSerializer(_serializer: SerializerType): void {
-    /** Not supported by default */
+  getSerializerType(): SerializerType {
+    return SerializerType.YAML;
   }
 
   toString(): string {
-    return this.serializer.serialize(this);
+    return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
   }
 }

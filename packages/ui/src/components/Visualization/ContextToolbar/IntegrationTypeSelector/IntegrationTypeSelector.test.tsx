@@ -2,10 +2,9 @@ import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types'
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { KaotoSchemaDefinition } from '../../../../models';
-import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { KaotoResource } from '../../../../models/kaoto-resource';
 import { RuntimeContext } from '../../../../providers';
-import { XmlCamelResourceSerializer } from '../../../../serializers';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../stubs';
 import { CatalogSchemaLoader } from '../../../../utils';
 import { IntegrationTypeSelector } from './IntegrationTypeSelector';
@@ -98,31 +97,6 @@ describe('IntegrationTypeSelector.tsx', () => {
       const element = await wrapper.findByTestId(`integration-type-${name}`);
       expect(element).toBeInTheDocument();
     }
-  });
-
-  it('should render only camel route when XML serializer is used', async () => {
-    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = TestProvidersWrapper({
-      camelResource: new CamelRouteResource(undefined, new XmlCamelResourceSerializer()),
-    });
-    const wrapper = render(
-      <RuntimeProvider>
-        <Provider>
-          <IntegrationTypeSelector />
-        </Provider>
-      </RuntimeProvider>,
-    );
-
-    const trigger = await wrapper.findByTestId('integration-type-list-dropdown');
-
-    /** Open Select */
-    await act(async () => {
-      fireEvent.click(trigger);
-    });
-    let element = wrapper.queryByText('Camel Route');
-    expect(element).toBeInTheDocument();
-    element = wrapper.queryByText('Kamelet');
-    expect(element).toBeNull();
   });
 
   it('should warn the user when adding a different type of flow', async () => {

@@ -1,11 +1,14 @@
 import { CamelYamlDsl, Integration, KameletBinding, Pipe } from '@kaoto/camel-catalog/types';
+import { parse } from 'yaml';
 
-import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
+import { isXML } from '../../serializers/xml/kaoto-xml-parser';
+import { parseYamlComments } from '../../serializers/yaml-comments';
 import { CitrusTestResourceFactory } from '../citrus/citrus-test-resource-factory';
 import { Test } from '../citrus/entities/Test';
-import { KaotoResource, KaotoResourceSerializer } from '../kaoto-resource';
+import { KaotoResource } from '../kaoto-resource';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
+import { CamelXMLRouteResource } from './camel-xml-route-resource';
 import { IKameletDefinition } from './kamelets-catalog';
 import { getResourceTypeFromPath } from './source-schema-type';
 
@@ -19,13 +22,17 @@ export class CamelResourceFactory {
    * @param source
    */
   static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): KaotoResource {
-    const pathResourceType = getResourceTypeFromPath(options.path);
+    const isXmlSource = options.path ? options.path.endsWith('.xml') : isXML(source);
+    if (isXmlSource) {
+      // XML is always a Camel route; entity parsing is deferred to initialize() (post-catalog).
+      return new CamelXMLRouteResource(typeof source === 'string' ? source : '');
+    }
 
-    const serializer = this.initSerializer(source, options.path);
-    const parsedCode = typeof source === 'string' ? serializer.parse(source) : source;
+    const pathResourceType = getResourceTypeFromPath(options.path);
+    const comments = source ? parseYamlComments(source) : [];
+    const parsedCode = typeof source === 'string' ? parse(source) : source;
 
     const testResource = CitrusTestResourceFactory.getCitrusTestResource(parsedCode as Test, pathResourceType);
-
     if (testResource) {
       return testResource;
     }
@@ -34,26 +41,10 @@ export class CamelResourceFactory {
       parsedCode as Integration | KameletBinding | Pipe | IKameletDefinition,
       pathResourceType,
     );
-
     if (resource) {
       return resource;
     }
 
-    const camelRouteResource = new CamelRouteResource(parsedCode as CamelYamlDsl, serializer);
-    return camelRouteResource;
-  }
-
-  private static initSerializer(source?: string, path?: string): KaotoResourceSerializer {
-    if (!path) {
-      return XmlCamelResourceSerializer.isApplicable(source)
-        ? new XmlCamelResourceSerializer()
-        : new YamlCamelResourceSerializer();
-    }
-
-    if (path.endsWith('.xml')) {
-      return new XmlCamelResourceSerializer();
-    }
-
-    return new YamlCamelResourceSerializer();
+    return new CamelRouteResource(parsedCode as CamelYamlDsl, comments);
   }
 }

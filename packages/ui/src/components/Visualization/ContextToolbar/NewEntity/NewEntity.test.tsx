@@ -4,7 +4,6 @@ import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../models';
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
-import { SerializerType } from '../../../../models/kaoto-resource';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { camelRouteJson } from '../../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
@@ -126,10 +125,9 @@ describe('NewEntity', () => {
     });
   });
 
-  describe('YAML-only entity filtering', () => {
-    it('should show all entities including YAML-only ones for YAML serializer', async () => {
+  describe('YAML entity filtering', () => {
+    it('should show all entities including YAML-only ones', async () => {
       const { Provider, camelResource } = TestProvidersWrapper();
-      camelResource.setSerializer(SerializerType.YAML);
 
       const wrapper = render(
         <Provider>
@@ -152,8 +150,7 @@ describe('NewEntity', () => {
       const errorHandlingMenu = await wrapper.findByText('Error Handling');
       expect(errorHandlingMenu).toBeInTheDocument();
 
-      // With YAML serializer, we should have access to YAML-only entities
-      // This tests the filtering logic without complex DOM interactions
+      // YAML resource should have access to YAML-only entities
       const entityList = camelResource.getCanvasEntityList();
       expect(entityList.groups['Configuration']).toBeDefined();
       expect(entityList.groups['Error Handling']).toBeDefined();
@@ -164,46 +161,6 @@ describe('NewEntity', () => {
           expect.objectContaining({ name: 'onCompletion' }),
         ]),
       );
-    });
-
-    it('should filter out YAML-only entities for XML serializer', async () => {
-      const { Provider, camelResource } = TestProvidersWrapper();
-      camelResource.setSerializer(SerializerType.XML);
-
-      const wrapper = render(
-        <Provider>
-          <NewEntity />
-        </Provider>,
-      );
-
-      const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
-
-      /** Click on toggle */
-      act(() => {
-        fireEvent.click(toggle);
-      });
-
-      // Should still see Configuration submenu but with fewer items
-      const configurationMenu = await wrapper.findByText('Configuration');
-      expect(configurationMenu).toBeInTheDocument();
-
-      // Should NOT see Error Handling submenu since YAML-only entities are filtered
-      await waitFor(async () => {
-        expect(wrapper.queryByText('Error Handling')).not.toBeInTheDocument();
-      });
-
-      // With XML serializer, we should NOT have access to YAML-only entities
-      const entityList = camelResource.getCanvasEntityList();
-      expect(entityList.groups['Configuration']).toBeDefined();
-      expect(entityList.groups['Error Handling']).not.toBeDefined();
-
-      // Configuration group should only have non-YAML-only entities
-      const configurationEntities = entityList.groups['Configuration'];
-      const entityNames = configurationEntities.map((e) => e.name);
-      expect(entityNames).toContain('routeConfiguration');
-      expect(entityNames).not.toContain('intercept');
-      expect(entityNames).not.toContain('interceptFrom');
-      expect(entityNames).not.toContain('onCompletion');
     });
   });
 

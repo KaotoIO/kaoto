@@ -7,5 +7,6 @@
             constant: Initial message
         - to: log:info?showAll=true&multiline=true&logMask=true
         - transform:
-            simple: ${body.toUpperCase()}
+            simple:
+              expression: ${body.uppercase()}
         - to: file:output?fileName=output.txt&fileExist=Append

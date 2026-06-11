@@ -4,9 +4,8 @@ describe('Test for Bean support in XML', () => {
   });
 
   it('User creates a new bean using bean editor in XML', () => {
-    cy.uploadFixture('flows/camelRoute/basic.yaml');
+    cy.uploadFixture('flows/camelRoute/basic.xml');
     cy.openDesignPage();
-    cy.switchCodeToXml();
 
     cy.openBeans();
 

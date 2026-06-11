@@ -160,6 +160,7 @@ describe('DataMapperLauncher', () => {
     supportsMultipleVisualEntities: jest.fn().mockReturnValue(false),
     createEntityFromStepCatalog: jest.fn(),
     getCanvasEntityList: jest.fn().mockReturnValue([]),
+    supportedEntities: [],
     getSerializerType: jest.fn(),
     setSerializer: jest.fn(),
     getCompatibleComponents: jest.fn().mockReturnValue([]),

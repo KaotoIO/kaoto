@@ -1,12 +1,12 @@
 import { isDefined } from '@kaoto/forms';
+import { stringify } from 'yaml';
 
 import { ITile, TileFilter } from '../../components/Catalog';
-import { XmlCamelResourceSerializer, YamlCamelResourceSerializer } from '../../serializers';
 import { EntityOrderingService } from '../camel/entity-ordering.service';
 import { SourceSchemaType } from '../camel/source-schema-type';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
-import { BaseVisualEntityDefinition, KaotoResource, KaotoResourceSerializer, SerializerType } from '../kaoto-resource';
+import { BaseVisualEntityDefinition, KaotoResource, SerializerType } from '../kaoto-resource';
 import {
   AddStepMode,
   BaseVisualCamelEntityConstructor,
@@ -42,16 +42,16 @@ export class CitrusTestResource implements KaotoResource {
   private entities: BaseEntity[] = [];
   private resolvedEntities: BaseVisualEntityDefinition | undefined;
 
+  get supportedEntities() {
+    return CitrusTestResource.SUPPORTED_ENTITIES;
+  }
+
   /**
    * Creates a new CitrusTestResource instance.
    *
    * @param rawEntities - Raw test definition(s) to parse into entities
-   * @param serializer - Serializer for converting between object and string representations (defaults to YAML)
    */
-  constructor(
-    private readonly rawEntities?: Test | Test[],
-    private serializer: KaotoResourceSerializer = new YamlCamelResourceSerializer(),
-  ) {}
+  constructor(private readonly rawEntities?: Test | Test[]) {}
 
   initialize(): void {
     if (!this.rawEntities) {
@@ -80,11 +80,7 @@ export class CitrusTestResource implements KaotoResource {
    * @returns Entity definitions with metadata for display in the visual editor
    */
   getCanvasEntityList(): BaseVisualEntityDefinition {
-    this.resolvedEntities = CitrusTestResource.SUPPORTED_ENTITIES.filter(
-      ({ isYamlOnly }) =>
-        this.serializer.getType() === SerializerType.YAML ||
-        (this.serializer.getType() !== SerializerType.YAML && !isYamlOnly),
-    ).reduce(
+    this.resolvedEntities = this.supportedEntities.reduce(
       (acc, { type, group }) => {
         const catalogEntity = CamelCatalogService.getComponent(CatalogKind.TestAction, type);
         const entityDefinition = {
@@ -108,19 +104,8 @@ export class CitrusTestResource implements KaotoResource {
     return this.resolvedEntities;
   }
 
-  getSerializerType() {
-    return this.serializer.getType();
-  }
-
-  setSerializer(serializerType: SerializerType): void {
-    // Preserve comments
-    const serializer =
-      serializerType === SerializerType.XML ? new XmlCamelResourceSerializer() : new YamlCamelResourceSerializer();
-
-    serializer.setComments(this.serializer.getComments());
-    serializer.setMetadata(this.serializer.getMetadata());
-
-    this.serializer = serializer;
+  getSerializerType(): SerializerType {
+    return SerializerType.YAML;
   }
 
   /**
@@ -132,7 +117,7 @@ export class CitrusTestResource implements KaotoResource {
    */
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown): string {
     if (entityType && entityType !== EntityType.Test) {
-      const supportedEntity = CitrusTestResource.SUPPORTED_ENTITIES.find(({ type }) => type === entityType);
+      const supportedEntity = this.supportedEntities.find(({ type }) => type === entityType);
       if (supportedEntity) {
         const entity = new supportedEntity.Entity(entityTemplate);
 
@@ -170,7 +155,7 @@ export class CitrusTestResource implements KaotoResource {
     return this.entities.filter(
       (entity) =>
         entity instanceof CitrusTestVisualEntity ||
-        CitrusTestResource.SUPPORTED_ENTITIES.some(({ Entity }) => entity instanceof Entity),
+        this.supportedEntities.some(({ Entity }) => entity instanceof Entity),
     ) as CitrusTestVisualEntity[];
   }
 
@@ -194,10 +179,10 @@ export class CitrusTestResource implements KaotoResource {
   }
 
   /**
-   * Converts this resource to a string representation using the configured serializer.
+   * Converts this resource to a string representation in YAML format.
    */
-  toString() {
-    return this.serializer.serialize(this);
+  toString(): string {
+    return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
   }
 
   /**
@@ -242,7 +227,7 @@ export class CitrusTestResource implements KaotoResource {
       return undefined;
     }
 
-    for (const { Entity } of CitrusTestResource.SUPPORTED_ENTITIES) {
+    for (const { Entity } of this.supportedEntities) {
       if (Entity.isApplicable(rawItem)) {
         return new Entity(rawItem);
       }

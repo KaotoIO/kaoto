@@ -1,21 +1,11 @@
-import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import {
-  CamelYamlDsl,
-  CatalogLibrary,
-  RouteConfigurationDefinition,
-  RouteDefinition,
-} from '@kaoto/camel-catalog/types';
+import { CamelYamlDsl, RouteConfigurationDefinition, RouteDefinition } from '@kaoto/camel-catalog/types';
 
-import { XMLMetadata } from '../../serializers';
 import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
-import { camelRouteJson, camelRouteYaml, doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs/camel-route';
-import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
-import { CatalogKind } from '../catalog-kind';
+import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
 import { EntityType } from '../entities';
 import { SerializerType } from '../kaoto-resource';
 import { AddStepMode } from '../visualization/base-visual-entity';
-import { CamelCatalogService } from '../visualization/flows/camel-catalog.service';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
 import { CamelComponentFilterService } from '../visualization/flows/support/camel-component-filter.service';
@@ -576,79 +566,12 @@ describe('CamelRouteResource', () => {
 
       expect(resource.getVisualEntities()).toHaveLength(0);
     });
-
-    it('should preserve comments and metadata when changing serializer', () => {
-      const resource = new CamelRouteResource([camelRouteJson]);
-      resource.initialize();
-      resource.setSerializer(SerializerType.XML);
-      resource['serializer'].setComments(['Initial Comment']);
-      resource['serializer'].setMetadata({
-        xmlDeclaration: '<?xml version="1.0" encoding="UTF-8"?>',
-        rootElementDefinitions: [{ name: 'xmlns', value: 'http://camel.apache.org/schema/spring' }],
-      });
-
-      // Change serializer to YAML
-      resource.setSerializer(SerializerType.YAML);
-
-      // Verify that comments and metadata are preserved
-      expect(resource['serializer'].getComments()).toEqual(['Initial Comment']);
-      const metadata = resource['serializer']?.getMetadata() as XMLMetadata;
-      expect(metadata.xmlDeclaration).toBe('<?xml version="1.0" encoding="UTF-8"?>');
-      expect(metadata.rootElementDefinitions[0].value).toBe('http://camel.apache.org/schema/spring');
-
-      // Change serializer back to XML
-      resource.setSerializer(SerializerType.XML);
-
-      // Verify that comments and metadata are still preserved
-      expect(resource['serializer'].getComments()).toEqual(['Initial Comment']);
-      expect(resource['serializer'].getMetadata().xmlDeclaration).toBe('<?xml version="1.0" encoding="UTF-8"?>');
-    });
-  });
-
-  describe('XML entity parsing deferred until the catalog is loaded', () => {
-    // In production the XML serializer parses inside KaotoResourceProvider, which sits ABOVE the
-    // catalog loader, so parse() cannot build entities yet. CamelRouteResource.initialize() runs
-    // later (under EntitiesProvider, catalog guaranteed loaded) and is where entities materialize.
-    beforeAll(async () => {
-      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-      CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-    });
-
-    it('should build XML entities in initialize(), not in the factory parse()', () => {
-      const resource = CamelResourceFactory.createCamelResource(doTryCamelRouteXml, { path: 'route.xml' });
-
-      // The factory has already called serializer.parse() — entities must NOT exist yet.
-      expect(resource.getVisualEntities()).toHaveLength(0);
-
-      resource.initialize();
-
-      const visualEntities = resource.getVisualEntities();
-      expect(visualEntities).toHaveLength(1);
-      expect(visualEntities[0]).toBeInstanceOf(CamelRouteVisualEntity);
-      // Nested doTry/doCatch/doFinally steps survive the deferred parse.
-      expect(resource.toJSON()).toEqual([doTryCamelRouteJson]);
-    });
-
-    it('should preserve steps when parse() runs before the catalog is loaded', async () => {
-      // Reproduce the original timing: the catalog is empty when the source is parsed...
-      CamelCatalogService.setCatalogKey(CatalogKind.Processor, {});
-      const resource = CamelResourceFactory.createCamelResource(doTryCamelRouteXml, { path: 'route.xml' });
-
-      // ...then the catalog finishes loading before initialize() runs.
-      const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
-      CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-      resource.initialize();
-
-      // Had parse() built entities eagerly against the empty catalog, every step would be lost.
-      expect(resource.toJSON()).toEqual([doTryCamelRouteJson]);
-    });
   });
 
   describe('getCanvasEntityList', () => {
-    it('should return all entities for YAML serializer', () => {
+    it('should return all entities', () => {
       const resource = new CamelRouteResource();
       resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
 
@@ -672,35 +595,6 @@ describe('CamelRouteResource', () => {
       );
     });
 
-    it('should filter out YAML-only entities for XML serializer', () => {
-      const resource = new CamelRouteResource();
-      resource.initialize();
-      resource.setSerializer(SerializerType.XML);
-
-      const entityList = resource.getCanvasEntityList();
-
-      // XML should not include YAML-only entities
-      expect(entityList.common).toHaveLength(1); // Route
-      expect(entityList.groups['Configuration']).toHaveLength(1); // Only RouteConfiguration
-      expect(entityList.groups['Configuration']).toEqual([
-        expect.objectContaining({ name: EntityType.RouteConfiguration }),
-      ]);
-
-      // Should not include YAML-only entities
-      const allEntityNames = [
-        ...entityList.common.map((e) => e.name),
-        ...Object.values(entityList.groups)
-          .flat()
-          .map((e) => e.name),
-      ];
-      expect(allEntityNames).not.toContain(EntityType.Intercept);
-      expect(allEntityNames).not.toContain(EntityType.InterceptFrom);
-      expect(allEntityNames).not.toContain(EntityType.InterceptSendToEndpoint);
-      expect(allEntityNames).not.toContain(EntityType.OnCompletion);
-      expect(allEntityNames).not.toContain(EntityType.OnException);
-      expect(allEntityNames).not.toContain(EntityType.ErrorHandler);
-    });
-
     it('should return consistent entity list structure on multiple calls', () => {
       const resource = new CamelRouteResource();
       resource.initialize();
@@ -709,22 +603,6 @@ describe('CamelRouteResource', () => {
       const secondCall = resource.getCanvasEntityList();
 
       expect(firstCall).toStrictEqual(secondCall);
-    });
-
-    it('should recreate entity list when called after serializer change', () => {
-      const resource = new CamelRouteResource();
-      resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
-
-      const yamlEntityList = resource.getCanvasEntityList();
-
-      resource.setSerializer(SerializerType.XML);
-      const xmlEntityList = resource.getCanvasEntityList();
-
-      // Should be different objects with different content
-      expect(yamlEntityList).not.toBe(xmlEntityList);
-      expect(yamlEntityList.groups['Configuration']).toHaveLength(5);
-      expect(xmlEntityList.groups['Configuration']).toHaveLength(1);
     });
 
     it('should include entity titles and descriptions from catalog', () => {
@@ -744,7 +622,6 @@ describe('CamelRouteResource', () => {
     it('should properly group entities', () => {
       const resource = new CamelRouteResource();
       resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
 
@@ -788,7 +665,6 @@ describe('CamelRouteResource', () => {
     it('should not include Rest and RestConfiguration in getCanvasEntityList', () => {
       const resource = new CamelRouteResource();
       resource.initialize();
-      resource.setSerializer(SerializerType.YAML);
 
       const entityList = resource.getCanvasEntityList();
 
@@ -823,53 +699,22 @@ describe('CamelRouteResource', () => {
   });
 
   describe('getSerializerType', () => {
-    it('should return YAML serializer type by default', () => {
+    it('should return YAML serializer type', () => {
       const resource = new CamelRouteResource();
       resource.initialize();
-      expect(resource.getSerializerType()).toBe(SerializerType.YAML);
-    });
-
-    it('should return XML serializer type after setting XML serializer', () => {
-      const resource = new CamelRouteResource();
-      resource.initialize();
-      resource.setSerializer(SerializerType.XML);
-      expect(resource.getSerializerType()).toBe(SerializerType.XML);
-    });
-
-    it('should return current serializer type after multiple changes', () => {
-      const resource = new CamelRouteResource();
-      resource.initialize();
-
-      resource.setSerializer(SerializerType.XML);
-      expect(resource.getSerializerType()).toBe(SerializerType.XML);
-
-      resource.setSerializer(SerializerType.YAML);
       expect(resource.getSerializerType()).toBe(SerializerType.YAML);
     });
   });
 
   describe('toString', () => {
-    it('should delegate to serializer serialize method', () => {
+    it('should serialize to YAML string', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
       resource.initialize();
       const serialized = resource.toString();
 
       expect(typeof serialized).toBe('string');
       expect(serialized.length).toBeGreaterThan(0);
-    });
-
-    it('should support switching between serializer types', () => {
-      const resource = new CamelRouteResource([camelRouteJson]);
-      resource.initialize();
-
-      // Test YAML serializer
-      expect(resource.getSerializerType()).toBe(SerializerType.YAML);
-      const yamlOutput = resource.toString();
-      expect(yamlOutput).toContain('from:');
-
-      // Test XML serializer type change
-      resource.setSerializer(SerializerType.XML);
-      expect(resource.getSerializerType()).toBe(SerializerType.XML);
+      expect(serialized).toContain('from:');
     });
   });
 
@@ -1059,5 +904,17 @@ describe('CamelRouteResource', () => {
       const routeEntity = resource.getVisualEntities().find((e) => e.id === routeId);
       expect(routeEntity?.type).toBe(EntityType.Route);
     });
+  });
+
+  it('serializes to YAML (with leading comments) without a serializer collaborator', () => {
+    const resource = new CamelRouteResource([{ from: { uri: 'direct:start', steps: [] } }], [' my comment']);
+    resource.initialize();
+
+    const output = resource.toString();
+
+    expect(resource.getSerializerType()).toBe(SerializerType.YAML);
+    expect(output.startsWith('# my comment\n')).toBe(true);
+    expect(output).toContain('from:');
+    expect(output).toContain('uri: direct:start');
   });
 });

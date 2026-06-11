@@ -4,7 +4,6 @@ import { KaotoSchemaDefinition } from '../../../../models';
 import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
-import { XmlCamelResourceSerializer } from '../../../../serializers';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
 const config = sourceSchemaConfig;
@@ -24,15 +23,14 @@ config.config[SourceSchemaType.Route].schema = {
 const onSelect = jest.fn();
 const FlowTypeSelectorWithContext: React.FunctionComponent<{
   currentSchemaType?: SourceSchemaType;
-  xml?: boolean;
-}> = ({ currentSchemaType, xml }) => {
+}> = ({ currentSchemaType }) => {
   return (
     <EntitiesContext.Provider
       value={
         {
           currentSchemaType: currentSchemaType ?? SourceSchemaType.Route,
           visualEntities: [{ id: 'entity1' } as CamelRouteVisualEntity, { id: 'entity2' } as CamelRouteVisualEntity],
-          camelResource: new CamelRouteResource(undefined, xml ? new XmlCamelResourceSerializer() : undefined),
+          camelResource: new CamelRouteResource(undefined),
         } as unknown as EntitiesContextResult
       }
     >
@@ -111,21 +109,6 @@ describe('FlowTypeSelector.tsx', () => {
     let element = await wrapper.findByText('Kamelet');
     expect(element).toBeInTheDocument();
     element = await wrapper.findByText('Camel Route');
-    expect(element).toBeInTheDocument();
-  });
-
-  it('should show only Camel Route when XML serializer is in place', async () => {
-    const wrapper = render(<FlowTypeSelectorWithContext xml={true} />);
-    const toggle = await wrapper.findByTestId('viz-dsl-list-dropdown');
-
-    /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    let element = wrapper.queryByText('Kamelet');
-    expect(element).toBeNull();
-    element = wrapper.queryByText('Camel Route');
     expect(element).toBeInTheDocument();
   });
 

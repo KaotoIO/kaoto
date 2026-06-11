@@ -6,7 +6,7 @@ import { FunctionComponent } from 'react';
 
 import { useUndoRedo } from '../../../hooks/undo-redo.hook';
 import { useEntityContext } from '../../../hooks/useEntityContext/useEntityContext';
-import { sourceSchemaConfig, SourceSchemaType } from '../../../models/camel';
+import { sourceSchemaConfig } from '../../../models/camel';
 import { ExportDocument } from './ExportDocument/ExportDocument';
 import { FlowClipboard } from './FlowClipboard/FlowClipboard';
 import { FlowExportImage } from './FlowExportImage/FlowExportImage';
@@ -14,27 +14,18 @@ import { FlowsMenu } from './Flows/FlowsMenu';
 import { IntegrationTypeSelector } from './IntegrationTypeSelector/IntegrationTypeSelector';
 import { NewEntity } from './NewEntity/NewEntity';
 import { SelectedRuntime } from './SelectedRuntime/SelectedRuntime';
-import { SerializerSelector } from './SerializerSelector/SerializerSelector';
-
 interface ContextToolbarProps {
   isSimplified?: boolean;
 }
 
 export const ContextToolbar: FunctionComponent<ContextToolbarProps> = ({ isSimplified }) => {
   const { currentSchemaType } = useEntityContext();
-  const doesSupportSerializers = !isSimplified && currentSchemaType === SourceSchemaType.Route;
   const isMultipleRoutes = sourceSchemaConfig.config[currentSchemaType].multipleRoute;
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
 
   return (
     <Toolbar className="context-toolbar">
       <ToolbarContent>
-        {doesSupportSerializers && (
-          <ToolbarItem key="toolbar-item-serializer-selector">
-            <SerializerSelector key="toolbar-serializer-selector" />
-          </ToolbarItem>
-        )}
-
         {!isSimplified && (
           <ToolbarItem key="toolbar-dsl-selector">
             <IntegrationTypeSelector />
