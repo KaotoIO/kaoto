@@ -30,5 +30,31 @@ Cypress.on('uncaught:exception', (_err, _runnable) => {
   return false;
 });
 
+Cypress.on('window:before:load', (win) => {
+  let _monacoValue: typeof import('monaco-editor') | undefined;
+  Object.defineProperty(win, 'monaco', {
+    configurable: true,
+    enumerable: true,
+    get() {
+      return _monacoValue;
+    },
+    set(val) {
+      _monacoValue = val;
+      if (val?.editor?.onDidCreateEditor) {
+        val.editor.onDidCreateEditor((editor: { updateOptions: (opts: Record<string, unknown>) => void }) => {
+          // Cypress doesn't support EditContext API - https://github.com/microsoft/monaco-editor/issues/5059
+          editor.updateOptions({ editContext: false });
+        });
+      }
+    },
+  });
+
+  // PF Popper uses setTimeout(0) to transition opacity from 0 to 1.
+  // Headless Firefox doesn't reliably flush this state update to the DOM.
+  const style = win.document.createElement('style');
+  style.textContent = '[style*="opacity: 0"][style*="position: absolute"] { opacity: 1 !important; }';
+  win.document.documentElement.appendChild(style);
+});
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')

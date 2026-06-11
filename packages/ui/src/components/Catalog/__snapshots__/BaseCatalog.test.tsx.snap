@@ -33,7 +33,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
         aria-expanded="false"
         aria-haspopup="listbox"
         class="pf-v6-c-menu-toggle pf-m-plain pf-m-text"
-        data-ouia-component-id="OUIA-Generated-MenuToggle-plainText-1"
+        data-ouia-component-id="OUIA-Generated-MenuToggle-plainText-_r_2_"
         data-ouia-component-type="PF6/MenuToggle"
         data-ouia-safe="true"
         id="catalog-pagination-top-toggle"
@@ -67,12 +67,24 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 320 512"
               width="1em"
             >
-              <path
-                d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 320 512"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M16 24.792c-.384 0-.769-.146-1.061-.438L2.293 11.707a.999.999 0 1 1 1.414-1.414L16 22.586l12.293-12.293a.999.999 0 1 1 1.414 1.414L17.061 24.353a1.497 1.497 0 0 1-1.061.438Z"
+                />
+              </svg>
             </svg>
           </span>
         </span>
@@ -89,7 +101,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           aria-label="Go to first page"
           class="pf-v6-c-button pf-m-plain"
           data-action="first"
-          data-ouia-component-id="OUIA-Generated-Button-plain-1"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_3_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           disabled=""
@@ -104,12 +116,24 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 448 512"
               width="1em"
             >
-              <path
-                d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 448 512"
+              >
+                <path
+                  d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M15.707 28.293a.999.999 0 1 1-1.414 1.414L1.646 17.061a1.501 1.501 0 0 1 0-2.121L14.293 2.293a.999.999 0 1 1 1.414 1.414L3.414 16l12.293 12.293ZM17.414 16 29.707 3.707a.999.999 0 1 0-1.414-1.414L15.647 14.939a1.501 1.501 0 0 0 0 2.121l12.646 12.646a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L17.414 15.999Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -121,7 +145,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           aria-label="Go to previous page"
           class="pf-v6-c-button pf-m-plain"
           data-action="previous"
-          data-ouia-component-id="OUIA-Generated-Button-plain-2"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_4_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           disabled=""
@@ -136,12 +160,24 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 256 512"
               width="1em"
             >
-              <path
-                d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 256 512"
+              >
+                <path
+                  d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M21 30a.997.997 0 0 1-.707-.293L7.647 17.061a1.501 1.501 0 0 1 0-2.121L20.293 2.293a.999.999 0 1 1 1.414 1.414L9.414 16l12.293 12.293A.999.999 0 0 1 21 30Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -155,7 +191,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           <input
             aria-invalid="false"
             aria-label="Current page"
-            data-ouia-component-id="OUIA-Generated-TextInputBase-1"
+            data-ouia-component-id="OUIA-Generated-TextInputBase-_r_6_"
             data-ouia-component-type="PF6/TextInput"
             data-ouia-safe="true"
             max="2"
@@ -179,7 +215,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           aria-label="Go to next page"
           class="pf-v6-c-button pf-m-plain"
           data-action="next"
-          data-ouia-component-id="OUIA-Generated-Button-plain-3"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_7_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           type="button"
@@ -193,12 +229,24 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 256 512"
               width="1em"
             >
-              <path
-                d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 256 512"
+              >
+                <path
+                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M11 30a.999.999 0 0 1-.707-1.707L22.586 16 10.293 3.707a.999.999 0 1 1 1.414-1.414l12.646 12.646a1.501 1.501 0 0 1 0 2.121L11.707 29.706a.997.997 0 0 1-.707.293Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -210,7 +258,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
           aria-label="Go to last page"
           class="pf-v6-c-button pf-m-plain"
           data-action="last"
-          data-ouia-component-id="OUIA-Generated-Button-plain-4"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_8_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           type="button"
@@ -224,12 +272,24 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 448 512"
               width="1em"
             >
-              <path
-                d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 448 512"
+              >
+                <path
+                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M30.354 17.061 17.708 29.707a.997.997 0 0 1-1.414 0 .999.999 0 0 1 0-1.414L28.587 16 16.293 3.707a.999.999 0 1 1 1.414-1.414l12.646 12.646a1.501 1.501 0 0 1 0 2.121Zm-14-2.122L3.707 2.293a.999.999 0 1 0-1.414 1.414L14.586 16 2.293 28.293a.999.999 0 1 0 1.414 1.414l12.646-12.646a1.501 1.501 0 0 0 0-2.121Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -245,7 +305,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
     >
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-1"
+        data-ouia-component-id="OUIA-Generated-Card-_r_9_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq"
@@ -345,7 +405,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-2"
+        data-ouia-component-id="OUIA-Generated-Card-_r_c_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq6"
@@ -445,7 +505,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-3"
+        data-ouia-component-id="OUIA-Generated-Card-_r_f_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-amqp"
@@ -545,7 +605,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-4"
+        data-ouia-component-id="OUIA-Generated-Card-_r_i_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-arangodb"
@@ -645,7 +705,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-5"
+        data-ouia-component-id="OUIA-Generated-Card-_r_l_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-as2"
@@ -745,7 +805,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-6"
+        data-ouia-component-id="OUIA-Generated-Card-_r_o_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-cxf"
@@ -845,7 +905,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-7"
+        data-ouia-component-id="OUIA-Generated-Card-_r_r_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-exec"
@@ -945,7 +1005,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-8"
+        data-ouia-component-id="OUIA-Generated-Card-_r_u_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-toD"
@@ -1045,7 +1105,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-9"
+        data-ouia-component-id="OUIA-Generated-Card-_r_11_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-doTry"
@@ -1145,7 +1205,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-10"
+        data-ouia-component-id="OUIA-Generated-Card-_r_14_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-Validate"
@@ -1245,7 +1305,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-11"
+        data-ouia-component-id="OUIA-Generated-Card-_r_17_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-when"
@@ -1345,7 +1405,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-12"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1a_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-onException"
@@ -1445,7 +1505,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-13"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1d_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-wireTap"
@@ -1545,7 +1605,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-14"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1g_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-intercept"
@@ -1645,7 +1705,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-15"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1j_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-saga"
@@ -1745,7 +1805,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-16"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1m_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-script"
@@ -1845,7 +1905,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-17"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1p_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sort"
@@ -1945,7 +2005,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-18"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1s_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sink"
@@ -2045,7 +2105,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-19"
+        data-ouia-component-id="OUIA-Generated-Card-_r_1v_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-kafka-source"
@@ -2145,7 +2205,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-20"
+        data-ouia-component-id="OUIA-Generated-Card-_r_22_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-http-source"
@@ -2245,7 +2305,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-21"
+        data-ouia-component-id="OUIA-Generated-Card-_r_25_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-ssh-source"
@@ -2345,7 +2405,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-22"
+        data-ouia-component-id="OUIA-Generated-Card-_r_28_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-jira-source"
@@ -2445,7 +2505,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-23"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2b_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-coffee-source"
@@ -2545,7 +2605,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-24"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2e_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-mariadb-source"
@@ -2645,7 +2705,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-25"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2h_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-dropbox-source"
@@ -2745,7 +2805,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-26"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2k_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-cassandra-source"
@@ -2845,7 +2905,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-27"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2n_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-aws-redshift-source"
@@ -2945,7 +3005,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-28"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2q_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-redis-source"
@@ -3045,7 +3105,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-29"
+        data-ouia-component-id="OUIA-Generated-Card-_r_2t_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-pulsar-sink"
@@ -3145,7 +3205,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-30"
+        data-ouia-component-id="OUIA-Generated-Card-_r_30_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-dropbox-sink"
@@ -3245,7 +3305,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-31"
+        data-ouia-component-id="OUIA-Generated-Card-_r_33_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq-1"
@@ -3345,7 +3405,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-32"
+        data-ouia-component-id="OUIA-Generated-Card-_r_36_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq6-1"
@@ -3445,7 +3505,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-33"
+        data-ouia-component-id="OUIA-Generated-Card-_r_39_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-amqp-1"
@@ -3545,7 +3605,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-34"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3c_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-arangodb-1"
@@ -3645,7 +3705,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-35"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3f_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-as2-1"
@@ -3745,7 +3805,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-36"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3i_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-cxf-1"
@@ -3845,7 +3905,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-37"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3l_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-exec-1"
@@ -3945,7 +4005,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-38"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3o_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-toD-1"
@@ -4045,7 +4105,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-39"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3r_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-doTry-1"
@@ -4145,7 +4205,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-40"
+        data-ouia-component-id="OUIA-Generated-Card-_r_3u_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-Validate-1"
@@ -4245,7 +4305,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-41"
+        data-ouia-component-id="OUIA-Generated-Card-_r_41_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-when-1"
@@ -4345,7 +4405,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-42"
+        data-ouia-component-id="OUIA-Generated-Card-_r_44_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-onException-1"
@@ -4445,7 +4505,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-43"
+        data-ouia-component-id="OUIA-Generated-Card-_r_47_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-wireTap-1"
@@ -4545,7 +4605,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-44"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4a_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-intercept-1"
@@ -4645,7 +4705,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-45"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4d_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-saga-1"
@@ -4745,7 +4805,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-46"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4g_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-script-1"
@@ -4845,7 +4905,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-47"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4j_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sort-1"
@@ -4945,7 +5005,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-48"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4m_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sink-1"
@@ -5045,7 +5105,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-49"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4p_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-kafka-source-1"
@@ -5145,7 +5205,7 @@ exports[`BaseCatalog renders correctly with Gallery Layout 1`] = `
       </div>
       <div
         class="pf-v6-c-card pf-m-compact pf-m-clickable tile"
-        data-ouia-component-id="OUIA-Generated-Card-50"
+        data-ouia-component-id="OUIA-Generated-Card-_r_4s_"
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-http-source-1"
@@ -5281,7 +5341,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
         aria-expanded="false"
         aria-haspopup="listbox"
         class="pf-v6-c-menu-toggle pf-m-plain pf-m-text"
-        data-ouia-component-id="OUIA-Generated-MenuToggle-plainText-2"
+        data-ouia-component-id="OUIA-Generated-MenuToggle-plainText-_r_51_"
         data-ouia-component-type="PF6/MenuToggle"
         data-ouia-safe="true"
         id="catalog-pagination-top-toggle"
@@ -5315,12 +5375,24 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 320 512"
               width="1em"
             >
-              <path
-                d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 320 512"
+              >
+                <path
+                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M16 24.792c-.384 0-.769-.146-1.061-.438L2.293 11.707a.999.999 0 1 1 1.414-1.414L16 22.586l12.293-12.293a.999.999 0 1 1 1.414 1.414L17.061 24.353a1.497 1.497 0 0 1-1.061.438Z"
+                />
+              </svg>
             </svg>
           </span>
         </span>
@@ -5337,7 +5409,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
           aria-label="Go to first page"
           class="pf-v6-c-button pf-m-plain"
           data-action="first"
-          data-ouia-component-id="OUIA-Generated-Button-plain-5"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_52_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           disabled=""
@@ -5352,12 +5424,24 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 448 512"
               width="1em"
             >
-              <path
-                d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 448 512"
+              >
+                <path
+                  d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M15.707 28.293a.999.999 0 1 1-1.414 1.414L1.646 17.061a1.501 1.501 0 0 1 0-2.121L14.293 2.293a.999.999 0 1 1 1.414 1.414L3.414 16l12.293 12.293ZM17.414 16 29.707 3.707a.999.999 0 1 0-1.414-1.414L15.647 14.939a1.501 1.501 0 0 0 0 2.121l12.646 12.646a.997.997 0 0 0 1.414 0 .999.999 0 0 0 0-1.414L17.414 15.999Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -5369,7 +5453,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
           aria-label="Go to previous page"
           class="pf-v6-c-button pf-m-plain"
           data-action="previous"
-          data-ouia-component-id="OUIA-Generated-Button-plain-6"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_53_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           disabled=""
@@ -5384,12 +5468,24 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 256 512"
               width="1em"
             >
-              <path
-                d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 256 512"
+              >
+                <path
+                  d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M21 30a.997.997 0 0 1-.707-.293L7.647 17.061a1.501 1.501 0 0 1 0-2.121L20.293 2.293a.999.999 0 1 1 1.414 1.414L9.414 16l12.293 12.293A.999.999 0 0 1 21 30Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -5403,7 +5499,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
           <input
             aria-invalid="false"
             aria-label="Current page"
-            data-ouia-component-id="OUIA-Generated-TextInputBase-2"
+            data-ouia-component-id="OUIA-Generated-TextInputBase-_r_55_"
             data-ouia-component-type="PF6/TextInput"
             data-ouia-safe="true"
             max="2"
@@ -5427,7 +5523,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
           aria-label="Go to next page"
           class="pf-v6-c-button pf-m-plain"
           data-action="next"
-          data-ouia-component-id="OUIA-Generated-Button-plain-7"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_56_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           type="button"
@@ -5441,12 +5537,24 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 256 512"
               width="1em"
             >
-              <path
-                d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 256 512"
+              >
+                <path
+                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M11 30a.999.999 0 0 1-.707-1.707L22.586 16 10.293 3.707a.999.999 0 1 1 1.414-1.414l12.646 12.646a1.501 1.501 0 0 1 0 2.121L11.707 29.706a.997.997 0 0 1-.707.293Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>
@@ -5458,7 +5566,7 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
           aria-label="Go to last page"
           class="pf-v6-c-button pf-m-plain"
           data-action="last"
-          data-ouia-component-id="OUIA-Generated-Button-plain-8"
+          data-ouia-component-id="OUIA-Generated-Button-plain-_r_57_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           type="button"
@@ -5472,12 +5580,24 @@ exports[`BaseCatalog renders correctly with List Layout 1`] = `
               fill="currentColor"
               height="1em"
               role="img"
-              viewBox="0 0 448 512"
               width="1em"
             >
-              <path
-                d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
-              />
+              <svg
+                class="pf-v6-icon-default"
+                viewBox="0 0 448 512"
+              >
+                <path
+                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
+                />
+              </svg>
+              <svg
+                class="pf-v6-icon-rh-ui"
+                viewBox="0 0 32 32"
+              >
+                <path
+                  d="M30.354 17.061 17.708 29.707a.997.997 0 0 1-1.414 0 .999.999 0 0 1 0-1.414L28.587 16 16.293 3.707a.999.999 0 1 1 1.414-1.414l12.646 12.646a1.501 1.501 0 0 1 0 2.121Zm-14-2.122L3.707 2.293a.999.999 0 1 0-1.414 1.414L14.586 16 2.293 28.293a.999.999 0 1 0 1.414 1.414l12.646-12.646a1.501 1.501 0 0 0 0-2.121Z"
+                />
+              </svg>
             </svg>
           </span>
         </button>

@@ -106,6 +106,9 @@ export default {
     '\\.(c|le|sc)ss$': '<rootDir>/src/__mocks__/styleMock.ts',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/src/__mocks__/fileMock.ts',
+    // Monaco 0.55+ exports map sends require() to an AMD bundle that uses define().
+    // Remap to the ESM entry so Jest (CJS) gets the version it can transform.
+    '^monaco-editor$': '<rootDir>/../../node_modules/monaco-editor/esm/vs/editor/editor.api',
     // Force all packages to use the same React instance
     '^react$': '<rootDir>/../../node_modules/react',
     '^react-dom$': '<rootDir>/../../node_modules/react-dom',

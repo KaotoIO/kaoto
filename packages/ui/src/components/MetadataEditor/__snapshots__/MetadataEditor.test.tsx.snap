@@ -20,7 +20,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
               <table
                 aria-label="beans"
                 class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-                data-ouia-component-id="OUIA-Generated-Table-1"
+                data-ouia-component-id="OUIA-Generated-Table-_r_0_"
                 data-ouia-component-type="PF6/Table"
                 data-ouia-safe="true"
                 role="grid"
@@ -30,7 +30,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                 >
                   <tr
                     class="pf-v6-c-table__tr"
-                    data-ouia-component-id="OUIA-Generated-TableRow-1"
+                    data-ouia-component-id="OUIA-Generated-TableRow-_r_1_"
                     data-ouia-component-type="PF6/TableRow"
                     data-ouia-safe="true"
                   >
@@ -54,7 +54,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                     >
                       <button
                         class="pf-v6-c-button pf-m-link"
-                        data-ouia-component-id="OUIA-Generated-Button-link-1"
+                        data-ouia-component-id="OUIA-Generated-Button-link-_r_2_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="metadata-add-beans-btn"
@@ -70,12 +70,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             fill="currentColor"
                             height="1em"
                             role="img"
-                            viewBox="0 0 512 512"
                             width="1em"
                           >
-                            <path
-                              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                            />
+                            <svg
+                              class="pf-v6-icon-default"
+                              viewBox="0 0 512 512"
+                            >
+                              <path
+                                d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                              />
+                            </svg>
+                            <svg
+                              class="pf-v6-icon-rh-ui"
+                              viewBox="0 0 32 32"
+                            >
+                              <path
+                                d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
+                              />
+                            </svg>
                           </svg>
                         </span>
                       </button>
@@ -88,7 +100,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                 >
                   <tr
                     class="pf-v6-c-table__tr"
-                    data-ouia-component-id="OUIA-Generated-TableRow-2"
+                    data-ouia-component-id="OUIA-Generated-TableRow-_r_3_"
                     data-ouia-component-type="PF6/TableRow"
                     data-ouia-safe="true"
                   >
@@ -114,7 +126,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           </div>
                           <button
                             class="pf-v6-c-button pf-m-link"
-                            data-ouia-component-id="OUIA-Generated-Button-link-2"
+                            data-ouia-component-id="OUIA-Generated-Button-link-_r_4_"
                             data-ouia-component-type="PF6/Button"
                             data-ouia-safe="true"
                             data-testid="metadata-add-beans-btn"
@@ -129,12 +141,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                                 fill="currentColor"
                                 height="1em"
                                 role="img"
-                                viewBox="0 0 512 512"
                                 width="1em"
                               >
-                                <path
-                                  d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                                />
+                                <svg
+                                  class="pf-v6-icon-default"
+                                  viewBox="0 0 512 512"
+                                >
+                                  <path
+                                    d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                  />
+                                </svg>
+                                <svg
+                                  class="pf-v6-icon-rh-ui"
+                                  viewBox="0 0 32 32"
+                                >
+                                  <path
+                                    d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
+                                  />
+                                </svg>
                               </svg>
                             </span>
                             <span
@@ -163,7 +187,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
             >
               <h2
                 class="pf-v6-c-title pf-m-h2"
-                data-ouia-component-id="OUIA-Generated-Title-1"
+                data-ouia-component-id="OUIA-Generated-Title-_r_5_"
                 data-ouia-component-type="PF6/Title"
                 data-ouia-safe="true"
               >
@@ -198,7 +222,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         aria-hidden="true"
                         class="pf-v6-c-form__label-required"
                       >
-                         
+                         
                         *
                       </span>
                     </label>
@@ -212,7 +236,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         <span
                           aria-label="More info for name field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-1"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           role="button"
@@ -271,7 +295,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         <button
                           aria-label="Open suggestions"
                           class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-2"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="#.name__open-suggestions-button"
@@ -300,7 +324,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           aria-expanded="false"
                           aria-label="#.name__field-actions"
                           class="pf-v6-c-menu-toggle pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_e_"
                           data-ouia-component-type="PF6/MenuToggle"
                           data-ouia-safe="true"
                           data-testid="#.name__field-actions"
@@ -315,12 +339,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                               fill="currentColor"
                               height="1em"
                               role="img"
-                              viewBox="0 0 192 512"
                               width="1em"
                             >
-                              <path
-                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                              />
+                              <svg
+                                class="pf-v6-icon-default"
+                                viewBox="0 0 192 512"
+                              >
+                                <path
+                                  d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                />
+                              </svg>
+                              <svg
+                                class="pf-v6-icon-rh-ui"
+                                viewBox="0 0 32 32"
+                              >
+                                <path
+                                  d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
+                                />
+                              </svg>
                             </svg>
                           </span>
                         </button>
@@ -348,7 +384,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         aria-hidden="true"
                         class="pf-v6-c-form__label-required"
                       >
-                         
+                         
                         *
                       </span>
                     </label>
@@ -362,7 +398,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         <span
                           aria-label="More info for type field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-3"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_i_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           role="button"
@@ -421,7 +457,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         <button
                           aria-label="Open suggestions"
                           class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-4"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_j_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="#.type__open-suggestions-button"
@@ -450,7 +486,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           aria-expanded="false"
                           aria-label="#.type__field-actions"
                           class="pf-v6-c-menu-toggle pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-2"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_n_"
                           data-ouia-component-type="PF6/MenuToggle"
                           data-ouia-safe="true"
                           data-testid="#.type__field-actions"
@@ -465,12 +501,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                               fill="currentColor"
                               height="1em"
                               role="img"
-                              viewBox="0 0 192 512"
                               width="1em"
                             >
-                              <path
-                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                              />
+                              <svg
+                                class="pf-v6-icon-default"
+                                viewBox="0 0 192 512"
+                              >
+                                <path
+                                  d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                />
+                              </svg>
+                              <svg
+                                class="pf-v6-icon-rh-ui"
+                                viewBox="0 0 32 32"
+                              >
+                                <path
+                                  d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
+                                />
+                              </svg>
                             </svg>
                           </span>
                         </button>
@@ -512,7 +560,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         <span
                           aria-label="More info for [object Object] field"
                           class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-5"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_q_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           role="button"
@@ -562,7 +610,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         <button
                           aria-label="Add a new property"
                           class="pf-v6-c-button pf-m-plain"
-                          data-ouia-component-id="OUIA-Generated-Button-plain-6"
+                          data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="#.properties__add"
@@ -579,12 +627,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                               fill="currentColor"
                               height="1em"
                               role="img"
-                              viewBox="0 0 448 512"
                               width="1em"
                             >
-                              <path
-                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                              />
+                              <svg
+                                class="pf-v6-icon-default"
+                                viewBox="0 0 448 512"
+                              >
+                                <path
+                                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                                />
+                              </svg>
+                              <svg
+                                class="pf-v6-icon-rh-ui"
+                                viewBox="0 0 32 32"
+                              >
+                                <path
+                                  d="M29 15H17V3a1 1 0 0 0-2 0v12H3a1 1 0 0 0 0 2h12v12a1 1 0 0 0 2 0V17h12a1 1 0 0 0 0-2Z"
+                                />
+                              </svg>
                             </svg>
                           </span>
                         </button>
@@ -592,7 +652,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                     </div>
                     <hr
                       class="pf-v6-c-content--hr"
-                      data-ouia-component-id="OUIA-Generated-Content-1"
+                      data-ouia-component-id="OUIA-Generated-Content-_r_s_"
                       data-ouia-component-type="PF6/Content"
                       data-ouia-safe="true"
                       data-pf-content="true"
@@ -602,7 +662,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
               </form>
               <div
                 class="pf-v6-c-card kaoto-form kaoto-form__empty"
-                data-ouia-component-id="OUIA-Generated-Card-1"
+                data-ouia-component-id="OUIA-Generated-Card-_r_t_"
                 data-ouia-component-type="PF6/Card"
                 data-ouia-safe="true"
                 data-testid="no-field-found"
@@ -613,7 +673,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                 >
                   <div
                     class="pf-v6-c-alert pf-m-info"
-                    data-ouia-component-id="OUIA-Generated-Alert-info-1"
+                    data-ouia-component-id="OUIA-Generated-Alert-info-_r_u_"
                     data-ouia-component-type="PF6/Alert"
                     data-ouia-safe="true"
                   >
@@ -626,11 +686,11 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         fill="currentColor"
                         height="1em"
                         role="img"
-                        viewBox="0 0 512 512"
+                        viewBox="0 0 32 32"
                         width="1em"
                       >
                         <path
-                          d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"
+                          d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
                         />
                       </svg>
                     </div>
@@ -651,7 +711,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                        
                       <button
                         class="pf-v6-c-button pf-m-link pf-m-inline"
-                        data-ouia-component-id="OUIA-Generated-Button-link-3"
+                        data-ouia-component-id="OUIA-Generated-Button-link-_r_v_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         type="button"
@@ -692,7 +752,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
             <table
               aria-label="beans"
               class="pf-v6-c-table pf-m-grid-md pf-m-compact pf-m-sticky-header"
-              data-ouia-component-id="OUIA-Generated-Table-1"
+              data-ouia-component-id="OUIA-Generated-Table-_r_0_"
               data-ouia-component-type="PF6/Table"
               data-ouia-safe="true"
               role="grid"
@@ -702,7 +762,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
               >
                 <tr
                   class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-1"
+                  data-ouia-component-id="OUIA-Generated-TableRow-_r_1_"
                   data-ouia-component-type="PF6/TableRow"
                   data-ouia-safe="true"
                 >
@@ -726,7 +786,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                   >
                     <button
                       class="pf-v6-c-button pf-m-link"
-                      data-ouia-component-id="OUIA-Generated-Button-link-1"
+                      data-ouia-component-id="OUIA-Generated-Button-link-_r_2_"
                       data-ouia-component-type="PF6/Button"
                       data-ouia-safe="true"
                       data-testid="metadata-add-beans-btn"
@@ -742,12 +802,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                           fill="currentColor"
                           height="1em"
                           role="img"
-                          viewBox="0 0 512 512"
                           width="1em"
                         >
-                          <path
-                            d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                          />
+                          <svg
+                            class="pf-v6-icon-default"
+                            viewBox="0 0 512 512"
+                          >
+                            <path
+                              d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                            />
+                          </svg>
+                          <svg
+                            class="pf-v6-icon-rh-ui"
+                            viewBox="0 0 32 32"
+                          >
+                            <path
+                              d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
+                            />
+                          </svg>
                         </svg>
                       </span>
                     </button>
@@ -760,7 +832,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
               >
                 <tr
                   class="pf-v6-c-table__tr"
-                  data-ouia-component-id="OUIA-Generated-TableRow-2"
+                  data-ouia-component-id="OUIA-Generated-TableRow-_r_3_"
                   data-ouia-component-type="PF6/TableRow"
                   data-ouia-safe="true"
                 >
@@ -786,7 +858,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         </div>
                         <button
                           class="pf-v6-c-button pf-m-link"
-                          data-ouia-component-id="OUIA-Generated-Button-link-2"
+                          data-ouia-component-id="OUIA-Generated-Button-link-_r_4_"
                           data-ouia-component-type="PF6/Button"
                           data-ouia-safe="true"
                           data-testid="metadata-add-beans-btn"
@@ -801,12 +873,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                               fill="currentColor"
                               height="1em"
                               role="img"
-                              viewBox="0 0 512 512"
                               width="1em"
                             >
-                              <path
-                                d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
-                              />
+                              <svg
+                                class="pf-v6-icon-default"
+                                viewBox="0 0 512 512"
+                              >
+                                <path
+                                  d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z"
+                                />
+                              </svg>
+                              <svg
+                                class="pf-v6-icon-rh-ui"
+                                viewBox="0 0 32 32"
+                              >
+                                <path
+                                  d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm7 16.125h-5.875V23a1.125 1.125 0 0 1-2.25 0v-5.875H9a1.125 1.125 0 0 1 0-2.25h5.875V9a1.125 1.125 0 0 1 2.25 0v5.875H23a1.125 1.125 0 0 1 0 2.25Z"
+                                />
+                              </svg>
                             </svg>
                           </span>
                           <span
@@ -835,7 +919,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
           >
             <h2
               class="pf-v6-c-title pf-m-h2"
-              data-ouia-component-id="OUIA-Generated-Title-1"
+              data-ouia-component-id="OUIA-Generated-Title-_r_5_"
               data-ouia-component-type="PF6/Title"
               data-ouia-safe="true"
             >
@@ -870,7 +954,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       aria-hidden="true"
                       class="pf-v6-c-form__label-required"
                     >
-                       
+                       
                       *
                     </span>
                   </label>
@@ -884,7 +968,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       <span
                         aria-label="More info for name field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-1"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_9_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         role="button"
@@ -943,7 +1027,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       <button
                         aria-label="Open suggestions"
                         class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-2"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_a_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="#.name__open-suggestions-button"
@@ -972,7 +1056,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         aria-expanded="false"
                         aria-label="#.name__field-actions"
                         class="pf-v6-c-menu-toggle pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"
+                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_e_"
                         data-ouia-component-type="PF6/MenuToggle"
                         data-ouia-safe="true"
                         data-testid="#.name__field-actions"
@@ -987,12 +1071,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             fill="currentColor"
                             height="1em"
                             role="img"
-                            viewBox="0 0 192 512"
                             width="1em"
                           >
-                            <path
-                              d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                            />
+                            <svg
+                              class="pf-v6-icon-default"
+                              viewBox="0 0 192 512"
+                            >
+                              <path
+                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                              />
+                            </svg>
+                            <svg
+                              class="pf-v6-icon-rh-ui"
+                              viewBox="0 0 32 32"
+                            >
+                              <path
+                                d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
+                              />
+                            </svg>
                           </svg>
                         </span>
                       </button>
@@ -1020,7 +1116,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       aria-hidden="true"
                       class="pf-v6-c-form__label-required"
                     >
-                       
+                       
                       *
                     </span>
                   </label>
@@ -1034,7 +1130,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       <span
                         aria-label="More info for type field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-3"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_i_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         role="button"
@@ -1093,7 +1189,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       <button
                         aria-label="Open suggestions"
                         class="pf-v6-c-button pf-m-plain kaoto-form__suggestions-button"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-4"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_j_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="#.type__open-suggestions-button"
@@ -1122,7 +1218,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                         aria-expanded="false"
                         aria-label="#.type__field-actions"
                         class="pf-v6-c-menu-toggle pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-2"
+                        data-ouia-component-id="OUIA-Generated-MenuToggle-plain-_r_n_"
                         data-ouia-component-type="PF6/MenuToggle"
                         data-ouia-safe="true"
                         data-testid="#.type__field-actions"
@@ -1137,12 +1233,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             fill="currentColor"
                             height="1em"
                             role="img"
-                            viewBox="0 0 192 512"
                             width="1em"
                           >
-                            <path
-                              d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
-                            />
+                            <svg
+                              class="pf-v6-icon-default"
+                              viewBox="0 0 192 512"
+                            >
+                              <path
+                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                              />
+                            </svg>
+                            <svg
+                              class="pf-v6-icon-rh-ui"
+                              viewBox="0 0 32 32"
+                            >
+                              <path
+                                d="M16 9c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4Zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2Zm0 9c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Zm0 5c-2.206 0-4 1.794-4 4s1.794 4 4 4 4-1.794 4-4-1.794-4-4-4Zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2Z"
+                              />
+                            </svg>
                           </svg>
                         </span>
                       </button>
@@ -1184,7 +1292,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       <span
                         aria-label="More info for [object Object] field"
                         class="pf-v6-c-button pf-m-plain pf-m-no-padding"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-5"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_q_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         role="button"
@@ -1234,7 +1342,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       <button
                         aria-label="Add a new property"
                         class="pf-v6-c-button pf-m-plain"
-                        data-ouia-component-id="OUIA-Generated-Button-plain-6"
+                        data-ouia-component-id="OUIA-Generated-Button-plain-_r_r_"
                         data-ouia-component-type="PF6/Button"
                         data-ouia-safe="true"
                         data-testid="#.properties__add"
@@ -1251,12 +1359,24 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                             fill="currentColor"
                             height="1em"
                             role="img"
-                            viewBox="0 0 448 512"
                             width="1em"
                           >
-                            <path
-                              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                            />
+                            <svg
+                              class="pf-v6-icon-default"
+                              viewBox="0 0 448 512"
+                            >
+                              <path
+                                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                              />
+                            </svg>
+                            <svg
+                              class="pf-v6-icon-rh-ui"
+                              viewBox="0 0 32 32"
+                            >
+                              <path
+                                d="M29 15H17V3a1 1 0 0 0-2 0v12H3a1 1 0 0 0 0 2h12v12a1 1 0 0 0 2 0V17h12a1 1 0 0 0 0-2Z"
+                              />
+                            </svg>
                           </svg>
                         </span>
                       </button>
@@ -1264,7 +1384,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                   </div>
                   <hr
                     class="pf-v6-c-content--hr"
-                    data-ouia-component-id="OUIA-Generated-Content-1"
+                    data-ouia-component-id="OUIA-Generated-Content-_r_s_"
                     data-ouia-component-type="PF6/Content"
                     data-ouia-safe="true"
                     data-pf-content="true"
@@ -1274,7 +1394,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
             </form>
             <div
               class="pf-v6-c-card kaoto-form kaoto-form__empty"
-              data-ouia-component-id="OUIA-Generated-Card-1"
+              data-ouia-component-id="OUIA-Generated-Card-_r_t_"
               data-ouia-component-type="PF6/Card"
               data-ouia-safe="true"
               data-testid="no-field-found"
@@ -1285,7 +1405,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
               >
                 <div
                   class="pf-v6-c-alert pf-m-info"
-                  data-ouia-component-id="OUIA-Generated-Alert-info-1"
+                  data-ouia-component-id="OUIA-Generated-Alert-info-_r_u_"
                   data-ouia-component-type="PF6/Alert"
                   data-ouia-safe="true"
                 >
@@ -1298,11 +1418,11 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                       fill="currentColor"
                       height="1em"
                       role="img"
-                      viewBox="0 0 512 512"
+                      viewBox="0 0 32 32"
                       width="1em"
                     >
                       <path
-                        d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"
+                        d="M16 1C7.729 1 1 7.729 1 16s6.729 15 15 15 15-6.729 15-15S24.271 1 16 1Zm1.5 22a1.5 1.5 0 1 1-3 0v-5.157l-.188.04a1.5 1.5 0 0 1-.625-2.934l1.956-.416c.112-.024.223-.032.333-.03l.024-.002a1.5 1.5 0 0 1 1.5 1.5v7Zm-.08-12.58c-.38.37-.89.58-1.42.58a1.998 1.998 0 0 1-1.851-2.76c.051-.13.11-.24.19-.35.07-.11.15-.21.25-.3.74-.75 2.08-.75 2.83 0 .09.09.17.19.24.3.08.11.14.22.189.35.05.12.09.24.11.37.03.13.04.26.04.39 0 .53-.21 1.04-.58 1.42Z"
                       />
                     </svg>
                   </div>
@@ -1323,7 +1443,7 @@ exports[`MetadataEditor.tsx component renders 1`] = `
                      
                     <button
                       class="pf-v6-c-button pf-m-link pf-m-inline"
-                      data-ouia-component-id="OUIA-Generated-Button-link-3"
+                      data-ouia-component-id="OUIA-Generated-Button-link-_r_v_"
                       data-ouia-component-type="PF6/Button"
                       data-ouia-safe="true"
                       type="button"

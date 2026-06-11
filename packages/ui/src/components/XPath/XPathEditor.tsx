@@ -1,6 +1,6 @@
 import './XPathEditor.scss';
 
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import * as monaco from 'monaco-editor';
 import { FunctionComponent, useEffect, useRef, useState } from 'react';
 
 import { IExpressionHolder } from '../../models/datamapper';

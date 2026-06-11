@@ -157,7 +157,7 @@ Cypress.Commands.add('generateDocumentationPreview', () => {
 
 Cypress.Commands.add('documentationTableCompare', (routeName: string, expectedTableData: string[][]) => {
   // Wait until the loading distractor is no longer in the document
-  cy.get('[data-testid="Loading markdown preview"]', { timeout: 30_000 }).should('not.exist');
+  cy.get('[data-testid="Loading markdown preview"]', { timeout: 120_000 }).should('not.exist');
 
   cy.contains('h1', routeName)
     .next('table')

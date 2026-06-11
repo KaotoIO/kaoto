@@ -2,3 +2,12 @@
 .source-code-editor .pf-v6-c-code-editor__upload {
   height: 100%;
 }
+
+/* Monaco 0.55+ sets an inline right: 26px on this screen-reader-only element,
+   which combined with the left: -10000px from Monaco CSS stretches it across the
+   viewport and covers the quick-input text field. */
+.quick-input-visible-count {
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

@@ -1,8 +1,8 @@
 import { Monaco } from '@monaco-editor/react';
 import { CodeEditor, Language } from '@patternfly/react-code-editor';
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from '@patternfly/react-core';
-import { editor } from 'monaco-editor/esm/vs/editor/editor.api';
-import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
+import { editor } from 'monaco-editor';
+import { FunctionComponent, useCallback, useMemo } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
@@ -15,16 +15,17 @@ interface ExportMappingFileModalProps {
 
 export const ExportMappingFileModal: FunctionComponent<ExportMappingFileModalProps> = ({ isOpen, onClose }) => {
   const { mappingTree, sourceParameterMap } = useDataMapper();
-  const [serializedMappings, setSerializedMappings] = useState<string>();
+  const serializedMappings = useMemo(
+    () => (isOpen ? MappingSerializerService.serialize(mappingTree, sourceParameterMap) : undefined),
+    [isOpen, mappingTree, sourceParameterMap],
+  );
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
-    setSerializedMappings(serialized);
-  }, [isOpen, mappingTree, sourceParameterMap]);
+  const editorHeight = useMemo(() => {
+    const lineCount = serializedMappings?.split('\n').length ?? 0;
+    const LINE_HEIGHT = 19;
+    const EDITOR_PADDING = 40;
+    return `${Math.max(lineCount * LINE_HEIGHT + EDITOR_PADDING, 200)}px`;
+  }, [serializedMappings]);
 
   const onEditorDidMount = useCallback((editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
     editor.layout();
@@ -54,8 +55,7 @@ export const ExportMappingFileModal: FunctionComponent<ExportMappingFileModalPro
           code={serializedMappings}
           language={Language.xml}
           onEditorDidMount={onEditorDidMount}
-          height="sizeToFit"
-          width="sizeToFit"
+          height={editorHeight}
           options={editorOptions}
           data-testid="dm-debug-export-mappings-code-editor"
         />
