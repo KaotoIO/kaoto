@@ -31,11 +31,11 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
           fill="currentColor"
           height="1em"
           role="img"
-          viewBox="0 0 352 512"
+          viewBox="0 0 20 20"
           width="1em"
         >
           <path
-            d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+            d="M17.8 16.2 11.59 10l6.21-6.21c.42-.46.39-1.17-.07-1.59-.43-.4-1.09-.4-1.52 0l-6.2 6.2-6.22-6.19c-.44-.44-1.15-.44-1.59 0-.44.44-.44 1.15 0 1.59l6.2 6.21-6.2 6.2c-.42.46-.39 1.17.07 1.59.43.4 1.09.4 1.52 0L10 11.59l6.2 6.2c.44.44 1.15.44 1.59 0 .44-.45.44-1.16 0-1.6Z"
           />
         </svg>
       </span>
@@ -56,11 +56,11 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
           fill="currentColor"
           height="1em"
           role="img"
-          viewBox="0 0 576 512"
+          viewBox="0 0 32 32"
           width="1em"
         >
           <path
-            d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+            d="m31.874 28.514-15.011-27a1.001 1.001 0 0 0-1.748 0l-15.011 27A1 1 0 0 0 .978 30H31a1 1 0 0 0 .874-1.486ZM14.5 12a1.5 1.5 0 0 1 3 0v5a1.5 1.5 0 0 1-3 0v-5ZM16 26.001a2 2 0 1 1-.001-3.999A2 2 0 0 1 16 26.001Z"
           />
         </svg>
       </span>
@@ -93,7 +93,7 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
       >
         <button
           class="pf-v6-c-button pf-m-danger"
-          data-ouia-component-id="OUIA-Generated-Button-danger-3"
+          data-ouia-component-id="OUIA-Generated-Button-danger-_r_d_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="action-confirmation-modal-btn-confirm"
@@ -111,7 +111,7 @@ exports[`ActionConfirmationModalProvider should allow consumers to update the mo
       >
         <button
           class="pf-v6-c-button pf-m-link"
-          data-ouia-component-id="OUIA-Generated-Button-link-3"
+          data-ouia-component-id="OUIA-Generated-Button-link-_r_e_"
           data-ouia-component-type="PF6/Button"
           data-ouia-safe="true"
           data-testid="action-confirmation-modal-btn-cancel"

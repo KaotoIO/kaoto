@@ -1,53 +1,62 @@
 import 'cypress-file-upload';
 
 Cypress.Commands.add('waitForEditorToLoad', () => {
-  cy.get('.pf-v6-c-code-editor').should(($editor) => {
-    expect($editor.find('div:contains("Loading...")')).to.not.exist;
-  });
+  cy.get('.pf-v6-c-code-editor .monaco-editor textarea').should('exist');
 });
 
 Cypress.Commands.add('editorAddText', (line, text) => {
   cy.waitForEditorToLoad();
-  cy.get('.pf-v6-c-code-editor')
-    .click()
-    .type('{ctrl}' + '{g}', { delay: 1 });
-  // Select the line number where to insert the new text
-  cy.get('input[aria-describedby="quickInput_message"]')
-    .click()
-    .type(`${line}` + '{enter}');
-  // insert new line, so the new text can be added
-  cy.focused().type('{enter}{upArrow}', { force: true, delay: 1 });
-  text.split('\n').forEach((lineToWrite) => {
-    cy.focused().type('{enter}{enter}{upArrow}', { force: true, delay: 1 });
-    cy.focused().type('{ctrl}{l}', { force: true, delay: 1 });
-    cy.focused().type(lineToWrite, { force: true, delay: 1 });
+  cy.window().should((win) => {
+    const models = win.monaco?.editor?.getModels?.();
+    if (!models?.length || models[0].getLineCount() < line) {
+      throw new Error(`Waiting for editor content (need line ${line})`);
+    }
   });
+  const editorTextarea = '.pf-v6-c-code-editor .monaco-editor textarea';
+  cy.get('.pf-v6-c-code-editor .monaco-editor').click();
+  cy.get(editorTextarea).type('{ctrl}{g}', { force: true, delay: 1 });
+  cy.get('input[aria-describedby="quickInput_message"]').click();
+  cy.get('input[aria-describedby="quickInput_message"]').type(`${line}` + '{enter}', { delay: 1 });
+  cy.get(editorTextarea).type('{enter}{upArrow}', { force: true, delay: 20 });
+  for (const lineToWrite of text.split('\n')) {
+    cy.get(editorTextarea).type('{enter}{enter}{upArrow}{home}{shift}{end}' + lineToWrite, { force: true, delay: 20 });
+  }
 });
 
 Cypress.Commands.add('uploadFixture', (fixture) => {
   cy.openSourceCode();
   cy.waitForEditorToLoad();
   cy.get('.pf-v6-c-code-editor__main input[type="file"]').attachFile(fixture);
-
-  cy.get('.pf-v6-c-code-editor').should(($editor) => {
-    expect($editor.find('[data-uri^="inmemory://"]')).to.exist;
+  cy.waitForEditorToLoad();
+  let lastContent = '';
+  cy.window().should((win) => {
+    const model = win.monaco?.editor?.getModels?.()?.[0];
+    if (!model) throw new Error('No model');
+    const content = model.getValue();
+    if (content !== lastContent) {
+      lastContent = content;
+      throw new Error('Waiting for editor content to stabilize');
+    }
   });
 });
 
 Cypress.Commands.add('editorDeleteLine', (line: number, repeatCount = 1) => {
   cy.waitForEditorToLoad();
-  // Open the Go to Line dialog
-  cy.get('.pf-v6-c-code-editor')
-    .click()
-    .type('{ctrl}' + '{g}', { delay: 1 });
-  // Type the line number to delete
-  cy.get('input[aria-describedby="quickInput_message"]')
-    .click()
-    .type(`${line + 1}` + '{enter}', { delay: 1 });
+  cy.window().should((win) => {
+    const models = win.monaco?.editor?.getModels?.();
+    if (!models?.length || models[0].getLineCount() <= line) {
+      throw new Error(`Waiting for editor content (need line ${line})`);
+    }
+  });
+  const editorTextarea = '.pf-v6-c-code-editor .monaco-editor textarea';
+  cy.get('.pf-v6-c-code-editor .monaco-editor').click();
+  cy.get(editorTextarea).type('{ctrl}{g}', { force: true, delay: 10 });
+  cy.get('input[aria-describedby="quickInput_message"]').click();
+  cy.get('input[aria-describedby="quickInput_message"]').type(`${line + 1}` + '{enter}', { delay: 10 });
 
   // Delete the line as many times as specified
   for (let i = 0; i < repeatCount; i++) {
-    cy.focused().type('{ctrl}{shift}{k}', { force: true, delay: 1 });
+    cy.get(editorTextarea).type('{ctrl}{shift}{k}', { force: true, delay: 10 });
   }
 });
 
@@ -103,7 +112,8 @@ Cypress.Commands.add('checkMultiLineContent', (textContent: string[]) => {
 
 Cypress.Commands.add('editorScrollToTop', () => {
   cy.waitForEditorToLoad();
-  cy.get('.pf-v6-c-code-editor').click().type('{ctrl}{home}', { release: false });
+  cy.get('.pf-v6-c-code-editor .monaco-editor').click();
+  cy.focused().type('{ctrl}{home}', { force: true, release: false });
 });
 
 Cypress.Commands.add('editorScrollToMiddle', () => {

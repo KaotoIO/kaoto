@@ -4,7 +4,7 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
 <DocumentFragment>
   <div
     class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-1"
+    data-ouia-component-id="OUIA-Generated-Card-_r_0_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
@@ -53,7 +53,7 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
     >
       <div
         class="pf-v6-c-alert pf-m-warning"
-        data-ouia-component-id="OUIA-Generated-Alert-warning-1"
+        data-ouia-component-id="OUIA-Generated-Alert-warning-_r_2_"
         data-ouia-component-type="PF6/Alert"
         data-ouia-safe="true"
       >
@@ -66,11 +66,11 @@ exports[`UnknownNode renders UnknownNode component 1`] = `
             fill="currentColor"
             height="1em"
             role="img"
-            viewBox="0 0 576 512"
+            viewBox="0 0 32 32"
             width="1em"
           >
             <path
-              d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+              d="m31.874 28.514-15.011-27a1.001 1.001 0 0 0-1.748 0l-15.011 27A1 1 0 0 0 .978 30H31a1 1 0 0 0 .874-1.486ZM14.5 12a1.5 1.5 0 0 1 3 0v5a1.5 1.5 0 0 1-3 0v-5ZM16 26.001a2 2 0 1 1-.001-3.999A2 2 0 0 1 16 26.001Z"
             />
           </svg>
         </div>
@@ -99,7 +99,7 @@ exports[`UnknownNode renders UnknownNode component with a model 1`] = `
 <DocumentFragment>
   <div
     class="pf-v6-c-card"
-    data-ouia-component-id="OUIA-Generated-Card-2"
+    data-ouia-component-id="OUIA-Generated-Card-_r_3_"
     data-ouia-component-type="PF6/Card"
     data-ouia-safe="true"
     id=""
@@ -149,7 +149,7 @@ prop2: value 2
     >
       <div
         class="pf-v6-c-alert pf-m-warning"
-        data-ouia-component-id="OUIA-Generated-Alert-warning-2"
+        data-ouia-component-id="OUIA-Generated-Alert-warning-_r_5_"
         data-ouia-component-type="PF6/Alert"
         data-ouia-safe="true"
       >
@@ -162,11 +162,11 @@ prop2: value 2
             fill="currentColor"
             height="1em"
             role="img"
-            viewBox="0 0 576 512"
+            viewBox="0 0 32 32"
             width="1em"
           >
             <path
-              d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"
+              d="m31.874 28.514-15.011-27a1.001 1.001 0 0 0-1.748 0l-15.011 27A1 1 0 0 0 .978 30H31a1 1 0 0 0 .874-1.486ZM14.5 12a1.5 1.5 0 0 1 3 0v5a1.5 1.5 0 0 1-3 0v-5ZM16 26.001a2 2 0 1 1-.001-3.999A2 2 0 0 1 16 26.001Z"
             />
           </svg>
         </div>

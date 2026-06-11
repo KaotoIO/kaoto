@@ -1,10 +1,9 @@
 import './SourceCode.scss';
 import './workers/enable-workers';
 
-import { CodeEditor, CodeEditorProps, Language } from '@patternfly/react-code-editor';
+import { CodeEditor, CodeEditorProps, EditorDidMount, Language } from '@patternfly/react-code-editor';
 import { configureMonacoYaml, JSONSchema } from 'monaco-yaml';
 import { FunctionComponent, Ref, RefObject, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
-import { EditorDidMount } from 'react-monaco-editor';
 
 import { sourceSchemaConfig, SourceSchemaType } from '../../models/camel';
 import { EntitiesContext } from '../../providers/entities.provider';
@@ -44,7 +43,7 @@ export const SourceCode: FunctionComponent<SourceCodeProps> = (props) => {
           hover: true,
           completion: true,
           validate: true,
-          format: true,
+          format: {},
           schemas: [
             {
               schema: currentSchema.schema as JSONSchema,
