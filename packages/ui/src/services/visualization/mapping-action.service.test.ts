@@ -946,7 +946,8 @@ describe('MappingActionService', () => {
         const forEachNode = shipOrderChildren[3] as MappingNodeData;
         expect(forEachNode.title).toEqual('for-each');
         expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.ContextMenu);
-        expect(MappingActionService.getAllowedActions(forEachNode)).toContain(MappingActionKind.Sort);
+        // TODO flip when https://github.com/KaotoIO/kaoto/issues/3302 is fixed
+        expect(MappingActionService.getAllowedActions(forEachNode)).not.toContain(MappingActionKind.Sort);
 
         expect(shipOrderChildren[4] instanceof AddMappingNodeData).toBeTruthy();
         const addMappingNode = shipOrderChildren[4] as AddMappingNodeData;
@@ -1025,7 +1026,8 @@ describe('MappingActionService', () => {
         expect(forEachGroupNode.title).toEqual('for-each-group');
         expect(forEachGroupNode.mapping instanceof ForEachGroupItem).toBeTruthy();
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.ContextMenu);
-        expect(MappingActionService.getAllowedActions(forEachGroupNode)).toContain(MappingActionKind.Sort);
+        // TODO flip when https://github.com/KaotoIO/kaoto/issues/3302 is fixed
+        expect(MappingActionService.getAllowedActions(forEachGroupNode)).not.toContain(MappingActionKind.Sort);
         expect(MappingActionService.getAllowedActions(forEachGroupNode)).not.toContain(MappingActionKind.ValueSelector);
 
         const forEachGroupChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachGroupNode);

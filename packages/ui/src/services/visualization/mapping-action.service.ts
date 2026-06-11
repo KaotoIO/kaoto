@@ -424,7 +424,9 @@ export class MappingActionService {
         return 'Configure Sort';
       },
       apply: (_n, { openModal }) => openModal(MappingActionKind.Sort),
-      isAllowed: MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem),
+      // TODO workaround for - https://github.com/KaotoIO/kaoto/issues/3302
+      // isAllowed: MappingActionService.mappingIsOneOf(ForEachItem, ForEachGroupItem),
+      isAllowed: () => false,
     },
     {
       key: MappingActionKind.Comment,
