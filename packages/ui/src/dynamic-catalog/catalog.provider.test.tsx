@@ -1,25 +1,25 @@
 import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
-import { CatalogDefinition, CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
+import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, render, screen } from '@testing-library/react';
 
-import { CamelCatalogService, CatalogKind } from '../models';
 import { ReloadContext } from '../providers/reload.provider';
 import { TestRuntimeProviderWrapper } from '../stubs';
 import { citrusCatalogSelector, getFirstCatalogMap, getFirstCitrusCatalogMap } from '../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../utils/catalog-schema-loader';
 import { CatalogLoaderProvider } from './catalog.provider';
+import { fetchCamelCatalog } from './support/fetch-camel-catalog';
+import { fetchCitrusCatalog } from './support/fetch-citrus-catalog';
+
+jest.mock('./support/fetch-camel-catalog');
+jest.mock('./support/fetch-citrus-catalog');
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
 
 describe('CatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
-  let fetchFileMock: jest.SpyInstance;
-  let setCatalogKeySpy: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
-  const [catalogLibraryEntry] = catalogLibrary.definitions;
-  const catalogPath = catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/'));
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary);
@@ -27,6 +27,8 @@ describe('CatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
+    (fetchCamelCatalog as jest.Mock).mockResolvedValue(undefined);
+
     fetchMock = jest.spyOn(globalThis, 'fetch');
     fetchMock.mockImplementationOnce((file) => {
       return new Promise((resolve, reject) => {
@@ -41,12 +43,6 @@ describe('CatalogLoaderProvider', () => {
         };
       });
     });
-
-    fetchFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
-    fetchFileMock.mockImplementation((uri: string) => {
-      return Promise.resolve({ body: { [uri]: 'dummy-data' } });
-    });
-    setCatalogKeySpy = jest.spyOn(CamelCatalogService, 'setCatalogKey');
   });
 
   afterEach(() => {
@@ -111,7 +107,7 @@ describe('CatalogLoaderProvider', () => {
     );
   });
 
-  it('should fetch the subsequent catalog files', async () => {
+  it('should call fetchCamelCatalog for a Camel catalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper();
     await act(async () => {
       render(
@@ -127,42 +123,7 @@ describe('CatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-components`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-models`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-patterns`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-languages`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-dataformats`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/kamelets-aggregate`),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(`${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/kamelet-boundaries`),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-functions`,
-      ),
-    );
+    expect(fetchCamelCatalog).toHaveBeenCalledTimes(1);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -183,118 +144,13 @@ describe('CatalogLoaderProvider', () => {
 
     expect(screen.getByTestId('catalogs-loaded')).toBeInTheDocument();
   });
-
-  it('should load the CamelCatalogService', async () => {
-    const { Provider } = TestRuntimeProviderWrapper();
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
-
-    await act(async () => {
-      fetchResolve();
-    });
-
-    let count = 0;
-    setCatalogKeySpy.mock.calls.forEach((call) => {
-      if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-components`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Component);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-models`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Processor);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-patterns`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Pattern);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-entities`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Entity);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-languages`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Language);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-dataformats`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Dataformat);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-loadbalancers`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Loadbalancer);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/kamelet-boundaries`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Kamelet);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        expect(Object.keys(call[1])[1]).toContain(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/kamelets-aggregate`,
-        );
-        expect(Object.values(call[1])[1]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].includes(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/camel-catalog-aggregate-functions`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.Function);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else {
-        throw new Error(call);
-      }
-    });
-    expect(count).toEqual(setCatalogKeySpy.mock.calls.length);
-  });
 });
 
 describe('CitrusCatalogLoaderProvider', () => {
   let fetchMock: jest.SpyInstance;
-  let fetchFileMock: jest.SpyInstance;
-  let setCatalogKeySpy: jest.SpyInstance;
   let fetchResolve: () => void;
   let fetchReject: () => void;
   let catalogDefinition: CatalogDefinition;
-  const catalogLibraryEntry = citrusCatalogSelector(catalogLibrary) as CatalogLibraryEntry;
-  const catalogPath = catalogLibraryEntry.fileName.substring(0, catalogLibraryEntry.fileName.lastIndexOf('/'));
 
   beforeAll(async () => {
     const catalogsMap = await getFirstCitrusCatalogMap(catalogLibrary);
@@ -302,6 +158,8 @@ describe('CitrusCatalogLoaderProvider', () => {
   });
 
   beforeEach(() => {
+    (fetchCitrusCatalog as jest.Mock).mockResolvedValue(undefined);
+
     fetchMock = jest.spyOn(globalThis, 'fetch');
     fetchMock.mockImplementationOnce((file) => {
       return new Promise((resolve, reject) => {
@@ -316,12 +174,6 @@ describe('CitrusCatalogLoaderProvider', () => {
         };
       });
     });
-
-    fetchFileMock = jest.spyOn(CatalogSchemaLoader, 'fetchFile');
-    fetchFileMock.mockImplementation((uri: string) => {
-      return Promise.resolve({ body: { [uri]: 'dummy-data' } });
-    });
-    setCatalogKeySpy = jest.spyOn(CamelCatalogService, 'setCatalogKey');
   });
 
   afterEach(() => {
@@ -386,7 +238,7 @@ describe('CitrusCatalogLoaderProvider', () => {
     );
   });
 
-  it('should fetch the subsequent catalog files', async () => {
+  it('should call fetchCitrusCatalog for a Citrus catalog', async () => {
     const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
     await act(async () => {
       render(
@@ -402,31 +254,7 @@ describe('CitrusCatalogLoaderProvider', () => {
       fetchResolve();
     });
 
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-test-actions`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-test-containers`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-endpoints`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-functions`,
-      ),
-    );
-    expect(fetchFileMock).toHaveBeenCalledWith(
-      expect.stringContaining(
-        `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-validation-matcher`,
-      ),
-    );
+    expect(fetchCitrusCatalog).toHaveBeenCalledTimes(1);
   });
 
   it('should set loading to false after fetching the catalogs', async () => {
@@ -446,70 +274,5 @@ describe('CitrusCatalogLoaderProvider', () => {
     });
 
     expect(screen.getByTestId('catalogs-loaded')).toBeInTheDocument();
-  });
-
-  it('should load the CitrusCatalogService', async () => {
-    const { Provider } = TestRuntimeProviderWrapper(citrusCatalogSelector);
-    await act(async () => {
-      render(
-        <Provider>
-          <CatalogLoaderProvider>
-            <span data-testid="catalogs-loaded">Loaded</span>
-          </CatalogLoaderProvider>
-        </Provider>,
-      );
-    });
-
-    await act(async () => {
-      fetchResolve();
-    });
-
-    let count = 0;
-    setCatalogKeySpy.mock.calls.forEach((call) => {
-      if (
-        Object.keys(call[1])[0].endsWith(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-test-actions.json`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestAction);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].endsWith(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-test-containers.json`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestContainer);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].endsWith(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-endpoints.json`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestEndpoint);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].endsWith(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-functions.json`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestFunction);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else if (
-        Object.keys(call[1])[0].endsWith(
-          `${CatalogSchemaLoader.DEFAULT_CATALOG_BASE_PATH}/${catalogPath}/citrus-catalog-aggregate-validation-matcher.json`,
-        )
-      ) {
-        expect(call[0]).toEqual(CatalogKind.TestValidationMatcher);
-        expect(Object.values(call[1])[0]).toEqual('dummy-data');
-        count++;
-      } else {
-        throw new Error(call);
-      }
-    });
-    expect(count).toEqual(setCatalogKeySpy.mock.calls.length);
   });
 });
