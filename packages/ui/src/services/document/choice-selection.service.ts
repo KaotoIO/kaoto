@@ -30,7 +30,11 @@ export class ChoiceSelectionService {
    * This method:
    * 1. Sets the selectedMemberIndex on the field
    * 2. Updates the document definition's choiceSelections array
-   * 3. Cascade-invalidates all descendant choice selections
+   *
+   * Unlike field type overrides and substitutions which mutate document structure,
+   * choice selection only chooses a path from existing options. Descendant overrides
+   * (choice selections, type overrides, substitutions) are intentionally preserved
+   * to avoid state inconsistency between the definition and the live field tree.
    *
    * The document is modified in place. After calling this method, use
    * `dataMapperProvider.updateDocument()` to persist changes and trigger re-visualization.
@@ -70,14 +74,7 @@ export class ChoiceSelectionService {
     const schemaPath = SchemaPathService.build(choiceField, namespaceMap);
     const selection: IChoiceSelection = { schemaPath, selectedMemberIndex };
 
-    // Apply to field and definition
-    const changed = DocumentUtilService.processChoiceSelection(document, selection, namespaceMap);
-
-    // Cascade invalidate descendants
-    if (changed) {
-      this.resetDescendantFields(document, schemaPath, namespaceMap);
-      DocumentUtilService.invalidateDescendants(document, schemaPath);
-    }
+    DocumentUtilService.processChoiceSelection(document, selection, namespaceMap);
   }
 
   /**
@@ -86,7 +83,8 @@ export class ChoiceSelectionService {
    * This method:
    * 1. Clears the selectedMemberIndex from the field (sets to undefined)
    * 2. Removes the selection from the document definition's choiceSelections array
-   * 3. Cascade-invalidates all descendant choice selections
+   *
+   * Descendant overrides are intentionally preserved — see {@link setChoiceSelection}.
    *
    * This is a no-op if the field's selectedMemberIndex is already undefined.
    *
@@ -119,36 +117,6 @@ export class ChoiceSelectionService {
 
     const schemaPath = SchemaPathService.build(choiceField, namespaceMap);
 
-    // Remove from field and definition
-    const changed = DocumentUtilService.removeChoiceSelection(document, schemaPath, namespaceMap);
-
-    // Cascade invalidate descendants
-    if (changed) {
-      this.resetDescendantFields(document, schemaPath, namespaceMap);
-      DocumentUtilService.invalidateDescendants(document, schemaPath);
-    }
-  }
-
-  /**
-   * Reset selectedMemberIndex on descendant choice fields that will be invalidated.
-   * Must be called before {@link DocumentUtilService.invalidateDescendants} which removes
-   * the paths from the definition (we need those paths to resolve the fields).
-   */
-  private static resetDescendantFields(
-    document: IDocument,
-    schemaPath: string,
-    namespaceMap: Record<string, string>,
-  ): void {
-    const prefix = schemaPath + '/';
-    const descendantPaths =
-      document.definition.choiceSelections?.filter((s) => s.schemaPath.startsWith(prefix)).map((s) => s.schemaPath) ??
-      [];
-
-    for (const path of descendantPaths) {
-      const field = SchemaPathService.navigateToField(document, path, namespaceMap);
-      if (field) {
-        field.selectedMemberIndex = undefined;
-      }
-    }
+    DocumentUtilService.removeChoiceSelection(document, schemaPath, namespaceMap);
   }
 }
