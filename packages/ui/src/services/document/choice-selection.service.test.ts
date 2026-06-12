@@ -1,9 +1,50 @@
-import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../models/datamapper';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, IField } from '../../models/datamapper';
 import { NS_XML_SCHEMA } from '../../models/datamapper/standard-namespaces';
+import { FieldOverrideVariant } from '../../models/datamapper/types';
+import { getChoiceWithAbstractXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { SchemaPathService } from '../schema-path.service';
 import { ChoiceSelectionService } from './choice-selection.service';
+import { FieldOverrideService } from './field-override.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
+
+const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
+
+function createChoiceWithAbstractDoc() {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'ChoiceWithAbstract.xsd': getChoiceWithAbstractXsd(),
+  });
+  definition.rootElementChoice = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(
+      result.errors?.map((e) => e.message).join('; ') || 'Failed to create choice+abstract test document',
+    );
+  }
+  return result.document;
+}
+
+function findChoiceField(doc: XmlSchemaDocument): XmlSchemaField {
+  const root = doc.fields[0];
+  const choice = root.fields.find((f) => f.wrapperKind === 'choice');
+  if (!choice) throw new Error('Choice field not found in Notification');
+  return choice;
+}
+
+function findAbstractField(choiceField: IField): XmlSchemaField {
+  const abstract = choiceField.fields.find((f) => f.wrapperKind === 'abstract');
+  if (!abstract) throw new Error('Abstract field not found inside choice');
+  return abstract as XmlSchemaField;
+}
+
+function findDescendantLeaf(field: IField): IField {
+  let current = field;
+  while (current.fields.length > 0) {
+    current = current.fields[0];
+  }
+  return current;
+}
 
 describe('ChoiceSelectionService', () => {
   let document: XmlSchemaDocument;
@@ -145,7 +186,7 @@ describe('ChoiceSelectionService', () => {
       expect(document.definition.choiceSelections?.length).toBe(2);
     });
 
-    it('should cascade invalidate true descendant selections', () => {
+    it('should preserve descendant choice selections', () => {
       const parentChoice = document.fields[0].fields[0];
       const emailMember = parentChoice.fields[0];
       const nestedChoice = emailMember.fields[0];
@@ -155,9 +196,9 @@ describe('ChoiceSelectionService', () => {
 
       ChoiceSelectionService.setChoiceSelection(document, parentChoice, 1, namespaceMap);
 
-      expect(document.definition.choiceSelections?.length).toBe(1);
-      expect(document.definition.choiceSelections?.[0].schemaPath).not.toContain('email');
-      expect(nestedChoice.selectedMemberIndex).toBeUndefined();
+      // Both parent and nested selections preserved
+      expect(document.definition.choiceSelections?.length).toBe(2);
+      expect(nestedChoice.selectedMemberIndex).toBe(0);
     });
   });
 
@@ -214,7 +255,7 @@ describe('ChoiceSelectionService', () => {
       expect(document.definition.choiceSelections?.[0].schemaPath).toContain('Container');
     });
 
-    it('should cascade invalidate true descendant selections on clear', () => {
+    it('should preserve descendant choice selections on clear', () => {
       const parentChoice = document.fields[0].fields[0];
       const emailMember = parentChoice.fields[0];
       const nestedChoice = emailMember.fields[0];
@@ -225,8 +266,285 @@ describe('ChoiceSelectionService', () => {
 
       ChoiceSelectionService.clearChoiceSelection(document, parentChoice, namespaceMap);
 
-      expect(document.definition.choiceSelections?.length).toBe(0);
-      expect(nestedChoice.selectedMemberIndex).toBeUndefined();
+      // Nested selection preserved
+      expect(document.definition.choiceSelections?.length).toBe(1);
+      expect(nestedChoice.selectedMemberIndex).toBe(1);
+    });
+  });
+
+  describe('choice + descendant override interaction (issue #3234)', () => {
+    describe('abstract substitution preserved across choice changes', () => {
+      it('should preserve descendant abstract substitution when setting choice selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+        const emailIndex = abstractField.selectedMemberIndex;
+        expect(emailIndex).toBeDefined();
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Substitution stays in both definition and live field — consistent state
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+        expect(abstractField.selectedMemberIndex).toBe(emailIndex);
+      });
+
+      it('should preserve descendant abstract substitution when clearing choice selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
+        const smsIndex = abstractField.selectedMemberIndex;
+        expect(smsIndex).toBeDefined();
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+
+        ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
+
+        // Substitution preserved
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+        expect(abstractField.selectedMemberIndex).toBe(smsIndex);
+      });
+
+      it('should allow reverting abstract substitution after parent choice selection (issue #3234)', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+        expect(abstractField.selectedMemberIndex).toBeDefined();
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Substitution is preserved, so revert should work
+        FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
+
+        expect(abstractField.selectedMemberIndex).toBeUndefined();
+        expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
+      });
+
+      it('should allow switching substitution after choice selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Switch from Email to SMS
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
+
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+        expect(doc.definition.fieldSubstitutions![0].name).toBe('ca:SMS');
+        const smsIndex = abstractField.fields.findIndex((f) => f.name === 'SMS');
+        expect(abstractField.selectedMemberIndex).toBe(smsIndex);
+      });
+
+      it('should allow revert after switching substitution across choice changes', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
+
+        FieldOverrideService.revertFieldSubstitution(abstractField, nsMap);
+
+        expect(abstractField.selectedMemberIndex).toBeUndefined();
+        expect(doc.definition.fieldSubstitutions).toHaveLength(0);
+      });
+    });
+
+    describe('type override preserved across choice changes', () => {
+      it('should preserve descendant type override when setting choice selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+
+        const firstMember = choiceField.fields[0];
+        const leafField = findDescendantLeaf(firstMember);
+
+        const leafPath = SchemaPathService.build(leafField, nsMap);
+        leafField.typeOverride = FieldOverrideVariant.SAFE;
+        leafField.originalField = {
+          name: leafField.name,
+          displayName: leafField.name,
+          namespaceURI: '',
+          namespacePrefix: null,
+          type: leafField.type,
+          typeQName: null,
+          namedTypeFragmentRefs: [],
+        };
+        doc.definition.fieldTypeOverrides = [
+          { schemaPath: leafPath, type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.SAFE },
+        ];
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        expect(doc.definition.fieldTypeOverrides).toHaveLength(1);
+        expect(leafField.typeOverride).toBe(FieldOverrideVariant.SAFE);
+      });
+
+      it('should preserve descendant type override when clearing choice selection', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        const firstMember = choiceField.fields[0];
+        const leafField = findDescendantLeaf(firstMember);
+
+        const leafPath = SchemaPathService.build(leafField, nsMap);
+        leafField.typeOverride = FieldOverrideVariant.SAFE;
+        leafField.originalField = {
+          name: leafField.name,
+          displayName: leafField.name,
+          namespaceURI: '',
+          namespacePrefix: null,
+          type: leafField.type,
+          typeQName: null,
+          namedTypeFragmentRefs: [],
+        };
+        doc.definition.fieldTypeOverrides = [
+          { schemaPath: leafPath, type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.SAFE },
+        ];
+
+        ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
+
+        expect(doc.definition.fieldTypeOverrides).toHaveLength(1);
+        expect(leafField.typeOverride).toBe(FieldOverrideVariant.SAFE);
+      });
+    });
+
+    describe('round-trip — overrides survive choice switch and switch-back (issue #3232)', () => {
+      it('should preserve nested choice selection across parent choice round-trip', () => {
+        const doc = createTestDocumentWithChoices();
+        const nsMap = { xs: NS_XML_SCHEMA, ns0: 'io.kaoto.test' };
+        const parentChoice = doc.fields[0].fields[0]; // [email, phone, fax]
+        const emailMember = parentChoice.fields[0];
+        const nestedChoice = emailMember.fields[0]; // [work, personal]
+
+        // Select nested choice inside email
+        ChoiceSelectionService.setChoiceSelection(doc, parentChoice, 0, nsMap);
+        ChoiceSelectionService.setChoiceSelection(doc, nestedChoice, 1, nsMap);
+        expect(nestedChoice.selectedMemberIndex).toBe(1);
+
+        // Switch parent away from email
+        ChoiceSelectionService.setChoiceSelection(doc, parentChoice, 2, nsMap);
+
+        // Switch parent back to email
+        ChoiceSelectionService.setChoiceSelection(doc, parentChoice, 0, nsMap);
+
+        // Nested selection survived the round-trip
+        expect(nestedChoice.selectedMemberIndex).toBe(1);
+        expect(doc.definition.choiceSelections?.length).toBe(2);
+      });
+
+      it('should preserve substitution across parent choice round-trip', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        // Select substitution
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+        const emailIndex = abstractField.selectedMemberIndex;
+
+        // Switch choice away and back
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Substitution survived
+        expect(abstractField.selectedMemberIndex).toBe(emailIndex);
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+        expect(doc.definition.fieldSubstitutions![0].name).toBe('ca:Email');
+      });
+
+      it('should preserve substitution through multiple choice changes', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:SMS', nsMap);
+        const smsIndex = abstractField.selectedMemberIndex;
+
+        // Multiple choice changes
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 1, nsMap);
+        ChoiceSelectionService.clearChoiceSelection(doc, choiceField, nsMap);
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Substitution survived all transitions
+        expect(abstractField.selectedMemberIndex).toBe(smsIndex);
+        expect(doc.definition.fieldSubstitutions).toHaveLength(1);
+      });
+    });
+
+    describe('negative cases — sibling overrides preserved', () => {
+      it('should preserve all substitutions — both descendant and sibling — on choice change', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+        const abstractField = findAbstractField(choiceField);
+
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ca:Email', nsMap);
+
+        // Manually add a sibling substitution entry (simulating another abstract field outside this choice)
+        const siblingPath = '/ca:Notification/ca:SiblingAbstract';
+        doc.definition.fieldSubstitutions!.push({
+          schemaPath: siblingPath,
+          name: 'ca:SiblingType',
+          originalName: 'ca:SiblingAbstract',
+        });
+        expect(doc.definition.fieldSubstitutions).toHaveLength(2);
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Both substitutions preserved
+        expect(doc.definition.fieldSubstitutions).toHaveLength(2);
+      });
+
+      it('should not affect sibling type override outside the choice subtree', () => {
+        const doc = createChoiceWithAbstractDoc();
+        const nsMap = { ca: NS_CHOICE_ABSTRACT };
+        const choiceField = findChoiceField(doc);
+
+        // Manually add a type override for a sibling field (id field, outside the choice)
+        const root = doc.fields[0];
+        const idField = root.fields.find((f) => f.name === 'id');
+        if (!idField) throw new Error('id field not found');
+        const idPath = SchemaPathService.build(idField, nsMap);
+        idField.typeOverride = FieldOverrideVariant.SAFE;
+        idField.originalField = {
+          name: idField.name,
+          displayName: idField.name,
+          namespaceURI: '',
+          namespacePrefix: null,
+          type: idField.type,
+          typeQName: null,
+          namedTypeFragmentRefs: [],
+        };
+        doc.definition.fieldTypeOverrides = [
+          { schemaPath: idPath, type: 'xs:int', originalType: 'xs:string', variant: FieldOverrideVariant.SAFE },
+        ];
+
+        ChoiceSelectionService.setChoiceSelection(doc, choiceField, 0, nsMap);
+
+        // Sibling type override should be preserved
+        expect(doc.definition.fieldTypeOverrides).toHaveLength(1);
+        expect(idField.typeOverride).toBe(FieldOverrideVariant.SAFE);
+      });
     });
   });
 });

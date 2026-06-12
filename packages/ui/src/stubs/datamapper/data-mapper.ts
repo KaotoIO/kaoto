@@ -298,6 +298,9 @@ export function getFieldSubstitutionXsd(): string {
 export function getFieldSubstitutionNoNsXsd(): string {
   return readStubFile('./xml/FieldSubstitutionNoNs.xsd');
 }
+export function getChoiceWithAbstractXsd(): string {
+  return readStubFile('./xml/ChoiceWithAbstract.xsd');
+}
 export function getRawTextNodeXslt(): string {
   return readStubFile('./xml/RawTextNode.xsl');
 }
