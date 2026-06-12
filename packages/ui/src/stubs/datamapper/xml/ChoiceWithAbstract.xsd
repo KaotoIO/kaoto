@@ -1,0 +1,56 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/CHOICE_ABSTRACT"
+           xmlns="http://www.example.com/CHOICE_ABSTRACT"
+           elementFormDefault="qualified">
+
+  <!-- Abstract element with substitution group candidates -->
+  <xs:element name="AbstractMessage" type="Message_t" abstract="true"/>
+  <xs:element name="Email" type="Email_t" substitutionGroup="AbstractMessage"/>
+  <xs:element name="SMS" type="SMS_t" substitutionGroup="AbstractMessage"/>
+
+  <xs:complexType name="Message_t">
+    <xs:sequence>
+      <xs:element name="content" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Email_t">
+    <xs:complexContent>
+      <xs:extension base="Message_t">
+        <xs:sequence>
+          <xs:element name="subject" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="SMS_t">
+    <xs:complexContent>
+      <xs:extension base="Message_t">
+        <xs:sequence>
+          <xs:element name="phoneNumber" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Root element with a choice that includes the abstract element -->
+  <xs:element name="Notification">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="id" type="xs:string"/>
+        <xs:choice>
+          <xs:element ref="AbstractMessage"/>
+          <xs:element name="Webhook">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="url" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
