@@ -2,8 +2,10 @@ import catalogLibraryJson from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { CamelCatalogService, CatalogKind } from '../../models';
+import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../models/citrus/citrus-catalog-index';
 import { citrusCatalogSelector, getFirstCitrusCatalogMap } from '../../stubs/test-load-catalog';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
+import { DynamicCatalogRegistry } from '../dynamic-catalog-registry';
 import { fetchCitrusCatalog } from './fetch-citrus-catalog';
 
 const catalogLibrary = catalogLibraryJson as CatalogLibrary;
@@ -35,6 +37,27 @@ describe('fetchCitrusCatalog', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should register the root test schema (citrus-yaml) as a catalog entity', async () => {
+    const setCatalogSpy = jest.spyOn(DynamicCatalogRegistry.get(), 'setCatalog');
+
+    await fetchCitrusCatalog({ catalogIndex: catalogDefinition, relativeBasePath });
+
+    // The citrus-yaml schema file referenced in the index `schemas` section is fetched
+    expect(fetchFileMock).toHaveBeenCalledWith(expect.stringContaining(`${relativeBasePath}/citrus-testcase`));
+
+    // Registered into CamelCatalogService under CatalogKind.Entity, shaped like a propertiesSchema entity
+    const entityCall = setCatalogKeySpy.mock.calls.find((call) => call[0] === CatalogKind.Entity);
+    expect(entityCall).toBeDefined();
+    expect(entityCall![1]).toHaveProperty(CITRUS_TEST_ROOT_ENTITY_NAME);
+    expect(entityCall![1][CITRUS_TEST_ROOT_ENTITY_NAME]).toHaveProperty('propertiesSchema');
+
+    // And registered into the DynamicCatalogRegistry, consistent with the other Citrus catalogs
+    expect(setCatalogSpy).toHaveBeenCalledWith(CatalogKind.Entity, expect.anything());
+    await expect(
+      DynamicCatalogRegistry.get().getEntity(CatalogKind.Entity, CITRUS_TEST_ROOT_ENTITY_NAME),
+    ).resolves.toHaveProperty('propertiesSchema');
   });
 
   it('should fetch all expected catalog files', async () => {
@@ -85,6 +108,10 @@ describe('fetchCitrusCatalog', () => {
       ) {
         expect(call[0]).toEqual(CatalogKind.TestValidationMatcher);
         expect(Object.values(call[1])[0]).toEqual('dummy-data');
+        count++;
+      } else if (Object.keys(call[1])[0] === CITRUS_TEST_ROOT_ENTITY_NAME) {
+        expect(call[0]).toEqual(CatalogKind.Entity);
+        expect(Object.values(call[1])[0]).toHaveProperty('propertiesSchema');
         count++;
       } else {
         throw new Error(`Unexpected setCatalogKey call: ${JSON.stringify(call)}`);
