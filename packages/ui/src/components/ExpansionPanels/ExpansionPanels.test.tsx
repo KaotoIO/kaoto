@@ -827,8 +827,7 @@ describe('ExpansionPanels', () => {
       expect(gridTemplate).toBeTruthy();
     });
 
-    it('should execute all queued layout callbacks via executeAllLayoutCallbacks', async () => {
-      // Create a component that registers a layout callback
+    it('should execute registered layout callbacks on resize even when queue is empty', async () => {
       const callbackRef = { current: false };
       const TestPanel = createTestPanelWithCallback(callbackRef);
 
@@ -841,18 +840,26 @@ describe('ExpansionPanels', () => {
 
       await setupPanelMocks(container);
 
-      // Trigger a container resize that doesn't change heights
-      // This will call fitPanelsToContainer which executes callbacks via double RAF
+      // Flush any stale queued callbacks from registration so the queue is empty,
+      // simulating the real app where transitionend drains the queue before a resize
+      await act(async () => {
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      });
+
+      // Reset after registration callbacks
+      callbackRef.current = false;
+
+      // Trigger a container resize that doesn't change heights (horizontal resize)
+      // With an empty queue, executeAllLayoutCallbacks must iterate the persistent
+      // panelCallbacksRef registry — not the transient layoutChangeQueueRef
       const expansionPanelsContainer = container.querySelector('.expansion-panels') as HTMLElement;
       Object.defineProperty(expansionPanelsContainer, 'offsetHeight', { value: 600, configurable: true });
 
       await act(async () => {
         mockResizeObserver.trigger();
-        // Wait for double RAF to complete (this executes line 71: callback())
         await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       });
 
-      // Verify the callback was actually executed (line 71 was hit)
       expect(callbackRef.current).toBe(true);
     });
 
