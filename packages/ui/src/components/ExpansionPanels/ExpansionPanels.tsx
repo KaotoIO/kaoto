@@ -63,13 +63,12 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
   }, [firstPanelId, lastPanelId]); // Only depends on panel ID props (stable)
 
   /**
-   * Execute all registered panel callbacks immediately
-   * Used after resize settles to update connection ports
+   * Execute all registered panel callbacks immediately.
+   * Iterates the persistent callback registry (panelCallbacksRef),
+   * not the transient queue (layoutChangeQueueRef).
    */
   const executeAllLayoutCallbacks = useCallback(() => {
-    for (const callback of layoutChangeQueueRef.current.values()) {
-      callback();
-    }
+    panelCallbacksRef.current.forEach((callback) => callback());
   }, []);
 
   /**
@@ -138,11 +137,11 @@ export const ExpansionPanels: FunctionComponent<PropsWithChildren<ExpansionPanel
         }
       });
       updateGridTemplate();
-      return;
     }
 
-    // Always execute layout callbacks after resize settles, even if heights didn't change
-    // This handles horizontal resizes that don't affect panel heights but still need connection port updates
+    // Always sync connection ports after any resize settles (width-only or height change).
+    // During continuous resize (e.g. VSCode window drag), CSS transitions are repeatedly
+    // interrupted so transitionend never fires — this ensures ports stay in sync regardless.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         executeAllLayoutCallbacks();
