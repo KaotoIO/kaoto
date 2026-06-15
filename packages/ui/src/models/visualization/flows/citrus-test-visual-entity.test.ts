@@ -6,11 +6,12 @@ import { camelRouteJson } from '../../../stubs/camel-route';
 import { citrusTestJson } from '../../../stubs/citrus-test';
 import { getFirstCitrusCatalogMap } from '../../../stubs/test-load-catalog';
 import { setValue } from '../../../utils';
-import { sourceSchemaConfig, SourceSchemaType } from '../../camel';
+import { SourceSchemaType } from '../../camel';
+import { ICamelProcessorDefinition } from '../../camel/camel-processors-catalog';
 import { CatalogKind } from '../../catalog-kind';
+import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities/base-entity';
-import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { NodeLabelType } from '../../settings/settings.model';
 import { AddStepMode } from '../base-visual-entity';
 import { CamelCatalogService } from './camel-catalog.service';
@@ -129,15 +130,16 @@ describe('CitrusTestVisualEntity', () => {
       expect(result).toEqual({});
     });
 
-    it('should return root test schema', () => {
-      const config = sourceSchemaConfig;
-      config.config[SourceSchemaType.Test].schema = {
-        schema: {
-          name: 'Test',
-          description: 'desc',
-          properties: { name: {}, variables: {}, actions: { type: 'array' }, finally: { type: 'array' } },
-        } as KaotoSchemaDefinition['schema'],
-      } as KaotoSchemaDefinition;
+    it('should return root test schema from the catalog', () => {
+      CamelCatalogService.setCatalogKey(CatalogKind.Entity, {
+        [CITRUS_TEST_ROOT_ENTITY_NAME]: {
+          propertiesSchema: {
+            name: 'Test',
+            description: 'desc',
+            properties: { name: {}, variables: {}, actions: { type: 'array' }, finally: { type: 'array' } },
+          },
+        } as unknown as ICamelProcessorDefinition,
+      });
       const result = citrusTestEntity.getNodeSchema(CitrusTestVisualEntity.ROOT_PATH);
 
       expect(result).toHaveProperty('name');

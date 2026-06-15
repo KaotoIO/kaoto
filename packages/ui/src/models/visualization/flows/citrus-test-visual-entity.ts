@@ -4,9 +4,9 @@ import { cloneDeep } from 'lodash';
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
 import { getArrayProperty, getValue, setValue } from '../../../utils';
 import { DefinedComponent } from '../../camel/camel-catalog-index';
-import { sourceSchemaConfig } from '../../camel/source-schema-config';
 import { SourceSchemaType } from '../../camel/source-schema-type';
 import { CatalogKind } from '../../catalog-kind';
+import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
@@ -19,6 +19,7 @@ import {
 } from '../base-visual-entity';
 import { IClipboardCopyObject } from '../clipboard';
 import { createVisualizationNode } from '../visualization-node';
+import { CamelCatalogService } from './camel-catalog.service';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { CitrusTestDefaultService } from './support/citrus-test-default.service';
 import { CitrusTestContainerSettings, CitrusTestSchemaService } from './support/citrus-test-schema.service';
@@ -489,13 +490,13 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   private getRootTestSchema(): KaotoSchemaDefinition['schema'] {
-    const testSchemaDef = sourceSchemaConfig.config[SourceSchemaType.Test]?.schema;
-    const schema = cloneDeep(testSchemaDef?.schema || ({} as unknown as KaotoSchemaDefinition['schema']));
+    const testRootDefinition = CamelCatalogService.getComponent(CatalogKind.Entity, CITRUS_TEST_ROOT_ENTITY_NAME);
+    const schema = cloneDeep(testRootDefinition?.propertiesSchema ?? {});
 
     if (schema.properties) {
       // remove actions and finally from test schema because the properties panel should not display those items.
-      schema.properties['actions'] = {} as unknown as KaotoSchemaDefinition['schema'];
-      schema.properties['finally'] = {} as unknown as KaotoSchemaDefinition['schema'];
+      schema.properties['actions'] = {};
+      schema.properties['finally'] = {};
     }
 
     return schema;
