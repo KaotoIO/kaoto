@@ -176,6 +176,7 @@ export const TargetPanel: FunctionComponent = () => {
               components={virtuosoComponents}
               itemContent={renderTargetItem}
               overscan={VIRTUOSO_OVERSCAN}
+              totalListHeightChanged={syncConnectionPorts}
             />
           )}
         </ExpansionPanel>
