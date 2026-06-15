@@ -73,13 +73,13 @@ Cypress.Commands.add('getMonacoValue', () => {
     return cy
       .wrap(null)
       .should(() => {
-        const [model] = win.monaco.editor.getModels() ?? {};
+        const [model] = win.monaco.editor.getModels() ?? [];
         if (!model) {
           throw new Error(`[Kaoto]: monaco-editor not found`);
         }
       })
       .then(() => {
-        const [model] = win.monaco.editor.getModels() ?? {};
+        const [model] = win.monaco.editor.getModels() ?? [];
         const sourceCode = model.getValue();
         const eol = model.getEOL();
         return { sourceCode, eol };
