@@ -150,6 +150,8 @@ export const TypeaheadSelect: FunctionComponent<TypeaheadSelectProps> = ({
       onSelect={handleSelect}
       onOpenChange={setIsOpen}
       toggle={toggle}
+      maxMenuHeight="240px"
+      popperProps={{ preventOverflow: true }}
     >
       <SelectList>
         {filteredOptions.map((opt, idx) => (
