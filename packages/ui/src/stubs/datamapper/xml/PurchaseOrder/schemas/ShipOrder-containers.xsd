@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:so="http://www.kaoto.io/shiporder"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           targetNamespace="http://www.kaoto.io/shiporder"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+      Ship Order Containers Module
+      
+      This module contains shipping container types and related structures.
+      Demonstrates advanced XSD patterns including:
+      - Abstract elements with substitution groups
+      - xs:extension for type inheritance
+      - Complex type hierarchies
+      
+      Module Contents:
+      - Abstract ShippingContainer element (substitution group base)
+      - Concrete container types (StandardBox, PaddedEnvelope, WoodenCrate, Pallet, CustomContainer)
+      - Container dimension and specification types
+      - Packaging-related complex types
+      
+      Usage:
+      This module is included in the main ShipOrder.xsd via xs:include.
+      All types defined here are in the ShipOrder namespace.
+      
+      Enterprise Pattern:
+      The substitution group pattern allows polymorphic container selection,
+      where any concrete container type can substitute the abstract base element.
+      This is commonly used in FIXML, FPML, and FMM schemas.
+      
+      Version: 1.0
+      Part of: ShipOrder Schema Modularization
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Import common types for Weight_t -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- ABSTRACT ELEMENT: ShippingContainer (Substitution Group Base)   -->
+  <!-- ================================================================ -->
+
+  <xs:element name="ShippingContainer" type="so:AbstractShippingContainerType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base element for shipping container substitution group.
+        
+        This element cannot be used directly in instance documents.
+        Instead, one of the concrete container types must be used:
+        - StandardBox: Regular cardboard shipping box
+        - PaddedEnvelope: Padded mailing envelope for small items
+        - WoodenCrate: Wooden crate for heavy or fragile items
+        - Pallet: Shipping pallet for bulk items
+        - CustomContainer: Custom container for special needs
+        
+        Design Pattern:
+        This demonstrates the substitution group pattern where multiple
+        concrete types can substitute an abstract base element. This provides
+        polymorphism at the XML instance level.
+        
+        Usage in XSLT:
+        When transforming to ShipOrder, the XSLT can dynamically select
+        the appropriate container type based on item characteristics:
+        - Weight > 100 lbs → Pallet
+        - Fragile items → WoodenCrate
+        - Small items (less than 1 lb) → PaddedEnvelope
+        - Standard items → StandardBox
+        - Special requirements → CustomContainer
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="AbstractShippingContainerType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base type for all shipping containers.
+        
+        Defines common elements shared by all container types:
+        - ContainerID: Unique identifier for tracking
+        - ContainerDescription: Human-readable description
+        - Dimensions: Physical dimensions (length, width, height)
+        - MaxWeight: Maximum weight capacity
+        
+        All concrete container types extend this base type and add
+        their specific attributes (e.g., box strength, wood type, etc.).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ContainerID" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Unique identifier for this container instance.
+            Used for tracking and inventory management.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContainerDescription" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Human-readable description of the container.
+            Example: "Heavy-duty corrugated box, 24x18x12 inches"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Dimensions" type="so:ContainerDimensionsType">
+        <xs:annotation>
+          <xs:documentation>
+            Physical dimensions of the container.
+            Includes length, width, height, and unit of measurement.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaxWeight" type="ct:Weight_t">
+        <xs:annotation>
+          <xs:documentation>
+            Maximum weight capacity of this container.
+            Used to ensure items don't exceed container limits.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE CONTAINER: StandardBox                                  -->
+  <!-- ================================================================ -->
+
+  <xs:element name="StandardBox" substitutionGroup="so:ShippingContainer" type="so:StandardBoxType">
+    <xs:annotation>
+      <xs:documentation>
+        Standard cardboard shipping box.
+        
+        Most common container type for general merchandise.
+        Available in various sizes and strength ratings.
+        
+        Use Cases:
+        - General merchandise shipping
+        - Non-fragile items
+        - Standard weight items (up to 50 lbs typically)
+        - Items that fit standard box dimensions
+        
+        Substitutes: ShippingContainer abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="StandardBoxType">
+    <xs:annotation>
+      <xs:documentation>
+        Standard box type with strength rating and recyclability.
+        
+        Extends AbstractShippingContainerType with box-specific attributes:
+        - BoxStrength: Wall construction strength (single/double/triple wall)
+        - Recyclable: Whether box material is recyclable
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractShippingContainerType">
+        <xs:sequence>
+          <xs:element name="BoxStrength" type="so:BoxStrengthEnum">
+            <xs:annotation>
+              <xs:documentation>
+                Strength rating based on wall construction.
+                - SingleWall: Light items, up to 20 lbs
+                - DoubleWall: Medium items, up to 65 lbs
+                - TripleWall: Heavy items, up to 100 lbs
+                - HeavyDuty: Extra heavy items, up to 150 lbs
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Recyclable" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether the box material is recyclable.
+                Most cardboard boxes are recyclable (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE CONTAINER: PaddedEnvelope                               -->
+  <!-- ================================================================ -->
+
+  <xs:element name="PaddedEnvelope" substitutionGroup="so:ShippingContainer" type="so:PaddedEnvelopeType">
+    <xs:annotation>
+      <xs:documentation>
+        Padded mailing envelope for small, lightweight items.
+        
+        Cost-effective option for small items that don't require rigid protection.
+        Available with various padding types.
+        
+        Use Cases:
+        - Documents and papers
+        - Small electronics (phones, tablets)
+        - Jewelry and small accessories
+        - Books and media
+        - Items under 1 lb typically
+        
+        Substitutes: ShippingContainer abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PaddedEnvelopeType">
+    <xs:annotation>
+      <xs:documentation>
+        Padded envelope type with padding specification.
+        
+        Extends AbstractShippingContainerType with envelope-specific attributes:
+        - PaddingType: Type of padding material (bubble, foam, paper, air pillows)
+        - SelfSealing: Whether envelope has adhesive closure
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractShippingContainerType">
+        <xs:sequence>
+          <xs:element name="PaddingType" type="so:PaddingTypeEnum">
+            <xs:annotation>
+              <xs:documentation>
+                Type of padding material used in envelope.
+                - Bubble: Bubble wrap padding (most common)
+                - Foam: Foam padding (better protection)
+                - Paper: Paper padding (eco-friendly)
+                - AirPillows: Inflatable air pillows
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SelfSealing" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether envelope has self-sealing adhesive strip.
+                Most padded envelopes are self-sealing (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE CONTAINER: WoodenCrate                                  -->
+  <!-- ================================================================ -->
+
+  <xs:element name="WoodenCrate" substitutionGroup="so:ShippingContainer" type="so:WoodenCrateType">
+    <xs:annotation>
+      <xs:documentation>
+        Wooden shipping crate for heavy or fragile items.
+        
+        Provides maximum protection for valuable or delicate items.
+        Required for international shipping of certain goods.
+        
+        Use Cases:
+        - Heavy machinery and equipment
+        - Fragile artwork and antiques
+        - High-value electronics
+        - Items requiring ISPM-15 certification (international)
+        - Items over 100 lbs
+        
+        Substitutes: ShippingContainer abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="WoodenCrateType">
+    <xs:annotation>
+      <xs:documentation>
+        Wooden crate type with wood specification and certifications.
+        
+        Extends AbstractShippingContainerType with crate-specific attributes:
+        - WoodType: Type of wood used (pine, plywood, etc.)
+        - ISPMCertified: ISPM-15 certification for international shipping
+        - RequiresForklift: Whether forklift is needed for handling
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractShippingContainerType">
+        <xs:sequence>
+          <xs:element name="WoodType" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                Type of wood used in crate construction.
+                Common types: "Pine", "Plywood", "Hardwood", "OSB"
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ISPMCertified" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>
+                Whether crate meets ISPM-15 international standards.
+                Required for international shipping to prevent pest transfer.
+                ISPM-15 requires heat treatment or fumigation of wood.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RequiresForklift" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether forklift is required for handling this crate.
+                Typically true for wooden crates due to weight and size.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE CONTAINER: Pallet                                       -->
+  <!-- ================================================================ -->
+
+  <xs:element name="Pallet" substitutionGroup="so:ShippingContainer" type="so:PalletType">
+    <xs:annotation>
+      <xs:documentation>
+        Shipping pallet for bulk items and freight.
+        
+        Used for large quantities or heavy items that require forklift handling.
+        Available in standard sizes (48x40, 42x42, etc.).
+        
+        Use Cases:
+        - Bulk orders (multiple boxes)
+        - Heavy items over 100 lbs
+        - Warehouse-to-warehouse shipping
+        - LTL (Less Than Truckload) freight
+        - Items requiring forklift handling
+        
+        Substitutes: ShippingContainer abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PalletType">
+    <xs:annotation>
+      <xs:documentation>
+        Pallet type with size and handling specifications.
+        
+        Extends AbstractShippingContainerType with pallet-specific attributes:
+        - PalletSize: Standard pallet size (Standard, Euro, Half, Quarter, Custom)
+        - Stackable: Whether items on pallet can be stacked
+        - ShrinkWrapped: Whether pallet is shrink-wrapped for stability
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractShippingContainerType">
+        <xs:sequence>
+          <xs:element name="PalletSize" type="so:PalletSizeEnum">
+            <xs:annotation>
+              <xs:documentation>
+                Standard pallet size designation.
+                - Standard: 48x40 inches (most common in North America)
+                - Euro: 47.24x31.50 inches (European standard)
+                - Half: 48x20 inches (half of standard)
+                - Quarter: 24x20 inches (quarter of standard)
+                - Custom: Non-standard size
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Stackable" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether items on this pallet can be stacked.
+                Affects warehouse storage and transportation efficiency.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ShrinkWrapped" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>
+                Whether pallet is shrink-wrapped for stability.
+                Recommended for stackable pallets and long-distance shipping.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE CONTAINER: CustomContainer                              -->
+  <!-- ================================================================ -->
+
+  <xs:element name="CustomContainer" substitutionGroup="so:ShippingContainer" type="so:CustomContainerType">
+    <xs:annotation>
+      <xs:documentation>
+        Custom container type for special shipping needs.
+        
+        Used when standard container types don't meet requirements.
+        Allows specification of custom dimensions and handling.
+        
+        Use Cases:
+        - Unusual shapes or sizes
+        - Special protection requirements
+        - Industry-specific containers
+        - Temperature-controlled containers
+        - Hazmat containers
+        
+        Substitutes: ShippingContainer abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CustomContainerType">
+    <xs:annotation>
+      <xs:documentation>
+        Custom container type with flexible specifications.
+        
+        Extends AbstractShippingContainerType with custom attributes:
+        - CustomSpecifications: Detailed description of custom requirements
+        - ManufacturerName: Container manufacturer (if applicable)
+        - SpecialHandlingRequired: Whether special handling is needed
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractShippingContainerType">
+        <xs:sequence>
+          <xs:element name="CustomSpecifications" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                Detailed specifications for the custom container.
+                Should include materials, construction, special features, etc.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ManufacturerName" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Name of container manufacturer (if applicable).
+                Optional field for tracking container source.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpecialHandlingRequired" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether special handling is required for this container.
+                Typically true for custom containers (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING TYPES: Dimensions and Specifications                  -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ContainerDimensionsType">
+    <xs:annotation>
+      <xs:documentation>
+        Physical dimensions of a container or package.
+        
+        Includes length, width, height, and unit of measurement.
+        Used for calculating shipping costs and space requirements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Length" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Length dimension (longest side).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Width" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Width dimension (middle side).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Height" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Height dimension (shortest side).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Unit" type="so:DimensionUnitEnum">
+        <xs:annotation>
+          <xs:documentation>
+            Unit of measurement for dimensions.
+            Common values: Inches, Centimeters, Feet, Meters
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING ENUMERATIONS (referenced from enumerations module)    -->
+  <!-- ================================================================ -->
+
+  <!-- Note: These enumerations are defined in ShipOrder-enumerations.xsd
+       and are referenced here for completeness. They will be available
+       when the main schema includes both modules. -->
+
+  <!-- BoxStrengthEnum: SingleWall, DoubleWall, TripleWall, HeavyDuty -->
+  <!-- PaddingTypeEnum: Bubble, Foam, Paper, AirPillows -->
+  <!-- PalletSizeEnum: Standard, Euro, Half, Quarter, Custom -->
+  <!-- DimensionUnitEnum: Inches, Centimeters, Feet, Meters -->
+
+</xs:schema>

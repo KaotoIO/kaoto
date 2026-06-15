@@ -1,0 +1,486 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:so="http://www.kaoto.io/shiporder"
+           targetNamespace="http://www.kaoto.io/shiporder"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+      Ship Order Enumerations Module
+      
+      This module contains all enumeration types and xs:restriction simple types
+      used throughout the ShipOrder schema. Modularizing enumerations provides:
+      - Centralized management of controlled vocabularies
+      - Easy updates to enumeration values
+      - Reusability across multiple schema modules
+      - Clear separation of data constraints
+      
+      Module Contents:
+      - xs:restriction types with pattern/range constraints
+      - Enumeration types for controlled vocabularies
+      - Simple type definitions for validation
+      
+      Usage:
+      This module is included in the main ShipOrder.xsd via xs:include.
+      All types defined here are in the ShipOrder namespace.
+      
+      Version: 1.0
+      Part of: ShipOrder Schema Modularization
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- XS:RESTRICTION TYPES: Pattern and Range Constraints             -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="TrackingNumberType">
+    <xs:annotation>
+      <xs:documentation>
+        Restricted tracking number format: 2 letters + 10 digits + 2 letters.
+        Example: "US1234567890CA"
+        Demonstrates: xs:restriction with pattern constraint.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]{2}[0-9]{10}[A-Z]{2}"/>
+      <xs:length value="14"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PackageWeightType">
+    <xs:annotation>
+      <xs:documentation>
+        Restricted package weight in pounds: 0.1 to 150.0 pounds.
+        Typical carrier weight limits for standard packages.
+        Demonstrates: xs:restriction with min/max constraints.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.1"/>
+      <xs:maxInclusive value="150.0"/>
+      <xs:fractionDigits value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PostalCodeType">
+    <xs:annotation>
+      <xs:documentation>
+        US ZIP code format: "12345" or "12345-6789".
+        Supports both 5-digit and ZIP+4 formats.
+        Demonstrates: xs:restriction with pattern for postal codes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{5}(-[0-9]{4})?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Last4DigitsType">
+    <xs:annotation>
+      <xs:documentation>
+        Last 4 digits of card number: exactly 4 digits.
+        Used for payment card reference without exposing full number.
+        Demonstrates: xs:restriction with exact length constraint.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9]{4}"/>
+      <xs:length value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PercentageType">
+    <xs:annotation>
+      <xs:documentation>
+        Percentage value: 0.00 to 100.00.
+        Used for discounts, tax rates, completion percentages, etc.
+        Demonstrates: xs:restriction with decimal range.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.00"/>
+      <xs:maxInclusive value="100.00"/>
+      <xs:fractionDigits value="2"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PriorityLevelType">
+    <xs:annotation>
+      <xs:documentation>
+        Priority level: 1 (lowest) to 10 (highest).
+        Used for order prioritization and processing sequence.
+        Demonstrates: xs:restriction with integer range.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- PAYMENT AND FINANCIAL ENUMERATIONS                               -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="CardTypeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Credit and debit card types accepted for payment.
+        Used in CardPayment substitution group member.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Visa"/>
+      <xs:enumeration value="MasterCard"/>
+      <xs:enumeration value="AmericanExpress"/>
+      <xs:enumeration value="Discover"/>
+      <xs:enumeration value="DinersClub"/>
+      <xs:enumeration value="JCB"/>
+      <xs:enumeration value="Debit"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- CONTAINER AND PACKAGING ENUMERATIONS                             -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="BoxStrengthEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Cardboard box strength ratings based on wall construction.
+        Used in StandardBox container type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SingleWall"/>
+      <xs:enumeration value="DoubleWall"/>
+      <xs:enumeration value="TripleWall"/>
+      <xs:enumeration value="HeavyDuty"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PackageTypeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Types of shipping packages and containers.
+        General classification for package types.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Box"/>
+      <xs:enumeration value="Envelope"/>
+      <xs:enumeration value="Tube"/>
+      <xs:enumeration value="Pallet"/>
+      <xs:enumeration value="Crate"/>
+      <xs:enumeration value="Bag"/>
+      <xs:enumeration value="Custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DimensionUnitEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Units for dimension measurements.
+        Used for package and container dimensions.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Inches"/>
+      <xs:enumeration value="Centimeters"/>
+      <xs:enumeration value="Feet"/>
+      <xs:enumeration value="Meters"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPPING SERVICE ENUMERATIONS                                    -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="ServiceLevelEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Shipping service levels offered by carriers.
+        Determines delivery speed and cost.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Standard"/>
+      <xs:enumeration value="Expedited"/>
+      <xs:enumeration value="Express"/>
+      <xs:enumeration value="Overnight"/>
+      <xs:enumeration value="TwoDay"/>
+      <xs:enumeration value="ThreeDay"/>
+      <xs:enumeration value="Ground"/>
+      <xs:enumeration value="Freight"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SelectionMethodEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Methods for carrier selection.
+        Determines how shipping carrier is chosen.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Automatic"/>
+      <xs:enumeration value="Manual"/>
+      <xs:enumeration value="CustomerPreference"/>
+      <xs:enumeration value="CostOptimized"/>
+      <xs:enumeration value="TimeOptimized"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- ORDER PROCESSING ENUMERATIONS                                    -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="PriorityEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Fulfillment priority levels.
+        Determines processing order and urgency.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Low"/>
+      <xs:enumeration value="Normal"/>
+      <xs:enumeration value="High"/>
+      <xs:enumeration value="Urgent"/>
+      <xs:enumeration value="Critical"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ProcessingStatusEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Order processing status values.
+        Tracks order through processing workflow.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Draft"/>
+      <xs:enumeration value="Submitted"/>
+      <xs:enumeration value="Validated"/>
+      <xs:enumeration value="Processing"/>
+      <xs:enumeration value="OnHold"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Completed"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FulfillmentStatusEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Fulfillment status values.
+        Tracks order through warehouse fulfillment process.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Allocated"/>
+      <xs:enumeration value="Picking"/>
+      <xs:enumeration value="Picked"/>
+      <xs:enumeration value="Packing"/>
+      <xs:enumeration value="Packed"/>
+      <xs:enumeration value="ReadyToShip"/>
+      <xs:enumeration value="Shipped"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="OnHold"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- SPECIAL HANDLING ENUMERATIONS                                    -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="HandlingCodeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Special handling codes for shipments.
+        Indicates special care or requirements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Fragile"/>
+      <xs:enumeration value="Perishable"/>
+      <xs:enumeration value="Hazmat"/>
+      <xs:enumeration value="KeepDry"/>
+      <xs:enumeration value="KeepUpright"/>
+      <xs:enumeration value="TemperatureControlled"/>
+      <xs:enumeration value="HighValue"/>
+      <xs:enumeration value="Oversized"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TemperatureUnitEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Temperature measurement units.
+        Used for temperature-controlled shipments.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Celsius"/>
+      <xs:enumeration value="Fahrenheit"/>
+      <xs:enumeration value="Kelvin"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- TRACKING AND DELIVERY ENUMERATIONS                               -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="TrackingEventTypeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Types of tracking events in shipment lifecycle.
+        Used for tracking history and status updates.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Created"/>
+      <xs:enumeration value="Picked"/>
+      <xs:enumeration value="Packed"/>
+      <xs:enumeration value="Shipped"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="OutForDelivery"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="Exception"/>
+      <xs:enumeration value="Delayed"/>
+      <xs:enumeration value="Returned"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- COST AND SURCHARGE ENUMERATIONS                                  -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="SurchargeTypeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Types of shipping surcharges.
+        Additional fees beyond base shipping cost.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Fuel"/>
+      <xs:enumeration value="Residential"/>
+      <xs:enumeration value="Remote"/>
+      <xs:enumeration value="Oversized"/>
+      <xs:enumeration value="AdditionalHandling"/>
+      <xs:enumeration value="Saturday"/>
+      <xs:enumeration value="SignatureRequired"/>
+      <xs:enumeration value="DeclaredValue"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- INTERNATIONAL SHIPPING ENUMERATIONS                              -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="ExportReasonEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Reasons for export (customs declaration).
+        Required for international shipments.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Sale"/>
+      <xs:enumeration value="Gift"/>
+      <xs:enumeration value="Sample"/>
+      <xs:enumeration value="Repair"/>
+      <xs:enumeration value="Return"/>
+      <xs:enumeration value="Personal"/>
+      <xs:enumeration value="Temporary"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DutyPaymentEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Who pays duties and taxes for international shipments.
+        Determines billing responsibility for customs charges.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Sender"/>
+      <xs:enumeration value="Recipient"/>
+      <xs:enumeration value="ThirdParty"/>
+      <xs:enumeration value="Prepaid"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- CONTAINER ENUMERATIONS                                           -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="PaddingTypeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Type of padding material used in padded envelopes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Bubble"/>
+      <xs:enumeration value="Foam"/>
+      <xs:enumeration value="Paper"/>
+      <xs:enumeration value="AirPillows"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PalletSizeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Standard pallet size designation.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Standard"/>
+      <xs:enumeration value="Euro"/>
+      <xs:enumeration value="Half"/>
+      <xs:enumeration value="Quarter"/>
+      <xs:enumeration value="Custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- SYSTEM AND USER ENUMERATIONS                                     -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="UserTypeEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Types of system users who can create/modify orders.
+        Used for audit and authorization purposes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Human"/>
+      <xs:enumeration value="System"/>
+      <xs:enumeration value="API"/>
+      <xs:enumeration value="Batch"/>
+      <xs:enumeration value="Integration"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ContactMethodEnum">
+    <xs:annotation>
+      <xs:documentation>
+        Preferred contact methods for delivery notifications.
+        Used for customer communication preferences.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Phone"/>
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="SMS"/>
+      <xs:enumeration value="NoContact"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,1436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:so="http://www.kaoto.io/shiporder"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:ca="http://www.kaoto.io/common/address"
+           xmlns:cp="http://www.kaoto.io/common/party"
+           xmlns:cf="http://www.kaoto.io/common/financial"
+           xmlns:cd="http://www.kaoto.io/common/datetime"
+           targetNamespace="http://www.kaoto.io/shiporder"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+      Ship Order Schema for Kaoto DataMapper Testing (Modularized)
+      
+      This schema defines comprehensive shipping and fulfillment order structures
+      for enterprise logistics operations. It serves as the TARGET schema in the
+      DataMapper transformation, receiving data from multiple source schemas:
+      - PurchaseOrder.xsd (order details)
+      - BillingInfo.xsd (payment information)
+      - AccountInfo.xsd (customer account data)
+      - LogisticsInfo.xsd (shipping preferences)
+      - StockInfo.xsd (inventory availability)
+      
+      MODULARIZATION ARCHITECTURE:
+      This schema follows enterprise XML modularization patterns (FIXML/FPML/FMM style)
+      using xs:include to organize content into logical modules:
+      
+      1. ShipOrder-core.xsd (~900 lines)
+         - Order identification and metadata types
+         - Customer information and contact types
+         - Shipment details and line items
+         - Product information types
+         - Packaging information types
+      
+      2. ShipOrder-delivery.xsd (~780 lines)
+         - DeliveryMethod substitution group (4 concrete types)
+         - PaymentMethod substitution group (4 concrete types)
+         - Time window and delivery preference types
+         - White-glove service specifications
+      
+      3. ShipOrder-containers.xsd (~500 lines)
+         - ShippingContainer substitution group (5 concrete types)
+         - Container dimension and specification types
+         - Pallet, crate, box, envelope types
+      
+      4. ShipOrder-enumerations.xsd (~450 lines)
+         - All xs:restriction types (patterns, ranges)
+         - All enumeration types
+         - Controlled vocabularies
+      
+      5. ShipOrder.xsd (this file, ~600 lines)
+         - Root element and type hierarchy (4 levels)
+         - Carrier selection types
+         - Delivery preferences types
+         - Special handling types
+         - Shipping costs and tracking types
+         - Customs and international shipping types
+         - Fulfillment tracking types
+      
+      Key Features:
+      - 4-level type hierarchy with abstract base types
+      - Substitution groups for polymorphic delivery/payment/container selection
+      - Complex delivery instruction modeling
+      - Customs and international shipping support
+      - Carrier integration and tracking
+      - Comprehensive documentation
+      
+      Enterprise Patterns Demonstrated:
+      - xs:include modularization (FIXML/FPML pattern)
+      - Abstract base types with concrete implementations
+      - Substitution groups for polymorphism
+      - xs:extension for type inheritance
+      - xs:restriction for constrained types
+      - Complex choice constructs
+      
+      Version: 1.0 (Modularized)
+      Total Lines: ~3,600 (across 5 files)
+      Purpose: DataMapper XSLT transformation target schema
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- IMPORTS: Common Enterprise Schemas                               -->
+  <!-- ================================================================ -->
+
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/party"
+             schemaLocation="common/common-party.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/financial"
+             schemaLocation="common/common-financial.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/datetime"
+             schemaLocation="common/common-datetime.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- INCLUDES: Modular Schema Components                              -->
+  <!-- ================================================================ -->
+
+  <xs:include schemaLocation="ShipOrder-enumerations.xsd">
+    <xs:annotation>
+      <xs:documentation>
+        Enumerations Module: All enumeration types and xs:restriction simple types.
+        Provides controlled vocabularies and validation constraints.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:include>
+
+  <xs:include schemaLocation="ShipOrder-core.xsd">
+    <xs:annotation>
+      <xs:documentation>
+        Core Module: Fundamental types for order identification, metadata,
+        customer information, shipment details, and product information.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:include>
+
+  <xs:include schemaLocation="ShipOrder-delivery.xsd">
+    <xs:annotation>
+      <xs:documentation>
+        Delivery Module: Delivery method and payment method substitution groups.
+        Includes StandardDelivery, ExpressDelivery, ScheduledDelivery, WhiteGloveDelivery,
+        and CashPayment, CheckPayment, CardPayment, DigitalWalletPayment.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:include>
+
+  <xs:include schemaLocation="ShipOrder-containers.xsd">
+    <xs:annotation>
+      <xs:documentation>
+        Containers Module: Shipping container substitution group.
+        Includes StandardBox, PaddedEnvelope, WoodenCrate, Pallet, CustomContainer.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:include>
+
+  <!-- ================================================================ -->
+  <!-- ROOT ELEMENT: ShipOrder Document                                 -->
+  <!-- ================================================================ -->
+
+  <xs:element name="ShipOrder" type="so:ShipOrderType">
+    <xs:annotation>
+      <xs:documentation>
+        Root element for shipping order documents.
+        
+        A ShipOrder represents a complete shipping fulfillment request,
+        including all items to be shipped, delivery instructions, carrier
+        information, and tracking details. This is the primary target
+        document for the DataMapper transformation.
+        
+        Usage Context:
+        - Generated from purchase orders via XSLT transformation
+        - Consumed by warehouse management systems
+        - Integrated with carrier APIs for shipping
+        - Used for tracking and delivery confirmation
+        
+        Business Rules:
+        - Must have at least one shipment
+        - Delivery address is required
+        - Carrier selection may be automatic or manual
+        - International shipments require customs information
+        
+        Type Hierarchy:
+        Level 1: AbstractShippingOrderType (abstract base)
+        Level 2: BaseShippingOrderType (adds shipment details)
+        Level 3: StandardShippingOrderType (adds delivery options)
+        Level 4: ShipOrderType (adds fulfillment tracking) ← THIS TYPE
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- LEVEL 1: Abstract Base Shipping Order Type                       -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="AbstractShippingOrderType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base type for all shipping order types.
+        
+        This is the foundation of the shipping order type hierarchy,
+        defining common elements shared by all shipping order variants.
+        It establishes the core structure for order identification,
+        customer information, and basic metadata.
+        
+        Type Hierarchy (4 levels):
+        Level 1: AbstractShippingOrderType (this type) ← ABSTRACT BASE
+        Level 2: BaseShippingOrderType (adds shipment details)
+        Level 3: StandardShippingOrderType (adds delivery options)
+        Level 4: ShipOrderType (adds fulfillment tracking)
+        
+        Design Pattern:
+        - Abstract type prevents direct instantiation
+        - Forces use of concrete derived types
+        - Ensures consistent base structure
+        - Enables polymorphic processing
+        
+        Common Elements:
+        - OrderIdentification: Unique IDs and references
+        - OrderMetadata: Creation, modification, status tracking
+        - CustomerInformation: Customer details and preferences
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OrderIdentification" type="so:OrderIdentificationType">
+        <xs:annotation>
+          <xs:documentation>
+            Unique identification for this shipping order.
+            Links to source purchase order and provides tracking references.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderMetadata" type="so:OrderMetadataType">
+        <xs:annotation>
+          <xs:documentation>
+            Metadata about order creation, status, and processing.
+            Includes timestamps, version information, and system references.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomerInformation" type="so:CustomerInformationType">
+        <xs:annotation>
+          <xs:documentation>
+            Complete customer information for this shipping order.
+            Includes contact details, account references, and preferences.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="orderVersion" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          Version identifier for this order schema instance.
+          Format: "major.minor.patch" (e.g., "1.0.0")
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="schemaVersion" type="xs:string" use="required" fixed="1.0">
+      <xs:annotation>
+        <xs:documentation>
+          Version of the ShipOrder schema being used.
+          Fixed at "1.0" for this schema version.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- LEVEL 2: Base Shipping Order Type (extends Level 1)             -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="BaseShippingOrderType">
+    <xs:annotation>
+      <xs:documentation>
+        Base shipping order type with shipment details.
+        
+        Extends AbstractShippingOrderType to add shipment-specific
+        information including items, packaging, and basic delivery details.
+        This level introduces the core shipping functionality.
+        
+        Type Hierarchy (4 levels):
+        Level 1: AbstractShippingOrderType (abstract base)
+        Level 2: BaseShippingOrderType (this type) ← ADDS SHIPMENT DETAILS
+        Level 3: StandardShippingOrderType (adds delivery options)
+        Level 4: ShipOrderType (adds fulfillment tracking)
+        
+        Extensions from Level 1:
+        - ShipmentDetails: Line items with quantities and product info
+        - PackagingInformation: Package and container details
+        - DeliveryAddress: Destination address for shipment
+        - Weight and package count attributes
+        
+        Design Pattern:
+        - Builds on abstract base with concrete shipment data
+        - Still not directly instantiable (no concrete type yet)
+        - Provides foundation for delivery and fulfillment features
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractShippingOrderType">
+        <xs:sequence>
+          <xs:element name="ShipmentDetails" type="so:ShipmentDetailsType">
+            <xs:annotation>
+              <xs:documentation>
+                Detailed information about items being shipped.
+                Includes line items, quantities, and product details.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PackagingInformation" type="so:PackagingInformationType">
+            <xs:annotation>
+              <xs:documentation>
+                Information about how items are packaged for shipment.
+                Includes package types, dimensions, and weight.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DeliveryAddress">
+            <xs:annotation>
+              <xs:documentation>
+                Destination address for this shipment.
+                Contains abstract addr:Address substitution group.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="ca:Address"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="BillingAddress" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Billing address for this shipment.
+                Contains abstract addr:Address substitution group.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="ca:Address"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="ReturnAddress" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Return/warehouse address for this shipment.
+                Contains abstract addr:Address substitution group.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element ref="ca:Address"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="totalWeight" type="ct:Weight_t" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              Total weight of all packages in this shipment.
+              Used for carrier selection and rate calculation.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="totalPackages" type="xs:positiveInteger" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              Total number of packages in this shipment.
+              Must match the count of packages in PackagingInformation.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- LEVEL 3: Standard Shipping Order Type (extends Level 2)         -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StandardShippingOrderType">
+    <xs:annotation>
+      <xs:documentation>
+        Standard shipping order with delivery options.
+        
+        Extends BaseShippingOrderType to add carrier selection,
+        delivery preferences, and shipping service options.
+        This level introduces the business logic for shipping execution.
+        
+        Type Hierarchy (4 levels):
+        Level 1: AbstractShippingOrderType (abstract base)
+        Level 2: BaseShippingOrderType (adds shipment details)
+        Level 3: StandardShippingOrderType (this type) ← ADDS DELIVERY OPTIONS
+        Level 4: ShipOrderType (adds fulfillment tracking)
+        
+        Extensions from Level 2:
+        - CarrierSelection: Chosen carrier and service level
+        - DeliveryPreferences: Customer delivery preferences
+        - SpecialHandling: Fragile, hazmat, temperature control
+        - ShippingCosts: Cost breakdown and surcharges
+        - Signature and partial shipment attributes
+        
+        Design Pattern:
+        - Adds business logic for carrier and delivery management
+        - Supports complex delivery scenarios
+        - Enables cost calculation and tracking
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:BaseShippingOrderType">
+        <xs:sequence>
+          <xs:element name="CarrierSelection" type="so:CarrierSelectionType">
+            <xs:annotation>
+              <xs:documentation>
+                Selected carrier and service for this shipment.
+                Includes carrier details, service level, and estimated delivery.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DeliveryPreferences" type="so:DeliveryPreferencesType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Customer preferences for delivery.
+                Optional - uses standard delivery if not specified.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpecialHandling" type="so:SpecialHandlingType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Special handling requirements (fragile, hazmat, etc.).
+                Optional - only present if special handling needed.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ShippingCosts" type="so:ShippingCostsType">
+            <xs:annotation>
+              <xs:documentation>
+                Breakdown of shipping costs.
+                Includes base rate, surcharges, taxes, and total.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="signatureRequired" type="xs:boolean" default="false">
+          <xs:annotation>
+            <xs:documentation>
+              Whether delivery signature is required.
+              Default is false; set to true for high-value or sensitive shipments.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="allowPartialShipment" type="xs:boolean" default="true">
+          <xs:annotation>
+            <xs:documentation>
+              Whether partial shipments are allowed if all items aren't available.
+              Default is true; set to false to require complete shipment.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- LEVEL 4: Complete Ship Order Type (extends Level 3)             -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ShipOrderType">
+    <xs:annotation>
+      <xs:documentation>
+        Complete shipping order type with fulfillment tracking.
+        
+        This is the CONCRETE type used by the root ShipOrder element.
+        Extends StandardShippingOrderType to add tracking, customs,
+        and fulfillment management capabilities.
+        
+        Type Hierarchy (4 levels):
+        Level 1: AbstractShippingOrderType (abstract base)
+        Level 2: BaseShippingOrderType (adds shipment details)
+        Level 3: StandardShippingOrderType (adds delivery options)
+        Level 4: ShipOrderType (this type) ← CONCRETE IMPLEMENTATION
+        
+        Extensions from Level 3:
+        - TrackingInformation: Tracking numbers and status updates
+        - CustomsInformation: International shipping documentation
+        - FulfillmentTracking: Warehouse fulfillment status
+        - Priority processing attribute
+        
+        Design Pattern:
+        - First concrete type in hierarchy (can be instantiated)
+        - Provides complete shipping order functionality
+        - Supports both domestic and international shipping
+        - Enables end-to-end tracking and fulfillment
+        
+        Usage:
+        This is the type used by the root ShipOrder element.
+        All shipping orders in the system use this type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:StandardShippingOrderType">
+        <xs:sequence>
+          <xs:element name="TrackingInformation" type="so:TrackingInformationType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Comprehensive tracking information.
+                Optional - populated after shipment is created.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CustomsInformation" type="so:CustomsInformationType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Customs documentation for international shipments.
+                Required for cross-border shipments, optional for domestic.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="FulfillmentTracking" type="so:FulfillmentTrackingType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Warehouse fulfillment status and history.
+                Optional - tracks order through warehouse operations.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+        <xs:attribute name="priorityProcessing" type="xs:boolean" default="false">
+          <xs:annotation>
+            <xs:documentation>
+              Whether this order requires priority processing.
+              Set to true for urgent orders that need expedited handling.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CARRIER SELECTION TYPES                                          -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="CarrierSelectionType">
+    <xs:annotation>
+      <xs:documentation>
+        Selected carrier and service for shipment.
+        
+        Includes carrier details, service level, and delivery estimates.
+        Used to communicate shipping method to warehouse and carrier systems.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CarrierName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Name of the shipping carrier.
+            Examples: "UPS", "FedEx", "USPS", "DHL"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CarrierCode" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Standard carrier code (SCAC or similar).
+            Used for EDI and system integration.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ServiceName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Name of the shipping service.
+            Examples: "Ground", "2-Day Air", "Next Day Air"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ServiceCode" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Carrier's service code.
+            Used for carrier API integration.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EstimatedDeliveryDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>
+            Estimated delivery date for this service.
+            Based on carrier's transit time estimates.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="so:DeliveryMethod" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Delivery method for this shipment.
+            Can be StandardDelivery, ExpressDelivery, ScheduledDelivery, or WhiteGloveDelivery.
+            Uses substitution group pattern - DataMapper will show as choice.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CarrierAccountNumber" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Account number with the carrier.
+            Optional - may be omitted for security reasons.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="selectionMethod" type="so:SelectionMethodEnum" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          How the carrier was selected.
+          Values: Automatic, Manual, CustomerPreference, CostOptimized, TimeOptimized
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- DELIVERY PREFERENCES TYPES                                       -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="DeliveryPreferencesType">
+    <xs:annotation>
+      <xs:documentation>
+        Customer preferences for delivery.
+        
+        Includes timing, location, and special instructions.
+        Helps coordinate delivery with customer availability.
+        
+        Demonstrates: maxOccurs=1 patterns (abstract in choice + nested choice).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="RequestedDeliveryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Customer's requested delivery date.
+            Optional - if not specified, uses standard delivery timeframe.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DeliveryTimeWindow" type="so:TimeWindowType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Preferred time window for delivery.
+            Optional - if not specified, delivers during normal hours.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <!-- PATTERNS: Abstract in choice (maxOccurs=1) + Nested choice (maxOccurs=1) -->
+      <xs:choice minOccurs="0">
+        <!-- Pattern 1: Abstract element in choice with maxOccurs=1 -->
+        <xs:element ref="so:PaymentMethod">
+          <xs:annotation>
+            <xs:documentation>
+              PATTERN: Abstract element in choice (maxOccurs=1).
+              Single payment preference for delivery.
+              Demonstrates: Substitution group as choice option with single occurrence.
+              Complements: SpecialHandling/PaymentMethod (maxOccurs=unbounded).
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        
+        <!-- Pattern 2: Nested choice with maxOccurs=1 -->
+        <xs:choice>
+          <xs:element name="StandardDeliveryPreference" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Nested choice (maxOccurs=1) - standard preference.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpressDeliveryPreference" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Nested choice (maxOccurs=1) - express preference.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+        
+        <!-- Regular element as choice option -->
+        <xs:element name="CustomDeliveryPreference" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Custom delivery preference.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      
+      <xs:element name="AlternateDeliveryLocation" type="ca:Abstract_Address_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Alternate delivery location if primary address is unavailable.
+            Optional - uses primary delivery address if not specified.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DeliveryInstructions" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Special instructions for delivery driver.
+            Examples: "Leave at side door", "Ring doorbell twice"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AuthorityToLeave" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>
+            Whether driver is authorized to leave package without signature.
+            Default is false for security.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SPECIAL HANDLING TYPES                                           -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="SpecialHandlingType">
+    <xs:annotation>
+      <xs:documentation>
+        Special handling requirements for shipment.
+        
+        Demonstrates TWO advanced patterns:
+        1. Direct xs:choice nesting (choice within choice, no intermediate element)
+        2. Abstract element as direct child of xs:choice (substitution group in choice)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="HandlingCodes" type="so:HandlingCodesType">
+        <xs:annotation>
+          <xs:documentation>
+            Collection of special handling codes.
+            Values: Fragile, Perishable, Hazmat, KeepDry, KeepUpright, etc.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <!-- Pattern 1: Abstract element as direct child of choice -->
+        <xs:element ref="so:DeliveryMethod">
+          <xs:annotation>
+            <xs:documentation>
+              PATTERN: Abstract element directly in choice.
+              Demonstrates substitution group as choice option.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        
+        <!-- Pattern 2: Direct nested choice (no intermediate element) -->
+        <xs:choice>
+          <xs:element name="PackagingInstruction" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Direct nested choice - packaging instruction.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="HandlingInstruction" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Direct nested choice - handling instruction.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="StorageInstruction" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Direct nested choice - storage instruction.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+        
+        <!-- Regular elements as choice options -->
+        <xs:element name="TemperatureRequirement" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Temperature control requirement.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="HazmatClassification" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Hazardous materials classification.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="TemperatureControl" type="so:TemperatureControlType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Temperature control requirements if applicable.
+            Required for perishable or temperature-sensitive items.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HazardousMaterials" type="so:HazardousMaterialsType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Hazardous materials information if applicable.
+            Required for shipments containing dangerous goods.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- NESTED CHOICE TYPES FOR HANDLING INSTRUCTIONS                   -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StandardHandlingInstructionsType">
+    <xs:annotation>
+      <xs:documentation>
+        Standard handling instructions with nested choice.
+        Demonstrates: Inner choice within outer choice pattern.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="PackagingInstruction" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Standard packaging instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HandlingInstruction" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Standard handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StorageInstruction" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Standard storage instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="SpecializedHandlingInstructionsType">
+    <xs:annotation>
+      <xs:documentation>
+        Specialized handling instructions with nested choice.
+        Demonstrates: Inner choice within outer choice pattern.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="FragileHandling" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Fragile item handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TemperatureControlled" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Temperature-controlled handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HighValueHandling" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>High-value item handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="HazmatHandlingInstructionsType">
+    <xs:annotation>
+      <xs:documentation>
+        Hazardous materials handling instructions with nested choice.
+        Demonstrates: Inner choice within outer choice pattern.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="FlammableHandling" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Flammable materials handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CorrosiveHandling" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Corrosive materials handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ToxicHandling" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Toxic materials handling instruction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+
+
+  <xs:complexType name="HandlingCodesType">
+    <xs:annotation>
+      <xs:documentation>
+        Collection of special handling codes.
+        Multiple codes can be specified for a single shipment.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="HandlingCode" type="so:HandlingCodeEnum" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            Individual handling code.
+            At least one code is required.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TemperatureControlType">
+    <xs:annotation>
+      <xs:documentation>
+        Temperature control requirements.
+        
+        Specifies acceptable temperature range for shipment.
+        Used for perishable or temperature-sensitive items.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MinimumTemperature" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>
+            Minimum acceptable temperature.
+            In specified unit (Celsius, Fahrenheit, Kelvin).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaximumTemperature" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>
+            Maximum acceptable temperature.
+            In specified unit (Celsius, Fahrenheit, Kelvin).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TemperatureUnit" type="so:TemperatureUnitEnum">
+        <xs:annotation>
+          <xs:documentation>
+            Unit of temperature measurement.
+            Values: Celsius, Fahrenheit, Kelvin
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HazardousMaterialsType">
+    <xs:annotation>
+      <xs:documentation>
+        Hazardous materials information.
+        
+        Required for shipments containing dangerous goods.
+        Follows UN/DOT hazmat classification standards.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="UNNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            UN number for hazardous material.
+            Format: "UN####" (e.g., "UN1203" for gasoline)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProperShippingName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Proper shipping name for hazmat.
+            Official name from UN/DOT regulations.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HazardClass" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Hazard class designation.
+            Examples: "3" (flammable liquids), "8" (corrosives)
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackingGroup" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Packing group (I, II, or III).
+            Indicates degree of danger (I = high, III = low).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPPING COSTS TYPES                                             -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ShippingCostsType">
+    <xs:annotation>
+      <xs:documentation>
+        Breakdown of shipping costs.
+        
+        Includes base rate, surcharges, taxes, and total.
+        Provides transparency in shipping cost calculation.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="BaseShippingCost" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>
+            Base shipping cost before surcharges.
+            Carrier's standard rate for selected service.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Surcharges" type="so:SurchargesType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Additional surcharges (fuel, residential, etc.).
+            Optional - only present if surcharges apply.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InsuranceCost" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Cost of shipping insurance if purchased.
+            Optional - only present if insurance is added.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxAmount" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Tax on shipping charges.
+            Optional - depends on jurisdiction.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalShippingCost" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>
+            Total shipping cost including all charges.
+            Sum of base cost, surcharges, insurance, and tax.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="so:PaymentMethod" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Payment method for shipping charges.
+            Can be CreditCardPayment, BankTransferPayment, CashOnDeliveryPayment, or DigitalWalletPayment.
+            Uses substitution group pattern - DataMapper will show as choice.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SurchargesType">
+    <xs:annotation>
+      <xs:documentation>
+        Collection of shipping surcharges.
+        Each surcharge has a type, amount, and optional description.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Surcharge" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="SurchargeType" type="so:SurchargeTypeEnum">
+              <xs:annotation>
+                <xs:documentation>
+                  Type of surcharge.
+                  Values: Fuel, Residential, Remote, Oversized, etc.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Amount" type="ct:MonetaryAmount_t">
+              <xs:annotation>
+                <xs:documentation>
+                  Amount of this surcharge.
+                  Added to base shipping cost.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Description" type="xs:string" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  Description of the surcharge.
+                  Optional - provides additional context.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- TRACKING INFORMATION TYPES                                       -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="TrackingInformationType">
+    <xs:annotation>
+      <xs:documentation>
+        Comprehensive tracking information.
+        
+        Includes tracking numbers, status updates, and location history.
+        Enables real-time shipment visibility.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MasterTrackingNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Master tracking number for the entire shipment.
+            Used to track all packages in this shipment.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TrackingURL" type="xs:anyURI" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            URL for online tracking.
+            Customer-facing tracking page.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TrackingEvents" type="so:TrackingEventsType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            History of tracking events.
+            Chronological list of status updates.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CurrentLocation" type="so:LocationType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Current location of the shipment.
+            Most recent scan location.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EstimatedDelivery" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Current estimated delivery date/time.
+            Updated based on tracking progress.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrackingEventsType">
+    <xs:annotation>
+      <xs:documentation>
+        Collection of tracking events.
+        Provides shipment history and status updates.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TrackingEvent" type="so:TrackingEventType" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            Individual tracking event.
+            At least one event is required.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrackingEventType">
+    <xs:annotation>
+      <xs:documentation>
+        Individual tracking event.
+        
+        Records a status change or location update.
+        Includes timestamp, event type, and description.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="EventDateTime" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>
+            Date and time of this event.
+            ISO 8601 format with timezone.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EventType" type="so:TrackingEventTypeEnum">
+        <xs:annotation>
+          <xs:documentation>
+            Type of tracking event.
+            Values: Created, Picked, Packed, Shipped, InTransit, Delivered, etc.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EventDescription" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Human-readable description of the event.
+            Example: "Package picked up by carrier"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EventLocation" type="so:LocationType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Location where event occurred.
+            Optional - not all events have location data.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LocationType">
+    <xs:annotation>
+      <xs:documentation>
+        Geographic location information.
+        Used for tracking and delivery coordination.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="City" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>City name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StateProvince" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>State or province code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Country" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Country code (ISO 3166).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PostalCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Postal/ZIP code (optional).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CUSTOMS INFORMATION TYPES                                        -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="CustomsInformationType">
+    <xs:annotation>
+      <xs:documentation>
+        Customs documentation for international shipments.
+        
+        Required for cross-border shipments.
+        Includes commercial invoice and customs declaration.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CustomsDeclaration" type="so:CustomsDeclarationType">
+        <xs:annotation>
+          <xs:documentation>
+            Customs declaration information.
+            Required for all international shipments.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <!-- PATTERN: Abstract element in sequence with maxOccurs=1 -->
+      <xs:element ref="so:ShippingContainer" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            PATTERN: Abstract element in sequence (maxOccurs=1).
+            Single container type for customs declaration.
+            Demonstrates: Substitution group with single occurrence.
+            Complements: PackagingInformation/ShippingContainer (maxOccurs=unbounded).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <xs:element name="CommercialInvoice" type="so:CommercialInvoiceType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Commercial invoice for customs.
+            Required for commercial shipments.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomsDeclarationType">
+    <xs:annotation>
+      <xs:documentation>
+        Customs declaration information.
+        Describes shipment contents for customs clearance.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ExportReason" type="so:ExportReasonEnum">
+        <xs:annotation>
+          <xs:documentation>
+            Reason for export.
+            Values: Sale, Gift, Sample, Repair, Return, Personal, Temporary
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DutyPayment" type="so:DutyPaymentEnum">
+        <xs:annotation>
+          <xs:documentation>
+            Who pays duties and taxes.
+            Values: Sender, Recipient, ThirdParty, Prepaid
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomsValue" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>
+            Total customs value of shipment.
+            Used for duty calculation.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CommercialInvoiceType">
+    <xs:annotation>
+      <xs:documentation>
+        Commercial invoice for customs.
+        Required for commercial international shipments.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="InvoiceNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Commercial invoice number.
+            Unique identifier for this invoice.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InvoiceDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>
+            Date of the commercial invoice.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TermsOfSale" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Terms of sale (Incoterms).
+            Examples: "FOB", "CIF", "DDP"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- FULFILLMENT TRACKING TYPES                                       -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="FulfillmentTrackingType">
+    <xs:annotation>
+      <xs:documentation>
+        Warehouse fulfillment status and history.
+        
+        Tracks order through warehouse operations.
+        Provides visibility into picking, packing, and shipping.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="FulfillmentStatus" type="so:FulfillmentStatusEnum">
+        <xs:annotation>
+          <xs:documentation>
+            Current fulfillment status.
+            Values: Pending, Allocated, Picking, Picked, Packing, Packed, ReadyToShip, Shipped, Delivered, Cancelled, OnHold
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarehouseLocation" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Warehouse fulfilling this order.
+            Warehouse identifier or name.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FulfillmentEvents" type="so:FulfillmentEventsType" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            History of fulfillment events.
+            Chronological list of warehouse operations.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FulfillmentEventsType">
+    <xs:annotation>
+      <xs:documentation>
+        Collection of fulfillment events.
+        Tracks order through warehouse operations.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="FulfillmentEvent" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="EventDateTime" type="xs:dateTime">
+              <xs:annotation>
+                <xs:documentation>
+                  Date and time of this event.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="EventType" type="so:FulfillmentStatusEnum">
+              <xs:annotation>
+                <xs:documentation>
+                  Type of fulfillment event.
+                  Indicates the operation performed.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="EventDescription" type="xs:string">
+              <xs:annotation>
+                <xs:documentation>
+                  Description of the fulfillment event.
+                  Example: "Order allocated to warehouse"
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="PerformedBy" type="xs:string" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  User or system that performed this operation.
+                  Optional - may not be tracked for all events.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

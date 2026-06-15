@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bi:BillingInfo xmlns:bi="http://www.kaoto.io/billing"
+                xmlns:ct="http://www.kaoto.io/common/types"
+                xmlns:ca="http://www.kaoto.io/common/address"
+                xmlns:cp="http://www.kaoto.io/common/party"
+                xmlns:cf="http://www.kaoto.io/common/financial"
+                xmlns:cd="http://www.kaoto.io/common/datetime"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                id="550e8400-e29b-41d4-a716-446655440002"
+                version="1.0"
+                timestamp="2026-06-11T14:35:00Z"
+                createdBy="SYSTEM-BILLING-001"
+                createdDate="2026-06-11T14:35:00Z">
+
+  <!-- Billing Header -->
+  <bi:BillingHeader>
+    <bi:BillingID>550e8400-e29b-41d4-a716-446655440002</bi:BillingID>
+    <bi:BillingNumber>INV-2026-001234</bi:BillingNumber>
+    <bi:BillingDate>2026-06-11T14:35:00Z</bi:BillingDate>
+    <bi:BillingPeriod>
+      <bi:StartDate>2026-06-11</bi:StartDate>
+      <bi:EndDate>2026-06-11</bi:EndDate>
+      <bi:PeriodType>Daily</bi:PeriodType>
+    </bi:BillingPeriod>
+    <bi:Currency>USD</bi:Currency>
+    <bi:BillingStatus>Active</bi:BillingStatus>
+    <bi:OrderReference>550e8400-e29b-41d4-a716-446655440001</bi:OrderReference>
+    <bi:ContractReference>SAP-INV-2026-8901</bi:ContractReference>
+    <bi:FiscalYear>2026</bi:FiscalYear>
+    <bi:FiscalPeriod>6</bi:FiscalPeriod>
+  </bi:BillingHeader>
+
+  <!-- Billing Account -->
+  <bi:BillingAccount id="550e8400-e29b-41d4-a716-446655440099">
+    <bi:AccountID>550e8400-e29b-41d4-a716-446655440099</bi:AccountID>
+    <bi:AccountNumber>ACCT-2026-4567</bi:AccountNumber>
+    <bi:AccountName>Sarah Jane Anderson</bi:AccountName>
+    <bi:AccountType>Individual</bi:AccountType>
+    <bi:AccountStatus>Active</bi:AccountStatus>
+    <bi:OpenDate>2025-01-15</bi:OpenDate>
+    <bi:CreditLimit>5000.00</bi:CreditLimit>
+    <bi:CurrentBalance>1688.15</bi:CurrentBalance>
+    <bi:AvailableCredit>3311.85</bi:AvailableCredit>
+    <bi:PaymentTerms>
+      <cf:TermsType>Net</cf:TermsType>
+      <cf:NetTerms>
+        <cf:NetDays>30</cf:NetDays>
+        <cf:DueDate>2026-07-11</cf:DueDate>
+      </cf:NetTerms>
+      <cf:LateFeePolicy>
+        <cf:GracePeriodDays>5</cf:GracePeriodDays>
+        <cf:PercentageFee>1.5</cf:PercentageFee>
+      </cf:LateFeePolicy>
+    </bi:PaymentTerms>
+    <bi:BillingCycle>Monthly</bi:BillingCycle>
+    <bi:StatementDay>15</bi:StatementDay>
+    <bi:DueDay>11</bi:DueDay>
+    <bi:AutoPay>true</bi:AutoPay>
+    <bi:PaperlessStatements>true</bi:PaperlessStatements>
+    <bi:TaxExempt>false</bi:TaxExempt>
+  </bi:BillingAccount>
+
+  <!-- Bill-To Party (Organization) -->
+  <bi:BillToParty>
+    <cp:PartyID>550e8400-e29b-41d4-a716-446655440098</cp:PartyID>
+    <cp:PartyName>TechStore Inc.</cp:PartyName>
+    <cp:PartyType>Organization</cp:PartyType>
+    <cp:ContactInfo isPrimary="true">
+      <cp:ContactType>Billing</cp:ContactType>
+      <cp:ContactName>Sarah Anderson</cp:ContactName>
+      <cp:Email>sarah.anderson@example.com</cp:Email>
+      <cp:Phone>+1-555-123-4567</cp:Phone>
+    </cp:ContactInfo>
+    <ca:StandardAddress>
+      <ca:AddressID>ADDR-CUST-001</ca:AddressID>
+      <ca:AddressLine1>1234 Technology Drive</ca:AddressLine1>
+      <ca:AddressLine2>Suite 500</ca:AddressLine2>
+      <ca:City>San Francisco</ca:City>
+      <ca:Country>US</ca:Country>
+      <ca:StateProvince>CA</ca:StateProvince>
+      <ca:PostalCode>94105</ca:PostalCode>
+    </ca:StandardAddress>
+    <cp:LegalName>TechStore Inc.</cp:LegalName>
+    <cp:OrganizationType>Corporation</cp:OrganizationType>
+    <cp:IncorporationCountry>US</cp:IncorporationCountry>
+    <cp:IncorporationDate>2020-03-15</cp:IncorporationDate>
+    <cp:TaxID>12-3456789</cp:TaxID>
+    <cp:RegistrationNumber>REG-CA-2020-001234</cp:RegistrationNumber>
+    <cp:IndustryCode>44-45</cp:IndustryCode>
+  </bi:BillToParty>
+
+  <!-- Billing Address (uses substitution group) -->
+  <ca:StandardAddress addressType="Commercial">
+    <ca:AddressID>ADDR-BILLING-001</ca:AddressID>
+    <ca:AddressLine1>5000 Commerce Boulevard</ca:AddressLine1>
+    <ca:City>San Jose</ca:City>
+    <ca:Country>US</ca:Country>
+    <ca:StateProvince>CA</ca:StateProvince>
+    <ca:PostalCode>95131</ca:PostalCode>
+  </ca:StandardAddress>
+
+  <!-- Invoices -->
+  <bi:Invoices totalInvoices="1">
+    <bi:StandardInvoice>
+      <bi:InvoiceID>550e8400-e29b-41d4-a716-446655440002</bi:InvoiceID>
+      <bi:InvoiceNumber>INV-2026-001234</bi:InvoiceNumber>
+      <bi:InvoiceDate>2026-06-11</bi:InvoiceDate>
+      <bi:DueDate>2026-07-11</bi:DueDate>
+      <bi:InvoiceStatus>Sent</bi:InvoiceStatus>
+      <bi:Currency>USD</bi:Currency>
+      <bi:TotalAmount>1688.15</bi:TotalAmount>
+      <bi:LineItems>
+        <!-- Line Item 1: Laptop -->
+        <bi:LineItem>
+          <bi:LineNumber>1</bi:LineNumber>
+          <bi:ItemDescription>Professional Laptop 15-inch - High-performance laptop with 16GB RAM, 512GB SSD, Intel i7 processor</bi:ItemDescription>
+          <bi:ProductID>ELEC-LAPTOP-15-001</bi:ProductID>
+          <bi:Quantity>1</bi:Quantity>
+          <bi:UnitOfMeasure>EA</bi:UnitOfMeasure>
+          <bi:UnitPrice>1299.99</bi:UnitPrice>
+          <bi:ExtendedPrice>1299.99</bi:ExtendedPrice>
+          <bi:TaxAmount>104.00</bi:TaxAmount>
+          <bi:LineTotal>1403.99</bi:LineTotal>
+        </bi:LineItem>
+        <!-- Line Item 2: Wireless Mouse -->
+        <bi:LineItem>
+          <bi:LineNumber>2</bi:LineNumber>
+          <bi:ItemDescription>Wireless Ergonomic Mouse - Bluetooth wireless mouse with ergonomic design</bi:ItemDescription>
+          <bi:ProductID>ACC-MOUSE-WIRELESS-001</bi:ProductID>
+          <bi:Quantity>2</bi:Quantity>
+          <bi:UnitOfMeasure>EA</bi:UnitOfMeasure>
+          <bi:UnitPrice>49.99</bi:UnitPrice>
+          <bi:ExtendedPrice>99.98</bi:ExtendedPrice>
+          <bi:TaxAmount>8.00</bi:TaxAmount>
+          <bi:LineTotal>107.98</bi:LineTotal>
+        </bi:LineItem>
+        <!-- Line Item 3: Desk Pad -->
+        <bi:LineItem>
+          <bi:LineNumber>3</bi:LineNumber>
+          <bi:ItemDescription>Premium Desk Pad - Large leather desk pad with non-slip backing</bi:ItemDescription>
+          <bi:ProductID>OFF-DESK-PAD-001</bi:ProductID>
+          <bi:Quantity>1</bi:Quantity>
+          <bi:UnitOfMeasure>EA</bi:UnitOfMeasure>
+          <bi:UnitPrice>79.99</bi:UnitPrice>
+          <bi:ExtendedPrice>79.99</bi:ExtendedPrice>
+          <bi:TaxAmount>6.40</bi:TaxAmount>
+          <bi:LineTotal>86.39</bi:LineTotal>
+        </bi:LineItem>
+        <!-- Line Item 4: Technology Guide Book -->
+        <bi:LineItem>
+          <bi:LineNumber>4</bi:LineNumber>
+          <bi:ItemDescription>Complete Technology Guide 2026 - Comprehensive guide to modern technology - Hardcover Edition</bi:ItemDescription>
+          <bi:ProductID>BOOK-TECH-GUIDE-001</bi:ProductID>
+          <bi:Quantity>1</bi:Quantity>
+          <bi:UnitOfMeasure>EA</bi:UnitOfMeasure>
+          <bi:UnitPrice>59.99</bi:UnitPrice>
+          <bi:ExtendedPrice>59.99</bi:ExtendedPrice>
+          <bi:TaxAmount>4.80</bi:TaxAmount>
+          <bi:LineTotal>64.79</bi:LineTotal>
+        </bi:LineItem>
+        <!-- Line Item 5: Shipping Charge -->
+        <bi:LineItem>
+          <bi:LineNumber>5</bi:LineNumber>
+          <bi:ItemDescription>Express Shipping - 2-day express shipping service</bi:ItemDescription>
+          <bi:ProductID>SHIP-EXPRESS-001</bi:ProductID>
+          <bi:Quantity>1</bi:Quantity>
+          <bi:UnitOfMeasure>EA</bi:UnitOfMeasure>
+          <bi:UnitPrice>25.00</bi:UnitPrice>
+          <bi:ExtendedPrice>25.00</bi:ExtendedPrice>
+          <bi:LineTotal>25.00</bi:LineTotal>
+        </bi:LineItem>
+      </bi:LineItems>
+      <bi:Subtotal>1564.95</bi:Subtotal>
+      <bi:TaxDetails>
+        <cf:SalesTax>
+          <cf:TaxJurisdiction>California</cf:TaxJurisdiction>
+          <cf:TaxRate>0.080000</cf:TaxRate>
+          <cf:TaxableAmount>1539.95</cf:TaxableAmount>
+          <cf:TaxAmount>123.20</cf:TaxAmount>
+        </cf:SalesTax>
+        <cf:TaxExempt>false</cf:TaxExempt>
+      </bi:TaxDetails>
+      <bi:PaymentInstructions>Payment will be automatically charged to credit card on file ending in 4567.</bi:PaymentInstructions>
+    </bi:StandardInvoice>
+  </bi:Invoices>
+
+  <!-- Payment Schedule -->
+  <bi:PaymentSchedule>
+    <bi:ScheduleID>550e8400-e29b-41d4-a716-446655440010</bi:ScheduleID>
+    <bi:TotalAmount>1688.15</bi:TotalAmount>
+    <bi:NumberOfInstallments>1</bi:NumberOfInstallments>
+    <bi:Installment>
+      <bi:InstallmentNumber>1</bi:InstallmentNumber>
+      <bi:DueDate>2026-07-11</bi:DueDate>
+      <bi:Amount>1688.15</bi:Amount>
+      <bi:Status>Scheduled</bi:Status>
+    </bi:Installment>
+  </bi:PaymentSchedule>
+
+  <!-- Payment History -->
+  <bi:PaymentHistory>
+    <bi:Payment>
+      <bi:PaymentID>550e8400-e29b-41d4-a716-446655440020</bi:PaymentID>
+      <bi:PaymentDate>2026-06-11T14:30:00Z</bi:PaymentDate>
+      <bi:PaymentAmount>1688.15</bi:PaymentAmount>
+      <cf:CreditCardPayment>
+        <cf:PaymentMethodID>550e8400-e29b-41d4-a716-446655440030</cf:PaymentMethodID>
+        <cf:PaymentType>CreditCard</cf:PaymentType>
+        <cf:IsDefault>true</cf:IsDefault>
+        <cf:CardType>Visa</cf:CardType>
+        <cf:CardNumber>****-****-****-4567</cf:CardNumber>
+        <cf:CardholderName>Sarah J Anderson</cf:CardholderName>
+        <cf:ExpiryDate>12/28</cf:ExpiryDate>
+        <cf:BillingAddress>1234 Technology Drive, Suite 500, San Francisco, CA 94105</cf:BillingAddress>
+      </cf:CreditCardPayment>
+      <bi:InvoiceID>550e8400-e29b-41d4-a716-446655440002</bi:InvoiceID>
+      <bi:PaymentStatus>Authorized</bi:PaymentStatus>
+      <bi:TransactionID>TXN-2026061114300001</bi:TransactionID>
+      <bi:ConfirmationNumber>AUTH-789456123</bi:ConfirmationNumber>
+    </bi:Payment>
+  </bi:PaymentHistory>
+
+  <!-- Billing Preferences -->
+  <bi:BillingPreferences>
+    <bi:PreferredDeliveryMethod>Email</bi:PreferredDeliveryMethod>
+    <bi:EmailAddress>sarah.anderson@example.com</bi:EmailAddress>
+    <bi:PhoneNumber>+1-555-123-4567</bi:PhoneNumber>
+    <bi:PreferredLanguage>en</bi:PreferredLanguage>
+    <bi:ConsolidatedBilling>false</bi:ConsolidatedBilling>
+    <bi:DetailedInvoices>true</bi:DetailedInvoices>
+    <bi:SummaryStatements>false</bi:SummaryStatements>
+    <bi:NotificationPreferences>
+      <bi:InvoiceReady>true</bi:InvoiceReady>
+      <bi:PaymentDue>true</bi:PaymentDue>
+      <bi:PaymentReceived>true</bi:PaymentReceived>
+      <bi:PaymentOverdue>true</bi:PaymentOverdue>
+      <bi:CreditLimitWarning>true</bi:CreditLimitWarning>
+      <bi:StatementReady>true</bi:StatementReady>
+    </bi:NotificationPreferences>
+  </bi:BillingPreferences>
+
+  <!-- Tax Configuration -->
+  <bi:TaxConfiguration>
+    <bi:TaxJurisdiction>California</bi:TaxJurisdiction>
+    <bi:TaxID>12-3456789</bi:TaxID>
+    <bi:TaxExempt>false</bi:TaxExempt>
+    <bi:DefaultTaxRates>
+      <bi:TaxRate>
+        <bi:TaxType>StateSalesTax</bi:TaxType>
+        <bi:Rate>7.25</bi:Rate>
+        <bi:EffectiveDate>2026-01-01</bi:EffectiveDate>
+      </bi:TaxRate>
+      <bi:TaxRate>
+        <bi:TaxType>LocalSalesTax</bi:TaxType>
+        <bi:Rate>0.75</bi:Rate>
+        <bi:EffectiveDate>2026-01-01</bi:EffectiveDate>
+      </bi:TaxRate>
+    </bi:DefaultTaxRates>
+    <bi:TaxCalculationMethod>Exclusive</bi:TaxCalculationMethod>
+    <bi:ReverseCharge>false</bi:ReverseCharge>
+  </bi:TaxConfiguration>
+
+  <!-- Notes -->
+  <bi:Notes type="Terms" author="Billing System" date="2026-06-11T14:35:00Z">Payment is due within 30 days of invoice date. Late payments subject to 1.5% monthly interest charge after 5-day grace period.</bi:Notes>
+  <bi:Notes type="Returns" author="Billing System" date="2026-06-11T14:35:00Z">Returns accepted within 30 days of delivery. Items must be in original condition with all packaging and accessories.</bi:Notes>
+  <bi:Notes type="Warranty" author="Billing System" date="2026-06-11T14:35:00Z">All electronics come with manufacturer's warranty. Extended warranty options available at checkout.</bi:Notes>
+
+</bi:BillingInfo>

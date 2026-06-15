@@ -1,0 +1,1772 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Account Information Schema (Source Param2)
+  
+  Purpose: Comprehensive customer account management schema with enterprise complexity
+  Demonstrates: Substitution groups for account types, profile management,
+                authentication methods, xs:extension, xs:restriction, xs:import patterns
+  
+  This schema represents complex account scenarios including multiple account types,
+  user profiles, authentication mechanisms, preferences, and security settings.
+  Follows enterprise patterns similar to FIXML/FPML/FMM.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:acct="http://www.kaoto.io/account"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:addr="http://www.kaoto.io/common/address"
+           xmlns:party="http://www.kaoto.io/common/party"
+           xmlns:fin="http://www.kaoto.io/common/financial"
+           xmlns:dt="http://www.kaoto.io/common/datetime"
+           targetNamespace="http://www.kaoto.io/account"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- ================================================================ -->
+  <!-- IMPORTS - Cross-namespace references -->
+  <!-- ================================================================ -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/party"
+             schemaLocation="common/common-party.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/financial"
+             schemaLocation="common/common-financial.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/datetime"
+             schemaLocation="common/common-datetime.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Account Information Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema demonstrates enterprise-level account management including:
+      - 4-level substitution groups for account types
+      - Complex user profile management
+      - Multi-factor authentication mechanisms
+      - Preference and settings management
+      - Security and compliance features
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/account
+      
+      Total complexity: ~1750 lines
+      Demonstrates: Advanced account patterns with substitution groups
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- ROOT ELEMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="AccountInfo" type="acct:AccountInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Root element for account information document.
+        Contains complete account details for a customer.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- ACCOUNT INFO TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="AccountInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Main account information structure.
+        Contains account details, profiles, preferences, and security settings.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="AccountHeader" type="acct:AccountHeader_t">
+        <xs:annotation>
+          <xs:documentation>Account header with identification.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="acct:Account">
+        <xs:annotation>
+          <xs:documentation>
+            Account using substitution group (4 levels deep).
+            Demonstrates: Account type substitution hierarchy.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountHolder" type="party:Person_t">
+        <xs:annotation>
+          <xs:documentation>Primary account holder.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UserProfile" type="acct:UserProfile_t">
+        <xs:annotation>
+          <xs:documentation>User profile information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactInformation" type="acct:ContactInformation_t">
+        <xs:annotation>
+          <xs:documentation>Contact information for account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Addresses" type="acct:Addresses_t">
+        <xs:annotation>
+          <xs:documentation>Collection of addresses.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Authentication" type="acct:Authentication_t">
+        <xs:annotation>
+          <xs:documentation>Authentication settings and methods.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Security" type="acct:Security_t">
+        <xs:annotation>
+          <xs:documentation>Security settings and policies.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Preferences" type="acct:Preferences_t">
+        <xs:annotation>
+          <xs:documentation>User preferences and settings.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Subscriptions" type="acct:Subscriptions_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Active subscriptions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LoyaltyProgram" type="acct:LoyaltyProgram_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Loyalty program membership.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentMethods" type="acct:PaymentMethods_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Saved payment methods.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Compliance" type="acct:Compliance_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Compliance and regulatory information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ActivityLog" type="acct:ActivityLog_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Account activity log.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Notes" type="ct:Note_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Additional account notes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attributeGroup ref="ct:AuditAttributes"/>
+    <xs:attribute name="version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ACCOUNT HEADER -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="AccountHeader_t">
+    <xs:annotation>
+      <xs:documentation>Account header with identification and metadata.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="AccountID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique account identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Human-readable account number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CreationDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time account was created.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastModifiedDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time account was last modified.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastLoginDate" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date/time of last login.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountStatus" type="acct:AccountStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current account status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StatusReason" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reason for current status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VerificationStatus" type="acct:VerificationStatus_t">
+        <xs:annotation>
+          <xs:documentation>Account verification status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VerificationDate" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date account was verified.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Account expiry date if applicable.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ACCOUNT TYPE SUBSTITUTION GROUP (4 LEVELS) -->
+  <!-- ================================================================ -->
+
+  <!-- Level 1: Abstract Base -->
+  <xs:element name="Account" type="acct:Abstract_Account_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base for account substitution group.
+        Level 1 of 4-level substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Abstract_Account_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base type for all accounts.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="AccountType" type="acct:AccountType_t">
+        <xs:annotation>
+          <xs:documentation>Type of account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountTier" type="acct:AccountTier_t">
+        <xs:annotation>
+          <xs:documentation>Account tier/level.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Currency" type="ct:CurrencyCode_t">
+        <xs:annotation>
+          <xs:documentation>Primary currency for account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Language" type="ct:LanguageCode_t">
+        <xs:annotation>
+          <xs:documentation>Preferred language.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TimeZone" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Account time zone.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Level 2: Personal Account -->
+  <xs:element name="PersonalAccount" substitutionGroup="acct:Account" type="acct:PersonalAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Personal/individual account type.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PersonalAccount_t">
+    <xs:annotation>
+      <xs:documentation>Personal account for individual users.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:Abstract_Account_t">
+        <xs:sequence>
+          <xs:element name="DateOfBirth" type="xs:date" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Account holder date of birth.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Gender" type="acct:Gender_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Account holder gender.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MaritalStatus" type="acct:MaritalStatus_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Marital status.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Occupation" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Occupation.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="EmploymentStatus" type="acct:EmploymentStatus_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Employment status.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AnnualIncome" type="acct:IncomeRange_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Annual income range.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Premium Personal Account (extends PersonalAccount) -->
+  <xs:element name="PremiumPersonalAccount" substitutionGroup="acct:PersonalAccount" type="acct:PremiumPersonalAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Premium personal account with enhanced features.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PremiumPersonalAccount_t">
+    <xs:annotation>
+      <xs:documentation>Premium personal account extending personal account.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:PersonalAccount_t">
+        <xs:sequence>
+          <xs:element name="PremiumFeatures" type="acct:PremiumFeatures_t">
+            <xs:annotation>
+              <xs:documentation>Premium account features.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DedicatedSupport" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Dedicated support access.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AccountManager" type="party:Person_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Dedicated account manager.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PriorityProcessing" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Priority processing for transactions.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 4: VIP Account (extends PremiumPersonalAccount) -->
+  <xs:element name="VIPAccount" substitutionGroup="acct:PremiumPersonalAccount" type="acct:VIPAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        VIP account with exclusive benefits.
+        Level 4 of substitution hierarchy (deepest level).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="VIPAccount_t">
+    <xs:annotation>
+      <xs:documentation>VIP account with exclusive features.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:PremiumPersonalAccount_t">
+        <xs:sequence>
+          <xs:element name="VIPLevel" type="acct:VIPLevel_t">
+            <xs:annotation>
+              <xs:documentation>VIP tier level.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ConciergeService" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Concierge service access.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExclusiveOffers" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Access to exclusive offers.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="InvitationOnlyEvents" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Invitation to exclusive events.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PersonalShopper" type="party:Person_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Assigned personal shopper.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Business Account (parallel branch) -->
+  <xs:element name="BusinessAccount" substitutionGroup="acct:Account" type="acct:BusinessAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Business/corporate account type.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="BusinessAccount_t">
+    <xs:annotation>
+      <xs:documentation>Business account for organizations.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:Abstract_Account_t">
+        <xs:sequence>
+          <xs:element name="CompanyName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Legal company name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TaxID" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Tax identification number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="BusinessType" type="acct:BusinessType_t">
+            <xs:annotation>
+              <xs:documentation>Type of business.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="IndustryCode" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Industry classification code.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="YearEstablished" type="xs:gYear" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Year business was established.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="NumberOfEmployees" type="acct:EmployeeRange_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Number of employees range.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AnnualRevenue" type="acct:RevenueRange_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Annual revenue range.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AuthorizedSigners" type="acct:AuthorizedSigners_t">
+            <xs:annotation>
+              <xs:documentation>Authorized signers for account.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Enterprise Account (extends BusinessAccount) -->
+  <xs:element name="EnterpriseAccount" substitutionGroup="acct:BusinessAccount" type="acct:EnterpriseAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Enterprise account for large organizations.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="EnterpriseAccount_t">
+    <xs:annotation>
+      <xs:documentation>Enterprise account with advanced features.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:BusinessAccount_t">
+        <xs:sequence>
+          <xs:element name="EnterpriseFeatures" type="acct:EnterpriseFeatures_t">
+            <xs:annotation>
+              <xs:documentation>Enterprise-specific features.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MultiLocationSupport" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Support for multiple locations.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DepartmentStructure" type="acct:DepartmentStructure_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Organizational department structure.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CustomIntegrations" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Custom integration support.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SLA" type="acct:ServiceLevelAgreement_t">
+            <xs:annotation>
+              <xs:documentation>Service level agreement.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Reseller Account (parallel branch) -->
+  <xs:element name="ResellerAccount" substitutionGroup="acct:Account" type="acct:ResellerAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Reseller/partner account type.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ResellerAccount_t">
+    <xs:annotation>
+      <xs:documentation>Reseller account for partners.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:Abstract_Account_t">
+        <xs:sequence>
+          <xs:element name="ResellerID" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Unique reseller identifier.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PartnerLevel" type="acct:PartnerLevel_t">
+            <xs:annotation>
+              <xs:documentation>Partner tier level.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CommissionRate" type="ct:Percentage_t">
+            <xs:annotation>
+              <xs:documentation>Commission rate percentage.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ResellerAgreement" type="ct:ReferenceNumber_t">
+            <xs:annotation>
+              <xs:documentation>Reference to reseller agreement.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TerritoryRestrictions" type="acct:TerritoryRestrictions_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Geographic territory restrictions.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ProductCategories" type="acct:ProductCategories_t">
+            <xs:annotation>
+              <xs:documentation>Authorized product categories.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Premium Reseller (extends ResellerAccount) -->
+  <xs:element name="PremiumResellerAccount" substitutionGroup="acct:ResellerAccount" type="acct:PremiumResellerAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Premium reseller with enhanced benefits.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PremiumResellerAccount_t">
+    <xs:annotation>
+      <xs:documentation>Premium reseller account.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="acct:ResellerAccount_t">
+        <xs:sequence>
+          <xs:element name="EnhancedCommissionRate" type="ct:Percentage_t">
+            <xs:annotation>
+              <xs:documentation>Enhanced commission rate.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MarketingSupport" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Marketing support provided.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TrainingPrograms" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Access to training programs.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DedicatedPartnerManager" type="party:Person_t">
+            <xs:annotation>
+              <xs:documentation>Dedicated partner manager.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- USER PROFILE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="UserProfile_t">
+    <xs:annotation>
+      <xs:documentation>
+        User profile with 25+ fields for complete user information.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Username" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Unique username.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DisplayName" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Display name for UI.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FirstName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>First name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MiddleName" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Middle name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Last name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Suffix" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name suffix (Jr., Sr., III, etc.).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Title" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Professional title.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProfilePicture" type="ct:URL_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>URL to profile picture.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Bio" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>User biography/description.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Website" type="ct:URL_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Personal/business website.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SocialMedia" type="acct:SocialMediaProfiles_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Social media profiles.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Interests" type="acct:Interests_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>User interests and hobbies.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Skills" type="acct:Skills_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Professional skills.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Certifications" type="acct:Certifications_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Professional certifications.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Education" type="acct:Education_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Educational background.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrivacySettings" type="acct:PrivacySettings_t">
+        <xs:annotation>
+          <xs:documentation>Privacy settings for profile.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SocialMediaProfiles_t">
+    <xs:sequence>
+      <xs:element name="SocialMediaProfile" type="acct:SocialMediaProfile_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SocialMediaProfile_t">
+    <xs:sequence>
+      <xs:element name="Platform" type="acct:SocialMediaPlatform_t"/>
+      <xs:element name="ProfileURL" type="ct:URL_t"/>
+      <xs:element name="Username" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Interests_t">
+    <xs:sequence>
+      <xs:element name="Interest" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Skills_t">
+    <xs:sequence>
+      <xs:element name="Skill" type="acct:Skill_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Skill_t">
+    <xs:sequence>
+      <xs:element name="SkillName" type="xs:string"/>
+      <xs:element name="ProficiencyLevel" type="acct:ProficiencyLevel_t"/>
+      <xs:element name="YearsOfExperience" type="xs:nonNegativeInteger" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Certifications_t">
+    <xs:sequence>
+      <xs:element name="Certification" type="acct:Certification_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Certification_t">
+    <xs:sequence>
+      <xs:element name="CertificationName" type="xs:string"/>
+      <xs:element name="IssuingOrganization" type="xs:string"/>
+      <xs:element name="IssueDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="CredentialID" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Education_t">
+    <xs:sequence>
+      <xs:element name="EducationEntry" type="acct:EducationEntry_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EducationEntry_t">
+    <xs:sequence>
+      <xs:element name="Institution" type="xs:string"/>
+      <xs:element name="Degree" type="xs:string"/>
+      <xs:element name="FieldOfStudy" type="xs:string" minOccurs="0"/>
+      <xs:element name="StartDate" type="xs:gYearMonth"/>
+      <xs:element name="EndDate" type="xs:gYearMonth" minOccurs="0"/>
+      <xs:element name="GPA" type="xs:decimal" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONTACT INFORMATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ContactInformation_t">
+    <xs:annotation>
+      <xs:documentation>Contact information for account.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PrimaryEmail" type="ct:EmailAddress_t">
+        <xs:annotation>
+          <xs:documentation>Primary email address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SecondaryEmail" type="ct:EmailAddress_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Secondary email address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EmailVerified" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether email is verified.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PrimaryPhone" type="ct:PhoneNumber_t">
+        <xs:annotation>
+          <xs:documentation>Primary phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SecondaryPhone" type="ct:PhoneNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Secondary phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MobilePhone" type="ct:PhoneNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Mobile phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PhoneVerified" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether phone is verified.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FaxNumber" type="ct:PhoneNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Fax number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PreferredContactMethod" type="acct:ContactMethod_t">
+        <xs:annotation>
+          <xs:documentation>Preferred method of contact.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactTimePreference" type="acct:ContactTimePreference_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Preferred time for contact.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactTimePreference_t">
+    <xs:sequence>
+      <xs:element name="PreferredDays" type="acct:PreferredDays_t"/>
+      <xs:element name="PreferredTimeRange" type="dt:TimeWindow_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PreferredDays_t">
+    <xs:sequence>
+      <xs:element name="Day" type="acct:DayOfWeek_t" maxOccurs="7"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ADDRESSES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Addresses_t">
+    <xs:annotation>
+      <xs:documentation>Collection of addresses for account.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="AddressEntry" type="acct:AddressEntry_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual address entry.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AddressEntry_t">
+    <xs:sequence>
+      <xs:element name="AddressType" type="acct:AddressType_t">
+        <xs:annotation>
+          <xs:documentation>Type of address (Home, Work, Billing, Shipping).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="addr:Address">
+        <xs:annotation>
+          <xs:documentation>Address using substitution group.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IsPrimary" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether this is the primary address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IsDefault" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether this is the default address for this type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- AUTHENTICATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Authentication_t">
+    <xs:annotation>
+      <xs:documentation>
+        Authentication settings and methods.
+        Demonstrates: Complex authentication with MFA.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PasswordPolicy" type="acct:PasswordPolicy_t">
+        <xs:annotation>
+          <xs:documentation>Password policy requirements.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastPasswordChange" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date/time of last password change.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PasswordExpiryDate" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Password expiry date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MultiFactorAuthentication" type="acct:MultiFactorAuthentication_t">
+        <xs:annotation>
+          <xs:documentation>Multi-factor authentication settings.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BiometricAuthentication" type="acct:BiometricAuthentication_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Biometric authentication settings.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SingleSignOn" type="acct:SingleSignOn_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Single sign-on configuration.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SecurityQuestions" type="acct:SecurityQuestions_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Security questions for account recovery.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TrustedDevices" type="acct:TrustedDevices_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>List of trusted devices.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PasswordPolicy_t">
+    <xs:sequence>
+      <xs:element name="MinimumLength" type="xs:positiveInteger"/>
+      <xs:element name="RequireUppercase" type="xs:boolean"/>
+      <xs:element name="RequireLowercase" type="xs:boolean"/>
+      <xs:element name="RequireNumbers" type="xs:boolean"/>
+      <xs:element name="RequireSpecialCharacters" type="xs:boolean"/>
+      <xs:element name="ExpiryDays" type="xs:positiveInteger" minOccurs="0"/>
+      <xs:element name="HistoryCount" type="xs:positiveInteger" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MultiFactorAuthentication_t">
+    <xs:sequence>
+      <xs:element name="Enabled" type="xs:boolean" default="false"/>
+      <xs:element name="MFAMethod" type="acct:MFAMethod_t" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="BackupCodes" type="acct:BackupCodes_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MFAMethod_t">
+    <xs:sequence>
+      <xs:element name="MethodType" type="acct:MFAMethodType_t"/>
+      <xs:element name="IsPrimary" type="xs:boolean" default="false"/>
+      <xs:element name="PhoneNumber" type="ct:PhoneNumber_t" minOccurs="0"/>
+      <xs:element name="Email" type="ct:EmailAddress_t" minOccurs="0"/>
+      <xs:element name="AppName" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BackupCodes_t">
+    <xs:sequence>
+      <xs:element name="Code" type="xs:string" maxOccurs="10"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BiometricAuthentication_t">
+    <xs:sequence>
+      <xs:element name="FingerprintEnabled" type="xs:boolean" default="false"/>
+      <xs:element name="FaceRecognitionEnabled" type="xs:boolean" default="false"/>
+      <xs:element name="VoiceRecognitionEnabled" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SingleSignOn_t">
+    <xs:sequence>
+      <xs:element name="Enabled" type="xs:boolean" default="false"/>
+      <xs:element name="Provider" type="acct:SSOProvider_t" minOccurs="0"/>
+      <xs:element name="ProviderUserID" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SecurityQuestions_t">
+    <xs:sequence>
+      <xs:element name="SecurityQuestion" type="acct:SecurityQuestion_t" minOccurs="3" maxOccurs="5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SecurityQuestion_t">
+    <xs:sequence>
+      <xs:element name="Question" type="xs:string"/>
+      <xs:element name="AnswerHash" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrustedDevices_t">
+    <xs:sequence>
+      <xs:element name="Device" type="acct:TrustedDevice_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrustedDevice_t">
+    <xs:sequence>
+      <xs:element name="DeviceID" type="xs:string"/>
+      <xs:element name="DeviceName" type="xs:string"/>
+      <xs:element name="DeviceType" type="acct:DeviceType_t"/>
+      <xs:element name="LastUsed" type="xs:dateTime"/>
+      <xs:element name="TrustedSince" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SECURITY -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Security_t">
+    <xs:annotation>
+      <xs:documentation>Security settings and policies.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LoginAttempts" type="acct:LoginAttempts_t">
+        <xs:annotation>
+          <xs:documentation>Login attempt tracking.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountLockout" type="acct:AccountLockout_t">
+        <xs:annotation>
+          <xs:documentation>Account lockout settings.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SessionManagement" type="acct:SessionManagement_t">
+        <xs:annotation>
+          <xs:documentation>Session management settings.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IPWhitelist" type="acct:IPWhitelist_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>IP address whitelist.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SecurityAlerts" type="acct:SecurityAlerts_t">
+        <xs:annotation>
+          <xs:documentation>Security alert preferences.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DataEncryption" type="acct:DataEncryption_t">
+        <xs:annotation>
+          <xs:documentation>Data encryption settings.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LoginAttempts_t">
+    <xs:sequence>
+      <xs:element name="FailedAttempts" type="xs:nonNegativeInteger"/>
+      <xs:element name="LastFailedAttempt" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="MaxAttemptsAllowed" type="xs:positiveInteger"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AccountLockout_t">
+    <xs:sequence>
+      <xs:element name="IsLocked" type="xs:boolean" default="false"/>
+      <xs:element name="LockoutReason" type="xs:string" minOccurs="0"/>
+      <xs:element name="LockedUntil" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="LockoutDuration" type="dt:Duration_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SessionManagement_t">
+    <xs:sequence>
+      <xs:element name="MaxConcurrentSessions" type="xs:positiveInteger"/>
+      <xs:element name="SessionTimeout" type="dt:Duration_t"/>
+      <xs:element name="IdleTimeout" type="dt:Duration_t"/>
+      <xs:element name="RememberMe" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="IPWhitelist_t">
+    <xs:sequence>
+      <xs:element name="IPAddress" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SecurityAlerts_t">
+    <xs:sequence>
+      <xs:element name="LoginFromNewDevice" type="xs:boolean" default="true"/>
+      <xs:element name="LoginFromNewLocation" type="xs:boolean" default="true"/>
+      <xs:element name="PasswordChange" type="xs:boolean" default="true"/>
+      <xs:element name="AccountSettingsChange" type="xs:boolean" default="true"/>
+      <xs:element name="SuspiciousActivity" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DataEncryption_t">
+    <xs:sequence>
+      <xs:element name="EncryptionEnabled" type="xs:boolean" default="true"/>
+      <xs:element name="EncryptionAlgorithm" type="xs:string"/>
+      <xs:element name="KeyRotationPolicy" type="dt:Duration_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PREFERENCES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Preferences_t">
+    <xs:annotation>
+      <xs:documentation>User preferences and settings.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DisplayPreferences" type="acct:DisplayPreferences_t"/>
+      <xs:element name="NotificationPreferences" type="acct:NotificationPreferences_t"/>
+      <xs:element name="CommunicationPreferences" type="acct:CommunicationPreferences_t"/>
+      <xs:element name="PrivacyPreferences" type="acct:PrivacyPreferences_t"/>
+      <xs:element name="AccessibilityPreferences" type="acct:AccessibilityPreferences_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DisplayPreferences_t">
+    <xs:sequence>
+      <xs:element name="Theme" type="acct:Theme_t"/>
+      <xs:element name="FontSize" type="acct:FontSize_t"/>
+      <xs:element name="DateFormat" type="xs:string"/>
+      <xs:element name="TimeFormat" type="acct:TimeFormat_t"/>
+      <xs:element name="NumberFormat" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NotificationPreferences_t">
+    <xs:sequence>
+      <xs:element name="EmailNotifications" type="xs:boolean" default="true"/>
+      <xs:element name="SMSNotifications" type="xs:boolean" default="false"/>
+      <xs:element name="PushNotifications" type="xs:boolean" default="true"/>
+      <xs:element name="InAppNotifications" type="xs:boolean" default="true"/>
+      <xs:element name="NotificationFrequency" type="acct:NotificationFrequency_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CommunicationPreferences_t">
+    <xs:sequence>
+      <xs:element name="MarketingEmails" type="xs:boolean" default="false"/>
+      <xs:element name="NewsletterSubscription" type="xs:boolean" default="false"/>
+      <xs:element name="ProductUpdates" type="xs:boolean" default="true"/>
+      <xs:element name="SurveyInvitations" type="xs:boolean" default="false"/>
+      <xs:element name="ThirdPartyOffers" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PrivacyPreferences_t">
+    <xs:sequence>
+      <xs:element name="ProfileVisibility" type="acct:ProfileVisibility_t"/>
+      <xs:element name="ShowOnlineStatus" type="xs:boolean" default="true"/>
+      <xs:element name="AllowSearchEngineIndexing" type="xs:boolean" default="false"/>
+      <xs:element name="DataSharingConsent" type="xs:boolean" default="false"/>
+      <xs:element name="AnalyticsTracking" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AccessibilityPreferences_t">
+    <xs:sequence>
+      <xs:element name="ScreenReaderEnabled" type="xs:boolean" default="false"/>
+      <xs:element name="HighContrastMode" type="xs:boolean" default="false"/>
+      <xs:element name="KeyboardNavigationOnly" type="xs:boolean" default="false"/>
+      <xs:element name="ReducedMotion" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PrivacySettings_t">
+    <xs:sequence>
+      <xs:element name="ProfileVisibility" type="acct:ProfileVisibility_t"/>
+      <xs:element name="ShowEmail" type="xs:boolean" default="false"/>
+      <xs:element name="ShowPhone" type="xs:boolean" default="false"/>
+      <xs:element name="ShowAddress" type="xs:boolean" default="false"/>
+      <xs:element name="AllowMessaging" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUBSCRIPTIONS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Subscriptions_t">
+    <xs:sequence>
+      <xs:element name="Subscription" type="acct:Subscription_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Subscription_t">
+    <xs:sequence>
+      <xs:element name="SubscriptionID" type="ct:UUID_t"/>
+      <xs:element name="SubscriptionName" type="xs:string"/>
+      <xs:element name="SubscriptionType" type="acct:SubscriptionType_t"/>
+      <xs:element name="Status" type="acct:SubscriptionStatus_t"/>
+      <xs:element name="StartDate" type="xs:date"/>
+      <xs:element name="EndDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="RenewalDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="AutoRenew" type="xs:boolean" default="true"/>
+      <xs:element name="BillingCycle" type="xs:string"/>
+      <xs:element name="Price" type="ct:MonetaryAmount_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- LOYALTY PROGRAM -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="LoyaltyProgram_t">
+    <xs:sequence>
+      <xs:element name="MembershipID" type="xs:string"/>
+      <xs:element name="MembershipLevel" type="acct:MembershipLevel_t"/>
+      <xs:element name="JoinDate" type="xs:date"/>
+      <xs:element name="PointsBalance" type="xs:nonNegativeInteger"/>
+      <xs:element name="LifetimePoints" type="xs:nonNegativeInteger"/>
+      <xs:element name="PointsExpiring" type="acct:PointsExpiring_t" minOccurs="0"/>
+      <xs:element name="Rewards" type="acct:Rewards_t" minOccurs="0"/>
+      <xs:element name="NextTierRequirement" type="xs:nonNegativeInteger" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PointsExpiring_t">
+    <xs:sequence>
+      <xs:element name="Points" type="xs:nonNegativeInteger"/>
+      <xs:element name="ExpiryDate" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Rewards_t">
+    <xs:sequence>
+      <xs:element name="Reward" type="acct:Reward_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Reward_t">
+    <xs:sequence>
+      <xs:element name="RewardID" type="xs:string"/>
+      <xs:element name="RewardName" type="xs:string"/>
+      <xs:element name="PointsRequired" type="xs:nonNegativeInteger"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PAYMENT METHODS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PaymentMethods_t">
+    <xs:sequence>
+      <xs:element name="SavedPaymentMethod" type="acct:SavedPaymentMethod_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SavedPaymentMethod_t">
+    <xs:sequence>
+      <xs:element name="PaymentMethodID" type="ct:UUID_t"/>
+      <xs:element ref="fin:PaymentMethod"/>
+      <xs:element name="IsDefault" type="xs:boolean" default="false"/>
+      <xs:element name="Nickname" type="xs:string" minOccurs="0"/>
+      <xs:element name="AddedDate" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- COMPLIANCE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Compliance_t">
+    <xs:sequence>
+      <xs:element name="TermsAcceptance" type="acct:TermsAcceptance_t"/>
+      <xs:element name="PrivacyPolicyAcceptance" type="acct:PolicyAcceptance_t"/>
+      <xs:element name="CookieConsent" type="acct:CookieConsent_t"/>
+      <xs:element name="DataRetentionPolicy" type="acct:DataRetentionPolicy_t"/>
+      <xs:element name="RightToErasure" type="acct:RightToErasure_t" minOccurs="0"/>
+      <xs:element name="DataPortability" type="acct:DataPortability_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TermsAcceptance_t">
+    <xs:sequence>
+      <xs:element name="Accepted" type="xs:boolean"/>
+      <xs:element name="AcceptanceDate" type="xs:dateTime"/>
+      <xs:element name="TermsVersion" type="xs:string"/>
+      <xs:element name="IPAddress" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PolicyAcceptance_t">
+    <xs:sequence>
+      <xs:element name="Accepted" type="xs:boolean"/>
+      <xs:element name="AcceptanceDate" type="xs:dateTime"/>
+      <xs:element name="PolicyVersion" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CookieConsent_t">
+    <xs:sequence>
+      <xs:element name="EssentialCookies" type="xs:boolean" default="true"/>
+      <xs:element name="AnalyticsCookies" type="xs:boolean" default="false"/>
+      <xs:element name="MarketingCookies" type="xs:boolean" default="false"/>
+      <xs:element name="ConsentDate" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DataRetentionPolicy_t">
+    <xs:sequence>
+      <xs:element name="RetentionPeriod" type="dt:Duration_t"/>
+      <xs:element name="AutoDeleteEnabled" type="xs:boolean" default="false"/>
+      <xs:element name="LastReviewDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RightToErasure_t">
+    <xs:sequence>
+      <xs:element name="RequestDate" type="xs:dateTime"/>
+      <xs:element name="RequestStatus" type="acct:ErasureRequestStatus_t"/>
+      <xs:element name="CompletionDate" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DataPortability_t">
+    <xs:sequence>
+      <xs:element name="RequestDate" type="xs:dateTime"/>
+      <xs:element name="DataFormat" type="xs:string"/>
+      <xs:element name="DeliveryMethod" type="xs:string"/>
+      <xs:element name="CompletionDate" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ACTIVITY LOG -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ActivityLog_t">
+    <xs:sequence>
+      <xs:element name="Activity" type="acct:Activity_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Activity_t">
+    <xs:sequence>
+      <xs:element name="ActivityID" type="ct:UUID_t"/>
+      <xs:element name="ActivityType" type="acct:ActivityType_t"/>
+      <xs:element name="Timestamp" type="xs:dateTime"/>
+      <xs:element name="Description" type="xs:string"/>
+      <xs:element name="IPAddress" type="xs:string" minOccurs="0"/>
+      <xs:element name="UserAgent" type="xs:string" minOccurs="0"/>
+      <xs:element name="Location" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING TYPES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PremiumFeatures_t">
+    <xs:sequence>
+      <xs:element name="UnlimitedStorage" type="xs:boolean" default="true"/>
+      <xs:element name="PrioritySupport" type="xs:boolean" default="true"/>
+      <xs:element name="AdvancedAnalytics" type="xs:boolean" default="true"/>
+      <xs:element name="CustomBranding" type="xs:boolean" default="true"/>
+      <xs:element name="APIAccess" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EnterpriseFeatures_t">
+    <xs:sequence>
+      <xs:element name="SSO" type="xs:boolean" default="true"/>
+      <xs:element name="SAML" type="xs:boolean" default="true"/>
+      <xs:element name="LDAP" type="xs:boolean" default="true"/>
+      <xs:element name="AuditLogs" type="xs:boolean" default="true"/>
+      <xs:element name="RoleBasedAccess" type="xs:boolean" default="true"/>
+      <xs:element name="CustomWorkflows" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DepartmentStructure_t">
+    <xs:sequence>
+      <xs:element name="Department" type="acct:Department_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Department_t">
+    <xs:sequence>
+      <xs:element name="DepartmentID" type="xs:string"/>
+      <xs:element name="DepartmentName" type="xs:string"/>
+      <xs:element name="ParentDepartmentID" type="xs:string" minOccurs="0"/>
+      <xs:element name="Manager" type="party:Person_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceLevelAgreement_t">
+    <xs:sequence>
+      <xs:element name="SLAID" type="xs:string"/>
+      <xs:element name="ResponseTime" type="dt:Duration_t"/>
+      <xs:element name="ResolutionTime" type="dt:Duration_t"/>
+      <xs:element name="Uptime" type="ct:Percentage_t"/>
+      <xs:element name="SupportHours" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AuthorizedSigners_t">
+    <xs:sequence>
+      <xs:element name="Signer" type="party:Person_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TerritoryRestrictions_t">
+    <xs:sequence>
+      <xs:element name="AllowedCountry" type="ct:CountryCode_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProductCategories_t">
+    <xs:sequence>
+      <xs:element name="Category" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS (100+ total values) -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="AccountStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Inactive"/>
+      <xs:enumeration value="Suspended"/>
+      <xs:enumeration value="Locked"/>
+      <xs:enumeration value="PendingVerification"/>
+      <xs:enumeration value="PendingActivation"/>
+      <xs:enumeration value="Closed"/>
+      <xs:enumeration value="Deleted"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VerificationStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Unverified"/>
+      <xs:enumeration value="EmailVerified"/>
+      <xs:enumeration value="PhoneVerified"/>
+      <xs:enumeration value="FullyVerified"/>
+      <xs:enumeration value="VerificationPending"/>
+      <xs:enumeration value="VerificationFailed"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AccountType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Personal"/>
+      <xs:enumeration value="Business"/>
+      <xs:enumeration value="Enterprise"/>
+      <xs:enumeration value="Reseller"/>
+      <xs:enumeration value="Partner"/>
+      <xs:enumeration value="Trial"/>
+      <xs:enumeration value="Demo"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AccountTier_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Free"/>
+      <xs:enumeration value="Basic"/>
+      <xs:enumeration value="Standard"/>
+      <xs:enumeration value="Premium"/>
+      <xs:enumeration value="Professional"/>
+      <xs:enumeration value="Enterprise"/>
+      <xs:enumeration value="VIP"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Gender_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Male"/>
+      <xs:enumeration value="Female"/>
+      <xs:enumeration value="NonBinary"/>
+      <xs:enumeration value="PreferNotToSay"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MaritalStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Single"/>
+      <xs:enumeration value="Married"/>
+      <xs:enumeration value="Divorced"/>
+      <xs:enumeration value="Widowed"/>
+      <xs:enumeration value="Separated"/>
+      <xs:enumeration value="DomesticPartnership"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="EmploymentStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Employed"/>
+      <xs:enumeration value="SelfEmployed"/>
+      <xs:enumeration value="Unemployed"/>
+      <xs:enumeration value="Retired"/>
+      <xs:enumeration value="Student"/>
+      <xs:enumeration value="Homemaker"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="IncomeRange_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Under25K"/>
+      <xs:enumeration value="25K-50K"/>
+      <xs:enumeration value="50K-75K"/>
+      <xs:enumeration value="75K-100K"/>
+      <xs:enumeration value="100K-150K"/>
+      <xs:enumeration value="150K-200K"/>
+      <xs:enumeration value="Over200K"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VIPLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Gold"/>
+      <xs:enumeration value="Platinum"/>
+      <xs:enumeration value="Diamond"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BusinessType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SoleProprietorship"/>
+      <xs:enumeration value="Partnership"/>
+      <xs:enumeration value="LLC"/>
+      <xs:enumeration value="Corporation"/>
+      <xs:enumeration value="SCorporation"/>
+      <xs:enumeration value="NonProfit"/>
+      <xs:enumeration value="Government"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="EmployeeRange_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="1-10"/>
+      <xs:enumeration value="11-50"/>
+      <xs:enumeration value="51-200"/>
+      <xs:enumeration value="201-500"/>
+      <xs:enumeration value="501-1000"/>
+      <xs:enumeration value="1001-5000"/>
+      <xs:enumeration value="5000Plus"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RevenueRange_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Under1M"/>
+      <xs:enumeration value="1M-10M"/>
+      <xs:enumeration value="10M-50M"/>
+      <xs:enumeration value="50M-100M"/>
+      <xs:enumeration value="100M-500M"/>
+      <xs:enumeration value="500M-1B"/>
+      <xs:enumeration value="Over1B"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PartnerLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Bronze"/>
+      <xs:enumeration value="Silver"/>
+      <xs:enumeration value="Gold"/>
+      <xs:enumeration value="Platinum"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SocialMediaPlatform_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Facebook"/>
+      <xs:enumeration value="Twitter"/>
+      <xs:enumeration value="LinkedIn"/>
+      <xs:enumeration value="Instagram"/>
+      <xs:enumeration value="YouTube"/>
+      <xs:enumeration value="TikTok"/>
+      <xs:enumeration value="Pinterest"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ProficiencyLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Beginner"/>
+      <xs:enumeration value="Intermediate"/>
+      <xs:enumeration value="Advanced"/>
+      <xs:enumeration value="Expert"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ContactMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="Phone"/>
+      <xs:enumeration value="SMS"/>
+      <xs:enumeration value="Mail"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DayOfWeek_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Monday"/>
+      <xs:enumeration value="Tuesday"/>
+      <xs:enumeration value="Wednesday"/>
+      <xs:enumeration value="Thursday"/>
+      <xs:enumeration value="Friday"/>
+      <xs:enumeration value="Saturday"/>
+      <xs:enumeration value="Sunday"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AddressType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Home"/>
+      <xs:enumeration value="Work"/>
+      <xs:enumeration value="Billing"/>
+      <xs:enumeration value="Shipping"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MFAMethodType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SMS"/>
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="AuthenticatorApp"/>
+      <xs:enumeration value="HardwareToken"/>
+      <xs:enumeration value="Biometric"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SSOProvider_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Google"/>
+      <xs:enumeration value="Facebook"/>
+      <xs:enumeration value="Microsoft"/>
+      <xs:enumeration value="Apple"/>
+      <xs:enumeration value="LinkedIn"/>
+      <xs:enumeration value="SAML"/>
+      <xs:enumeration value="OAuth"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DeviceType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Desktop"/>
+      <xs:enumeration value="Laptop"/>
+      <xs:enumeration value="Tablet"/>
+      <xs:enumeration value="Mobile"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Theme_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Light"/>
+      <xs:enumeration value="Dark"/>
+      <xs:enumeration value="Auto"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FontSize_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Small"/>
+      <xs:enumeration value="Medium"/>
+      <xs:enumeration value="Large"/>
+      <xs:enumeration value="ExtraLarge"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TimeFormat_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="12Hour"/>
+      <xs:enumeration value="24Hour"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NotificationFrequency_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Immediate"/>
+      <xs:enumeration value="Hourly"/>
+      <xs:enumeration value="Daily"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="Never"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ProfileVisibility_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Public"/>
+      <xs:enumeration value="Private"/>
+      <xs:enumeration value="FriendsOnly"/>
+      <xs:enumeration value="Custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SubscriptionType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="Annual"/>
+      <xs:enumeration value="Lifetime"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SubscriptionStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Expired"/>
+      <xs:enumeration value="PendingRenewal"/>
+      <xs:enumeration value="Suspended"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MembershipLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Bronze"/>
+      <xs:enumeration value="Silver"/>
+      <xs:enumeration value="Gold"/>
+      <xs:enumeration value="Platinum"/>
+      <xs:enumeration value="Diamond"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ErasureRequestStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="InProgress"/>
+      <xs:enumeration value="Completed"/>
+      <xs:enumeration value="Rejected"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ActivityType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Login"/>
+      <xs:enumeration value="Logout"/>
+      <xs:enumeration value="PasswordChange"/>
+      <xs:enumeration value="ProfileUpdate"/>
+      <xs:enumeration value="SettingsChange"/>
+      <xs:enumeration value="Purchase"/>
+      <xs:enumeration value="Refund"/>
+      <xs:enumeration value="SecurityAlert"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

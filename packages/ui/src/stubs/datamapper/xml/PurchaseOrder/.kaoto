@@ -1,0 +1,132 @@
+{
+	"kaoto-datamapper-9c6ade5b": {
+		"sourceBody": {
+			"type": "XML Schema",
+			"filePath": [
+				"schemas/common/common-types.xsd",
+				"schemas/common/common-party.xsd",
+				"schemas/common/common-address.xsd",
+				"schemas/common/common-financial.xsd",
+				"schemas/common/common-datetime.xsd",
+				"schemas/PurchaseOrder.xsd"
+			],
+			"rootElementChoice": {
+				"namespaceUri": "http://www.kaoto.io/purchaseorder",
+				"name": "PurchaseOrder"
+			},
+			"fieldTypeOverrides": [],
+			"choiceSelections": [],
+			"fieldSubstitutions": []
+		},
+		"sourceParameters": {
+			"billingInfoDoc": {
+				"type": "XML Schema",
+				"filePath": [
+					"schemas/BillingInfo.xsd",
+					"schemas/common/common-datetime.xsd",
+					"schemas/common/common-financial.xsd",
+					"schemas/common/common-party.xsd",
+					"schemas/common/common-address.xsd",
+					"schemas/common/common-types.xsd"
+				],
+				"rootElementChoice": {
+					"namespaceUri": "http://www.kaoto.io/billing",
+					"name": "BillingInfo"
+				},
+				"fieldTypeOverrides": [],
+				"choiceSelections": [],
+				"fieldSubstitutions": []
+			},
+			"accountInfoDoc": {
+				"type": "XML Schema",
+				"filePath": [
+					"schemas/AccountInfo.xsd",
+					"schemas/common/common-datetime.xsd",
+					"schemas/common/common-financial.xsd",
+					"schemas/common/common-party.xsd",
+					"schemas/common/common-address.xsd",
+					"schemas/common/common-types.xsd"
+				],
+				"rootElementChoice": {
+					"namespaceUri": "http://www.kaoto.io/account",
+					"name": "AccountInfo"
+				},
+				"fieldTypeOverrides": [],
+				"choiceSelections": [],
+				"fieldSubstitutions": []
+			},
+			"logisticsInfoDoc": {
+				"type": "XML Schema",
+				"filePath": [
+					"schemas/LogisticsInfo.xsd",
+					"schemas/common/common-datetime.xsd",
+					"schemas/common/common-financial.xsd",
+					"schemas/common/common-party.xsd",
+					"schemas/common/common-address.xsd",
+					"schemas/common/common-types.xsd"
+				],
+				"rootElementChoice": {
+					"namespaceUri": "http://www.kaoto.io/logistics",
+					"name": "LogisticsInfo"
+				},
+				"fieldTypeOverrides": [],
+				"choiceSelections": [],
+				"fieldSubstitutions": []
+			},
+			"stockInfoDoc": {
+				"type": "XML Schema",
+				"filePath": [
+					"schemas/StockInfo.xsd",
+					"schemas/common/common-datetime.xsd",
+					"schemas/common/common-financial.xsd",
+					"schemas/common/common-party.xsd",
+					"schemas/common/common-address.xsd",
+					"schemas/common/common-types.xsd"
+				],
+				"rootElementChoice": {
+					"namespaceUri": "http://www.kaoto.io/stock",
+					"name": "StockInfo"
+				},
+				"fieldTypeOverrides": [],
+				"choiceSelections": [],
+				"fieldSubstitutions": []
+			}
+		},
+		"targetBody": {
+			"type": "XML Schema",
+			"filePath": [
+				"schemas/common/common-datetime.xsd",
+				"schemas/common/common-financial.xsd",
+				"schemas/common/common-party.xsd",
+				"schemas/common/common-address.xsd",
+				"schemas/common/common-types.xsd",
+				"schemas/ShipOrder.xsd",
+				"schemas/ShipOrder-core.xsd",
+				"schemas/ShipOrder-delivery.xsd",
+				"schemas/ShipOrder-containers.xsd",
+				"schemas/ShipOrder-enumerations.xsd"
+			],
+			"rootElementChoice": {
+				"namespaceUri": "http://www.kaoto.io/shiporder",
+				"name": "ShipOrder"
+			},
+			"fieldTypeOverrides": [],
+			"choiceSelections": [],
+			"fieldSubstitutions": []
+		},
+		"xsltPath": "purchaseorder-to-shiporder.xsl",
+		"namespaceMap": {
+			"xs": "http://www.w3.org/2001/XMLSchema",
+			"po": "http://www.kaoto.io/purchaseorder",
+			"ai": "http://www.kaoto.io/account",
+			"li": "http://www.kaoto.io/logistics",
+			"si": "http://www.kaoto.io/stock",
+			"bi": "http://www.kaoto.io/billing",
+			"party": "http://www.kaoto.io/common/party",
+			"addr": "http://www.kaoto.io/common/address",
+			"fin": "http://www.kaoto.io/common/financial",
+			"dt": "http://www.kaoto.io/common/datetime",
+			"ns0": "http://www.kaoto.io/shiporder"
+		}
+	}
+}

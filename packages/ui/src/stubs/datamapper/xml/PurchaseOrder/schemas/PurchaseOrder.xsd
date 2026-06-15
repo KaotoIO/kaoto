@@ -1,0 +1,2113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Purchase Order Schema (Source Body)
+  
+  Purpose: Main source schema for purchase order data with enterprise complexity
+  Demonstrates: Substitution groups (4-5 levels), abstract elements in choice,
+                xs:extension, xs:restriction, xs:import, xs:include patterns
+  
+  This schema represents a complex purchase order with multiple levels of
+  substitution groups, abstract types, and nested choice constructs.
+  Follows enterprise patterns similar to FIXML/FPML/FMM.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:po="http://www.kaoto.io/purchaseorder"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:addr="http://www.kaoto.io/common/address"
+           xmlns:party="http://www.kaoto.io/common/party"
+           xmlns:fin="http://www.kaoto.io/common/financial"
+           xmlns:dt="http://www.kaoto.io/common/datetime"
+           targetNamespace="http://www.kaoto.io/purchaseorder"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- ================================================================ -->
+  <!-- IMPORTS - Cross-namespace references -->
+  <!-- ================================================================ -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/party"
+             schemaLocation="common/common-party.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/financial"
+             schemaLocation="common/common-financial.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/datetime"
+             schemaLocation="common/common-datetime.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Purchase Order Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema demonstrates enterprise-level complexity including:
+      - 4-5 level substitution groups for order types
+      - Abstract elements within xs:choice constructs
+      - xs:extension and xs:restriction patterns
+      - Complex nested structures
+      - Integration with common schemas via xs:import
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/purchaseorder
+      
+      Total complexity: ~2000 lines
+      Demonstrates: All advanced XSD features in combination
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- ROOT ELEMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="PurchaseOrder" type="po:PurchaseOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Root element for purchase order document.
+        Represents a complete purchase order with all details.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- PURCHASE ORDER TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PurchaseOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Main purchase order structure.
+        Contains header, items, pricing, and fulfillment details.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OrderHeader" type="po:OrderHeader_t">
+        <xs:annotation>
+          <xs:documentation>Order header with identification and metadata.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="po:OrderType">
+        <xs:annotation>
+          <xs:documentation>
+            Order type using substitution group (4 levels deep).
+            Demonstrates: Substitution group pattern.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Buyer" type="party:Organization_t">
+        <xs:annotation>
+          <xs:documentation>Buying organization.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Seller" type="party:Organization_t">
+        <xs:annotation>
+          <xs:documentation>Selling organization.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderItems" type="po:OrderItems_t">
+        <xs:annotation>
+          <xs:documentation>Line items in the order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PricingDetails" type="po:PricingDetails_t">
+        <xs:annotation>
+          <xs:documentation>Pricing breakdown and calculations.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="fin:PaymentMethod" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Payment method using substitution group from common-financial.
+            Demonstrates: Cross-schema substitution group usage.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentTerms" type="fin:PaymentTerms_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Payment terms and conditions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxDetails" type="fin:TaxDetails_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tax calculation details.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShippingDetails" type="po:ShippingDetails_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Shipping and delivery information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomsDetails" type="po:CustomsDetails_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Customs information for international shipments.
+            Demonstrates: Abstract element in sequence (maxOccurs=1).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DeliveryPreferences" type="po:DeliveryPreferences_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Delivery preferences and instructions.
+            Demonstrates: Abstract in choice (maxOccurs=1) + Nested choice (maxOccurs=1).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="SpecialInstructions" type="po:SpecialInstructions_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Special instructions with nested choice construct.
+            Demonstrates: Complex choice with abstract elements.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ApprovalWorkflow" type="po:ApprovalWorkflow_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Multi-stage approval workflow.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Attachments" type="po:Attachments_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Document attachments.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Notes" type="ct:Note_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Additional notes and comments.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attributeGroup ref="ct:AuditAttributes"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ORDER TYPE SUBSTITUTION GROUP (4 LEVELS) -->
+  <!-- ================================================================ -->
+
+  <!-- Level 1: Abstract Base -->
+  <xs:element name="OrderType" type="po:Abstract_OrderType_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base for order type substitution group.
+        Level 1 of 4-level substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Abstract_OrderType_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base type for all order types.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OrderCategory" type="po:OrderCategory_t">
+        <xs:annotation>
+          <xs:documentation>High-level order category.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Priority" type="po:OrderPriority_t">
+        <xs:annotation>
+          <xs:documentation>Order priority level.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Level 2: Standard Order -->
+  <xs:element name="StandardOrder" substitutionGroup="po:OrderType" type="po:StandardOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Standard order type.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="StandardOrder_t">
+    <xs:annotation>
+      <xs:documentation>Standard order with normal processing.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_OrderType_t">
+        <xs:sequence>
+          <xs:element name="ProcessingTime" type="dt:Duration_t">
+            <xs:annotation>
+              <xs:documentation>Expected processing time.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="StandardFeatures" type="po:StandardFeatures_t">
+            <xs:annotation>
+              <xs:documentation>Standard order features.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Express Order (extends StandardOrder) -->
+  <xs:element name="ExpressOrder" substitutionGroup="po:StandardOrder" type="po:ExpressOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Express order with expedited processing.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ExpressOrder_t">
+    <xs:annotation>
+      <xs:documentation>Express order extending standard order.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:StandardOrder_t">
+        <xs:sequence>
+          <xs:element name="ExpressLevel" type="po:ExpressLevel_t">
+            <xs:annotation>
+              <xs:documentation>Level of express service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpressFee" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Additional fee for express service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GuaranteedDelivery" type="xs:dateTime">
+            <xs:annotation>
+              <xs:documentation>Guaranteed delivery date/time.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 4: Same-Day Order (extends ExpressOrder) -->
+  <xs:element name="SameDayOrder" substitutionGroup="po:ExpressOrder" type="po:SameDayOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Same-day delivery order.
+        Level 4 of substitution hierarchy (deepest level).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="SameDayOrder_t">
+    <xs:annotation>
+      <xs:documentation>Same-day order extending express order.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:ExpressOrder_t">
+        <xs:sequence>
+          <xs:element name="DeliveryWindow" type="dt:TimeWindow_t">
+            <xs:annotation>
+              <xs:documentation>Specific delivery time window.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CourierAssignment" type="po:CourierAssignment_t">
+            <xs:annotation>
+              <xs:documentation>Assigned courier details.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RealTimeTracking" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Real-time tracking enabled.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Rush Order (parallel branch) -->
+  <xs:element name="RushOrder" substitutionGroup="po:OrderType" type="po:RushOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Rush order type (parallel to StandardOrder).
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="RushOrder_t">
+    <xs:annotation>
+      <xs:documentation>Rush order with priority processing.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_OrderType_t">
+        <xs:sequence>
+          <xs:element name="RushReason" type="po:RushReason_t">
+            <xs:annotation>
+              <xs:documentation>Reason for rush processing.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RushFee" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Rush processing fee.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RequiredByDate" type="xs:dateTime">
+            <xs:annotation>
+              <xs:documentation>Required completion date/time.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Emergency Order (extends RushOrder) -->
+  <xs:element name="EmergencyOrder" substitutionGroup="po:RushOrder" type="po:EmergencyOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Emergency order with highest priority.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="EmergencyOrder_t">
+    <xs:annotation>
+      <xs:documentation>Emergency order extending rush order.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:RushOrder_t">
+        <xs:sequence>
+          <xs:element name="EmergencyContact" type="party:ContactInfo_t">
+            <xs:annotation>
+              <xs:documentation>Emergency contact person.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="EmergencyAuthorization" type="po:EmergencyAuthorization_t">
+            <xs:annotation>
+              <xs:documentation>Authorization for emergency processing.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ImmediateProcessing" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Process immediately without queue.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Bulk Order (parallel branch) -->
+  <xs:element name="BulkOrder" substitutionGroup="po:OrderType" type="po:BulkOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Bulk order type for large quantities.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="BulkOrder_t">
+    <xs:annotation>
+      <xs:documentation>Bulk order with volume discounts.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_OrderType_t">
+        <xs:sequence>
+          <xs:element name="MinimumQuantity" type="ct:Quantity_t">
+            <xs:annotation>
+              <xs:documentation>Minimum quantity for bulk pricing.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="VolumeDiscount" type="ct:Percentage_t">
+            <xs:annotation>
+              <xs:documentation>Volume discount percentage.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DeliverySchedule" type="dt:Schedule_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Scheduled delivery for bulk items.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Wholesale Order (extends BulkOrder) -->
+  <xs:element name="WholesaleOrder" substitutionGroup="po:BulkOrder" type="po:WholesaleOrder_t">
+    <xs:annotation>
+      <xs:documentation>
+        Wholesale order for resellers.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="WholesaleOrder_t">
+    <xs:annotation>
+      <xs:documentation>Wholesale order extending bulk order.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="po:BulkOrder_t">
+        <xs:sequence>
+          <xs:element name="ResellerID" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Reseller identification number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="WholesalePricing" type="po:WholesalePricing_t">
+            <xs:annotation>
+              <xs:documentation>Wholesale pricing structure.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ResellerAgreement" type="ct:ReferenceNumber_t">
+            <xs:annotation>
+              <xs:documentation>Reference to reseller agreement.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ORDER HEADER -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="OrderHeader_t">
+    <xs:annotation>
+      <xs:documentation>
+        Order header with identification and metadata.
+        Contains 20+ attributes for comprehensive tracking.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OrderID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique order identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderNumber" type="ct:ReferenceNumber_t">
+        <xs:annotation>
+          <xs:documentation>Human-readable order number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time order was created.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RequestedDeliveryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Requested delivery date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PromisedDeliveryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Promised delivery date from seller.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderStatus" type="po:OrderStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current status of the order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Currency" type="ct:CurrencyCode_t">
+        <xs:annotation>
+          <xs:documentation>Currency for all amounts in this order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Language" type="ct:LanguageCode_t">
+        <xs:annotation>
+          <xs:documentation>Language for order documents.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderSource" type="po:OrderSource_t">
+        <xs:annotation>
+          <xs:documentation>Source/channel of the order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SalesRepresentative" type="party:Person_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Sales representative handling the order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomerReference" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Customer's reference number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="QuoteReference" type="ct:ReferenceNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reference to related quote.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContractReference" type="ct:ReferenceNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reference to master contract.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PreviousOrderReference" type="ct:UUID_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reference to previous related order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BuyerContact" type="party:ContactInfo_t">
+        <xs:annotation>
+          <xs:documentation>Primary buyer contact.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SellerContact" type="party:ContactInfo_t">
+        <xs:annotation>
+          <xs:documentation>Primary seller contact.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingCycle" type="po:BillingCycle_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Billing cycle for recurring orders.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FiscalYear" type="xs:gYear" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Fiscal year for accounting.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CostCenter" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Cost center for internal accounting.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProjectCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Project code for tracking.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attribute name="isTestOrder" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Indicates if this is a test order.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ORDER ITEMS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="OrderItems_t">
+    <xs:annotation>
+      <xs:documentation>
+        Collection of order line items.
+        Each item has 25+ fields for complete product specification.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OrderItem" type="po:OrderItem_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual order line item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="totalItems" type="xs:positiveInteger" use="optional">
+      <xs:annotation>
+        <xs:documentation>Total number of line items.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="OrderItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        Individual order line item with complete product details.
+        Demonstrates: Complex nested structure with choice constructs.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LineNumber" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Line item number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProductID" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Product identifier (SKU).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProductName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Product name/description.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProductCategory" type="po:ProductCategory_t">
+        <xs:annotation>
+          <xs:documentation>Product category classification.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Manufacturer" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Product manufacturer.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ManufacturerPartNumber" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Manufacturer's part number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UPC" type="po:UPC_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Universal Product Code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="ct:Quantity_t">
+        <xs:annotation>
+          <xs:documentation>Ordered quantity.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnitOfMeasure" type="po:UnitOfMeasure_t">
+        <xs:annotation>
+          <xs:documentation>Unit of measure for quantity.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnitPrice" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Price per unit.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExtendedPrice" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Extended price (quantity × unit price).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Discounts" type="po:Discounts_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Applicable discounts for this item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxDetails" type="fin:TaxDetails_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tax details for this item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NetPrice" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Net price after discounts before tax.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalPrice" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Total price including tax.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RequestedDeliveryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Requested delivery date for this item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PromisedDeliveryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Promised delivery date for this item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BackorderAllowed" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>Whether backorder is allowed for this item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SubstitutionAllowed" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether product substitution is allowed.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProductSpecifications" type="po:ProductSpecifications_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Detailed product specifications.
+            Demonstrates: Nested choice with abstract elements.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackagingRequirements" type="po:PackagingRequirements_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Special packaging requirements.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HandlingInstructions" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Special handling instructions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarrantyInfo" type="po:WarrantyInfo_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Warranty information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SerialNumbers" type="po:SerialNumbers_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Serial numbers for serialized items.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LotNumbers" type="po:LotNumbers_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Lot/batch numbers.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attribute name="isCancelled" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Indicates if this line item is cancelled.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PRODUCT SPECIFICATIONS (NESTED CHOICE WITH ABSTRACT ELEMENTS) -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ProductSpecifications_t">
+    <xs:annotation>
+      <xs:documentation>
+        Product specifications with nested choice constructs.
+        Demonstrates: 3-level nested choice with abstract elements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice>
+        <xs:element name="PhysicalProduct" type="po:PhysicalProduct_t">
+          <xs:annotation>
+            <xs:documentation>Physical product specifications.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="DigitalProduct" type="po:DigitalProduct_t">
+          <xs:annotation>
+            <xs:documentation>Digital product specifications.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="ServiceProduct" type="po:ServiceProduct_t">
+          <xs:annotation>
+            <xs:documentation>Service product specifications.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PhysicalProduct_t">
+    <xs:annotation>
+      <xs:documentation>
+        Physical product with dimensions and weight.
+        Level 2 choice: Material type.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Dimensions" type="po:Dimensions_t">
+        <xs:annotation>
+          <xs:documentation>Product dimensions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Weight" type="ct:Weight_t">
+        <xs:annotation>
+          <xs:documentation>Product weight.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WeightUnit" type="ct:WeightUnit_t">
+        <xs:annotation>
+          <xs:documentation>Unit of weight measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="SolidMaterial" type="po:SolidMaterial_t">
+          <xs:annotation>
+            <xs:documentation>Solid material specifications.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="LiquidMaterial" type="po:LiquidMaterial_t">
+          <xs:annotation>
+            <xs:documentation>Liquid material specifications.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="GaseousMaterial" type="po:GaseousMaterial_t">
+          <xs:annotation>
+            <xs:documentation>Gaseous material specifications.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="HazardousClassification" type="po:HazardousClassification_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Hazardous material classification if applicable.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SolidMaterial_t">
+    <xs:annotation>
+      <xs:documentation>
+        Solid material specifications.
+        Level 3 choice: Storage requirements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MaterialType" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Type of solid material.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Density" type="xs:decimal" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Material density.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="AmbientStorage" type="po:AmbientStorage_t">
+          <xs:annotation>
+            <xs:documentation>Ambient temperature storage.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="RefrigeratedStorage" type="po:RefrigeratedStorage_t">
+          <xs:annotation>
+            <xs:documentation>Refrigerated storage requirements.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="FrozenStorage" type="po:FrozenStorage_t">
+          <xs:annotation>
+            <xs:documentation>Frozen storage requirements.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="ControlledAtmosphere" type="po:ControlledAtmosphere_t">
+          <xs:annotation>
+            <xs:documentation>Controlled atmosphere storage.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LiquidMaterial_t">
+    <xs:annotation>
+      <xs:documentation>Liquid material specifications.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LiquidType" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Type of liquid.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Volume" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Liquid volume.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VolumeUnit" type="ct:VolumeUnit_t">
+        <xs:annotation>
+          <xs:documentation>Unit of volume measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Viscosity" type="xs:decimal" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Liquid viscosity.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FlashPoint" type="xs:decimal" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Flash point temperature.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GaseousMaterial_t">
+    <xs:annotation>
+      <xs:documentation>Gaseous material specifications.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="GasType" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Type of gas.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Pressure" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Gas pressure.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PressureUnit" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Unit of pressure measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Flammable" type="xs:boolean">
+        <xs:annotation>
+          <xs:documentation>Whether gas is flammable.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DigitalProduct_t">
+    <xs:annotation>
+      <xs:documentation>Digital product specifications.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="FileFormat" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Digital file format.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FileSize" type="xs:long">
+        <xs:annotation>
+          <xs:documentation>File size in bytes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DownloadURL" type="ct:URL_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Download URL for digital product.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LicenseType" type="po:LicenseType_t">
+        <xs:annotation>
+          <xs:documentation>Software license type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LicenseKey" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>License key or activation code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceProduct_t">
+    <xs:annotation>
+      <xs:documentation>Service product specifications.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ServiceType" type="po:ServiceType_t">
+        <xs:annotation>
+          <xs:documentation>Type of service.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ServiceDuration" type="dt:Duration_t">
+        <xs:annotation>
+          <xs:documentation>Duration of service.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ServiceSchedule" type="dt:Schedule_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Service schedule if recurring.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ServiceLocation" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Location where service is performed.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:choice>
+            <xs:element name="OnSite" type="xs:boolean">
+              <xs:annotation>
+                <xs:documentation>Service performed on-site.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="Remote" type="xs:boolean">
+              <xs:annotation>
+                <xs:documentation>Service performed remotely.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element ref="addr:Address">
+              <xs:annotation>
+                <xs:documentation>Specific service address.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING COMPLEX TYPES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Dimensions_t">
+    <xs:annotation>
+      <xs:documentation>Product dimensions (length, width, height).</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Length" type="ct:Dimension_t">
+        <xs:annotation>
+          <xs:documentation>Length dimension.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Width" type="ct:Dimension_t">
+        <xs:annotation>
+          <xs:documentation>Width dimension.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Height" type="ct:Dimension_t">
+        <xs:annotation>
+          <xs:documentation>Height dimension.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DimensionUnit" type="ct:DimensionUnit_t">
+        <xs:annotation>
+          <xs:documentation>Unit of dimension measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AmbientStorage_t">
+    <xs:annotation>
+      <xs:documentation>Ambient temperature storage requirements.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TemperatureRange" type="po:TemperatureRange_t">
+        <xs:annotation>
+          <xs:documentation>Acceptable temperature range.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HumidityRange" type="po:HumidityRange_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Acceptable humidity range.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RefrigeratedStorage_t">
+    <xs:annotation>
+      <xs:documentation>Refrigerated storage requirements.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TemperatureRange" type="po:TemperatureRange_t">
+        <xs:annotation>
+          <xs:documentation>Required temperature range (typically 0-8°C).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaxStorageDuration" type="dt:Duration_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Maximum storage duration at refrigerated temperature.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FrozenStorage_t">
+    <xs:annotation>
+      <xs:documentation>Frozen storage requirements.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TemperatureRange" type="po:TemperatureRange_t">
+        <xs:annotation>
+          <xs:documentation>Required temperature range (typically -18°C or below).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaxStorageDuration" type="dt:Duration_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Maximum storage duration at frozen temperature.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ControlledAtmosphere_t">
+    <xs:annotation>
+      <xs:documentation>Controlled atmosphere storage requirements.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OxygenLevel" type="ct:Percentage_t">
+        <xs:annotation>
+          <xs:documentation>Required oxygen level percentage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CarbonDioxideLevel" type="ct:Percentage_t">
+        <xs:annotation>
+          <xs:documentation>Required carbon dioxide level percentage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NitrogenLevel" type="ct:Percentage_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Required nitrogen level percentage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TemperatureRange" type="po:TemperatureRange_t">
+        <xs:annotation>
+          <xs:documentation>Required temperature range.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TemperatureRange_t">
+    <xs:annotation>
+      <xs:documentation>Temperature range specification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MinTemperature" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Minimum temperature.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaxTemperature" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Maximum temperature.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TemperatureUnit" type="po:TemperatureUnit_t">
+        <xs:annotation>
+          <xs:documentation>Temperature unit (Celsius, Fahrenheit, Kelvin).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HumidityRange_t">
+    <xs:annotation>
+      <xs:documentation>Humidity range specification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MinHumidity" type="ct:Percentage_t">
+        <xs:annotation>
+          <xs:documentation>Minimum relative humidity percentage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaxHumidity" type="ct:Percentage_t">
+        <xs:annotation>
+          <xs:documentation>Maximum relative humidity percentage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HazardousClassification_t">
+    <xs:annotation>
+      <xs:documentation>Hazardous material classification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="UNNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>UN hazard identification number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HazardClass" type="po:HazardClass_t">
+        <xs:annotation>
+          <xs:documentation>Hazard class.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackingGroup" type="po:PackingGroup_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Packing group (I, II, or III).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ProperShippingName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Proper shipping name for hazardous material.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Discounts_t">
+    <xs:annotation>
+      <xs:documentation>Collection of discounts applied to an item.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Discount" type="po:Discount_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual discount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Discount_t">
+    <xs:annotation>
+      <xs:documentation>Individual discount specification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DiscountType" type="po:DiscountType_t">
+        <xs:annotation>
+          <xs:documentation>Type of discount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DiscountCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Discount code or coupon code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="PercentageDiscount" type="ct:Percentage_t">
+          <xs:annotation>
+            <xs:documentation>Discount as percentage.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="AmountDiscount" type="ct:MonetaryAmount_t">
+          <xs:annotation>
+            <xs:documentation>Discount as fixed amount.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="DiscountAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Calculated discount amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DiscountReason" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reason for discount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PackagingRequirements_t">
+    <xs:annotation>
+      <xs:documentation>Special packaging requirements.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PackagingType" type="po:PackagingType_t">
+        <xs:annotation>
+          <xs:documentation>Type of packaging required.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PackagingMaterial" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Specific packaging material.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GiftWrapping" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether gift wrapping is required.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GiftMessage" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Gift message if gift wrapping requested.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FragileHandling" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether fragile handling is required.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WarrantyInfo_t">
+    <xs:annotation>
+      <xs:documentation>Product warranty information.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="WarrantyType" type="po:WarrantyType_t">
+        <xs:annotation>
+          <xs:documentation>Type of warranty.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarrantyDuration" type="dt:Duration_t">
+        <xs:annotation>
+          <xs:documentation>Duration of warranty coverage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarrantyProvider" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Warranty provider (manufacturer, seller, third-party).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarrantyTerms" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Warranty terms and conditions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExtendedWarrantyAvailable" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether extended warranty is available.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SerialNumbers_t">
+    <xs:annotation>
+      <xs:documentation>Collection of serial numbers.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="SerialNumber" type="xs:string" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual serial number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LotNumbers_t">
+    <xs:annotation>
+      <xs:documentation>Collection of lot/batch numbers.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LotNumber" type="po:LotNumber_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual lot/batch number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LotNumber_t">
+    <xs:annotation>
+      <xs:documentation>Lot/batch number with details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LotID" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Lot identification number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ManufactureDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date of manufacture for this lot.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Expiry date for this lot.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Quantity" type="ct:Quantity_t">
+        <xs:annotation>
+          <xs:documentation>Quantity from this lot.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PRICING DETAILS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PricingDetails_t">
+    <xs:annotation>
+      <xs:documentation>
+        Complete pricing breakdown for the order.
+        Demonstrates: Abstract base with 4 concrete types via extension.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Subtotal" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Subtotal before discounts and tax.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalDiscounts" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Total discount amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NetAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Net amount after discounts before tax.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalTax" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Total tax amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShippingCost" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Shipping cost.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HandlingFee" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Handling fee.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OtherFees" type="po:OtherFees_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Other miscellaneous fees.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GrandTotal" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Grand total including all charges.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="po:PricingModel">
+        <xs:annotation>
+          <xs:documentation>
+            Pricing model using substitution group.
+            Demonstrates: Abstract element with 4 concrete implementations.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Pricing Model Substitution Group -->
+  <xs:element name="PricingModel" type="po:Abstract_PricingModel_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base for pricing model substitution group.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Abstract_PricingModel_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base type for pricing models.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ModelName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Name of the pricing model.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="StandardPricing" substitutionGroup="po:PricingModel" type="po:StandardPricing_t"/>
+  <xs:complexType name="StandardPricing_t">
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_PricingModel_t">
+        <xs:sequence>
+          <xs:element name="ListPrice" type="ct:MonetaryAmount_t"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="TieredPricing" substitutionGroup="po:PricingModel" type="po:TieredPricing_t"/>
+  <xs:complexType name="TieredPricing_t">
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_PricingModel_t">
+        <xs:sequence>
+          <xs:element name="PriceTier" type="po:PriceTier_t" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="DynamicPricing" substitutionGroup="po:PricingModel" type="po:DynamicPricing_t"/>
+  <xs:complexType name="DynamicPricing_t">
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_PricingModel_t">
+        <xs:sequence>
+          <xs:element name="BasePrice" type="ct:MonetaryAmount_t"/>
+          <xs:element name="DemandMultiplier" type="xs:decimal"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:element name="ContractPricing" substitutionGroup="po:PricingModel" type="po:ContractPricing_t"/>
+  <xs:complexType name="ContractPricing_t">
+    <xs:complexContent>
+      <xs:extension base="po:Abstract_PricingModel_t">
+        <xs:sequence>
+          <xs:element name="ContractID" type="ct:ReferenceNumber_t"/>
+          <xs:element name="ContractPrice" type="ct:MonetaryAmount_t"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="PriceTier_t">
+    <xs:sequence>
+      <xs:element name="MinQuantity" type="ct:Quantity_t"/>
+      <xs:element name="MaxQuantity" type="ct:Quantity_t" minOccurs="0"/>
+      <xs:element name="UnitPrice" type="ct:MonetaryAmount_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OtherFees_t">
+    <xs:sequence>
+      <xs:element name="Fee" type="po:Fee_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Fee_t">
+    <xs:sequence>
+      <xs:element name="FeeType" type="xs:string"/>
+      <xs:element name="FeeAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="FeeDescription" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPPING DETAILS -->
+  <!-- ================================================================ -->
+
+
+  <!-- ================================================================ -->
+  <!-- CUSTOMS DETAILS TYPE (maxOccurs=1 Abstract in Sequence) -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="CustomsDetails_t">
+    <xs:annotation>
+      <xs:documentation>
+        Customs and import/export details for international orders.
+        Demonstrates: Abstract element in sequence with maxOccurs=1.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CustomsValue" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Declared customs value.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CountryOfOrigin" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Country of origin for goods.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <!-- PATTERN: Abstract element in sequence with maxOccurs=1 -->
+      <xs:element ref="addr:Address" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            PATTERN: Abstract element in sequence (maxOccurs=1).
+            Single customs office address.
+            Demonstrates: Substitution group with single occurrence.
+            Complements: ShippingDetails/Address (standard usage).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <xs:element name="HarmonizedCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Harmonized tariff code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExportLicense" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Export license number if required.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- DELIVERY PREFERENCES TYPE (maxOccurs=1 Patterns in Choice) -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="DeliveryPreferences_t">
+    <xs:annotation>
+      <xs:documentation>
+        Delivery preferences and special instructions.
+        Demonstrates: Abstract in choice (maxOccurs=1) + Nested choice (maxOccurs=1).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PreferredDeliveryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Preferred delivery date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      
+      <!-- PATTERNS: Abstract in choice (maxOccurs=1) + Nested choice (maxOccurs=1) -->
+      <xs:choice minOccurs="0">
+        <!-- Pattern 1: Abstract element in choice with maxOccurs=1 -->
+        <xs:element ref="fin:PaymentMethod">
+          <xs:annotation>
+            <xs:documentation>
+              PATTERN: Abstract element in choice (maxOccurs=1).
+              Single payment preference.
+              Demonstrates: Substitution group as choice option with single occurrence.
+              Complements: ShippingDetails/PaymentMethod (maxOccurs=unbounded).
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        
+        <!-- Pattern 2: Nested choice with maxOccurs=1 -->
+        <xs:choice>
+          <xs:element name="StandardPaymentPreference" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Nested choice (maxOccurs=1) - standard preference.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpressPaymentPreference" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>PATTERN: Nested choice (maxOccurs=1) - express preference.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+        
+        <!-- Regular element -->
+        <xs:element name="CustomPaymentPreference" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Custom payment preference.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      
+      <xs:element name="SpecialInstructions" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Special delivery instructions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SignatureRequired" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether signature is required for delivery.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="ShippingDetails_t">
+    <xs:annotation>
+      <xs:documentation>Shipping and delivery information.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ShippingMethod" type="po:ShippingMethod_t">
+        <xs:annotation>
+          <xs:documentation>Shipping method/carrier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShippingService" type="po:ShippingService_t">
+        <xs:annotation>
+          <xs:documentation>Shipping service level.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="addr:Address">
+        <xs:annotation>
+          <xs:documentation>Shipping address (uses substitution group).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="PackagingInstruction" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Specific packaging instruction for shipment.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="HandlingInstruction" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Specific handling instruction for shipment.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="DeliveryInstruction" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Specific delivery instruction for shipment.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="StorageInstruction" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Storage requirement instruction for shipment.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="SignatureRequired" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether signature is required for delivery.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InsuranceRequired" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether shipping insurance is required.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InsuranceValue" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Declared value for insurance.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SPECIAL INSTRUCTIONS (NESTED CHOICE WITH ABSTRACT ELEMENTS) -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="SpecialInstructions_t">
+    <xs:annotation>
+      <xs:documentation>
+        Special instructions with nested choice construct.
+        Demonstrates: Complex choice with 10+ instruction types.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:choice maxOccurs="unbounded">
+        <xs:element name="PackagingInstruction" type="xs:string"/>
+        <xs:element name="DeliveryInstruction" type="xs:string"/>
+        <xs:element name="HandlingInstruction" type="xs:string"/>
+        <xs:element name="InvoicingInstruction" type="xs:string"/>
+        <xs:element name="QualityInstruction" type="xs:string"/>
+        <xs:element name="ComplianceInstruction" type="xs:string"/>
+        <xs:element name="CustomsInstruction" type="xs:string"/>
+        <xs:element name="StorageInstruction" type="xs:string"/>
+        <xs:element name="ReturnInstruction" type="xs:string"/>
+        <xs:element name="GeneralInstruction" type="xs:string"/>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- APPROVAL WORKFLOW -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ApprovalWorkflow_t">
+    <xs:annotation>
+      <xs:documentation>Multi-stage approval workflow.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ApprovalStage" type="po:ApprovalStage_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual approval stage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="currentStage" type="xs:positiveInteger" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="ApprovalStage_t">
+    <xs:sequence>
+      <xs:element name="StageNumber" type="xs:positiveInteger"/>
+      <xs:element name="StageName" type="xs:string"/>
+      <xs:element name="Approver" type="party:Person_t"/>
+      <xs:element name="ApprovalStatus" type="po:ApprovalStatus_t"/>
+      <xs:element name="ApprovalDate" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="Comments" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ATTACHMENTS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Attachments_t">
+    <xs:sequence>
+      <xs:element name="Attachment" type="ct:Attachment_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING TYPES FOR ORDER TYPE HIERARCHY -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StandardFeatures_t">
+    <xs:sequence>
+      <xs:element name="FreeShipping" type="xs:boolean" default="false"/>
+      <xs:element name="FreeReturns" type="xs:boolean" default="false"/>
+      <xs:element name="LoyaltyPoints" type="xs:nonNegativeInteger" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CourierAssignment_t">
+    <xs:sequence>
+      <xs:element name="CourierName" type="xs:string"/>
+      <xs:element name="CourierID" type="xs:string"/>
+      <xs:element name="CourierContact" type="party:ContactInfo_t"/>
+      <xs:element name="VehicleInfo" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EmergencyAuthorization_t">
+    <xs:sequence>
+      <xs:element name="AuthorizationCode" type="xs:string"/>
+      <xs:element name="AuthorizedBy" type="party:Person_t"/>
+      <xs:element name="AuthorizationDate" type="xs:dateTime"/>
+      <xs:element name="Reason" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WholesalePricing_t">
+    <xs:sequence>
+      <xs:element name="WholesaleDiscount" type="ct:Percentage_t"/>
+      <xs:element name="MinimumOrderQuantity" type="ct:Quantity_t"/>
+      <xs:element name="VolumeIncentives" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SIMPLE TYPE RESTRICTIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="UPC_t">
+    <xs:annotation>
+      <xs:documentation>Universal Product Code (12 digits).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS (100+ total values across all enums) -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="OrderCategory_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Retail"/>
+      <xs:enumeration value="Wholesale"/>
+      <xs:enumeration value="B2B"/>
+      <xs:enumeration value="B2C"/>
+      <xs:enumeration value="Government"/>
+      <xs:enumeration value="Educational"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OrderPriority_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Low"/>
+      <xs:enumeration value="Normal"/>
+      <xs:enumeration value="High"/>
+      <xs:enumeration value="Urgent"/>
+      <xs:enumeration value="Critical"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ExpressLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NextDay"/>
+      <xs:enumeration value="TwoDay"/>
+      <xs:enumeration value="ThreeDay"/>
+      <xs:enumeration value="Overnight"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RushReason_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CustomerRequest"/>
+      <xs:enumeration value="ProductionDelay"/>
+      <xs:enumeration value="InventoryShortage"/>
+      <xs:enumeration value="SeasonalDemand"/>
+      <xs:enumeration value="ContractualObligation"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OrderStatus_t">
+    <xs:annotation>
+      <xs:documentation>Order status (20 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Draft"/>
+      <xs:enumeration value="Submitted"/>
+      <xs:enumeration value="PendingApproval"/>
+      <xs:enumeration value="Approved"/>
+      <xs:enumeration value="Rejected"/>
+      <xs:enumeration value="Processing"/>
+      <xs:enumeration value="OnHold"/>
+      <xs:enumeration value="Backordered"/>
+      <xs:enumeration value="PartiallyShipped"/>
+      <xs:enumeration value="Shipped"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="OutForDelivery"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="Completed"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Returned"/>
+      <xs:enumeration value="Refunded"/>
+      <xs:enumeration value="Disputed"/>
+      <xs:enumeration value="Failed"/>
+      <xs:enumeration value="Expired"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OrderSource_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Website"/>
+      <xs:enumeration value="MobileApp"/>
+      <xs:enumeration value="Phone"/>
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="Fax"/>
+      <xs:enumeration value="InPerson"/>
+      <xs:enumeration value="EDI"/>
+      <xs:enumeration value="API"/>
+      <xs:enumeration value="Marketplace"/>
+      <xs:enumeration value="SocialMedia"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BillingCycle_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OneTime"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="BiWeekly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="SemiAnnual"/>
+      <xs:enumeration value="Annual"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ProductCategory_t">
+    <xs:annotation>
+      <xs:documentation>Product category (100+ values subset shown).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Electronics"/>
+      <xs:enumeration value="Computers"/>
+      <xs:enumeration value="Software"/>
+      <xs:enumeration value="Books"/>
+      <xs:enumeration value="Clothing"/>
+      <xs:enumeration value="Shoes"/>
+      <xs:enumeration value="Jewelry"/>
+      <xs:enumeration value="HomeGarden"/>
+      <xs:enumeration value="Furniture"/>
+      <xs:enumeration value="Appliances"/>
+      <xs:enumeration value="Tools"/>
+      <xs:enumeration value="Automotive"/>
+      <xs:enumeration value="Sports"/>
+      <xs:enumeration value="Toys"/>
+      <xs:enumeration value="BabyProducts"/>
+      <xs:enumeration value="HealthBeauty"/>
+      <xs:enumeration value="Grocery"/>
+      <xs:enumeration value="PetSupplies"/>
+      <xs:enumeration value="OfficeSupplies"/>
+      <xs:enumeration value="Industrial"/>
+      <!-- 80+ more categories would be here in full implementation -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="UnitOfMeasure_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Each"/>
+      <xs:enumeration value="Pair"/>
+      <xs:enumeration value="Dozen"/>
+      <xs:enumeration value="Gross"/>
+      <xs:enumeration value="Box"/>
+      <xs:enumeration value="Case"/>
+      <xs:enumeration value="Pallet"/>
+      <xs:enumeration value="Kilogram"/>
+      <xs:enumeration value="Pound"/>
+      <xs:enumeration value="Liter"/>
+      <xs:enumeration value="Gallon"/>
+      <xs:enumeration value="Meter"/>
+      <xs:enumeration value="Foot"/>
+      <xs:enumeration value="SquareMeter"/>
+      <xs:enumeration value="SquareFoot"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DiscountType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Volume"/>
+      <xs:enumeration value="Promotional"/>
+      <xs:enumeration value="Seasonal"/>
+      <xs:enumeration value="Loyalty"/>
+      <xs:enumeration value="Employee"/>
+      <xs:enumeration value="Senior"/>
+      <xs:enumeration value="Student"/>
+      <xs:enumeration value="Military"/>
+      <xs:enumeration value="Coupon"/>
+      <xs:enumeration value="Rebate"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PackagingType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Standard"/>
+      <xs:enumeration value="Reinforced"/>
+      <xs:enumeration value="Padded"/>
+      <xs:enumeration value="Insulated"/>
+      <xs:enumeration value="Waterproof"/>
+      <xs:enumeration value="Tamper-Evident"/>
+      <xs:enumeration value="Gift"/>
+      <xs:enumeration value="Eco-Friendly"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="WarrantyType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Manufacturer"/>
+      <xs:enumeration value="Seller"/>
+      <xs:enumeration value="Extended"/>
+      <xs:enumeration value="Lifetime"/>
+      <xs:enumeration value="Limited"/>
+      <xs:enumeration value="None"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LicenseType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Single-User"/>
+      <xs:enumeration value="Multi-User"/>
+      <xs:enumeration value="Site"/>
+      <xs:enumeration value="Enterprise"/>
+      <xs:enumeration value="Subscription"/>
+      <xs:enumeration value="Perpetual"/>
+      <xs:enumeration value="Trial"/>
+      <xs:enumeration value="Educational"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ServiceType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Installation"/>
+      <xs:enumeration value="Maintenance"/>
+      <xs:enumeration value="Repair"/>
+      <xs:enumeration value="Consultation"/>
+      <xs:enumeration value="Training"/>
+      <xs:enumeration value="Support"/>
+      <xs:enumeration value="Customization"/>
+      <xs:enumeration value="Integration"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TemperatureUnit_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Celsius"/>
+      <xs:enumeration value="Fahrenheit"/>
+      <xs:enumeration value="Kelvin"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="HazardClass_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Class1-Explosives"/>
+      <xs:enumeration value="Class2-Gases"/>
+      <xs:enumeration value="Class3-FlammableLiquids"/>
+      <xs:enumeration value="Class4-FlammableSolids"/>
+      <xs:enumeration value="Class5-OxidizingSubstances"/>
+      <xs:enumeration value="Class6-ToxicSubstances"/>
+      <xs:enumeration value="Class7-RadioactiveMaterial"/>
+      <xs:enumeration value="Class8-CorrosiveSubstances"/>
+      <xs:enumeration value="Class9-Miscellaneous"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PackingGroup_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="I"/>
+      <xs:enumeration value="II"/>
+      <xs:enumeration value="III"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ShippingMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="UPS"/>
+      <xs:enumeration value="FedEx"/>
+      <xs:enumeration value="USPS"/>
+      <xs:enumeration value="DHL"/>
+      <xs:enumeration value="Courier"/>
+      <xs:enumeration value="Freight"/>
+      <xs:enumeration value="Parcel"/>
+      <xs:enumeration value="PickUp"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ShippingService_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ground"/>
+      <xs:enumeration value="Express"/>
+      <xs:enumeration value="Overnight"/>
+      <xs:enumeration value="TwoDay"/>
+      <xs:enumeration value="ThreeDay"/>
+      <xs:enumeration value="International"/>
+      <xs:enumeration value="Economy"/>
+      <xs:enumeration value="Priority"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ApprovalStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Approved"/>
+      <xs:enumeration value="Rejected"/>
+      <xs:enumeration value="Deferred"/>
+      <xs:enumeration value="Escalated"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

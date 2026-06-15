@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Common Financial Schema
+  
+  Purpose: Shared financial types including payment methods, instruments, and tax structures
+  Demonstrates: Abstract types with extensions, substitution groups, complex choice constructs
+  
+  This schema provides financial type definitions used across all main schemas.
+  Follows enterprise patterns similar to FIXML/FPML/FMM for financial data handling.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:fin="http://www.kaoto.io/common/financial"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           targetNamespace="http://www.kaoto.io/common/financial"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- Import common types for currency codes, amounts, etc. -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common-types.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Common Financial Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema provides financial type definitions including:
+      - Abstract payment method base with substitution group
+      - Credit card, bank transfer, and alternative payment types
+      - Financial instrument types
+      - Tax calculation structures
+      - Currency and amount handling
+      - Payment terms and conditions
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/common/financial
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- PAYMENT METHOD SUBSTITUTION GROUP BASE -->
+  <!-- ================================================================ -->
+
+  <xs:element name="PaymentMethod" type="fin:Abstract_PaymentMethod_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base element for payment method substitution group.
+        All concrete payment types substitute this element.
+        Demonstrates: Substitution group pattern as used in FIXML/FPML.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- ABSTRACT PAYMENT METHOD BASE TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Abstract_PaymentMethod_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base type for all payment methods.
+        Provides common payment fields that all concrete types extend.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PaymentMethodID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for the payment method.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentType" type="fin:PaymentType_t">
+        <xs:annotation>
+          <xs:documentation>Type classification of payment method.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IsDefault" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Indicates if this is the default payment method.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CREDIT CARD PAYMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="CreditCardPayment" substitutionGroup="fin:PaymentMethod" type="fin:CreditCardPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Credit card payment method.
+        Substitutes PaymentMethod element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CreditCardPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Credit card payment type extending abstract payment base.
+        Demonstrates: xs:extension pattern.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="fin:Abstract_PaymentMethod_t">
+        <xs:sequence>
+          <xs:element name="CardType" type="fin:CreditCardType_t">
+            <xs:annotation>
+              <xs:documentation>Type of credit card (Visa, MasterCard, etc.).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CardNumber" type="fin:CardNumber_t">
+            <xs:annotation>
+              <xs:documentation>Credit card number (masked for security).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CardholderName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Name on the card.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpiryDate" type="fin:CardExpiryDate_t">
+            <xs:annotation>
+              <xs:documentation>Card expiration date (MM/YY format).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CVV" type="fin:CVV_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Card verification value (should not be stored).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="BillingAddress" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Billing address associated with card.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- BANK TRANSFER PAYMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="BankTransferPayment" substitutionGroup="fin:PaymentMethod" type="fin:BankTransferPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Bank transfer/ACH payment method.
+        Substitutes PaymentMethod element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="BankTransferPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Bank transfer payment type extending abstract payment base.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="fin:Abstract_PaymentMethod_t">
+        <xs:sequence>
+          <xs:element name="BankName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Name of the bank.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AccountHolderName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Name on the bank account.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AccountNumber" type="fin:BankAccountNumber_t">
+            <xs:annotation>
+              <xs:documentation>Bank account number (masked).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RoutingNumber" type="fin:RoutingNumber_t">
+            <xs:annotation>
+              <xs:documentation>Bank routing number (ABA/ACH).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AccountType" type="fin:BankAccountType_t">
+            <xs:annotation>
+              <xs:documentation>Type of bank account.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="IBAN" type="fin:IBAN_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>International Bank Account Number (for international transfers).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SWIFT" type="fin:SWIFT_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>SWIFT/BIC code (for international transfers).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- DIGITAL WALLET PAYMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="DigitalWalletPayment" substitutionGroup="fin:PaymentMethod" type="fin:DigitalWalletPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Digital wallet payment method (PayPal, Apple Pay, etc.).
+        Substitutes PaymentMethod element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="DigitalWalletPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Digital wallet payment type extending abstract payment base.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="fin:Abstract_PaymentMethod_t">
+        <xs:sequence>
+          <xs:element name="WalletProvider" type="fin:WalletProvider_t">
+            <xs:annotation>
+              <xs:documentation>Digital wallet provider.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="WalletID" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Wallet account identifier.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="WalletEmail" type="ct:EmailAddress_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Email associated with wallet.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PURCHASE ORDER PAYMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="PurchaseOrderPayment" substitutionGroup="fin:PaymentMethod" type="fin:PurchaseOrderPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Purchase order payment method (for B2B transactions).
+        Substitutes PaymentMethod element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PurchaseOrderPayment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Purchase order payment type extending abstract payment base.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="fin:Abstract_PaymentMethod_t">
+        <xs:sequence>
+          <xs:element name="PONumber" type="ct:ReferenceNumber_t">
+            <xs:annotation>
+              <xs:documentation>Purchase order number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PODate" type="xs:date">
+            <xs:annotation>
+              <xs:documentation>Purchase order date.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="BuyerReference" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Buyer's reference number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PaymentTerms" type="fin:PaymentTerms_t">
+            <xs:annotation>
+              <xs:documentation>Payment terms for the PO.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PAYMENT TERMS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PaymentTerms_t">
+    <xs:annotation>
+      <xs:documentation>
+        Payment terms and conditions.
+        Demonstrates: Complex nested choice construct.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TermsType" type="fin:PaymentTermsType_t">
+        <xs:annotation>
+          <xs:documentation>Type of payment terms.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="ImmediatePayment" type="fin:ImmediatePayment_t">
+          <xs:annotation>
+            <xs:documentation>Payment due immediately.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="NetTerms" type="fin:NetTerms_t">
+          <xs:annotation>
+            <xs:documentation>Net payment terms (Net 30, Net 60, etc.).</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="DiscountTerms" type="fin:DiscountTerms_t">
+          <xs:annotation>
+            <xs:documentation>Terms with early payment discount.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="InstallmentTerms" type="fin:InstallmentTerms_t">
+          <xs:annotation>
+            <xs:documentation>Installment payment terms.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="LateFeePolicy" type="fin:LateFeePolicy_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Late payment fee policy.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ImmediatePayment_t">
+    <xs:annotation>
+      <xs:documentation>Immediate payment terms.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DueUponReceipt" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>Payment due upon receipt.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NetTerms_t">
+    <xs:annotation>
+      <xs:documentation>Net payment terms (e.g., Net 30).</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="NetDays" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Number of days until payment is due.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DueDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Calculated due date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DiscountTerms_t">
+    <xs:annotation>
+      <xs:documentation>Payment terms with early payment discount (e.g., 2/10 Net 30).</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="DiscountPercentage" type="ct:Percentage_t">
+        <xs:annotation>
+          <xs:documentation>Discount percentage for early payment.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DiscountDays" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Number of days to qualify for discount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NetDays" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Number of days until full payment is due.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InstallmentTerms_t">
+    <xs:annotation>
+      <xs:documentation>Installment payment terms.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="NumberOfInstallments" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Total number of installments.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InstallmentFrequency" type="fin:InstallmentFrequency_t">
+        <xs:annotation>
+          <xs:documentation>Frequency of installments.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FirstInstallmentDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Date of first installment.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InstallmentAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Amount per installment.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LateFeePolicy_t">
+    <xs:annotation>
+      <xs:documentation>Late payment fee policy.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="GracePeriodDays" type="xs:nonNegativeInteger">
+        <xs:annotation>
+          <xs:documentation>Grace period before late fees apply.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="FlatFee" type="ct:MonetaryAmount_t">
+          <xs:annotation>
+            <xs:documentation>Flat late fee amount.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="PercentageFee" type="ct:Percentage_t">
+          <xs:annotation>
+            <xs:documentation>Late fee as percentage of balance.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- TAX STRUCTURES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="TaxDetails_t">
+    <xs:annotation>
+      <xs:documentation>
+        Tax calculation details.
+        Demonstrates: Complex choice with abstract elements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TaxID" type="ct:UUID_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for tax calculation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="SalesTax" type="fin:SalesTax_t">
+          <xs:annotation>
+            <xs:documentation>US sales tax.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="VAT" type="fin:VAT_t">
+          <xs:annotation>
+            <xs:documentation>Value Added Tax (European).</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="GST" type="fin:GST_t">
+          <xs:annotation>
+            <xs:documentation>Goods and Services Tax.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="CustomsTax" type="fin:CustomsTax_t">
+          <xs:annotation>
+            <xs:documentation>Customs/import tax.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="TaxExempt" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Indicates if transaction is tax exempt.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxExemptionReason" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reason for tax exemption.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SalesTax_t">
+    <xs:annotation>
+      <xs:documentation>US sales tax details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TaxJurisdiction" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Tax jurisdiction (state, county, city).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxRate" type="ct:TaxRate_t">
+        <xs:annotation>
+          <xs:documentation>Sales tax rate.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxableAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Amount subject to tax.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Calculated tax amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VAT_t">
+    <xs:annotation>
+      <xs:documentation>Value Added Tax details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="VATCountry" type="ct:CountryCode_t">
+        <xs:annotation>
+          <xs:documentation>Country applying VAT.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VATRate" type="ct:TaxRate_t">
+        <xs:annotation>
+          <xs:documentation>VAT rate.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VATNumber" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>VAT registration number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NetAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Net amount before VAT.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VATAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Calculated VAT amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GrossAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Gross amount including VAT.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GST_t">
+    <xs:annotation>
+      <xs:documentation>Goods and Services Tax details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="GSTCountry" type="ct:CountryCode_t">
+        <xs:annotation>
+          <xs:documentation>Country applying GST.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GSTRate" type="ct:TaxRate_t">
+        <xs:annotation>
+          <xs:documentation>GST rate.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GSTNumber" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>GST registration number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxableAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Amount subject to GST.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GSTAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Calculated GST amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomsTax_t">
+    <xs:annotation>
+      <xs:documentation>Customs/import tax details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ImportCountry" type="ct:CountryCode_t">
+        <xs:annotation>
+          <xs:documentation>Country of import.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DutyRate" type="ct:TaxRate_t">
+        <xs:annotation>
+          <xs:documentation>Customs duty rate.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HSCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Harmonized System code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomsValue" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Declared customs value.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DutyAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Calculated duty amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- MONETARY AMOUNT WITH CURRENCY -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="MonetaryAmountWithCurrency_t">
+    <xs:annotation>
+      <xs:documentation>Monetary amount with currency specification.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="ct:MonetaryAmount_t">
+        <xs:attribute name="currency" type="ct:CurrencyCode_t" use="required">
+          <xs:annotation>
+            <xs:documentation>Currency code (ISO 4217).</xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SIMPLE TYPE RESTRICTIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="CardNumber_t">
+    <xs:annotation>
+      <xs:documentation>Credit card number (masked format: ****-****-****-1234).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\*{4}-\*{4}-\*{4}-\d{4}|\d{13,19}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CardExpiryDate_t">
+    <xs:annotation>
+      <xs:documentation>Card expiry date in MM/YY format.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(0[1-9]|1[0-2])/\d{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CVV_t">
+    <xs:annotation>
+      <xs:documentation>Card verification value (3 or 4 digits).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{3,4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BankAccountNumber_t">
+    <xs:annotation>
+      <xs:documentation>Bank account number (masked format).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\*+\d{4}|\d{4,17}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RoutingNumber_t">
+    <xs:annotation>
+      <xs:documentation>US bank routing number (9 digits).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{9}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="IBAN_t">
+    <xs:annotation>
+      <xs:documentation>International Bank Account Number.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]{2}\d{2}[A-Z0-9]{1,30}"/>
+      <xs:minLength value="15"/>
+      <xs:maxLength value="34"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SWIFT_t">
+    <xs:annotation>
+      <xs:documentation>SWIFT/BIC code.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="PaymentType_t">
+    <xs:annotation>
+      <xs:documentation>Payment method type classification.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CreditCard"><xs:annotation><xs:documentation>Credit card payment</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DebitCard"><xs:annotation><xs:documentation>Debit card payment</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="BankTransfer"><xs:annotation><xs:documentation>Bank transfer/ACH</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Wire"><xs:annotation><xs:documentation>Wire transfer</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Check"><xs:annotation><xs:documentation>Check payment</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Cash"><xs:annotation><xs:documentation>Cash payment</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DigitalWallet"><xs:annotation><xs:documentation>Digital wallet</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Cryptocurrency"><xs:annotation><xs:documentation>Cryptocurrency</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PurchaseOrder"><xs:annotation><xs:documentation>Purchase order</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="TradeCredit"><xs:annotation><xs:documentation>Trade credit</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="LoyaltyPoints"><xs:annotation><xs:documentation>Loyalty points</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="GiftCard"><xs:annotation><xs:documentation>Gift card</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CreditCardType_t">
+    <xs:annotation>
+      <xs:documentation>Credit card brand/network.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Visa"><xs:annotation><xs:documentation>Visa</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MasterCard"><xs:annotation><xs:documentation>MasterCard</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AmericanExpress"><xs:annotation><xs:documentation>American Express</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Discover"><xs:annotation><xs:documentation>Discover</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DinersClub"><xs:annotation><xs:documentation>Diners Club</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="JCB"><xs:annotation><xs:documentation>JCB</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="UnionPay"><xs:annotation><xs:documentation>China UnionPay</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Maestro"><xs:annotation><xs:documentation>Maestro</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BankAccountType_t">
+    <xs:annotation>
+      <xs:documentation>Type of bank account.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Checking"><xs:annotation><xs:documentation>Checking account</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Savings"><xs:annotation><xs:documentation>Savings account</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Business"><xs:annotation><xs:documentation>Business account</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MoneyMarket"><xs:annotation><xs:documentation>Money market account</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="WalletProvider_t">
+    <xs:annotation>
+      <xs:documentation>Digital wallet provider.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PayPal"><xs:annotation><xs:documentation>PayPal</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ApplePay"><xs:annotation><xs:documentation>Apple Pay</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="GooglePay"><xs:annotation><xs:documentation>Google Pay</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AmazonPay"><xs:annotation><xs:documentation>Amazon Pay</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Venmo"><xs:annotation><xs:documentation>Venmo</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Alipay"><xs:annotation><xs:documentation>Alipay</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="WeChat"><xs:annotation><xs:documentation>WeChat Pay</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PaymentTermsType_t">
+    <xs:annotation>
+      <xs:documentation>Type of payment terms.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Immediate"><xs:annotation><xs:documentation>Immediate payment</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Net"><xs:annotation><xs:documentation>Net terms (Net 30, etc.)</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Discount"><xs:annotation><xs:documentation>Early payment discount</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Installment"><xs:annotation><xs:documentation>Installment payments</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="COD"><xs:annotation><xs:documentation>Cash on delivery</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Prepaid"><xs:annotation><xs:documentation>Prepaid</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InstallmentFrequency_t">
+    <xs:annotation>
+      <xs:documentation>Frequency of installment payments.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Weekly"><xs:annotation><xs:documentation>Weekly payments</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="BiWeekly"><xs:annotation><xs:documentation>Bi-weekly payments</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Monthly"><xs:annotation><xs:documentation>Monthly payments</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Quarterly"><xs:annotation><xs:documentation>Quarterly payments</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SemiAnnual"><xs:annotation><xs:documentation>Semi-annual payments</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Annual"><xs:annotation><xs:documentation>Annual payments</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<po:PurchaseOrder xmlns:po="http://www.kaoto.io/purchaseorder"
+                  xmlns:ct="http://www.kaoto.io/common/types"
+                  xmlns:addr="http://www.kaoto.io/common/address"
+                  xmlns:party="http://www.kaoto.io/common/party"
+                  xmlns:fin="http://www.kaoto.io/common/financial"
+                  xmlns:dt="http://www.kaoto.io/common/datetime"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  version="1.0.0"
+                  timestamp="2026-06-11T14:30:00Z"
+                  createdBy="jsmith"
+                  createdDate="2026-06-11T14:30:00Z">
+
+  <!-- Order Header -->
+  <po:OrderHeader version="1.0" isTestOrder="false">
+    <po:OrderID>550e8400-e29b-41d4-a716-446655440001</po:OrderID>
+    <po:OrderNumber>PO-2026-001234</po:OrderNumber>
+    <po:OrderDate>2026-06-11T14:30:00Z</po:OrderDate>
+    <po:RequestedDeliveryDate>2026-06-14</po:RequestedDeliveryDate>
+    <po:OrderStatus>Processing</po:OrderStatus>
+    <po:Currency>USD</po:Currency>
+    <po:Language>en</po:Language>
+    <po:OrderSource>Website</po:OrderSource>
+    <po:CustomerReference>CUST-REF-789456</po:CustomerReference>
+    <po:BuyerContact isPrimary="true">
+      <party:ContactType>Primary</party:ContactType>
+      <party:ContactName>Sarah Anderson</party:ContactName>
+      <party:Email>sarah.anderson@example.com</party:Email>
+      <party:Phone>+1-555-123-4567</party:Phone>
+      <party:PreferredMethod>Email</party:PreferredMethod>
+    </po:BuyerContact>
+    <po:SellerContact isPrimary="true">
+      <party:ContactType>Sales</party:ContactType>
+      <party:ContactName>Michael Chen</party:ContactName>
+      <party:Email>mchen@techsuppliers.example.com</party:Email>
+      <party:Phone>+1-555-888-9999</party:Phone>
+    </po:SellerContact>
+    <po:CostCenter>IT-DEPT-500</po:CostCenter>
+  </po:OrderHeader>
+
+  <!-- Order Type (StandardOrder substitution group member) -->
+  <po:StandardOrder>
+    <po:OrderCategory>B2C</po:OrderCategory>
+    <po:Priority>High</po:Priority>
+    <po:ProcessingTime>
+      <dt:Value>3</dt:Value>
+      <dt:Unit>Days</dt:Unit>
+    </po:ProcessingTime>
+    <po:StandardFeatures>
+      <po:FreeShipping>false</po:FreeShipping>
+      <po:FreeReturns>true</po:FreeReturns>
+      <po:LoyaltyPoints>150</po:LoyaltyPoints>
+    </po:StandardFeatures>
+  </po:StandardOrder>
+
+  <!-- Buyer -->
+  <po:Buyer>
+    <party:PartyID>550e8400-e29b-41d4-a716-446655440099</party:PartyID>
+    <party:PartyName>Sarah Anderson</party:PartyName>
+    <party:PartyType>Person</party:PartyType>
+    <party:ContactInfo isPrimary="true">
+      <party:ContactType>Primary</party:ContactType>
+      <party:ContactName>Sarah Anderson</party:ContactName>
+      <party:Email>sarah.anderson@example.com</party:Email>
+      <party:Phone>+1-555-123-4567</party:Phone>
+      <party:Phone>+1-555-987-6543</party:Phone>
+      <party:PreferredMethod>Email</party:PreferredMethod>
+    </party:ContactInfo>
+    <party:LegalName>Sarah Jane Anderson</party:LegalName>
+    <party:OrganizationType>PrivateCompany</party:OrganizationType>
+    <party:IncorporationCountry>US</party:IncorporationCountry>
+    <party:TaxID>98-7654321</party:TaxID>
+  </po:Buyer>
+
+  <!-- Seller -->
+  <po:Seller>
+    <party:PartyID>660e8400-a29b-51d4-b716-556655440088</party:PartyID>
+    <party:PartyName>Tech Suppliers Inc.</party:PartyName>
+    <party:PartyType>Organization</party:PartyType>
+    <party:ContactInfo isPrimary="true">
+      <party:ContactType>Sales</party:ContactType>
+      <party:ContactName>Michael Chen</party:ContactName>
+      <party:ContactRole>Representative</party:ContactRole>
+      <party:Email>mchen@techsuppliers.example.com</party:Email>
+      <party:Phone>+1-555-888-9999</party:Phone>
+    </party:ContactInfo>
+    <addr:DomesticAddress_US addressType="Commercial">
+      <addr:AddressID>ADDR-SELLER-001</addr:AddressID>
+      <addr:AddressLine1>500 Commerce Boulevard</addr:AddressLine1>
+      <addr:City>Austin</addr:City>
+      <addr:Country>US</addr:Country>
+      <addr:State>TX</addr:State>
+      <addr:PostalCode>73301</addr:PostalCode>
+    </addr:DomesticAddress_US>
+    <party:LegalName>Tech Suppliers International Inc.</party:LegalName>
+    <party:OrganizationType>Corporation</party:OrganizationType>
+    <party:IncorporationCountry>US</party:IncorporationCountry>
+    <party:TaxID>12-3456789</party:TaxID>
+    <party:DUNSNumber>123456789</party:DUNSNumber>
+    <party:IndustryCode>44-45</party:IndustryCode>
+  </po:Seller>
+
+  <!-- Order Items -->
+  <po:OrderItems totalItems="4">
+    <!-- Item 1: Electronics - High Value -->
+    <po:OrderItem version="1.0">
+      <po:LineNumber>1</po:LineNumber>
+      <po:ProductID>ELEC-LAPTOP-15-001</po:ProductID>
+      <po:ProductName>Professional Laptop 15-inch</po:ProductName>
+      <po:ProductCategory>Electronics</po:ProductCategory>
+      <po:Manufacturer>TechBrand</po:Manufacturer>
+      <po:UPC>012345678901</po:UPC>
+      <po:Quantity>1</po:Quantity>
+      <po:UnitOfMeasure>Each</po:UnitOfMeasure>
+      <po:UnitPrice>1299.99</po:UnitPrice>
+      <po:ExtendedPrice>1299.99</po:ExtendedPrice>
+      <po:NetPrice>1299.99</po:NetPrice>
+      <po:TotalPrice>1403.99</po:TotalPrice>
+      <po:BackorderAllowed>true</po:BackorderAllowed>
+      <po:SubstitutionAllowed>false</po:SubstitutionAllowed>
+      <po:PackagingRequirements>
+        <po:PackagingType>Reinforced</po:PackagingType>
+        <po:PackagingMaterial>Foam-padded box</po:PackagingMaterial>
+        <po:GiftWrapping>false</po:GiftWrapping>
+        <po:FragileHandling>true</po:FragileHandling>
+      </po:PackagingRequirements>
+      <po:HandlingInstructions>Handle with care - fragile electronics</po:HandlingInstructions>
+    </po:OrderItem>
+
+    <!-- Item 2: Accessories -->
+    <po:OrderItem version="1.0">
+      <po:LineNumber>2</po:LineNumber>
+      <po:ProductID>ACC-MOUSE-WIRELESS-001</po:ProductID>
+      <po:ProductName>Wireless Ergonomic Mouse</po:ProductName>
+      <po:ProductCategory>Electronics</po:ProductCategory>
+      <po:UPC>012345678902</po:UPC>
+      <po:Quantity>2</po:Quantity>
+      <po:UnitOfMeasure>Each</po:UnitOfMeasure>
+      <po:UnitPrice>49.99</po:UnitPrice>
+      <po:ExtendedPrice>99.98</po:ExtendedPrice>
+      <po:NetPrice>99.98</po:NetPrice>
+      <po:TotalPrice>107.98</po:TotalPrice>
+      <po:BackorderAllowed>true</po:BackorderAllowed>
+      <po:SubstitutionAllowed>true</po:SubstitutionAllowed>
+    </po:OrderItem>
+
+    <!-- Item 3: Office Supplies -->
+    <po:OrderItem version="1.0">
+      <po:LineNumber>3</po:LineNumber>
+      <po:ProductID>OFF-DESK-PAD-001</po:ProductID>
+      <po:ProductName>Premium Desk Pad</po:ProductName>
+      <po:ProductCategory>OfficeSupplies</po:ProductCategory>
+      <po:UPC>012345678903</po:UPC>
+      <po:Quantity>1</po:Quantity>
+      <po:UnitOfMeasure>Each</po:UnitOfMeasure>
+      <po:UnitPrice>79.99</po:UnitPrice>
+      <po:ExtendedPrice>79.99</po:ExtendedPrice>
+      <po:NetPrice>79.99</po:NetPrice>
+      <po:TotalPrice>86.39</po:TotalPrice>
+      <po:BackorderAllowed>true</po:BackorderAllowed>
+      <po:SubstitutionAllowed>false</po:SubstitutionAllowed>
+    </po:OrderItem>
+
+    <!-- Item 4: Books -->
+    <po:OrderItem version="1.0">
+      <po:LineNumber>4</po:LineNumber>
+      <po:ProductID>BOOK-TECH-GUIDE-001</po:ProductID>
+      <po:ProductName>Complete Technology Guide 2026</po:ProductName>
+      <po:ProductCategory>Books</po:ProductCategory>
+      <po:UPC>012345678904</po:UPC>
+      <po:Quantity>1</po:Quantity>
+      <po:UnitOfMeasure>Each</po:UnitOfMeasure>
+      <po:UnitPrice>59.99</po:UnitPrice>
+      <po:ExtendedPrice>59.99</po:ExtendedPrice>
+      <po:NetPrice>59.99</po:NetPrice>
+      <po:TotalPrice>64.79</po:TotalPrice>
+      <po:BackorderAllowed>true</po:BackorderAllowed>
+      <po:SubstitutionAllowed>false</po:SubstitutionAllowed>
+      <po:PackagingRequirements>
+        <po:PackagingType>Padded</po:PackagingType>
+        <po:GiftWrapping>false</po:GiftWrapping>
+        <po:FragileHandling>true</po:FragileHandling>
+      </po:PackagingRequirements>
+    </po:OrderItem>
+  </po:OrderItems>
+
+  <!-- Pricing Details -->
+  <po:PricingDetails>
+    <po:Subtotal>1539.95</po:Subtotal>
+    <po:TotalDiscounts>0.00</po:TotalDiscounts>
+    <po:NetAmount>1539.95</po:NetAmount>
+    <po:TotalTax>123.20</po:TotalTax>
+    <po:ShippingCost>25.00</po:ShippingCost>
+    <po:GrandTotal>1688.15</po:GrandTotal>
+    <po:StandardPricing>
+      <po:ModelName>Standard Retail</po:ModelName>
+      <po:ListPrice>1539.95</po:ListPrice>
+    </po:StandardPricing>
+  </po:PricingDetails>
+
+  <!-- Payment Method (CreditCardPayment substitution group member) -->
+  <fin:CreditCardPayment>
+    <fin:PaymentMethodID>770e8400-c29b-61d4-c716-667755440077</fin:PaymentMethodID>
+    <fin:PaymentType>CreditCard</fin:PaymentType>
+    <fin:IsDefault>true</fin:IsDefault>
+    <fin:CardType>Visa</fin:CardType>
+    <fin:CardNumber>****-****-****-4567</fin:CardNumber>
+    <fin:CardholderName>Sarah J Anderson</fin:CardholderName>
+    <fin:ExpiryDate>12/28</fin:ExpiryDate>
+  </fin:CreditCardPayment>
+
+  <!-- Payment Terms -->
+  <po:PaymentTerms>
+    <fin:TermsType>Immediate</fin:TermsType>
+    <fin:ImmediatePayment>
+      <fin:DueUponReceipt>true</fin:DueUponReceipt>
+    </fin:ImmediatePayment>
+  </po:PaymentTerms>
+
+  <!-- Tax Details -->
+  <po:TaxDetails>
+    <fin:SalesTax>
+      <fin:TaxJurisdiction>California</fin:TaxJurisdiction>
+      <fin:TaxRate>0.080000</fin:TaxRate>
+      <fin:TaxableAmount>1539.95</fin:TaxableAmount>
+      <fin:TaxAmount>123.20</fin:TaxAmount>
+    </fin:SalesTax>
+    <fin:TaxExempt>false</fin:TaxExempt>
+  </po:TaxDetails>
+
+  <!-- Shipping Details -->
+  <po:ShippingDetails>
+    <po:ShippingMethod>FedEx</po:ShippingMethod>
+    <po:ShippingService>Express</po:ShippingService>
+    <addr:DomesticAddress_US addressType="Commercial">
+      <addr:AddressID>ADDR-SHIP-001</addr:AddressID>
+      <addr:AddressLine1>1234 Technology Drive</addr:AddressLine1>
+      <addr:AddressLine2>Suite 500</addr:AddressLine2>
+      <addr:City>San Francisco</addr:City>
+      <addr:Country>US</addr:Country>
+      <addr:State>CA</addr:State>
+      <addr:PostalCode>94105</addr:PostalCode>
+    </addr:DomesticAddress_US>
+    <po:PackagingInstruction>Use reinforced packaging for electronics</po:PackagingInstruction>
+    <po:HandlingInstruction>Fragile items - handle with care</po:HandlingInstruction>
+    <po:DeliveryInstruction>Deliver to reception desk. Building requires visitor check-in.</po:DeliveryInstruction>
+    <po:SignatureRequired>true</po:SignatureRequired>
+    <po:InsuranceRequired>true</po:InsuranceRequired>
+    <po:InsuranceValue>1688.15</po:InsuranceValue>
+  </po:ShippingDetails>
+
+  <!-- Delivery Preferences -->
+  <po:DeliveryPreferences>
+    <po:PreferredDeliveryDate>2026-06-14</po:PreferredDeliveryDate>
+    <po:StandardPaymentPreference>CreditCard</po:StandardPaymentPreference>
+    <po:SpecialInstructions>Please deliver to reception desk. Building requires visitor check-in.</po:SpecialInstructions>
+    <po:SignatureRequired>true</po:SignatureRequired>
+  </po:DeliveryPreferences>
+
+  <!-- Notes -->
+  <po:Notes type="Customer" author="Sarah Anderson" date="2026-06-11T14:32:00Z">This is a rush order for a new employee starting Monday. Please expedite shipping.</po:Notes>
+  <po:Notes type="Internal" author="Order Processing System" date="2026-06-11T14:35:00Z">Premium customer - ensure white glove service. Laptop requires careful handling.</po:Notes>
+
+</po:PurchaseOrder>

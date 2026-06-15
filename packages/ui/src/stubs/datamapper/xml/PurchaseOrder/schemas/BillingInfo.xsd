@@ -1,0 +1,1399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Billing Information Schema (Source Param1)
+  
+  Purpose: Comprehensive billing and invoicing schema with enterprise complexity
+  Demonstrates: Substitution groups for billing methods, abstract invoice types,
+                xs:extension, xs:restriction, xs:import patterns
+  
+  This schema represents complex billing scenarios including multiple invoice types,
+  payment schedules, credit management, and tax calculations.
+  Follows enterprise patterns similar to FIXML/FPML/FMM.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bill="http://www.kaoto.io/billing"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:addr="http://www.kaoto.io/common/address"
+           xmlns:party="http://www.kaoto.io/common/party"
+           xmlns:fin="http://www.kaoto.io/common/financial"
+           xmlns:dt="http://www.kaoto.io/common/datetime"
+           targetNamespace="http://www.kaoto.io/billing"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- ================================================================ -->
+  <!-- IMPORTS - Cross-namespace references -->
+  <!-- ================================================================ -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/party"
+             schemaLocation="common/common-party.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/financial"
+             schemaLocation="common/common-financial.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/datetime"
+             schemaLocation="common/common-datetime.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Billing Information Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema demonstrates enterprise-level billing complexity including:
+      - 4-level substitution groups for invoice types
+      - Abstract billing methods with concrete implementations
+      - Complex payment schedules and credit management
+      - Multi-currency billing support
+      - Tax calculation frameworks
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/billing
+      
+      Total complexity: ~1650 lines
+      Demonstrates: Advanced billing patterns with substitution groups
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- ROOT ELEMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="BillingInfo" type="bill:BillingInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Root element for billing information document.
+        Contains complete billing details for an order or account.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- BILLING INFO TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="BillingInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Main billing information structure.
+        Contains billing account, invoices, payments, and credit details.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="BillingHeader" type="bill:BillingHeader_t">
+        <xs:annotation>
+          <xs:documentation>Billing header with identification.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingAccount" type="bill:BillingAccount_t">
+        <xs:annotation>
+          <xs:documentation>Billing account information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillToParty" type="party:Organization_t">
+        <xs:annotation>
+          <xs:documentation>Party to be billed.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="addr:Address">
+        <xs:annotation>
+          <xs:documentation>Billing address (uses substitution group).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Invoices" type="bill:Invoices_t">
+        <xs:annotation>
+          <xs:documentation>
+            Collection of invoices.
+            Demonstrates: Invoice type substitution group (4 levels).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentSchedule" type="bill:PaymentSchedule_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Payment schedule for installments.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CreditManagement" type="bill:CreditManagement_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Credit management and limits.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentHistory" type="bill:PaymentHistory_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Historical payment records.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingPreferences" type="bill:BillingPreferences_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Customer billing preferences.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxConfiguration" type="bill:TaxConfiguration_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tax configuration for billing.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Notes" type="ct:Note_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Additional billing notes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attributeGroup ref="ct:AuditAttributes"/>
+    <xs:attribute name="version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- BILLING HEADER -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="BillingHeader_t">
+    <xs:annotation>
+      <xs:documentation>Billing header with identification and metadata.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="BillingID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique billing identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingNumber" type="ct:ReferenceNumber_t">
+        <xs:annotation>
+          <xs:documentation>Human-readable billing number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time billing was created.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingPeriod" type="bill:BillingPeriod_t">
+        <xs:annotation>
+          <xs:documentation>Billing period covered.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Currency" type="ct:CurrencyCode_t">
+        <xs:annotation>
+          <xs:documentation>Primary currency for billing.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingStatus" type="bill:BillingStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current billing status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderReference" type="ct:UUID_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reference to related order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContractReference" type="ct:ReferenceNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reference to billing contract.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FiscalYear" type="xs:gYear">
+        <xs:annotation>
+          <xs:documentation>Fiscal year for accounting.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FiscalPeriod" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Fiscal period within year.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BillingPeriod_t">
+    <xs:annotation>
+      <xs:documentation>Billing period specification.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="StartDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Period start date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Period end date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PeriodType" type="bill:PeriodType_t">
+        <xs:annotation>
+          <xs:documentation>Type of billing period.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- BILLING ACCOUNT -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="BillingAccount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Billing account with 20+ fields for complete account management.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="AccountID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique account identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Account number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Account name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountType" type="bill:AccountType_t">
+        <xs:annotation>
+          <xs:documentation>Type of billing account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountStatus" type="bill:AccountStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current account status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OpenDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Date account was opened.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CloseDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date account was closed (if applicable).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CreditLimit" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Credit limit for account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CurrentBalance" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Current account balance.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AvailableCredit" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Available credit remaining.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentTerms" type="fin:PaymentTerms_t">
+        <xs:annotation>
+          <xs:documentation>Default payment terms for account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillingCycle" type="bill:BillingCycle_t">
+        <xs:annotation>
+          <xs:documentation>Billing cycle for account.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StatementDay" type="xs:positiveInteger" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Day of month for statement generation (1-31).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DueDay" type="xs:positiveInteger" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Day of month payment is due (1-31).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AutoPay" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether auto-pay is enabled.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaperlessStatements" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether paperless statements are enabled.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AccountManager" type="party:Person_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Assigned account manager.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxExempt" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether account is tax exempt.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxExemptionCertificate" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tax exemption certificate number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ParentAccountID" type="ct:UUID_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Parent account ID for sub-accounts.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INVOICES COLLECTION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Invoices_t">
+    <xs:annotation>
+      <xs:documentation>Collection of invoices with various types.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="bill:Invoice" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            Individual invoice (uses substitution group).
+            Demonstrates: 4-level invoice type hierarchy.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="totalInvoices" type="xs:positiveInteger" use="optional"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INVOICE TYPE SUBSTITUTION GROUP (4 LEVELS) -->
+  <!-- ================================================================ -->
+
+  <!-- Level 1: Abstract Base -->
+  <xs:element name="Invoice" type="bill:Abstract_Invoice_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base for invoice substitution group.
+        Level 1 of 4-level substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Abstract_Invoice_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base type for all invoices.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="InvoiceID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique invoice identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InvoiceNumber" type="ct:ReferenceNumber_t">
+        <xs:annotation>
+          <xs:documentation>Invoice number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InvoiceDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Invoice date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DueDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Payment due date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InvoiceStatus" type="bill:InvoiceStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current invoice status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Currency" type="ct:CurrencyCode_t">
+        <xs:annotation>
+          <xs:documentation>Invoice currency.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Total invoice amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Level 2: Standard Invoice -->
+  <xs:element name="StandardInvoice" substitutionGroup="bill:Invoice" type="bill:StandardInvoice_t">
+    <xs:annotation>
+      <xs:documentation>
+        Standard invoice type.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="StandardInvoice_t">
+    <xs:annotation>
+      <xs:documentation>Standard invoice with line items.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:Abstract_Invoice_t">
+        <xs:sequence>
+          <xs:element name="LineItems" type="bill:InvoiceLineItems_t">
+            <xs:annotation>
+              <xs:documentation>Invoice line items.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Subtotal" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Subtotal before tax.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TaxDetails" type="fin:TaxDetails_t">
+            <xs:annotation>
+              <xs:documentation>Tax calculation details.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PaymentInstructions" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Payment instructions.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Recurring Invoice (extends StandardInvoice) -->
+  <xs:element name="RecurringInvoice" substitutionGroup="bill:StandardInvoice" type="bill:RecurringInvoice_t">
+    <xs:annotation>
+      <xs:documentation>
+        Recurring invoice for subscriptions.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="RecurringInvoice_t">
+    <xs:annotation>
+      <xs:documentation>Recurring invoice extending standard invoice.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:StandardInvoice_t">
+        <xs:sequence>
+          <xs:element name="RecurrenceSchedule" type="dt:Schedule_t">
+            <xs:annotation>
+              <xs:documentation>Recurrence schedule.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SubscriptionID" type="ct:UUID_t">
+            <xs:annotation>
+              <xs:documentation>Related subscription identifier.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="BillingCycleNumber" type="xs:positiveInteger">
+            <xs:annotation>
+              <xs:documentation>Current billing cycle number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="NextBillingDate" type="xs:date">
+            <xs:annotation>
+              <xs:documentation>Next scheduled billing date.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AutoRenew" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Whether subscription auto-renews.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 4: Subscription Invoice (extends RecurringInvoice) -->
+  <xs:element name="SubscriptionInvoice" substitutionGroup="bill:RecurringInvoice" type="bill:SubscriptionInvoice_t">
+    <xs:annotation>
+      <xs:documentation>
+        Subscription-based invoice with usage tracking.
+        Level 4 of substitution hierarchy (deepest level).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="SubscriptionInvoice_t">
+    <xs:annotation>
+      <xs:documentation>Subscription invoice with usage details.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:RecurringInvoice_t">
+        <xs:sequence>
+          <xs:element name="UsageDetails" type="bill:UsageDetails_t">
+            <xs:annotation>
+              <xs:documentation>Usage-based billing details.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TierLevel" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Subscription tier level.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Overages" type="bill:Overages_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Usage overages beyond plan limits.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ProrationDetails" type="bill:ProrationDetails_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Proration details for partial periods.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Credit Memo (parallel branch) -->
+  <xs:element name="CreditMemo" substitutionGroup="bill:Invoice" type="bill:CreditMemo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Credit memo for returns/adjustments.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CreditMemo_t">
+    <xs:annotation>
+      <xs:documentation>Credit memo reducing amount owed.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:Abstract_Invoice_t">
+        <xs:sequence>
+          <xs:element name="OriginalInvoiceID" type="ct:UUID_t">
+            <xs:annotation>
+              <xs:documentation>Reference to original invoice.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CreditReason" type="bill:CreditReason_t">
+            <xs:annotation>
+              <xs:documentation>Reason for credit.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CreditAmount" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Credit amount.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CreditLineItems" type="bill:CreditLineItems_t">
+            <xs:annotation>
+              <xs:documentation>Line items being credited.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AppliedToInvoice" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Whether credit has been applied.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Return Credit Memo (extends CreditMemo) -->
+  <xs:element name="ReturnCreditMemo" substitutionGroup="bill:CreditMemo" type="bill:ReturnCreditMemo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Credit memo for product returns.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ReturnCreditMemo_t">
+    <xs:annotation>
+      <xs:documentation>Credit memo for returned products.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:CreditMemo_t">
+        <xs:sequence>
+          <xs:element name="ReturnAuthorizationNumber" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>RMA number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ReturnDate" type="xs:date">
+            <xs:annotation>
+              <xs:documentation>Date items were returned.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RestockingFee" type="ct:MonetaryAmount_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Restocking fee if applicable.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RefundMethod" type="bill:RefundMethod_t">
+            <xs:annotation>
+              <xs:documentation>Method of refund.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Debit Memo (parallel branch) -->
+  <xs:element name="DebitMemo" substitutionGroup="bill:Invoice" type="bill:DebitMemo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Debit memo for additional charges.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="DebitMemo_t">
+    <xs:annotation>
+      <xs:documentation>Debit memo increasing amount owed.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:Abstract_Invoice_t">
+        <xs:sequence>
+          <xs:element name="OriginalInvoiceID" type="ct:UUID_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Reference to original invoice if applicable.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DebitReason" type="bill:DebitReason_t">
+            <xs:annotation>
+              <xs:documentation>Reason for debit.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DebitAmount" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Additional amount charged.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DebitLineItems" type="bill:DebitLineItems_t">
+            <xs:annotation>
+              <xs:documentation>Line items for additional charges.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Late Fee Debit (extends DebitMemo) -->
+  <xs:element name="LateFeeDebit" substitutionGroup="bill:DebitMemo" type="bill:LateFeeDebit_t">
+    <xs:annotation>
+      <xs:documentation>
+        Debit memo for late payment fees.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="LateFeeDebit_t">
+    <xs:annotation>
+      <xs:documentation>Debit for late payment fees.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="bill:DebitMemo_t">
+        <xs:sequence>
+          <xs:element name="DaysOverdue" type="xs:positiveInteger">
+            <xs:annotation>
+              <xs:documentation>Number of days payment is overdue.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LateFeeRate" type="ct:Percentage_t">
+            <xs:annotation>
+              <xs:documentation>Late fee rate applied.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LateFeeCalculation" type="bill:LateFeeCalculation_t">
+            <xs:annotation>
+              <xs:documentation>Late fee calculation details.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INVOICE LINE ITEMS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="InvoiceLineItems_t">
+    <xs:annotation>
+      <xs:documentation>Collection of invoice line items.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LineItem" type="bill:InvoiceLineItem_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual line item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InvoiceLineItem_t">
+    <xs:annotation>
+      <xs:documentation>Individual invoice line item with 15+ fields.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LineNumber" type="xs:positiveInteger"/>
+      <xs:element name="ItemDescription" type="xs:string"/>
+      <xs:element name="ProductID" type="xs:string" minOccurs="0"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="UnitOfMeasure" type="xs:string"/>
+      <xs:element name="UnitPrice" type="ct:MonetaryAmount_t"/>
+      <xs:element name="ExtendedPrice" type="ct:MonetaryAmount_t"/>
+      <xs:element name="DiscountAmount" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="TaxAmount" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="LineTotal" type="ct:MonetaryAmount_t"/>
+      <xs:element name="GLAccount" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>General ledger account code.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CostCenter" type="xs:string" minOccurs="0"/>
+      <xs:element name="ProjectCode" type="xs:string" minOccurs="0"/>
+      <xs:element name="ServicePeriod" type="bill:ServicePeriod_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Service period for this line item.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ServicePeriod_t">
+    <xs:sequence>
+      <xs:element name="StartDate" type="xs:date"/>
+      <xs:element name="EndDate" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditLineItems_t">
+    <xs:sequence>
+      <xs:element name="CreditLineItem" type="bill:CreditLineItem_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditLineItem_t">
+    <xs:sequence>
+      <xs:element name="OriginalLineNumber" type="xs:positiveInteger"/>
+      <xs:element name="ItemDescription" type="xs:string"/>
+      <xs:element name="CreditQuantity" type="ct:Quantity_t"/>
+      <xs:element name="CreditAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="CreditReason" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DebitLineItems_t">
+    <xs:sequence>
+      <xs:element name="DebitLineItem" type="bill:DebitLineItem_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DebitLineItem_t">
+    <xs:sequence>
+      <xs:element name="LineNumber" type="xs:positiveInteger"/>
+      <xs:element name="ChargeDescription" type="xs:string"/>
+      <xs:element name="ChargeAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="ChargeReason" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- USAGE DETAILS (FOR SUBSCRIPTION INVOICES) -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="UsageDetails_t">
+    <xs:annotation>
+      <xs:documentation>Usage-based billing details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="UsageMetric" type="bill:UsageMetric_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual usage metric.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="UsageMetric_t">
+    <xs:sequence>
+      <xs:element name="MetricName" type="xs:string"/>
+      <xs:element name="MetricUnit" type="xs:string"/>
+      <xs:element name="IncludedQuantity" type="xs:decimal"/>
+      <xs:element name="UsedQuantity" type="xs:decimal"/>
+      <xs:element name="OverageQuantity" type="xs:decimal" minOccurs="0"/>
+      <xs:element name="UnitPrice" type="ct:MonetaryAmount_t"/>
+      <xs:element name="TotalCharge" type="ct:MonetaryAmount_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Overages_t">
+    <xs:sequence>
+      <xs:element name="Overage" type="bill:Overage_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Overage_t">
+    <xs:sequence>
+      <xs:element name="OverageType" type="xs:string"/>
+      <xs:element name="OverageQuantity" type="xs:decimal"/>
+      <xs:element name="OverageRate" type="ct:MonetaryAmount_t"/>
+      <xs:element name="OverageCharge" type="ct:MonetaryAmount_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProrationDetails_t">
+    <xs:sequence>
+      <xs:element name="ProrationReason" type="xs:string"/>
+      <xs:element name="FullPeriodAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="ProrationFactor" type="xs:decimal"/>
+      <xs:element name="ProratedAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="ProrationPeriod" type="bill:ServicePeriod_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PAYMENT SCHEDULE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PaymentSchedule_t">
+    <xs:annotation>
+      <xs:documentation>Payment schedule for installment payments.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ScheduleID" type="ct:UUID_t"/>
+      <xs:element name="TotalAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="NumberOfInstallments" type="xs:positiveInteger"/>
+      <xs:element name="Installment" type="bill:Installment_t" maxOccurs="unbounded"/>
+      <xs:element name="InterestRate" type="ct:Percentage_t" minOccurs="0"/>
+      <xs:element name="FinanceCharge" type="ct:MonetaryAmount_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Installment_t">
+    <xs:sequence>
+      <xs:element name="InstallmentNumber" type="xs:positiveInteger"/>
+      <xs:element name="DueDate" type="xs:date"/>
+      <xs:element name="Amount" type="ct:MonetaryAmount_t"/>
+      <xs:element name="PrincipalAmount" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="InterestAmount" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="Status" type="bill:InstallmentStatus_t"/>
+      <xs:element name="PaidDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="PaidAmount" type="ct:MonetaryAmount_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CREDIT MANAGEMENT -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="CreditManagement_t">
+    <xs:annotation>
+      <xs:documentation>Credit management and limits.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CreditLimit" type="ct:MonetaryAmount_t"/>
+      <xs:element name="AvailableCredit" type="ct:MonetaryAmount_t"/>
+      <xs:element name="UsedCredit" type="ct:MonetaryAmount_t"/>
+      <xs:element name="CreditScore" type="xs:positiveInteger" minOccurs="0"/>
+      <xs:element name="CreditRating" type="bill:CreditRating_t" minOccurs="0"/>
+      <xs:element name="PaymentHistory" type="bill:PaymentHistorySummary_t"/>
+      <xs:element name="CreditReview" type="bill:CreditReview_t" minOccurs="0"/>
+      <xs:element name="CreditHold" type="xs:boolean" default="false"/>
+      <xs:element name="CreditHoldReason" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaymentHistorySummary_t">
+    <xs:sequence>
+      <xs:element name="OnTimePayments" type="xs:nonNegativeInteger"/>
+      <xs:element name="LatePayments" type="xs:nonNegativeInteger"/>
+      <xs:element name="MissedPayments" type="xs:nonNegativeInteger"/>
+      <xs:element name="AveragePaymentDays" type="xs:decimal"/>
+      <xs:element name="LargestOutstandingBalance" type="ct:MonetaryAmount_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditReview_t">
+    <xs:sequence>
+      <xs:element name="ReviewDate" type="xs:date"/>
+      <xs:element name="ReviewedBy" type="party:Person_t"/>
+      <xs:element name="ReviewOutcome" type="bill:ReviewOutcome_t"/>
+      <xs:element name="ReviewNotes" type="xs:string" minOccurs="0"/>
+      <xs:element name="NextReviewDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PAYMENT HISTORY -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PaymentHistory_t">
+    <xs:annotation>
+      <xs:documentation>Historical payment records.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Payment" type="bill:PaymentRecord_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaymentRecord_t">
+    <xs:sequence>
+      <xs:element name="PaymentID" type="ct:UUID_t"/>
+      <xs:element name="PaymentDate" type="xs:dateTime"/>
+      <xs:element name="PaymentAmount" type="ct:MonetaryAmount_t"/>
+      <xs:element ref="fin:PaymentMethod"/>
+      <xs:element name="InvoiceID" type="ct:UUID_t"/>
+      <xs:element name="PaymentStatus" type="bill:PaymentStatus_t"/>
+      <xs:element name="TransactionID" type="xs:string" minOccurs="0"/>
+      <xs:element name="ConfirmationNumber" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- BILLING PREFERENCES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="BillingPreferences_t">
+    <xs:annotation>
+      <xs:documentation>Customer billing preferences.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PreferredDeliveryMethod" type="bill:DeliveryMethod_t"/>
+      <xs:element name="EmailAddress" type="ct:EmailAddress_t" minOccurs="0"/>
+      <xs:element name="PhoneNumber" type="ct:PhoneNumber_t" minOccurs="0"/>
+      <xs:element name="PreferredLanguage" type="ct:LanguageCode_t"/>
+      <xs:element name="ConsolidatedBilling" type="xs:boolean" default="false"/>
+      <xs:element name="DetailedInvoices" type="xs:boolean" default="true"/>
+      <xs:element name="SummaryStatements" type="xs:boolean" default="false"/>
+      <xs:element name="NotificationPreferences" type="bill:NotificationPreferences_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NotificationPreferences_t">
+    <xs:sequence>
+      <xs:element name="InvoiceReady" type="xs:boolean" default="true"/>
+      <xs:element name="PaymentDue" type="xs:boolean" default="true"/>
+      <xs:element name="PaymentReceived" type="xs:boolean" default="true"/>
+      <xs:element name="PaymentOverdue" type="xs:boolean" default="true"/>
+      <xs:element name="CreditLimitWarning" type="xs:boolean" default="true"/>
+      <xs:element name="StatementReady" type="xs:boolean" default="true"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- TAX CONFIGURATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="TaxConfiguration_t">
+    <xs:annotation>
+      <xs:documentation>Tax configuration for billing.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="TaxJurisdiction" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Primary tax jurisdiction.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxID" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tax identification number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxExempt" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether entity is tax exempt.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxExemptionCertificates" type="bill:TaxExemptionCertificates_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Tax exemption certificates.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DefaultTaxRates" type="bill:DefaultTaxRates_t">
+        <xs:annotation>
+          <xs:documentation>Default tax rates by type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TaxCalculationMethod" type="bill:TaxCalculationMethod_t">
+        <xs:annotation>
+          <xs:documentation>Method for calculating taxes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReverseCharge" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether reverse charge mechanism applies.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxExemptionCertificates_t">
+    <xs:sequence>
+      <xs:element name="Certificate" type="bill:TaxExemptionCertificate_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxExemptionCertificate_t">
+    <xs:sequence>
+      <xs:element name="CertificateNumber" type="xs:string"/>
+      <xs:element name="IssuingAuthority" type="xs:string"/>
+      <xs:element name="IssueDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="TaxType" type="xs:string"/>
+      <xs:element name="Jurisdiction" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DefaultTaxRates_t">
+    <xs:sequence>
+      <xs:element name="TaxRate" type="bill:TaxRate_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxRate_t">
+    <xs:sequence>
+      <xs:element name="TaxType" type="xs:string"/>
+      <xs:element name="Rate" type="ct:Percentage_t"/>
+      <xs:element name="EffectiveDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- LATE FEE CALCULATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="LateFeeCalculation_t">
+    <xs:annotation>
+      <xs:documentation>Late fee calculation details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="BaseAmount" type="ct:MonetaryAmount_t">
+        <xs:annotation>
+          <xs:documentation>Base amount for late fee calculation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LateFeeRate" type="ct:Percentage_t">
+        <xs:annotation>
+          <xs:documentation>Late fee rate percentage.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CalculationMethod" type="bill:LateFeeCalculationMethod_t">
+        <xs:annotation>
+          <xs:documentation>Method for calculating late fees.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MinimumFee" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Minimum late fee amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MaximumFee" type="ct:MonetaryAmount_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Maximum late fee amount.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="GracePeriodDays" type="xs:nonNegativeInteger" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Grace period before late fees apply.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CompoundingFrequency" type="bill:CompoundingFrequency_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Frequency for compounding late fees.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SIMPLE TYPE RESTRICTIONS -->
+  <!-- ================================================================ -->
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS (100+ total values across all enums) -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="BillingStatus_t">
+    <xs:annotation>
+      <xs:documentation>Billing status enumeration (15 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Draft"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Suspended"/>
+      <xs:enumeration value="OnHold"/>
+      <xs:enumeration value="PastDue"/>
+      <xs:enumeration value="InCollections"/>
+      <xs:enumeration value="Disputed"/>
+      <xs:enumeration value="Settled"/>
+      <xs:enumeration value="Closed"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="WriteOff"/>
+      <xs:enumeration value="Refunded"/>
+      <xs:enumeration value="Adjusted"/>
+      <xs:enumeration value="Archived"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PeriodType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Daily"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="BiWeekly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="SemiAnnual"/>
+      <xs:enumeration value="Annual"/>
+      <xs:enumeration value="Custom"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AccountType_t">
+    <xs:annotation>
+      <xs:documentation>Billing account type (12 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Individual"/>
+      <xs:enumeration value="Business"/>
+      <xs:enumeration value="Corporate"/>
+      <xs:enumeration value="Government"/>
+      <xs:enumeration value="NonProfit"/>
+      <xs:enumeration value="Educational"/>
+      <xs:enumeration value="Reseller"/>
+      <xs:enumeration value="Partner"/>
+      <xs:enumeration value="Affiliate"/>
+      <xs:enumeration value="Trial"/>
+      <xs:enumeration value="Demo"/>
+      <xs:enumeration value="Internal"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AccountStatus_t">
+    <xs:annotation>
+      <xs:documentation>Account status (10 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Inactive"/>
+      <xs:enumeration value="Suspended"/>
+      <xs:enumeration value="Closed"/>
+      <xs:enumeration value="PendingActivation"/>
+      <xs:enumeration value="PendingClosure"/>
+      <xs:enumeration value="Delinquent"/>
+      <xs:enumeration value="InGoodStanding"/>
+      <xs:enumeration value="UnderReview"/>
+      <xs:enumeration value="Frozen"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BillingCycle_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="BiWeekly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="SemiAnnual"/>
+      <xs:enumeration value="Annual"/>
+      <xs:enumeration value="OnDemand"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InvoiceStatus_t">
+    <xs:annotation>
+      <xs:documentation>Invoice status (20 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Draft"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Sent"/>
+      <xs:enumeration value="Viewed"/>
+      <xs:enumeration value="PartiallyPaid"/>
+      <xs:enumeration value="Paid"/>
+      <xs:enumeration value="Overdue"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Voided"/>
+      <xs:enumeration value="Refunded"/>
+      <xs:enumeration value="Disputed"/>
+      <xs:enumeration value="UnderReview"/>
+      <xs:enumeration value="Approved"/>
+      <xs:enumeration value="Rejected"/>
+      <xs:enumeration value="OnHold"/>
+      <xs:enumeration value="InCollections"/>
+      <xs:enumeration value="WriteOff"/>
+      <xs:enumeration value="Adjusted"/>
+      <xs:enumeration value="Consolidated"/>
+      <xs:enumeration value="Archived"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CreditReason_t">
+    <xs:annotation>
+      <xs:documentation>Reason for credit memo (15 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ProductReturn"/>
+      <xs:enumeration value="ServiceCancellation"/>
+      <xs:enumeration value="Overpayment"/>
+      <xs:enumeration value="BillingError"/>
+      <xs:enumeration value="PriceAdjustment"/>
+      <xs:enumeration value="QualityIssue"/>
+      <xs:enumeration value="DamagedGoods"/>
+      <xs:enumeration value="LateDelivery"/>
+      <xs:enumeration value="IncorrectItem"/>
+      <xs:enumeration value="CustomerSatisfaction"/>
+      <xs:enumeration value="PromotionalCredit"/>
+      <xs:enumeration value="ContractualAdjustment"/>
+      <xs:enumeration value="Rebate"/>
+      <xs:enumeration value="Discount"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DebitReason_t">
+    <xs:annotation>
+      <xs:documentation>Reason for debit memo (12 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LateFee"/>
+      <xs:enumeration value="InterestCharge"/>
+      <xs:enumeration value="ServiceFee"/>
+      <xs:enumeration value="ProcessingFee"/>
+      <xs:enumeration value="RestockingFee"/>
+      <xs:enumeration value="ShippingCharge"/>
+      <xs:enumeration value="HandlingFee"/>
+      <xs:enumeration value="BillingCorrection"/>
+      <xs:enumeration value="AdditionalServices"/>
+      <xs:enumeration value="PenaltyCharge"/>
+      <xs:enumeration value="NSFFee"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RefundMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="OriginalPaymentMethod"/>
+      <xs:enumeration value="Check"/>
+      <xs:enumeration value="BankTransfer"/>
+      <xs:enumeration value="StoreCredit"/>
+      <xs:enumeration value="GiftCard"/>
+      <xs:enumeration value="AccountCredit"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InstallmentStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Scheduled"/>
+      <xs:enumeration value="Due"/>
+      <xs:enumeration value="Paid"/>
+      <xs:enumeration value="PartiallyPaid"/>
+      <xs:enumeration value="Overdue"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Deferred"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CreditRating_t">
+    <xs:annotation>
+      <xs:documentation>Credit rating classification.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Excellent"/>
+      <xs:enumeration value="Good"/>
+      <xs:enumeration value="Fair"/>
+      <xs:enumeration value="Poor"/>
+      <xs:enumeration value="VeryPoor"/>
+      <xs:enumeration value="NoRating"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ReviewOutcome_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Approved"/>
+      <xs:enumeration value="ApprovedWithConditions"/>
+      <xs:enumeration value="Rejected"/>
+      <xs:enumeration value="RequiresMoreInformation"/>
+      <xs:enumeration value="Escalated"/>
+      <xs:enumeration value="Deferred"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PaymentStatus_t">
+    <xs:annotation>
+      <xs:documentation>Payment status (15 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Processing"/>
+      <xs:enumeration value="Authorized"/>
+      <xs:enumeration value="Captured"/>
+      <xs:enumeration value="Completed"/>
+      <xs:enumeration value="Failed"/>
+      <xs:enumeration value="Declined"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Refunded"/>
+      <xs:enumeration value="PartiallyRefunded"/>
+      <xs:enumeration value="Disputed"/>
+      <xs:enumeration value="Chargeback"/>
+      <xs:enumeration value="Reversed"/>
+      <xs:enumeration value="OnHold"/>
+      <xs:enumeration value="Expired"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DeliveryMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Email"/>
+      <xs:enumeration value="Mail"/>
+      <xs:enumeration value="Fax"/>
+      <xs:enumeration value="Portal"/>
+      <xs:enumeration value="API"/>
+      <xs:enumeration value="EDI"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TaxCalculationMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Inclusive"/>
+      <xs:enumeration value="Exclusive"/>
+      <xs:enumeration value="Compound"/>
+      <xs:enumeration value="Cascading"/>
+      <xs:enumeration value="ReverseCharge"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LateFeeCalculationMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FlatRate"/>
+      <xs:enumeration value="Percentage"/>
+      <xs:enumeration value="PerDiem"/>
+      <xs:enumeration value="Tiered"/>
+      <xs:enumeration value="Compound"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CompoundingFrequency_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Daily"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="Annual"/>
+      <xs:enumeration value="None"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

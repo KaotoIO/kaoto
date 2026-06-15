@@ -1,0 +1,15 @@
+- route:
+    from:
+      uri: timer:yaml
+      parameters:
+        period: "1000"
+      steps:
+        - step:
+            id: kaoto-datamapper-9c6ade5b
+            steps:
+              - to:
+                  id: kaoto-datamapper-xslt-2178
+                  uri: xslt-saxon:purchaseorder-to-shiporder.xsl
+                  parameters:
+                    failOnNullBody: false
+    id: route-3213

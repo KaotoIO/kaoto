@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Common Party Schema
+  
+  Purpose: Shared party/entity types with abstract base and extensions
+  Demonstrates: Abstract types, xs:extension, substitution groups for entities
+  
+  This schema provides party/entity definitions used across all main schemas.
+  Follows enterprise patterns similar to FIXML/FPML/FMM for party handling.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:party="http://www.kaoto.io/common/party"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:addr="http://www.kaoto.io/common/address"
+           targetNamespace="http://www.kaoto.io/common/party"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- Import common types and address schemas -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common-address.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Common Party Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema provides party/entity type definitions including:
+      - Abstract party base with substitution group
+      - Person entity types
+      - Organization entity types
+      - Government entity types
+      - Contact information structures
+      - Identification types
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/common/party
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- PARTY SUBSTITUTION GROUP BASE -->
+  <!-- ================================================================ -->
+
+  <xs:element name="Party" type="party:Abstract_Party_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base element for party substitution group.
+        All concrete party types substitute this element.
+        Demonstrates: Substitution group pattern as used in FIXML/FPML.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- ABSTRACT PARTY BASE TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Abstract_Party_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base type for all party types.
+        Provides common party fields that all concrete types extend.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PartyID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique identifier for the party.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PartyName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Primary name of the party.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PartyType" type="party:PartyType_t">
+        <xs:annotation>
+          <xs:documentation>Classification of party type.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactInfo" type="party:ContactInfo_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Contact information for the party.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="addr:Address" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Addresses associated with the party (uses substitution group).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attributeGroup ref="ct:StatusAttributes"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PERSON PARTY TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:element name="Person" substitutionGroup="party:Party" type="party:Person_t">
+    <xs:annotation>
+      <xs:documentation>
+        Individual person party type.
+        Substitutes Party element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Person_t">
+    <xs:annotation>
+      <xs:documentation>
+        Person party type extending abstract party base.
+        Demonstrates: xs:extension pattern.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="party:Abstract_Party_t">
+        <xs:sequence>
+          <xs:element name="PersonName" type="party:PersonName_t">
+            <xs:annotation>
+              <xs:documentation>Structured person name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DateOfBirth" type="xs:date" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Date of birth.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Nationality" type="ct:CountryCode_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Nationality/citizenship.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TaxID" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Tax identification number (SSN, etc.).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GovernmentID" type="party:GovernmentID_t" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>Government-issued identification.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ORGANIZATION PARTY TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:element name="Organization" substitutionGroup="party:Party" type="party:Organization_t">
+    <xs:annotation>
+      <xs:documentation>
+        Business organization party type.
+        Substitutes Party element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Organization_t">
+    <xs:annotation>
+      <xs:documentation>
+        Organization party type extending abstract party base.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="party:Abstract_Party_t">
+        <xs:sequence>
+          <xs:element name="LegalName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Legal registered name of organization.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TradingName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>Trading names or DBAs.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="OrganizationType" type="party:OrganizationType_t">
+            <xs:annotation>
+              <xs:documentation>Type of organization.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="IncorporationCountry" type="ct:CountryCode_t">
+            <xs:annotation>
+              <xs:documentation>Country of incorporation.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="IncorporationDate" type="xs:date" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Date of incorporation.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TaxID" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Tax identification number (EIN, VAT, etc.).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RegistrationNumber" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Business registration number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DUNSNumber" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Dun &amp; Bradstreet number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="IndustryCode" type="party:IndustryCode_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Industry classification code.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AuthorizedRepresentative" type="party:Person_t" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>Authorized representatives of the organization.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- GOVERNMENT ENTITY PARTY TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:element name="GovernmentEntity" substitutionGroup="party:Party" type="party:GovernmentEntity_t">
+    <xs:annotation>
+      <xs:documentation>
+        Government entity party type.
+        Substitutes Party element in substitution group.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="GovernmentEntity_t">
+    <xs:annotation>
+      <xs:documentation>
+        Government entity party type extending abstract party base.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="party:Abstract_Party_t">
+        <xs:sequence>
+          <xs:element name="GovernmentLevel" type="party:GovernmentLevel_t">
+            <xs:annotation>
+              <xs:documentation>Level of government (federal, state, local).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Jurisdiction" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Jurisdiction name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Department" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Department or agency name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GovernmentID" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Government entity identifier.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING COMPLEX TYPES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="PersonName_t">
+    <xs:annotation>
+      <xs:documentation>Structured person name components.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Prefix" type="party:NamePrefix_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name prefix (Mr., Mrs., Dr., etc.).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FirstName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>First/given name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MiddleName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Middle name(s).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Last/family name.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Suffix" type="party:NameSuffix_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name suffix (Jr., Sr., III, etc.).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PreferredName" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Preferred/nickname.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactInfo_t">
+    <xs:annotation>
+      <xs:documentation>Contact information structure.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ContactType" type="party:ContactType_t">
+        <xs:annotation>
+          <xs:documentation>Type of contact.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactName" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name of contact person.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactRole" type="party:ContactRole_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Role/title of contact.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Email" type="ct:EmailAddress_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Email address(es).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Phone" type="ct:PhoneNumber_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Phone number(s).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Fax" type="ct:PhoneNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Fax number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Website" type="ct:URL_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Website URL.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PreferredMethod" type="party:ContactMethod_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Preferred contact method.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="isPrimary" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Indicates if this is the primary contact.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="GovernmentID_t">
+    <xs:annotation>
+      <xs:documentation>Government-issued identification document.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="IDType" type="party:GovernmentIDType_t">
+        <xs:annotation>
+          <xs:documentation>Type of government ID.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IDNumber" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>ID number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IssuingCountry" type="ct:CountryCode_t">
+        <xs:annotation>
+          <xs:documentation>Country that issued the ID.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IssuingAuthority" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Authority that issued the ID.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IssueDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date ID was issued.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date ID expires.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="PartyType_t">
+    <xs:annotation>
+      <xs:documentation>Party type classification.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Person"><xs:annotation><xs:documentation>Individual person</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Organization"><xs:annotation><xs:documentation>Business organization</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Government"><xs:annotation><xs:documentation>Government entity</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Trust"><xs:annotation><xs:documentation>Trust entity</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Partnership"><xs:annotation><xs:documentation>Partnership</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NonProfit"><xs:annotation><xs:documentation>Non-profit organization</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OrganizationType_t">
+    <xs:annotation>
+      <xs:documentation>Organization type classification.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Corporation"><xs:annotation><xs:documentation>Corporation</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="LLC"><xs:annotation><xs:documentation>Limited Liability Company</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Partnership"><xs:annotation><xs:documentation>Partnership</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SoleProprietorship"><xs:annotation><xs:documentation>Sole Proprietorship</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NonProfit"><xs:annotation><xs:documentation>Non-Profit Organization</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Cooperative"><xs:annotation><xs:documentation>Cooperative</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PublicCompany"><xs:annotation><xs:documentation>Publicly Traded Company</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PrivateCompany"><xs:annotation><xs:documentation>Private Company</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Government"><xs:annotation><xs:documentation>Government Entity</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Trust"><xs:annotation><xs:documentation>Trust</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="GovernmentLevel_t">
+    <xs:annotation>
+      <xs:documentation>Level of government.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Federal"><xs:annotation><xs:documentation>Federal/National government</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="State"><xs:annotation><xs:documentation>State/Provincial government</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="County"><xs:annotation><xs:documentation>County government</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Municipal"><xs:annotation><xs:documentation>Municipal/City government</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Regional"><xs:annotation><xs:documentation>Regional authority</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="International"><xs:annotation><xs:documentation>International organization</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ContactType_t">
+    <xs:annotation>
+      <xs:documentation>Type of contact.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Primary"><xs:annotation><xs:documentation>Primary contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Secondary"><xs:annotation><xs:documentation>Secondary contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Billing"><xs:annotation><xs:documentation>Billing contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Shipping"><xs:annotation><xs:documentation>Shipping contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Technical"><xs:annotation><xs:documentation>Technical contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Legal"><xs:annotation><xs:documentation>Legal contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Accounting"><xs:annotation><xs:documentation>Accounting contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Sales"><xs:annotation><xs:documentation>Sales contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Support"><xs:annotation><xs:documentation>Support contact</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Emergency"><xs:annotation><xs:documentation>Emergency contact</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ContactRole_t">
+    <xs:annotation>
+      <xs:documentation>Role/title of contact person.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CEO"><xs:annotation><xs:documentation>Chief Executive Officer</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CFO"><xs:annotation><xs:documentation>Chief Financial Officer</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CTO"><xs:annotation><xs:documentation>Chief Technology Officer</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="COO"><xs:annotation><xs:documentation>Chief Operating Officer</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="President"><xs:annotation><xs:documentation>President</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="VicePresident"><xs:annotation><xs:documentation>Vice President</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Director"><xs:annotation><xs:documentation>Director</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Manager"><xs:annotation><xs:documentation>Manager</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Supervisor"><xs:annotation><xs:documentation>Supervisor</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Accountant"><xs:annotation><xs:documentation>Accountant</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Attorney"><xs:annotation><xs:documentation>Attorney</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Consultant"><xs:annotation><xs:documentation>Consultant</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Representative"><xs:annotation><xs:documentation>Representative</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Agent"><xs:annotation><xs:documentation>Agent</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Other"><xs:annotation><xs:documentation>Other role</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ContactMethod_t">
+    <xs:annotation>
+      <xs:documentation>Preferred contact method.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Email"><xs:annotation><xs:documentation>Email</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Phone"><xs:annotation><xs:documentation>Phone call</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SMS"><xs:annotation><xs:documentation>SMS/Text message</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Fax"><xs:annotation><xs:documentation>Fax</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Mail"><xs:annotation><xs:documentation>Postal mail</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Portal"><xs:annotation><xs:documentation>Web portal</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="GovernmentIDType_t">
+    <xs:annotation>
+      <xs:documentation>Type of government-issued identification.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Passport"><xs:annotation><xs:documentation>Passport</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DriversLicense"><xs:annotation><xs:documentation>Driver's License</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NationalID"><xs:annotation><xs:documentation>National ID Card</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SSN"><xs:annotation><xs:documentation>Social Security Number</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="TaxID"><xs:annotation><xs:documentation>Tax ID Number</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MilitaryID"><xs:annotation><xs:documentation>Military ID</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="VoterID"><xs:annotation><xs:documentation>Voter ID</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ResidentCard"><xs:annotation><xs:documentation>Permanent Resident Card</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NamePrefix_t">
+    <xs:annotation>
+      <xs:documentation>Name prefix/title.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Mr"><xs:annotation><xs:documentation>Mister</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Mrs"><xs:annotation><xs:documentation>Missus</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Ms"><xs:annotation><xs:documentation>Miss/Ms</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Dr"><xs:annotation><xs:documentation>Doctor</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Prof"><xs:annotation><xs:documentation>Professor</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Rev"><xs:annotation><xs:documentation>Reverend</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Hon"><xs:annotation><xs:documentation>Honorable</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NameSuffix_t">
+    <xs:annotation>
+      <xs:documentation>Name suffix.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Jr"><xs:annotation><xs:documentation>Junior</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Sr"><xs:annotation><xs:documentation>Senior</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="II"><xs:annotation><xs:documentation>The Second</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="III"><xs:annotation><xs:documentation>The Third</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="IV"><xs:annotation><xs:documentation>The Fourth</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PhD"><xs:annotation><xs:documentation>Doctor of Philosophy</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MD"><xs:annotation><xs:documentation>Medical Doctor</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Esq"><xs:annotation><xs:documentation>Esquire</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="IndustryCode_t">
+    <xs:annotation>
+      <xs:documentation>
+        Industry classification codes (NAICS subset for demonstration).
+        Full list would contain 1000+ codes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="11"><xs:annotation><xs:documentation>Agriculture, Forestry, Fishing and Hunting</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="21"><xs:annotation><xs:documentation>Mining, Quarrying, and Oil and Gas Extraction</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="22"><xs:annotation><xs:documentation>Utilities</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="23"><xs:annotation><xs:documentation>Construction</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="31-33"><xs:annotation><xs:documentation>Manufacturing</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="42"><xs:annotation><xs:documentation>Wholesale Trade</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="44-45"><xs:annotation><xs:documentation>Retail Trade</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="48-49"><xs:annotation><xs:documentation>Transportation and Warehousing</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="51"><xs:annotation><xs:documentation>Information</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="52"><xs:annotation><xs:documentation>Finance and Insurance</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="53"><xs:annotation><xs:documentation>Real Estate and Rental and Leasing</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="54"><xs:annotation><xs:documentation>Professional, Scientific, and Technical Services</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="55"><xs:annotation><xs:documentation>Management of Companies and Enterprises</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="56"><xs:annotation><xs:documentation>Administrative and Support Services</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="61"><xs:annotation><xs:documentation>Educational Services</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="62"><xs:annotation><xs:documentation>Health Care and Social Assistance</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="71"><xs:annotation><xs:documentation>Arts, Entertainment, and Recreation</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="72"><xs:annotation><xs:documentation>Accommodation and Food Services</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="81"><xs:annotation><xs:documentation>Other Services</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="92"><xs:annotation><xs:documentation>Public Administration</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

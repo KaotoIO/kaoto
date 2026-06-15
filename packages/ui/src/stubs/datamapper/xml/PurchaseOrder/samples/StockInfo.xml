@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<si:StockInfo xmlns:si="http://www.kaoto.io/stock"
+              xmlns:ct="http://www.kaoto.io/common/types"
+              xmlns:ca="http://www.kaoto.io/common/address"
+              xmlns:cp="http://www.kaoto.io/common/party"
+              xmlns:cf="http://www.kaoto.io/common/financial"
+              xmlns:cd="http://www.kaoto.io/common/datetime"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              version="1.0"
+              id="550e8400-e29b-41d4-a716-446655440004"
+              timestamp="2026-06-11T14:30:00Z"
+              createdBy="SYSTEM-WMS-001"
+              createdDate="2026-06-11T14:00:00Z">
+
+  <!-- Inventory Identification -->
+  <si:StockHeader>
+    <si:StockID>550e8400-e29b-41d4-a716-446655440004</si:StockID>
+    <si:StockNumber>INV-2026-001234</si:StockNumber>
+    <si:SnapshotDate>2026-06-11T14:00:00Z</si:SnapshotDate>
+    <si:FiscalPeriod>
+      <si:FiscalYear>2026</si:FiscalYear>
+      <si:Period>6</si:Period>
+      <si:StartDate>2026-06-01</si:StartDate>
+      <si:EndDate>2026-06-30</si:EndDate>
+    </si:FiscalPeriod>
+    <si:Currency>USD</si:Currency>
+    <si:StockStatus>Active</si:StockStatus>
+    <si:OrderReference>550e8400-e29b-41d4-a716-446655440099</si:OrderReference>
+    <si:LastStocktakeDate>2026-05-15</si:LastStocktakeDate>
+    <si:NextStocktakeDate>2026-07-15</si:NextStocktakeDate>
+  </si:StockHeader>
+
+  <!-- Stock Items -->
+  <si:InventoryItems totalItems="4">
+    <!-- Item 1: Professional Laptop - High Value Electronics -->
+    <si:HighValueSerializedItem>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440001</si:ItemID>
+      <si:SKU>ELEC-LAPTOP-15-001</si:SKU>
+      <si:ItemDescription>High-performance laptop with 16GB RAM, 512GB SSD, Intel i7 processor</si:ItemDescription>
+      <si:ItemCategory>Electronic</si:ItemCategory>
+      <si:UnitOfMeasure>Each</si:UnitOfMeasure>
+      <si:ItemStatus>Active</si:ItemStatus>
+      <si:Manufacturer>TechPro</si:Manufacturer>
+      <si:ManufacturerPartNumber>TP-LAPTOP-15-2026</si:ManufacturerPartNumber>
+      <si:UPC>012345678901</si:UPC>
+      <si:Weight>1.905</si:Weight>
+      <si:Dimensions>
+        <si:Length>0.356</si:Length>
+        <si:Width>0.241</si:Width>
+        <si:Height>0.018</si:Height>
+        <si:DimensionUnit>M</si:DimensionUnit>
+      </si:Dimensions>
+      <si:ReorderPoint>15</si:ReorderPoint>
+      <si:ReorderQuantity>30</si:ReorderQuantity>
+      <si:SerialNumbers>
+        <si:SerialNumber>
+          <si:SerialID>SN-TP-2026-000101</si:SerialID>
+          <si:ManufactureDate>2026-03-15</si:ManufactureDate>
+          <si:WarrantyExpiry>2029-03-15</si:WarrantyExpiry>
+          <si:LocationCode>A-12-3-B</si:LocationCode>
+          <si:Status>Available</si:Status>
+        </si:SerialNumber>
+        <si:SerialNumber>
+          <si:SerialID>SN-TP-2026-000102</si:SerialID>
+          <si:ManufactureDate>2026-03-15</si:ManufactureDate>
+          <si:WarrantyExpiry>2029-03-15</si:WarrantyExpiry>
+          <si:LocationCode>A-12-3-B</si:LocationCode>
+          <si:Status>Allocated</si:Status>
+        </si:SerialNumber>
+      </si:SerialNumbers>
+      <si:SerialTracking>true</si:SerialTracking>
+      <si:WarrantyTracking>true</si:WarrantyTracking>
+      <si:WarrantyPeriod>
+        <cd:Value>36</cd:Value>
+        <cd:Unit>Months</cd:Unit>
+      </si:WarrantyPeriod>
+      <si:InsuranceRequired>true</si:InsuranceRequired>
+      <si:InsuredValue>1299.99</si:InsuredValue>
+      <si:SecurityLevel>High</si:SecurityLevel>
+      <si:RestrictedAccess>true</si:RestrictedAccess>
+      <si:AuditFrequency>Monthly</si:AuditFrequency>
+    </si:HighValueSerializedItem>
+
+    <!-- Item 2: Wireless Mouse - Accessories -->
+    <si:StandardItem>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440002</si:ItemID>
+      <si:SKU>ACC-MOUSE-WIRELESS-001</si:SKU>
+      <si:ItemDescription>Bluetooth wireless mouse with ergonomic design</si:ItemDescription>
+      <si:ItemCategory>Component</si:ItemCategory>
+      <si:UnitOfMeasure>Each</si:UnitOfMeasure>
+      <si:ItemStatus>Active</si:ItemStatus>
+      <si:Manufacturer>ErgoTech</si:Manufacturer>
+      <si:ManufacturerPartNumber>ET-MOUSE-BT-001</si:ManufacturerPartNumber>
+      <si:UPC>012345678902</si:UPC>
+      <si:Weight>0.136</si:Weight>
+      <si:Dimensions>
+        <si:Length>0.114</si:Length>
+        <si:Width>0.071</si:Width>
+        <si:Height>0.038</si:Height>
+        <si:DimensionUnit>M</si:DimensionUnit>
+      </si:Dimensions>
+      <si:ReorderPoint>50</si:ReorderPoint>
+      <si:ReorderQuantity>150</si:ReorderQuantity>
+    </si:StandardItem>
+
+    <!-- Item 3: Premium Desk Pad - Office Supplies -->
+    <si:StandardItem>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440003</si:ItemID>
+      <si:SKU>OFF-DESK-PAD-001</si:SKU>
+      <si:ItemDescription>Large leather desk pad with non-slip backing</si:ItemDescription>
+      <si:ItemCategory>Consumable</si:ItemCategory>
+      <si:UnitOfMeasure>Each</si:UnitOfMeasure>
+      <si:ItemStatus>Active</si:ItemStatus>
+      <si:Manufacturer>OfficeElite</si:Manufacturer>
+      <si:ManufacturerPartNumber>OE-DESKPAD-LTH-001</si:ManufacturerPartNumber>
+      <si:UPC>012345678903</si:UPC>
+      <si:Weight>0.816</si:Weight>
+      <si:Dimensions>
+        <si:Length>0.610</si:Length>
+        <si:Width>0.457</si:Width>
+        <si:Height>0.005</si:Height>
+        <si:DimensionUnit>M</si:DimensionUnit>
+      </si:Dimensions>
+      <si:ReorderPoint>30</si:ReorderPoint>
+      <si:ReorderQuantity>75</si:ReorderQuantity>
+    </si:StandardItem>
+
+    <!-- Item 4: Technology Guide Book - Books -->
+    <si:StandardItem>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440005</si:ItemID>
+      <si:SKU>BOOK-TECH-GUIDE-001</si:SKU>
+      <si:ItemDescription>Comprehensive guide to modern technology - Hardcover Edition</si:ItemDescription>
+      <si:ItemCategory>FinishedGood</si:ItemCategory>
+      <si:UnitOfMeasure>Each</si:UnitOfMeasure>
+      <si:ItemStatus>Active</si:ItemStatus>
+      <si:Manufacturer>TechPublishing</si:Manufacturer>
+      <si:ManufacturerPartNumber>TP-GUIDE-2026-HC</si:ManufacturerPartNumber>
+      <si:UPC>012345678904</si:UPC>
+      <si:Weight>1.134</si:Weight>
+      <si:Dimensions>
+        <si:Length>0.229</si:Length>
+        <si:Width>0.152</si:Width>
+        <si:Height>0.038</si:Height>
+        <si:DimensionUnit>M</si:DimensionUnit>
+      </si:Dimensions>
+      <si:ReorderPoint>20</si:ReorderPoint>
+      <si:ReorderQuantity>60</si:ReorderQuantity>
+    </si:StandardItem>
+  </si:InventoryItems>
+
+  <!-- Warehouse Information -->
+  <si:WarehouseLocations>
+    <si:Warehouse>
+      <si:WarehouseID>WH-001</si:WarehouseID>
+      <si:WarehouseName>Main Distribution Center</si:WarehouseName>
+      <si:WarehouseCode>MDC-CA-001</si:WarehouseCode>
+      <ca:StandardAddress addressType="Warehouse">
+        <ca:AddressID>ADDR-WH-001</ca:AddressID>
+        <ca:AddressLine1>5000 Distribution Way</ca:AddressLine1>
+        <ca:City>San Jose</ca:City>
+        <ca:Country>US</ca:Country>
+        <ca:StateProvince>CA</ca:StateProvince>
+        <ca:PostalCode>95131</ca:PostalCode>
+      </ca:StandardAddress>
+      <si:WarehouseType>Distribution</si:WarehouseType>
+      <si:WarehouseStatus>Operational</si:WarehouseStatus>
+      <si:TotalCapacity>250000</si:TotalCapacity>
+      <si:AvailableCapacity>53750</si:AvailableCapacity>
+      <si:CapacityUnit>SquareFeet</si:CapacityUnit>
+      <si:StorageZones>
+        <si:Zone>
+          <si:ZoneID>ZONE-A</si:ZoneID>
+          <si:ZoneName>Electronics Storage</si:ZoneName>
+          <si:ZoneType>Storage</si:ZoneType>
+          <si:Capacity>50000</si:Capacity>
+          <si:CurrentUtilization>82.5</si:CurrentUtilization>
+          <si:TemperatureControlled>true</si:TemperatureControlled>
+          <si:TemperatureRange>
+            <si:MinTemperature>18.0</si:MinTemperature>
+            <si:MaxTemperature>24.0</si:MaxTemperature>
+            <si:TemperatureUnit>Celsius</si:TemperatureUnit>
+          </si:TemperatureRange>
+        </si:Zone>
+        <si:Zone>
+          <si:ZoneID>ZONE-B</si:ZoneID>
+          <si:ZoneName>General Merchandise</si:ZoneName>
+          <si:ZoneType>Storage</si:ZoneType>
+          <si:Capacity>100000</si:Capacity>
+          <si:CurrentUtilization>75.0</si:CurrentUtilization>
+          <si:TemperatureControlled>false</si:TemperatureControlled>
+        </si:Zone>
+        <si:Zone>
+          <si:ZoneID>ZONE-S</si:ZoneID>
+          <si:ZoneName>Shipping Area</si:ZoneName>
+          <si:ZoneType>Shipping</si:ZoneType>
+          <si:Capacity>30000</si:Capacity>
+          <si:CurrentUtilization>60.0</si:CurrentUtilization>
+          <si:TemperatureControlled>false</si:TemperatureControlled>
+        </si:Zone>
+      </si:StorageZones>
+      <si:OperatingHours>
+        <si:DaySchedule>
+          <si:DayOfWeek>Monday</si:DayOfWeek>
+          <si:OpenTime>06:00:00</si:OpenTime>
+          <si:CloseTime>22:00:00</si:CloseTime>
+          <si:Closed>false</si:Closed>
+        </si:DaySchedule>
+        <si:DaySchedule>
+          <si:DayOfWeek>Tuesday</si:DayOfWeek>
+          <si:OpenTime>06:00:00</si:OpenTime>
+          <si:CloseTime>22:00:00</si:CloseTime>
+          <si:Closed>false</si:Closed>
+        </si:DaySchedule>
+        <si:DaySchedule>
+          <si:DayOfWeek>Wednesday</si:DayOfWeek>
+          <si:OpenTime>06:00:00</si:OpenTime>
+          <si:CloseTime>22:00:00</si:CloseTime>
+          <si:Closed>false</si:Closed>
+        </si:DaySchedule>
+        <si:DaySchedule>
+          <si:DayOfWeek>Thursday</si:DayOfWeek>
+          <si:OpenTime>06:00:00</si:OpenTime>
+          <si:CloseTime>22:00:00</si:CloseTime>
+          <si:Closed>false</si:Closed>
+        </si:DaySchedule>
+        <si:DaySchedule>
+          <si:DayOfWeek>Friday</si:DayOfWeek>
+          <si:OpenTime>06:00:00</si:OpenTime>
+          <si:CloseTime>22:00:00</si:CloseTime>
+          <si:Closed>false</si:Closed>
+        </si:DaySchedule>
+        <si:DaySchedule>
+          <si:DayOfWeek>Saturday</si:DayOfWeek>
+          <si:OpenTime>08:00:00</si:OpenTime>
+          <si:CloseTime>16:00:00</si:CloseTime>
+          <si:Closed>false</si:Closed>
+        </si:DaySchedule>
+        <si:DaySchedule>
+          <si:DayOfWeek>Sunday</si:DayOfWeek>
+          <si:OpenTime>00:00:00</si:OpenTime>
+          <si:CloseTime>00:00:00</si:CloseTime>
+          <si:Closed>true</si:Closed>
+        </si:DaySchedule>
+      </si:OperatingHours>
+      <si:ContactInfo isPrimary="true">
+        <cp:ContactType>Primary</cp:ContactType>
+        <cp:ContactName>Warehouse Operations</cp:ContactName>
+        <cp:Email>warehouse@techpro-dist.com</cp:Email>
+        <cp:Phone>+1-408-555-0100</cp:Phone>
+      </si:ContactInfo>
+      <si:ClimateControlled>true</si:ClimateControlled>
+      <si:SecurityLevel>High</si:SecurityLevel>
+      <si:CertificationsCompliance>
+        <si:Certification>
+          <si:CertificationType>ISO 9001</si:CertificationType>
+          <si:CertificationNumber>ISO-9001-2026-MDC</si:CertificationNumber>
+          <si:IssuingBody>International Organization for Standardization</si:IssuingBody>
+          <si:IssueDate>2025-01-15</si:IssueDate>
+          <si:ExpiryDate>2028-01-14</si:ExpiryDate>
+        </si:Certification>
+      </si:CertificationsCompliance>
+    </si:Warehouse>
+  </si:WarehouseLocations>
+
+  <!-- Stock Movements (Recent) -->
+  <si:InventoryMovements>
+    <si:Movement>
+      <si:MovementID>550e8400-e29b-41d4-a716-446655440101</si:MovementID>
+      <si:MovementType>Sale</si:MovementType>
+      <si:MovementDate>2026-06-11T10:30:00Z</si:MovementDate>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440001</si:ItemID>
+      <si:SKU>ELEC-LAPTOP-15-001</si:SKU>
+      <si:Quantity>1</si:Quantity>
+      <si:FromLocation>A-12-3-B</si:FromLocation>
+      <si:ToLocation>Shipping</si:ToLocation>
+      <si:ReasonCode>CustomerOrder</si:ReasonCode>
+      <si:Reference>PO-2026-001234</si:Reference>
+      <si:PerformedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440201</cp:PartyID>
+        <cp:PartyName>WMS System Operator</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>System</cp:FirstName>
+          <cp:LastName>WMS-001</cp:LastName>
+        </cp:PersonName>
+      </si:PerformedBy>
+    </si:Movement>
+
+    <si:Movement>
+      <si:MovementID>550e8400-e29b-41d4-a716-446655440102</si:MovementID>
+      <si:MovementType>Sale</si:MovementType>
+      <si:MovementDate>2026-06-11T10:32:00Z</si:MovementDate>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440002</si:ItemID>
+      <si:SKU>ACC-MOUSE-WIRELESS-001</si:SKU>
+      <si:Quantity>2</si:Quantity>
+      <si:FromLocation>B-05-2-C</si:FromLocation>
+      <si:ToLocation>Shipping</si:ToLocation>
+      <si:ReasonCode>CustomerOrder</si:ReasonCode>
+      <si:Reference>PO-2026-001234</si:Reference>
+      <si:PerformedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440201</cp:PartyID>
+        <cp:PartyName>WMS System Operator</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>System</cp:FirstName>
+          <cp:LastName>WMS-001</cp:LastName>
+        </cp:PersonName>
+      </si:PerformedBy>
+    </si:Movement>
+
+    <si:Movement>
+      <si:MovementID>550e8400-e29b-41d4-a716-446655440103</si:MovementID>
+      <si:MovementType>Sale</si:MovementType>
+      <si:MovementDate>2026-06-11T10:33:00Z</si:MovementDate>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440003</si:ItemID>
+      <si:SKU>OFF-DESK-PAD-001</si:SKU>
+      <si:Quantity>1</si:Quantity>
+      <si:FromLocation>C-08-1-D</si:FromLocation>
+      <si:ToLocation>Shipping</si:ToLocation>
+      <si:ReasonCode>CustomerOrder</si:ReasonCode>
+      <si:Reference>PO-2026-001234</si:Reference>
+      <si:PerformedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440201</cp:PartyID>
+        <cp:PartyName>WMS System Operator</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>System</cp:FirstName>
+          <cp:LastName>WMS-001</cp:LastName>
+        </cp:PersonName>
+      </si:PerformedBy>
+    </si:Movement>
+
+    <si:Movement>
+      <si:MovementID>550e8400-e29b-41d4-a716-446655440104</si:MovementID>
+      <si:MovementType>Sale</si:MovementType>
+      <si:MovementDate>2026-06-11T10:34:00Z</si:MovementDate>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440005</si:ItemID>
+      <si:SKU>BOOK-TECH-GUIDE-001</si:SKU>
+      <si:Quantity>1</si:Quantity>
+      <si:FromLocation>D-15-4-A</si:FromLocation>
+      <si:ToLocation>Shipping</si:ToLocation>
+      <si:ReasonCode>CustomerOrder</si:ReasonCode>
+      <si:Reference>PO-2026-001234</si:Reference>
+      <si:PerformedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440201</cp:PartyID>
+        <cp:PartyName>WMS System Operator</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>System</cp:FirstName>
+          <cp:LastName>WMS-001</cp:LastName>
+        </cp:PersonName>
+      </si:PerformedBy>
+    </si:Movement>
+
+    <si:Movement>
+      <si:MovementID>550e8400-e29b-41d4-a716-446655440105</si:MovementID>
+      <si:MovementType>Receipt</si:MovementType>
+      <si:MovementDate>2026-06-08T14:20:00Z</si:MovementDate>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440002</si:ItemID>
+      <si:SKU>ACC-MOUSE-WIRELESS-001</si:SKU>
+      <si:Quantity>100</si:Quantity>
+      <si:FromLocation>Receiving</si:FromLocation>
+      <si:ToLocation>B-05-2-C</si:ToLocation>
+      <si:ReasonCode>PurchaseOrder</si:ReasonCode>
+      <si:Reference>PO-VENDOR-2026-5678</si:Reference>
+      <si:PerformedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440202</cp:PartyID>
+        <cp:PartyName>Warehouse Staff</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>James</cp:FirstName>
+          <cp:LastName>Wilson</cp:LastName>
+        </cp:PersonName>
+      </si:PerformedBy>
+    </si:Movement>
+  </si:InventoryMovements>
+
+  <!-- Inventory Summary -->
+  <si:StockLevels>
+    <si:StockLevel>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440001</si:ItemID>
+      <si:SKU>ELEC-LAPTOP-15-001</si:SKU>
+      <si:LocationCode>A-12-3-B</si:LocationCode>
+      <si:OnHandQuantity>45</si:OnHandQuantity>
+      <si:AvailableQuantity>38</si:AvailableQuantity>
+      <si:AllocatedQuantity>7</si:AllocatedQuantity>
+      <si:ReservedQuantity>7</si:ReservedQuantity>
+      <si:InTransitQuantity>20</si:InTransitQuantity>
+      <si:MinimumLevel>10</si:MinimumLevel>
+      <si:MaximumLevel>100</si:MaximumLevel>
+      <si:ReorderPoint>15</si:ReorderPoint>
+      <si:SafetyStock>10</si:SafetyStock>
+      <si:LastCountDate>2026-06-11T14:00:00Z</si:LastCountDate>
+    </si:StockLevel>
+    <si:StockLevel>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440002</si:ItemID>
+      <si:SKU>ACC-MOUSE-WIRELESS-001</si:SKU>
+      <si:LocationCode>B-05-2-C</si:LocationCode>
+      <si:OnHandQuantity>250</si:OnHandQuantity>
+      <si:AvailableQuantity>242</si:AvailableQuantity>
+      <si:AllocatedQuantity>8</si:AllocatedQuantity>
+      <si:ReservedQuantity>8</si:ReservedQuantity>
+      <si:InTransitQuantity>100</si:InTransitQuantity>
+      <si:MinimumLevel>40</si:MinimumLevel>
+      <si:MaximumLevel>500</si:MaximumLevel>
+      <si:ReorderPoint>50</si:ReorderPoint>
+      <si:SafetyStock>40</si:SafetyStock>
+      <si:LastCountDate>2026-06-11T14:00:00Z</si:LastCountDate>
+    </si:StockLevel>
+    <si:StockLevel>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440003</si:ItemID>
+      <si:SKU>OFF-DESK-PAD-001</si:SKU>
+      <si:LocationCode>C-08-1-D</si:LocationCode>
+      <si:OnHandQuantity>120</si:OnHandQuantity>
+      <si:AvailableQuantity>118</si:AvailableQuantity>
+      <si:AllocatedQuantity>2</si:AllocatedQuantity>
+      <si:ReservedQuantity>2</si:ReservedQuantity>
+      <si:MinimumLevel>25</si:MinimumLevel>
+      <si:MaximumLevel>200</si:MaximumLevel>
+      <si:ReorderPoint>30</si:ReorderPoint>
+      <si:SafetyStock>25</si:SafetyStock>
+      <si:LastCountDate>2026-06-11T14:00:00Z</si:LastCountDate>
+    </si:StockLevel>
+    <si:StockLevel>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440005</si:ItemID>
+      <si:SKU>BOOK-TECH-GUIDE-001</si:SKU>
+      <si:LocationCode>D-15-4-A</si:LocationCode>
+      <si:OnHandQuantity>85</si:OnHandQuantity>
+      <si:AvailableQuantity>83</si:AvailableQuantity>
+      <si:AllocatedQuantity>2</si:AllocatedQuantity>
+      <si:ReservedQuantity>2</si:ReservedQuantity>
+      <si:MinimumLevel>15</si:MinimumLevel>
+      <si:MaximumLevel>150</si:MaximumLevel>
+      <si:ReorderPoint>20</si:ReorderPoint>
+      <si:SafetyStock>15</si:SafetyStock>
+      <si:LastCountDate>2026-06-11T14:00:00Z</si:LastCountDate>
+    </si:StockLevel>
+  </si:StockLevels>
+
+  <!-- Reorder Recommendations -->
+  <si:ReplenishmentPlanning>
+    <si:ReplenishmentPlan>
+      <si:PlanID>550e8400-e29b-41d4-a716-446655440301</si:PlanID>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440001</si:ItemID>
+      <si:SKU>ELEC-LAPTOP-15-001</si:SKU>
+      <si:LocationCode>A-12-3-B</si:LocationCode>
+      <si:CurrentStock>45</si:CurrentStock>
+      <si:ForecastedDemand>
+        <si:Period>
+          <si:StartDate>2026-06-15</si:StartDate>
+          <si:EndDate>2026-07-15</si:EndDate>
+          <si:ForecastedQuantity>35</si:ForecastedQuantity>
+          <si:ConfidenceLevel>85.0</si:ConfidenceLevel>
+        </si:Period>
+      </si:ForecastedDemand>
+      <si:RecommendedOrderQuantity>30</si:RecommendedOrderQuantity>
+      <si:RecommendedOrderDate>2026-06-20</si:RecommendedOrderDate>
+      <si:LeadTime>
+        <cd:Value>14</cd:Value>
+        <cd:Unit>Days</cd:Unit>
+      </si:LeadTime>
+      <si:EstimatedCost>26999.70</si:EstimatedCost>
+      <si:PlanStatus>Pending</si:PlanStatus>
+    </si:ReplenishmentPlan>
+  </si:ReplenishmentPlanning>
+
+  <!-- Stock Alerts -->
+  <si:QualityControl>
+    <si:Inspection>
+      <si:InspectionID>550e8400-e29b-41d4-a716-446655440401</si:InspectionID>
+      <si:InspectionDate>2026-06-11T14:00:00Z</si:InspectionDate>
+      <si:InspectionType>Random</si:InspectionType>
+      <si:ItemID>550e8400-e29b-41d4-a716-446655440001</si:ItemID>
+      <si:SKU>ELEC-LAPTOP-15-001</si:SKU>
+      <si:InspectedQuantity>5</si:InspectedQuantity>
+      <si:InspectionResult>Passed</si:InspectionResult>
+      <si:DefectsFound>0</si:DefectsFound>
+      <si:InspectedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440203</cp:PartyID>
+        <cp:PartyName>Quality Inspector</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>Maria</cp:FirstName>
+          <cp:LastName>Chen</cp:LastName>
+        </cp:PersonName>
+      </si:InspectedBy>
+      <si:Notes>Stock level approaching reorder point. Consider placing order soon.</si:Notes>
+    </si:Inspection>
+  </si:QualityControl>
+
+  <!-- Inventory Notes -->
+  <si:Notes type="StockManagement" author="WH-MANAGER-001" date="2024-03-15T09:00:00Z">High-value electronics require additional security measures. All items in Aisle A are monitored by security cameras.</si:Notes>
+  <si:Notes type="SeasonalTrend" author="INVENTORY-PLANNER-002" date="2026-05-01T10:30:00Z">Technology products see increased demand in Q3 and Q4. Plan for 30% stock increase starting August.</si:Notes>
+
+</si:StockInfo>

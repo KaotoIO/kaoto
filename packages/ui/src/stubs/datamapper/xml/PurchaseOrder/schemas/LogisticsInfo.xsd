@@ -1,0 +1,1659 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logistics Information Schema (Source Param3)
+  
+  Purpose: Comprehensive logistics and supply chain schema with enterprise complexity
+  Demonstrates: Substitution groups for shipment types, carrier methods, warehouse operations,
+                xs:extension, xs:restriction, xs:import patterns
+  
+  This schema represents complex logistics scenarios including multiple shipment types,
+  carrier integrations, warehouse management, tracking, and customs documentation.
+  Follows enterprise patterns similar to FIXML/FPML/FMM.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:log="http://www.kaoto.io/logistics"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:addr="http://www.kaoto.io/common/address"
+           xmlns:party="http://www.kaoto.io/common/party"
+           xmlns:fin="http://www.kaoto.io/common/financial"
+           xmlns:dt="http://www.kaoto.io/common/datetime"
+           targetNamespace="http://www.kaoto.io/logistics"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- ================================================================ -->
+  <!-- IMPORTS - Cross-namespace references -->
+  <!-- ================================================================ -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/party"
+             schemaLocation="common/common-party.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/financial"
+             schemaLocation="common/common-financial.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/datetime"
+             schemaLocation="common/common-datetime.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Logistics Information Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema demonstrates enterprise-level logistics complexity including:
+      - 4-level substitution groups for shipment types
+      - Complex carrier and routing management
+      - Warehouse operations and inventory tracking
+      - Customs documentation and compliance
+      - Real-time tracking and status updates
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/logistics
+      
+      Total complexity: ~1850 lines
+      Demonstrates: Advanced logistics patterns with substitution groups
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- ROOT ELEMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="LogisticsInfo" type="log:LogisticsInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Root element for logistics information document.
+        Contains complete logistics details for shipments and operations.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- LOGISTICS INFO TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="LogisticsInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Main logistics information structure.
+        Contains shipments, carriers, warehouses, and tracking details.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LogisticsHeader" type="log:LogisticsHeader_t">
+        <xs:annotation>
+          <xs:documentation>Logistics header with identification.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Shipments" type="log:Shipments_t">
+        <xs:annotation>
+          <xs:documentation>
+            Collection of shipments.
+            Demonstrates: Shipment type substitution group (4 levels).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CarrierInformation" type="log:CarrierInformation_t">
+        <xs:annotation>
+          <xs:documentation>Carrier and transportation details.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarehouseOperations" type="log:WarehouseOperations_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Warehouse operations and inventory.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="RoutingInformation" type="log:RoutingInformation_t">
+        <xs:annotation>
+          <xs:documentation>Routing and transit details.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TrackingInformation" type="log:TrackingInformation_t">
+        <xs:annotation>
+          <xs:documentation>Real-time tracking information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CustomsDocumentation" type="log:CustomsDocumentation_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Customs and international shipping documentation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InsuranceInformation" type="log:InsuranceInformation_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Shipping insurance details.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DeliveryConfirmation" type="log:DeliveryConfirmation_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Delivery confirmation and proof of delivery.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShippingPreferences" type="log:ShippingPreferences_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Customer-facing shipping preferences for carrier, delivery instructions, and scheduling.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Notes" type="ct:Note_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Additional logistics notes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attributeGroup ref="ct:AuditAttributes"/>
+    <xs:attribute name="version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- LOGISTICS HEADER -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="LogisticsHeader_t">
+    <xs:annotation>
+      <xs:documentation>Logistics header with identification and metadata.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LogisticsID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique logistics identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LogisticsNumber" type="ct:ReferenceNumber_t">
+        <xs:annotation>
+          <xs:documentation>Human-readable logistics number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CreationDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time logistics record was created.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderReference" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Reference to related order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShipmentPriority" type="log:ShipmentPriority_t">
+        <xs:annotation>
+          <xs:documentation>Overall shipment priority.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LogisticsStatus" type="log:LogisticsStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current logistics status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ServiceLevel" type="log:ServiceLevel_t">
+        <xs:annotation>
+          <xs:documentation>Service level agreement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EstimatedDeliveryDate" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Estimated delivery date/time.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ActualDeliveryDate" type="xs:dateTime" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Actual delivery date/time.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPMENTS COLLECTION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Shipments_t">
+    <xs:annotation>
+      <xs:documentation>Collection of shipments with various types.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="log:Shipment" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            Individual shipment (uses substitution group).
+            Demonstrates: 4-level shipment type hierarchy.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="totalShipments" type="xs:positiveInteger" use="optional"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPMENT TYPE SUBSTITUTION GROUP (4 LEVELS) -->
+  <!-- ================================================================ -->
+
+  <!-- Level 1: Abstract Base -->
+  <xs:element name="Shipment" type="log:Abstract_Shipment_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base for shipment substitution group.
+        Level 1 of 4-level substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Abstract_Shipment_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base type for all shipments.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ShipmentID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique shipment identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShipmentNumber" type="ct:ReferenceNumber_t">
+        <xs:annotation>
+          <xs:documentation>Shipment tracking number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShipmentDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time shipment was created.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShipmentStatus" type="log:ShipmentStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current shipment status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShipFrom" type="log:ShipmentLocation_t">
+        <xs:annotation>
+          <xs:documentation>Origin location.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ShipTo" type="log:ShipmentLocation_t">
+        <xs:annotation>
+          <xs:documentation>Destination location.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TotalWeight" type="ct:Weight_t">
+        <xs:annotation>
+          <xs:documentation>Total shipment weight.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WeightUnit" type="ct:WeightUnit_t">
+        <xs:annotation>
+          <xs:documentation>Unit of weight measurement.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Level 2: Standard Shipment -->
+  <xs:element name="StandardShipment" substitutionGroup="log:Shipment" type="log:StandardShipment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Standard ground shipment.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="StandardShipment_t">
+    <xs:annotation>
+      <xs:documentation>Standard shipment with normal delivery.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:Abstract_Shipment_t">
+        <xs:sequence>
+          <xs:element name="EstimatedTransitDays" type="xs:positiveInteger">
+            <xs:annotation>
+              <xs:documentation>Estimated transit time in days.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Packages" type="log:Packages_t">
+            <xs:annotation>
+              <xs:documentation>Packages in shipment.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ShippingCost" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Shipping cost.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SignatureRequired" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Whether signature is required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Express Shipment (extends StandardShipment) -->
+  <xs:element name="ExpressShipment" substitutionGroup="log:StandardShipment" type="log:ExpressShipment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Express shipment with expedited delivery.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ExpressShipment_t">
+    <xs:annotation>
+      <xs:documentation>Express shipment extending standard shipment.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:StandardShipment_t">
+        <xs:sequence>
+          <xs:element name="ExpressService" type="log:ExpressService_t">
+            <xs:annotation>
+              <xs:documentation>Express service level.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="GuaranteedDelivery" type="xs:dateTime">
+            <xs:annotation>
+              <xs:documentation>Guaranteed delivery date/time.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpressFee" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Additional express service fee.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PriorityHandling" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Priority handling enabled.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 4: Overnight Shipment (extends ExpressShipment) -->
+  <xs:element name="OvernightShipment" substitutionGroup="log:ExpressShipment" type="log:OvernightShipment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Overnight delivery shipment.
+        Level 4 of substitution hierarchy (deepest level).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="OvernightShipment_t">
+    <xs:annotation>
+      <xs:documentation>Overnight shipment with next-day delivery.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:ExpressShipment_t">
+        <xs:sequence>
+          <xs:element name="CutoffTime" type="xs:time">
+            <xs:annotation>
+              <xs:documentation>Cutoff time for overnight processing.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DeliveryWindow" type="dt:TimeWindow_t">
+            <xs:annotation>
+              <xs:documentation>Delivery time window.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SaturdayDelivery" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Saturday delivery available.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="EarlyAM" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Early AM delivery (before 10:30 AM).</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Freight Shipment (parallel branch) -->
+  <xs:element name="FreightShipment" substitutionGroup="log:Shipment" type="log:FreightShipment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Freight shipment for large/heavy items.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="FreightShipment_t">
+    <xs:annotation>
+      <xs:documentation>Freight shipment for bulk cargo.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:Abstract_Shipment_t">
+        <xs:sequence>
+          <xs:element name="FreightClass" type="log:FreightClass_t">
+            <xs:annotation>
+              <xs:documentation>NMFC freight class.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LoadType" type="log:LoadType_t">
+            <xs:annotation>
+              <xs:documentation>Type of freight load.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Pallets" type="log:Pallets_t">
+            <xs:annotation>
+              <xs:documentation>Pallet information.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LiftgateRequired" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Whether liftgate service is required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="InsideDelivery" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Inside delivery service.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AppointmentRequired" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Delivery appointment required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: LTL Shipment (extends FreightShipment) -->
+  <xs:element name="LTLShipment" substitutionGroup="log:FreightShipment" type="log:LTLShipment_t">
+    <xs:annotation>
+      <xs:documentation>
+        Less-than-truckload shipment.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="LTLShipment_t">
+    <xs:annotation>
+      <xs:documentation>LTL shipment for partial truckload.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:FreightShipment_t">
+        <xs:sequence>
+          <xs:element name="LinearFeet" type="xs:decimal">
+            <xs:annotation>
+              <xs:documentation>Linear feet of trailer space.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="StackableGoods" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Whether goods are stackable.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ConsolidationPoint" type="log:ConsolidationPoint_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Consolidation/break-bulk point.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="EstimatedTransitDays" type="xs:positiveInteger">
+            <xs:annotation>
+              <xs:documentation>Estimated transit days for LTL.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: International Shipment (parallel branch) -->
+  <xs:element name="InternationalShipment" substitutionGroup="log:Shipment" type="log:InternationalShipment_t">
+    <xs:annotation>
+      <xs:documentation>
+        International cross-border shipment.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="InternationalShipment_t">
+    <xs:annotation>
+      <xs:documentation>International shipment with customs.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:Abstract_Shipment_t">
+        <xs:sequence>
+          <xs:element name="OriginCountry" type="ct:CountryCode_t">
+            <xs:annotation>
+              <xs:documentation>Country of origin.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DestinationCountry" type="ct:CountryCode_t">
+            <xs:annotation>
+              <xs:documentation>Destination country.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CustomsValue" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Declared customs value.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="IncoTerms" type="log:IncoTerms_t">
+            <xs:annotation>
+              <xs:documentation>International commercial terms.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DutiesAndTaxes" type="log:DutiesAndTaxes_t">
+            <xs:annotation>
+              <xs:documentation>Duties and taxes information.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CommercialInvoice" type="log:CommercialInvoice_t">
+            <xs:annotation>
+              <xs:documentation>Commercial invoice for customs.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExportLicense" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Export license number if required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Air Freight International (extends InternationalShipment) -->
+  <xs:element name="AirFreightInternational" substitutionGroup="log:InternationalShipment" type="log:AirFreightInternational_t">
+    <xs:annotation>
+      <xs:documentation>
+        International air freight shipment.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="AirFreightInternational_t">
+    <xs:annotation>
+      <xs:documentation>Air freight for international shipping.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="log:InternationalShipment_t">
+        <xs:sequence>
+          <xs:element name="AirWaybillNumber" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Air waybill (AWB) number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="FlightDetails" type="log:FlightDetails_t">
+            <xs:annotation>
+              <xs:documentation>Flight routing details.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DangerousGoods" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Contains dangerous goods.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DGDeclaration" type="log:DangerousGoodsDeclaration_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Dangerous goods declaration.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPMENT LOCATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ShipmentLocation_t">
+    <xs:annotation>
+      <xs:documentation>Shipment origin or destination location.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="LocationType" type="log:LocationType_t">
+        <xs:annotation>
+          <xs:documentation>Type of location.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LocationName" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Location name (warehouse, store, etc.).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LocationCode" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Location code or identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element ref="addr:Address">
+        <xs:annotation>
+          <xs:documentation>Physical address.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactPerson" type="party:Person_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact person at location.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ContactPhone" type="ct:PhoneNumber_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Contact phone number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OperatingHours" type="log:OperatingHours_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Operating hours for pickup/delivery.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SpecialInstructions" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Special instructions for location.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OperatingHours_t">
+    <xs:sequence>
+      <xs:element name="DaySchedule" type="log:DaySchedule_t" maxOccurs="7"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DaySchedule_t">
+    <xs:sequence>
+      <xs:element name="DayOfWeek" type="xs:string"/>
+      <xs:element name="OpenTime" type="xs:time"/>
+      <xs:element name="CloseTime" type="xs:time"/>
+      <xs:element name="Closed" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PACKAGES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Packages_t">
+    <xs:sequence>
+      <xs:element name="Package" type="log:Package_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Package_t">
+    <xs:annotation>
+      <xs:documentation>Individual package with 20+ fields.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PackageID" type="ct:UUID_t"/>
+      <xs:element name="PackageNumber" type="xs:string"/>
+      <xs:element name="PackageType" type="log:PackageType_t"/>
+      <xs:element name="Dimensions" type="log:PackageDimensions_t"/>
+      <xs:element name="Weight" type="ct:Weight_t"/>
+      <xs:element name="WeightUnit" type="ct:WeightUnit_t"/>
+      <xs:element name="Contents" type="log:PackageContents_t"/>
+      <xs:element name="PackagingMaterial" type="xs:string" minOccurs="0"/>
+      <xs:element name="Fragile" type="xs:boolean" default="false"/>
+      <xs:element name="Perishable" type="xs:boolean" default="false"/>
+      <xs:element name="TemperatureControlled" type="xs:boolean" default="false"/>
+      <xs:element name="TemperatureRange" type="log:TemperatureRange_t" minOccurs="0"/>
+      <xs:element name="InsuredValue" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="TrackingNumber" type="xs:string" minOccurs="0"/>
+      <xs:element name="Barcode" type="xs:string" minOccurs="0"/>
+      <xs:element name="RFID" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PackageDimensions_t">
+    <xs:sequence>
+      <xs:element name="Length" type="ct:Dimension_t"/>
+      <xs:element name="Width" type="ct:Dimension_t"/>
+      <xs:element name="Height" type="ct:Dimension_t"/>
+      <xs:element name="DimensionUnit" type="ct:DimensionUnit_t"/>
+      <xs:element name="DimensionalWeight" type="ct:Weight_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PackageContents_t">
+    <xs:sequence>
+      <xs:element name="Item" type="log:PackageItem_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PackageItem_t">
+    <xs:sequence>
+      <xs:element name="ItemDescription" type="xs:string"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="UnitValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="TotalValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="HSCode" type="xs:string" minOccurs="0"/>
+      <xs:element name="CountryOfOrigin" type="ct:CountryCode_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TemperatureRange_t">
+    <xs:sequence>
+      <xs:element name="MinTemperature" type="xs:decimal"/>
+      <xs:element name="MaxTemperature" type="xs:decimal"/>
+      <xs:element name="TemperatureUnit" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- PALLETS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Pallets_t">
+    <xs:sequence>
+      <xs:element name="Pallet" type="log:Pallet_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Pallet_t">
+    <xs:sequence>
+      <xs:element name="PalletID" type="xs:string"/>
+      <xs:element name="PalletType" type="log:PalletType_t"/>
+      <xs:element name="PalletCount" type="xs:positiveInteger"/>
+      <xs:element name="Weight" type="ct:Weight_t"/>
+      <xs:element name="WeightUnit" type="ct:WeightUnit_t"/>
+      <xs:element name="Stackable" type="xs:boolean" default="true"/>
+      <xs:element name="Height" type="ct:Dimension_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CARRIER INFORMATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="CarrierInformation_t">
+    <xs:annotation>
+      <xs:documentation>Carrier and transportation details.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PrimaryCarrier" type="log:Carrier_t">
+        <xs:annotation>
+          <xs:documentation>Primary shipping carrier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AlternateCarriers" type="log:AlternateCarriers_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Alternate carrier options.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CarrierService" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Carrier service level.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CarrierAccountNumber" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Shipper's carrier account number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BillToParty" type="log:BillToParty_t">
+        <xs:annotation>
+          <xs:documentation>Party responsible for shipping charges.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TransportMode" type="log:TransportMode_t">
+        <xs:annotation>
+          <xs:documentation>Mode of transportation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="VehicleInformation" type="log:VehicleInformation_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Vehicle/vessel information.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Carrier_t">
+    <xs:sequence>
+      <xs:element name="CarrierCode" type="xs:string"/>
+      <xs:element name="CarrierName" type="xs:string"/>
+      <xs:element name="SCAC" type="xs:string" minOccurs="0"/>
+      <xs:element name="ContactInfo" type="party:ContactInfo_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AlternateCarriers_t">
+    <xs:sequence>
+      <xs:element name="Carrier" type="log:Carrier_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="VehicleInformation_t">
+    <xs:sequence>
+      <xs:element name="VehicleType" type="log:VehicleType_t"/>
+      <xs:element name="VehicleID" type="xs:string" minOccurs="0"/>
+      <xs:element name="LicensePlate" type="xs:string" minOccurs="0"/>
+      <xs:element name="DriverName" type="xs:string" minOccurs="0"/>
+      <xs:element name="DriverContact" type="ct:PhoneNumber_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- WAREHOUSE OPERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="WarehouseOperations_t">
+    <xs:sequence>
+      <xs:element name="WarehouseLocation" type="log:WarehouseLocation_t"/>
+      <xs:element name="ReceivingDetails" type="log:ReceivingDetails_t" minOccurs="0"/>
+      <xs:element name="StorageDetails" type="log:StorageDetails_t" minOccurs="0"/>
+      <xs:element name="PickingDetails" type="log:PickingDetails_t" minOccurs="0"/>
+      <xs:element name="PackingDetails" type="log:PackingDetails_t" minOccurs="0"/>
+      <xs:element name="ShippingDetails" type="log:ShippingDetails_t" minOccurs="0"/>
+      <xs:element name="InventoryStatus" type="log:InventoryStatus_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WarehouseLocation_t">
+    <xs:sequence>
+      <xs:element name="WarehouseID" type="xs:string"/>
+      <xs:element name="WarehouseName" type="xs:string"/>
+      <xs:element ref="addr:Address"/>
+      <xs:element name="WarehouseType" type="log:WarehouseType_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReceivingDetails_t">
+    <xs:sequence>
+      <xs:element name="ReceiptNumber" type="xs:string"/>
+      <xs:element name="ReceiptDate" type="xs:dateTime"/>
+      <xs:element name="ReceivedBy" type="party:Person_t"/>
+      <xs:element name="InspectionStatus" type="log:InspectionStatus_t"/>
+      <xs:element name="DamageReport" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StorageDetails_t">
+    <xs:sequence>
+      <xs:element name="StorageLocation" type="xs:string"/>
+      <xs:element name="BinLocation" type="xs:string" minOccurs="0"/>
+      <xs:element name="StorageType" type="log:StorageType_t"/>
+      <xs:element name="PutAwayDate" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PickingDetails_t">
+    <xs:sequence>
+      <xs:element name="PickListNumber" type="xs:string"/>
+      <xs:element name="PickDate" type="xs:dateTime"/>
+      <xs:element name="PickedBy" type="party:Person_t"/>
+      <xs:element name="PickingMethod" type="log:PickingMethod_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PackingDetails_t">
+    <xs:sequence>
+      <xs:element name="PackingSlipNumber" type="xs:string"/>
+      <xs:element name="PackDate" type="xs:dateTime"/>
+      <xs:element name="PackedBy" type="party:Person_t"/>
+      <xs:element name="QualityCheck" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ShippingDetails_t">
+    <xs:sequence>
+      <xs:element name="ShipDate" type="xs:dateTime"/>
+      <xs:element name="LoadingDock" type="xs:string" minOccurs="0"/>
+      <xs:element name="BillOfLading" type="xs:string"/>
+      <xs:element name="ShippedBy" type="party:Person_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InventoryStatus_t">
+    <xs:sequence>
+      <xs:element name="AvailableQuantity" type="ct:Quantity_t"/>
+      <xs:element name="AllocatedQuantity" type="ct:Quantity_t"/>
+      <xs:element name="ReservedQuantity" type="ct:Quantity_t"/>
+      <xs:element name="BackorderedQuantity" type="ct:Quantity_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ROUTING INFORMATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="RoutingInformation_t">
+    <xs:sequence>
+      <xs:element name="RouteID" type="xs:string"/>
+      <xs:element name="RouteSegments" type="log:RouteSegments_t"/>
+      <xs:element name="TotalDistance" type="log:Distance_t"/>
+      <xs:element name="EstimatedTransitTime" type="dt:Duration_t"/>
+      <xs:element name="RouteOptimization" type="log:RouteOptimization_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RouteSegments_t">
+    <xs:sequence>
+      <xs:element name="Segment" type="log:RouteSegment_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RouteSegment_t">
+    <xs:sequence>
+      <xs:element name="SegmentNumber" type="xs:positiveInteger"/>
+      <xs:element name="OriginLocation" type="xs:string"/>
+      <xs:element name="DestinationLocation" type="xs:string"/>
+      <xs:element name="TransportMode" type="log:TransportMode_t"/>
+      <xs:element name="Carrier" type="xs:string" minOccurs="0"/>
+      <xs:element name="Distance" type="log:Distance_t"/>
+      <xs:element name="EstimatedDuration" type="dt:Duration_t"/>
+      <xs:element name="DepartureTime" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="ArrivalTime" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Distance_t">
+    <xs:sequence>
+      <xs:element name="Value" type="xs:decimal"/>
+      <xs:element name="Unit" type="log:DistanceUnit_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RouteOptimization_t">
+    <xs:sequence>
+      <xs:element name="OptimizationCriteria" type="log:OptimizationCriteria_t"/>
+      <xs:element name="AlternativeRoutes" type="xs:positiveInteger" minOccurs="0"/>
+      <xs:element name="CostSavings" type="ct:MonetaryAmount_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- TRACKING INFORMATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="TrackingInformation_t">
+    <xs:sequence>
+      <xs:element name="TrackingNumber" type="xs:string"/>
+      <xs:element name="TrackingURL" type="ct:URL_t" minOccurs="0"/>
+      <xs:element name="CurrentStatus" type="log:TrackingStatus_t"/>
+      <xs:element name="CurrentLocation" type="xs:string" minOccurs="0"/>
+      <xs:element name="LastUpdateTime" type="xs:dateTime"/>
+      <xs:element name="TrackingEvents" type="log:TrackingEvents_t"/>
+      <xs:element name="EstimatedDelivery" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="ActualDelivery" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="DeliveryException" type="log:DeliveryException_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrackingEvents_t">
+    <xs:sequence>
+      <xs:element name="Event" type="log:TrackingEvent_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TrackingEvent_t">
+    <xs:sequence>
+      <xs:element name="EventID" type="ct:UUID_t"/>
+      <xs:element name="EventType" type="log:TrackingEventType_t"/>
+      <xs:element name="EventTime" type="xs:dateTime"/>
+      <xs:element name="EventLocation" type="xs:string"/>
+      <xs:element name="EventDescription" type="xs:string"/>
+      <xs:element name="EventStatus" type="xs:string"/>
+      <xs:element name="Coordinates" type="log:Coordinates_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Coordinates_t">
+    <xs:sequence>
+      <xs:element name="Latitude" type="xs:decimal"/>
+      <xs:element name="Longitude" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DeliveryException_t">
+    <xs:sequence>
+      <xs:element name="ExceptionType" type="log:ExceptionType_t"/>
+      <xs:element name="ExceptionDate" type="xs:dateTime"/>
+      <xs:element name="ExceptionDescription" type="xs:string"/>
+      <xs:element name="ResolutionStatus" type="log:ResolutionStatus_t"/>
+      <xs:element name="ResolutionDate" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CUSTOMS DOCUMENTATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="CustomsDocumentation_t">
+    <xs:sequence>
+      <xs:element name="CustomsDeclaration" type="log:CustomsDeclaration_t"/>
+      <xs:element name="ImportPermits" type="log:ImportPermits_t" minOccurs="0"/>
+      <xs:element name="ExportPermits" type="log:ExportPermits_t" minOccurs="0"/>
+      <xs:element name="CertificatesOfOrigin" type="log:CertificatesOfOrigin_t" minOccurs="0"/>
+      <xs:element name="PhytosanitaryCertificates" type="log:PhytosanitaryCertificates_t" minOccurs="0"/>
+      <xs:element name="CustomsBroker" type="log:CustomsBroker_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomsDeclaration_t">
+    <xs:sequence>
+      <xs:element name="DeclarationNumber" type="xs:string"/>
+      <xs:element name="DeclarationDate" type="xs:date"/>
+      <xs:element name="DeclarationType" type="log:DeclarationType_t"/>
+      <xs:element name="CustomsValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="Currency" type="ct:CurrencyCode_t"/>
+      <xs:element name="DutiesAndTaxes" type="log:DutiesAndTaxes_t"/>
+      <xs:element name="CustomsItems" type="log:CustomsItems_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DutiesAndTaxes_t">
+    <xs:sequence>
+      <xs:element name="ImportDuty" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="VAT" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="ExciseTax" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="OtherFees" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="TotalDutiesAndTaxes" type="ct:MonetaryAmount_t"/>
+      <xs:element name="PaymentResponsibility" type="log:PaymentResponsibility_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomsItems_t">
+    <xs:sequence>
+      <xs:element name="CustomsItem" type="log:CustomsItem_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomsItem_t">
+    <xs:sequence>
+      <xs:element name="ItemNumber" type="xs:positiveInteger"/>
+      <xs:element name="Description" type="xs:string"/>
+      <xs:element name="HSCode" type="xs:string"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="UnitValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="TotalValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="CountryOfOrigin" type="ct:CountryCode_t"/>
+      <xs:element name="Weight" type="ct:Weight_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ImportPermits_t">
+    <xs:sequence>
+      <xs:element name="Permit" type="log:Permit_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ExportPermits_t">
+    <xs:sequence>
+      <xs:element name="Permit" type="log:Permit_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Permit_t">
+    <xs:sequence>
+      <xs:element name="PermitNumber" type="xs:string"/>
+      <xs:element name="PermitType" type="xs:string"/>
+      <xs:element name="IssuingAuthority" type="xs:string"/>
+      <xs:element name="IssueDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CertificatesOfOrigin_t">
+    <xs:sequence>
+      <xs:element name="Certificate" type="log:Certificate_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PhytosanitaryCertificates_t">
+    <xs:sequence>
+      <xs:element name="Certificate" type="log:Certificate_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Certificate_t">
+    <xs:sequence>
+      <xs:element name="CertificateNumber" type="xs:string"/>
+      <xs:element name="CertificateType" type="xs:string"/>
+      <xs:element name="IssuingAuthority" type="xs:string"/>
+      <xs:element name="IssueDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomsBroker_t">
+    <xs:sequence>
+      <xs:element name="BrokerName" type="xs:string"/>
+      <xs:element name="BrokerLicense" type="xs:string"/>
+      <xs:element name="ContactInfo" type="party:ContactInfo_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CommercialInvoice_t">
+    <xs:sequence>
+      <xs:element name="InvoiceNumber" type="xs:string"/>
+      <xs:element name="InvoiceDate" type="xs:date"/>
+      <xs:element name="Seller" type="party:Organization_t"/>
+      <xs:element name="Buyer" type="party:Organization_t"/>
+      <xs:element name="TotalValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="Currency" type="ct:CurrencyCode_t"/>
+      <xs:element name="PaymentTerms" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FlightDetails_t">
+    <xs:sequence>
+      <xs:element name="FlightNumber" type="xs:string"/>
+      <xs:element name="DepartureAirport" type="xs:string"/>
+      <xs:element name="ArrivalAirport" type="xs:string"/>
+      <xs:element name="DepartureTime" type="xs:dateTime"/>
+      <xs:element name="ArrivalTime" type="xs:dateTime"/>
+      <xs:element name="Airline" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DangerousGoodsDeclaration_t">
+    <xs:sequence>
+      <xs:element name="UNNumber" type="xs:string"/>
+      <xs:element name="ProperShippingName" type="xs:string"/>
+      <xs:element name="HazardClass" type="xs:string"/>
+      <xs:element name="PackingGroup" type="xs:string" minOccurs="0"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="EmergencyContact" type="party:ContactInfo_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConsolidationPoint_t">
+    <xs:sequence>
+      <xs:element name="LocationName" type="xs:string"/>
+      <xs:element ref="addr:Address"/>
+      <xs:element name="ArrivalDate" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="DepartureDate" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INSURANCE INFORMATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="InsuranceInformation_t">
+    <xs:sequence>
+      <xs:element name="InsuranceProvider" type="xs:string"/>
+      <xs:element name="PolicyNumber" type="xs:string"/>
+      <xs:element name="InsuredValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="Currency" type="ct:CurrencyCode_t"/>
+      <xs:element name="CoverageType" type="log:CoverageType_t"/>
+      <xs:element name="Deductible" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="EffectiveDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date"/>
+      <xs:element name="ClaimContact" type="party:ContactInfo_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- DELIVERY CONFIRMATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="DeliveryConfirmation_t">
+    <xs:sequence>
+      <xs:element name="DeliveryDate" type="xs:dateTime"/>
+      <xs:element name="DeliveryTime" type="xs:time"/>
+      <xs:element name="RecipientName" type="xs:string"/>
+      <xs:element name="RecipientSignature" type="xs:string" minOccurs="0"/>
+      <xs:element name="DeliveryLocation" type="xs:string"/>
+      <xs:element name="ProofOfDelivery" type="log:ProofOfDelivery_t"/>
+      <xs:element name="DeliveryNotes" type="xs:string" minOccurs="0"/>
+      <xs:element name="DeliveryPhotos" type="log:DeliveryPhotos_t" minOccurs="0"/>
+      <xs:element name="DeliveryCondition" type="log:DeliveryCondition_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ProofOfDelivery_t">
+    <xs:sequence>
+      <xs:element name="PODNumber" type="xs:string"/>
+      <xs:element name="PODType" type="log:PODType_t"/>
+      <xs:element name="PODDocument" type="ct:URL_t" minOccurs="0"/>
+      <xs:element name="DigitalSignature" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DeliveryPhotos_t">
+    <xs:sequence>
+      <xs:element name="Photo" type="ct:URL_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SHIPPING PREFERENCES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ShippingPreferences_t">
+    <xs:annotation>
+      <xs:documentation>
+        Customer-facing shipping preferences.
+        Captures carrier preference, delivery instructions, and scheduling options
+        that map to the target ShipOrder's CustomerPreferencesType.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PreferredCarrier" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Customer's preferred shipping carrier (e.g., UPS, FedEx, USPS).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DeliveryInstructions" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Special delivery instructions from the customer.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LeaveAtDoor" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether the package can be left at the door without signature.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SMSNotifications" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether SMS delivery notifications are requested.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExpressShipping" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether express/expedited shipping is requested.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ScheduledDelivery" type="log:ScheduledDelivery_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Scheduled delivery date and time window.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ScheduledDelivery_t">
+    <xs:annotation>
+      <xs:documentation>Scheduled delivery with date and optional time window.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Date" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Requested delivery date.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TimeWindow" type="dt:TimeWindow_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Preferred delivery time window.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS (100+ total values) -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="ShipmentPriority_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Low"/>
+      <xs:enumeration value="Normal"/>
+      <xs:enumeration value="High"/>
+      <xs:enumeration value="Urgent"/>
+      <xs:enumeration value="Critical"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LogisticsStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Planning"/>
+      <xs:enumeration value="Processing"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="OutForDelivery"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="Delayed"/>
+      <xs:enumeration value="Exception"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Returned"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ServiceLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Standard"/>
+      <xs:enumeration value="Express"/>
+      <xs:enumeration value="Overnight"/>
+      <xs:enumeration value="TwoDay"/>
+      <xs:enumeration value="ThreeDay"/>
+      <xs:enumeration value="Economy"/>
+      <xs:enumeration value="Priority"/>
+      <xs:enumeration value="SameDay"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ShipmentStatus_t">
+    <xs:annotation>
+      <xs:documentation>Shipment status (20 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Created"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Processing"/>
+      <xs:enumeration value="PickedUp"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="AtHub"/>
+      <xs:enumeration value="OutForDelivery"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="DeliveryAttempted"/>
+      <xs:enumeration value="AvailableForPickup"/>
+      <xs:enumeration value="Delayed"/>
+      <xs:enumeration value="OnHold"/>
+      <xs:enumeration value="Exception"/>
+      <xs:enumeration value="Damaged"/>
+      <xs:enumeration value="Lost"/>
+      <xs:enumeration value="Returned"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="Refused"/>
+      <xs:enumeration value="Customs"/>
+      <xs:enumeration value="Archived"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ExpressService_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NextDay"/>
+      <xs:enumeration value="TwoDay"/>
+      <xs:enumeration value="ThreeDay"/>
+      <xs:enumeration value="Overnight"/>
+      <xs:enumeration value="EarlyAM"/>
+      <xs:enumeration value="SaturdayDelivery"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="FreightClass_t">
+    <xs:annotation>
+      <xs:documentation>NMFC freight class.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Class50"/>
+      <xs:enumeration value="Class55"/>
+      <xs:enumeration value="Class60"/>
+      <xs:enumeration value="Class65"/>
+      <xs:enumeration value="Class70"/>
+      <xs:enumeration value="Class77.5"/>
+      <xs:enumeration value="Class85"/>
+      <xs:enumeration value="Class92.5"/>
+      <xs:enumeration value="Class100"/>
+      <xs:enumeration value="Class110"/>
+      <xs:enumeration value="Class125"/>
+      <xs:enumeration value="Class150"/>
+      <xs:enumeration value="Class175"/>
+      <xs:enumeration value="Class200"/>
+      <xs:enumeration value="Class250"/>
+      <xs:enumeration value="Class300"/>
+      <xs:enumeration value="Class400"/>
+      <xs:enumeration value="Class500"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LoadType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FullTruckload"/>
+      <xs:enumeration value="LessThanTruckload"/>
+      <xs:enumeration value="Parcel"/>
+      <xs:enumeration value="Intermodal"/>
+      <xs:enumeration value="Drayage"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="IncoTerms_t">
+    <xs:annotation>
+      <xs:documentation>International commercial terms.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="EXW"/>
+      <xs:enumeration value="FCA"/>
+      <xs:enumeration value="CPT"/>
+      <xs:enumeration value="CIP"/>
+      <xs:enumeration value="DAP"/>
+      <xs:enumeration value="DPU"/>
+      <xs:enumeration value="DDP"/>
+      <xs:enumeration value="FAS"/>
+      <xs:enumeration value="FOB"/>
+      <xs:enumeration value="CFR"/>
+      <xs:enumeration value="CIF"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LocationType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Warehouse"/>
+      <xs:enumeration value="DistributionCenter"/>
+      <xs:enumeration value="Store"/>
+      <xs:enumeration value="Residence"/>
+      <xs:enumeration value="Business"/>
+      <xs:enumeration value="PickupPoint"/>
+      <xs:enumeration value="Locker"/>
+      <xs:enumeration value="PostOffice"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PackageType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Box"/>
+      <xs:enumeration value="Envelope"/>
+      <xs:enumeration value="Tube"/>
+      <xs:enumeration value="Pallet"/>
+      <xs:enumeration value="Crate"/>
+      <xs:enumeration value="Bag"/>
+      <xs:enumeration value="Bundle"/>
+      <xs:enumeration value="Container"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PalletType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Standard"/>
+      <xs:enumeration value="Euro"/>
+      <xs:enumeration value="Block"/>
+      <xs:enumeration value="Stringer"/>
+      <xs:enumeration value="Plastic"/>
+      <xs:enumeration value="Wood"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BillToParty_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Sender"/>
+      <xs:enumeration value="Recipient"/>
+      <xs:enumeration value="ThirdParty"/>
+      <xs:enumeration value="Collect"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TransportMode_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ground"/>
+      <xs:enumeration value="Air"/>
+      <xs:enumeration value="Ocean"/>
+      <xs:enumeration value="Rail"/>
+      <xs:enumeration value="Intermodal"/>
+      <xs:enumeration value="Courier"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VehicleType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Van"/>
+      <xs:enumeration value="Truck"/>
+      <xs:enumeration value="Trailer"/>
+      <xs:enumeration value="Container"/>
+      <xs:enumeration value="Aircraft"/>
+      <xs:enumeration value="Vessel"/>
+      <xs:enumeration value="Train"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="WarehouseType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Public"/>
+      <xs:enumeration value="Private"/>
+      <xs:enumeration value="Bonded"/>
+      <xs:enumeration value="Climate-Controlled"/>
+      <xs:enumeration value="Refrigerated"/>
+      <xs:enumeration value="Hazmat"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InspectionStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Passed"/>
+      <xs:enumeration value="Failed"/>
+      <xs:enumeration value="PartiallyPassed"/>
+      <xs:enumeration value="Damaged"/>
+      <xs:enumeration value="Rejected"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="StorageType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Ambient"/>
+      <xs:enumeration value="Refrigerated"/>
+      <xs:enumeration value="Frozen"/>
+      <xs:enumeration value="Controlled"/>
+      <xs:enumeration value="Hazmat"/>
+      <xs:enumeration value="Secure"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PickingMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Manual"/>
+      <xs:enumeration value="Automated"/>
+      <xs:enumeration value="VoicePicking"/>
+      <xs:enumeration value="RFScanning"/>
+      <xs:enumeration value="PickToLight"/>
+      <xs:enumeration value="PutToLight"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DistanceUnit_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Miles"/>
+      <xs:enumeration value="Kilometers"/>
+      <xs:enumeration value="NauticalMiles"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OptimizationCriteria_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ShortestDistance"/>
+      <xs:enumeration value="FastestTime"/>
+      <xs:enumeration value="LowestCost"/>
+      <xs:enumeration value="LeastStops"/>
+      <xs:enumeration value="AvoidTolls"/>
+      <xs:enumeration value="AvoidHighways"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TrackingStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LabelCreated"/>
+      <xs:enumeration value="PickedUp"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="OutForDelivery"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="Exception"/>
+      <xs:enumeration value="Returned"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TrackingEventType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pickup"/>
+      <xs:enumeration value="Departure"/>
+      <xs:enumeration value="Arrival"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="OutForDelivery"/>
+      <xs:enumeration value="Delivered"/>
+      <xs:enumeration value="DeliveryAttempt"/>
+      <xs:enumeration value="Exception"/>
+      <xs:enumeration value="Delay"/>
+      <xs:enumeration value="CustomsClearance"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ExceptionType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AddressIssue"/>
+      <xs:enumeration value="WeatherDelay"/>
+      <xs:enumeration value="VehicleBreakdown"/>
+      <xs:enumeration value="CustomsHold"/>
+      <xs:enumeration value="RecipientUnavailable"/>
+      <xs:enumeration value="DamageInTransit"/>
+      <xs:enumeration value="SecurityDelay"/>
+      <xs:enumeration value="MissedConnection"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ResolutionStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="InProgress"/>
+      <xs:enumeration value="Resolved"/>
+      <xs:enumeration value="Escalated"/>
+      <xs:enumeration value="Unresolved"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DeclarationType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Import"/>
+      <xs:enumeration value="Export"/>
+      <xs:enumeration value="Transit"/>
+      <xs:enumeration value="Temporary"/>
+      <xs:enumeration value="Reexport"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PaymentResponsibility_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Sender"/>
+      <xs:enumeration value="Recipient"/>
+      <xs:enumeration value="ThirdParty"/>
+      <xs:enumeration value="Prepaid"/>
+      <xs:enumeration value="Collect"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CoverageType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AllRisk"/>
+      <xs:enumeration value="NamedPerils"/>
+      <xs:enumeration value="TotalLoss"/>
+      <xs:enumeration value="PartialLoss"/>
+      <xs:enumeration value="TheftOnly"/>
+      <xs:enumeration value="DamageOnly"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PODType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Signature"/>
+      <xs:enumeration value="Photo"/>
+      <xs:enumeration value="GPS"/>
+      <xs:enumeration value="Barcode"/>
+      <xs:enumeration value="Electronic"/>
+      <xs:enumeration value="Paper"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DeliveryCondition_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Perfect"/>
+      <xs:enumeration value="Good"/>
+      <xs:enumeration value="MinorDamage"/>
+      <xs:enumeration value="MajorDamage"/>
+      <xs:enumeration value="Incomplete"/>
+      <xs:enumeration value="Refused"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

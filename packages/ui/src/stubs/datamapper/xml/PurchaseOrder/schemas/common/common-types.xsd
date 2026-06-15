@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Common Types Schema
+  
+  Purpose: Shared simple types, enumerations, and base patterns used across all schemas
+  Demonstrates: xs:restriction, pattern matching, enumerations, attribute groups
+  
+  This schema is imported by all main schemas to provide common type definitions.
+  Follows enterprise patterns similar to FIXML/FPML/FMM for type reusability.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           targetNamespace="http://www.kaoto.io/common/types"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Common Types Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema provides shared type definitions including:
+      - String patterns (email, phone, postal codes)
+      - Numeric restrictions (amounts, quantities, percentages)
+      - Code enumerations (country, currency, language)
+      - Identifier patterns (UUID, reference numbers)
+      - Attribute groups for common attributes
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/common/types
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- STRING PATTERN TYPES -->
+  <!-- ================================================================ -->
+  
+  <!-- Email Address Pattern -->
+  <xs:simpleType name="EmailAddress_t">
+    <xs:annotation>
+      <xs:documentation>
+        Email address following RFC 5322 simplified pattern.
+        Example: user@example.com
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"/>
+      <xs:maxLength value="254"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Phone Number Pattern (International) -->
+  <xs:simpleType name="PhoneNumber_t">
+    <xs:annotation>
+      <xs:documentation>
+        International phone number in E.164 format.
+        Example: +1-555-123-4567
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\+?[1-9]\d{0,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}"/>
+      <xs:maxLength value="20"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- US Phone Number Pattern -->
+  <xs:simpleType name="PhoneNumber_US_t">
+    <xs:annotation>
+      <xs:documentation>
+        US phone number in various formats.
+        Examples: (555) 123-4567, 555-123-4567, 5551234567
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- URL Pattern -->
+  <xs:simpleType name="URL_t">
+    <xs:annotation>
+      <xs:documentation>
+        HTTP/HTTPS URL pattern.
+        Example: https://www.example.com/path
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:anyURI">
+      <xs:pattern value="https?://[a-zA-Z0-9\-._~:/?#\[\]@!$&amp;'()*+,;=]+"/>
+      <xs:maxLength value="2048"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- UUID Pattern -->
+  <xs:simpleType name="UUID_t">
+    <xs:annotation>
+      <xs:documentation>
+        Universally Unique Identifier (UUID) version 4.
+        Example: 550e8400-e29b-41d4-a716-446655440000
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Reference Number Pattern -->
+
+  <!-- Generic ID Pattern -->
+  <xs:simpleType name="ID_t">
+    <xs:annotation>
+      <xs:documentation>
+        Generic identifier pattern for entity IDs.
+        Example: ADDR-001, CUST-12345, ORD-2024-001
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z0-9\-_]{3,50}"/>
+      <xs:minLength value="3"/>
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ReferenceNumber_t">
+    <xs:annotation>
+      <xs:documentation>
+        Alphanumeric reference number with optional hyphens.
+        Example: REF-2024-001234
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z0-9\-]{5,50}"/>
+      <xs:minLength value="5"/>
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Tracking Number Pattern -->
+  <xs:simpleType name="TrackingNumber_t">
+    <xs:annotation>
+      <xs:documentation>
+        Shipment tracking number pattern.
+        Example: 1Z999AA10123456784
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z0-9]{10,35}"/>
+      <xs:minLength value="10"/>
+      <xs:maxLength value="35"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- POSTAL CODE PATTERNS BY COUNTRY -->
+  <!-- ================================================================ -->
+
+  <!-- US Postal Code (ZIP) -->
+  <xs:simpleType name="PostalCode_US_t">
+    <xs:annotation>
+      <xs:documentation>
+        US ZIP code in 5-digit or ZIP+4 format.
+        Examples: 12345, 12345-6789
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="\d{5}(-\d{4})?"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Canadian Postal Code -->
+  <xs:simpleType name="PostalCode_CA_t">
+    <xs:annotation>
+      <xs:documentation>
+        Canadian postal code format.
+        Example: K1A 0B1
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]\d[A-Z]\s?\d[A-Z]\d"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- UK Postal Code -->
+  <xs:simpleType name="PostalCode_UK_t">
+    <xs:annotation>
+      <xs:documentation>
+        UK postcode format.
+        Examples: SW1A 1AA, EC1A 1BB
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Generic Postal Code -->
+  <xs:simpleType name="PostalCode_t">
+    <xs:annotation>
+      <xs:documentation>
+        Generic postal code for international use.
+        Alphanumeric with optional spaces and hyphens.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Z0-9\s\-]{3,10}"/>
+      <xs:minLength value="3"/>
+      <xs:maxLength value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- NUMERIC TYPES WITH RESTRICTIONS -->
+  <!-- ================================================================ -->
+
+  <!-- Monetary Amount -->
+  <xs:simpleType name="MonetaryAmount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Monetary amount with up to 2 decimal places.
+        Non-negative values only.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.00"/>
+      <xs:fractionDigits value="2"/>
+      <xs:totalDigits value="18"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Signed Monetary Amount -->
+  <xs:simpleType name="SignedMonetaryAmount_t">
+    <xs:annotation>
+      <xs:documentation>
+        Monetary amount allowing negative values (for credits/debits).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:fractionDigits value="2"/>
+      <xs:totalDigits value="18"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Quantity -->
+  <xs:simpleType name="Quantity_t">
+    <xs:annotation>
+      <xs:documentation>
+        Quantity with up to 4 decimal places.
+        Used for item quantities, weights, volumes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.0001"/>
+      <xs:fractionDigits value="4"/>
+      <xs:totalDigits value="15"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Percentage -->
+  <xs:simpleType name="Percentage_t">
+    <xs:annotation>
+      <xs:documentation>
+        Percentage value (0-100) with up to 4 decimal places.
+        Example: 15.5000 represents 15.5%
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.0000"/>
+      <xs:maxInclusive value="100.0000"/>
+      <xs:fractionDigits value="4"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Tax Rate -->
+  <xs:simpleType name="TaxRate_t">
+    <xs:annotation>
+      <xs:documentation>
+        Tax rate as decimal (0-1) with up to 6 decimal places.
+        Example: 0.085000 represents 8.5%
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.000000"/>
+      <xs:maxInclusive value="1.000000"/>
+      <xs:fractionDigits value="6"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Weight (in kilograms) -->
+  <xs:simpleType name="Weight_t">
+    <xs:annotation>
+      <xs:documentation>
+        Weight in kilograms with up to 3 decimal places.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.001"/>
+      <xs:fractionDigits value="3"/>
+      <xs:totalDigits value="12"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Dimension (in meters) -->
+  <xs:simpleType name="Dimension_t">
+    <xs:annotation>
+      <xs:documentation>
+        Dimension in meters with up to 3 decimal places.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0.001"/>
+      <xs:fractionDigits value="3"/>
+      <xs:totalDigits value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- COUNTRY CODE ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="CountryCode_t">
+    <xs:annotation>
+      <xs:documentation>
+        ISO 3166-1 alpha-2 country codes (subset for demonstration).
+        Full list would contain 200+ values.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="US"><xs:annotation><xs:documentation>United States</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CA"><xs:annotation><xs:documentation>Canada</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MX"><xs:annotation><xs:documentation>Mexico</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="GB"><xs:annotation><xs:documentation>United Kingdom</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="FR"><xs:annotation><xs:documentation>France</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DE"><xs:annotation><xs:documentation>Germany</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="IT"><xs:annotation><xs:documentation>Italy</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ES"><xs:annotation><xs:documentation>Spain</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NL"><xs:annotation><xs:documentation>Netherlands</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="BE"><xs:annotation><xs:documentation>Belgium</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CH"><xs:annotation><xs:documentation>Switzerland</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AT"><xs:annotation><xs:documentation>Austria</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SE"><xs:annotation><xs:documentation>Sweden</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NO"><xs:annotation><xs:documentation>Norway</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DK"><xs:annotation><xs:documentation>Denmark</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="FI"><xs:annotation><xs:documentation>Finland</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PL"><xs:annotation><xs:documentation>Poland</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CZ"><xs:annotation><xs:documentation>Czech Republic</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="HU"><xs:annotation><xs:documentation>Hungary</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="RO"><xs:annotation><xs:documentation>Romania</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="GR"><xs:annotation><xs:documentation>Greece</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PT"><xs:annotation><xs:documentation>Portugal</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="IE"><xs:annotation><xs:documentation>Ireland</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="JP"><xs:annotation><xs:documentation>Japan</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CN"><xs:annotation><xs:documentation>China</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="KR"><xs:annotation><xs:documentation>South Korea</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="IN"><xs:annotation><xs:documentation>India</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AU"><xs:annotation><xs:documentation>Australia</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NZ"><xs:annotation><xs:documentation>New Zealand</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="BR"><xs:annotation><xs:documentation>Brazil</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AR"><xs:annotation><xs:documentation>Argentina</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CL"><xs:annotation><xs:documentation>Chile</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CO"><xs:annotation><xs:documentation>Colombia</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PE"><xs:annotation><xs:documentation>Peru</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ZA"><xs:annotation><xs:documentation>South Africa</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="EG"><xs:annotation><xs:documentation>Egypt</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NG"><xs:annotation><xs:documentation>Nigeria</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="KE"><xs:annotation><xs:documentation>Kenya</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SA"><xs:annotation><xs:documentation>Saudi Arabia</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AE"><xs:annotation><xs:documentation>United Arab Emirates</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="IL"><xs:annotation><xs:documentation>Israel</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="TR"><xs:annotation><xs:documentation>Turkey</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="RU"><xs:annotation><xs:documentation>Russia</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="UA"><xs:annotation><xs:documentation>Ukraine</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SG"><xs:annotation><xs:documentation>Singapore</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MY"><xs:annotation><xs:documentation>Malaysia</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="TH"><xs:annotation><xs:documentation>Thailand</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ID"><xs:annotation><xs:documentation>Indonesia</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PH"><xs:annotation><xs:documentation>Philippines</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="VN"><xs:annotation><xs:documentation>Vietnam</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- CURRENCY CODE ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="CurrencyCode_t">
+    <xs:annotation>
+      <xs:documentation>
+        ISO 4217 currency codes (subset for demonstration).
+        Full list would contain 150+ values.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="USD"><xs:annotation><xs:documentation>US Dollar</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="EUR"><xs:annotation><xs:documentation>Euro</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="GBP"><xs:annotation><xs:documentation>British Pound</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="JPY"><xs:annotation><xs:documentation>Japanese Yen</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CHF"><xs:annotation><xs:documentation>Swiss Franc</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CAD"><xs:annotation><xs:documentation>Canadian Dollar</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AUD"><xs:annotation><xs:documentation>Australian Dollar</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NZD"><xs:annotation><xs:documentation>New Zealand Dollar</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CNY"><xs:annotation><xs:documentation>Chinese Yuan</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="INR"><xs:annotation><xs:documentation>Indian Rupee</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="KRW"><xs:annotation><xs:documentation>South Korean Won</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SGD"><xs:annotation><xs:documentation>Singapore Dollar</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="HKD"><xs:annotation><xs:documentation>Hong Kong Dollar</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SEK"><xs:annotation><xs:documentation>Swedish Krona</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="NOK"><xs:annotation><xs:documentation>Norwegian Krone</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="DKK"><xs:annotation><xs:documentation>Danish Krone</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PLN"><xs:annotation><xs:documentation>Polish Zloty</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CZK"><xs:annotation><xs:documentation>Czech Koruna</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="HUF"><xs:annotation><xs:documentation>Hungarian Forint</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="RON"><xs:annotation><xs:documentation>Romanian Leu</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="BRL"><xs:annotation><xs:documentation>Brazilian Real</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MXN"><xs:annotation><xs:documentation>Mexican Peso</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ARS"><xs:annotation><xs:documentation>Argentine Peso</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CLP"><xs:annotation><xs:documentation>Chilean Peso</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ZAR"><xs:annotation><xs:documentation>South African Rand</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="RUB"><xs:annotation><xs:documentation>Russian Ruble</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="TRY"><xs:annotation><xs:documentation>Turkish Lira</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="SAR"><xs:annotation><xs:documentation>Saudi Riyal</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="AED"><xs:annotation><xs:documentation>UAE Dirham</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ILS"><xs:annotation><xs:documentation>Israeli Shekel</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- LANGUAGE CODE ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="LanguageCode_t">
+    <xs:annotation>
+      <xs:documentation>
+        ISO 639-1 language codes (subset for demonstration).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="en"><xs:annotation><xs:documentation>English</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="es"><xs:annotation><xs:documentation>Spanish</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="fr"><xs:annotation><xs:documentation>French</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="de"><xs:annotation><xs:documentation>German</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="it"><xs:annotation><xs:documentation>Italian</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="pt"><xs:annotation><xs:documentation>Portuguese</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="nl"><xs:annotation><xs:documentation>Dutch</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="sv"><xs:annotation><xs:documentation>Swedish</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="no"><xs:annotation><xs:documentation>Norwegian</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="da"><xs:annotation><xs:documentation>Danish</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="fi"><xs:annotation><xs:documentation>Finnish</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="pl"><xs:annotation><xs:documentation>Polish</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="cs"><xs:annotation><xs:documentation>Czech</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="hu"><xs:annotation><xs:documentation>Hungarian</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ro"><xs:annotation><xs:documentation>Romanian</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="el"><xs:annotation><xs:documentation>Greek</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ja"><xs:annotation><xs:documentation>Japanese</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="zh"><xs:annotation><xs:documentation>Chinese</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ko"><xs:annotation><xs:documentation>Korean</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ar"><xs:annotation><xs:documentation>Arabic</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="he"><xs:annotation><xs:documentation>Hebrew</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="hi"><xs:annotation><xs:documentation>Hindi</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="th"><xs:annotation><xs:documentation>Thai</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="vi"><xs:annotation><xs:documentation>Vietnamese</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="id"><xs:annotation><xs:documentation>Indonesian</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- UNIT OF MEASURE ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="WeightUnit_t">
+    <xs:annotation>
+      <xs:documentation>Weight measurement units.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="KG"><xs:annotation><xs:documentation>Kilogram</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="G"><xs:annotation><xs:documentation>Gram</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="LB"><xs:annotation><xs:documentation>Pound</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="OZ"><xs:annotation><xs:documentation>Ounce</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="TON"><xs:annotation><xs:documentation>Metric Ton</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DimensionUnit_t">
+    <xs:annotation>
+      <xs:documentation>Length/dimension measurement units.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="M"><xs:annotation><xs:documentation>Meter</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="CM"><xs:annotation><xs:documentation>Centimeter</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="MM"><xs:annotation><xs:documentation>Millimeter</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="IN"><xs:annotation><xs:documentation>Inch</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="FT"><xs:annotation><xs:documentation>Foot</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="YD"><xs:annotation><xs:documentation>Yard</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="VolumeUnit_t">
+    <xs:annotation>
+      <xs:documentation>Volume measurement units.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="L"><xs:annotation><xs:documentation>Liter</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="ML"><xs:annotation><xs:documentation>Milliliter</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="GAL"><xs:annotation><xs:documentation>Gallon</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="QT"><xs:annotation><xs:documentation>Quart</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="PT"><xs:annotation><xs:documentation>Pint</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="M3"><xs:annotation><xs:documentation>Cubic Meter</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="FT3"><xs:annotation><xs:documentation>Cubic Foot</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- ATTRIBUTE GROUPS -->
+  <!-- ================================================================ -->
+
+  <xs:attributeGroup name="CommonAttributes">
+    <xs:annotation>
+      <xs:documentation>
+        Common attributes used across multiple elements.
+        Provides ID, version, and timestamp tracking.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="id" type="ct:UUID_t" use="optional">
+      <xs:annotation>
+        <xs:documentation>Unique identifier for the element.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="version" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Version number of the element.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="timestamp" type="xs:dateTime" use="optional">
+      <xs:annotation>
+        <xs:documentation>Timestamp when element was created/modified.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="AuditAttributes">
+    <xs:annotation>
+      <xs:documentation>
+        Audit trail attributes for tracking changes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="createdBy" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>User who created the element.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="createdDate" type="xs:dateTime" use="optional">
+      <xs:annotation>
+        <xs:documentation>Date/time when element was created.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="modifiedBy" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>User who last modified the element.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="modifiedDate" type="xs:dateTime" use="optional">
+      <xs:annotation>
+        <xs:documentation>Date/time when element was last modified.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="StatusAttributes">
+    <xs:annotation>
+      <xs:documentation>
+        Status tracking attributes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="status" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Current status of the element.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="statusDate" type="xs:dateTime" use="optional">
+      <xs:annotation>
+        <xs:documentation>Date/time when status was set.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="statusReason" type="xs:string" use="optional">
+      <xs:annotation>
+        <xs:documentation>Reason for current status.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- ================================================================ -->
+  <!-- COMPLEX TYPES FOR COMMON STRUCTURES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Note_t">
+    <xs:annotation>
+      <xs:documentation>
+        Generic note/comment structure.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="type" type="xs:string" use="optional"/>
+        <xs:attribute name="author" type="xs:string" use="optional"/>
+        <xs:attribute name="date" type="xs:dateTime" use="optional"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="Attachment_t">
+    <xs:annotation>
+      <xs:documentation>
+        File attachment reference structure.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="FileName" type="xs:string"/>
+      <xs:element name="FileType" type="xs:string"/>
+      <xs:element name="FileSize" type="xs:long" minOccurs="0"/>
+      <xs:element name="FileURL" type="ct:URL_t" minOccurs="0"/>
+      <xs:element name="Description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+  </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ai:AccountInfo xmlns:ai="http://www.kaoto.io/account"
+                xmlns:ct="http://www.kaoto.io/common/types"
+                xmlns:ca="http://www.kaoto.io/common/address"
+                xmlns:cp="http://www.kaoto.io/common/party"
+                xmlns:cf="http://www.kaoto.io/common/financial"
+                xmlns:cd="http://www.kaoto.io/common/datetime"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                id="550e8400-e29b-41d4-a716-446655440099"
+                timestamp="2026-06-10T16:45:00Z"
+                createdBy="SALES-REP-123"
+                createdDate="2024-03-15T10:30:00Z"
+                modifiedBy="SYSTEM"
+                modifiedDate="2026-06-10T16:45:00Z"
+                version="1.0">
+
+  <!-- Account Header -->
+  <ai:AccountHeader>
+    <ai:AccountID>550e8400-e29b-41d4-a716-446655440099</ai:AccountID>
+    <ai:AccountNumber>ACC-2024-789456</ai:AccountNumber>
+    <ai:CreationDate>2024-03-15T10:30:00Z</ai:CreationDate>
+    <ai:LastModifiedDate>2026-06-10T16:45:00Z</ai:LastModifiedDate>
+    <ai:LastLoginDate>2026-06-11T14:15:00Z</ai:LastLoginDate>
+    <ai:AccountStatus>Active</ai:AccountStatus>
+    <ai:StatusReason>New Account</ai:StatusReason>
+    <ai:VerificationStatus>FullyVerified</ai:VerificationStatus>
+    <ai:VerificationDate>2024-03-20T09:00:00Z</ai:VerificationDate>
+    <ai:ExpiryDate>2027-03-15</ai:ExpiryDate>
+  </ai:AccountHeader>
+
+  <!-- Account using substitution group (PersonalAccount) -->
+  <ai:PersonalAccount>
+    <ai:AccountType>Personal</ai:AccountType>
+    <ai:AccountTier>Premium</ai:AccountTier>
+    <ai:Currency>USD</ai:Currency>
+    <ai:Language>en</ai:Language>
+    <ai:TimeZone>America/Los_Angeles</ai:TimeZone>
+    <ai:DateOfBirth>1988-05-20</ai:DateOfBirth>
+    <ai:Gender>Female</ai:Gender>
+    <ai:MaritalStatus>Single</ai:MaritalStatus>
+    <ai:Occupation>VP of Technology</ai:Occupation>
+    <ai:EmploymentStatus>Employed</ai:EmploymentStatus>
+    <ai:AnnualIncome>Over200K</ai:AnnualIncome>
+  </ai:PersonalAccount>
+
+  <!-- Account Holder (party:Person_t) -->
+  <ai:AccountHolder>
+    <cp:PartyID>550e8400-e29b-41d4-a716-446655440099</cp:PartyID>
+    <cp:PartyName>Sarah Jane Anderson</cp:PartyName>
+    <cp:PartyType>Person</cp:PartyType>
+    <cp:ContactInfo isPrimary="true">
+      <cp:ContactType>Primary</cp:ContactType>
+      <cp:ContactName>Sarah Anderson</cp:ContactName>
+      <cp:Email>sarah.anderson@example.com</cp:Email>
+      <cp:Email>s.anderson@personal.example.com</cp:Email>
+      <cp:Phone>+1-555-123-4567</cp:Phone>
+      <cp:Phone>+1-555-456-7890</cp:Phone>
+      <cp:PreferredMethod>Email</cp:PreferredMethod>
+    </cp:ContactInfo>
+    <ca:StandardAddress addressType="Commercial">
+      <ca:AddressID>ADDR-PRIMARY-001</ca:AddressID>
+      <ca:AddressLine1>1234 Technology Drive</ca:AddressLine1>
+      <ca:AddressLine2>Suite 500</ca:AddressLine2>
+      <ca:City>San Francisco</ca:City>
+      <ca:Country>US</ca:Country>
+      <ca:StateProvince>CA</ca:StateProvince>
+      <ca:PostalCode>94105</ca:PostalCode>
+    </ca:StandardAddress>
+    <cp:PersonName>
+      <cp:FirstName>Sarah</cp:FirstName>
+      <cp:MiddleName>Jane</cp:MiddleName>
+      <cp:LastName>Anderson</cp:LastName>
+    </cp:PersonName>
+    <cp:DateOfBirth>1988-05-20</cp:DateOfBirth>
+    <cp:Nationality>US</cp:Nationality>
+  </ai:AccountHolder>
+
+  <!-- User Profile -->
+  <ai:UserProfile>
+    <ai:Username>sanderson_elite</ai:Username>
+    <ai:DisplayName>Sarah Anderson</ai:DisplayName>
+    <ai:FirstName>Sarah</ai:FirstName>
+    <ai:MiddleName>Jane</ai:MiddleName>
+    <ai:LastName>Anderson</ai:LastName>
+    <ai:Title>VP of Technology</ai:Title>
+    <ai:ProfilePicture>https://cdn.example.com/profiles/sanderson.jpg</ai:ProfilePicture>
+    <ai:Bio>Technology executive and early adopter with a passion for innovative solutions.</ai:Bio>
+    <ai:Website>https://www.sarahanderson.example.com</ai:Website>
+    <ai:SocialMedia>
+      <ai:SocialMediaProfile>
+        <ai:Platform>LinkedIn</ai:Platform>
+        <ai:ProfileURL>https://www.linkedin.com/in/sarahanderson</ai:ProfileURL>
+        <ai:Username>sarahanderson</ai:Username>
+      </ai:SocialMediaProfile>
+      <ai:SocialMediaProfile>
+        <ai:Platform>Twitter</ai:Platform>
+        <ai:ProfileURL>https://twitter.com/sanderson_tech</ai:ProfileURL>
+        <ai:Username>sanderson_tech</ai:Username>
+      </ai:SocialMediaProfile>
+    </ai:SocialMedia>
+    <ai:Interests>
+      <ai:Interest>Artificial Intelligence</ai:Interest>
+      <ai:Interest>Cloud Computing</ai:Interest>
+      <ai:Interest>Enterprise Architecture</ai:Interest>
+    </ai:Interests>
+    <ai:Skills>
+      <ai:Skill>
+        <ai:SkillName>Cloud Architecture</ai:SkillName>
+        <ai:ProficiencyLevel>Expert</ai:ProficiencyLevel>
+        <ai:YearsOfExperience>12</ai:YearsOfExperience>
+      </ai:Skill>
+      <ai:Skill>
+        <ai:SkillName>Strategic Planning</ai:SkillName>
+        <ai:ProficiencyLevel>Advanced</ai:ProficiencyLevel>
+        <ai:YearsOfExperience>8</ai:YearsOfExperience>
+      </ai:Skill>
+    </ai:Skills>
+    <ai:Education>
+      <ai:EducationEntry>
+        <ai:Institution>Stanford University</ai:Institution>
+        <ai:Degree>MBA</ai:Degree>
+        <ai:FieldOfStudy>Technology Management</ai:FieldOfStudy>
+        <ai:StartDate>2012-09</ai:StartDate>
+        <ai:EndDate>2014-06</ai:EndDate>
+      </ai:EducationEntry>
+    </ai:Education>
+    <ai:PrivacySettings>
+      <ai:ProfileVisibility>FriendsOnly</ai:ProfileVisibility>
+      <ai:ShowEmail>false</ai:ShowEmail>
+      <ai:ShowPhone>false</ai:ShowPhone>
+      <ai:ShowAddress>false</ai:ShowAddress>
+      <ai:AllowMessaging>true</ai:AllowMessaging>
+    </ai:PrivacySettings>
+  </ai:UserProfile>
+
+  <!-- Contact Information -->
+  <ai:ContactInformation>
+    <ai:PrimaryEmail>sarah.anderson@example.com</ai:PrimaryEmail>
+    <ai:SecondaryEmail>s.anderson@personal.example.com</ai:SecondaryEmail>
+    <ai:EmailVerified>true</ai:EmailVerified>
+    <ai:PrimaryPhone>+1-555-123-4567</ai:PrimaryPhone>
+    <ai:SecondaryPhone>+1-555-987-6543</ai:SecondaryPhone>
+    <ai:MobilePhone>+1-555-456-7890</ai:MobilePhone>
+    <ai:PhoneVerified>true</ai:PhoneVerified>
+    <ai:PreferredContactMethod>Email</ai:PreferredContactMethod>
+  </ai:ContactInformation>
+
+  <!-- Addresses -->
+  <ai:Addresses>
+    <ai:AddressEntry>
+      <ai:AddressType>Work</ai:AddressType>
+      <ca:StandardAddress addressType="Commercial">
+        <ca:AddressID>ADDR-001</ca:AddressID>
+        <ca:AddressLine1>1234 Technology Drive</ca:AddressLine1>
+        <ca:AddressLine2>Suite 500</ca:AddressLine2>
+        <ca:City>San Francisco</ca:City>
+        <ca:Country>US</ca:Country>
+        <ca:StateProvince>CA</ca:StateProvince>
+        <ca:PostalCode>94105</ca:PostalCode>
+      </ca:StandardAddress>
+      <ai:IsPrimary>true</ai:IsPrimary>
+      <ai:IsDefault>true</ai:IsDefault>
+    </ai:AddressEntry>
+    <ai:AddressEntry>
+      <ai:AddressType>Home</ai:AddressType>
+      <ca:StandardAddress addressType="Residential">
+        <ca:AddressID>ADDR-002</ca:AddressID>
+        <ca:AddressLine1>567 Residential Lane</ca:AddressLine1>
+        <ca:AddressLine2>Apt 3B</ca:AddressLine2>
+        <ca:City>San Francisco</ca:City>
+        <ca:Country>US</ca:Country>
+        <ca:StateProvince>CA</ca:StateProvince>
+        <ca:PostalCode>94110</ca:PostalCode>
+      </ca:StandardAddress>
+      <ai:IsPrimary>false</ai:IsPrimary>
+      <ai:IsDefault>false</ai:IsDefault>
+    </ai:AddressEntry>
+  </ai:Addresses>
+
+  <!-- Authentication -->
+  <ai:Authentication>
+    <ai:PasswordPolicy>
+      <ai:MinimumLength>12</ai:MinimumLength>
+      <ai:RequireUppercase>true</ai:RequireUppercase>
+      <ai:RequireLowercase>true</ai:RequireLowercase>
+      <ai:RequireNumbers>true</ai:RequireNumbers>
+      <ai:RequireSpecialCharacters>true</ai:RequireSpecialCharacters>
+      <ai:ExpiryDays>90</ai:ExpiryDays>
+      <ai:HistoryCount>5</ai:HistoryCount>
+    </ai:PasswordPolicy>
+    <ai:LastPasswordChange>2026-03-15T08:30:00Z</ai:LastPasswordChange>
+    <ai:PasswordExpiryDate>2026-06-13T08:30:00Z</ai:PasswordExpiryDate>
+    <ai:MultiFactorAuthentication>
+      <ai:Enabled>true</ai:Enabled>
+      <ai:MFAMethod>
+        <ai:MethodType>SMS</ai:MethodType>
+        <ai:IsPrimary>true</ai:IsPrimary>
+        <ai:PhoneNumber>+1-555-456-7890</ai:PhoneNumber>
+      </ai:MFAMethod>
+      <ai:MFAMethod>
+        <ai:MethodType>AuthenticatorApp</ai:MethodType>
+        <ai:IsPrimary>false</ai:IsPrimary>
+        <ai:AppName>Google Authenticator</ai:AppName>
+      </ai:MFAMethod>
+    </ai:MultiFactorAuthentication>
+    <ai:SecurityQuestions>
+      <ai:SecurityQuestion>
+        <ai:Question>What was the name of your first pet?</ai:Question>
+        <ai:AnswerHash>a3f5b7c9d1e2f4a6b8c0d2e4f6a8b0c2</ai:AnswerHash>
+      </ai:SecurityQuestion>
+      <ai:SecurityQuestion>
+        <ai:Question>What city were you born in?</ai:Question>
+        <ai:AnswerHash>d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4</ai:AnswerHash>
+      </ai:SecurityQuestion>
+      <ai:SecurityQuestion>
+        <ai:Question>What was your childhood nickname?</ai:Question>
+        <ai:AnswerHash>e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5</ai:AnswerHash>
+      </ai:SecurityQuestion>
+    </ai:SecurityQuestions>
+    <ai:TrustedDevices>
+      <ai:Device>
+        <ai:DeviceID>DEV-MACBOOK-001</ai:DeviceID>
+        <ai:DeviceName>Sarah's MacBook Pro</ai:DeviceName>
+        <ai:DeviceType>Laptop</ai:DeviceType>
+        <ai:LastUsed>2026-06-11T14:15:00Z</ai:LastUsed>
+        <ai:TrustedSince>2024-03-15T10:30:00Z</ai:TrustedSince>
+      </ai:Device>
+      <ai:Device>
+        <ai:DeviceID>DEV-IPHONE-001</ai:DeviceID>
+        <ai:DeviceName>Sarah's iPhone</ai:DeviceName>
+        <ai:DeviceType>Mobile</ai:DeviceType>
+        <ai:LastUsed>2026-06-10T09:45:00Z</ai:LastUsed>
+        <ai:TrustedSince>2024-03-16T08:00:00Z</ai:TrustedSince>
+      </ai:Device>
+    </ai:TrustedDevices>
+  </ai:Authentication>
+
+  <!-- Security -->
+  <ai:Security>
+    <ai:LoginAttempts>
+      <ai:FailedAttempts>0</ai:FailedAttempts>
+      <ai:MaxAttemptsAllowed>5</ai:MaxAttemptsAllowed>
+    </ai:LoginAttempts>
+    <ai:AccountLockout>
+      <ai:IsLocked>false</ai:IsLocked>
+    </ai:AccountLockout>
+    <ai:SessionManagement>
+      <ai:MaxConcurrentSessions>3</ai:MaxConcurrentSessions>
+      <ai:SessionTimeout>
+        <cd:Value>30</cd:Value>
+        <cd:Unit>Minutes</cd:Unit>
+      </ai:SessionTimeout>
+      <ai:IdleTimeout>
+        <cd:Value>15</cd:Value>
+        <cd:Unit>Minutes</cd:Unit>
+      </ai:IdleTimeout>
+      <ai:RememberMe>true</ai:RememberMe>
+    </ai:SessionManagement>
+    <ai:SecurityAlerts>
+      <ai:LoginFromNewDevice>true</ai:LoginFromNewDevice>
+      <ai:LoginFromNewLocation>true</ai:LoginFromNewLocation>
+      <ai:PasswordChange>true</ai:PasswordChange>
+      <ai:AccountSettingsChange>true</ai:AccountSettingsChange>
+      <ai:SuspiciousActivity>true</ai:SuspiciousActivity>
+    </ai:SecurityAlerts>
+    <ai:DataEncryption>
+      <ai:EncryptionEnabled>true</ai:EncryptionEnabled>
+      <ai:EncryptionAlgorithm>AES-256-GCM</ai:EncryptionAlgorithm>
+    </ai:DataEncryption>
+  </ai:Security>
+
+  <!-- Preferences -->
+  <ai:Preferences>
+    <ai:DisplayPreferences>
+      <ai:Theme>Dark</ai:Theme>
+      <ai:FontSize>Medium</ai:FontSize>
+      <ai:DateFormat>YYYY-MM-DD</ai:DateFormat>
+      <ai:TimeFormat>24Hour</ai:TimeFormat>
+      <ai:NumberFormat>#,###.##</ai:NumberFormat>
+    </ai:DisplayPreferences>
+    <ai:NotificationPreferences>
+      <ai:EmailNotifications>true</ai:EmailNotifications>
+      <ai:SMSNotifications>true</ai:SMSNotifications>
+      <ai:PushNotifications>true</ai:PushNotifications>
+      <ai:InAppNotifications>true</ai:InAppNotifications>
+      <ai:NotificationFrequency>Immediate</ai:NotificationFrequency>
+    </ai:NotificationPreferences>
+    <ai:CommunicationPreferences>
+      <ai:MarketingEmails>true</ai:MarketingEmails>
+      <ai:NewsletterSubscription>true</ai:NewsletterSubscription>
+      <ai:ProductUpdates>true</ai:ProductUpdates>
+      <ai:SurveyInvitations>false</ai:SurveyInvitations>
+      <ai:ThirdPartyOffers>false</ai:ThirdPartyOffers>
+    </ai:CommunicationPreferences>
+    <ai:PrivacyPreferences>
+      <ai:ProfileVisibility>Private</ai:ProfileVisibility>
+      <ai:ShowOnlineStatus>true</ai:ShowOnlineStatus>
+      <ai:AllowSearchEngineIndexing>false</ai:AllowSearchEngineIndexing>
+      <ai:DataSharingConsent>false</ai:DataSharingConsent>
+      <ai:AnalyticsTracking>true</ai:AnalyticsTracking>
+    </ai:PrivacyPreferences>
+    <ai:AccessibilityPreferences>
+      <ai:ScreenReaderEnabled>false</ai:ScreenReaderEnabled>
+      <ai:HighContrastMode>false</ai:HighContrastMode>
+      <ai:KeyboardNavigationOnly>false</ai:KeyboardNavigationOnly>
+      <ai:ReducedMotion>false</ai:ReducedMotion>
+    </ai:AccessibilityPreferences>
+  </ai:Preferences>
+
+  <!-- Loyalty Program -->
+  <ai:LoyaltyProgram>
+    <ai:MembershipID>REWARDS-789456123</ai:MembershipID>
+    <ai:MembershipLevel>Gold</ai:MembershipLevel>
+    <ai:JoinDate>2024-03-15</ai:JoinDate>
+    <ai:PointsBalance>12450</ai:PointsBalance>
+    <ai:LifetimePoints>28750</ai:LifetimePoints>
+    <ai:PointsExpiring>
+      <ai:Points>3200</ai:Points>
+      <ai:ExpiryDate>2026-12-31</ai:ExpiryDate>
+    </ai:PointsExpiring>
+    <ai:Rewards>
+      <ai:Reward>
+        <ai:RewardID>RWD-001</ai:RewardID>
+        <ai:RewardName>$50 Store Credit</ai:RewardName>
+        <ai:PointsRequired>5000</ai:PointsRequired>
+        <ai:ExpiryDate>2026-12-31</ai:ExpiryDate>
+      </ai:Reward>
+      <ai:Reward>
+        <ai:RewardID>RWD-002</ai:RewardID>
+        <ai:RewardName>Free Premium Shipping (1 Year)</ai:RewardName>
+        <ai:PointsRequired>10000</ai:PointsRequired>
+        <ai:ExpiryDate>2026-12-31</ai:ExpiryDate>
+      </ai:Reward>
+    </ai:Rewards>
+    <ai:NextTierRequirement>15000</ai:NextTierRequirement>
+  </ai:LoyaltyProgram>
+
+  <!-- Payment Methods -->
+  <ai:PaymentMethods>
+    <ai:SavedPaymentMethod>
+      <ai:PaymentMethodID>a1b2c3d4-e5f6-7890-abcd-ef1234567890</ai:PaymentMethodID>
+      <cf:CreditCardPayment>
+        <cf:PaymentMethodID>a1b2c3d4-e5f6-7890-abcd-ef1234567890</cf:PaymentMethodID>
+        <cf:PaymentType>CreditCard</cf:PaymentType>
+        <cf:IsDefault>true</cf:IsDefault>
+        <cf:CardType>Visa</cf:CardType>
+        <cf:CardNumber>****-****-****-4567</cf:CardNumber>
+        <cf:CardholderName>Sarah J Anderson</cf:CardholderName>
+        <cf:ExpiryDate>12/28</cf:ExpiryDate>
+        <cf:BillingAddress>1234 Technology Drive, Suite 500, San Francisco, CA 94105, USA</cf:BillingAddress>
+      </cf:CreditCardPayment>
+      <ai:IsDefault>true</ai:IsDefault>
+      <ai:Nickname>Primary Visa</ai:Nickname>
+      <ai:AddedDate>2024-03-15</ai:AddedDate>
+    </ai:SavedPaymentMethod>
+    <ai:SavedPaymentMethod>
+      <ai:PaymentMethodID>b2c3d4e5-f6a7-8901-bcde-f12345678901</ai:PaymentMethodID>
+      <cf:CreditCardPayment>
+        <cf:PaymentMethodID>b2c3d4e5-f6a7-8901-bcde-f12345678901</cf:PaymentMethodID>
+        <cf:PaymentType>CreditCard</cf:PaymentType>
+        <cf:IsDefault>false</cf:IsDefault>
+        <cf:CardType>MasterCard</cf:CardType>
+        <cf:CardNumber>****-****-****-8901</cf:CardNumber>
+        <cf:CardholderName>Sarah J Anderson</cf:CardholderName>
+        <cf:ExpiryDate>08/27</cf:ExpiryDate>
+        <cf:BillingAddress>1234 Technology Drive, Suite 500, San Francisco, CA 94105, USA</cf:BillingAddress>
+      </cf:CreditCardPayment>
+      <ai:IsDefault>false</ai:IsDefault>
+      <ai:Nickname>Secondary Mastercard</ai:Nickname>
+      <ai:AddedDate>2024-06-20</ai:AddedDate>
+    </ai:SavedPaymentMethod>
+  </ai:PaymentMethods>
+
+  <!-- Activity Log -->
+  <ai:ActivityLog>
+    <ai:Activity>
+      <ai:ActivityID>c3d4e5f6-a7b8-9012-cdef-123456789012</ai:ActivityID>
+      <ai:ActivityType>Login</ai:ActivityType>
+      <ai:Timestamp>2026-06-11T14:15:00Z</ai:Timestamp>
+      <ai:Description>Successful login from trusted device</ai:Description>
+      <ai:IPAddress>198.51.100.42</ai:IPAddress>
+      <ai:UserAgent>Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)</ai:UserAgent>
+      <ai:Location>San Francisco, CA</ai:Location>
+    </ai:Activity>
+    <ai:Activity>
+      <ai:ActivityID>d4e5f6a7-b8c9-0123-defa-234567890123</ai:ActivityID>
+      <ai:ActivityType>Purchase</ai:ActivityType>
+      <ai:Timestamp>2026-06-11T15:30:00Z</ai:Timestamp>
+      <ai:Description>Completed order ORD-2026-047 for $1,249.99</ai:Description>
+      <ai:IPAddress>198.51.100.42</ai:IPAddress>
+    </ai:Activity>
+    <ai:Activity>
+      <ai:ActivityID>e5f6a7b8-c9d0-1234-efab-345678901234</ai:ActivityID>
+      <ai:ActivityType>PasswordChange</ai:ActivityType>
+      <ai:Timestamp>2026-03-15T08:30:00Z</ai:Timestamp>
+      <ai:Description>Password changed as part of quarterly rotation</ai:Description>
+      <ai:IPAddress>198.51.100.42</ai:IPAddress>
+    </ai:Activity>
+  </ai:ActivityLog>
+
+  <!-- Notes -->
+  <ai:Notes type="CustomerService" author="CS-REP-456" date="2024-04-10T11:20:00Z">Premium customer - always provide white glove service. Customer is VP of Technology at major corporation.</ai:Notes>
+  <ai:Notes type="Sales" author="SALES-REP-123" date="2024-03-15T10:45:00Z">Customer interested in enterprise solutions. Follow up quarterly with new product offerings.</ai:Notes>
+  <ai:Notes type="Preferences" author="CS-REP-789" date="2025-01-20T09:15:00Z">Prefers email communication. Best time to contact: Tuesday-Thursday, 2-4 PM PST.</ai:Notes>
+
+</ai:AccountInfo>

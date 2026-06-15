@@ -1,0 +1,770 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:so="http://www.kaoto.io/shiporder"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:ca="http://www.kaoto.io/common/address"
+           targetNamespace="http://www.kaoto.io/shiporder"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+      Ship Order Delivery Module
+      
+      This module contains delivery method and payment method types.
+      Demonstrates advanced XSD patterns including:
+      - Abstract elements with substitution groups (polymorphism)
+      - xs:extension for type inheritance
+      - xs:choice constructs for mutually exclusive options
+      - Nested choice patterns
+      
+      Module Contents:
+      - Abstract DeliveryMethod element with 4 concrete implementations
+      - Abstract PaymentMethod element with 4 concrete implementations
+      - EnhancedDeliveryPreferencesType with complex choice patterns
+      - Supporting types for delivery locations and requirements
+      
+      Usage:
+      This module is included in the main ShipOrder.xsd via xs:include.
+      All types defined here are in the ShipOrder namespace.
+      
+      Enterprise Pattern:
+      The substitution group pattern is extensively used in FIXML, FPML,
+      and FMM schemas to provide polymorphic element selection at the
+      XML instance level. This allows XSLT transformations to dynamically
+      select the appropriate concrete type based on business logic.
+      
+      Version: 1.0
+      Part of: ShipOrder Schema Modularization
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Import common types -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- ABSTRACT ELEMENT: DeliveryMethod (Substitution Group)           -->
+  <!-- ================================================================ -->
+
+  <xs:element name="DeliveryMethod" type="so:AbstractDeliveryMethodType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base element for delivery method substitution group.
+        
+        This element cannot be used directly in instance documents.
+        Instead, one of the concrete delivery methods must be used:
+        - StandardDelivery: Regular home/business delivery
+        - ExpressDelivery: Expedited delivery with time guarantee
+        - ScheduledDelivery: Delivery at specific date/time
+        - WhiteGloveDelivery: Premium delivery with setup/installation
+        
+        Design Pattern:
+        This demonstrates the substitution group pattern for polymorphic
+        delivery method selection. The XSLT transformation can dynamically
+        choose the appropriate delivery method based on:
+        - Order priority (URGENT → ExpressDelivery)
+        - Customer preference (scheduled → ScheduledDelivery)
+        - Order value (> $1000 → WhiteGloveDelivery)
+        - Default → StandardDelivery
+        
+        Usage in XSLT:
+        The XSLT transformation can dynamically choose the appropriate 
+        delivery method based on order priority, customer preference, 
+        order value, or other business rules.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="AbstractDeliveryMethodType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base type for all delivery methods.
+        
+        Defines common elements shared by all delivery method types:
+        - MethodCode: Unique code identifying the delivery method
+        - MethodDescription: Human-readable description
+        - EstimatedDeliveryDays: Expected delivery timeframe
+        
+        All concrete delivery methods extend this base type and add
+        their specific attributes (e.g., guaranteed time, premium charges).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="MethodCode" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Unique code identifying the delivery method.
+            Examples: "STD-001", "EXP-001", "SCH-001", "WG-001"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="MethodDescription" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Human-readable description of the delivery method.
+            Example: "Standard Ground Delivery (3-5 business days)"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EstimatedDeliveryDays" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>
+            Estimated number of business days for delivery.
+            Used for customer communication and planning.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE DELIVERY METHOD: StandardDelivery                       -->
+  <!-- ================================================================ -->
+
+  <xs:element name="StandardDelivery" substitutionGroup="so:DeliveryMethod" type="so:StandardDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Standard home or business delivery method.
+        
+        Most common delivery option for regular orders.
+        Typically 3-5 business days delivery time.
+        
+        Use Cases:
+        - Regular priority orders
+        - Non-urgent shipments
+        - Cost-conscious customers
+        - Standard business operations
+        
+        Substitutes: DeliveryMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="StandardDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Standard delivery with optional time window and contactless option.
+        
+        Extends AbstractDeliveryMethodType with standard delivery features:
+        - DeliveryWindow: Optional time window for delivery
+        - ContactlessDelivery: Whether contactless delivery is requested
+        - LeaveAtDoorAllowed: Whether package can be left at door
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractDeliveryMethodType">
+        <xs:sequence>
+          <xs:element name="DeliveryWindow" type="so:TimeWindowType" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Optional time window for delivery (e.g., 9 AM - 5 PM).
+                If not specified, delivery can occur anytime during business hours.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ContactlessDelivery" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>
+                Whether contactless delivery is requested.
+                Driver will leave package and maintain distance.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LeaveAtDoorAllowed" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether package can be left at door if recipient unavailable.
+                Default is true for standard delivery.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE DELIVERY METHOD: ExpressDelivery                        -->
+  <!-- ================================================================ -->
+
+  <xs:element name="ExpressDelivery" substitutionGroup="so:DeliveryMethod" type="so:ExpressDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Express/expedited delivery with time guarantee.
+        
+        Premium delivery option with guaranteed delivery time.
+        Typically next-day or same-day delivery.
+        
+        Use Cases:
+        - Urgent orders (priority = URGENT)
+        - Time-sensitive shipments
+        - High-priority customers
+        - Emergency replacements
+        
+        Substitutes: DeliveryMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ExpressDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Express delivery with guaranteed time and premium charge.
+        
+        Extends AbstractDeliveryMethodType with express delivery features:
+        - GuaranteedDeliveryTime: Specific time guarantee (e.g., 10:30 AM)
+        - PremiumCharge: Additional cost for express service
+        - MoneyBackGuarantee: Whether refund is offered if guarantee missed
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractDeliveryMethodType">
+        <xs:sequence>
+          <xs:element name="GuaranteedDeliveryTime" type="xs:time">
+            <xs:annotation>
+              <xs:documentation>
+                Guaranteed delivery time (e.g., "10:30:00" for 10:30 AM).
+                Carrier commits to delivery by this time or refund.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PremiumCharge" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>
+                Additional charge for express service.
+                Added to base shipping cost.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MoneyBackGuarantee" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether money-back guarantee is offered if time missed.
+                Typically true for express services (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE DELIVERY METHOD: ScheduledDelivery                      -->
+  <!-- ================================================================ -->
+
+  <xs:element name="ScheduledDelivery" substitutionGroup="so:DeliveryMethod" type="so:ScheduledDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Delivery scheduled for specific date and time window.
+        
+        Allows customer to choose exact delivery date and time.
+        Requires advance scheduling and confirmation.
+        
+        Use Cases:
+        - Customer requests specific delivery date
+        - Recipient availability constraints
+        - Large item deliveries requiring presence
+        - Business deliveries outside normal hours
+        
+        Substitutes: DeliveryMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ScheduledDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Scheduled delivery with specific date and time window.
+        
+        Extends AbstractDeliveryMethodType with scheduling features:
+        - ScheduledDate: Specific date for delivery
+        - ScheduledTimeWindow: Time window on scheduled date
+        - ConfirmationRequired: Whether customer confirmation needed
+        - ReschedulingAllowed: Whether delivery can be rescheduled
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractDeliveryMethodType">
+        <xs:sequence>
+          <xs:element name="ScheduledDate" type="xs:date">
+            <xs:annotation>
+              <xs:documentation>
+                Specific date for delivery (e.g., "2026-06-15").
+                Must be a future date and typically a business day.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ScheduledTimeWindow" type="so:TimeWindowType">
+            <xs:annotation>
+              <xs:documentation>
+                Time window for delivery on scheduled date.
+                Example: 2:00 PM - 4:00 PM
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ConfirmationRequired" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether customer confirmation is required before delivery.
+                Typically true for scheduled deliveries (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ReschedulingAllowed" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether customer can reschedule the delivery.
+                Typically allowed with advance notice (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE DELIVERY METHOD: WhiteGloveDelivery                     -->
+  <!-- ================================================================ -->
+
+  <xs:element name="WhiteGloveDelivery" substitutionGroup="so:DeliveryMethod" type="so:WhiteGloveDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        Premium white-glove delivery with setup and installation services.
+        
+        Highest level of service including unpacking, assembly, installation,
+        and removal of packaging materials.
+        
+        Use Cases:
+        - High-value orders (> $1000)
+        - Furniture and appliances
+        - Items requiring assembly
+        - Premium customer service
+        - Complex installations
+        
+        Substitutes: DeliveryMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="WhiteGloveDeliveryMethodType">
+    <xs:annotation>
+      <xs:documentation>
+        White-glove delivery with premium services.
+        
+        Extends AbstractDeliveryMethodType with premium service features:
+        - ServicesIncluded: List of included services
+        - AppointmentRequired: Whether appointment is required
+        - EstimatedServiceDuration: Time needed for setup/installation
+        - PremiumCharge: Additional cost for white-glove service
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractDeliveryMethodType">
+        <xs:sequence>
+          <xs:element name="ServicesIncluded" type="so:WhiteGloveServicesType">
+            <xs:annotation>
+              <xs:documentation>
+                List of premium services included in white-glove delivery.
+                Specifies what services will be performed.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AppointmentRequired" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>
+                Whether appointment is required for delivery.
+                Typically true for white-glove service (default: true).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="EstimatedServiceDuration" type="xs:duration" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Estimated time for setup/installation (ISO 8601 duration).
+                Example: "PT2H" for 2 hours, "PT30M" for 30 minutes.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PremiumCharge" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>
+                Additional charge for white-glove service.
+                Added to base shipping cost.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="WhiteGloveServicesType">
+    <xs:annotation>
+      <xs:documentation>
+        Services included in white-glove delivery.
+        Specifies which premium services will be performed.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="UnpackingIncluded" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>Whether unpacking service is included.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="AssemblyIncluded" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>Whether assembly service is included.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InstallationIncluded" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether installation service is included.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OldItemRemoval" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether old item removal is included.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DebrisRemoval" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>Whether packaging debris removal is included.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PlacementInRoom" type="xs:boolean" default="true">
+        <xs:annotation>
+          <xs:documentation>Whether placement in specific room is included.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ABSTRACT ELEMENT: PaymentMethod (Substitution Group)            -->
+  <!-- ================================================================ -->
+
+  <xs:element name="PaymentMethod" type="so:AbstractPaymentMethodType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base element for payment method substitution group.
+        
+        Used for COD (Cash On Delivery) payments, duty payments, etc.
+        This element cannot be used directly in instance documents.
+        Instead, one of the concrete payment methods must be used:
+        - CashPayment: Payment in cash
+        - CheckPayment: Payment by check
+        - CardPayment: Payment by credit/debit card
+        - DigitalWalletPayment: Payment via digital wallet
+        
+        Design Pattern:
+        Similar to DeliveryMethod, this demonstrates polymorphic payment
+        method selection. The XSLT transformation can map billing info
+        to the appropriate payment method type.
+        
+        Usage in XSLT:
+        The XSLT transformation can map billing information to the 
+        appropriate payment method type based on the payment details 
+        provided in the source document.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="AbstractPaymentMethodType" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base type for all payment methods.
+        
+        Defines common elements shared by all payment method types:
+        - PaymentMethodCode: Unique code identifying the payment method
+        - PaymentMethodName: Human-readable name
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="PaymentMethodCode" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Unique code identifying the payment method.
+            Examples: "CASH", "CHECK", "CARD", "WALLET"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="PaymentMethodName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+            Human-readable name of the payment method.
+            Example: "Credit Card Payment"
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE PAYMENT METHOD: CashPayment                             -->
+  <!-- ================================================================ -->
+
+  <xs:element name="CashPayment" substitutionGroup="so:PaymentMethod" type="so:CashPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Cash payment method for COD or on-site payment.
+        
+        Use Cases:
+        - Cash on delivery (COD)
+        - On-site payment for services
+        - Customers without bank accounts
+        
+        Substitutes: PaymentMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CashPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Cash payment with amount limits and change requirements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractPaymentMethodType">
+        <xs:sequence>
+          <xs:element name="ExactChangeRequired" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>
+                Whether exact change is required.
+                If true, customer must provide exact amount.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="MaximumAmount" type="ct:MonetaryAmount_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Maximum cash amount accepted by driver.
+                Typically limited for security reasons.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE PAYMENT METHOD: CheckPayment                            -->
+  <!-- ================================================================ -->
+
+  <xs:element name="CheckPayment" substitutionGroup="so:PaymentMethod" type="so:CheckPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Payment by personal or cashier's check.
+        
+        Use Cases:
+        - Business-to-business payments
+        - Large COD amounts
+        - Customers preferring check payment
+        
+        Substitutes: PaymentMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CheckPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Check payment with payee and check type requirements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractPaymentMethodType">
+        <xs:sequence>
+          <xs:element name="PayableTo" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                Name check should be made payable to.
+                Typically the carrier or merchant name.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CashiersCheckRequired" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>
+                Whether cashier's check is required (vs. personal check).
+                May be required for large amounts.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE PAYMENT METHOD: CardPayment                             -->
+  <!-- ================================================================ -->
+
+  <xs:element name="CardPayment" substitutionGroup="so:PaymentMethod" type="so:CardPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Payment by credit or debit card.
+        
+        Most common payment method for COD and duties.
+        Supports all major card types.
+        
+        Use Cases:
+        - Credit card COD
+        - Duty/tax payment
+        - Premium service payment
+        
+        Substitutes: PaymentMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="CardPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Card payment with card type and reference information.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractPaymentMethodType">
+        <xs:sequence>
+          <xs:element name="CardType" type="so:CardTypeEnum">
+            <xs:annotation>
+              <xs:documentation>
+                Type of card (Visa, MasterCard, Amex, etc.).
+                Used for payment processing and validation.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Last4Digits" type="so:Last4DigitsType">
+            <xs:annotation>
+              <xs:documentation>
+                Last 4 digits of card number for reference.
+                Used for identification without exposing full number.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="CardholderName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>
+                Name on the card.
+                Used for verification purposes.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- CONCRETE PAYMENT METHOD: DigitalWalletPayment                    -->
+  <!-- ================================================================ -->
+
+  <xs:element name="DigitalWalletPayment" substitutionGroup="so:PaymentMethod" type="so:DigitalWalletPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Payment via digital wallet (Apple Pay, Google Pay, PayPal, etc.).
+        
+        Modern payment method for mobile and online transactions.
+        
+        Use Cases:
+        - Mobile COD payment
+        - Contactless payment
+        - Online duty payment
+        
+        Substitutes: PaymentMethod abstract element
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="DigitalWalletPaymentType">
+    <xs:annotation>
+      <xs:documentation>
+        Digital wallet payment with provider and account information.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="so:AbstractPaymentMethodType">
+        <xs:sequence>
+          <xs:element name="WalletProvider" type="so:WalletProviderEnum">
+            <xs:annotation>
+              <xs:documentation>
+                Digital wallet provider (ApplePay, GooglePay, PayPal, etc.).
+                Identifies the wallet service being used.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="WalletAccountID" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                Masked wallet account identifier.
+                Optional reference for tracking purposes.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING TYPES: Time Window                                    -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="TimeWindowType">
+    <xs:annotation>
+      <xs:documentation>
+        Time window for delivery or service.
+        Specifies start and end times for a delivery window.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="StartTime" type="xs:time">
+        <xs:annotation>
+          <xs:documentation>
+            Start of the time window (e.g., "09:00:00" for 9 AM).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndTime" type="xs:time">
+        <xs:annotation>
+          <xs:documentation>
+            End of the time window (e.g., "17:00:00" for 5 PM).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING ENUMERATIONS (referenced from enumerations module)    -->
+  <!-- ================================================================ -->
+
+  <!-- Note: These enumerations are defined in ShipOrder-enumerations.xsd
+       and are referenced here for completeness. They will be available
+       when the main schema includes both modules. -->
+
+  <!-- CardTypeEnum: Visa, MasterCard, AmericanExpress, Discover, etc. -->
+  <!-- WalletProviderEnum: ApplePay, GooglePay, PayPal, Venmo, etc. -->
+  <!-- Last4DigitsType: Pattern [0-9]{4} -->
+
+  <!-- Placeholder for WalletProviderEnum (will be in enumerations module) -->
+  <xs:simpleType name="WalletProviderEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ApplePay"/>
+      <xs:enumeration value="GooglePay"/>
+      <xs:enumeration value="PayPal"/>
+      <xs:enumeration value="Venmo"/>
+      <xs:enumeration value="SamsungPay"/>
+      <xs:enumeration value="AmazonPay"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

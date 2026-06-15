@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<li:LogisticsInfo xmlns:li="http://www.kaoto.io/logistics"
+                  xmlns:ct="http://www.kaoto.io/common/types"
+                  xmlns:ca="http://www.kaoto.io/common/address"
+                  xmlns:cp="http://www.kaoto.io/common/party"
+                  xmlns:cf="http://www.kaoto.io/common/financial"
+                  xmlns:cd="http://www.kaoto.io/common/datetime"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  id="550e8400-e29b-41d4-a716-446655440003"
+                  version="1.0"
+                  timestamp="2026-06-11T14:25:00Z"
+                  createdBy="SYSTEM-LOGISTICS-001"
+                  createdDate="2024-03-15T10:30:00Z"
+                  modifiedBy="LOGISTICS-COORD-123"
+                  modifiedDate="2026-06-11T14:25:00Z">
+
+  <!-- Logistics Header -->
+  <li:LogisticsHeader>
+    <li:LogisticsID>550e8400-e29b-41d4-a716-446655440003</li:LogisticsID>
+    <li:LogisticsNumber>LOG-2026-001234</li:LogisticsNumber>
+    <li:CreationDate>2024-03-15T10:30:00Z</li:CreationDate>
+    <li:OrderReference>550e8400-e29b-41d4-a716-446655440099</li:OrderReference>
+    <li:ShipmentPriority>High</li:ShipmentPriority>
+    <li:LogisticsStatus>InTransit</li:LogisticsStatus>
+    <li:ServiceLevel>Express</li:ServiceLevel>
+    <li:EstimatedDeliveryDate>2026-06-18T17:00:00Z</li:EstimatedDeliveryDate>
+  </li:LogisticsHeader>
+
+  <!-- Shipments -->
+  <li:Shipments totalShipments="3">
+    <!-- Recent Shipment 1 - Express -->
+    <li:ExpressShipment>
+      <li:ShipmentID>550e8400-e29b-41d4-a716-446655440101</li:ShipmentID>
+      <li:ShipmentNumber>SHIP-2026-05-15-001</li:ShipmentNumber>
+      <li:ShipmentDate>2026-05-15T08:00:00Z</li:ShipmentDate>
+      <li:ShipmentStatus>Delivered</li:ShipmentStatus>
+      <li:ShipFrom>
+        <li:LocationType>Warehouse</li:LocationType>
+        <li:LocationName>Main Distribution Center</li:LocationName>
+        <li:LocationCode>MDC-CA-001</li:LocationCode>
+        <ca:StandardAddress>
+          <ca:AddressID>ADDR-WH-001</ca:AddressID>
+          <ca:AddressLine1>5000 Distribution Way</ca:AddressLine1>
+          <ca:City>San Jose</ca:City>
+          <ca:Country>US</ca:Country>
+          <ca:StateProvince>CA</ca:StateProvince>
+          <ca:PostalCode>95131</ca:PostalCode>
+        </ca:StandardAddress>
+      </li:ShipFrom>
+      <li:ShipTo>
+        <li:LocationType>Business</li:LocationType>
+        <li:LocationName>Recipient Office</li:LocationName>
+        <ca:StandardAddress>
+          <ca:AddressID>ADDR-CUST-001</ca:AddressID>
+          <ca:AddressLine1>123 Market Street</ca:AddressLine1>
+          <ca:AddressLine2>Suite 400</ca:AddressLine2>
+          <ca:City>San Francisco</ca:City>
+          <ca:Country>US</ca:Country>
+          <ca:StateProvince>CA</ca:StateProvince>
+          <ca:PostalCode>94105</ca:PostalCode>
+        </ca:StandardAddress>
+      </li:ShipTo>
+      <li:TotalWeight>5.200</li:TotalWeight>
+      <li:WeightUnit>KG</li:WeightUnit>
+      <li:EstimatedTransitDays>2</li:EstimatedTransitDays>
+      <li:Packages>
+        <li:Package>
+          <li:PackageID>550e8400-e29b-41d4-a716-446655440201</li:PackageID>
+          <li:PackageNumber>PKG-001</li:PackageNumber>
+          <li:PackageType>Box</li:PackageType>
+          <li:Dimensions>
+            <li:Length>0.400</li:Length>
+            <li:Width>0.300</li:Width>
+            <li:Height>0.200</li:Height>
+            <li:DimensionUnit>M</li:DimensionUnit>
+          </li:Dimensions>
+          <li:Weight>5.200</li:Weight>
+          <li:WeightUnit>KG</li:WeightUnit>
+          <li:Contents>
+            <li:Item>
+              <li:ItemDescription>Premium Electronics Package</li:ItemDescription>
+              <li:Quantity>1</li:Quantity>
+              <li:UnitValue>899.99</li:UnitValue>
+              <li:TotalValue>899.99</li:TotalValue>
+              <li:CountryOfOrigin>US</li:CountryOfOrigin>
+            </li:Item>
+          </li:Contents>
+          <li:Fragile>true</li:Fragile>
+          <li:Perishable>false</li:Perishable>
+          <li:TemperatureControlled>false</li:TemperatureControlled>
+          <li:InsuredValue>899.99</li:InsuredValue>
+          <li:TrackingNumber>1Z999AA10123456784</li:TrackingNumber>
+        </li:Package>
+      </li:Packages>
+      <li:ShippingCost>45.99</li:ShippingCost>
+      <li:SignatureRequired>true</li:SignatureRequired>
+      <li:ExpressService>TwoDay</li:ExpressService>
+      <li:GuaranteedDelivery>2026-05-17T17:00:00Z</li:GuaranteedDelivery>
+      <li:ExpressFee>15.00</li:ExpressFee>
+      <li:PriorityHandling>true</li:PriorityHandling>
+    </li:ExpressShipment>
+
+    <!-- Recent Shipment 2 - Overnight -->
+    <li:OvernightShipment>
+      <li:ShipmentID>550e8400-e29b-41d4-a716-446655440102</li:ShipmentID>
+      <li:ShipmentNumber>SHIP-2026-04-20-001</li:ShipmentNumber>
+      <li:ShipmentDate>2026-04-20T06:00:00Z</li:ShipmentDate>
+      <li:ShipmentStatus>Delivered</li:ShipmentStatus>
+      <li:ShipFrom>
+        <li:LocationType>DistributionCenter</li:LocationType>
+        <li:LocationName>Regional Distribution Center</li:LocationName>
+        <li:LocationCode>RDC-CA-002</li:LocationCode>
+        <ca:StandardAddress>
+          <ca:AddressID>ADDR-WH-002</ca:AddressID>
+          <ca:AddressLine1>8000 Logistics Boulevard</ca:AddressLine1>
+          <ca:City>Oakland</ca:City>
+          <ca:Country>US</ca:Country>
+          <ca:StateProvince>CA</ca:StateProvince>
+          <ca:PostalCode>94621</ca:PostalCode>
+        </ca:StandardAddress>
+      </li:ShipFrom>
+      <li:ShipTo>
+        <li:LocationType>Business</li:LocationType>
+        <li:LocationName>Recipient Office</li:LocationName>
+        <ca:StandardAddress>
+          <ca:AddressID>ADDR-CUST-001</ca:AddressID>
+          <ca:AddressLine1>123 Market Street</ca:AddressLine1>
+          <ca:AddressLine2>Suite 400</ca:AddressLine2>
+          <ca:City>San Francisco</ca:City>
+          <ca:Country>US</ca:Country>
+          <ca:StateProvince>CA</ca:StateProvince>
+          <ca:PostalCode>94105</ca:PostalCode>
+        </ca:StandardAddress>
+      </li:ShipTo>
+      <li:TotalWeight>3.800</li:TotalWeight>
+      <li:WeightUnit>KG</li:WeightUnit>
+      <li:EstimatedTransitDays>1</li:EstimatedTransitDays>
+      <li:Packages>
+        <li:Package>
+          <li:PackageID>550e8400-e29b-41d4-a716-446655440202</li:PackageID>
+          <li:PackageNumber>PKG-002</li:PackageNumber>
+          <li:PackageType>Box</li:PackageType>
+          <li:Dimensions>
+            <li:Length>0.350</li:Length>
+            <li:Width>0.250</li:Width>
+            <li:Height>0.150</li:Height>
+            <li:DimensionUnit>M</li:DimensionUnit>
+          </li:Dimensions>
+          <li:Weight>3.800</li:Weight>
+          <li:WeightUnit>KG</li:WeightUnit>
+          <li:Contents>
+            <li:Item>
+              <li:ItemDescription>High-End Computer Components</li:ItemDescription>
+              <li:Quantity>2</li:Quantity>
+              <li:UnitValue>649.99</li:UnitValue>
+              <li:TotalValue>1299.98</li:TotalValue>
+              <li:CountryOfOrigin>US</li:CountryOfOrigin>
+            </li:Item>
+          </li:Contents>
+          <li:Fragile>true</li:Fragile>
+          <li:Perishable>false</li:Perishable>
+          <li:TemperatureControlled>false</li:TemperatureControlled>
+          <li:InsuredValue>1299.99</li:InsuredValue>
+          <li:TrackingNumber>7849012345678901</li:TrackingNumber>
+        </li:Package>
+      </li:Packages>
+      <li:ShippingCost>59.99</li:ShippingCost>
+      <li:SignatureRequired>true</li:SignatureRequired>
+      <li:ExpressService>Overnight</li:ExpressService>
+      <li:GuaranteedDelivery>2026-04-21T12:00:00Z</li:GuaranteedDelivery>
+      <li:ExpressFee>25.00</li:ExpressFee>
+      <li:PriorityHandling>true</li:PriorityHandling>
+      <li:CutoffTime>18:00:00</li:CutoffTime>
+      <li:DeliveryWindow>
+        <cd:WindowDate>2026-04-21</cd:WindowDate>
+        <cd:StartTime>08:00:00</cd:StartTime>
+        <cd:EndTime>12:00:00</cd:EndTime>
+      </li:DeliveryWindow>
+      <li:SaturdayDelivery>false</li:SaturdayDelivery>
+      <li:EarlyAM>false</li:EarlyAM>
+    </li:OvernightShipment>
+
+    <!-- Recent Shipment 3 - Standard -->
+    <li:StandardShipment>
+      <li:ShipmentID>550e8400-e29b-41d4-a716-446655440103</li:ShipmentID>
+      <li:ShipmentNumber>SHIP-2026-03-10-001</li:ShipmentNumber>
+      <li:ShipmentDate>2026-03-10T10:00:00Z</li:ShipmentDate>
+      <li:ShipmentStatus>Delivered</li:ShipmentStatus>
+      <li:ShipFrom>
+        <li:LocationType>Warehouse</li:LocationType>
+        <li:LocationName>Main Distribution Center</li:LocationName>
+        <li:LocationCode>MDC-CA-001</li:LocationCode>
+        <ca:StandardAddress>
+          <ca:AddressID>ADDR-WH-001</ca:AddressID>
+          <ca:AddressLine1>5000 Distribution Way</ca:AddressLine1>
+          <ca:City>San Jose</ca:City>
+          <ca:Country>US</ca:Country>
+          <ca:StateProvince>CA</ca:StateProvince>
+          <ca:PostalCode>95131</ca:PostalCode>
+        </ca:StandardAddress>
+      </li:ShipFrom>
+      <li:ShipTo>
+        <li:LocationType>Business</li:LocationType>
+        <li:LocationName>Recipient Office</li:LocationName>
+        <ca:StandardAddress>
+          <ca:AddressID>ADDR-CUST-001</ca:AddressID>
+          <ca:AddressLine1>123 Market Street</ca:AddressLine1>
+          <ca:AddressLine2>Suite 400</ca:AddressLine2>
+          <ca:City>San Francisco</ca:City>
+          <ca:Country>US</ca:Country>
+          <ca:StateProvince>CA</ca:StateProvince>
+          <ca:PostalCode>94105</ca:PostalCode>
+        </ca:StandardAddress>
+      </li:ShipTo>
+      <li:TotalWeight>2.100</li:TotalWeight>
+      <li:WeightUnit>KG</li:WeightUnit>
+      <li:EstimatedTransitDays>5</li:EstimatedTransitDays>
+      <li:Packages>
+        <li:Package>
+          <li:PackageID>550e8400-e29b-41d4-a716-446655440203</li:PackageID>
+          <li:PackageNumber>PKG-003</li:PackageNumber>
+          <li:PackageType>Box</li:PackageType>
+          <li:Dimensions>
+            <li:Length>0.300</li:Length>
+            <li:Width>0.200</li:Width>
+            <li:Height>0.100</li:Height>
+            <li:DimensionUnit>M</li:DimensionUnit>
+          </li:Dimensions>
+          <li:Weight>2.100</li:Weight>
+          <li:WeightUnit>KG</li:WeightUnit>
+          <li:Contents>
+            <li:Item>
+              <li:ItemDescription>Computer Accessories</li:ItemDescription>
+              <li:Quantity>3</li:Quantity>
+              <li:UnitValue>83.33</li:UnitValue>
+              <li:TotalValue>249.99</li:TotalValue>
+              <li:CountryOfOrigin>US</li:CountryOfOrigin>
+            </li:Item>
+          </li:Contents>
+          <li:Fragile>false</li:Fragile>
+          <li:Perishable>false</li:Perishable>
+          <li:TemperatureControlled>false</li:TemperatureControlled>
+          <li:TrackingNumber>1Z999AA10123456785</li:TrackingNumber>
+        </li:Package>
+      </li:Packages>
+      <li:ShippingCost>12.99</li:ShippingCost>
+      <li:SignatureRequired>false</li:SignatureRequired>
+    </li:StandardShipment>
+  </li:Shipments>
+
+  <!-- Carrier Information -->
+  <li:CarrierInformation>
+    <li:PrimaryCarrier>
+      <li:CarrierCode>UPS</li:CarrierCode>
+      <li:CarrierName>UPS</li:CarrierName>
+      <li:SCAC>UPSN</li:SCAC>
+      <li:ContactInfo isPrimary="true">
+        <cp:ContactType>Shipping</cp:ContactType>
+        <cp:ContactName>UPS Customer Service</cp:ContactName>
+        <cp:Phone>+1-800-742-5877</cp:Phone>
+        <cp:Website>https://www.ups.com</cp:Website>
+      </li:ContactInfo>
+    </li:PrimaryCarrier>
+    <li:AlternateCarriers>
+      <li:Carrier>
+        <li:CarrierCode>FDEG</li:CarrierCode>
+        <li:CarrierName>FedEx</li:CarrierName>
+        <li:SCAC>FDEG</li:SCAC>
+        <li:ContactInfo>
+          <cp:ContactType>Shipping</cp:ContactType>
+          <cp:ContactName>FedEx Customer Service</cp:ContactName>
+          <cp:Phone>+1-800-463-3339</cp:Phone>
+          <cp:Website>https://www.fedex.com</cp:Website>
+        </li:ContactInfo>
+      </li:Carrier>
+      <li:Carrier>
+        <li:CarrierCode>USPS</li:CarrierCode>
+        <li:CarrierName>USPS</li:CarrierName>
+        <li:ContactInfo>
+          <cp:ContactType>Shipping</cp:ContactType>
+          <cp:ContactName>USPS Customer Service</cp:ContactName>
+          <cp:Phone>+1-800-275-8777</cp:Phone>
+          <cp:Website>https://www.usps.com</cp:Website>
+        </li:ContactInfo>
+      </li:Carrier>
+    </li:AlternateCarriers>
+    <li:CarrierService>Express</li:CarrierService>
+    <li:CarrierAccountNumber>ACC-2024-789456</li:CarrierAccountNumber>
+    <li:BillToParty>Sender</li:BillToParty>
+    <li:TransportMode>Ground</li:TransportMode>
+    <li:VehicleInformation>
+      <li:VehicleType>Van</li:VehicleType>
+      <li:VehicleID>VAN-UPS-4532</li:VehicleID>
+      <li:DriverName>Michael Rodriguez</li:DriverName>
+      <li:DriverContact>+1-555-987-6543</li:DriverContact>
+    </li:VehicleInformation>
+  </li:CarrierInformation>
+
+  <!-- Warehouse Operations -->
+  <li:WarehouseOperations>
+    <li:WarehouseLocation>
+      <li:WarehouseID>WH-001</li:WarehouseID>
+      <li:WarehouseName>Main Distribution Center</li:WarehouseName>
+      <ca:StandardAddress>
+        <ca:AddressID>ADDR-WH-001</ca:AddressID>
+        <ca:AddressLine1>5000 Distribution Way</ca:AddressLine1>
+        <ca:City>San Jose</ca:City>
+        <ca:Country>US</ca:Country>
+        <ca:StateProvince>CA</ca:StateProvince>
+        <ca:PostalCode>95131</ca:PostalCode>
+      </ca:StandardAddress>
+      <li:WarehouseType>Private</li:WarehouseType>
+    </li:WarehouseLocation>
+    <li:ReceivingDetails>
+      <li:ReceiptNumber>RCV-2026-06-10-001</li:ReceiptNumber>
+      <li:ReceiptDate>2026-06-10T09:00:00Z</li:ReceiptDate>
+      <li:ReceivedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440301</cp:PartyID>
+        <cp:PartyName>James Wilson</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>James</cp:FirstName>
+          <cp:LastName>Wilson</cp:LastName>
+        </cp:PersonName>
+      </li:ReceivedBy>
+      <li:InspectionStatus>Passed</li:InspectionStatus>
+    </li:ReceivingDetails>
+    <li:StorageDetails>
+      <li:StorageLocation>Aisle-B, Rack-14</li:StorageLocation>
+      <li:BinLocation>BIN-B14-03</li:BinLocation>
+      <li:StorageType>Ambient</li:StorageType>
+      <li:PutAwayDate>2026-06-10T10:30:00Z</li:PutAwayDate>
+    </li:StorageDetails>
+    <li:PickingDetails>
+      <li:PickListNumber>PICK-2026-06-11-042</li:PickListNumber>
+      <li:PickDate>2026-06-11T08:00:00Z</li:PickDate>
+      <li:PickedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440302</cp:PartyID>
+        <cp:PartyName>Maria Chen</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>Maria</cp:FirstName>
+          <cp:LastName>Chen</cp:LastName>
+        </cp:PersonName>
+      </li:PickedBy>
+      <li:PickingMethod>RFScanning</li:PickingMethod>
+    </li:PickingDetails>
+    <li:PackingDetails>
+      <li:PackingSlipNumber>PACK-2026-06-11-018</li:PackingSlipNumber>
+      <li:PackDate>2026-06-11T09:30:00Z</li:PackDate>
+      <li:PackedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440303</cp:PartyID>
+        <cp:PartyName>David Park</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>David</cp:FirstName>
+          <cp:LastName>Park</cp:LastName>
+        </cp:PersonName>
+      </li:PackedBy>
+      <li:QualityCheck>true</li:QualityCheck>
+    </li:PackingDetails>
+    <li:ShippingDetails>
+      <li:ShipDate>2026-06-11T11:00:00Z</li:ShipDate>
+      <li:LoadingDock>Dock-3</li:LoadingDock>
+      <li:BillOfLading>BOL-2026-06-11-007</li:BillOfLading>
+      <li:ShippedBy>
+        <cp:PartyID>550e8400-e29b-41d4-a716-446655440304</cp:PartyID>
+        <cp:PartyName>Sarah Thompson</cp:PartyName>
+        <cp:PartyType>Person</cp:PartyType>
+        <cp:PersonName>
+          <cp:FirstName>Sarah</cp:FirstName>
+          <cp:LastName>Thompson</cp:LastName>
+        </cp:PersonName>
+      </li:ShippedBy>
+    </li:ShippingDetails>
+    <li:InventoryStatus>
+      <li:AvailableQuantity>150</li:AvailableQuantity>
+      <li:AllocatedQuantity>12</li:AllocatedQuantity>
+      <li:ReservedQuantity>5</li:ReservedQuantity>
+      <li:BackorderedQuantity>0.0001</li:BackorderedQuantity>
+    </li:InventoryStatus>
+  </li:WarehouseOperations>
+
+  <!-- Routing Information -->
+  <li:RoutingInformation>
+    <li:RouteID>ROUTE-BAE-001</li:RouteID>
+    <li:RouteSegments>
+      <li:Segment>
+        <li:SegmentNumber>1</li:SegmentNumber>
+        <li:OriginLocation>San Jose Distribution Center</li:OriginLocation>
+        <li:DestinationLocation>Oakland Hub</li:DestinationLocation>
+        <li:TransportMode>Ground</li:TransportMode>
+        <li:Carrier>UPS</li:Carrier>
+        <li:Distance>
+          <li:Value>32.5</li:Value>
+          <li:Unit>Miles</li:Unit>
+        </li:Distance>
+        <li:EstimatedDuration>
+          <cd:Value>1.5</cd:Value>
+          <cd:Unit>Hours</cd:Unit>
+        </li:EstimatedDuration>
+        <li:DepartureTime>2026-06-11T11:00:00Z</li:DepartureTime>
+        <li:ArrivalTime>2026-06-11T12:30:00Z</li:ArrivalTime>
+      </li:Segment>
+      <li:Segment>
+        <li:SegmentNumber>2</li:SegmentNumber>
+        <li:OriginLocation>Oakland Hub</li:OriginLocation>
+        <li:DestinationLocation>San Francisco Delivery</li:DestinationLocation>
+        <li:TransportMode>Ground</li:TransportMode>
+        <li:Carrier>UPS</li:Carrier>
+        <li:Distance>
+          <li:Value>12.8</li:Value>
+          <li:Unit>Miles</li:Unit>
+        </li:Distance>
+        <li:EstimatedDuration>
+          <cd:Value>2.5</cd:Value>
+          <cd:Unit>Hours</cd:Unit>
+        </li:EstimatedDuration>
+        <li:DepartureTime>2026-06-11T13:00:00Z</li:DepartureTime>
+        <li:ArrivalTime>2026-06-11T15:30:00Z</li:ArrivalTime>
+      </li:Segment>
+    </li:RouteSegments>
+    <li:TotalDistance>
+      <li:Value>45.3</li:Value>
+      <li:Unit>Miles</li:Unit>
+    </li:TotalDistance>
+    <li:EstimatedTransitTime>
+      <cd:Value>4.0</cd:Value>
+      <cd:Unit>Hours</cd:Unit>
+    </li:EstimatedTransitTime>
+    <li:RouteOptimization>
+      <li:OptimizationCriteria>FastestTime</li:OptimizationCriteria>
+      <li:AlternativeRoutes>2</li:AlternativeRoutes>
+      <li:CostSavings>8.50</li:CostSavings>
+    </li:RouteOptimization>
+  </li:RoutingInformation>
+
+  <!-- Tracking Information -->
+  <li:TrackingInformation>
+    <li:TrackingNumber>1Z999AA10123456784</li:TrackingNumber>
+    <li:TrackingURL>https://www.ups.com/track?tracknum=1Z999AA10123456784</li:TrackingURL>
+    <li:CurrentStatus>InTransit</li:CurrentStatus>
+    <li:CurrentLocation>Oakland Hub, CA</li:CurrentLocation>
+    <li:LastUpdateTime>2026-06-11T14:20:00Z</li:LastUpdateTime>
+    <li:TrackingEvents>
+      <li:Event>
+        <li:EventID>550e8400-e29b-41d4-a716-446655440401</li:EventID>
+        <li:EventType>Pickup</li:EventType>
+        <li:EventTime>2026-06-11T11:00:00Z</li:EventTime>
+        <li:EventLocation>San Jose Distribution Center, CA</li:EventLocation>
+        <li:EventDescription>Package picked up from warehouse</li:EventDescription>
+        <li:EventStatus>Completed</li:EventStatus>
+        <li:Coordinates>
+          <li:Latitude>37.3382</li:Latitude>
+          <li:Longitude>-121.8863</li:Longitude>
+        </li:Coordinates>
+      </li:Event>
+      <li:Event>
+        <li:EventID>550e8400-e29b-41d4-a716-446655440402</li:EventID>
+        <li:EventType>Departure</li:EventType>
+        <li:EventTime>2026-06-11T11:15:00Z</li:EventTime>
+        <li:EventLocation>San Jose Distribution Center, CA</li:EventLocation>
+        <li:EventDescription>Shipment departed origin facility</li:EventDescription>
+        <li:EventStatus>Completed</li:EventStatus>
+      </li:Event>
+      <li:Event>
+        <li:EventID>550e8400-e29b-41d4-a716-446655440403</li:EventID>
+        <li:EventType>Arrival</li:EventType>
+        <li:EventTime>2026-06-11T12:35:00Z</li:EventTime>
+        <li:EventLocation>Oakland Hub, CA</li:EventLocation>
+        <li:EventDescription>Arrived at hub facility</li:EventDescription>
+        <li:EventStatus>Completed</li:EventStatus>
+        <li:Coordinates>
+          <li:Latitude>37.8044</li:Latitude>
+          <li:Longitude>-122.2712</li:Longitude>
+        </li:Coordinates>
+      </li:Event>
+      <li:Event>
+        <li:EventID>550e8400-e29b-41d4-a716-446655440404</li:EventID>
+        <li:EventType>InTransit</li:EventType>
+        <li:EventTime>2026-06-11T14:20:00Z</li:EventTime>
+        <li:EventLocation>Oakland Hub, CA</li:EventLocation>
+        <li:EventDescription>Package processed and in transit to destination</li:EventDescription>
+        <li:EventStatus>InProgress</li:EventStatus>
+      </li:Event>
+    </li:TrackingEvents>
+    <li:EstimatedDelivery>2026-06-11T17:00:00Z</li:EstimatedDelivery>
+  </li:TrackingInformation>
+
+  <!-- Delivery Confirmation -->
+  <li:DeliveryConfirmation>
+    <li:DeliveryDate>2026-05-17T14:30:00Z</li:DeliveryDate>
+    <li:DeliveryTime>14:30:00</li:DeliveryTime>
+    <li:RecipientName>Sarah J. Anderson</li:RecipientName>
+    <li:RecipientSignature>SAnderson-2026-05-17</li:RecipientSignature>
+    <li:DeliveryLocation>Reception Desk, Suite 400</li:DeliveryLocation>
+    <li:ProofOfDelivery>
+      <li:PODNumber>POD-2026-05-17-001</li:PODNumber>
+      <li:PODType>Signature</li:PODType>
+      <li:DigitalSignature>base64-encoded-signature-data</li:DigitalSignature>
+    </li:ProofOfDelivery>
+    <li:DeliveryNotes>Package delivered to reception desk. Signed by authorized recipient.</li:DeliveryNotes>
+    <li:DeliveryCondition>Perfect</li:DeliveryCondition>
+  </li:DeliveryConfirmation>
+
+  <!-- Shipping Preferences -->
+  <li:ShippingPreferences>
+    <li:PreferredCarrier>UPS</li:PreferredCarrier>
+    <li:DeliveryInstructions>Please deliver to reception desk during business hours (9 AM - 5 PM). Building requires visitor check-in. Contact recipient at +1-555-123-4567 upon arrival.</li:DeliveryInstructions>
+    <li:LeaveAtDoor>false</li:LeaveAtDoor>
+    <li:SMSNotifications>true</li:SMSNotifications>
+    <li:ExpressShipping>true</li:ExpressShipping>
+    <li:ScheduledDelivery>
+      <li:Date>2026-06-18</li:Date>
+      <li:TimeWindow>
+        <cd:WindowDate>2026-06-18</cd:WindowDate>
+        <cd:StartTime>09:00:00</cd:StartTime>
+        <cd:EndTime>17:00:00</cd:EndTime>
+      </li:TimeWindow>
+    </li:ScheduledDelivery>
+  </li:ShippingPreferences>
+
+  <!-- Notes -->
+  <li:Notes type="DeliveryPreference" author="LOGISTICS-COORD-123" date="2024-03-20T14:30:00Z">Customer prefers UPS for all shipments. Building has strict security - driver must check in at reception.</li:Notes>
+  <li:Notes type="SpecialHandling" author="LOGISTICS-MANAGER-456" date="2024-04-10T11:15:00Z">Premium customer - always use white glove delivery service. Ensure signature is obtained from recipient or authorized person.</li:Notes>
+  <li:Notes type="AccessInstructions" author="CUSTOMER-SERVICE-789" date="2025-06-15T09:45:00Z">Building access code: #5500. Valid Monday-Friday 6 AM - 8 PM. After hours deliveries require advance notice.</li:Notes>
+
+</li:LogisticsInfo>

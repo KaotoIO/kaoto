@@ -1,0 +1,1237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Stock Information Schema (Source Param4)
+  
+  Purpose: Comprehensive inventory and stock management schema with enterprise complexity
+  Demonstrates: Substitution groups for stock types, inventory tracking, warehouse management,
+                xs:extension, xs:restriction, xs:import patterns
+  
+  This schema represents complex inventory scenarios including multiple stock types,
+  warehouse locations, inventory movements, replenishment, and forecasting.
+  Follows enterprise patterns similar to FIXML/FPML/FMM.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:stock="http://www.kaoto.io/stock"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           xmlns:addr="http://www.kaoto.io/common/address"
+           xmlns:party="http://www.kaoto.io/common/party"
+           xmlns:fin="http://www.kaoto.io/common/financial"
+           xmlns:dt="http://www.kaoto.io/common/datetime"
+           targetNamespace="http://www.kaoto.io/stock"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- ================================================================ -->
+  <!-- IMPORTS - Cross-namespace references -->
+  <!-- ================================================================ -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common/common-types.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/address"
+             schemaLocation="common/common-address.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/party"
+             schemaLocation="common/common-party.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/financial"
+             schemaLocation="common/common-financial.xsd"/>
+  <xs:import namespace="http://www.kaoto.io/common/datetime"
+             schemaLocation="common/common-datetime.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Stock Information Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema demonstrates enterprise-level inventory management including:
+      - 4-level substitution groups for stock item types
+      - Complex warehouse and location management
+      - Inventory movements and transactions
+      - Replenishment and forecasting
+      - Multi-location inventory tracking
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/stock
+      
+      Total complexity: ~1750 lines
+      Demonstrates: Advanced inventory patterns with substitution groups
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- ROOT ELEMENT -->
+  <!-- ================================================================ -->
+
+  <xs:element name="StockInfo" type="stock:StockInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Root element for stock information document.
+        Contains complete inventory and stock details.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- ================================================================ -->
+  <!-- STOCK INFO TYPE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StockInfo_t">
+    <xs:annotation>
+      <xs:documentation>
+        Main stock information structure.
+        Contains inventory items, locations, movements, and forecasting.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="StockHeader" type="stock:StockHeader_t">
+        <xs:annotation>
+          <xs:documentation>Stock header with identification.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InventoryItems" type="stock:InventoryItems_t">
+        <xs:annotation>
+          <xs:documentation>
+            Collection of inventory items.
+            Demonstrates: Stock item type substitution group (4 levels).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WarehouseLocations" type="stock:WarehouseLocations_t">
+        <xs:annotation>
+          <xs:documentation>Warehouse and storage locations.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="InventoryMovements" type="stock:InventoryMovements_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Inventory movement transactions.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StockLevels" type="stock:StockLevels_t">
+        <xs:annotation>
+          <xs:documentation>Current stock levels across locations.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ReplenishmentPlanning" type="stock:ReplenishmentPlanning_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Replenishment planning and forecasting.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StockValuation" type="stock:StockValuation_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Stock valuation and costing.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="QualityControl" type="stock:QualityControl_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Quality control and inspection records.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StockAdjustments" type="stock:StockAdjustments_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Stock adjustments and corrections.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Notes" type="ct:Note_t" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Additional stock notes.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attributeGroup ref="ct:CommonAttributes"/>
+    <xs:attributeGroup ref="ct:AuditAttributes"/>
+    <xs:attribute name="version" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- STOCK HEADER -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StockHeader_t">
+    <xs:annotation>
+      <xs:documentation>Stock header with identification and metadata.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="StockID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique stock record identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StockNumber" type="ct:ReferenceNumber_t">
+        <xs:annotation>
+          <xs:documentation>Human-readable stock number.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SnapshotDate" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Date/time of stock snapshot.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="FiscalPeriod" type="stock:FiscalPeriod_t">
+        <xs:annotation>
+          <xs:documentation>Fiscal period for stock reporting.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Currency" type="ct:CurrencyCode_t">
+        <xs:annotation>
+          <xs:documentation>Currency for stock valuation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StockStatus" type="stock:StockStatus_t">
+        <xs:annotation>
+          <xs:documentation>Overall stock status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OrderReference" type="ct:UUID_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Reference to related order.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="LastStocktakeDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Date of last physical stocktake.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="NextStocktakeDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Scheduled date for next stocktake.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FiscalPeriod_t">
+    <xs:sequence>
+      <xs:element name="FiscalYear" type="xs:gYear"/>
+      <xs:element name="Period" type="xs:positiveInteger"/>
+      <xs:element name="StartDate" type="xs:date"/>
+      <xs:element name="EndDate" type="xs:date"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INVENTORY ITEMS COLLECTION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="InventoryItems_t">
+    <xs:annotation>
+      <xs:documentation>Collection of inventory items with various types.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element ref="stock:InventoryItem" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            Individual inventory item (uses substitution group).
+            Demonstrates: 4-level stock item type hierarchy.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="totalItems" type="xs:positiveInteger" use="optional"/>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INVENTORY ITEM TYPE SUBSTITUTION GROUP (4 LEVELS) -->
+  <!-- ================================================================ -->
+
+  <!-- Level 1: Abstract Base -->
+  <xs:element name="InventoryItem" type="stock:Abstract_InventoryItem_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>
+        Abstract base for inventory item substitution group.
+        Level 1 of 4-level substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="Abstract_InventoryItem_t" abstract="true">
+    <xs:annotation>
+      <xs:documentation>Abstract base type for all inventory items.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ItemID" type="ct:UUID_t">
+        <xs:annotation>
+          <xs:documentation>Unique item identifier.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="SKU" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Stock keeping unit.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ItemDescription" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Item description.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ItemCategory" type="stock:ItemCategory_t">
+        <xs:annotation>
+          <xs:documentation>Item category classification.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="UnitOfMeasure" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Unit of measure.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ItemStatus" type="stock:ItemStatus_t">
+        <xs:annotation>
+          <xs:documentation>Current item status.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Level 2: Standard Item -->
+  <xs:element name="StandardItem" substitutionGroup="stock:InventoryItem" type="stock:StandardItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        Standard inventory item.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="StandardItem_t">
+    <xs:annotation>
+      <xs:documentation>Standard inventory item with basic tracking.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:Abstract_InventoryItem_t">
+        <xs:sequence>
+          <xs:element name="Manufacturer" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Item manufacturer.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ManufacturerPartNumber" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Manufacturer part number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="UPC" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Universal product code.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Weight" type="ct:Weight_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Item weight.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="Dimensions" type="stock:Dimensions_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Item dimensions.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ReorderPoint" type="ct:Quantity_t">
+            <xs:annotation>
+              <xs:documentation>Reorder point quantity.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ReorderQuantity" type="ct:Quantity_t">
+            <xs:annotation>
+              <xs:documentation>Standard reorder quantity.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Serialized Item (extends StandardItem) -->
+  <xs:element name="SerializedItem" substitutionGroup="stock:StandardItem" type="stock:SerializedItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        Serialized inventory item with unique serial numbers.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="SerializedItem_t">
+    <xs:annotation>
+      <xs:documentation>Serialized item extending standard item.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:StandardItem_t">
+        <xs:sequence>
+          <xs:element name="SerialNumbers" type="stock:SerialNumbers_t">
+            <xs:annotation>
+              <xs:documentation>Serial numbers for this item.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SerialTracking" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Serial number tracking enabled.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="WarrantyTracking" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Warranty tracking by serial number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="WarrantyPeriod" type="dt:Duration_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Standard warranty period.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 4: High-Value Serialized Item (extends SerializedItem) -->
+  <xs:element name="HighValueSerializedItem" substitutionGroup="stock:SerializedItem" type="stock:HighValueSerializedItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        High-value serialized item with enhanced tracking.
+        Level 4 of substitution hierarchy (deepest level).
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="HighValueSerializedItem_t">
+    <xs:annotation>
+      <xs:documentation>High-value item with enhanced security and tracking.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:SerializedItem_t">
+        <xs:sequence>
+          <xs:element name="InsuranceRequired" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Insurance required for this item.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="InsuredValue" type="ct:MonetaryAmount_t">
+            <xs:annotation>
+              <xs:documentation>Insured value per unit.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SecurityLevel" type="stock:SecurityLevel_t">
+            <xs:annotation>
+              <xs:documentation>Security level required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RestrictedAccess" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Restricted access required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AuditFrequency" type="stock:AuditFrequency_t">
+            <xs:annotation>
+              <xs:documentation>Required audit frequency.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Lot-Tracked Item (parallel branch) -->
+  <xs:element name="LotTrackedItem" substitutionGroup="stock:InventoryItem" type="stock:LotTrackedItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        Lot/batch tracked inventory item.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="LotTrackedItem_t">
+    <xs:annotation>
+      <xs:documentation>Lot-tracked item for batch management.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:Abstract_InventoryItem_t">
+        <xs:sequence>
+          <xs:element name="LotNumbers" type="stock:LotNumbers_t">
+            <xs:annotation>
+              <xs:documentation>Lot/batch numbers.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="LotTracking" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Lot tracking enabled.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ShelfLife" type="dt:Duration_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Standard shelf life.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpiryTracking" type="xs:boolean" default="false">
+            <xs:annotation>
+              <xs:documentation>Expiry date tracking enabled.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Perishable Item (extends LotTrackedItem) -->
+  <xs:element name="PerishableItem" substitutionGroup="stock:LotTrackedItem" type="stock:PerishableItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        Perishable item with expiry tracking.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="PerishableItem_t">
+    <xs:annotation>
+      <xs:documentation>Perishable item requiring temperature control.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:LotTrackedItem_t">
+        <xs:sequence>
+          <xs:element name="StorageTemperature" type="stock:TemperatureRange_t">
+            <xs:annotation>
+              <xs:documentation>Required storage temperature range.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="TemperatureMonitoring" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Temperature monitoring required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="FIFO" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>First-in-first-out rotation required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ExpiryAlertDays" type="xs:positiveInteger">
+            <xs:annotation>
+              <xs:documentation>Days before expiry to trigger alert.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 2: Hazardous Item (parallel branch) -->
+  <xs:element name="HazardousItem" substitutionGroup="stock:InventoryItem" type="stock:HazardousItem_t">
+    <xs:annotation>
+      <xs:documentation>
+        Hazardous material item.
+        Level 2 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="HazardousItem_t">
+    <xs:annotation>
+      <xs:documentation>Hazardous item requiring special handling.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:Abstract_InventoryItem_t">
+        <xs:sequence>
+          <xs:element name="UNNumber" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>UN hazard identification number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="HazardClass" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Hazard classification.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="PackingGroup" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Packing group.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ProperShippingName" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Proper shipping name.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SafetyDataSheet" type="ct:URL_t" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>Link to safety data sheet.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="SpecialHandling" type="xs:string">
+            <xs:annotation>
+              <xs:documentation>Special handling requirements.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="StorageRestrictions" type="stock:StorageRestrictions_t">
+            <xs:annotation>
+              <xs:documentation>Storage restrictions and requirements.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- Level 3: Controlled Substance (extends HazardousItem) -->
+  <xs:element name="ControlledSubstance" substitutionGroup="stock:HazardousItem" type="stock:ControlledSubstance_t">
+    <xs:annotation>
+      <xs:documentation>
+        Controlled substance with regulatory tracking.
+        Level 3 of substitution hierarchy.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="ControlledSubstance_t">
+    <xs:annotation>
+      <xs:documentation>Controlled substance requiring regulatory compliance.</xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="stock:HazardousItem_t">
+        <xs:sequence>
+          <xs:element name="ControlSchedule" type="stock:ControlSchedule_t">
+            <xs:annotation>
+              <xs:documentation>Controlled substance schedule.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="DEANumber" type="xs:string" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>DEA registration number.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="RegulatoryTracking" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Regulatory tracking required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="ChainOfCustody" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Chain of custody documentation required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="AuditTrail" type="xs:boolean" default="true">
+            <xs:annotation>
+              <xs:documentation>Complete audit trail required.</xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SUPPORTING TYPES FOR INVENTORY ITEMS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Dimensions_t">
+    <xs:sequence>
+      <xs:element name="Length" type="ct:Dimension_t"/>
+      <xs:element name="Width" type="ct:Dimension_t"/>
+      <xs:element name="Height" type="ct:Dimension_t"/>
+      <xs:element name="DimensionUnit" type="ct:DimensionUnit_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SerialNumbers_t">
+    <xs:sequence>
+      <xs:element name="SerialNumber" type="stock:SerialNumber_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SerialNumber_t">
+    <xs:sequence>
+      <xs:element name="SerialID" type="xs:string"/>
+      <xs:element name="ManufactureDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="WarrantyExpiry" type="xs:date" minOccurs="0"/>
+      <xs:element name="LocationCode" type="xs:string" minOccurs="0"/>
+      <xs:element name="Status" type="stock:SerialStatus_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LotNumbers_t">
+    <xs:sequence>
+      <xs:element name="LotNumber" type="stock:LotNumber_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LotNumber_t">
+    <xs:sequence>
+      <xs:element name="LotID" type="xs:string"/>
+      <xs:element name="ManufactureDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="LocationCode" type="xs:string" minOccurs="0"/>
+      <xs:element name="Status" type="stock:LotStatus_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TemperatureRange_t">
+    <xs:sequence>
+      <xs:element name="MinTemperature" type="xs:decimal"/>
+      <xs:element name="MaxTemperature" type="xs:decimal"/>
+      <xs:element name="TemperatureUnit" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StorageRestrictions_t">
+    <xs:sequence>
+      <xs:element name="SeparationRequired" type="xs:boolean" default="true"/>
+      <xs:element name="IncompatibleWith" type="stock:IncompatibleMaterials_t" minOccurs="0"/>
+      <xs:element name="VentilationRequired" type="xs:boolean" default="false"/>
+      <xs:element name="FireSuppression" type="xs:string" minOccurs="0"/>
+      <xs:element name="MaxStackHeight" type="ct:Dimension_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="IncompatibleMaterials_t">
+    <xs:sequence>
+      <xs:element name="Material" type="xs:string" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- WAREHOUSE LOCATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="WarehouseLocations_t">
+    <xs:sequence>
+      <xs:element name="Warehouse" type="stock:Warehouse_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Warehouse_t">
+    <xs:annotation>
+      <xs:documentation>Warehouse with 20+ fields for complete location management.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="WarehouseID" type="xs:string"/>
+      <xs:element name="WarehouseName" type="xs:string"/>
+      <xs:element name="WarehouseCode" type="xs:string"/>
+      <xs:element ref="addr:Address"/>
+      <xs:element name="WarehouseType" type="stock:WarehouseType_t"/>
+      <xs:element name="WarehouseStatus" type="stock:WarehouseStatus_t"/>
+      <xs:element name="TotalCapacity" type="ct:Quantity_t"/>
+      <xs:element name="AvailableCapacity" type="ct:Quantity_t"/>
+      <xs:element name="CapacityUnit" type="xs:string"/>
+      <xs:element name="StorageZones" type="stock:StorageZones_t"/>
+      <xs:element name="OperatingHours" type="stock:OperatingHours_t"/>
+      <xs:element name="WarehouseManager" type="party:Person_t" minOccurs="0"/>
+      <xs:element name="ContactInfo" type="party:ContactInfo_t"/>
+      <xs:element name="ClimateControlled" type="xs:boolean" default="false"/>
+      <xs:element name="SecurityLevel" type="stock:SecurityLevel_t"/>
+      <xs:element name="CertificationsCompliance" type="stock:CertificationsCompliance_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StorageZones_t">
+    <xs:sequence>
+      <xs:element name="Zone" type="stock:StorageZone_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StorageZone_t">
+    <xs:sequence>
+      <xs:element name="ZoneID" type="xs:string"/>
+      <xs:element name="ZoneName" type="xs:string"/>
+      <xs:element name="ZoneType" type="stock:ZoneType_t"/>
+      <xs:element name="Capacity" type="ct:Quantity_t"/>
+      <xs:element name="CurrentUtilization" type="ct:Percentage_t"/>
+      <xs:element name="TemperatureControlled" type="xs:boolean" default="false"/>
+      <xs:element name="TemperatureRange" type="stock:TemperatureRange_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OperatingHours_t">
+    <xs:sequence>
+      <xs:element name="DaySchedule" type="stock:DaySchedule_t" maxOccurs="7"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DaySchedule_t">
+    <xs:sequence>
+      <xs:element name="DayOfWeek" type="xs:string"/>
+      <xs:element name="OpenTime" type="xs:time"/>
+      <xs:element name="CloseTime" type="xs:time"/>
+      <xs:element name="Closed" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CertificationsCompliance_t">
+    <xs:sequence>
+      <xs:element name="Certification" type="stock:Certification_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Certification_t">
+    <xs:sequence>
+      <xs:element name="CertificationType" type="xs:string"/>
+      <xs:element name="CertificationNumber" type="xs:string"/>
+      <xs:element name="IssuingBody" type="xs:string"/>
+      <xs:element name="IssueDate" type="xs:date"/>
+      <xs:element name="ExpiryDate" type="xs:date" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- INVENTORY MOVEMENTS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="InventoryMovements_t">
+    <xs:sequence>
+      <xs:element name="Movement" type="stock:InventoryMovement_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="InventoryMovement_t">
+    <xs:sequence>
+      <xs:element name="MovementID" type="ct:UUID_t"/>
+      <xs:element name="MovementType" type="stock:MovementType_t"/>
+      <xs:element name="MovementDate" type="xs:dateTime"/>
+      <xs:element name="ItemID" type="ct:UUID_t"/>
+      <xs:element name="SKU" type="xs:string"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="FromLocation" type="xs:string" minOccurs="0"/>
+      <xs:element name="ToLocation" type="xs:string" minOccurs="0"/>
+      <xs:element name="ReasonCode" type="stock:MovementReasonCode_t"/>
+      <xs:element name="Reference" type="xs:string" minOccurs="0"/>
+      <xs:element name="PerformedBy" type="party:Person_t"/>
+      <xs:element name="ApprovedBy" type="party:Person_t" minOccurs="0"/>
+      <xs:element name="Notes" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- STOCK LEVELS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StockLevels_t">
+    <xs:sequence>
+      <xs:element name="StockLevel" type="stock:StockLevel_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StockLevel_t">
+    <xs:sequence>
+      <xs:element name="ItemID" type="ct:UUID_t"/>
+      <xs:element name="SKU" type="xs:string"/>
+      <xs:element name="LocationCode" type="xs:string"/>
+      <xs:element name="OnHandQuantity" type="ct:Quantity_t"/>
+      <xs:element name="AvailableQuantity" type="ct:Quantity_t"/>
+      <xs:element name="AllocatedQuantity" type="ct:Quantity_t"/>
+      <xs:element name="ReservedQuantity" type="ct:Quantity_t"/>
+      <xs:element name="InTransitQuantity" type="ct:Quantity_t" minOccurs="0"/>
+      <xs:element name="BackorderedQuantity" type="ct:Quantity_t" minOccurs="0"/>
+      <xs:element name="DamagedQuantity" type="ct:Quantity_t" minOccurs="0"/>
+      <xs:element name="QuarantinedQuantity" type="ct:Quantity_t" minOccurs="0"/>
+      <xs:element name="MinimumLevel" type="ct:Quantity_t"/>
+      <xs:element name="MaximumLevel" type="ct:Quantity_t"/>
+      <xs:element name="ReorderPoint" type="ct:Quantity_t"/>
+      <xs:element name="SafetyStock" type="ct:Quantity_t"/>
+      <xs:element name="LastCountDate" type="xs:dateTime" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- REPLENISHMENT PLANNING -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="ReplenishmentPlanning_t">
+    <xs:sequence>
+      <xs:element name="ReplenishmentPlan" type="stock:ReplenishmentPlan_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReplenishmentPlan_t">
+    <xs:sequence>
+      <xs:element name="PlanID" type="ct:UUID_t"/>
+      <xs:element name="ItemID" type="ct:UUID_t"/>
+      <xs:element name="SKU" type="xs:string"/>
+      <xs:element name="LocationCode" type="xs:string"/>
+      <xs:element name="CurrentStock" type="ct:Quantity_t"/>
+      <xs:element name="ForecastedDemand" type="stock:ForecastedDemand_t"/>
+      <xs:element name="RecommendedOrderQuantity" type="ct:Quantity_t"/>
+      <xs:element name="RecommendedOrderDate" type="xs:date"/>
+      <xs:element name="LeadTime" type="dt:Duration_t"/>
+      <xs:element name="SupplierID" type="xs:string" minOccurs="0"/>
+      <xs:element name="EstimatedCost" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="PlanStatus" type="stock:PlanStatus_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ForecastedDemand_t">
+    <xs:sequence>
+      <xs:element name="Period" type="stock:ForecastPeriod_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ForecastPeriod_t">
+    <xs:sequence>
+      <xs:element name="StartDate" type="xs:date"/>
+      <xs:element name="EndDate" type="xs:date"/>
+      <xs:element name="ForecastedQuantity" type="ct:Quantity_t"/>
+      <xs:element name="ConfidenceLevel" type="ct:Percentage_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- STOCK VALUATION -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StockValuation_t">
+    <xs:sequence>
+      <xs:element name="ValuationMethod" type="stock:ValuationMethod_t"/>
+      <xs:element name="ValuationDate" type="xs:date"/>
+      <xs:element name="Currency" type="ct:CurrencyCode_t"/>
+      <xs:element name="ItemValuations" type="stock:ItemValuations_t"/>
+      <xs:element name="TotalInventoryValue" type="ct:MonetaryAmount_t"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ItemValuations_t">
+    <xs:sequence>
+      <xs:element name="ItemValuation" type="stock:ItemValuation_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ItemValuation_t">
+    <xs:sequence>
+      <xs:element name="ItemID" type="ct:UUID_t"/>
+      <xs:element name="SKU" type="xs:string"/>
+      <xs:element name="Quantity" type="ct:Quantity_t"/>
+      <xs:element name="UnitCost" type="ct:MonetaryAmount_t"/>
+      <xs:element name="TotalValue" type="ct:MonetaryAmount_t"/>
+      <xs:element name="LastPurchasePrice" type="ct:MonetaryAmount_t" minOccurs="0"/>
+      <xs:element name="AverageCost" type="ct:MonetaryAmount_t" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- QUALITY CONTROL -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="QualityControl_t">
+    <xs:sequence>
+      <xs:element name="Inspection" type="stock:QualityInspection_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="QualityInspection_t">
+    <xs:sequence>
+      <xs:element name="InspectionID" type="ct:UUID_t"/>
+      <xs:element name="InspectionDate" type="xs:dateTime"/>
+      <xs:element name="InspectionType" type="stock:InspectionType_t"/>
+      <xs:element name="ItemID" type="ct:UUID_t"/>
+      <xs:element name="SKU" type="xs:string"/>
+      <xs:element name="LotNumber" type="xs:string" minOccurs="0"/>
+      <xs:element name="InspectedQuantity" type="ct:Quantity_t"/>
+      <xs:element name="InspectionResult" type="stock:InspectionResult_t"/>
+      <xs:element name="DefectsFound" type="ct:Quantity_t" minOccurs="0"/>
+      <xs:element name="InspectedBy" type="party:Person_t"/>
+      <xs:element name="Notes" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- STOCK ADJUSTMENTS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="StockAdjustments_t">
+    <xs:sequence>
+      <xs:element name="Adjustment" type="stock:StockAdjustment_t" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StockAdjustment_t">
+    <xs:sequence>
+      <xs:element name="AdjustmentID" type="ct:UUID_t"/>
+      <xs:element name="AdjustmentDate" type="xs:dateTime"/>
+      <xs:element name="AdjustmentType" type="stock:AdjustmentType_t"/>
+      <xs:element name="ItemID" type="ct:UUID_t"/>
+      <xs:element name="SKU" type="xs:string"/>
+      <xs:element name="LocationCode" type="xs:string"/>
+      <xs:element name="QuantityAdjustment" type="xs:decimal"/>
+      <xs:element name="ReasonCode" type="stock:AdjustmentReasonCode_t"/>
+      <xs:element name="Reference" type="xs:string" minOccurs="0"/>
+      <xs:element name="PerformedBy" type="party:Person_t"/>
+      <xs:element name="ApprovedBy" type="party:Person_t" minOccurs="0"/>
+      <xs:element name="Notes" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS (100+ total values) -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="StockStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Inactive"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Locked"/>
+      <xs:enumeration value="Archived"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ItemCategory_t">
+    <xs:annotation>
+      <xs:documentation>Item category (20 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RawMaterial"/>
+      <xs:enumeration value="Component"/>
+      <xs:enumeration value="SubAssembly"/>
+      <xs:enumeration value="FinishedGood"/>
+      <xs:enumeration value="Packaging"/>
+      <xs:enumeration value="Consumable"/>
+      <xs:enumeration value="Tool"/>
+      <xs:enumeration value="Equipment"/>
+      <xs:enumeration value="Spare"/>
+      <xs:enumeration value="MRO"/>
+      <xs:enumeration value="Chemical"/>
+      <xs:enumeration value="Pharmaceutical"/>
+      <xs:enumeration value="Food"/>
+      <xs:enumeration value="Beverage"/>
+      <xs:enumeration value="Textile"/>
+      <xs:enumeration value="Electronic"/>
+      <xs:enumeration value="Mechanical"/>
+      <xs:enumeration value="Software"/>
+      <xs:enumeration value="Service"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ItemStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Active"/>
+      <xs:enumeration value="Inactive"/>
+      <xs:enumeration value="Discontinued"/>
+      <xs:enumeration value="Obsolete"/>
+      <xs:enumeration value="PendingApproval"/>
+      <xs:enumeration value="Blocked"/>
+      <xs:enumeration value="Quarantined"/>
+      <xs:enumeration value="Recalled"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SerialStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Available"/>
+      <xs:enumeration value="Allocated"/>
+      <xs:enumeration value="Sold"/>
+      <xs:enumeration value="InTransit"/>
+      <xs:enumeration value="Damaged"/>
+      <xs:enumeration value="Returned"/>
+      <xs:enumeration value="Scrapped"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LotStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Available"/>
+      <xs:enumeration value="Allocated"/>
+      <xs:enumeration value="Quarantined"/>
+      <xs:enumeration value="Expired"/>
+      <xs:enumeration value="Recalled"/>
+      <xs:enumeration value="Disposed"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SecurityLevel_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Low"/>
+      <xs:enumeration value="Medium"/>
+      <xs:enumeration value="High"/>
+      <xs:enumeration value="Critical"/>
+      <xs:enumeration value="Maximum"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AuditFrequency_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Daily"/>
+      <xs:enumeration value="Weekly"/>
+      <xs:enumeration value="Monthly"/>
+      <xs:enumeration value="Quarterly"/>
+      <xs:enumeration value="Annual"/>
+      <xs:enumeration value="AsNeeded"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ControlSchedule_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Schedule1"/>
+      <xs:enumeration value="Schedule2"/>
+      <xs:enumeration value="Schedule3"/>
+      <xs:enumeration value="Schedule4"/>
+      <xs:enumeration value="Schedule5"/>
+      <xs:enumeration value="Unscheduled"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="WarehouseType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Distribution"/>
+      <xs:enumeration value="Manufacturing"/>
+      <xs:enumeration value="Retail"/>
+      <xs:enumeration value="Fulfillment"/>
+      <xs:enumeration value="CrossDock"/>
+      <xs:enumeration value="Cold"/>
+      <xs:enumeration value="Bonded"/>
+      <xs:enumeration value="Hazmat"/>
+      <xs:enumeration value="ThirdParty"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="WarehouseStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Operational"/>
+      <xs:enumeration value="Maintenance"/>
+      <xs:enumeration value="Closed"/>
+      <xs:enumeration value="Seasonal"/>
+      <xs:enumeration value="Emergency"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ZoneType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Receiving"/>
+      <xs:enumeration value="Storage"/>
+      <xs:enumeration value="Picking"/>
+      <xs:enumeration value="Packing"/>
+      <xs:enumeration value="Shipping"/>
+      <xs:enumeration value="Quarantine"/>
+      <xs:enumeration value="Returns"/>
+      <xs:enumeration value="Hazmat"/>
+      <xs:enumeration value="Refrigerated"/>
+      <xs:enumeration value="Frozen"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MovementType_t">
+    <xs:annotation>
+      <xs:documentation>Inventory movement type (20 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Receipt"/>
+      <xs:enumeration value="Issue"/>
+      <xs:enumeration value="Transfer"/>
+      <xs:enumeration value="Adjustment"/>
+      <xs:enumeration value="Return"/>
+      <xs:enumeration value="Sale"/>
+      <xs:enumeration value="Purchase"/>
+      <xs:enumeration value="Production"/>
+      <xs:enumeration value="Consumption"/>
+      <xs:enumeration value="Scrap"/>
+      <xs:enumeration value="Damage"/>
+      <xs:enumeration value="Loss"/>
+      <xs:enumeration value="Found"/>
+      <xs:enumeration value="Cycle"/>
+      <xs:enumeration value="Quarantine"/>
+      <xs:enumeration value="Release"/>
+      <xs:enumeration value="Reserve"/>
+      <xs:enumeration value="Allocate"/>
+      <xs:enumeration value="Pick"/>
+      <xs:enumeration value="Pack"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="MovementReasonCode_t">
+    <xs:annotation>
+      <xs:documentation>Movement reason codes (15 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CustomerOrder"/>
+      <xs:enumeration value="PurchaseOrder"/>
+      <xs:enumeration value="TransferOrder"/>
+      <xs:enumeration value="ProductionOrder"/>
+      <xs:enumeration value="QualityIssue"/>
+      <xs:enumeration value="Damage"/>
+      <xs:enumeration value="Expiry"/>
+      <xs:enumeration value="Obsolescence"/>
+      <xs:enumeration value="Theft"/>
+      <xs:enumeration value="CountDiscrepancy"/>
+      <xs:enumeration value="SystemError"/>
+      <xs:enumeration value="Recall"/>
+      <xs:enumeration value="Rebalancing"/>
+      <xs:enumeration value="Consolidation"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PlanStatus_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Draft"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Approved"/>
+      <xs:enumeration value="InProgress"/>
+      <xs:enumeration value="Completed"/>
+      <xs:enumeration value="Cancelled"/>
+      <xs:enumeration value="OnHold"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ValuationMethod_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FIFO"/>
+      <xs:enumeration value="LIFO"/>
+      <xs:enumeration value="WeightedAverage"/>
+      <xs:enumeration value="StandardCost"/>
+      <xs:enumeration value="ActualCost"/>
+      <xs:enumeration value="MovingAverage"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InspectionType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Receiving"/>
+      <xs:enumeration value="InProcess"/>
+      <xs:enumeration value="Final"/>
+      <xs:enumeration value="Random"/>
+      <xs:enumeration value="Audit"/>
+      <xs:enumeration value="Complaint"/>
+      <xs:enumeration value="Recall"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="InspectionResult_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Passed"/>
+      <xs:enumeration value="Failed"/>
+      <xs:enumeration value="PartiallyPassed"/>
+      <xs:enumeration value="Pending"/>
+      <xs:enumeration value="Waived"/>
+      <xs:enumeration value="Rejected"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AdjustmentType_t">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Increase"/>
+      <xs:enumeration value="Decrease"/>
+      <xs:enumeration value="Correction"/>
+      <xs:enumeration value="Write-Off"/>
+      <xs:enumeration value="Write-On"/>
+      <xs:enumeration value="Revaluation"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AdjustmentReasonCode_t">
+    <xs:annotation>
+      <xs:documentation>Adjustment reason codes (15 values).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="PhysicalCount"/>
+      <xs:enumeration value="CycleCount"/>
+      <xs:enumeration value="Damage"/>
+      <xs:enumeration value="Expiry"/>
+      <xs:enumeration value="Obsolescence"/>
+      <xs:enumeration value="Theft"/>
+      <xs:enumeration value="Loss"/>
+      <xs:enumeration value="Found"/>
+      <xs:enumeration value="SystemError"/>
+      <xs:enumeration value="DataCorrection"/>
+      <xs:enumeration value="Recall"/>
+      <xs:enumeration value="QualityIssue"/>
+      <xs:enumeration value="Shrinkage"/>
+      <xs:enumeration value="Breakage"/>
+      <xs:enumeration value="Other"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

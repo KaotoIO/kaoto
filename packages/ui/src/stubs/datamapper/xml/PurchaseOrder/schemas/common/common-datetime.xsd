@@ -1,0 +1,582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Common DateTime Schema
+  
+  Purpose: Shared date/time types, patterns, and scheduling structures
+  Demonstrates: xs:restriction patterns, complex date/time handling, business logic
+  
+  This schema provides date/time definitions used across all main schemas.
+  Follows enterprise patterns similar to FIXML/FPML/FMM for temporal data handling.
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dt="http://www.kaoto.io/common/datetime"
+           xmlns:ct="http://www.kaoto.io/common/types"
+           targetNamespace="http://www.kaoto.io/common/datetime"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+  <!-- Import common types -->
+  <xs:import namespace="http://www.kaoto.io/common/types"
+             schemaLocation="common-types.xsd"/>
+
+  <!-- ================================================================ -->
+  <!-- DOCUMENTATION -->
+  <!-- ================================================================ -->
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+      Common DateTime Schema for Kaoto DataMapper Enterprise Testing
+      
+      This schema provides date/time type definitions including:
+      - Date and time patterns with validation
+      - Business day calculations
+      - Time zone handling
+      - Schedule and recurrence patterns
+      - Duration and period types
+      - Holiday calendars
+      
+      Version: 1.0
+      Namespace: http://www.kaoto.io/common/datetime
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- ================================================================ -->
+  <!-- DATE/TIME RANGE TYPES -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="DateRange_t">
+    <xs:annotation>
+      <xs:documentation>Date range with start and end dates.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="StartDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Start date of the range (inclusive).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>End date of the range (inclusive).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="inclusive" type="xs:boolean" default="true">
+      <xs:annotation>
+        <xs:documentation>Whether the range is inclusive of end date.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="DateTimeRange_t">
+    <xs:annotation>
+      <xs:documentation>Date/time range with start and end timestamps.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="StartDateTime" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>Start date/time of the range.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndDateTime" type="xs:dateTime">
+        <xs:annotation>
+          <xs:documentation>End date/time of the range.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TimeZone" type="dt:TimeZone_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time zone for the range.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TimeWindow_t">
+    <xs:annotation>
+      <xs:documentation>Time window for delivery or service.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="WindowDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Date of the time window.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StartTime" type="xs:time">
+        <xs:annotation>
+          <xs:documentation>Start time of the window.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndTime" type="xs:time">
+        <xs:annotation>
+          <xs:documentation>End time of the window.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="TimeZone" type="dt:TimeZone_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time zone for the window.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- BUSINESS DAY CALCULATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="BusinessDayCalculation_t">
+    <xs:annotation>
+      <xs:documentation>
+        Business day calculation parameters.
+        Used for calculating delivery dates, payment due dates, etc.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="BaseDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Starting date for calculation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="BusinessDays" type="xs:positiveInteger">
+        <xs:annotation>
+          <xs:documentation>Number of business days to add.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Calendar" type="dt:BusinessCalendar_t">
+        <xs:annotation>
+          <xs:documentation>Business calendar to use for calculation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="CalculatedDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Resulting date after calculation.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BusinessCalendar_t">
+    <xs:annotation>
+      <xs:documentation>Business calendar defining working days and holidays.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CalendarName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Name of the calendar (e.g., "US Federal", "UK Banking").</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Country" type="ct:CountryCode_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Country for the calendar.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="WorkingDays" type="dt:WorkingDays_t">
+        <xs:annotation>
+          <xs:documentation>Definition of working days.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Holidays" type="dt:HolidayList_t" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>List of holidays.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WorkingDays_t">
+    <xs:annotation>
+      <xs:documentation>Definition of working days in a week.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Monday" type="xs:boolean" default="true"/>
+      <xs:element name="Tuesday" type="xs:boolean" default="true"/>
+      <xs:element name="Wednesday" type="xs:boolean" default="true"/>
+      <xs:element name="Thursday" type="xs:boolean" default="true"/>
+      <xs:element name="Friday" type="xs:boolean" default="true"/>
+      <xs:element name="Saturday" type="xs:boolean" default="false"/>
+      <xs:element name="Sunday" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="HolidayList_t">
+    <xs:annotation>
+      <xs:documentation>List of holidays.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Holiday" type="dt:Holiday_t" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>Individual holiday definition.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Holiday_t">
+    <xs:annotation>
+      <xs:documentation>Holiday definition.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="HolidayName" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Name of the holiday.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="HolidayDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Date of the holiday.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="IsRecurring" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether the holiday recurs annually.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SCHEDULE AND RECURRENCE -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Schedule_t">
+    <xs:annotation>
+      <xs:documentation>
+        Schedule definition with recurrence pattern.
+        Demonstrates: Complex choice construct for different schedule types.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="ScheduleName" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Name/description of the schedule.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="StartDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Start date of the schedule.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="EndDate" type="xs:date" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>End date of the schedule (optional for indefinite).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="OneTime" type="dt:OneTimeSchedule_t">
+          <xs:annotation>
+            <xs:documentation>One-time occurrence.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Daily" type="dt:DailySchedule_t">
+          <xs:annotation>
+            <xs:documentation>Daily recurrence.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Weekly" type="dt:WeeklySchedule_t">
+          <xs:annotation>
+            <xs:documentation>Weekly recurrence.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Monthly" type="dt:MonthlySchedule_t">
+          <xs:annotation>
+            <xs:documentation>Monthly recurrence.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Yearly" type="dt:YearlySchedule_t">
+          <xs:annotation>
+            <xs:documentation>Yearly recurrence.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="Custom" type="dt:CustomSchedule_t">
+          <xs:annotation>
+            <xs:documentation>Custom recurrence pattern.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OneTimeSchedule_t">
+    <xs:annotation>
+      <xs:documentation>One-time schedule (no recurrence).</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="OccurrenceDate" type="xs:date">
+        <xs:annotation>
+          <xs:documentation>Date of occurrence.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OccurrenceTime" type="xs:time" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time of occurrence (optional).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DailySchedule_t">
+    <xs:annotation>
+      <xs:documentation>Daily recurrence schedule.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="IntervalDays" type="xs:positiveInteger" default="1">
+        <xs:annotation>
+          <xs:documentation>Interval in days (1 = every day, 2 = every other day, etc.).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OccurrenceTime" type="xs:time" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time of day for occurrence.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="ExcludeWeekends" type="xs:boolean" default="false">
+        <xs:annotation>
+          <xs:documentation>Whether to exclude weekends.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="WeeklySchedule_t">
+    <xs:annotation>
+      <xs:documentation>Weekly recurrence schedule.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="IntervalWeeks" type="xs:positiveInteger" default="1">
+        <xs:annotation>
+          <xs:documentation>Interval in weeks (1 = every week, 2 = every other week, etc.).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DaysOfWeek" type="dt:DaysOfWeek_t">
+        <xs:annotation>
+          <xs:documentation>Days of the week for occurrence.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OccurrenceTime" type="xs:time" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time of day for occurrence.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MonthlySchedule_t">
+    <xs:annotation>
+      <xs:documentation>Monthly recurrence schedule.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="IntervalMonths" type="xs:positiveInteger" default="1">
+        <xs:annotation>
+          <xs:documentation>Interval in months.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="DayOfMonth" type="dt:DayOfMonth_t">
+          <xs:annotation>
+            <xs:documentation>Specific day of the month (1-31).</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="RelativeDay" type="dt:RelativeDayOfMonth_t">
+          <xs:annotation>
+            <xs:documentation>Relative day (e.g., "First Monday", "Last Friday").</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+      </xs:choice>
+      <xs:element name="OccurrenceTime" type="xs:time" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time of day for occurrence.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="YearlySchedule_t">
+    <xs:annotation>
+      <xs:documentation>Yearly recurrence schedule.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="IntervalYears" type="xs:positiveInteger" default="1">
+        <xs:annotation>
+          <xs:documentation>Interval in years.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Month" type="dt:Month_t">
+        <xs:annotation>
+          <xs:documentation>Month of the year.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DayOfMonth" type="dt:DayOfMonth_t">
+        <xs:annotation>
+          <xs:documentation>Day of the month.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="OccurrenceTime" type="xs:time" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Time of day for occurrence.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CustomSchedule_t">
+    <xs:annotation>
+      <xs:documentation>Custom recurrence pattern.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="CronExpression" type="xs:string" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>Cron expression for complex patterns.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Description" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Human-readable description of the pattern.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DaysOfWeek_t">
+    <xs:annotation>
+      <xs:documentation>Selection of days of the week.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Monday" type="xs:boolean" default="false"/>
+      <xs:element name="Tuesday" type="xs:boolean" default="false"/>
+      <xs:element name="Wednesday" type="xs:boolean" default="false"/>
+      <xs:element name="Thursday" type="xs:boolean" default="false"/>
+      <xs:element name="Friday" type="xs:boolean" default="false"/>
+      <xs:element name="Saturday" type="xs:boolean" default="false"/>
+      <xs:element name="Sunday" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RelativeDayOfMonth_t">
+    <xs:annotation>
+      <xs:documentation>Relative day of month (e.g., "First Monday").</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Occurrence" type="dt:OccurrenceInMonth_t">
+        <xs:annotation>
+          <xs:documentation>Which occurrence (First, Second, Third, Fourth, Last).</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="DayOfWeek" type="dt:DayOfWeek_t">
+        <xs:annotation>
+          <xs:documentation>Day of the week.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- DURATION AND PERIOD -->
+  <!-- ================================================================ -->
+
+  <xs:complexType name="Duration_t">
+    <xs:annotation>
+      <xs:documentation>Duration with specific units.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="Value" type="xs:decimal">
+        <xs:annotation>
+          <xs:documentation>Duration value.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="Unit" type="dt:DurationUnit_t">
+        <xs:annotation>
+          <xs:documentation>Unit of duration.</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- ================================================================ -->
+  <!-- SIMPLE TYPE RESTRICTIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="DayOfMonth_t">
+    <xs:annotation>
+      <xs:documentation>Day of month (1-31).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:positiveInteger">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="31"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TimeZone_t">
+    <xs:annotation>
+      <xs:documentation>Time zone identifier (IANA format).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z]+/[A-Za-z_]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- ================================================================ -->
+  <!-- ENUMERATIONS -->
+  <!-- ================================================================ -->
+
+  <xs:simpleType name="DayOfWeek_t">
+    <xs:annotation>
+      <xs:documentation>Day of the week.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Monday"><xs:annotation><xs:documentation>Monday</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Tuesday"><xs:annotation><xs:documentation>Tuesday</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Wednesday"><xs:annotation><xs:documentation>Wednesday</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Thursday"><xs:annotation><xs:documentation>Thursday</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Friday"><xs:annotation><xs:documentation>Friday</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Saturday"><xs:annotation><xs:documentation>Saturday</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Sunday"><xs:annotation><xs:documentation>Sunday</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Month_t">
+    <xs:annotation>
+      <xs:documentation>Month of the year.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="January"><xs:annotation><xs:documentation>January</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="February"><xs:annotation><xs:documentation>February</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="March"><xs:annotation><xs:documentation>March</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="April"><xs:annotation><xs:documentation>April</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="May"><xs:annotation><xs:documentation>May</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="June"><xs:annotation><xs:documentation>June</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="July"><xs:annotation><xs:documentation>July</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="August"><xs:annotation><xs:documentation>August</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="September"><xs:annotation><xs:documentation>September</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="October"><xs:annotation><xs:documentation>October</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="November"><xs:annotation><xs:documentation>November</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="December"><xs:annotation><xs:documentation>December</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="OccurrenceInMonth_t">
+    <xs:annotation>
+      <xs:documentation>Occurrence within a month (First, Second, etc.).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="First"><xs:annotation><xs:documentation>First occurrence</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Second"><xs:annotation><xs:documentation>Second occurrence</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Third"><xs:annotation><xs:documentation>Third occurrence</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Fourth"><xs:annotation><xs:documentation>Fourth occurrence</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Last"><xs:annotation><xs:documentation>Last occurrence</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DurationUnit_t">
+    <xs:annotation>
+      <xs:documentation>Unit of duration measurement.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Seconds"><xs:annotation><xs:documentation>Seconds</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Minutes"><xs:annotation><xs:documentation>Minutes</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Hours"><xs:annotation><xs:documentation>Hours</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Days"><xs:annotation><xs:documentation>Days</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Weeks"><xs:annotation><xs:documentation>Weeks</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Months"><xs:annotation><xs:documentation>Months</xs:documentation></xs:annotation></xs:enumeration>
+      <xs:enumeration value="Years"><xs:annotation><xs:documentation>Years</xs:documentation></xs:annotation></xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
