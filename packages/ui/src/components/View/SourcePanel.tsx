@@ -125,6 +125,7 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
               components={virtuosoComponents}
               itemContent={renderSourceItem}
               overscan={VIRTUOSO_OVERSCAN}
+              totalListHeightChanged={syncConnectionPorts}
             />
           )}
         </ExpansionPanel>

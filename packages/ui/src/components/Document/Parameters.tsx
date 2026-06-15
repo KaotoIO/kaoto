@@ -230,6 +230,7 @@ const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           components={virtuosoComponents}
           itemContent={renderParameterItem}
           overscan={VIRTUOSO_OVERSCAN}
+          totalListHeightChanged={syncConnectionPorts}
         />
       )}
     </ExpansionPanel>
