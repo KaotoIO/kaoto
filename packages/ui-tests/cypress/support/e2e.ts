@@ -14,14 +14,15 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
+import './next-commands/datamapper';
 import './next-commands/default';
-import './next-commands/sourceCode';
-import './next-commands/nodeConfiguration';
 import './next-commands/design';
 import './next-commands/metadata';
-import './next-commands/datamapper';
+import './next-commands/nodeConfiguration';
+import './next-commands/sourceCode';
 
-import registerCypressGrep from '@cypress/grep/src/support';
+import { register as registerCypressGrep } from '@cypress/grep';
+
 registerCypressGrep();
 
 Cypress.on('uncaught:exception', (_err, _runnable) => {
