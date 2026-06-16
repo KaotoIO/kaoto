@@ -24,7 +24,10 @@ Cypress.Commands.add('editorAddText', (line, text) => {
   cy.get('input[aria-describedby="quickInput_message"]').type(`${line}` + '{enter}', { delay: 1 });
   cy.get(editorTextarea).type('{enter}{upArrow}', { force: true, delay: 20 });
   for (const lineToWrite of text.split('\n')) {
-    cy.get(editorTextarea).type('{enter}{enter}{upArrow}{home}{shift}{end}' + lineToWrite, { force: true, delay: 20 });
+    cy.get(editorTextarea).type('{esc}{enter}{enter}{upArrow}{home}{shift}{end}' + lineToWrite, {
+      force: true,
+      delay: 20,
+    });
   }
 });
 
