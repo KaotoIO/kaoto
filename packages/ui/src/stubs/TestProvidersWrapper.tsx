@@ -7,7 +7,7 @@ import { VisualFlowsApi } from '../models/visualization/flows/support/flows-visi
 import {
   EntitiesContext,
   EntitiesContextResult,
-  KaotoResourceProvider,
+  KaotoResourceContext,
   VisibleFlowsContext,
   VisibleFlowsContextResult,
 } from '../providers';
@@ -55,14 +55,15 @@ export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): Test
       : props.entitiesContextValue;
 
   const entitiesContextKey = Date.now();
+  const kaotoResourceContextValue = { kaotoResource: camelResource };
   const Provider: FunctionComponent<PropsWithChildren> = (props) => (
-    <KaotoResourceProvider>
+    <KaotoResourceContext.Provider value={kaotoResourceContextValue}>
       <EntitiesContext.Provider key={entitiesContextKey} value={entitiesContextValue}>
         <VisibleFlowsContext.Provider value={visibleFlowsContext}>
           <SuggestionRegistryProvider>{props.children}</SuggestionRegistryProvider>
         </VisibleFlowsContext.Provider>
       </EntitiesContext.Provider>
-    </KaotoResourceProvider>
+    </KaotoResourceContext.Provider>
   );
 
   return { Provider, camelResource, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy };

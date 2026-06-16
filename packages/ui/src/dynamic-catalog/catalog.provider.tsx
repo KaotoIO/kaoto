@@ -36,7 +36,7 @@ export const CatalogLoaderProvider: FunctionComponent<
         return response;
       })
       .then((response) => response.json())
-      .then(async (catalogIndex: CatalogDefinition) => {
+      .then((catalogIndex: CatalogDefinition) => {
         if (catalogIndex.runtime === 'Citrus') {
           return fetchCitrusCatalog({ catalogIndex: catalogIndex as CitrusCatalogIndex, relativeBasePath });
         } else {

@@ -53,7 +53,7 @@ describe('KaotoResourceProvider', () => {
     });
 
     // The mount emits code:updated with no path → handler must reconcile path ?? fileExtension
-    expect(result.current?.kaotoResource.getSerializerType()).toEqual(SerializerType.XML);
+    expect(result.current?.kaotoResource?.getSerializerType()).toEqual(SerializerType.XML);
   });
 
   it('prefers an explicit path from the event over fileExtension', () => {
@@ -70,10 +70,10 @@ describe('KaotoResourceProvider', () => {
     });
 
     // An explicit YAML path must win over the .xml fileExtension
-    expect(result.current?.kaotoResource.getSerializerType()).toEqual(SerializerType.YAML);
+    expect(result.current?.kaotoResource?.getSerializerType()).toEqual(SerializerType.YAML);
   });
 
-  it('keeps a defined resource when the factory throws on malformed code', () => {
+  it('keeps resource undefined when the factory throws on malformed code at mount', () => {
     const real = CamelResourceFactory.createCamelResource.bind(CamelResourceFactory);
     const createSpy = jest.spyOn(CamelResourceFactory, 'createCamelResource').mockImplementation((code, opts) => {
       if (code === '- from: {') throw new Error('parse error');
@@ -88,9 +88,9 @@ describe('KaotoResourceProvider', () => {
       ),
     });
 
-    // The mount emission makes the factory throw; the handler must swallow it and keep the
-    // (initial, empty) resource rather than crashing.
-    expect(result.current?.kaotoResource).toBeDefined();
+    // The mount emission makes the factory throw; the handler must swallow it and keep
+    // the resource as undefined (showing loading screen) rather than crashing.
+    expect(result.current?.kaotoResource).toBeUndefined();
 
     createSpy.mockRestore();
   });

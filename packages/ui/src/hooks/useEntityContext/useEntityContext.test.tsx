@@ -3,12 +3,15 @@ import { PropsWithChildren } from 'react';
 
 import { EntitiesProvider } from '../../providers/entities.provider';
 import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
+import { SourceCodeSync } from '../../providers/source-code-sync';
 import { errorMessage, useEntityContext } from './useEntityContext';
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <KaotoResourceProvider>
-    <EntitiesProvider>{children}</EntitiesProvider>
-  </KaotoResourceProvider>
+  <SourceCodeSync>
+    <KaotoResourceProvider>
+      <EntitiesProvider>{children}</EntitiesProvider>
+    </KaotoResourceProvider>
+  </SourceCodeSync>
 );
 
 describe('useEntityContext', () => {

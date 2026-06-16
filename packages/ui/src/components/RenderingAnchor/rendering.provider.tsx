@@ -1,3 +1,4 @@
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, Suspense, useCallback, useMemo, useRef } from 'react';
 
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
@@ -35,7 +36,9 @@ export const RenderingProvider: FunctionComponent<PropsWithChildren> = ({ childr
     <Suspense
       fallback={
         <Loading>
-          <span>Loading dynamic components...</span>
+          <Content data-testid="loading-dynamic-components" component={ContentVariants.h3}>
+            Loading dynamic components...
+          </Content>
         </Loading>
       }
     >

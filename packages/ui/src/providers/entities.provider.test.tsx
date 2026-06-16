@@ -79,14 +79,15 @@ describe('EntitiesProvider', () => {
       expect(result.current?.camelResource.toJSON()).toEqual(['A non camel source code']);
     });
 
-    it('should fallback to an empty Camel Resource when there is a wrong Source Code', () => {
+    it('should keep resource undefined when there is a wrong Source Code at mount', () => {
       useSourceCodeStore.getState().setSourceCode('- from: {');
 
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper('- from: {'),
       });
 
-      expect(result.current?.camelResource.toJSON()).toEqual([]);
+      // With invalid source code at mount, the resource stays undefined (loading screen)
+      expect(result.current).toBeNull();
     });
   });
 
