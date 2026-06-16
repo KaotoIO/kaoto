@@ -1,13 +1,13 @@
 import { useContext } from 'react';
 
-import { KaotoResourceContext } from '../../providers/kaoto-resource.provider';
+import { KaotoResourceContext, KaotoResourceContextResult } from '../../providers/kaoto-resource.provider';
 
 export const errorMessage = 'useKaotoResourceContext should be called into KaotoResourceContext';
 
-export function useKaotoResourceContext() {
+export function useKaotoResourceContext(): Required<KaotoResourceContextResult> {
   const ctx = useContext(KaotoResourceContext);
 
-  if (!ctx) throw new Error(errorMessage);
+  if (!ctx?.kaotoResource) throw new Error(errorMessage);
 
-  return ctx;
+  return ctx as Required<KaotoResourceContextResult>;
 }

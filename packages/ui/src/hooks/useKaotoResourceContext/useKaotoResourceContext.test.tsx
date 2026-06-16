@@ -2,9 +2,14 @@ import { renderHook } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
 import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
+import { SourceCodeSync } from '../../providers/source-code-sync';
 import { errorMessage, useKaotoResourceContext } from './useKaotoResourceContext';
 
-const wrapper = ({ children }: PropsWithChildren) => <KaotoResourceProvider>{children}</KaotoResourceProvider>;
+const wrapper = ({ children }: PropsWithChildren) => (
+  <SourceCodeSync>
+    <KaotoResourceProvider>{children}</KaotoResourceProvider>
+  </SourceCodeSync>
+);
 
 describe('useKaotoResourceContext', () => {
   it('should be throw when use hook without provider', () => {

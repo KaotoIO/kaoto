@@ -1,11 +1,13 @@
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useLayoutEffect, useMemo, useState } from 'react';
 
+import { Loading } from '../components/Loading';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { KaotoResource } from '../models/kaoto-resource';
 import { EventNotifier } from '../utils';
 
 export interface KaotoResourceContextResult {
-  kaotoResource: KaotoResource;
+  kaotoResource?: KaotoResource;
 }
 
 export const KaotoResourceContext = createContext<KaotoResourceContextResult | null>(null);
@@ -18,13 +20,11 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
   const eventNotifier = EventNotifier.getInstance();
 
   /**
-   * Start with an empty resource. The real source code arrives through the single
+   * Start with undefined. The real source code arrives through the single
    * `code:updated` ingress, emitted on mount by the SourceCodeSync. Using a lazy
    * initializer avoids re-parsing the YAML on every render.
    */
-  const [kaotoResource, setKaotoResource] = useState<KaotoResource>(() =>
-    CamelResourceFactory.createCamelResource('', { path: fileExtension }),
-  );
+  const [kaotoResource, setKaotoResource] = useState<KaotoResource | undefined>();
 
   /**
    * Subscribe to the `code:updated` event to (re)create the CamelResource.
@@ -60,6 +60,16 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
     }),
     [kaotoResource],
   );
+
+  if (!kaotoResource) {
+    return (
+      <Loading>
+        <Content data-testid="loading-kaoto-resource" component={ContentVariants.h3}>
+          Loading Kaoto resource...
+        </Content>
+      </Loading>
+    );
+  }
 
   return <KaotoResourceContext.Provider value={value}>{children}</KaotoResourceContext.Provider>;
 };
