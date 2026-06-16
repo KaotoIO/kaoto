@@ -12,6 +12,7 @@ import { MappingValidationService } from '../../../services/visualization/mappin
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
 import { FieldIcon } from '../FieldIcon';
+import { FieldNodePopover } from '../FieldNodePopover';
 
 interface BaseNodeProps extends IDataTestID {
   /** Node data containing all node information */
@@ -44,6 +45,9 @@ interface BaseNodeProps extends IDataTestID {
 
   /** Document ID for connection port identification */
   documentId?: string;
+
+  /** Namespace map for field details */
+  namespaceMap?: Record<string, string>;
 }
 
 export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
@@ -58,6 +62,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   isSelected,
   nodePath,
   documentId,
+  namespaceMap = {},
   'data-testid': dataTestId,
   children,
 }) => {
@@ -145,7 +150,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           <Choices />
         </Icon>
       )}
-      <FieldIcon className="node__spacer" type={iconType} />
+      <FieldIcon className="node__spacer node__icon--no-popover" type={iconType} />
 
       {isAttributeField && (
         <Icon className="node__spacer" data-testid="attribute-field-icon">
@@ -164,6 +169,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           </Icon>
         </Tooltip>
       )}
+      <FieldNodePopover nodeData={nodeData} namespaceMap={namespaceMap} />
       {children}
 
       {mapping && onUpdate && (

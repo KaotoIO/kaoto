@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/annotated"
+           xmlns:tns="http://www.example.com/annotated"
+           elementFormDefault="qualified">
+
+  <xs:element name="Customer">
+    <xs:annotation>
+      <xs:documentation>Represents a customer entity with contact information and purchase history</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="name" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Customer's full legal name</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="email" type="xs:string">
+          <xs:annotation>
+            <xs:documentation>Primary email address for customer communications</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="age" type="xs:int">
+          <xs:annotation>
+            <xs:documentation>Customer's age in years</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="address" type="tns:AddressType"/>
+        <xs:element name="noAnnotation" type="xs:string"/>
+      </xs:sequence>
+      <xs:attribute name="id" type="xs:string" use="required">
+        <xs:annotation>
+          <xs:documentation>Unique customer identifier in the system</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="status" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Current customer status (active, inactive, suspended)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="noAnnotationAttr" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="AddressType">
+    <xs:annotation>
+      <xs:documentation>Physical mailing address</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="street" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Street address including number and name</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="city" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>City or town name</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="zipCode" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>Postal or ZIP code</xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

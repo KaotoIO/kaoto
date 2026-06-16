@@ -129,24 +129,6 @@ describe('NodeTitle', () => {
     expect(element).toHaveClass('node-title__text');
   });
 
-  it('should display minOccurs and maxOccurs in popover for FieldNodeData on hover', async () => {
-    const user = userEvent.setup();
-    const shipOrderDoc = TestUtil.createSourceOrderDoc();
-    const documentNodeData = new DocumentNodeData(shipOrderDoc);
-    const mockField = createMockField();
-    const fieldNodeData = new FieldNodeData(documentNodeData, mockField);
-
-    render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
-
-    const fieldElement = screen.getByText(mockField.displayName);
-    await user.hover(fieldElement);
-
-    await waitFor(() => {
-      expect(screen.getByText(/minOccurs/)).toBeInTheDocument();
-      expect(screen.getByText(/maxOccurs/)).toBeInTheDocument();
-    });
-  });
-
   it('should display an optional icon when the field information is optional', async () => {
     const shipOrderDoc = TestUtil.createSourceOrderDoc();
     const documentNodeData = new DocumentNodeData(shipOrderDoc);

@@ -7,6 +7,7 @@ import {
 import { NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
 import {
+  getAnnotatedFieldsXsd,
   getAnonymousGlobalElementRefLargeXsd,
   getCamelSpringXsd,
   getCommonTypesXsd,
@@ -1210,5 +1211,153 @@ describe('XmlSchemaDocumentService', () => {
     const typeA01Field = choiceWrapper!.fields.find((f) => f.name === 'TypeA01');
     expect(typeA01Field).toBeDefined();
     expect(typeA01Field!.type).toEqual(Types.Container);
+  });
+
+  describe('Field descriptions from xs:annotation/xs:documentation', () => {
+    it('should extract description from element annotation', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'AnnotatedFields.xsd': getAnnotatedFieldsXsd(),
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+
+      const customerElement = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchemaCollection)!;
+      const fields: XmlSchemaField[] = [];
+      XmlSchemaDocumentService.populateElement(document, fields, customerElement);
+
+      const customerField = fields[0];
+      expect(customerField.name).toBe('Customer');
+      expect(customerField.description).toBe(
+        'Represents a customer entity with contact information and purchase history',
+      );
+
+      const nameField = customerField.fields.find((f) => f.name === 'name');
+      expect(nameField).toBeDefined();
+      expect(nameField!.description).toBe("Customer's full legal name");
+
+      const emailField = customerField.fields.find((f) => f.name === 'email');
+      expect(emailField).toBeDefined();
+      expect(emailField!.description).toBe('Primary email address for customer communications');
+
+      const ageField = customerField.fields.find((f) => f.name === 'age');
+      expect(ageField).toBeDefined();
+      expect(ageField!.description).toBe("Customer's age in years");
+    });
+
+    it('should extract description from attribute annotation', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'AnnotatedFields.xsd': getAnnotatedFieldsXsd(),
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+
+      const customerElement = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchemaCollection)!;
+      const fields: XmlSchemaField[] = [];
+      XmlSchemaDocumentService.populateElement(document, fields, customerElement);
+
+      const customerField = fields[0];
+      const idAttr = customerField.fields.find((f) => f.isAttribute && f.name === 'id');
+      expect(idAttr).toBeDefined();
+      expect(idAttr!.description).toBe('Unique customer identifier in the system');
+
+      const statusAttr = customerField.fields.find((f) => f.isAttribute && f.name === 'status');
+      expect(statusAttr).toBeDefined();
+      expect(statusAttr!.description).toBe('Current customer status (active, inactive, suspended)');
+    });
+
+    it('should handle elements without annotation', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'AnnotatedFields.xsd': getAnnotatedFieldsXsd(),
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+
+      const customerElement = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchemaCollection)!;
+      const fields: XmlSchemaField[] = [];
+      XmlSchemaDocumentService.populateElement(document, fields, customerElement);
+
+      const customerField = fields[0];
+      const noAnnotationField = customerField.fields.find((f) => f.name === 'noAnnotation');
+      expect(noAnnotationField).toBeDefined();
+      expect(noAnnotationField!.description).toBeUndefined();
+    });
+
+    it('should handle attributes without annotation', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'AnnotatedFields.xsd': getAnnotatedFieldsXsd(),
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+
+      const customerElement = XmlSchemaDocumentUtilService.getFirstElement(document.xmlSchemaCollection)!;
+      const fields: XmlSchemaField[] = [];
+      XmlSchemaDocumentService.populateElement(document, fields, customerElement);
+
+      const customerField = fields[0];
+      const noAnnotationAttr = customerField.fields.find((f) => f.isAttribute && f.name === 'noAnnotationAttr');
+      expect(noAnnotationAttr).toBeDefined();
+      expect(noAnnotationAttr!.description).toBeUndefined();
+    });
+
+    it('should extract description from nested complex type elements', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'AnnotatedFields.xsd': getAnnotatedFieldsXsd(),
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const document = result.document as XmlSchemaDocument;
+
+      // Check that the AddressType fragment has descriptions
+      // QName.toString() format is {namespace}localPart
+      const addressTypeFragmentKey = '{http://www.example.com/annotated}AddressType';
+      const addressTypeFragment = document.namedTypeFragments[addressTypeFragmentKey];
+      expect(addressTypeFragment).toBeDefined();
+
+      const streetField = addressTypeFragment.fields.find((f) => f.name === 'street');
+      expect(streetField).toBeDefined();
+      expect(streetField!.description).toBe('Street address including number and name');
+
+      const cityField = addressTypeFragment.fields.find((f) => f.name === 'city');
+      expect(cityField).toBeDefined();
+      expect(cityField!.description).toBe('City or town name');
+
+      const zipCodeField = addressTypeFragment.fields.find((f) => f.name === 'zipCode');
+      expect(zipCodeField).toBeDefined();
+      expect(zipCodeField!.description).toBe('Postal or ZIP code');
+    });
   });
 });

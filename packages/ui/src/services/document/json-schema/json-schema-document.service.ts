@@ -570,6 +570,10 @@ export class JsonSchemaDocumentService {
     if (schema.required) {
       field.required.push(...schema.required);
     }
+
+    if (schema.description) {
+      field.description = schema.description;
+    }
   }
 
   /**

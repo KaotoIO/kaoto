@@ -255,6 +255,99 @@ describe('JsonSchemaDocumentService', () => {
     expect(arrTwo.getExpression(namespaces)).toEqual("fn:string[@key='arrTwo']");
   });
 
+  it('should parse and preserve field description', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'The name of the person' },
+        age: { type: 'number', description: 'The age in years' },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    expect(doc.fields).toHaveLength(1);
+    const root = doc.fields[0];
+    expect(root.fields).toHaveLength(2);
+
+    const nameField = root.fields.find((f) => f.key === 'name');
+    expect(nameField).toBeDefined();
+    expect(nameField!.description).toBe('The name of the person');
+
+    const ageField = root.fields.find((f) => f.key === 'age');
+    expect(ageField).toBeDefined();
+    expect(ageField!.description).toBe('The age in years');
+  });
+
+  it('should copy description when adopting a field', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        parent: {
+          type: 'object',
+          properties: {
+            child: { type: 'string', description: 'Child field description' },
+          },
+        },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const root = doc.fields[0];
+    const parentField = root.fields.find((f) => f.key === 'parent');
+    expect(parentField).toBeDefined();
+
+    const childField = parentField!.fields.find((f) => f.key === 'child');
+    expect(childField).toBeDefined();
+    expect(childField!.description).toBe('Child field description');
+
+    // Test adopt method by adopting into a distinct parent field
+    const targetDoc = createTestJsonDocument(
+      DocumentType.PARAM,
+      'target',
+      JSON.stringify({
+        type: 'object',
+        properties: {
+          parent: { type: 'object', properties: {} },
+        },
+      }),
+    );
+    const targetRoot = targetDoc.fields[0];
+    const targetParent = targetRoot.fields.find((f) => f.key === 'parent')!;
+    const adoptedChild = childField!.adopt(targetParent);
+
+    expect(adoptedChild.description).toBe('Child field description');
+  });
+
+  it('should update description when adopting a field with description over existing field', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        field1: { type: 'string' },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const root = doc.fields[0];
+    const field1 = root.fields.find((f) => f.key === 'field1');
+    expect(field1).toBeDefined();
+    expect(field1!.description).toBeUndefined();
+
+    // Create a new field with the same key but with description
+    const schemaWithDesc: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        field1: { type: 'string', description: 'Updated description' },
+      },
+    };
+    const doc2 = createTestJsonDocument(DocumentType.PARAM, 'test2', JSON.stringify(schemaWithDesc));
+    const root2 = doc2.fields[0];
+    const field1WithDesc = root2.fields.find((f) => f.key === 'field1');
+
+    // Adopt the field with description into the original parent
+    const adopted = field1WithDesc!.adopt(root);
+    expect(adopted.description).toBe('Updated description');
+  });
+
   it('should parse camelYamlDsl', () => {
     const camelDoc = createTestJsonDocument(DocumentType.PARAM, 'test', getCamelYamlDslJsonSchema());
 

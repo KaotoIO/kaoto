@@ -22,16 +22,9 @@ interface INodeTitle {
   rank: number;
   nodeData: NodeData;
   isDocument: boolean;
-  namespaceMap?: Record<string, string>;
 }
 
-export const NodeTitle: FunctionComponent<INodeTitle> = ({
-  className,
-  rank,
-  nodeData,
-  isDocument,
-  namespaceMap = {},
-}) => {
+export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, nodeData, isDocument }) => {
   const title = VisualizationService.createNodeTitle(nodeData);
   const content = (
     <span className={clsx('node-title__text', className)} data-rank={rank}>
@@ -65,9 +58,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({
     nodeData instanceof FieldItemNodeData ||
     nodeData instanceof AddMappingNodeData
   ) {
-    return (
-      <FieldNodeTitle className={className} rank={rank} title={title} nodeData={nodeData} namespaceMap={namespaceMap} />
-    );
+    return <FieldNodeTitle className={className} rank={rank} title={title} nodeData={nodeData} />;
   }
 
   return content;

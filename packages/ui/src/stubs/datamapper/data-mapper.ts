@@ -301,6 +301,9 @@ export function getFieldSubstitutionNoNsXsd(): string {
 export function getChoiceWithAbstractXsd(): string {
   return readStubFile('./xml/ChoiceWithAbstract.xsd');
 }
+export function getAnnotatedFieldsXsd(): string {
+  return readStubFile('./xml/AnnotatedFields.xsd');
+}
 export function getRawTextNodeXslt(): string {
   return readStubFile('./xml/RawTextNode.xsl');
 }

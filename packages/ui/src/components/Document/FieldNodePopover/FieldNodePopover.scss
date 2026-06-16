@@ -1,0 +1,7 @@
+// Fix Carbon icon centering in PatternFly button
+/* stylelint-disable-next-line selector-class-pattern */
+.pf-v6-c-button__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

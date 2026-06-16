@@ -28,6 +28,7 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
         nodeData={nodeData}
         data-testid={nodeData.title}
         isExpandable={false}
+        namespaceMap={mappingTree.namespaceMap}
         title={
           <>
             <Icon className="node__spacer">
@@ -38,7 +39,6 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
               nodeData={nodeData}
               isDocument={false}
               rank={rank}
-              namespaceMap={mappingTree.namespaceMap}
             />
             <Icon className="node__spacer">
               <LayerGroupIcon className="node__add__mapping__icon" />

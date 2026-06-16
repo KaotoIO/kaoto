@@ -96,6 +96,7 @@ export class XmlSchemaField extends BaseField {
     adopted.wrapperKind = this.wrapperKind;
     adopted.selectedMemberIndex = this.selectedMemberIndex;
     adopted.isAbstractType = this.isAbstractType;
+    adopted.description = this.description;
     adopted.fields = this.fields.map((child) => child.adopt(adopted) as XmlSchemaField);
     parent.fields.push(adopted);
     parent.ownerDocument.totalFieldCount++;

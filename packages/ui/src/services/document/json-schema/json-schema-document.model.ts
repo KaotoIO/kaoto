@@ -507,6 +507,7 @@ export class JsonSchemaField extends BaseField {
     }
     if (this.wrapperKind !== undefined) existing.wrapperKind = this.wrapperKind;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
+    if (this.description !== undefined) existing.description = this.description;
     for (const child of this.fields) child.adopt(existing);
     return existing;
   }
@@ -523,6 +524,7 @@ export class JsonSchemaField extends BaseField {
     to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
     to.wrapperKind = this.wrapperKind;
     to.selectedMemberIndex = this.selectedMemberIndex;
+    to.description = this.description;
     to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
     return to;
   }

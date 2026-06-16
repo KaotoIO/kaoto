@@ -32,11 +32,13 @@ import {
   XmlSchemaType,
   XmlSchemaUse,
 } from '../../../xml-schema-ts';
+import { XmlSchemaDocumentation } from '../../../xml-schema-ts/annotation/XmlSchemaDocumentation';
 import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeContent } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeContent';
 import { XmlSchemaSimpleTypeList } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeList';
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchemaSimpleTypeUnion } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeUnion';
+import { XmlSchemaAnnotated } from '../../../xml-schema-ts/XmlSchemaAnnotated';
 import { parseQNameString } from '../../namespace-util';
 import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
@@ -522,6 +524,7 @@ export class XmlSchemaDocumentService {
     field.maxOccurs = element.getMaxOccurs();
     field.minOccursExplicit = element.isMinOccursExplicit();
     field.maxOccursExplicit = element.isMaxOccursExplicit();
+    field.description = XmlSchemaDocumentService.extractDocumentationFromAnnotated(resolvedElement);
     fields.push(field);
 
     ownerDoc.totalFieldCount++;
@@ -645,6 +648,39 @@ export class XmlSchemaDocumentService {
   }
 
   /**
+   * Extract documentation text from an XML Schema annotated object (element or attribute).
+   * @param annotated - The annotated schema object (element, attribute, etc.)
+   * @returns Documentation text, or undefined if no documentation found
+   */
+  private static extractDocumentationFromAnnotated(annotated: XmlSchemaAnnotated): string | undefined {
+    const annotation = annotated.getAnnotation();
+    if (!annotation) {
+      return undefined;
+    }
+
+    const items = annotation.getItems();
+    for (const item of items) {
+      if (!(item instanceof XmlSchemaDocumentation)) continue;
+
+      const markup = item.getMarkup();
+      if (!markup || markup.length === 0) continue;
+
+      let text = '';
+      for (const node of markup) {
+        if (node.textContent) {
+          text += node.textContent;
+        }
+      }
+      text = text.trim().replace(/\s+/g, ' ');
+      if (text) {
+        return text;
+      }
+    }
+
+    return undefined;
+  }
+
+  /**
    * Adds a synthetic xsi:nil attribute child to a nillable XML element field.
    * This allows the Document tree to represent the nil state distinctly from an empty element.
    */
@@ -693,6 +729,7 @@ export class XmlSchemaDocumentService {
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     const attrTypeName = attr.getSchemaTypeName()?.getLocalPart();
     field.type = (attrTypeName ? Types[capitalize(attrTypeName) as keyof typeof Types] : null) || Types.AnyType;
+    field.description = XmlSchemaDocumentService.extractDocumentationFromAnnotated(attr);
     fields.push(field);
 
     ownerDoc.totalFieldCount++;

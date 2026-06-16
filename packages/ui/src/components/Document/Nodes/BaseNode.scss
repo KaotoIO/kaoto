@@ -86,6 +86,10 @@
     }
   }
 
+  &__icon--no-popover {
+    pointer-events: none;
+  }
+
   &__override-indicator {
     padding: var(--pf-t--global--spacer--sm);
     cursor: help;
