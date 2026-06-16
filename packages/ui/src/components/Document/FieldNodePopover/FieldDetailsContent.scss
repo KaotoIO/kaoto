@@ -1,0 +1,20 @@
+.field {
+  &__content {
+    display: table;
+  }
+
+  &__row {
+    display: table-row;
+  }
+
+  &__cell {
+    display: table-cell;
+    padding: 0.25rem;
+  }
+
+  &__cell--title {
+    font-weight: bold;
+    padding-right: 0.75rem;
+    white-space: nowrap;
+  }
+}

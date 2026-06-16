@@ -85,19 +85,12 @@ export const SourceDocumentNode: FunctionComponent<TreeSourceNodeProps> = memo(
                 isExpandable={hasChildren}
                 isExpanded={isExpanded}
                 onExpandChange={handleClickToggle}
-                title={
-                  <NodeTitle
-                    className="node__spacer"
-                    nodeData={nodeData}
-                    isDocument={isDocument}
-                    rank={rank}
-                    namespaceMap={mappingTree.namespaceMap}
-                  />
-                }
+                title={<NodeTitle className="node__spacer" nodeData={nodeData} isDocument={isDocument} rank={rank} />}
                 rank={rank}
                 isSelected={isSelected}
                 nodePath={nodePathString}
                 documentId={documentId}
+                namespaceMap={mappingTree.namespaceMap}
               >
                 <OverrideIndicator field={field} namespaceMap={mappingTree.namespaceMap} />
               </BaseNode>

@@ -129,6 +129,8 @@ export interface IField {
   selectedMemberIndex?: number;
   /** Whether the field's declared type is an abstract xs:complexType */
   isAbstractType?: boolean;
+  /** Optional description extracted from xs:annotation/xs:documentation for tooltip/help text */
+  description?: string;
 
   /**
    * Adopts itself to a passed-in parent {@link IField} as a child. This method is also responsible for inheritance.
@@ -324,6 +326,7 @@ export class BaseField implements IField {
   selectedMemberIndex?: number;
   isAbstractType?: boolean;
   originalField?: IOriginalFieldState;
+  description?: string;
 
   protected mergeInto(existing: IField): void {
     if (this.type && this.type !== Types.AnyType) existing.type = this.type;
@@ -335,6 +338,7 @@ export class BaseField implements IField {
     if (this.wrapperKind !== undefined) existing.wrapperKind = this.wrapperKind;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
     if (this.isAbstractType !== undefined) existing.isAbstractType = this.isAbstractType;
+    if (this.description !== undefined) existing.description = this.description;
     for (const child of this.fields) child.adopt(existing);
   }
 
@@ -361,6 +365,7 @@ export class BaseField implements IField {
     adopted.wrapperKind = this.wrapperKind;
     adopted.selectedMemberIndex = this.selectedMemberIndex;
     adopted.isAbstractType = this.isAbstractType;
+    adopted.description = this.description;
     adopted.fields = this.fields.map((child) => child.adopt(adopted));
     parent.fields.push(adopted);
     parent.ownerDocument.totalFieldCount++;
