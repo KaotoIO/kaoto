@@ -39,7 +39,7 @@ jobs:
         run: yarn workspace @kaoto/kaoto run build:lib
 
       - name: 💾 Save build folder
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: ui-dist
           if-no-files-found: error
@@ -52,7 +52,10 @@ jobs:
     container:
       image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
-
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4]
     steps:
       - name: 👷‍♀️ Checkout
         uses: actions/checkout@v4
@@ -79,19 +82,21 @@ jobs:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SPLIT: ${{ strategy.job-total }}
+          SPLIT_INDEX: ${{ strategy.job-index }}
 
       - name: 💾 Save videos
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: videos-firefox
+          name: videos-firefox-${{ matrix.containers }}
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: screenshots-firefox
+          name: screenshots-firefox-${{ matrix.containers }}
           path: packages/ui-tests/cypress/screenshots
 
   test-on-chrome:
@@ -100,6 +105,10 @@ jobs:
     container:
       image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4]
 
     steps:
       - name: 👷‍♀️ Checkout
@@ -127,19 +136,21 @@ jobs:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SPLIT: ${{ strategy.job-total }}
+          SPLIT_INDEX: ${{ strategy.job-index }}
 
       - name: 💾 Save videos
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: videos-chrome
+          name: videos-chrome-${{ matrix.containers }}
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: screenshots-chrome
+          name: screenshots-chrome-${{ matrix.containers }}
           path: packages/ui-tests/cypress/screenshots
 
   test-on-edge:
@@ -148,7 +159,10 @@ jobs:
     container:
       image: cypress/browsers:node-22.15.0-chrome-136.0.7103.92-1-ff-138.0.1-edge-136.0.3240.50-1
       options: --user 1001
-
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4]
     steps:
       - name: 👷‍♀️ Checkout
         uses: actions/checkout@v4
@@ -175,17 +189,18 @@ jobs:
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          SPLIT: ${{ strategy.job-total }}
+          SPLIT_INDEX: ${{ strategy.job-index }}
       - name: 💾 Save videos
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: videos-edge
+          name: videos-edge-${{ matrix.containers }}
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: screenshots-edge
+          name: screenshots-edge-${{ matrix.containers }}
           path: packages/ui-tests/cypress/screenshots

@@ -35,6 +35,7 @@
     "@lerna-lite/cli": "^4.11.3",
     "@lerna-lite/publish": "^4.11.3",
     "@lerna-lite/version": "^4.11.3",
+    "cypress-split": "^1.25.0",
     "fast-xml-parser": "^5.0.9",
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0"
