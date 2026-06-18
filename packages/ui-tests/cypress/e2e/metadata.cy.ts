@@ -76,7 +76,6 @@ describe('Test for Metadata Editor support', () => {
   });
 
   it('Metadata Editor - create a new bean using editor and edit in bean editor', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 
@@ -107,7 +106,6 @@ describe('Test for Metadata Editor support', () => {
   });
 
   it('Metadata Editor - delete bean properties using the bean editor', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/pipe/metadata.yaml');
     cy.openMetadata();
 

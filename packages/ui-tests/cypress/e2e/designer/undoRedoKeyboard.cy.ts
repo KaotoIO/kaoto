@@ -1,6 +1,5 @@
 describe('Undo/Redo - Global keyboard shortcuts on Design page', () => {
   beforeEach(() => {
-    cy.openHomePage();
     cy.uploadFixture('flows/kameletBinding/timerKafka.yaml');
     cy.openDesignPage();
   });
