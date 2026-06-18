@@ -19,7 +19,7 @@ export const PropertiesTableSimple: FunctionComponent<IPropertiesTableSimpleProp
       <Tbody>
         {props.table.rows.length != 0 &&
           props.table.rows.map((row, row_index) => (
-            <Tr data-testid={props.rootDataTestId + '-row-' + row_index} key={row_index}>
+            <Tr data-testid={props.rootDataTestId + '-row-' + row_index} key={row.name}>
               {renderRowData(props.table.headers, row, props.rootDataTestId + '-row-' + row_index, row_index)}
             </Tr>
           ))}

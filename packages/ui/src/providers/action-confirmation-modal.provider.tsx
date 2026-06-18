@@ -131,7 +131,7 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
           <ModalBody>
             {textParagraphs.length === 1
               ? textParagraphs[0]
-              : textParagraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}{' '}
+              : textParagraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}{' '}
           </ModalBody>
           <ModalFooter>{footer}</ModalFooter>
         </Modal>

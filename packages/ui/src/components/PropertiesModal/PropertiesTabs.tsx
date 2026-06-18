@@ -16,18 +16,13 @@ export const PropertiesTabs: FunctionComponent<IPropertiesTabsProps> = (props) =
           case PropertiesTableType.Simple:
             return (
               <PropertiesTableSimple
-                key={table_index}
                 table={table}
                 rootDataTestId={'tab-' + props.tab_index + '-table-' + table_index}
               />
             );
           case PropertiesTableType.Tree:
             return (
-              <PropertiesTableTree
-                key={table_index}
-                table={table}
-                rootDataTestId={'tab-' + props.tab_index + '-table-' + table_index}
-              />
+              <PropertiesTableTree table={table} rootDataTestId={'tab-' + props.tab_index + '-table-' + table_index} />
             );
         }
       })}
