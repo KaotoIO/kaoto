@@ -5,6 +5,7 @@ describe('Tests for edit of XML document in code editor', () => {
 
   it('User edits the imported XML camel route in source code editor, transforms to Yaml', () => {
     cy.uploadFixture('flows/camelRoute/basic.xml');
+    cy.openSourceCode();
     const stepToInsert = `    <to description="insert-field-XML" uri="log:InfoLogger?level=DEBUG"/>`;
     cy.editorAddText(5, stepToInsert);
     cy.openDesignPage();

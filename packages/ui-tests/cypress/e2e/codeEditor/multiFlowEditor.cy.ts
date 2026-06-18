@@ -4,7 +4,6 @@ describe('Test for Multi route actions from the code editor', () => {
   });
 
   it('User deletes first route from multi-route using code editor', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
     cy.openDesignPage();
     cy.get('[data-testid="flows-list-route-count"]').should('have.text', '2/2');
@@ -17,8 +16,8 @@ describe('Test for Multi route actions from the code editor', () => {
   });
 
   it('User adds new route to Camel multi-route using code editor', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openSourceCode();
 
     const stepToInsert = `- route:
       id: route-new
@@ -42,6 +41,7 @@ describe('Test for Multi route actions from the code editor', () => {
 
   it('User deletes second route from multi-route using code editor', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openSourceCode();
 
     cy.editorDeleteLine(11, 11);
     cy.openDesignPage();
@@ -52,6 +52,7 @@ describe('Test for Multi route actions from the code editor', () => {
 
   it('User deletes step from first route using code editor', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openSourceCode();
 
     cy.editorDeleteLine(7, 4);
     cy.openDesignPage();
@@ -63,6 +64,8 @@ describe('Test for Multi route actions from the code editor', () => {
 
   it('User adds step to the first route using code editor', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openSourceCode();
+
     const stepToInsert = `        - setHeader:
             constant: test`;
     cy.editorAddText(9, stepToInsert);
@@ -74,6 +77,8 @@ describe('Test for Multi route actions from the code editor', () => {
 
   it('User adds step to the second route using code editor', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.yaml');
+    cy.openSourceCode();
+
     const stepToInsert = `        - setBody:
           constant: test`;
     cy.editorAddText(20, stepToInsert);

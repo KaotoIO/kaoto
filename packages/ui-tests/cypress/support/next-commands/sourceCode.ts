@@ -32,6 +32,18 @@ Cypress.Commands.add('editorAddText', (line, text) => {
 });
 
 Cypress.Commands.add('uploadFixture', (fixture) => {
+  const url = Cypress.config().baseUrl;
+  cy.fixture(fixture).then((fixtureContent) => {
+    cy.visit(url!, {
+      onBeforeLoad(win) {
+        win.localStorage.setItem('sourceCode', fixtureContent);
+      },
+    });
+  });
+  cy.waitSchemasLoading();
+});
+
+Cypress.Commands.add('uploadFixtureUsingEditor', (fixture) => {
   cy.openSourceCode();
   cy.waitForEditorToLoad();
   cy.get('.pf-v6-c-code-editor__main input[type="file"]').attachFile(fixture);

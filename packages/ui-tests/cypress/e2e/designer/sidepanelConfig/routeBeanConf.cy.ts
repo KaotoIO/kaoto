@@ -41,7 +41,6 @@ describe('Test for node bean reference and configuration support', () => {
   ];
   newTestData.forEach((data) => {
     it('Beans - select existing bean in node form config ' + data.file, () => {
-      cy.openSourceCode();
       cy.uploadFixture('flows/' + data.file);
 
       cy.openDesignPage();
@@ -55,7 +54,6 @@ describe('Test for node bean reference and configuration support', () => {
     });
 
     it('Beans - unselect selected bean', () => {
-      cy.openSourceCode();
       cy.uploadFixture('flows/' + data.file);
 
       cy.openDesignPage();

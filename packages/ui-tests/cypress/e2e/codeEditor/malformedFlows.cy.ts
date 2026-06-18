@@ -5,7 +5,6 @@ describe('Test for Multi route actions from the code editor', () => {
 
   // blocked ATM by https://github.com/KaotoIO/kaoto/issues/575
   it.skip('User creates a flow with missing route ID', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/malformed/camelRoute/missingId.yaml');
     cy.openDesignPage();
 
@@ -25,7 +24,6 @@ describe('Test for Multi route actions from the code editor', () => {
 
   // blocked ATM by https://github.com/KaotoIO/kaoto/issues/683
   it.skip('User creates kameletBinding with missing kind definition', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/malformed/kamelet/missingKind.yaml');
     cy.openDesignPage();
 
@@ -38,7 +36,6 @@ describe('Test for Multi route actions from the code editor', () => {
   });
 
   it('User creates a flow with unknown node', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/malformed/camelRoute/unknownNode.yaml');
     cy.openDesignPage();
     cy.checkNodeExist('id', 1);
@@ -52,7 +49,6 @@ describe('Test for Multi route actions from the code editor', () => {
   });
 
   it('User creates a flow with wrongly indented node properties', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/malformed/kamelet/wrongIndentProperties.yaml');
     cy.openDesignPage();
     cy.checkNodeExist('source', 1);
@@ -63,7 +59,6 @@ describe('Test for Multi route actions from the code editor', () => {
   });
 
   it('User creates a flow with wrongly indented source definition', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/malformed/kamelet/wrongIndentSource.yaml');
     cy.openDesignPage();
     cy.checkNodeExist('source', 1);

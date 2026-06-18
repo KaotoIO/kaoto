@@ -43,7 +43,6 @@ describe('Test for Pipe Error handler support', () => {
   });
 
   it('ErrorHandler - edit in errorHandler editor', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/pipe/errorHandler.yaml');
     cy.openPipeErrorHandler();
     cy.get(`input[name="#.log.parameters.maximumRedeliveries"]`).clear().type('5');

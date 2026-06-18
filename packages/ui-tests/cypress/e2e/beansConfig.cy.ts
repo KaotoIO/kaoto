@@ -29,7 +29,6 @@ describe('Test for Bean support', () => {
   });
 
   it('Beans - create a new bean using editor and edit in bean editor', () => {
-    cy.openSourceCode();
     cy.uploadFixture('flows/camelRoute/beans.yaml');
 
     cy.openBeans();

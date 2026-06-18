@@ -1,9 +1,29 @@
+import catalogLibrary from '@kaoto/camel-catalog/index.json';
+
 Cypress.Commands.add('openHomePage', () => {
   const url = Cypress.config().baseUrl;
-  cy.visit(url!);
-  cy.waitSchemasLoading();
 
-  cy.selectRuntimeVersion('Main');
+  if (!catalogLibrary.definitions || catalogLibrary.definitions.length === 0) {
+    throw new Error('Catalog library definitions array is empty or missing');
+  }
+
+  const settings = {
+    catalogUrl: '',
+    runtimeCatalogName: catalogLibrary.definitions[0].name,
+    testingCatalogName: '',
+    nodeLabel: 'description',
+    nodeToolbarTrigger: 'onHover',
+    colorScheme: 'auto',
+    rest: { apicurioRegistryUrl: '', customMediaTypes: [] },
+    canvasLayoutDirection: 'SelectInCanvas',
+  };
+
+  cy.visit(url!, {
+    onBeforeLoad(win) {
+      win.localStorage.setItem('settings', JSON.stringify(settings));
+    },
+  });
+  cy.waitSchemasLoading();
 });
 
 Cypress.Commands.add('openHomePageWithPreExistingRoutes', () => {
