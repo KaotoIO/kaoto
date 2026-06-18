@@ -109,7 +109,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
       <br />
       <Tabs activeKey={activeTabKey} onSelect={handleTabClick} aria-label="Properties tabs" isBox role="region">
         {tabs.map((tab, tab_index) => (
-          <Tab data-testid={'tab-' + tab_index} key={tab_index} eventKey={tab_index} title={tab.rootName}></Tab>
+          <Tab data-testid={'tab-' + tab_index} key={tab.rootName} eventKey={tab_index} title={tab.rootName}></Tab>
         ))}
       </Tabs>
     </div>

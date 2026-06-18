@@ -23,7 +23,9 @@ export class SourceTargetDnDHandler implements DnDHandler {
     return { success: true };
   }
 
-  handleDragOver(_event: DragOverEvent): void {}
+  handleDragOver(_event: DragOverEvent): void {
+    return;
+  }
 
   handleDragStart(event: DragStartEvent): DnDResult {
     const node = event.active.data.current as NodeData;

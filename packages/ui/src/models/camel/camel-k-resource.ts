@@ -56,8 +56,14 @@ export abstract class CamelKResource implements KaotoResource {
     };
   }
 
-  removeEntity(_id?: string[]) {}
-  refreshVisualMetadata() {}
+  removeEntity(_id?: string[]) {
+    return;
+  }
+
+  refreshVisualMetadata() {
+    return;
+  }
+
   createMetadataEntity() {
     this.resource.metadata = {};
     this.metadata = new MetadataEntity(this.resource);
