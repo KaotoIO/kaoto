@@ -23,16 +23,19 @@ jobs:
     if: github.repository == 'KaotoIO/kaoto' && github.actor != 'renovate[bot]' && !github.event.pull_request.draft
     # Operating System
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     # Job steps
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
         with:
           # 👇 Fetches all Git history so that Chromatic can compare against the previous version
           fetch-depth: 0
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@kaoto'
           cache: 'yarn'
@@ -51,7 +54,7 @@ jobs:
 
       # 👇 Adds Chromatic as a step in the workflow
       - name: Publish to Chromatic
-        uses: chromaui/action@v13.3.5
+        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0
         # Chromatic GitHub Action options
         with:
           # This token needs to be specified directly here so forks of the repository can push their changes to the chromatic UI
