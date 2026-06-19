@@ -17,16 +17,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: '🛰️ Checkout source code'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: '🛰️ Setup Node'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@kaoto'
           cache: 'yarn'
-
 
       - name: '🔧 Install dependencies'
         run: yarn
@@ -43,7 +44,7 @@ jobs:
           ls -lh ${{ runner.temp }}/kaoto-ui.tgz
 
       - name: '🔧 Persist UI Dist'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: 'kaoto-ui-${{ github.run_id }}'
           path: '${{ runner.temp }}/kaoto-ui.tgz'
@@ -59,13 +60,15 @@ jobs:
       - build-distribution
     steps:
       - name: '🛰️ Checkout source code'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: '🛰️ Setup Pages'
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: '🛰️ Download UI Dist'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: kaoto-ui-${{ github.run_id }}
           path: '${{ runner.temp }}'
@@ -77,13 +80,13 @@ jobs:
           tar -xzf "${{ runner.temp }}/kaoto-ui.tgz" -C packages/ui/dist
 
       - name: '📤 Upload artifact @kaoto/kaoto web application'
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 'packages/ui/dist'
 
       - name: '🚀 Deploy to GitHub Pages'
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   deploy-images:
     if: github.repository == 'KaotoIO/kaoto'
@@ -94,10 +97,12 @@ jobs:
       - build-distribution
     steps:
       - name: '🛰️ Checkout source code'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: '🛰️ Download UI Dist'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: kaoto-ui-${{ github.run_id }}
           path: '${{ runner.temp }}'
@@ -109,7 +114,7 @@ jobs:
           tar -xzf "${{ runner.temp }}/kaoto-ui.tgz" -C packages/ui/dist
 
       - name: '🛰️ Login to Container Registry'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}

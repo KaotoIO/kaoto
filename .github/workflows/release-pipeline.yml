@@ -20,7 +20,9 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Bump version and push tag
         id: tag_version
@@ -47,11 +49,13 @@ jobs:
 
     steps:
       - name: '🛰️ Checkout source code'
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+        uses: actions/checkout@v7
         with:
-          node-version: '22.x'
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@kaoto'
           cache: 'yarn'
@@ -80,14 +84,15 @@ jobs:
     needs:
       - tag-and-release
       - npm-release
-
     steps:
       - name: '🛰️ Checkout source code'
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
+        uses: actions/checkout@v7
         with:
-          node-version: '22.x'
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
           scope: '@kaoto'
           cache: 'yarn'
@@ -100,7 +105,7 @@ jobs:
           yarn workspaces foreach --verbose --all --topological-dev run build
 
       - name: '🛰️ Login to Container Registry'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
