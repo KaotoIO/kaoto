@@ -19,7 +19,7 @@ import { isDefined } from '@kaoto/forms';
 import { stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
-import { insertYamlComments } from '../../serializers/yaml-comments';
+import { insertYamlComments } from '../../utils/yaml-comments';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
 import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource } from '../kaoto-resource';

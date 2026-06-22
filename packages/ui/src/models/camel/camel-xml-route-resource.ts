@@ -20,6 +20,7 @@ import xmlFormat from 'xml-formatter';
 import { KaotoXmlParser } from '../../serializers/xml/kaoto-xml-parser';
 import { EntityDefinition } from '../../serializers/xml/serializers/entitiy-definition';
 import { KaotoXmlSerializer } from '../../serializers/xml/serializers/kaoto-xml-serializer';
+import { insertXmlComments, parseXmlComments } from '../../utils/xml-comments';
 import { EntityType } from '../entities';
 import { BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelRouteResource } from './camel-route-resource';
@@ -32,7 +33,6 @@ type SupportedEntity = {
   isYamlOnly?: boolean;
 };
 
-const COMMENT_REGEX = /<!--([\s\S]*?)-->/g;
 const XML_DECLARATION_REGEX = /^(?:\s*)<\?xml(?:(?:\s+[^\s>]+))*\s*\?>/;
 
 /**
@@ -57,7 +57,7 @@ export class CamelXMLRouteResource extends CamelRouteResource {
     const parser = new KaotoXmlParser();
     this.xmlDeclaration = CamelXMLRouteResource.parseXmlDeclaration(source);
     this.code = source.replace(this.xmlDeclaration, '');
-    this.comments = CamelXMLRouteResource.extractComments(this.code);
+    this.comments = parseXmlComments(this.code);
     this.rootElementDefinitions = parser.parseRootElementDefinitions(this.code);
   }
 
@@ -80,35 +80,15 @@ export class CamelXMLRouteResource extends CamelRouteResource {
     const xmlDocument = KaotoXmlSerializer.serialize(entities, this.rootElementDefinitions);
     const xmlString = this.xmlSerializer.serializeToString(xmlDocument);
     const formatted = xmlFormat(xmlString);
-    return this.getXmlDeclaration() + this.insertComments(formatted);
+    return this.getXmlDeclaration() + insertXmlComments(formatted, this.comments);
   }
 
   private getXmlDeclaration(): string {
     return this.xmlDeclaration ? this.xmlDeclaration + '\n' : '';
   }
 
-  private insertComments(xml: string): string {
-    const commentsString = this.comments.map((comment) => `<!-- ${comment} -->`).join('\n');
-    return commentsString ? commentsString + '\n' + xml : xml;
-  }
-
   private static parseXmlDeclaration(xml: string): string {
     const match = XML_DECLARATION_REGEX.exec(xml);
     return match ? match[0] : '';
-  }
-
-  private static extractComments(xml: string): string[] {
-    const comments: string[] = [];
-    let match;
-    let index = 0;
-    while ((match = COMMENT_REGEX.exec(xml)) !== null) {
-      if (xml.slice(index, match.index).trim() === '') {
-        comments.push(match[1].trim());
-        index = match.index + match[0].length;
-      } else {
-        break;
-      }
-    }
-    return comments;
   }
 }
