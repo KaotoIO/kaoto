@@ -9,7 +9,7 @@ export function parseYamlComments(code: string): string[] {
   const comments: string[] = [];
   for (const line of lines) {
     if (line.trim() === '' || COMMENTED_LINES_REGEXP.test(line)) {
-      comments.push(line.replace(/^(\s*)#+/, '$1'));
+      comments.push(line);
     } else {
       break;
     }
@@ -19,8 +19,6 @@ export function parseYamlComments(code: string): string[] {
 
 export function insertYamlComments(code: string, comments: string[]): string {
   if (comments.length === 0) return code;
-  const commentsString = comments
-    .flatMap((comment) => comment.split('\n').map((line) => (line.trim() === '' ? '' : `#${line}`)))
-    .join('\n');
+  const commentsString = comments.join('\n');
   return commentsString + '\n' + code;
 }

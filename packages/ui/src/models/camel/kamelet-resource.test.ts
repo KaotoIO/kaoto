@@ -57,6 +57,11 @@ describe('KameletResource', () => {
     expect(kameletResource).toMatchSnapshot();
   });
 
+  it('should return an empty array for supportedEntities', () => {
+    const kameletResource = new KameletResource();
+    expect(kameletResource.supportedEntities).toEqual([]);
+  });
+
   it('should remove the entity', () => {
     const kameletResource = new KameletResource();
     kameletResource.initialize();

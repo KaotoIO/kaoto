@@ -22,7 +22,7 @@ export class CamelResourceFactory {
    * @param source
    */
   static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): KaotoResource {
-    const isXmlSource = options.path ? options.path.endsWith('.xml') : isXML(source);
+    const isXmlSource = options.path ? options.path.toLowerCase().endsWith('.xml') : isXML(source);
     if (isXmlSource) {
       // XML is always a Camel route; entity parsing is deferred to initialize() (post-catalog).
       return new CamelXMLRouteResource(typeof source === 'string' ? source : '');

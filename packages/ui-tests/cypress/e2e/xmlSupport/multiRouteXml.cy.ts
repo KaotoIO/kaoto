@@ -3,7 +3,7 @@ describe('Test for Multi route for XML', () => {
     cy.openHomePage();
   });
 
-  it('User imports Yaml multi route and transforms to XML', () => {
+  it('User imports XML multi route', () => {
     cy.uploadFixture('flows/camelRoute/multiflow.xml');
     cy.openDesignPage();
     const xml = [

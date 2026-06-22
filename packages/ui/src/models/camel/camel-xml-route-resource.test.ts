@@ -82,6 +82,15 @@ describe('CamelXMLRouteResource', () => {
     expect(output).not.toMatch(/^<!--/);
   });
 
+  it('preserves a multiline leading comment across a round-trip', () => {
+    const source = `<!-- line1\nline2\nline3 -->\n<camel></camel>`;
+    const resource = new CamelXMLRouteResource(source);
+    const output = resource.toString();
+    expect(output).toContain('<!-- line1');
+    expect(output).toContain('line2');
+    expect(output).toContain('line3 -->');
+  });
+
   it('does not throw when constructed with an empty string', () => {
     expect(() => new CamelXMLRouteResource('')).not.toThrow();
   });
