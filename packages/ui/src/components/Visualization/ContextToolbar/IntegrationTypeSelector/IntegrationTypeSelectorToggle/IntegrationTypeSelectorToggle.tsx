@@ -9,7 +9,7 @@ import { requiresCatalogChange } from '../../../../../utils/catalog-helper';
 const DSL_LIST = [SourceSchemaType.Route, SourceSchemaType.Kamelet, SourceSchemaType.Pipe, SourceSchemaType.Test];
 
 interface ISourceTypeSelector {
-  onSelect?: (value: SourceSchemaType, changeCatalog: boolean) => void;
+  onSelect?: (value: SourceSchemaType) => void;
 }
 
 export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
@@ -29,13 +29,10 @@ export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelecto
 
       setIsOpen(false);
       if (integrationType !== undefined) {
-        props.onSelect?.(
-          flowType as SourceSchemaType,
-          requiresCatalogChange(flowType as SourceSchemaType, selectedCatalog),
-        );
+        props.onSelect?.(flowType as SourceSchemaType);
       }
     },
-    [props, selectedCatalog],
+    [props],
   );
 
   const toggle = (toggleRef: RefObject<HTMLButtonElement>) => (

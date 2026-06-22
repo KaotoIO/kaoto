@@ -1,24 +1,16 @@
-import { isDefined } from '@kaoto/forms';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { PlusIcon } from '@patternfly/react-icons';
 import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState } from 'react';
 
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
-import { useRuntimeContext } from '../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
-import { FlowTemplateService } from '../../../../models/visualization/flows/support/flow-templates-service';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
-import { useSourceCodeStore } from '../../../../store';
-import { findCatalog, requiresCatalogChange } from '../../../../utils/catalog-helper';
+import { ConfirmIntegrationTypeChangeModal } from '../../ConfirmIntegrationTypeChangeModal/ConfirmIntegrationTypeChangeModal';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
 export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
-  const runtimeContext = useRuntimeContext();
-  const setCodeAndNotify = useSourceCodeStore((state) => state.setCodeAndNotify);
   const { currentSchemaType, camelResource, updateEntitiesFromCamelResource } = useEntityContext();
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
-  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [proposedFlowType, setProposedFlowType] = useState<SourceSchemaType>();
 
   const checkBeforeAddNewFlow = useCallback(
@@ -41,7 +33,6 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
          * removing the existing flows, so then we warn the user first
          */
         setProposedFlowType(flowType);
-        setIsConfirmationModalOpen(true);
       }
     },
     [camelResource, currentSchemaType, updateEntitiesFromCamelResource, visibleFlowsContext.visualFlowsApi],
@@ -61,57 +52,10 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
           <span className="pf-v6-u-m-sm">New</span>
         </div>
       </FlowTypeSelector>
-      <Modal
-        variant={ModalVariant.small}
-        data-testid="confirmation-modal"
-        onClose={() => {
-          setIsConfirmationModalOpen(false);
-        }}
-        isOpen={isConfirmationModalOpen}
-      >
-        <ModalHeader title="Warning" titleIconVariant="warning" />
-        <ModalBody>
-          <p>
-            This will remove any existing integration and you will lose your current work. Are you sure you would like
-            to proceed?
-          </p>
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            key="confirm"
-            variant="primary"
-            data-testid="confirmation-modal-confirm"
-            onClick={() => {
-              if (proposedFlowType) {
-                setCodeAndNotify(FlowTemplateService.getFlowYamlTemplate(proposedFlowType));
-
-                // Update catalog if needed when switching flow types
-                const changeCatalog = requiresCatalogChange(proposedFlowType, runtimeContext.selectedCatalog);
-                if (changeCatalog) {
-                  const matchingCatalog = findCatalog(proposedFlowType, runtimeContext.catalogLibrary);
-                  if (isDefined(matchingCatalog)) {
-                    runtimeContext.setSelectedCatalog(matchingCatalog);
-                  }
-                }
-
-                setIsConfirmationModalOpen(false);
-              }
-            }}
-          >
-            Confirm
-          </Button>
-          <Button
-            key="cancel"
-            variant="link"
-            data-testid="confirmation-modal-cancel"
-            onClick={() => {
-              setIsConfirmationModalOpen(false);
-            }}
-          >
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
+      <ConfirmIntegrationTypeChangeModal
+        proposedFlowType={proposedFlowType}
+        onClose={() => setProposedFlowType(undefined)}
+      />
     </>
   );
 };

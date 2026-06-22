@@ -2254,7 +2254,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                 >
                   <div
                     class="pf-v6-c-card"
-                    data-ouia-component-id="OUIA-Generated-Card-_r_4o_"
+                    data-ouia-component-id="OUIA-Generated-Card-_r_4m_"
                     data-ouia-component-type="PF6/Card"
                     data-ouia-safe="true"
                     id=""
@@ -2316,7 +2316,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                         >
                           <button
                             class="pf-v6-c-button pf-m-control"
-                            data-ouia-component-id="OUIA-Generated-Button-control-_r_4p_"
+                            data-ouia-component-id="OUIA-Generated-Button-control-_r_4n_"
                             data-ouia-component-type="PF6/Button"
                             data-ouia-safe="true"
                             data-testid="show-all-routes-button"
@@ -2378,10 +2378,10 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                 >
                   <div
                     class="pf-v6-c-toolbar"
-                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_4s_"
+                    data-ouia-component-id="OUIA-Generated-Toolbar-_r_4q_"
                     data-ouia-component-type="PF6/Toolbar"
                     data-ouia-safe="true"
-                    id="pf-topology-control-bar-_r_4q_"
+                    id="pf-topology-control-bar-_r_4o_"
                     style="background-color: transparent;"
                   >
                     <div
@@ -2402,7 +2402,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_4u_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_4s_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-in"
@@ -2454,7 +2454,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_50_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_4u_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="zoom-out"
@@ -2506,7 +2506,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                               <button
                                 aria-disabled="false"
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_52_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_50_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="reset-view"
@@ -2557,7 +2557,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_54_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_52_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-h_layout-button"
@@ -2595,7 +2595,7 @@ exports[`Canvas Empty state should render empty state when there is no visible f
                             >
                               <button
                                 class="pf-v6-c-button pf-m-tertiary pf-topology-control-bar__button"
-                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_56_"
+                                data-ouia-component-id="OUIA-Generated-Button-tertiary-_r_54_"
                                 data-ouia-component-type="PF6/Button"
                                 data-ouia-safe="true"
                                 id="topology-control-bar-v_layout-button"
