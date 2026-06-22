@@ -898,7 +898,7 @@ describe('CamelRouteResource', () => {
   });
 
   it('serializes to YAML (with leading comments) without a serializer collaborator', () => {
-    const resource = new CamelRouteResource([{ from: { uri: 'direct:start', steps: [] } }], [' my comment']);
+    const resource = new CamelRouteResource([{ from: { uri: 'direct:start', steps: [] } }], ['# my comment']);
     resource.initialize();
 
     const output = resource.toString();
@@ -906,5 +906,27 @@ describe('CamelRouteResource', () => {
     expect(output.startsWith('# my comment\n')).toBe(true);
     expect(output).toContain('from:');
     expect(output).toContain('uri: direct:start');
+  });
+
+  it('serializes to YAML with multiple leading comments and blank separator', () => {
+    const resource = new CamelRouteResource(
+      [{ from: { uri: 'direct:start', steps: [] } }],
+      ['# first comment', '', '# second comment'],
+    );
+    resource.initialize();
+
+    const output = resource.toString();
+
+    expect(output.startsWith('# first comment\n\n# second comment\n')).toBe(true);
+    expect(output).toContain('from:');
+  });
+
+  it('serializes to YAML with no leading comments', () => {
+    const resource = new CamelRouteResource([{ from: { uri: 'direct:start', steps: [] } }], []);
+    resource.initialize();
+
+    const output = resource.toString();
+
+    expect(output.startsWith('- route:')).toBe(true);
   });
 });
