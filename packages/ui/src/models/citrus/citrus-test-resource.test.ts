@@ -3,10 +3,10 @@ import { citrusTestJson } from '../../stubs/citrus-test';
 import { SourceSchemaType } from '../camel';
 import { CatalogKind } from '../catalog-kind';
 import { EntityType } from '../entities';
-import { SerializerType } from '../kaoto-resource';
 import { AddStepMode, CitrusTestVisualEntity } from '../visualization';
 import { FlowTemplateService } from '../visualization/flows/support/flow-templates-service';
 import { CitrusTestResource } from './citrus-test-resource';
+import { Test } from './entities/Test';
 
 describe('CitrusTestResource', () => {
   it('should initialize Citrus test if no args is specified', () => {
@@ -208,11 +208,10 @@ describe('CitrusTestResource', () => {
       expect(serialized.length).toBeGreaterThan(0);
     });
 
-    it('should always report YAML serializer type', () => {
+    it('should serialize to YAML', () => {
       const resource = new CitrusTestResource(citrusTestJson);
       resource.initialize();
 
-      expect(resource.getSerializerType()).toBe(SerializerType.YAML);
       const yamlOutput = resource.toString();
       expect(yamlOutput).toContain('actions:');
     });
@@ -286,10 +285,78 @@ describe('CitrusTestResource', () => {
     });
   });
 
-  it('serializes to YAML and reports YAML format without a serializer', () => {
-    const resource = new CitrusTestResource({ name: 't', actions: [] } as unknown as import('./entities/Test').Test);
+  it('serializes to YAML without a serializer', () => {
+    const resource = new CitrusTestResource({ name: 't', actions: [] });
     resource.initialize();
-    expect(resource.getSerializerType()).toBe(SerializerType.YAML);
     expect(typeof resource.toString()).toBe('string');
+  });
+
+  describe('initialize() with array input', () => {
+    it('parses an array of raw test entities', () => {
+      const secondTest = { name: 'second-test', actions: [{ echo: { message: 'hi' } }] };
+      const resource = new CitrusTestResource([citrusTestJson, secondTest]);
+      resource.initialize();
+      expect(resource.getVisualEntities()).toHaveLength(2);
+    });
+
+    it('skips null entries inside the array', () => {
+      const resource = new CitrusTestResource([null as unknown as Test, citrusTestJson]);
+      resource.initialize();
+      // null is filtered by getEntity() returning undefined
+      expect(resource.getVisualEntities()).toHaveLength(1);
+    });
+
+    it('skips nested array entries inside the raw array', () => {
+      const resource = new CitrusTestResource([[] as unknown as Test, citrusTestJson]);
+      resource.initialize();
+      expect(resource.getVisualEntities()).toHaveLength(1);
+    });
+  });
+
+  describe('getEntity() wraps unknown raw items in NonVisualEntity', () => {
+    it('places an unrecognised raw object into non-visual entities', () => {
+      // An object without both 'name' and 'actions' does not satisfy isCitrusTest
+      const unknownObj = { foo: 'bar', baz: 'qux' } as unknown as Test;
+      const resource = new CitrusTestResource(unknownObj);
+      resource.initialize();
+      // The unknown object ends up as a NonVisualEntity (not a visual entity)
+      expect(resource.getVisualEntities()).toHaveLength(0);
+      expect(resource.getEntities()).toHaveLength(1);
+    });
+  });
+
+  describe('toJSON() edge cases', () => {
+    it('returns {} when no entities are present (before initialize)', () => {
+      const resource = new CitrusTestResource();
+      // deliberately do NOT call initialize()
+      expect(resource.toJSON()).toEqual({});
+    });
+
+    it('returns {} after initialize with no rawEntities', () => {
+      const resource = new CitrusTestResource();
+      resource.initialize();
+      expect(resource.toJSON()).toEqual({});
+    });
+  });
+
+  describe('toString() edge cases', () => {
+    it('returns the YAML for {} when there are no entities', () => {
+      const resource = new CitrusTestResource();
+      resource.initialize();
+      // stringify({}) produces '{}\n'
+      expect(resource.toString()).toBe('{}\n');
+    });
+  });
+
+  describe('addNewEntity() branch: unsupported non-Test entity type', () => {
+    it('falls through to create a CitrusTestVisualEntity when entity type is not in supportedEntities', () => {
+      const resource = new CitrusTestResource();
+      resource.initialize();
+      // EntityType.Route is not a supported Citrus entity type
+      const id = resource.addNewEntity(EntityType.Route);
+      expect(id).not.toBe('');
+      expect(resource.getVisualEntities()).toHaveLength(1);
+      expect(resource.getVisualEntities()[0]).toBeInstanceOf(CitrusTestVisualEntity);
+    });
   });
 });

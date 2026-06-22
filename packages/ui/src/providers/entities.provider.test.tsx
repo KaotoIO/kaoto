@@ -2,7 +2,9 @@ import { act, renderHook } from '@testing-library/react';
 import { PropsWithChildren, useContext } from 'react';
 import { parse } from 'yaml';
 
-import { KaotoResource, SerializerType } from '../models/kaoto-resource';
+import { CamelRouteResource } from '../models/camel/camel-route-resource';
+import { CamelXMLRouteResource } from '../models/camel/camel-xml-route-resource';
+import { KaotoResource } from '../models/kaoto-resource';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { useSourceCodeStore } from '../store';
 import { mockRandomValues } from '../stubs';
@@ -38,19 +40,16 @@ describe('EntitiesProvider', () => {
   });
 
   it.each([
-    [SerializerType.YAML, undefined],
-    [SerializerType.XML, 'camel.xml'],
-    [SerializerType.YAML, 'camel.yaml'],
-  ])(
-    'should initialize the camelResource using the `%s` serializer provided a `%s` file extension',
-    (serializerType, fileExtension) => {
-      const { result } = renderHook(() => useContext(EntitiesContext), {
-        wrapper: buildWrapper(undefined, fileExtension),
-      });
+    [CamelRouteResource, undefined],
+    [CamelXMLRouteResource, 'camel.xml'],
+    [CamelRouteResource, 'camel.yaml'],
+  ])('should initialize the camelResource as `%s` provided a `%s` file extension', (ResourceClass, fileExtension) => {
+    const { result } = renderHook(() => useContext(EntitiesContext), {
+      wrapper: buildWrapper(undefined, fileExtension),
+    });
 
-      expect(result.current?.camelResource.getSerializerType()).toEqual(serializerType);
-    },
-  );
+    expect(result.current?.camelResource).toBeInstanceOf(ResourceClass);
+  });
 
   describe('Initialization', () => {
     it('should use the source code to initialize the Camel Resource', () => {

@@ -6,7 +6,7 @@ import { EntityOrderingService } from '../camel/entity-ordering.service';
 import { SourceSchemaType } from '../camel/source-schema-type';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
-import { BaseVisualEntityDefinition, KaotoResource, SerializerType } from '../kaoto-resource';
+import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
 import {
   AddStepMode,
   BaseVisualCamelEntityConstructor,
@@ -102,10 +102,6 @@ export class CitrusTestResource implements KaotoResource {
     );
 
     return this.resolvedEntities;
-  }
-
-  getSerializerType(): SerializerType {
-    return SerializerType.YAML;
   }
 
   /**

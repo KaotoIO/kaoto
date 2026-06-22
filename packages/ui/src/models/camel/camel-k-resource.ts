@@ -7,7 +7,7 @@ import { stringify } from 'yaml';
 
 import { TileFilter } from '../../components/Catalog';
 import { BaseEntity, EntityType } from '../entities';
-import { BaseVisualEntityDefinition, KaotoResource, SerializerType } from '../kaoto-resource';
+import { BaseVisualEntityDefinition, KaotoResource } from '../kaoto-resource';
 import { AddStepMode, BaseVisualEntity, IVisualizationNodeData } from '../visualization/base-visual-entity';
 import { MetadataEntity } from '../visualization/metadata';
 import { IKameletDefinition } from './kamelets-catalog';
@@ -111,10 +111,6 @@ export abstract class CamelKResource implements KaotoResource {
 
   getCompatibleRuntimes(): string[] {
     return ['Main', 'Quarkus', 'Spring Boot'];
-  }
-
-  getSerializerType(): SerializerType {
-    return SerializerType.YAML;
   }
 
   toString(): string {
