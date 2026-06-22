@@ -602,5 +602,3 @@ describe('XsltDocumentRenameInput', () => {
     });
   });
 });
-
-// Made with Bob
