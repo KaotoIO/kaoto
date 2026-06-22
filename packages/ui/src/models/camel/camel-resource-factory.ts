@@ -2,7 +2,7 @@ import { CamelYamlDsl, Integration, KameletBinding, Pipe } from '@kaoto/camel-ca
 import { parse } from 'yaml';
 
 import { isXML } from '../../serializers/xml/kaoto-xml-parser';
-import { parseYamlComments } from '../../serializers/yaml-comments';
+import { parseYamlComments } from '../../utils/yaml-comments';
 import { CitrusTestResourceFactory } from '../citrus/citrus-test-resource-factory';
 import { Test } from '../citrus/entities/Test';
 import { KaotoResource } from '../kaoto-resource';

@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { parse } from 'yaml';
 
 import { CamelCatalogService, CatalogKind } from '../../models';
 import { doTryCamelRouteJson, doTryCamelRouteXml } from '../../stubs';
@@ -25,14 +29,14 @@ import { isXML, KaotoXmlParser } from './kaoto-xml-parser';
 
 describe('XmlParser', () => {
   let parser: KaotoXmlParser;
+  const xmlDir = path.join(__dirname, '../../stubs/xml');
+  const yamlDir = path.join(__dirname, '../../stubs/yaml');
+  const xmlFiles = fs.readdirSync(xmlDir).filter((file) => file.endsWith('.xml'));
 
   beforeAll(async () => {
+    parser = new KaotoXmlParser();
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
-  });
-
-  beforeEach(async () => {
-    parser = new KaotoXmlParser();
   });
 
   it('parses XML with a single route correctly', () => {
@@ -88,5 +92,17 @@ describe('XmlParser', () => {
   it('parse beans correctly', () => {
     const result = parser.parseXML(beanWithConstructorAandPropertiesXML);
     expect(result).toEqual([beanWithConstructorAandProperties]);
+  });
+
+  it.each(xmlFiles)('XML to YAML comparison parses and compares %s correctly', (xmlFile) => {
+    const xmlFilePath = path.join(xmlDir, xmlFile);
+    const yamlFilePath = path.join(yamlDir, xmlFile.replace('.xml', '.yaml'));
+
+    const xmlContent = fs.readFileSync(xmlFilePath, 'utf-8');
+    const expectedYamlContent = fs.readFileSync(yamlFilePath, 'utf-8');
+    const expectedYaml = parse(expectedYamlContent);
+    const result = parser.parseXML(xmlContent);
+
+    expect(result).toEqual(expectedYaml);
   });
 });

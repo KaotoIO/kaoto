@@ -21,3 +21,5 @@ export * from './processor-icon';
 export * from './promise-timeout';
 export * from './set-value';
 export * from './update-kamelet-from-custom-schema';
+export * from './xml-comments';
+export * from './yaml-comments';
