@@ -4,7 +4,6 @@ import { beansJson } from '../../stubs/beans';
 import { camelFromJson } from '../../stubs/camel-from';
 import { camelRouteJson, camelRouteYaml } from '../../stubs/camel-route';
 import { EntityType } from '../entities';
-import { SerializerType } from '../kaoto-resource';
 import { AddStepMode } from '../visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../visualization/flows/camel-route-visual-entity';
 import { NonVisualEntity } from '../visualization/flows/non-visual-entity';
@@ -698,14 +697,6 @@ describe('CamelRouteResource', () => {
     });
   });
 
-  describe('getSerializerType', () => {
-    it('should return YAML serializer type', () => {
-      const resource = new CamelRouteResource();
-      resource.initialize();
-      expect(resource.getSerializerType()).toBe(SerializerType.YAML);
-    });
-  });
-
   describe('toString', () => {
     it('should serialize to YAML string', () => {
       const resource = new CamelRouteResource([camelRouteJson]);
@@ -912,7 +903,6 @@ describe('CamelRouteResource', () => {
 
     const output = resource.toString();
 
-    expect(resource.getSerializerType()).toBe(SerializerType.YAML);
     expect(output.startsWith('# my comment\n')).toBe(true);
     expect(output).toContain('from:');
     expect(output).toContain('uri: direct:start');

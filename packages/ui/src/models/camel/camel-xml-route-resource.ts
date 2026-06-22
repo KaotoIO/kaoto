@@ -21,7 +21,6 @@ import { KaotoXmlParser } from '../../serializers/xml/kaoto-xml-parser';
 import { EntityDefinition } from '../../serializers/xml/serializers/entitiy-definition';
 import { KaotoXmlSerializer } from '../../serializers/xml/serializers/kaoto-xml-serializer';
 import { EntityType } from '../entities';
-import { SerializerType } from '../kaoto-resource';
 import { BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelRouteResource } from './camel-route-resource';
 
@@ -49,12 +48,12 @@ export class CamelXMLRouteResource extends CamelRouteResource {
   );
 
   private readonly code: string;
-  private xmlDeclaration: string;
-  private rootElementDefinitions: { name: string; value: string }[];
+  private readonly xmlDeclaration: string;
+  private readonly rootElementDefinitions: { name: string; value: string }[];
   private readonly xmlSerializer = new XMLSerializer();
 
   constructor(source: string = '') {
-    super(undefined);
+    super();
     const parser = new KaotoXmlParser();
     this.xmlDeclaration = CamelXMLRouteResource.parseXmlDeclaration(source);
     this.code = source.replace(this.xmlDeclaration, '');
@@ -64,10 +63,6 @@ export class CamelXMLRouteResource extends CamelRouteResource {
 
   override get supportedEntities() {
     return CamelXMLRouteResource.SUPPORTED_ENTITIES;
-  }
-
-  override getSerializerType(): SerializerType {
-    return SerializerType.XML;
   }
 
   override initialize(): void {

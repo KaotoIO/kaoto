@@ -4,8 +4,9 @@ import { FunctionComponent, MouseEvent, RefObject, useCallback, useContext, useS
 import { useRuntimeContext } from '../../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
 import { EntitiesContext } from '../../../../../providers/entities.provider';
-import { getSupportedDsls } from '../../../../../serializers/serializer-dsl-lists';
 import { requiresCatalogChange } from '../../../../../utils/catalog-helper';
+
+const DSL_LIST = [SourceSchemaType.Route, SourceSchemaType.Kamelet, SourceSchemaType.Pipe, SourceSchemaType.Test];
 
 interface ISourceTypeSelector {
   onSelect?: (value: SourceSchemaType, changeCatalog: boolean) => void;
@@ -14,10 +15,10 @@ interface ISourceTypeSelector {
 export const IntegrationTypeSelectorToggle: FunctionComponent<ISourceTypeSelector> = (props) => {
   const runtimeContext = useRuntimeContext();
   const { selectedCatalog } = runtimeContext;
-  const { currentSchemaType, camelResource } = useContext(EntitiesContext)!;
+  const { currentSchemaType } = useContext(EntitiesContext)!;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
   const [isOpen, setIsOpen] = useState(false);
-  const dslEntries = getSupportedDsls(camelResource);
+  const dslEntries = DSL_LIST;
 
   const onSelect = useCallback(
     (_event: MouseEvent | undefined, flowType: string | number | undefined) => {

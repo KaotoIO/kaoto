@@ -12,7 +12,8 @@ import { FunctionComponent, MouseEvent, PropsWithChildren, Ref, useCallback, use
 
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { EntitiesContext } from '../../../../providers/entities.provider';
-import { getSupportedDsls } from '../../../../serializers/serializer-dsl-lists';
+
+const DSL_LIST = [SourceSchemaType.Route, SourceSchemaType.Kamelet, SourceSchemaType.Pipe, SourceSchemaType.Test];
 
 interface ISourceTypeSelector extends PropsWithChildren {
   isStatic?: boolean;
@@ -20,10 +21,10 @@ interface ISourceTypeSelector extends PropsWithChildren {
 }
 
 export const FlowTypeSelector: FunctionComponent<ISourceTypeSelector> = (props) => {
-  const { currentSchemaType, visualEntities, camelResource } = useContext(EntitiesContext)!;
+  const { currentSchemaType, visualEntities } = useContext(EntitiesContext)!;
   const totalFlowsCount = visualEntities.length;
   const currentFlowType: ISourceSchema = sourceSchemaConfig.config[currentSchemaType];
-  const dslList = getSupportedDsls(camelResource);
+  const dslList = DSL_LIST;
   const [isOpen, setIsOpen] = useState(false);
 
   /** Toggle the DSL dropdown */

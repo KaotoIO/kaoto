@@ -3,7 +3,8 @@ import { PropsWithChildren, useContext } from 'react';
 
 import { SourceSchemaType } from '../models/camel';
 import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
-import { SerializerType } from '../models/kaoto-resource';
+import { CamelRouteResource } from '../models/camel/camel-route-resource';
+import { CamelXMLRouteResource } from '../models/camel/camel-xml-route-resource';
 import { CamelRouteVisualEntity } from '../models/visualization/flows';
 import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { pipeYaml } from '../stubs/pipe';
@@ -53,7 +54,7 @@ describe('KaotoResourceProvider', () => {
     });
 
     // The mount emits code:updated with no path → handler must reconcile path ?? fileExtension
-    expect(result.current?.kaotoResource?.getSerializerType()).toEqual(SerializerType.XML);
+    expect(result.current?.kaotoResource).toBeInstanceOf(CamelXMLRouteResource);
   });
 
   it('prefers an explicit path from the event over fileExtension', () => {
@@ -70,7 +71,8 @@ describe('KaotoResourceProvider', () => {
     });
 
     // An explicit YAML path must win over the .xml fileExtension
-    expect(result.current?.kaotoResource?.getSerializerType()).toEqual(SerializerType.YAML);
+    expect(result.current?.kaotoResource).toBeInstanceOf(CamelRouteResource);
+    expect(result.current?.kaotoResource).not.toBeInstanceOf(CamelXMLRouteResource);
   });
 
   it('keeps resource undefined when the factory throws on malformed code at mount', () => {

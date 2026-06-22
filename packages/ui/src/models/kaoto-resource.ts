@@ -25,7 +25,6 @@ export interface KaotoResource {
   toString(): string;
   getType(): SourceSchemaType;
   getCanvasEntityList(): BaseVisualEntityDefinition;
-  getSerializerType(): SerializerType;
 
   /** Components Catalog related methods */
   getCompatibleComponents(
@@ -41,11 +40,6 @@ export interface KaotoResource {
    * while CitrusTestResource returns ["Citrus"].
    */
   getCompatibleRuntimes(): string[];
-}
-
-export enum SerializerType {
-  XML = 'XML',
-  YAML = 'YAML',
 }
 
 export type Metadata = { [key: string]: unknown };

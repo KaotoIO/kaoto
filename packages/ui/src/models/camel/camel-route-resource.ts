@@ -22,7 +22,7 @@ import { TileFilter } from '../../components/Catalog';
 import { insertYamlComments } from '../../serializers/yaml-comments';
 import { CatalogKind } from '../catalog-kind';
 import { BaseEntity, EntityType } from '../entities';
-import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource, SerializerType } from '../kaoto-resource';
+import { BaseVisualEntityDefinition, BeansAwareResource, KaotoResource } from '../kaoto-resource';
 import { AddStepMode, BaseVisualCamelEntityConstructor } from '../visualization/base-visual-entity';
 import { CamelCatalogService, CamelRouteVisualEntity } from '../visualization/flows';
 import { CamelErrorHandlerVisualEntity } from '../visualization/flows/camel-error-handler-visual-entity';
@@ -171,10 +171,6 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
       );
 
     return this.resolvedEntities;
-  }
-
-  getSerializerType(): SerializerType {
-    return SerializerType.YAML;
   }
 
   addNewEntity(entityType?: EntityType, entityTemplate?: unknown, insertAfterEntityId?: string): string {
