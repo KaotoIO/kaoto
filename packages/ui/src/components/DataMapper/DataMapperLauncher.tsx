@@ -188,7 +188,7 @@ export const DataMapperLauncher: FunctionComponent<{ vizNode?: IVisualizationNod
           />
         </FormGroup>
       )}
-      {!isXsltDocumentDefined && (
+      {(!xsltFileExists || !isXsltDocumentDefined) && (
         <HelperText>
           <HelperTextItem variant="error">
             This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure it.
