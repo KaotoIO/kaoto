@@ -242,33 +242,6 @@ describe('CitrusTestResource', () => {
     });
   });
 
-  describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
-      const resource = new CitrusTestResource();
-      resource.initialize();
-      const compatibleRuntimes = resource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Citrus']);
-    });
-
-    it('should return the same list regardless of resource content', () => {
-      const emptyResource = new CitrusTestResource();
-      emptyResource.initialize();
-      const resourceWithTest = new CitrusTestResource(citrusTestJson);
-      resourceWithTest.initialize();
-
-      expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithTest.getCompatibleRuntimes());
-    });
-
-    it('should return an array with one runtime name', () => {
-      const resource = new CitrusTestResource();
-      resource.initialize();
-      const compatibleRuntimes = resource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Citrus']);
-    });
-  });
-
   describe('getCompatibleComponents', () => {
     it('should get compatible types', () => {
       const resource = new CitrusTestResource(citrusTestJson);

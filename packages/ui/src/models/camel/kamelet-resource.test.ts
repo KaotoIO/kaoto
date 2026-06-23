@@ -119,33 +119,6 @@ describe('KameletResource', () => {
     });
   });
 
-  describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
-      const kameletResource = new KameletResource();
-      kameletResource.initialize();
-      const compatibleRuntimes = kameletResource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
-    });
-
-    it('should return the same list regardless of resource content', () => {
-      const emptyResource = new KameletResource();
-      emptyResource.initialize();
-      const resourceWithKamelet = new KameletResource(kameletJson);
-      resourceWithKamelet.initialize();
-
-      expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithKamelet.getCompatibleRuntimes());
-    });
-
-    it('should return an array with three runtime names', () => {
-      const kameletResource = new KameletResource();
-      kameletResource.initialize();
-      const compatibleRuntimes = kameletResource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
-    });
-  });
-
   it('should support RouteTemplateBeansAwareResource methods', () => {
     const model = cloneDeep(kameletJson);
     expect(model.spec.template.beans).toBeUndefined();

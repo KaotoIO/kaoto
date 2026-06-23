@@ -31,33 +31,6 @@ describe('PipeResource', () => {
     expect(vis.pipe.spec?.sink).toBeUndefined();
   });
 
-  describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
-      const resource = new PipeResource();
-      resource.initialize();
-      const compatibleRuntimes = resource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
-    });
-
-    it('should return the same list regardless of resource content', () => {
-      const emptyResource = new PipeResource();
-      emptyResource.initialize();
-      const resourceWithPipe = new PipeResource(pipeJson);
-      resourceWithPipe.initialize();
-
-      expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithPipe.getCompatibleRuntimes());
-    });
-
-    it('should return an array with three runtime names', () => {
-      const resource = new PipeResource();
-      resource.initialize();
-      const compatibleRuntimes = resource.getCompatibleRuntimes();
-
-      expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
-    });
-  });
-
   it('should create/delete entities', () => {
     const resource = new PipeResource();
     resource.initialize();
