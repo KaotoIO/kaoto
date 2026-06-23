@@ -90,11 +90,19 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
       return xslAttribute;
     }
 
-    const hasContainerCopyOf = mapping.children.some(
-      (c) => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER,
+    const containerCopyOf = mapping.children.find(
+      (c): c is ValueSelector => c instanceof ValueSelector && c.valueType === ValueType.CONTAINER,
     );
     const hasChildFieldItems = mapping.children.some((c) => c instanceof FieldItem);
-    if (hasContainerCopyOf && !hasChildFieldItems) return parent;
+    // A whole-node `xsl:copy-of` already reproduces the target element when its selected
+    // node has the same name (e.g. auto-mapped ShipTo -> copy-of of source ShipTo), so the
+    // wrapper element is dropped to avoid double nesting. When the copied node has a different
+    // name, the element is an authored wrapper (e.g. <ReturnAddress><xsl:copy-of .../></...>)
+    // and must be preserved.
+    if (containerCopyOf && !hasChildFieldItems) {
+      const copiedName = FieldItemHandler.getCopyOfElementName(containerCopyOf.expression);
+      if (copiedName === mapping.field.name) return parent;
+    }
 
     const jsonElement = MappingSerializerJsonAddon.populateFieldItem(parent, mapping);
     if (jsonElement) return jsonElement;
@@ -115,6 +123,18 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
     const field = FieldItemHandler.getOrCreateAttributeField(element, parentField);
     if (!field) return null;
     return { mappingItem: new FieldItem(parentMapping, field), fieldItem: field };
+  }
+
+  /**
+   * Extract the local name of the element an `xsl:copy-of` would reproduce from its `select`
+   * expression — i.e. the element name of the last location step. Returns `null` when the last
+   * step is not a plain element name (wildcard, attribute, function call, node test, etc.).
+   */
+  private static getCopyOfElementName(expression: string): string | null {
+    const lastStep = (expression.trim().split('/').pop() ?? '').replace(/\[[^\]]*\]/g, '').trim();
+    if (!lastStep || lastStep.startsWith('@') || lastStep.includes('(') || lastStep.includes('*')) return null;
+    const localName = lastStep.includes(':') ? lastStep.slice(lastStep.lastIndexOf(':') + 1) : lastStep;
+    return localName || null;
   }
 
   private static getOrCreateAttributeField(item: Element, parentField: IParentType): IField | null {

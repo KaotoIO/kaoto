@@ -1,5 +1,6 @@
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IParentType } from '../../models/datamapper/document';
 import {
+  FieldItem,
   ForEachGroupItem,
   ForEachItem,
   GroupingStrategy,
@@ -7,6 +8,8 @@ import {
   MappingTree,
   SortItem,
   UnknownMappingItem,
+  ValueSelector,
+  ValueType,
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import {
@@ -80,6 +83,37 @@ describe('FieldItemHandler', () => {
     expect('name' in field && field.name).toBe('newAttr');
     expect('isAttribute' in field && field.isAttribute).toBe(true);
     expect('namespaceURI' in field && field.namespaceURI).toBe('urn:test');
+  });
+
+  it('should preserve the wrapper element when copy-of reproduces a differently-named element (#3343)', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const targetField = targetDoc.fields[0];
+    const fieldItem = new FieldItem(mappingTree, targetField);
+    const selector = new ValueSelector(fieldItem, ValueType.CONTAINER);
+    selector.expression = '$stockInfoDoc//si:StockInfo/si:Warehouse[1]/addr:StandardAddress';
+    fieldItem.children.push(selector);
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, fieldItem);
+
+    expect(el).not.toBe(parent);
+    expect(el.localName).toBe(targetField.name);
+  });
+
+  it('should drop the wrapper element when copy-of reproduces a same-named element', () => {
+    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const targetField = targetDoc.fields[0];
+    const fieldItem = new FieldItem(mappingTree, targetField);
+    const selector = new ValueSelector(fieldItem, ValueType.CONTAINER);
+    selector.expression = `/ns0:Source/ns0:${targetField.name}`;
+    fieldItem.children.push(selector);
+
+    const xslt = MappingSerializerService.createNew();
+    const parent = xslt.documentElement;
+    const el = handler.serialize(parent, fieldItem);
+
+    expect(el).toBe(parent);
   });
 });
 
