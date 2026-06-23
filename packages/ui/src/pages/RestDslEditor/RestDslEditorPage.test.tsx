@@ -47,12 +47,12 @@ describe('RestDslEditorPage', () => {
   /**
    * Helper function to render RestDslEditorPage with a camel resource
    */
-  const renderPage = (yamlContent: string) => {
+  const renderPage = async (yamlContent: string) => {
     const camelResource = CamelResourceFactory.createCamelResource(yamlContent);
-    camelResource.initialize();
-    const { Provider, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy } = TestProvidersWrapper({
-      camelResource,
-    });
+    const { Provider, updateEntitiesFromCamelResourceSpy, updateSourceCodeFromEntitiesSpy } =
+      await TestProvidersWrapper({
+        camelResource,
+      });
 
     const result = render(
       <Provider>
@@ -88,7 +88,7 @@ describe('RestDslEditorPage', () => {
 
   describe('Entity Updates', () => {
     it('should update entity on property change', async () => {
-      const { camelResource, updateSourceCodeFromEntitiesSpy } = renderPage(`
+      const { camelResource, updateSourceCodeFromEntitiesSpy } = await renderPage(`
 - rest:
     id: rest-1
     path: /api
@@ -120,7 +120,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should add REST configuration', async () => {
-      const { camelResource, updateEntitiesFromCamelResourceSpy } = renderPage(`
+      const { camelResource, updateEntitiesFromCamelResourceSpy } = await renderPage(`
 - rest:
     id: rest-1
       `);
@@ -139,7 +139,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should add REST service', async () => {
-      const { camelResource, updateEntitiesFromCamelResourceSpy } = renderPage(`
+      const { camelResource, updateEntitiesFromCamelResourceSpy } = await renderPage(`
 - rest:
     id: rest-1
       `);
@@ -158,7 +158,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should add REST method', async () => {
-      const { camelResource, updateEntitiesFromCamelResourceSpy } = renderPage(`
+      const { camelResource, updateEntitiesFromCamelResourceSpy } = await renderPage(`
 - rest:
     id: rest-1
     path: /api
@@ -180,7 +180,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should delete entity', async () => {
-      const { camelResource, updateEntitiesFromCamelResourceSpy } = renderPage(`
+      const { camelResource, updateEntitiesFromCamelResourceSpy } = await renderPage(`
 - rest:
     id: rest-1
     get:
@@ -209,7 +209,7 @@ describe('RestDslEditorPage', () => {
 
   describe('UI Updates', () => {
     it('should update tree and form on add REST configuration', async () => {
-      const { camelResource } = renderPage(`
+      const { camelResource } = await renderPage(`
 - rest:
     id: rest-1
       `);
@@ -235,7 +235,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should update tree and form on add REST service', async () => {
-      const { camelResource } = renderPage(`
+      const { camelResource } = await renderPage(`
 - rest:
     id: rest-1
       `);
@@ -259,7 +259,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should update tree and form on add REST method', async () => {
-      renderPage(`
+      await renderPage(`
 - rest:
     id: rest-1
     path: /api
@@ -284,7 +284,7 @@ describe('RestDslEditorPage', () => {
     });
 
     it('should update tree and form on delete', async () => {
-      renderPage(`
+      await renderPage(`
 - rest:
     id: rest-1
     get:

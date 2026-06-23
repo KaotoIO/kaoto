@@ -7,8 +7,8 @@ import { TestProvidersWrapper } from '../../stubs';
 import { GroupAutoStartupSwitch } from './GroupAutoStartupSwitch';
 
 describe('GroupAutoStartupSwitch', () => {
-  it('should return null when vizNode is undefined', () => {
-    const { Provider } = TestProvidersWrapper();
+  it('should return null when vizNode is undefined', async () => {
+    const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
         <GroupAutoStartupSwitch />
@@ -17,7 +17,7 @@ describe('GroupAutoStartupSwitch', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should return null when entity is undefined', () => {
+  it('should return null when entity is undefined', async () => {
     const vizNode = createVisualizationNode('test-node', {
       name: 'route',
       path: 'route',
@@ -28,7 +28,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     });
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
         <GroupAutoStartupSwitch vizNode={vizNode} />
@@ -37,7 +37,7 @@ describe('GroupAutoStartupSwitch', () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it('should render switch as checked when autoStartup is enabled (undefined)', () => {
+  it('should render switch as checked when autoStartup is enabled (undefined)', async () => {
     const entity = new CamelRouteVisualEntity({
       route: { from: { uri: 'direct:test', steps: [] } },
     });
@@ -53,7 +53,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -69,7 +69,7 @@ describe('GroupAutoStartupSwitch', () => {
     expect(containerDiv).toBeInTheDocument();
   });
 
-  it('should render switch as unchecked when autoStartup is false', () => {
+  it('should render switch as unchecked when autoStartup is false', async () => {
     const entity = new CamelRouteVisualEntity({
       route: { from: { uri: 'direct:test', steps: [] }, autoStartup: false },
     });
@@ -85,7 +85,7 @@ describe('GroupAutoStartupSwitch', () => {
       description: '',
     }) as IVisualizationNode;
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -119,7 +119,7 @@ describe('GroupAutoStartupSwitch', () => {
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -160,7 +160,7 @@ describe('GroupAutoStartupSwitch', () => {
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -198,7 +198,7 @@ describe('GroupAutoStartupSwitch', () => {
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -235,7 +235,7 @@ describe('GroupAutoStartupSwitch', () => {
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -277,7 +277,7 @@ describe('GroupAutoStartupSwitch', () => {
     }) as IVisualizationNode;
 
     const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>

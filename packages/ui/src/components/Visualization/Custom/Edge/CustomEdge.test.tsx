@@ -43,7 +43,7 @@ describe('CustomEdge', () => {
     }).toThrow('EdgeEndWithButton must be used only on Edge elements');
   });
 
-  it('should render edge with custom-edge class when edge is valid', () => {
+  it('should render edge with custom-edge class when edge is valid', async () => {
     const vizNode = createVisualizationNode('route.from.steps.0.log', {
       name: 'log',
       path: 'route.from.steps.0.log',
@@ -83,7 +83,7 @@ describe('CustomEdge', () => {
     element.setStartPoint(0, 0);
     element.setEndPoint(100, 100);
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>

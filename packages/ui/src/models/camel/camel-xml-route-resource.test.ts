@@ -17,7 +17,7 @@ describe('CamelXMLRouteResource', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
 
-    resource.initialize();
+    await resource.initialize();
 
     const visualEntities = resource.getVisualEntities();
     expect(visualEntities).toHaveLength(1);
@@ -30,13 +30,13 @@ describe('CamelXMLRouteResource', () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     const resource = new CamelXMLRouteResource(xml);
-    resource.initialize();
+    await resource.initialize();
 
     expect(resource.toString()).toContain('<route');
     expect(resource.toString()).toContain('uri="direct:start"');
   });
 
-  it('excludes YAML-only entities from the canvas list', () => {
+  it('excludes YAML-only entities from the canvas list', async () => {
     const resource = new CamelXMLRouteResource(xml);
     const names = resource.supportedEntities.map((e) => e.type);
     expect(names).toContain(EntityType.Route);
@@ -44,7 +44,7 @@ describe('CamelXMLRouteResource', () => {
     expect(names).not.toContain(EntityType.Intercept);
   });
 
-  it('extracts leading comments, the XML declaration, and root element definitions on construction', () => {
+  it('extracts leading comments, the XML declaration, and root element definitions on construction', async () => {
     const source = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Comment 1 -->\n<camel xmlns="http://camel.apache.org/schema/spring"></camel>`;
     const resource = new CamelXMLRouteResource(source);
     expect(resource.toString()).toContain('<?xml version="1.0" encoding="UTF-8"?>');
@@ -52,20 +52,20 @@ describe('CamelXMLRouteResource', () => {
     expect(resource.toString()).toContain('xmlns="http://camel.apache.org/schema/spring"');
   });
 
-  it('produces no XML declaration prefix when the source has none', () => {
+  it('produces no XML declaration prefix when the source has none', async () => {
     const resource = new CamelXMLRouteResource(xml);
     const output = resource.toString();
     expect(output.startsWith('<?xml')).toBe(false);
   });
 
-  it('XML declaration is followed by a newline when present', () => {
+  it('XML declaration is followed by a newline when present', async () => {
     const source = `<?xml version="1.0" encoding="UTF-8"?>\n<camel></camel>`;
     const resource = new CamelXMLRouteResource(source);
     const output = resource.toString();
     expect(output).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n/);
   });
 
-  it('extracts multiple leading comments and includes all in toString()', () => {
+  it('extracts multiple leading comments and includes all in toString()', async () => {
     const source = `<!-- First comment -->\n<!-- Second comment -->\n<camel></camel>`;
     const resource = new CamelXMLRouteResource(source);
     const output = resource.toString();
@@ -73,7 +73,7 @@ describe('CamelXMLRouteResource', () => {
     expect(output).toContain('<!-- Second comment -->');
   });
 
-  it('does not extract a comment that appears after non-whitespace content', () => {
+  it('does not extract a comment that appears after non-whitespace content', async () => {
     // The comment is inside the XML body, not a leading comment
     const source = `<camel><!-- inline comment --></camel>`;
     const resource = new CamelXMLRouteResource(source);
@@ -82,7 +82,7 @@ describe('CamelXMLRouteResource', () => {
     expect(output).not.toMatch(/^<!--/);
   });
 
-  it('preserves a multiline leading comment across a round-trip', () => {
+  it('preserves a multiline leading comment across a round-trip', async () => {
     const source = `<!-- line1\nline2\nline3 -->\n<camel></camel>`;
     const resource = new CamelXMLRouteResource(source);
     const output = resource.toString();
@@ -91,11 +91,11 @@ describe('CamelXMLRouteResource', () => {
     expect(output).toContain('line3 -->');
   });
 
-  it('does not throw when constructed with an empty string', () => {
+  it('does not throw when constructed with an empty string', async () => {
     expect(() => new CamelXMLRouteResource('')).not.toThrow();
   });
 
-  it('toString() returns a string when constructed from empty input', () => {
+  it('toString() returns a string when constructed from empty input', async () => {
     const resource = new CamelXMLRouteResource('');
     expect(typeof resource.toString()).toBe('string');
   });
@@ -105,7 +105,7 @@ describe('CamelXMLRouteResource', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Processor, catalogsMap.modelCatalogMap);
     const beansXml = `<camel><bean type="com.example.MyBean"/></camel>`;
     const resource = new CamelXMLRouteResource(beansXml);
-    resource.initialize();
+    await resource.initialize();
     const output = resource.toString();
     expect(typeof output).toBe('string');
   });

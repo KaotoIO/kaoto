@@ -47,12 +47,12 @@ describe('useAddStep', () => {
 
   let wrapper: FunctionComponent<PropsWithChildren>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     camelResource = new CamelRouteResource();
     camelResource.initialize();
     getCompatibleComponentsSpy = vi.spyOn(camelResource, 'getCompatibleComponents');
 
-    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = await TestProvidersWrapper({ camelResource });
     updateEntitiesFromCamelResourceSpy = updateSpy;
 
     wrapper = ({ children }) => (
@@ -125,16 +125,17 @@ describe('useAddStep', () => {
     });
 
     // Create a wrapper that provides null entities context
-    const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { Provider } = TestProvidersWrapper({ camelResource, entitiesContextValue: null });
-      return (
-        <Provider>
-          <CatalogModalContext.Provider value={mockCatalogModalContext}>
-            <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
-          </CatalogModalContext.Provider>
-        </Provider>
-      );
-    };
+    const { Provider: NullEntitiesProvider } = await TestProvidersWrapper({
+      camelResource,
+      entitiesContextValue: null,
+    });
+    const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <NullEntitiesProvider>
+        <CatalogModalContext.Provider value={mockCatalogModalContext}>
+          <MetadataContext.Provider value={mockMetadataContext}>{children}</MetadataContext.Provider>
+        </CatalogModalContext.Provider>
+      </NullEntitiesProvider>
+    );
 
     const { result } = renderHook(() => useAddStep(vizNode, AddStepMode.AppendStep), {
       wrapper: nullEntitiesWrapper,
@@ -259,7 +260,9 @@ describe('useAddStep', () => {
     getCompatibleComponentsSpy.mockReturnValue(mockCompatibleComponents);
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
-    const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = await TestProvidersWrapper({
+      camelResource,
+    });
     const noMetadataWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <Provider>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>

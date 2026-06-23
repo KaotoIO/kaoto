@@ -29,7 +29,7 @@ export class PipeResource extends CamelKResource {
   }
 
   async initialize(): Promise<void> {
-    super.initialize();
+    await super.initialize();
 
     this.flow = new PipeVisualEntity(this.pipe);
     this.errorHandler =

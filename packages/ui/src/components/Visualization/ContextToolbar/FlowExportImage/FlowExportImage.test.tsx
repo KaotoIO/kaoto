@@ -45,7 +45,7 @@ describe('FlowExportImage', () => {
   let mockSurface: HTMLElement;
   let mockGraph: MockGraph;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     mockSurface = document.createElement('div');
     mockSurface.className = 'pf-topology-visualization-surface';
 
@@ -83,8 +83,8 @@ describe('FlowExportImage', () => {
     vi.clearAllMocks();
   });
 
-  it('renders the export button', () => {
-    const { Provider } = TestProvidersWrapper();
+  it('renders the export button', async () => {
+    const { Provider } = await TestProvidersWrapper();
     render(
       <Provider>
         <FlowExportImage />
@@ -94,7 +94,7 @@ describe('FlowExportImage', () => {
   });
 
   it('runs full export flow', async () => {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     render(
       <Provider>
         <FlowExportImage />
@@ -126,7 +126,7 @@ describe('FlowExportImage', () => {
       return realQuerySelector(selector ?? '');
     }) as unknown as typeof document.querySelector;
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     render(
       <Provider>
         <FlowExportImage />

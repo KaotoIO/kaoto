@@ -68,7 +68,7 @@ export class CamelXMLRouteResource extends CamelRouteResource {
   override async initialize(): Promise<void> {
     const parser = new KaotoXmlParser();
     this.setRawEntities(parser.parseXML(this.code) as CamelYamlDsl);
-    super.initialize();
+    await super.initialize();
   }
 
   override toString(): string {

@@ -1,5 +1,7 @@
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
@@ -14,13 +16,17 @@ describe('FlowExportDocument.tsx', () => {
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     camelResource.addNewEntity(EntityType.RouteConfiguration);
+    // Materialize the new entities into source so the wrapper's re-initialize()
+    // (which rebuilds entities from source) preserves them — mirrors how runtime
+    // recreates the resource from serialized code on `code:updated`.
+    camelResource = new CamelRouteResource(parse(camelResource.toString()) as CamelYamlDsl);
   });
 
   afterEach(() => vi.clearAllMocks());
 
   it('should be render', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <VisualizationProvider controller={ControllerService.createController()}>
         <Provider>

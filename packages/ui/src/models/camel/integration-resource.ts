@@ -20,7 +20,7 @@ export class IntegrationResource extends CamelKResource {
   }
 
   async initialize(): Promise<void> {
-    super.initialize();
+    await super.initialize();
     // TODO: Initialize visual entities when implemented
   }
 

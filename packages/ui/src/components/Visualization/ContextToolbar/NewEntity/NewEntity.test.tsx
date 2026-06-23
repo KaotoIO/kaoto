@@ -19,8 +19,8 @@ describe('NewEntity', () => {
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);
   });
 
-  it('component renders', () => {
-    const { Provider } = TestProvidersWrapper();
+  it('component renders', async () => {
+    const { Provider } = await TestProvidersWrapper();
     const wrapper = render(
       <Provider>
         <NewEntity />
@@ -32,7 +32,7 @@ describe('NewEntity', () => {
   });
 
   it('should call `updateEntitiesFromCamelResource` when selecting an item', async () => {
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
     const wrapper = render(
       <Provider>
         <NewEntity />
@@ -57,7 +57,7 @@ describe('NewEntity', () => {
   });
 
   it('should toggle list of DSLs', async () => {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const wrapper = render(
       <Provider>
         <NewEntity />
@@ -85,7 +85,7 @@ describe('NewEntity', () => {
   });
 
   it('should close Select when pressing ESC', async () => {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const wrapper = render(
       <Provider>
         <NewEntity />
@@ -117,7 +117,7 @@ describe('NewEntity', () => {
 
   describe('YAML entity filtering', () => {
     it('should show all entities including YAML-only ones', async () => {
-      const { Provider, camelResource } = TestProvidersWrapper();
+      const { Provider, camelResource } = await TestProvidersWrapper();
 
       const wrapper = render(
         <Provider>
@@ -156,7 +156,7 @@ describe('NewEntity', () => {
 
   describe('entity grouping', () => {
     it('should display entities in proper groups', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       const wrapper = render(
         <Provider>
@@ -180,7 +180,7 @@ describe('NewEntity', () => {
     });
 
     it('should allow selecting entities from submenus', async () => {
-      const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper();
+      const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper();
 
       const wrapper = render(
         <Provider>
@@ -227,7 +227,7 @@ describe('NewEntity', () => {
         groups: {},
       });
 
-      const { Provider } = TestProvidersWrapper({ camelResource: mockResource });
+      const { Provider } = await TestProvidersWrapper({ camelResource: mockResource });
 
       const wrapper = render(
         <Provider>

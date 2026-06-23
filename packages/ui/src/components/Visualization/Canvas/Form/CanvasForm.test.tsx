@@ -59,7 +59,7 @@ describe('CanvasForm', () => {
   });
 
   it('should render', async () => {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
         <Provider>
@@ -82,7 +82,7 @@ describe('CanvasForm', () => {
       },
     } as CanvasNode;
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
         <Provider>
@@ -120,7 +120,7 @@ describe('CanvasForm', () => {
     vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue(undefined);
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(undefined);
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
         <Provider>
@@ -158,7 +158,7 @@ describe('CanvasForm', () => {
     vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue(null as unknown as KaotoSchemaDefinition['schema']);
     vi.spyOn(vizNode, 'getNodeDefinition').mockReturnValue(null);
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const { container } = await act(async () =>
       render(
         <Provider>
@@ -179,7 +179,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
     });
 
@@ -218,7 +218,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
     });
 
@@ -258,7 +258,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
     });
 
@@ -300,7 +300,7 @@ describe('CanvasForm', () => {
     const { nodes } = FlowService.getFlowDiagram('test', await kameletVisualEntity.toVizNode());
     selectedNode = nodes[nodes.length - 1];
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
     });
 
@@ -336,7 +336,7 @@ describe('CanvasForm', () => {
     });
 
     it('normal text field', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -393,7 +393,7 @@ describe('CanvasForm', () => {
         },
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -458,7 +458,7 @@ describe('CanvasForm', () => {
         },
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -527,7 +527,7 @@ describe('CanvasForm', () => {
         },
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -575,7 +575,7 @@ describe('CanvasForm', () => {
     });
 
     it('normal text field', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -628,7 +628,7 @@ describe('CanvasForm', () => {
         },
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -689,7 +689,7 @@ describe('CanvasForm', () => {
         },
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(
@@ -751,7 +751,7 @@ describe('CanvasForm', () => {
         },
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () =>
         render(

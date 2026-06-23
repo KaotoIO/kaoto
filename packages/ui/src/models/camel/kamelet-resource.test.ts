@@ -13,13 +13,13 @@ describe('KameletResource', () => {
     mockRandomValues();
   });
 
-  it('should create a new KameletResource', () => {
+  it('should create a new KameletResource', async () => {
     const kameletResource = new KameletResource();
-    kameletResource.initialize();
+    await kameletResource.initialize();
     expect(kameletResource).toMatchSnapshot();
   });
 
-  it('should create a new KameletResource with a kamelet', () => {
+  it('should create a new KameletResource with a kamelet', async () => {
     const kameletResource = new KameletResource({
       kind: SourceSchemaType.Kamelet,
       metadata: {
@@ -52,19 +52,19 @@ describe('KameletResource', () => {
         },
       },
     });
-    kameletResource.initialize();
+    await kameletResource.initialize();
 
     expect(kameletResource).toMatchSnapshot();
   });
 
-  it('should return an empty array for supportedEntities', () => {
+  it('should return an empty array for supportedEntities', async () => {
     const kameletResource = new KameletResource();
     expect(kameletResource.supportedEntities).toEqual([]);
   });
 
-  it('should remove the entity', () => {
+  it('should remove the entity', async () => {
     const kameletResource = new KameletResource();
-    kameletResource.initialize();
+    await kameletResource.initialize();
 
     kameletResource.removeEntity();
 
@@ -73,21 +73,21 @@ describe('KameletResource', () => {
     expect(kameletVisualEntities).toHaveLength(1);
   });
 
-  it('should get the type', () => {
+  it('should get the type', async () => {
     const kameletResource = new KameletResource();
-    kameletResource.initialize();
+    await kameletResource.initialize();
     expect(kameletResource.getType()).toEqual(SourceSchemaType.Kamelet);
   });
 
-  it('should get the visual entities (Camel Route Visual Entity)', () => {
+  it('should get the visual entities (Camel Route Visual Entity)', async () => {
     const kameletResource = new KameletResource();
-    kameletResource.initialize();
+    await kameletResource.initialize();
     expect(kameletResource.getVisualEntities()).toMatchSnapshot();
   });
 
-  it('should convert to JSON', () => {
+  it('should convert to JSON', async () => {
     const kameletResource = new KameletResource();
-    kameletResource.initialize();
+    await kameletResource.initialize();
     expect(kameletResource.toJSON()).toMatchSnapshot();
   });
 
@@ -125,37 +125,37 @@ describe('KameletResource', () => {
   });
 
   describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
+    it('should return the correct list of compatible runtimes', async () => {
       const kameletResource = new KameletResource();
-      kameletResource.initialize();
+      await kameletResource.initialize();
       const compatibleRuntimes = kameletResource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
     });
 
-    it('should return the same list regardless of resource content', () => {
+    it('should return the same list regardless of resource content', async () => {
       const emptyResource = new KameletResource();
-      emptyResource.initialize();
+      await emptyResource.initialize();
       const resourceWithKamelet = new KameletResource(kameletJson);
-      resourceWithKamelet.initialize();
+      await resourceWithKamelet.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithKamelet.getCompatibleRuntimes());
     });
 
-    it('should return an array with three runtime names', () => {
+    it('should return an array with three runtime names', async () => {
       const kameletResource = new KameletResource();
-      kameletResource.initialize();
+      await kameletResource.initialize();
       const compatibleRuntimes = kameletResource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
     });
   });
 
-  it('should support RouteTemplateBeansAwareResource methods', () => {
+  it('should support RouteTemplateBeansAwareResource methods', async () => {
     const model = cloneDeep(kameletJson);
     expect(model.spec.template.beans).toBeUndefined();
     const kameletResource = new KameletResource(model);
-    kameletResource.initialize();
+    await kameletResource.initialize();
     expect(kameletResource.getRouteTemplateBeansEntity()).toBeUndefined();
     kameletResource.createRouteTemplateBeansEntity();
     const beansEntity = kameletResource.getRouteTemplateBeansEntity();

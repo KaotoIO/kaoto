@@ -12,11 +12,11 @@ describe('useRestDslImportWizard', () => {
   const fetchSpy = vi.spyOn(globalThis, 'fetch');
   let wrapper: FunctionComponent<PropsWithChildren>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     fetchSpy.mockClear();
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     wrapper = ({ children }) => (
       <SettingsContext.Provider value={mockSettingsContext}>
         <Provider>{children}</Provider>
@@ -126,7 +126,7 @@ describe('useRestDslImportWizard', () => {
       expect(result.current.importOperations).toHaveLength(1);
     });
 
-    it('handles invalid OpenAPI spec gracefully', () => {
+    it('handles invalid OpenAPI spec gracefully', async () => {
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
 
       let returnValue: { error?: string } | undefined;
@@ -173,7 +173,7 @@ describe('useRestDslImportWizard', () => {
     });
   });
 
-  it('does not create duplicate route when operation direct route already exists (direct:operationId format)', () => {
+  it('does not create duplicate route when operation direct route already exists (direct:operationId format)', async () => {
     const camelResource = new CamelRouteResource([
       {
         route: {
@@ -186,7 +186,7 @@ describe('useRestDslImportWizard', () => {
     ]);
 
     camelResource.initialize();
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({ camelResource });
     const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -233,7 +233,7 @@ describe('useRestDslImportWizard', () => {
     expect(updateEntitiesFromCamelResourceSpy).not.toHaveBeenCalled();
   });
 
-  it('does not create duplicate route when operation direct route already exists (parameters.name format)', () => {
+  it('does not create duplicate route when operation direct route already exists (parameters.name format)', async () => {
     const camelResource = new CamelRouteResource([
       {
         route: {
@@ -247,7 +247,7 @@ describe('useRestDslImportWizard', () => {
     ]);
     camelResource.initialize();
 
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({ camelResource });
     const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
@@ -414,7 +414,7 @@ describe('useRestDslImportWizard', () => {
       expect(result.current.importOperations).toHaveLength(1);
     });
 
-    it('sets error when spec text is invalid', () => {
+    it('sets error when spec text is invalid', async () => {
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
 
       act(() => {
@@ -527,8 +527,8 @@ describe('useRestDslImportWizard', () => {
     let camelResource: KaotoResource;
     let updateEntitiesFromCamelResourceSpy: EntitiesContextResult['updateEntitiesFromCamelResource'];
 
-    beforeEach(() => {
-      const testProvider = TestProvidersWrapper();
+    beforeEach(async () => {
+      const testProvider = await TestProvidersWrapper();
       const Provider = testProvider.Provider;
       camelResource = testProvider.camelResource;
       updateEntitiesFromCamelResourceSpy = testProvider.updateEntitiesFromCamelResourceSpy;

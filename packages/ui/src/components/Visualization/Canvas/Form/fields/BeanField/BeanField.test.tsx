@@ -38,7 +38,7 @@ describe('BeanField', () => {
     schemaTitle: string,
     schema: KaotoSchemaDefinition['schema'],
   ) => {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -78,8 +78,8 @@ describe('BeanField', () => {
   };
 
   describe('PrefixedBeanField', () => {
-    it('should render', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       const { container } = render(
         <Provider>
@@ -92,8 +92,8 @@ describe('BeanField', () => {
       expect(container).toMatchSnapshot();
     });
 
-    it('should set the appropriate placeholder', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should set the appropriate placeholder', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       const wrapper = render(
         <Provider>
@@ -111,7 +111,7 @@ describe('BeanField', () => {
 
     it('should clear the input when using the clear button', async () => {
       const onPropertyChangeSpy = vi.fn();
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -130,7 +130,7 @@ describe('BeanField', () => {
 
     it('should show the new bean modal when creating a new bean', async () => {
       const onPropertyChangeSpy = vi.fn();
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -157,7 +157,7 @@ describe('BeanField', () => {
     beforeEach(async () => {
       onPropertyChangeSpy = vi.fn();
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -244,7 +244,7 @@ describe('BeanField', () => {
         return <PrefixedBeanField propName={ROOT_PATH} />;
       };
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       cleanup();
       render(
         <Provider>
@@ -275,8 +275,8 @@ describe('BeanField', () => {
   });
 
   describe('UnprefixedBeanField', () => {
-    it('should render', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       const { container } = render(
         <Provider>
@@ -289,8 +289,8 @@ describe('BeanField', () => {
       expect(container).toMatchSnapshot();
     });
 
-    it('should set the appropriate placeholder', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should set the appropriate placeholder', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       const wrapper = render(
         <Provider>
@@ -308,7 +308,7 @@ describe('BeanField', () => {
 
     it('should clear the input when using the clear button', async () => {
       const onPropertyChangeSpy = vi.fn();
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -327,7 +327,7 @@ describe('BeanField', () => {
 
     it('should show the new bean modal when creating a new bean', async () => {
       const onPropertyChangeSpy = vi.fn();
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -354,7 +354,7 @@ describe('BeanField', () => {
     beforeEach(async () => {
       onPropertyChangeSpy = vi.fn();
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -443,7 +443,7 @@ describe('BeanField', () => {
     });
 
     it('should display existing beans correctly in prefixed mode', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       // First create a bean using UnprefixedBeanField to add it to the system
       render(
@@ -489,7 +489,7 @@ describe('BeanField', () => {
     });
 
     it('should display existing beans correctly in unprefixed mode', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       // First create a bean using PrefixedBeanField to add it to the system
       render(
@@ -551,7 +551,7 @@ describe('BeanField', () => {
     });
 
     it('should include default items in dropdown options', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -576,7 +576,7 @@ describe('BeanField', () => {
     });
 
     it('should allow selection of default items', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -596,7 +596,7 @@ describe('BeanField', () => {
     });
 
     it('should find beans to only show DataSource types', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       // First create regular bean and DataSource bean
       render(
@@ -671,7 +671,7 @@ describe('BeanField', () => {
     });
 
     it('should show new bean modal when creating DataSource bean', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>

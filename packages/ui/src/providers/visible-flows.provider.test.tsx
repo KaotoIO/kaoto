@@ -1,5 +1,7 @@
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { render } from '@testing-library/react';
 import { FunctionComponent, useContext } from 'react';
+import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../models/camel/camel-route-resource';
 import { EntityType } from '../models/entities';
@@ -7,14 +9,17 @@ import { mockRandomValues, TestProvidersWrapper } from '../stubs';
 import { VisibleFlowsContext, VisibleFlowsProvider } from './visible-flows.provider';
 
 describe('VisibleFlowsProvider', () => {
-  it('should initialize visible flows correctly', () => {
+  it('should initialize visible flows correctly', async () => {
     mockRandomValues();
 
-    const camelResource = new CamelRouteResource();
-    camelResource.initialize();
-    camelResource.addNewEntity(EntityType.Route);
+    const baseResource = new CamelRouteResource();
+    baseResource.addNewEntity(EntityType.Route);
+    // Materialize the new entity into source so the wrapper's re-initialize()
+    // (which rebuilds entities from source) preserves it — mirrors how runtime
+    // recreates the resource from serialized code on `code:updated`.
+    const camelResource = new CamelRouteResource(parse(baseResource.toString()) as CamelYamlDsl);
 
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
 
     const wrapper = render(
       <Provider>
@@ -27,10 +32,9 @@ describe('VisibleFlowsProvider', () => {
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
-  it('should initialize visible flows with an empty context', () => {
+  it('should initialize visible flows with an empty context', async () => {
     const camelResource = new CamelRouteResource();
-    camelResource.initialize();
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
 
     const wrapper = render(
       <Provider>

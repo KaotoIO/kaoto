@@ -59,7 +59,7 @@ describe('CustomGroupExpanded', () => {
   let element: BaseNode;
   let parentElement: BaseGraph;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     parentElement = new BaseGraph();
     element = new BaseNode();
     controller = ControllerService.createController();
@@ -73,7 +73,7 @@ describe('CustomGroupExpanded', () => {
   });
 
   async function renderInContext(children: React.ReactNode) {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const result = render(
       <Provider>
         <VisualizationProvider controller={controller}>

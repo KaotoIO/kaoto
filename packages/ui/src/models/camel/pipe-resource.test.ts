@@ -3,9 +3,9 @@ import { PipeResource } from './pipe-resource';
 import { SourceSchemaType } from './source-schema-type';
 
 describe('PipeResource', () => {
-  it('should create KameletBindingResource', () => {
+  it('should create KameletBindingResource', async () => {
     const resource = new PipeResource(pipeJson);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0];
@@ -19,9 +19,9 @@ describe('PipeResource', () => {
     expect(errorHandlerEntity?.parent.errorHandler!.log).toBeDefined();
   });
 
-  it('should initialize Pipe if no args is specified', () => {
+  it('should initialize Pipe if no args is specified', async () => {
     const resource = new PipeResource();
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.Pipe);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
@@ -32,35 +32,35 @@ describe('PipeResource', () => {
   });
 
   describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
+    it('should return the correct list of compatible runtimes', async () => {
       const resource = new PipeResource();
-      resource.initialize();
+      await resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
     });
 
-    it('should return the same list regardless of resource content', () => {
+    it('should return the same list regardless of resource content', async () => {
       const emptyResource = new PipeResource();
-      emptyResource.initialize();
+      await emptyResource.initialize();
       const resourceWithPipe = new PipeResource(pipeJson);
-      resourceWithPipe.initialize();
+      await resourceWithPipe.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithPipe.getCompatibleRuntimes());
     });
 
-    it('should return an array with three runtime names', () => {
+    it('should return an array with three runtime names', async () => {
       const resource = new PipeResource();
-      resource.initialize();
+      await resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
     });
   });
 
-  it('should create/delete entities', () => {
+  it('should create/delete entities', async () => {
     const resource = new PipeResource();
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getEntities().length).toEqual(0);
     expect(resource.getMetadataEntity()).toBeUndefined();
     expect(resource.getErrorHandlerEntity()).toBeUndefined();
@@ -84,9 +84,9 @@ describe('PipeResource', () => {
     expect(resource.toJSON().metadata).toBeUndefined();
   });
 
-  it('serializes to YAML without a serializer', () => {
+  it('serializes to YAML without a serializer', async () => {
     const resource = new PipeResource(pipeJson);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.toString()).toContain('apiVersion: camel.apache.org/v1');
   });
 });

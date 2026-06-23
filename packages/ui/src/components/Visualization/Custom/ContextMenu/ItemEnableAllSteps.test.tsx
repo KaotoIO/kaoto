@@ -37,7 +37,7 @@ describe('ItemEnableAllSteps', () => {
     const visualizationController = ControllerService.createController();
     visualizationController.fromModel(model);
 
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <VisualizationProvider controller={visualizationController}>
@@ -71,7 +71,7 @@ describe('ItemEnableAllSteps', () => {
       return node.getNodeDefinition()?.disabled;
     });
 
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <VisualizationProvider controller={visualizationController}>

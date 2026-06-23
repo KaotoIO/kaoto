@@ -3,9 +3,9 @@ import { KameletBindingResource } from './kamelet-binding-resource';
 import { SourceSchemaType } from './source-schema-type';
 
 describe('KameletBindingResource', () => {
-  it('should create KameletBindingResource', () => {
+  it('should create KameletBindingResource', async () => {
     const resource = new KameletBindingResource(kameletBindingJson);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getVisualEntities().length).toEqual(1);
     const vis = resource.getVisualEntities()[0];
@@ -16,35 +16,35 @@ describe('KameletBindingResource', () => {
   });
 
   describe('getCompatibleRuntimes', () => {
-    it('should return the correct list of compatible runtimes', () => {
+    it('should return the correct list of compatible runtimes', async () => {
       const resource = new KameletBindingResource();
-      resource.initialize();
+      await resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
     });
 
-    it('should return the same list regardless of resource content', () => {
+    it('should return the same list regardless of resource content', async () => {
       const emptyResource = new KameletBindingResource();
-      emptyResource.initialize();
+      await emptyResource.initialize();
       const resourceWithBinding = new KameletBindingResource(kameletBindingJson);
-      resourceWithBinding.initialize();
+      await resourceWithBinding.initialize();
 
       expect(emptyResource.getCompatibleRuntimes()).toEqual(resourceWithBinding.getCompatibleRuntimes());
     });
 
-    it('should return an array with three runtime names', () => {
+    it('should return an array with three runtime names', async () => {
       const resource = new KameletBindingResource();
-      resource.initialize();
+      await resource.initialize();
       const compatibleRuntimes = resource.getCompatibleRuntimes();
 
       expect(compatibleRuntimes).toEqual(['Main', 'Quarkus', 'Spring Boot']);
     });
   });
 
-  it('should initialize KameletBinding if no args is specified', () => {
+  it('should initialize KameletBinding if no args is specified', async () => {
     const resource = new KameletBindingResource(undefined);
-    resource.initialize();
+    await resource.initialize();
     expect(resource.getType()).toEqual(SourceSchemaType.KameletBinding);
     expect(resource.getEntities()).toEqual([]);
     expect(resource.getVisualEntities().length).toEqual(1);
