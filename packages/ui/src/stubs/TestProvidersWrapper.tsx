@@ -27,11 +27,16 @@ interface TestProvidersWrapperResult {
   updateSourceCodeFromEntitiesSpy: Mock;
 }
 
-export const TestProvidersWrapper = (props: TestProviderWrapperProps = {}): TestProvidersWrapperResult => {
+export const TestProvidersWrapper = async (
+  props: TestProviderWrapperProps = {},
+): Promise<TestProvidersWrapperResult> => {
   const camelResource = props.camelResource ?? new CamelRouteResource([camelRouteJson]);
-  if (!props.camelResource) {
-    camelResource.initialize();
-  }
+  // The wrapper is the single initialization point for the resource it renders,
+  // whether created here or injected. initialize() is re-runnable, so this is
+  // safe even if the caller already initialized — but callers should NOT mutate
+  // a resource in memory (e.g. addNewEntity) before handing it over, because
+  // this re-init rebuilds entities from source. Express fixtures as source data.
+  await camelResource.initialize();
   const currentSchemaType = camelResource.getType();
   const updateEntitiesFromCamelResourceSpy = vi.fn();
   const updateSourceCodeFromEntitiesSpy = vi.fn();

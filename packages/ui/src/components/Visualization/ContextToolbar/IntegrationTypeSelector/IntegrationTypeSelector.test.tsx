@@ -30,12 +30,12 @@ describe('IntegrationTypeSelector.tsx', () => {
     definitions: [mockCamelCatalog, mockCitrusCatalog],
   } as CatalogLibrary;
 
-  const renderWithCustomRuntime = (
+  const renderWithCustomRuntime = async (
     selectedCatalog: CatalogLibraryEntry = mockCamelCatalog,
     camelResource?: KaotoResource,
   ) => {
     const mockSetSelectedCatalog = vi.fn();
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
 
     return {
       ...render(
@@ -58,7 +58,7 @@ describe('IntegrationTypeSelector.tsx', () => {
 
   it('should render all of the types', async () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const wrapper = render(
       <RuntimeProvider>
         <Provider>
@@ -87,7 +87,7 @@ describe('IntegrationTypeSelector.tsx', () => {
 
   it('should warn the user when adding a different type of flow', async () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const wrapper = render(
       <RuntimeProvider>
         <Provider>
@@ -118,7 +118,7 @@ describe('IntegrationTypeSelector.tsx', () => {
   });
 
   it('should warn the user when selected flow changes the catalog', async () => {
-    const { findByTestId, getByTestId, mockSetSelectedCatalog } = renderWithCustomRuntime(mockCamelCatalog);
+    const { findByTestId, getByTestId, mockSetSelectedCatalog } = await renderWithCustomRuntime(mockCamelCatalog);
 
     const trigger = await findByTestId('integration-type-list-dropdown');
 

@@ -1,4 +1,4 @@
-import { BaseGraph, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
+import { BaseGraph, BaseNode, ElementContext, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode, IVisualizationNodeData } from '../../../../models';
@@ -172,7 +172,7 @@ vi.mock('../hooks/insert-step.hook', () => ({
 }));
 
 describe('PlaceholderNode', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     mockOnReplaceNode.mockClear();
     mockOnInsertStep.mockClear();
   });
@@ -192,11 +192,16 @@ describe('PlaceholderNode', () => {
     }).toThrow('PlaceholderNode must be used only on Node elements');
   });
 
-  it('should render without error', () => {
-    const element = new MockBaseNode();
-    element.setType('node');
+  it('should return null when element has no vizNode in data', async () => {
+    const parentElement = new BaseGraph();
+    const element = new BaseNode();
+    const controller = ControllerService.createController();
+    parentElement.setController(controller);
+    element.setController(controller);
+    element.setParent(parentElement);
+    vi.spyOn(element, 'getData').mockReturnValue({});
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     const wrapper = render(
       <Provider>
@@ -209,7 +214,7 @@ describe('PlaceholderNode', () => {
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
-  it('should render placeholder container with data-testid when vizNode is provided', () => {
+  it('should render placeholder container with data-testid when vizNode is provided', async () => {
     const vizNode = createVisualizationNode('route.from.steps.1.placeholder', {
       name: PlaceholderType.Placeholder,
       path: 'route.from.steps.1.placeholder',
@@ -231,7 +236,7 @@ describe('PlaceholderNode', () => {
     vi.spyOn(element, 'getData').mockReturnValue({ vizNode });
     vi.spyOn(element, 'getId').mockReturnValue('node-placeholder');
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -248,9 +253,13 @@ describe('PlaceholderNode', () => {
   });
 
   describe('isSpecialChildPlaceholder', () => {
-    const setupWithVizNode = (vizNodeData: Partial<IVisualizationNodeData>) => {
-      const element = new MockBaseNode();
-      element.setType('node');
+    const setupWithVizNode = async (vizNodeData: Partial<IVisualizationNodeData>) => {
+      const parentElement = new BaseGraph();
+      const element = new BaseNode();
+      const controller = ControllerService.createController();
+      parentElement.setController(controller);
+      element.setController(controller);
+      element.setParent(parentElement);
 
       const vizNode = createVisualizationNode('test-placeholder', {
         path: 'test.placeholder',
@@ -260,7 +269,7 @@ describe('PlaceholderNode', () => {
 
       element.setData({ vizNode });
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       return render(
         <Provider>
@@ -271,32 +280,20 @@ describe('PlaceholderNode', () => {
       );
     };
 
-    it('should render PlusCircleIcon for special child placeholder', () => {
-      const wrapper = setupWithVizNode({ name: PlaceholderType.PlaceholderSpecialChild });
+    it.each([
+      ['PlusCircleIcon for special child placeholder', PlaceholderType.PlaceholderSpecialChild],
+      ['PlusCircleIcon for regular placeholder', PlaceholderType.Placeholder],
+      ['CodeBranchIcon for other placeholders', 'when'],
+    ])('should render %s', async (_label, name) => {
+      const wrapper = await setupWithVizNode({ name });
 
       const svgIcon = wrapper.container.querySelector('svg');
       expect(svgIcon).toBeInTheDocument();
       expect(wrapper.asFragment()).toMatchSnapshot();
     });
 
-    it('should render PlusCircleIcon for regular placeholder', () => {
-      const wrapper = setupWithVizNode({ name: PlaceholderType.Placeholder });
-
-      const svgIcon = wrapper.container.querySelector('svg');
-      expect(svgIcon).toBeInTheDocument();
-      expect(wrapper.asFragment()).toMatchSnapshot();
-    });
-
-    it('should render CodeBranchIcon for other placeholders', () => {
-      const wrapper = setupWithVizNode({ name: 'when' });
-
-      const svgIcon = wrapper.container.querySelector('svg');
-      expect(svgIcon).toBeInTheDocument();
-      expect(wrapper.asFragment()).toMatchSnapshot();
-    });
-
-    it('should call onInsertStep when clicking on special child placeholder', () => {
-      setupWithVizNode({ name: PlaceholderType.PlaceholderSpecialChild });
+    it('should call onInsertStep when clicking on special child placeholder', async () => {
+      await setupWithVizNode({ name: PlaceholderType.PlaceholderSpecialChild });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -305,8 +302,8 @@ describe('PlaceholderNode', () => {
       expect(mockOnReplaceNode).not.toHaveBeenCalled();
     });
 
-    it('should call onReplaceNode when clicking on regular placeholder', () => {
-      setupWithVizNode({ name: PlaceholderType.Placeholder });
+    it('should call onReplaceNode when clicking on regular placeholder', async () => {
+      await setupWithVizNode({ name: PlaceholderType.Placeholder });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -315,8 +312,8 @@ describe('PlaceholderNode', () => {
       expect(mockOnInsertStep).not.toHaveBeenCalled();
     });
 
-    it('should call onInsertStep when clicking on otherwise placeholder', () => {
-      setupWithVizNode({ name: 'otherwise', isPlaceholder: true });
+    it('should call onInsertStep when clicking on otherwise placeholder', async () => {
+      await setupWithVizNode({ name: 'otherwise', isPlaceholder: true });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);
@@ -325,8 +322,8 @@ describe('PlaceholderNode', () => {
       expect(mockOnReplaceNode).not.toHaveBeenCalled();
     });
 
-    it('should call onInsertStep when clicking on when placeholder', () => {
-      setupWithVizNode({ name: 'when', isPlaceholder: true });
+    it('should call onInsertStep when clicking on when placeholder', async () => {
+      await setupWithVizNode({ name: 'when', isPlaceholder: true });
 
       const placeholderNode = screen.getByTestId('placeholder-node__test-placeholder');
       fireEvent.click(placeholderNode);

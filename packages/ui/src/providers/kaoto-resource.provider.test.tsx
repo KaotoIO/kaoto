@@ -14,7 +14,7 @@ import { KaotoResourceContext, KaotoResourceProvider } from './kaoto-resource.pr
 import { SourceCodeSync } from './source-code-sync';
 
 describe('KaotoResourceProvider', () => {
-  it('builds the resource and entities from the source code present at mount', () => {
+  it('builds the resource and entities from the source code present at mount', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), {
       wrapper: ({ children }: PropsWithChildren) => (
         <SourceCodeSync initialSourceCode={camelRouteYaml}>
@@ -24,6 +24,8 @@ describe('KaotoResourceProvider', () => {
         </SourceCodeSync>
       ),
     });
+
+    await act(async () => {});
 
     expect(result.current?.visualEntities).toEqual([new CamelRouteVisualEntity(camelRouteJson)]);
   });
@@ -97,7 +99,7 @@ describe('KaotoResourceProvider', () => {
     createSpy.mockRestore();
   });
 
-  it('keeps the last valid resource when a keystroke makes the source transiently invalid', () => {
+  it('keeps the last valid resource when a keystroke makes the source transiently invalid', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), {
       wrapper: ({ children }: PropsWithChildren) => (
         <SourceCodeSync initialSourceCode={pipeYaml}>
@@ -107,6 +109,8 @@ describe('KaotoResourceProvider', () => {
         </SourceCodeSync>
       ),
     });
+
+    await act(async () => {});
 
     // Sanity: the valid Pipe is in place.
     expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);

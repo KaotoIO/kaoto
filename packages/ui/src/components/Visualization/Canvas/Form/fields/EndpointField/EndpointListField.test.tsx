@@ -46,7 +46,7 @@ describe('EndpointListField', () => {
     return wrapper;
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
   });
 
@@ -75,8 +75,7 @@ describe('EndpointListField', () => {
     options: { disabled?: boolean; required?: boolean } = {},
   ) => {
     const camelResource = createTestResource(testModel);
-    camelResource.initialize();
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
 
     await act(async () => {
       const wrapper = createWrapper();

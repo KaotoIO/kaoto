@@ -50,7 +50,7 @@ describe('CustomNode', () => {
     }).toThrow('CustomNode must be used only on Node elements');
   });
 
-  it('should return null when element has no vizNode in data', () => {
+  it('should return null when element has no vizNode in data', async () => {
     const parentElement = new BaseGraph();
     const element = new BaseNode();
     const controller = ControllerService.createController();
@@ -59,7 +59,7 @@ describe('CustomNode', () => {
     element.setParent(parentElement);
     vi.spyOn(element, 'getData').mockReturnValue({});
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     const { container } = render(
       <Provider>
@@ -74,7 +74,7 @@ describe('CustomNode', () => {
     expect(container.querySelector('[data-testid^="custom-node__"]')).not.toBeInTheDocument();
   });
 
-  it('should render node container with label from vizNode', () => {
+  it('should render node container with label from vizNode', async () => {
     const vizNode = createVisualizationNode('route.from.steps.0.log', {
       name: 'log',
       path: 'route.from.steps.0.log',
@@ -100,7 +100,7 @@ describe('CustomNode', () => {
     vi.spyOn(element, 'getAllNodeChildren').mockReturnValue([]);
     vi.spyOn(element, 'getId').mockReturnValue('node-log');
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -117,7 +117,7 @@ describe('CustomNode', () => {
     expect(node).toHaveAttribute('data-nodelabel', 'log');
   });
 
-  it('should return null when vizNode is undefined', () => {
+  it('should return null when vizNode is undefined', async () => {
     const parentElement = new BaseGraph();
     const element = new BaseNode();
     const controller = ControllerService.createController();
@@ -126,7 +126,7 @@ describe('CustomNode', () => {
     element.setParent(parentElement);
     // Do NOT set vizNode in element data - it will be undefined
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     const { container } = render(
       <Provider>

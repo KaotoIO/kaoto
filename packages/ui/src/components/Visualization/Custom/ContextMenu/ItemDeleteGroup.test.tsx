@@ -22,7 +22,7 @@ describe('ItemDeleteGroup', () => {
     actionConfirmation: vi.fn(),
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vizNode = createVisualizationNode('test', {
       name: EntityType.Route,
       isPlaceholder: false,
@@ -76,7 +76,7 @@ describe('ItemDeleteGroup', () => {
     vizNode = await camelResource.getVisualEntities()[0].toVizNode();
     mockDeleteModalContext.actionConfirmation.mockResolvedValueOnce(ACTION_ID_CONFIRM);
 
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
 
     const wrapper = render(
       <Provider>

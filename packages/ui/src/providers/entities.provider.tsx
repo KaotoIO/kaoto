@@ -42,12 +42,25 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
 
   useEffect(() => {
+    let cancelled = false;
     const init = async () => {
-      await kaotoResource.initialize();
-      setEntities(kaotoResource.getEntities());
-      setVisualEntities(kaotoResource.getVisualEntities());
+      try {
+        await kaotoResource.initialize();
+        if (cancelled) return;
+        setEntities(kaotoResource.getEntities());
+        setVisualEntities(kaotoResource.getVisualEntities());
+      } catch (error) {
+        if (cancelled) return;
+        console.error('Failed to initialize KaotoResource', error);
+        setEntities([]);
+        setVisualEntities([]);
+      }
     };
     void init();
+
+    return () => {
+      cancelled = true;
+    };
   }, [kaotoResource]);
 
   const updateSourceCodeFromEntities = useCallback(() => {
@@ -71,7 +84,7 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
     () => ({
       entities,
       visualEntities,
-      currentSchemaType: kaotoResource?.getType(),
+      currentSchemaType: kaotoResource.getType(),
       camelResource: kaotoResource,
       updateEntitiesFromCamelResource,
       updateSourceCodeFromEntities,

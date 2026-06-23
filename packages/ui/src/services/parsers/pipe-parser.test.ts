@@ -8,9 +8,9 @@ import { PipeParser } from './pipe-parser';
 
 describe('PipeParser', () => {
   describe('parsePipeEntity()', () => {
-    it('should parse pipe', () => {
+    it('should parse pipe', async () => {
       const resource = CamelResourceFactory.createCamelResource(pipeYaml);
-      resource.initialize();
+      await resource.initialize();
       const pipeEntity = resource.getVisualEntities()[0] as PipeVisualEntity;
       const parsed = PipeParser.parsePipeEntity(pipeEntity);
 
@@ -29,9 +29,9 @@ describe('PipeParser', () => {
       expect(parsed.data[0][3]).toEqual('Kamelet');
     });
 
-    it('should parse pipe with properties', () => {
+    it('should parse pipe with properties', async () => {
       const resource = CamelResourceFactory.createCamelResource(pipeTimerSourceYaml);
-      resource.initialize();
+      await resource.initialize();
       const pipeEntity = resource.getVisualEntities()[0] as PipeVisualEntity;
       const parsed = PipeParser.parsePipeEntity(pipeEntity);
 
@@ -43,9 +43,9 @@ describe('PipeParser', () => {
   });
 
   describe('parseKameletBindingEntity()', () => {
-    it('should parse kamelet binding', () => {
+    it('should parse kamelet binding', async () => {
       const resource = CamelResourceFactory.createCamelResource(kameletBindingYaml);
-      resource.initialize();
+      await resource.initialize();
       const kbEntity = resource.getVisualEntities()[0] as KameletBindingVisualEntity;
       const parsed = PipeParser.parseKameletBindingEntity(kbEntity);
 
@@ -66,9 +66,9 @@ describe('PipeParser', () => {
   });
 
   describe('parsePipeErrorHandlerEntity()', () => {
-    it('should parse pipe error handler', () => {
+    it('should parse pipe error handler', async () => {
       const resource = CamelResourceFactory.createCamelResource(pipeYaml);
-      resource.initialize();
+      await resource.initialize();
       const pehEntity = resource
         .getEntities()
         .find((e) => e instanceof PipeErrorHandlerEntity) as PipeErrorHandlerEntity;

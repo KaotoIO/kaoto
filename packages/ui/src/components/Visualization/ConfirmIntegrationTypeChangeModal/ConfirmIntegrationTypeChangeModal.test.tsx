@@ -29,11 +29,11 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
     definitions: [mockCamelCatalog, mockCitrusCatalog],
   } as CatalogLibrary;
 
-  const renderModal = (
+  const renderModal = async (
     proposedFlowType: SourceSchemaType | undefined,
     selectedCatalog: CatalogLibraryEntry = mockCamelCatalog,
   ) => {
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     const result = render(
       <RuntimeContext.Provider
@@ -58,44 +58,44 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
     onClose = vi.fn();
   });
 
-  it('should be hidden when proposedFlowType is undefined', () => {
-    const { queryByTestId } = renderModal(undefined);
+  it('should be hidden when proposedFlowType is undefined', async () => {
+    const { queryByTestId } = await renderModal(undefined);
 
     expect(queryByTestId('confirmation-modal')).not.toBeInTheDocument();
   });
 
-  it('should be visible when proposedFlowType is set', () => {
-    const { queryByTestId } = renderModal(SourceSchemaType.Route);
+  it('should be visible when proposedFlowType is set', async () => {
+    const { queryByTestId } = await renderModal(SourceSchemaType.Route);
 
     expect(queryByTestId('confirmation-modal')).toBeInTheDocument();
   });
 
-  it('should call onClose when cancel button is clicked', () => {
-    const { getByTestId } = renderModal(SourceSchemaType.Route);
+  it('should call onClose when cancel button is clicked', async () => {
+    const { getByTestId } = await renderModal(SourceSchemaType.Route);
 
     fireEvent.click(getByTestId('confirmation-modal-cancel'));
 
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('should call onClose when close button is clicked', () => {
-    const { getByLabelText } = renderModal(SourceSchemaType.Route);
+  it('should call onClose when close button is clicked', async () => {
+    const { getByLabelText } = await renderModal(SourceSchemaType.Route);
 
     fireEvent.click(getByLabelText('Close'));
 
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('should not show the catalog warning for a same-catalog flow type', () => {
-    const { getByTestId } = renderModal(SourceSchemaType.Pipe, mockCamelCatalog);
+  it('should not show the catalog warning for a same-catalog flow type', async () => {
+    const { getByTestId } = await renderModal(SourceSchemaType.Pipe, mockCamelCatalog);
 
     expect(getByTestId('confirmation-modal-text')).not.toHaveTextContent(
       'This will also change the current selected catalog.',
     );
   });
 
-  it('should show the catalog warning when switching to a different catalog', () => {
-    const { getByTestId } = renderModal(SourceSchemaType.Test, mockCamelCatalog);
+  it('should show the catalog warning when switching to a different catalog', async () => {
+    const { getByTestId } = await renderModal(SourceSchemaType.Test, mockCamelCatalog);
 
     expect(getByTestId('confirmation-modal-text')).toHaveTextContent(
       'This will also change the current selected catalog.',
@@ -103,7 +103,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   });
 
   it('should call onClose after confirming', async () => {
-    const { getByTestId } = renderModal(SourceSchemaType.Route);
+    const { getByTestId } = await renderModal(SourceSchemaType.Route);
 
     await act(async () => {
       fireEvent.click(getByTestId('confirmation-modal-confirm'));
@@ -113,7 +113,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   });
 
   it('should update catalog when switching to a different catalog type', async () => {
-    const { getByTestId } = renderModal(SourceSchemaType.Test, mockCamelCatalog);
+    const { getByTestId } = await renderModal(SourceSchemaType.Test, mockCamelCatalog);
 
     await act(async () => {
       fireEvent.click(getByTestId('confirmation-modal-confirm'));
@@ -123,7 +123,7 @@ describe('ConfirmIntegrationTypeChangeModal', () => {
   });
 
   it('should not update catalog when switching between same-catalog flow types', async () => {
-    const { getByTestId } = renderModal(SourceSchemaType.Pipe, mockCamelCatalog);
+    const { getByTestId } = await renderModal(SourceSchemaType.Pipe, mockCamelCatalog);
 
     await act(async () => {
       fireEvent.click(getByTestId('confirmation-modal-confirm'));

@@ -41,7 +41,7 @@ describe('CanvasFormBody', () => {
   });
 
   describe('should persists changes from both expression editor and main form', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
@@ -65,7 +65,7 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <EntitiesContext.Provider value={null}>
@@ -121,7 +121,7 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <EntitiesContext.Provider value={null}>
@@ -157,7 +157,7 @@ describe('CanvasFormBody', () => {
   });
 
   describe('should persists changes from both dataformat editor and main form', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
@@ -181,7 +181,7 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <EntitiesContext.Provider value={null}>
@@ -232,7 +232,7 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const marshalNode = rootNode.getChildren()![1];
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <EntitiesContext.Provider value={null}>
@@ -264,7 +264,7 @@ describe('CanvasFormBody', () => {
   });
 
   describe('should persists changes from both loadbalancer editor and main form', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
@@ -288,7 +288,7 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <EntitiesContext.Provider value={null}>
@@ -343,7 +343,7 @@ describe('CanvasFormBody', () => {
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const loadBalanceNode = rootNode.getChildren()![1];
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <EntitiesContext.Provider value={null}>
@@ -377,7 +377,7 @@ describe('CanvasFormBody', () => {
   });
 
   it('should show suggestions', async () => {
-    const { Provider, camelResource } = TestProvidersWrapper();
+    const { Provider, camelResource } = await TestProvidersWrapper();
     const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
     vi.spyOn(vizNode, 'getNodeSchema').mockReturnValue({
       type: 'object',

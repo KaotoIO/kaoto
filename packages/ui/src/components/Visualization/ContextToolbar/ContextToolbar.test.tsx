@@ -51,10 +51,9 @@ vi.mock('./IntegrationTypeSelector/IntegrationTypeSelector', () => ({
 
 describe('ContextToolbar', () => {
   describe('when using multipleRoute configuration', () => {
-    it('should include NewEntity component for Route schema type', () => {
+    it('should include NewEntity component for Route schema type', async () => {
       const camelResource = new CamelRouteResource([]);
-      camelResource.initialize();
-      const { Provider } = TestProvidersWrapper({ camelResource });
+      const { Provider } = await TestProvidersWrapper({ camelResource });
 
       render(
         <Provider>
@@ -65,9 +64,9 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('new-entity')).toBeInTheDocument();
     });
 
-    it('should include NewEntity component for Integration schema type', () => {
+    it('should include NewEntity component for Integration schema type', async () => {
       const camelResource = new IntegrationResource();
-      const { Provider } = TestProvidersWrapper({ camelResource });
+      const { Provider } = await TestProvidersWrapper({ camelResource });
 
       render(
         <Provider>
@@ -80,10 +79,9 @@ describe('ContextToolbar', () => {
   });
 
   describe('when using single route configuration', () => {
-    it('should not include NewEntity component for Kamelet schema type', () => {
+    it('should not include NewEntity component for Kamelet schema type', async () => {
       const camelResource = new KameletResource();
-      camelResource.initialize();
-      const { Provider } = TestProvidersWrapper({ camelResource });
+      const { Provider } = await TestProvidersWrapper({ camelResource });
 
       render(
         <Provider>
@@ -94,10 +92,9 @@ describe('ContextToolbar', () => {
       expect(screen.queryByTestId('new-entity')).not.toBeInTheDocument();
     });
 
-    it('should not include NewEntity component for Pipe schema type', () => {
+    it('should not include NewEntity component for Pipe schema type', async () => {
       const camelResource = new PipeResource();
-      camelResource.initialize();
-      const { Provider } = TestProvidersWrapper({ camelResource });
+      const { Provider } = await TestProvidersWrapper({ camelResource });
 
       render(
         <Provider>
@@ -108,10 +105,9 @@ describe('ContextToolbar', () => {
       expect(screen.queryByTestId('new-entity')).not.toBeInTheDocument();
     });
 
-    it('should not include NewEntity component for KameletBinding schema type', () => {
+    it('should not include NewEntity component for KameletBinding schema type', async () => {
       const camelResource = new KameletBindingResource();
-      camelResource.initialize();
-      const { Provider } = TestProvidersWrapper({ camelResource });
+      const { Provider } = await TestProvidersWrapper({ camelResource });
 
       render(
         <Provider>
@@ -124,8 +120,8 @@ describe('ContextToolbar', () => {
   });
 
   describe('undo/redo buttons', () => {
-    it('should render undo button', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render undo button', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -139,8 +135,8 @@ describe('ContextToolbar', () => {
       expect(undoButton).not.toBeDisabled();
     });
 
-    it('should render redo button', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render redo button', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -156,8 +152,8 @@ describe('ContextToolbar', () => {
   });
 
   describe('other toolbar buttons', () => {
-    it('should render FlowsMenu component', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render FlowsMenu component', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -168,8 +164,8 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('flows-menu')).toBeInTheDocument();
     });
 
-    it('should render FlowClipboard component', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render FlowClipboard component', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -180,8 +176,8 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('flow-clipboard')).toBeInTheDocument();
     });
 
-    it('should render FlowExportImage component', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render FlowExportImage component', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -192,8 +188,8 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('flow-export-image')).toBeInTheDocument();
     });
 
-    it('should render ExportDocument component', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render ExportDocument component', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -204,8 +200,8 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('export-document')).toBeInTheDocument();
     });
 
-    it('should render SelectedRuntime component', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render SelectedRuntime component', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -216,8 +212,8 @@ describe('ContextToolbar', () => {
       expect(screen.getByTestId('selected-runtime')).toBeInTheDocument();
     });
 
-    it('should render IntegrationTypeSelector component', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should render IntegrationTypeSelector component', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -230,8 +226,8 @@ describe('ContextToolbar', () => {
   });
 
   describe('when isSimplified is true', () => {
-    it('should not render IntegrationTypeSelector', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should not render IntegrationTypeSelector', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -242,8 +238,8 @@ describe('ContextToolbar', () => {
       expect(screen.queryByTestId('integration-type-selector')).not.toBeInTheDocument();
     });
 
-    it('should not render SelectedRuntime', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should not render SelectedRuntime', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>
@@ -254,8 +250,8 @@ describe('ContextToolbar', () => {
       expect(screen.queryByTestId('selected-runtime')).not.toBeInTheDocument();
     });
 
-    it('should still render the core toolbar items', () => {
-      const { Provider } = TestProvidersWrapper();
+    it('should still render the core toolbar items', async () => {
+      const { Provider } = await TestProvidersWrapper();
 
       render(
         <Provider>

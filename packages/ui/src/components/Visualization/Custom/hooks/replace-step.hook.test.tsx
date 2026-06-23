@@ -76,7 +76,7 @@ describe('useReplaceStep', () => {
 
   let wrapper: FunctionComponent<PropsWithChildren>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     camelResource = new CamelRouteResource();
     camelResource.initialize();
     mockVizNode = createVisualizationNode('test-step', {
@@ -93,7 +93,7 @@ describe('useReplaceStep', () => {
     (findOnDeleteModalCustomizationRecursively as Mock).mockReturnValue([]);
     (processOnDeleteAddonRecursively as Mock).mockImplementation(() => {});
 
-    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = await TestProvidersWrapper({ camelResource });
     updateEntitiesFromCamelResourceSpy = updateSpy;
 
     wrapper = ({ children }) => (
@@ -132,7 +132,7 @@ describe('useReplaceStep', () => {
   });
 
   it('should return early when entitiesContext is null', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource, entitiesContextValue: null });
+    const { Provider } = await TestProvidersWrapper({ camelResource, entitiesContextValue: null });
     const nullEntitiesWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <Provider>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>
@@ -352,7 +352,9 @@ describe('useReplaceStep', () => {
   it('should handle missing metadata context gracefully', async () => {
     mockCatalogModalContext.getNewComponent.mockResolvedValue(mockDefinedComponent);
 
-    const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = TestProvidersWrapper({ camelResource });
+    const { Provider, updateEntitiesFromCamelResourceSpy: localUpdateSpy } = await TestProvidersWrapper({
+      camelResource,
+    });
     const noMetadataWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
       <Provider>
         <CatalogModalContext.Provider value={mockCatalogModalContext}>

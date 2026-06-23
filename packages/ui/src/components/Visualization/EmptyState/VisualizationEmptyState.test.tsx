@@ -5,9 +5,9 @@ import { VisualizationEmptyState } from './VisualizationEmptyState';
 
 describe('VisualizationEmptyState.tsx', () => {
   describe('when there are no routes', () => {
-    it('should render the CubesIcon whenever there are no routes', () => {
+    it('should render the CubesIcon whenever there are no routes', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const wrapper = render(
         <RuntimeProvider>
           <Provider>
@@ -21,9 +21,9 @@ describe('VisualizationEmptyState.tsx', () => {
       expect(icon).toBeInTheDocument();
     });
 
-    it('should state that there are no routes', () => {
+    it('should state that there are no routes', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const wrapper = render(
         <RuntimeProvider>
           <Provider>
@@ -41,9 +41,9 @@ describe('VisualizationEmptyState.tsx', () => {
   });
 
   describe('when there are routes but they are not visible', () => {
-    it('should render the EyeSlashIcon whenever there are no routes', () => {
+    it('should render the EyeSlashIcon whenever there are no routes', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const wrapper = render(
         <RuntimeProvider>
           <Provider>
@@ -56,9 +56,9 @@ describe('VisualizationEmptyState.tsx', () => {
       expect(icon).toBeInTheDocument();
     });
 
-    it('should state that there are no visible routes', () => {
+    it('should state that there are no visible routes', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const wrapper = render(
         <RuntimeProvider>
           <Provider>

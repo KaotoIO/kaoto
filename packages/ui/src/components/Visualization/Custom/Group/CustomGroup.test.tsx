@@ -33,7 +33,7 @@ describe('CustomGroup', () => {
     }).toThrow('CustomGroup must be used only on Node elements');
   });
 
-  it('should render CustomNodeWithSelection when group is collapsed', () => {
+  it('should render CustomNodeWithSelection when group is collapsed', async () => {
     const parentElement = new BaseGraph();
     const element = new BaseNode();
     const controller = ControllerService.createController();
@@ -42,7 +42,7 @@ describe('CustomGroup', () => {
     element.setParent(parentElement);
     element.setCollapsed(true);
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>
@@ -57,7 +57,7 @@ describe('CustomGroup', () => {
     expect(screen.getByTestId('custom-node-collapsed')).toBeInTheDocument();
   });
 
-  it('should render CustomGroupExpanded when group is expanded', () => {
+  it('should render CustomGroupExpanded when group is expanded', async () => {
     const parentElement = new BaseGraph();
     const element = new BaseNode();
     const controller = ControllerService.createController();
@@ -65,7 +65,7 @@ describe('CustomGroup', () => {
     element.setParent(parentElement);
     element.setCollapsed(false);
 
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
 
     render(
       <Provider>

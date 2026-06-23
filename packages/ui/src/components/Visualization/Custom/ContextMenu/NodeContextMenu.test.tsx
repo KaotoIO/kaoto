@@ -52,7 +52,7 @@ describe('NodeContextMenu', () => {
     });
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     nodeInteractions = {
       canHavePreviousStep: false,
       canHaveNextStep: false,
@@ -217,7 +217,7 @@ describe('NodeContextMenu', () => {
     const visualizationController = ControllerService.createController();
     visualizationController.fromModel(model);
 
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <VisualizationProvider controller={visualizationController}>

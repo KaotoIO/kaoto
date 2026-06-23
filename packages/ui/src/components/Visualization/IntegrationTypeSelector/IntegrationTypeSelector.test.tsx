@@ -187,10 +187,13 @@ describe('IntegrationTypeSelector', () => {
       fireEvent.click(wrapper.getByTestId('test-toggle'));
     });
 
-    // Simulate a selection event with no value by directly triggering the
-    // underlying PatternFly Select with an undefined itemId — achieved by
-    // clicking a disabled option that has no itemId set. Instead, we verify
-    // that onSelect is NOT called when the dropdown is merely opened.
+    // Wait for the dropdown to actually open. Besides making the assertion
+    // meaningful, awaiting here flushes PatternFly's debounced Popper
+    // reposition inside act() — without it the late state update leaks past
+    // the test and triggers an "update not wrapped in act(...)" warning.
+    await wrapper.findByTestId('test-select-list');
+
+    // Merely opening the dropdown must not select anything.
     expect(onSelect).not.toHaveBeenCalled();
   });
 });

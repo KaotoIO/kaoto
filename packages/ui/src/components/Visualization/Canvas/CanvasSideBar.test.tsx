@@ -1,6 +1,8 @@
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { act, fireEvent, render } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../models/camel';
 import { EntityType } from '../../../models/entities';
@@ -16,12 +18,15 @@ describe('CanvasSideBar', () => {
 
   beforeAll(async () => {
     mockRandomValues();
-    const camelResource = new CamelRouteResource();
-    camelResource.initialize();
-    camelResource.addNewEntity(EntityType.Route);
+    const baseResource = new CamelRouteResource();
+    baseResource.addNewEntity(EntityType.Route);
+    // Materialize the route into source so the wrapper's re-initialize() reproduces
+    // it — mirrors how runtime recreates the resource from serialized code.
+    const camelResource = new CamelRouteResource(parse(baseResource.toString()) as CamelYamlDsl);
+    await camelResource.initialize();
     const visualEntity = camelResource.getVisualEntities()[0];
     selectedNode = FlowService.getFlowDiagram('test', await visualEntity.toVizNode()).nodes[0];
-    Provider = TestProvidersWrapper({ camelResource }).Provider;
+    Provider = (await TestProvidersWrapper({ camelResource })).Provider;
   });
 
   it('does not render anything if there is no selectedNode', async () => {

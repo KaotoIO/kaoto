@@ -1,6 +1,6 @@
 import { CamelYamlDsl, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 
 import { CamelRouteResource } from '../../../../../models/camel/camel-route-resource';
@@ -17,14 +17,13 @@ describe('DirectEndpointNameField', () => {
     description: 'Sets the endpoint name',
   };
 
-  const renderField = (
+  const renderField = async (
     model: string | undefined,
     routes: RouteDefinition[],
     visibleFlowsContext?: VisibleFlowsContextResult,
   ) => {
     const camelResource = new CamelRouteResource(routes as unknown as CamelYamlDsl);
-    camelResource.initialize();
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext,
     });
@@ -42,17 +41,22 @@ describe('DirectEndpointNameField', () => {
     return { camelResource, updateEntitiesFromCamelResourceSpy };
   };
 
-  it('renders known direct endpoint names as suggestions', () => {
-    renderField(undefined, [
+  it('renders known direct endpoint names as suggestions', async () => {
+    await renderField(undefined, [
       { from: { uri: 'direct:start', steps: [] } },
       { from: { uri: 'timer:test', steps: [{ to: { uri: 'direct:orders' } }] } },
       { from: { uri: 'direct', parameters: { name: 'billing' }, steps: [] } },
     ]);
 
     const toggle = screen.getByLabelText('Name toggle');
-    fireEvent.click(toggle);
+    act(() => {
+      fireEvent.click(toggle);
+    });
 
-    const options = screen.getAllByRole('option').map((option) => option.textContent);
+    // findAllByRole polls until the typeahead options render, which also flushes
+    // PatternFly's debounced Popper reposition inside act() — a plain getAllByRole
+    // would assert synchronously and let that update leak past the test.
+    const options = (await screen.findAllByRole('option')).map((option) => option.textContent);
 
     expect(options.some((option) => option?.includes('billing'))).toBeTruthy();
     expect(options.some((option) => option?.includes('orders'))).toBeTruthy();
@@ -60,7 +64,7 @@ describe('DirectEndpointNameField', () => {
   });
 
   it('enables create button only for new names', async () => {
-    renderField(undefined, [{ from: { uri: 'direct:start', steps: [] } }]);
+    await renderField(undefined, [{ from: { uri: 'direct:start', steps: [] } }]);
 
     const input = screen.getByRole('textbox', { name: 'Name' });
     const button = screen.getByRole('button', { name: 'Create Route' });
@@ -82,7 +86,7 @@ describe('DirectEndpointNameField', () => {
       visualFlowsApi: { toggleFlowVisible: toggleFlowVisibleSpy },
     } as unknown as VisibleFlowsContextResult;
 
-    const { camelResource, updateEntitiesFromCamelResourceSpy } = renderField(
+    const { camelResource, updateEntitiesFromCamelResourceSpy } = await renderField(
       undefined,
       [{ from: { uri: 'direct:start', steps: [] } }],
       visibleFlowsContext,

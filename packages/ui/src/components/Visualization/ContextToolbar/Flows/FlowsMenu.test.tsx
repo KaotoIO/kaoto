@@ -1,4 +1,6 @@
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
@@ -13,10 +15,14 @@ describe('FlowsMenu.tsx', () => {
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     camelResource.addNewEntity(EntityType.RouteConfiguration);
+    // Materialize the new entities into source so the wrapper's re-initialize()
+    // (which rebuilds entities from source) preserves them — mirrors how runtime
+    // recreates the resource from serialized code on `code:updated`.
+    camelResource = new CamelRouteResource(parse(camelResource.toString()) as CamelYamlDsl);
   });
 
   it('should open the flows list when clicking the dropdown', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <FlowsMenu />
@@ -38,7 +44,7 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should open the flows list when clicking the action button', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <FlowsMenu />
@@ -60,7 +66,7 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should close the flows list when pressing ESC', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <FlowsMenu />
@@ -89,11 +95,11 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should render the route id when a single route is visible', async () => {
-    const singleFlowCamelResource = new CamelRouteResource();
-    singleFlowCamelResource.initialize();
+    let singleFlowCamelResource = new CamelRouteResource();
     singleFlowCamelResource.addNewEntity(EntityType.Route);
+    singleFlowCamelResource = new CamelRouteResource(parse(singleFlowCamelResource.toString()) as CamelYamlDsl);
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       camelResource: singleFlowCamelResource,
       visibleFlowsContext: { visibleFlows: { ['route-1234']: true } } as unknown as VisibleFlowsContextResult,
     });
@@ -109,7 +115,7 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should NOT render the route id but "Routes" when there is no flow visible', async () => {
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
@@ -126,7 +132,7 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should NOT render the route id but "Routes" when there is more than 1 flow visible', async () => {
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },
@@ -143,7 +149,7 @@ describe('FlowsMenu.tsx', () => {
   });
 
   it('should render the visible routes count', async () => {
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext: {
         visibleFlows: { ['route-1234']: true, ['routeConfiguration-1234']: true },

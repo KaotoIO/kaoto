@@ -28,7 +28,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
   }
 
   async initialize(): Promise<void> {
-    super.initialize();
+    await super.initialize();
 
     if (this.flow.kamelet.spec.template.beans) {
       this.beans = new RouteTemplateBeansEntity(this.flow.kamelet.spec.template as RouteTemplateBeansParentType);

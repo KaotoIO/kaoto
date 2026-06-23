@@ -174,4 +174,4 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
 </DocumentFragment>
 `;
 
-exports[`PlaceholderNode > should render without error 1`] = `<DocumentFragment />`;
+exports[`PlaceholderNode > should return null when element has no vizNode in data 1`] = `<DocumentFragment />`;

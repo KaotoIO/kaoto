@@ -28,7 +28,7 @@ import { applyCollapseState } from './apply-collapse-state';
 describe('Canvas', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
   });
 
@@ -38,7 +38,7 @@ describe('Canvas', () => {
 
   it('should render correctly', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
 
     let result: RenderResult | undefined;
@@ -63,7 +63,7 @@ describe('Canvas', () => {
 
   it('should schedule a graph.fit(80) upon loading', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const vizNode = await entity.toVizNode();
     const controller = ControllerService.createController();
     const fromModelSpy = vi.spyOn(controller, 'fromModel');
@@ -100,7 +100,7 @@ describe('Canvas', () => {
 
   it('when initialized is true, runs fromModel(model, true), and applyCollapseState', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
-    const { Provider } = TestProvidersWrapper();
+    const { Provider } = await TestProvidersWrapper();
     const controller = ControllerService.createController();
     const fromModelSpy = vi.spyOn(controller, 'fromModel');
     const vizNode = await entity.toVizNode();
@@ -147,7 +147,7 @@ describe('Canvas', () => {
     const vizNode = await routeEntities[0].toVizNode();
     const removeSpy = vi.spyOn(camelResource, 'removeEntity');
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       camelResource,
     });
 
@@ -207,7 +207,7 @@ describe('Canvas', () => {
     const vizNode = await kameletEntities[0].toVizNode();
     const removeSpy = vi.spyOn(kameletResource, 'removeEntity');
 
-    const { Provider } = TestProvidersWrapper({
+    const { Provider } = await TestProvidersWrapper({
       camelResource: kameletResource,
     });
 
@@ -261,7 +261,7 @@ describe('Canvas', () => {
 
   describe('Catalog button', () => {
     it('should be present if `CatalogModalContext` is provided', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
       let result: RenderResult | undefined;
@@ -287,7 +287,7 @@ describe('Canvas', () => {
     });
 
     it('should NOT be present if `CatalogModalContext` is NOT provided', async () => {
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
       let result: RenderResult | undefined;
@@ -314,7 +314,7 @@ describe('Canvas', () => {
   describe('Empty state', () => {
     it('should render empty state when there is no visual viznode', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper({
+      const { Provider } = await TestProvidersWrapper({
         visibleFlowsContext: { visibleFlows: {} } as unknown as VisibleFlowsContextResult,
       });
 
@@ -342,7 +342,7 @@ describe('Canvas', () => {
 
     it('should render empty state when there is no visible flows', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       let result: RenderResult | undefined;
 
       await act(async () => {
@@ -367,7 +367,7 @@ describe('Canvas', () => {
 
     it('should not render all-flows-hidden empty state while viz nodes are still resolving', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
 
       await act(async () => {
         render(
@@ -390,7 +390,7 @@ describe('Canvas', () => {
   });
 
   describe('Active Layout Priority', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       localStorage.clear();
     });
 
@@ -426,7 +426,7 @@ describe('Canvas', () => {
         const settingsAdapter = new DefaultSettingsAdapter({ canvasLayoutDirection });
         const vizNode = await entity.toVizNode();
 
-        const { Provider } = TestProvidersWrapper();
+        const { Provider } = await TestProvidersWrapper();
 
         const controller = ControllerService.createController();
         const fromModelSpy = vi.spyOn(controller, 'fromModel');
@@ -456,7 +456,7 @@ describe('Canvas', () => {
   });
 
   describe('Layout Toggle Buttons', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       localStorage.clear();
     });
 
@@ -469,7 +469,7 @@ describe('Canvas', () => {
         canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       });
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
       const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
@@ -509,7 +509,7 @@ describe('Canvas', () => {
         canvasLayoutDirection: CanvasLayoutDirection.SelectInCanvas,
       });
 
-      const { Provider } = TestProvidersWrapper();
+      const { Provider } = await TestProvidersWrapper();
       const vizNode = await entity.toVizNode();
 
       const localStorageSetItemSpy = vi.spyOn(Storage.prototype, 'setItem');
@@ -549,7 +549,7 @@ describe('Canvas', () => {
       async (canvasLayoutDirection) => {
         const settingsAdapter = new DefaultSettingsAdapter({ canvasLayoutDirection });
 
-        const { Provider } = TestProvidersWrapper();
+        const { Provider } = await TestProvidersWrapper();
         const vizNode = await entity.toVizNode();
 
         await act(async () => {

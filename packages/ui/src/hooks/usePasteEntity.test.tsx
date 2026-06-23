@@ -24,11 +24,12 @@ Object.assign(navigator, {
 
 describe('usePasteEntity', () => {
   let camelResource: CamelRouteResource;
-  let addNewEntitySpy: SpyInstance;
-  let removeEntitySpy: SpyInstance;
-  let supportsMultipleVisualEntitiesSpy: SpyInstance;
+  let addNewEntitySpy: Mock;
+  let removeEntitySpy: Mock;
+  let supportsMultipleVisualEntitiesSpy: Mock;
   let updateEntitiesFromCamelResourceSpy: Mock;
-  let toggleFlowVisibleSpy: SpyInstance;
+  let toggleFlowVisibleSpy: Mock;
+  let WrapperProvider: FunctionComponent<PropsWithChildren>;
 
   const mockActionConfirmationContext = {
     actionConfirmation: vi.fn(),
@@ -40,23 +41,17 @@ describe('usePasteEntity', () => {
     definition: { id: 'test-route', from: { uri: 'timer:tick' } },
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     camelResource = new CamelRouteResource();
     camelResource.initialize();
     addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
     removeEntitySpy = vi.spyOn(camelResource, 'removeEntity');
     vi.spyOn(camelResource, 'getType').mockReturnValue(SourceSchemaType.Route);
     supportsMultipleVisualEntitiesSpy = vi.spyOn(camelResource, 'supportsMultipleVisualEntities').mockReturnValue(true);
-  });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => {
     const visualFlowsApi = new VisualFlowsApi(vi.fn());
     toggleFlowVisibleSpy = vi.spyOn(visualFlowsApi, 'toggleFlowVisible');
-    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = TestProvidersWrapper({
+    const { Provider, updateEntitiesFromCamelResourceSpy: updateSpy } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext: {
         allFlowsVisible: true,
@@ -65,14 +60,20 @@ describe('usePasteEntity', () => {
       },
     });
     updateEntitiesFromCamelResourceSpy = updateSpy;
-    return (
-      <Provider>
-        <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
-          {children}
-        </ActionConfirmationModalContext.Provider>
-      </Provider>
-    );
-  };
+    WrapperProvider = Provider;
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+    <WrapperProvider>
+      <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
+        {children}
+      </ActionConfirmationModalContext.Provider>
+    </WrapperProvider>
+  );
 
   it('should return isCompatible false when clipboard is empty', async () => {
     vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
@@ -191,7 +192,7 @@ describe('usePasteEntity', () => {
   });
 
   describe('single-entity resources', () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       supportsMultipleVisualEntitiesSpy.mockReturnValue(false);
     });
 
@@ -270,16 +271,17 @@ describe('usePasteEntity', () => {
   });
 
   it('should handle null entitiesContext gracefully', async () => {
-    const wrapperWithoutEntities: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { Provider } = TestProvidersWrapper({ camelResource, entitiesContextValue: null });
-      return (
-        <Provider>
-          <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
-            {children}
-          </ActionConfirmationModalContext.Provider>
-        </Provider>
-      );
-    };
+    const { Provider: NullEntitiesProvider } = await TestProvidersWrapper({
+      camelResource,
+      entitiesContextValue: null,
+    });
+    const wrapperWithoutEntities: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <NullEntitiesProvider>
+        <ActionConfirmationModalContext.Provider value={mockActionConfirmationContext}>
+          {children}
+        </ActionConfirmationModalContext.Provider>
+      </NullEntitiesProvider>
+    );
 
     vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);
     vi.spyOn(ClipboardManager, 'paste').mockResolvedValue(copiedRouteContent);
@@ -298,10 +300,15 @@ describe('usePasteEntity', () => {
   });
 
   describe('should handle null actionConfirmationContext', () => {
-    const wrapperWithoutActionConfirmation: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { Provider } = TestProvidersWrapper({ camelResource });
-      return <Provider>{children}</Provider>;
-    };
+    let NullActionProvider: FunctionComponent<PropsWithChildren>;
+    const wrapperWithoutActionConfirmation: FunctionComponent<PropsWithChildren> = ({ children }) => (
+      <NullActionProvider>{children}</NullActionProvider>
+    );
+
+    beforeEach(async () => {
+      const { Provider } = await TestProvidersWrapper({ camelResource });
+      NullActionProvider = Provider;
+    });
 
     it('when clipboard is empty', async () => {
       vi.spyOn(navigator.permissions, 'query').mockResolvedValueOnce({ state: 'granted' } as PermissionStatus);

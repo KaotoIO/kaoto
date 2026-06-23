@@ -1,4 +1,6 @@
+import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render } from '@testing-library/react';
+import { parse } from 'yaml';
 
 import { CamelRouteResource } from '../../../../models/camel';
 import { EntityType } from '../../../../models/entities';
@@ -26,15 +28,19 @@ describe('FlowsList.tsx', () => {
     mockRandomValues();
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     camelResource = new CamelRouteResource();
     camelResource.addNewEntity(EntityType.Route);
     camelResource.addNewEntity(EntityType.RouteConfiguration);
+    // Materialize the new entities into source so the wrapper's re-initialize()
+    // (which rebuilds entities from source) preserves them — mirrors how runtime
+    // recreates the resource from serialized code on `code:updated`.
+    camelResource = new CamelRouteResource(parse(camelResource.toString()) as CamelYamlDsl);
   });
 
   it('should render the existing flows', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -47,9 +53,10 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should display an empty state when there is no routes available', async () => {
-    camelResource.removeEntity(['route-1234']);
-    camelResource.removeEntity(['routeConfiguration-1234']);
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    // "No routes" is expressed as an empty resource; building then removing in
+    // memory would be undone by the wrapper's re-initialize() from source.
+    const emptyResource = new CamelRouteResource();
+    const { Provider } = await TestProvidersWrapper({ camelResource: emptyResource });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -62,7 +69,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should render the flows ids', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -88,7 +95,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi,
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -105,7 +112,7 @@ describe('FlowsList.tsx', () => {
 
   it('should call onClose when clicking on a flow ID', async () => {
     const onCloseSpy = vi.fn();
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <FlowsList onClose={onCloseSpy} />
@@ -126,7 +133,7 @@ describe('FlowsList.tsx', () => {
       actionConfirmation: vi.fn(),
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <ActionConfirmationModalContext.Provider value={mockDeleteModalContext}>
@@ -146,7 +153,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should delete a flow when clicking the delete icon and then clicking delete', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <ActionConfirmationModalContextProvider>
@@ -169,7 +176,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should not delete a flow when clicking the delete icon and then clicking cancel', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <ActionConfirmationModalContextProvider>
@@ -204,7 +211,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi,
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -227,7 +234,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -249,7 +256,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -280,7 +287,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi,
     };
 
-    const { Provider, updateEntitiesFromCamelResourceSpy } = TestProvidersWrapper({
+    const { Provider, updateEntitiesFromCamelResourceSpy } = await TestProvidersWrapper({
       camelResource,
       visibleFlowsContext,
     });
@@ -321,7 +328,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi,
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -347,7 +354,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi,
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -370,7 +377,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -389,7 +396,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -411,7 +418,7 @@ describe('FlowsList.tsx', () => {
       visualFlowsApi: new VisualFlowsApi(vi.fn()),
     };
 
-    const { Provider } = TestProvidersWrapper({ camelResource, visibleFlowsContext });
+    const { Provider } = await TestProvidersWrapper({ camelResource, visibleFlowsContext });
     const wrapper = render(
       <Provider>
         <FlowsList />
@@ -445,7 +452,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should have the delete button disabled when there are no routes', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
 
     const wrapper = render(
       <Provider>
@@ -463,7 +470,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should delete filtered flows when clicking the delete filtered button', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <ActionConfirmationModalContextProvider>
@@ -496,7 +503,7 @@ describe('FlowsList.tsx', () => {
   });
 
   it('should not delete any flows when canceling the delete filtered action', async () => {
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     const wrapper = render(
       <Provider>
         <ActionConfirmationModalContextProvider>

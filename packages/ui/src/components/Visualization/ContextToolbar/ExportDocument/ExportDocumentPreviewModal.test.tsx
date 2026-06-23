@@ -34,7 +34,7 @@ describe('ExportDocumentPreviewModal', () => {
   let clickSpy: MockInstance;
   let eventListenerCallback: ((event?: Event) => void) | null = null;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     onCloseSpy = vi.fn();
 
     originalCreateObjectURL = URL.createObjectURL;
@@ -57,7 +57,7 @@ describe('ExportDocumentPreviewModal', () => {
       }
     });
 
-    const { Provider } = TestProvidersWrapper({ camelResource });
+    const { Provider } = await TestProvidersWrapper({ camelResource });
     wrapper = ({ children }) => (
       <VisualizationProvider controller={ControllerService.createController()}>
         <Provider>{children}</Provider>

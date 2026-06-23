@@ -32,7 +32,7 @@ describe('DocumentationService', () => {
     </KaotoResourceProvider>
   );
 
-  const createDocumentationEntitiesFromYaml = (yaml: string) => {
+  const createDocumentationEntitiesFromYaml = async (yaml: string) => {
     const { result: entitiesContext } = renderHook(() => useContext(EntitiesContext), { wrapper });
 
     act(() => {
@@ -42,6 +42,11 @@ describe('DocumentationService', () => {
     if (entitiesContext.current === null) {
       throw new Error('EntitiesContext is null');
     }
+
+    // initialize() is async and re-runnable; await it on the context's resource so the
+    // entities/visual entities are fully built before we read them (the EntitiesProvider
+    // also initializes it, but asynchronously — this guarantees completion here).
+    await entitiesContext.current.camelResource.initialize();
 
     const visibleFlows = entitiesContext.current.camelResource.getVisualEntities().reduce((acc, entity) => {
       acc[entity.id] = true;
@@ -61,8 +66,8 @@ describe('DocumentationService', () => {
   };
 
   describe('getDocumentationEntities()', () => {
-    it('should generate route and beans documentation entities', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
+    it('should generate route and beans documentation entities', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
 
       expect(documentationEntities.length).toEqual(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
@@ -75,8 +80,8 @@ describe('DocumentationService', () => {
       expect(documentationEntities[1].entity!.type).toEqual('beans');
     });
 
-    it('should generate kamelet documentation entities', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(kameletYaml);
+    it('should generate kamelet documentation entities', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletYaml);
 
       expect(documentationEntities.length).toEqual(2);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
@@ -87,8 +92,8 @@ describe('DocumentationService', () => {
       expect(documentationEntities[1].entity!.type).toEqual('metadata');
     });
 
-    it('should generate pipe documentation entities', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(pipeYaml);
+    it('should generate pipe documentation entities', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(pipeYaml);
 
       expect(documentationEntities.length).toEqual(3);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
@@ -102,11 +107,11 @@ describe('DocumentationService', () => {
       expect(documentationEntities[2].entity!.type).toEqual('pipeErrorHandler');
     });
 
-    it('should generate rest documentation entities', () => {
+    it('should generate rest documentation entities', async () => {
       mockRandomValues();
 
       const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
-      camelResource.initialize();
+      await camelResource.initialize();
       const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
 
       expect(documentationEntities.length).toEqual(2);
@@ -118,8 +123,8 @@ describe('DocumentationService', () => {
       expect(documentationEntities[1].entity!.type).toEqual('rest');
     });
 
-    it('should generate route configuration documentation entities', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(routeConfigurationFullYaml);
+    it('should generate route configuration documentation entities', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(routeConfigurationFullYaml);
 
       expect(documentationEntities.length).toEqual(1);
       expect(documentationEntities[0].isVisualEntity).toBeTruthy();
@@ -129,8 +134,8 @@ describe('DocumentationService', () => {
   });
 
   describe('generateMarkdown()', () => {
-    it('should generate route and beans markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
+    it('should generate route and beans markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('![Diagram](route.png)');
@@ -142,8 +147,8 @@ describe('DocumentationService', () => {
       expect(markdown).toContain('| myBean  | io.kaoto.MyBean | p1            |                | p1v   |');
     });
 
-    it('should generate kamelet markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(kameletYaml);
+    it('should generate kamelet markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('![Diagram](route.png)');
@@ -159,16 +164,16 @@ describe('DocumentationService', () => {
       expect(markdown).toContain('## Metadata : Annotations');
     });
 
-    it('should generate markdown for kamelet with multiline property and XML', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(kameletWithMultilineXmlPropYaml);
+    it('should generate markdown for kamelet with multiline property and XML', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletWithMultilineXmlPropYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('<strong>sample</strong>');
       expect(markdown).toContain('foo&#10;<Some>aaa</Some>&#10;bbb');
     });
 
-    it('should generate aws-cloudtail-source kamelet markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
+    it('should generate aws-cloudtail-source kamelet markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(kameletAwsCloudtailSourceYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
       expect(markdown).toContain('![Diagram](route.png)');
       expect(markdown).toContain('# Steps');
@@ -184,8 +189,8 @@ describe('DocumentationService', () => {
       expect(markdown).toContain('## Metadata : Annotations');
     });
 
-    it('should generate pipe markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(pipeYaml);
+    it('should generate pipe markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(pipeYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('![Diagram](route.png)');
@@ -217,9 +222,9 @@ describe('DocumentationService', () => {
       expect(markdownSink).toContain('| sink | REF Kind        |                     | kamelet             |');
     });
 
-    it('should generate rest markdown', () => {
+    it('should generate rest markdown', async () => {
       const camelResource = new CamelRouteResource([restStub, restConfigurationStub]);
-      camelResource.initialize();
+      await camelResource.initialize();
       const documentationEntities = createDocumentationEntitiesFromCamelResource(camelResource);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
@@ -228,8 +233,8 @@ describe('DocumentationService', () => {
       expect(markdown).toContain('# restConfiguration-1234');
     });
 
-    it('should generate rest operations markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(restOperationsYaml);
+    it('should generate rest operations markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(restOperationsYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('![Diagram](route.png)');
@@ -239,8 +244,8 @@ describe('DocumentationService', () => {
       );
     });
 
-    it('should generate route configuration markdown', () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(routeConfigurationFullYaml);
+    it('should generate route configuration markdown', async () => {
+      const documentationEntities = await createDocumentationEntitiesFromYaml(routeConfigurationFullYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
 
       expect(markdown).toContain('![Diagram](route.png)');
@@ -257,7 +262,7 @@ describe('DocumentationService', () => {
 
   describe('generateDocumentationZip()', () => {
     it('should generate a zip file', async () => {
-      const documentationEntities = createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
+      const documentationEntities = await createDocumentationEntitiesFromYaml(camelRouteYaml + beansYaml);
       const markdown = DocumentationService.generateMarkdown(documentationEntities, 'route.png');
       let zipfile: Blob;
       await act(async () => {
