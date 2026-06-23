@@ -40,7 +40,7 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
 
   return (
     <>
-      <FlowTypeSelector isStatic onSelect={checkBeforeAddNewFlow}>
+      <FlowTypeSelector onSelect={checkBeforeAddNewFlow}>
         <div
           title={
             currentFlowType.multipleRoute
