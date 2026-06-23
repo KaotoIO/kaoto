@@ -357,6 +357,59 @@ describe('SchemaPathService', () => {
     });
   });
 
+  describe('sequence segments (#3345)', () => {
+    function makeSequenceField(parent: XmlSchemaField, memberNames: string[]) {
+      const sequenceField = new XmlSchemaField(parent, '__sequence__', false);
+      sequenceField.wrapperKind = 'sequence';
+      sequenceField.fields = memberNames.map((n) => {
+        const f = new XmlSchemaField(sequenceField, n, false);
+        f.namespaceURI = 'io.kaoto.datamapper.poc.test';
+        return f;
+      });
+      return sequenceField;
+    }
+
+    it('parse() should parse {sequence:N} segments', () => {
+      const result = SchemaPathService.parse('/ns0:Root/{choice:0}/{sequence:0}/ns0:key');
+      expect(result).toEqual<SchemaPathSegment[]>([
+        { kind: 'element', segment: 'ns0:Root' },
+        { kind: 'choice', index: 0 },
+        { kind: 'sequence', index: 0 },
+        { kind: 'element', segment: 'ns0:key' },
+      ]);
+    });
+
+    it('build() should produce {choice:N}/{sequence:N} for a field grouped under a nested sequence', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const choiceField = makeChoiceField(root, []);
+      const sequenceField = makeSequenceField(choiceField, ['key', 'value']);
+      choiceField.fields = [sequenceField];
+      root.fields.push(choiceField);
+
+      expect(SchemaPathService.build(sequenceField, namespaceMap)).toBe('/ns0:ShipOrder/{choice:0}/{sequence:0}');
+      expect(SchemaPathService.build(sequenceField.fields[1], namespaceMap)).toBe(
+        '/ns0:ShipOrder/{choice:0}/{sequence:0}/ns0:value',
+      );
+    });
+
+    it('navigateToField() should traverse {choice:N}/{sequence:N} segments back to the grouped member', () => {
+      const document = TestUtil.createSourceOrderDoc();
+      const root = document.fields[0];
+      const choiceField = makeChoiceField(root, []);
+      const sequenceField = makeSequenceField(choiceField, ['key', 'value']);
+      choiceField.fields = [sequenceField];
+      root.fields.push(choiceField);
+
+      const found = SchemaPathService.navigateToField(
+        document,
+        '/ns0:ShipOrder/{choice:0}/{sequence:0}/ns0:key',
+        namespaceMap,
+      );
+      expect(found).toBe(sequenceField.fields[0]);
+    });
+  });
+
   describe('formatDisplayPath()', () => {
     it('should collapse non-terminal abstract with its candidate child', () => {
       const document = TestUtil.createSourceOrderDoc();

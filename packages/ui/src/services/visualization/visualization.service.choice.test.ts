@@ -569,6 +569,72 @@ describe('VisualizationService / choice fields', () => {
       const choiceField = createMockChoiceField(members);
       expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(member0 | member1 | member2 | +7 more)');
     });
+
+    it('should label a single nested sequence member as "sequence"', () => {
+      const baseField = sourceDoc.fields[0];
+      const innerSequence = {
+        ...baseField,
+        name: '__sequence__',
+        displayName: 'sequence',
+        wrapperKind: 'sequence' as const,
+        fields: [],
+      };
+      const choiceField = {
+        ...baseField,
+        name: '__choice__',
+        displayName: 'choice',
+        wrapperKind: 'choice' as const,
+        fields: [{ ...baseField, name: 'dataValue', displayName: 'dataValue', fields: [] }, innerSequence],
+      } as unknown as typeof baseField;
+      expect(VisualizationService.getChoiceMemberLabel(choiceField)).toEqual('(dataValue | sequence)');
+    });
+  });
+
+  describe('xs:sequence nested in xs:choice (#3345)', () => {
+    const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="dataValue" type="xs:string"/>
+        <xs:element name="numericValue" type="xs:int"/>
+        <xs:sequence>
+          <xs:element name="key" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+    function buildChoiceNode() {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'root.xsd': xsdContent,
+        },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const docNode = new DocumentNodeData(result.document!);
+      const rootNode = VisualizationService.generateStructuredDocumentChildren(docNode)[0];
+      const choiceNode = VisualizationService.generateNonDocumentNodeDataChildren(rootNode)[0] as ChoiceFieldNodeData;
+      return choiceNode;
+    }
+
+    it('groups the nested sequence members under one sequence node instead of flattening them', () => {
+      const choiceNode = buildChoiceNode();
+      expect(choiceNode).toBeInstanceOf(ChoiceFieldNodeData);
+      expect(VisualizationService.createNodeTitle(choiceNode)).toEqual('(dataValue | numericValue | sequence)');
+
+      const members = VisualizationService.generateNonDocumentNodeDataChildren(choiceNode);
+      expect(members.map((m) => m.title)).toEqual(['dataValue', 'numericValue', 'sequence']);
+
+      const sequenceNode = members[2];
+      const sequenceChildren = VisualizationService.generateNonDocumentNodeDataChildren(sequenceNode);
+      expect(sequenceChildren.map((c) => c.title)).toEqual(['key', 'value']);
+    });
   });
 
   describe('createNodeTitle', () => {

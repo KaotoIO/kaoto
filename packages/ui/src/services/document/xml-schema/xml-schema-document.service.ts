@@ -840,9 +840,43 @@ export class XmlSchemaDocumentService {
     fields.push(choiceField);
     ownerDoc.totalFieldCount++;
     for (const member of choice.getItems()) {
-      XmlSchemaDocumentService.populateSequenceMember(choiceField, choiceField.fields, member, visitedGroupRefs);
+      if (member instanceof XmlSchemaSequence && member.getItems().length > 1) {
+        XmlSchemaDocumentService.populateSequenceWrapper(choiceField, choiceField.fields, member, visitedGroupRefs);
+      } else {
+        XmlSchemaDocumentService.populateSequenceMember(choiceField, choiceField.fields, member, visitedGroupRefs);
+      }
     }
     choiceField.displayName = 'choice';
+  }
+
+  /**
+   * Creates a sequence wrapper {@link XmlSchemaField} with {@link XmlSchemaField.wrapperKind} set to
+   * `'sequence'` for an `xs:sequence` nested directly inside an `xs:choice`. Without this wrapper the
+   * sequence members would be flattened into the choice and rendered as individual alternatives, losing
+   * the fact that they belong together as one choice branch. The wrapper is synthetic (no XML element of
+   * its own) and is skipped when building XPath/XSLT, just like the `'choice'` wrapper. The `{sequence:N}`
+   * path index is derived at runtime from the field's position among sibling `wrapperKind === 'sequence'`
+   * fields — no explicit index is stored on the field.
+   */
+  private static populateSequenceWrapper(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    sequence: XmlSchemaSequence,
+    visitedGroupRefs?: Set<string>,
+  ) {
+    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const sequenceField = new XmlSchemaField(parent, '__sequence__', false);
+    sequenceField.wrapperKind = 'sequence';
+    sequenceField.minOccurs = sequence.getMinOccurs();
+    sequenceField.maxOccurs = sequence.getMaxOccurs();
+    sequenceField.minOccursExplicit = sequence.isMinOccursExplicit();
+    sequenceField.maxOccursExplicit = sequence.isMaxOccursExplicit();
+    fields.push(sequenceField);
+    ownerDoc.totalFieldCount++;
+    for (const member of sequence.getItems()) {
+      XmlSchemaDocumentService.populateSequenceMember(sequenceField, sequenceField.fields, member, visitedGroupRefs);
+    }
+    sequenceField.displayName = 'sequence';
   }
 
   /**

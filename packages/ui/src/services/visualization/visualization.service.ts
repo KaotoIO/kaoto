@@ -382,10 +382,13 @@ export class VisualizationService {
   static getChoiceMemberLabel(field: IField): string {
     const members = field.fields ?? [];
     const nestedChoiceCount = members.filter((m) => m.wrapperKind === 'choice').length;
+    const nestedSequenceCount = members.filter((m) => m.wrapperKind === 'sequence').length;
     let choiceIndex = 0;
+    let sequenceIndex = 0;
     const labels = members.map((m) => {
-      if (m.wrapperKind !== 'choice') return m.displayName ?? m.name;
-      return nestedChoiceCount > 1 ? `choice${++choiceIndex}` : 'choice';
+      if (m.wrapperKind === 'choice') return nestedChoiceCount > 1 ? `choice${++choiceIndex}` : 'choice';
+      if (m.wrapperKind === 'sequence') return nestedSequenceCount > 1 ? `sequence${++sequenceIndex}` : 'sequence';
+      return m.displayName ?? m.name;
     });
     if (labels.length === 0) return '(empty)';
     const maxVisible = 3;

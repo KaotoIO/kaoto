@@ -180,6 +180,79 @@ describe('XmlSchemaDocumentService', () => {
     expect(choiceWrappers[1].fields.find((f) => f.name === 'B2')).toBeDefined();
   });
 
+  it('should group a multi-element xs:sequence nested in xs:choice into a sequence wrapper (#3345)', () => {
+    const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="dataValue" type="xs:string"/>
+        <xs:element name="numericValue" type="xs:int"/>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+          <xs:element name="key" type="xs:string"/>
+          <xs:element name="value" type="xs:string"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'root.xsd': xsdContent },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const root = document.fields[0];
+    const choiceWrapper = root.fields.find((f) => f.wrapperKind === 'choice')!;
+    expect(choiceWrapper).toBeDefined();
+
+    // The choice now has three alternatives: dataValue, numericValue, and the grouped sequence.
+    expect(choiceWrapper.fields.length).toEqual(3);
+    const sequenceWrapper = choiceWrapper.fields.find((f) => f.wrapperKind === 'sequence')!;
+    expect(sequenceWrapper).toBeDefined();
+    expect(sequenceWrapper.name).toEqual('__sequence__');
+    expect(sequenceWrapper.displayName).toEqual('sequence');
+    expect(sequenceWrapper.minOccurs).toEqual(0);
+    expect(sequenceWrapper.maxOccurs).toEqual('unbounded');
+
+    // key and value stay together under the sequence wrapper instead of flattening into the choice.
+    expect(sequenceWrapper.fields.map((f) => f.name)).toEqual(['key', 'value']);
+    expect(choiceWrapper.fields.find((f) => f.name === 'key')).toBeUndefined();
+    expect(choiceWrapper.fields.find((f) => f.name === 'value')).toBeUndefined();
+  });
+
+  it('should keep a single-element xs:sequence nested in xs:choice flat (no wrapper)', () => {
+    const xsdContent = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="only" type="xs:string"/>
+        <xs:sequence>
+          <xs:element name="solo" type="xs:string"/>
+        </xs:sequence>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'root.xsd': xsdContent },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    expect(result.validationStatus).toBe('success');
+    const document = result.document as XmlSchemaDocument;
+    const root = document.fields[0];
+    const choiceWrapper = root.fields.find((f) => f.wrapperKind === 'choice')!;
+    expect(choiceWrapper.fields.find((f) => f.wrapperKind === 'sequence')).toBeUndefined();
+    expect(choiceWrapper.fields.map((f) => f.name)).toEqual(['only', 'solo']);
+  });
+
   it('should parse camel-spring.xsd XML schema', () => {
     const definition = new DocumentDefinition(
       DocumentType.TARGET_BODY,
