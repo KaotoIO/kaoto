@@ -42,12 +42,12 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
 
   useEffect(() => {
-    kaotoResource.initialize();
-    const entities = kaotoResource.getEntities();
-    const visualEntities = kaotoResource.getVisualEntities();
-
-    setEntities(entities);
-    setVisualEntities(visualEntities);
+    const init = async () => {
+      await kaotoResource.initialize();
+      setEntities(kaotoResource.getEntities());
+      setVisualEntities(kaotoResource.getVisualEntities());
+    };
+    void init();
   }, [kaotoResource]);
 
   const updateSourceCodeFromEntities = useCallback(() => {

@@ -27,7 +27,7 @@ export class KameletResource extends CamelKResource implements RouteTemplateBean
     this.flow = new KameletVisualEntity(this.resource as IKameletDefinition);
   }
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     super.initialize();
 
     if (this.flow.kamelet.spec.template.beans) {

@@ -28,7 +28,7 @@ export class PipeResource extends CamelKResource {
     }
   }
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     super.initialize();
 
     this.flow = new PipeVisualEntity(this.pipe);

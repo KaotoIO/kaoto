@@ -13,7 +13,7 @@ export interface KaotoResource {
   /**
    * After creation, the `initialize` method parses the underlying DSL to populate the resource entities
    */
-  initialize(): void;
+  initialize(): Promise<void>;
   /** Entities this resource supports. Polymorphic — subclasses may return a restricted subset. */
   readonly supportedEntities: ReadonlyArray<{ type: EntityType }>;
   getVisualEntities(): BaseVisualEntity[];

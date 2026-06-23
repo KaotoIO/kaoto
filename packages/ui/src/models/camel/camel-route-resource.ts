@@ -124,7 +124,7 @@ export class CamelRouteResource implements KaotoResource, BeansAwareResource {
     protected comments: string[] = [],
   ) {}
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     if (!this.rawEntities) {
       this.entities = [];
       return;

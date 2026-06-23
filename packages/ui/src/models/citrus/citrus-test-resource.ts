@@ -53,7 +53,7 @@ export class CitrusTestResource implements KaotoResource {
    */
   constructor(private readonly rawEntities?: Test | Test[]) {}
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     if (!this.rawEntities) {
       this.entities = [];
       return;

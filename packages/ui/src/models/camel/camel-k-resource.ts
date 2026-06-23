@@ -44,7 +44,7 @@ export abstract class CamelKResource implements KaotoResource {
     return [];
   }
 
-  initialize(): void {
+  async initialize(): Promise<void> {
     if (this.resource.metadata && !this.metadata) {
       this.metadata = new MetadataEntity(this.resource);
     }
