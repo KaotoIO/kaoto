@@ -46,6 +46,18 @@ export type OverrideMode = 'type' | 'substitution';
 /** Minimal display shape shared by type and substitution candidates */
 export type CandidateDisplay = { displayName: string; description?: string };
 
+/** A candidate rendered as an option in the typeahead dropdown. */
+export type CandidateOption = { value: string; label: string; description: string };
+
+/**
+ * Build the option description shown under each candidate in the dropdown.
+ * Always surfaces the namespace URI; the optional annotation (from xs:documentation) is appended when present.
+ */
+export function buildCandidateDescription(namespaceUri: string | undefined, annotation?: string): string {
+  const namespacePart = namespaceUri ? `Namespace URI: ${namespaceUri}` : 'No namespace';
+  return annotation ? `${namespacePart} — ${annotation}` : namespacePart;
+}
+
 /** Derive the pre-selected key when opening the modal for a field with an existing override. */
 export function derivePreselectedKey(
   field: IField,
@@ -76,11 +88,29 @@ export function getOverrideCandidates(
   field: IField,
   mode: OverrideMode,
   namespaceMap: Record<string, string>,
-): { candidates: Record<string, CandidateDisplay>; selectedKey: string | null } {
-  const candidates =
-    mode === 'substitution'
-      ? FieldOverrideService.getFieldSubstitutionCandidates(field, namespaceMap)
-      : FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+): { candidates: Record<string, CandidateDisplay>; options: CandidateOption[]; selectedKey: string | null } {
+  let candidates: Record<string, CandidateDisplay>;
+  let options: CandidateOption[];
+
+  if (mode === 'substitution') {
+    const substitutionCandidates = FieldOverrideService.getFieldSubstitutionCandidates(field, namespaceMap);
+    candidates = substitutionCandidates;
+    options = Object.entries(substitutionCandidates).map(([value, info]) => ({
+      value,
+      label: info.displayName,
+      description: buildCandidateDescription(info.qname.getNamespaceURI()),
+    }));
+  } else {
+    const typeCandidates = FieldOverrideService.getSafeOverrideCandidates(field, namespaceMap);
+    candidates = typeCandidates;
+    options = Object.entries(typeCandidates).map(([value, info]) => ({
+      value,
+      label: info.displayName,
+      description: buildCandidateDescription(info.typeQName.getNamespaceURI(), info.description),
+    }));
+  }
+
+  options.sort((a, b) => a.label.localeCompare(b.label));
   const selectedKey = derivePreselectedKey(field, mode, namespaceMap, candidates);
-  return { candidates, selectedKey };
+  return { candidates, options, selectedKey };
 }

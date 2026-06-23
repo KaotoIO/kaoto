@@ -47,6 +47,25 @@ describe('FieldOverrideModal', () => {
     jest.restoreAllMocks();
   });
 
+  const getTypeaheadInput = () =>
+    document.querySelector('input.pf-v6-c-text-input-group__text-input') as HTMLInputElement;
+
+  const openTypeahead = async () => {
+    act(() => {
+      fireEvent.focus(getTypeaheadInput());
+    });
+    await screen.findAllByRole('option');
+  };
+
+  const selectOption = async (text: string) => {
+    const options = await screen.findAllByText(text);
+    const option = options.find((el) => el.closest('[role="option"]'));
+    if (!option) throw new Error(`Option not found: ${text}`);
+    act(() => {
+      fireEvent.click(option);
+    });
+  };
+
   it('should render modal when isOpen is true', () => {
     render(
       <FieldOverrideModal
@@ -76,7 +95,17 @@ describe('FieldOverrideModal', () => {
     expect(screen.getByText(new RegExp(`Field Override:.*${fieldName}`))).toBeInTheDocument();
   });
 
-  it('should open type selector when toggle is clicked', () => {
+  it('should open type selector when input is focused', async () => {
+    const mockCandidates: Record<string, IFieldTypeInfo> = {
+      'xs:string': {
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'string'),
+        displayName: 'string',
+        type: Types.String,
+        isBuiltIn: true,
+      },
+    };
+    jest.spyOn(FieldOverrideService, 'getSafeOverrideCandidates').mockReturnValue(mockCandidates);
+
     render(
       <FieldOverrideModal
         onClose={jest.fn()}
@@ -87,12 +116,10 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
-    act(() => {
-      fireEvent.click(toggle);
-    });
+    await openTypeahead();
 
-    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('button', { name: 'Menu toggle' })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getAllByText('string').some((el) => el.closest('[role="option"]'))).toBe(true);
   });
 
   it('should update selected type when a type is selected from dropdown', async () => {
@@ -125,28 +152,13 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    const stringOptions = screen.getAllByText('string');
-    const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
-    if (!stringOption) {
-      throw new Error('String option not found');
-    }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    await openTypeahead();
+    await selectOption('string');
 
     await waitFor(() => {
-      // After selection, the toggle should show the selected type name
-      const toggle = screen.getByRole('button', { name: /string/i });
-      expect(toggle).toBeInTheDocument();
+      // After selection, the typeahead input should show the selected type name
+      expect(getTypeaheadInput().value).toMatch(/string/i);
     });
-
-    // Verify the placeholder text is no longer visible
-    expect(screen.queryByText('Select a new type...')).not.toBeInTheDocument();
   });
 
   it('should enable Save button when a type is selected', async () => {
@@ -172,19 +184,8 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    const stringOptions = screen.getAllByText('string');
-    const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
-    if (!stringOption) {
-      throw new Error('String option not found');
-    }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    await openTypeahead();
+    await selectOption('string');
 
     await waitFor(() => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -254,19 +255,8 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    const stringOptions = screen.getAllByText('string');
-    const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
-    if (!stringOption) {
-      throw new Error('String option not found');
-    }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    await openTypeahead();
+    await selectOption('string');
 
     await waitFor(() => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -384,23 +374,14 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    const toggle = screen.getByRole('button', { name: 'Select a new type...' });
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    const stringOptions = screen.getAllByText('string');
-    const stringOption = stringOptions.find((el) => el.closest('[role="option"]'));
-    if (!stringOption) {
-      throw new Error('String option not found');
-    }
-    act(() => {
-      fireEvent.click(stringOption);
-    });
+    await openTypeahead();
+    await selectOption('string');
 
     await waitFor(() => {
-      expect(screen.getByText('A text string type')).toBeInTheDocument();
+      expect(getTypeaheadInput().value).toMatch(/string/i);
     });
+
+    expect(screen.getByText('A text string type')).toBeInTheDocument();
   });
 
   it('should pre-select current type when field has existing override', () => {
@@ -437,7 +418,7 @@ describe('FieldOverrideModal', () => {
       />,
     );
 
-    expect(screen.getByRole('button', { name: 'xs:int' })).toBeInTheDocument();
+    expect(getTypeaheadInput().value).toBe('xs:int');
   });
 
   describe('Substitution mode', () => {
@@ -496,7 +477,7 @@ describe('FieldOverrideModal', () => {
         fireEvent.click(screen.getByLabelText('Substitute Element'));
       });
 
-      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+      expect(getTypeaheadInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
 
     it('should call onSave with substitution payload when saving in substitution mode', async () => {
@@ -522,16 +503,8 @@ describe('FieldOverrideModal', () => {
       });
 
       // Open dropdown and select Cat
-      const toggle = screen.getByRole('button', { name: 'Select a substitute element...' });
-      act(() => {
-        fireEvent.click(toggle);
-      });
-
-      const catOption = screen.getAllByText('Cat').find((el) => el.closest('[role="option"]'));
-      if (!catOption) throw new Error('Cat option not found');
-      act(() => {
-        fireEvent.click(catOption);
-      });
+      await openTypeahead();
+      await selectOption('Cat');
 
       // Save
       await waitFor(() => {
@@ -572,15 +545,8 @@ describe('FieldOverrideModal', () => {
       );
 
       // Select a type in type mode
-      const typeToggle = screen.getByRole('button', { name: 'Select a new type...' });
-      act(() => {
-        fireEvent.click(typeToggle);
-      });
-      const stringOption = screen.getAllByText('string').find((el) => el.closest('[role="option"]'));
-      if (!stringOption) throw new Error('string option not found');
-      act(() => {
-        fireEvent.click(stringOption);
-      });
+      await openTypeahead();
+      await selectOption('string');
 
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save' })).not.toBeDisabled();
@@ -592,7 +558,7 @@ describe('FieldOverrideModal', () => {
       });
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+      expect(getTypeaheadInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
 
     it('should start in substitution mode when field has existing substitution', () => {
@@ -615,7 +581,7 @@ describe('FieldOverrideModal', () => {
 
       // Should auto-select substitution radio and show substitution placeholder
       expect(screen.getByLabelText('Substitute Element')).toBeChecked();
-      expect(screen.getByRole('button', { name: 'Select a substitute element...' })).toBeInTheDocument();
+      expect(getTypeaheadInput()).toHaveAttribute('placeholder', 'Select a substitute element...');
     });
 
     it('should pre-select the active substitute element when field has existing substitution', () => {
@@ -640,8 +606,8 @@ describe('FieldOverrideModal', () => {
         />,
       );
 
-      // The active substitute 'sub:Cat' should be pre-selected in the dropdown toggle
-      expect(screen.getByRole('button', { name: 'Cat' })).toBeInTheDocument();
+      // The active substitute 'sub:Cat' should be pre-selected in the dropdown
+      expect(getTypeaheadInput().value).toBe('Cat');
     });
 
     it('should disable Override Type radio when field has existing substitution', () => {
