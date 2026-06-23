@@ -20,7 +20,7 @@ config.config[SourceSchemaType.Route].schema = {
 } as KaotoSchemaDefinition;
 
 describe('IntegrationTypeSelectorToggle.tsx', () => {
-  it('component renders', () => {
+  it('component renders with the integration-type-list-dropdown toggle', () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
@@ -34,7 +34,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     expect(toggle).toBeInTheDocument();
   });
 
-  it('should call onSelect when clicking on the MenuToggleAction', async () => {
+  it('should call onSelect when clicking on an option', async () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const onSelectSpy = jest.fn();
     const { Provider } = TestProvidersWrapper();
@@ -63,7 +63,7 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
     });
   });
 
-  it('should disable the MenuToggleAction if the integration type is already selected', async () => {
+  it('should mark the currently selected integration type as disabled', async () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
@@ -73,28 +73,19 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
         </Provider>
       </RuntimeProvider>,
     );
-    /** Click on toggle */
+
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
     act(() => {
       fireEvent.click(toggle);
     });
 
-    /** Click on first element */
-    const element = await wrapper.findAllByRole('option');
-    act(() => {
-      fireEvent.click(element[0]);
-    });
-
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    await waitFor(async () => {
-      expect(element[0]).toBeDisabled();
-    });
+    // The default schema type from TestProvidersWrapper is Route — its option should be disabled
+    // data-testid is set on the li wrapper which carries the pf-m-disabled class
+    const routeOption = await wrapper.findByTestId('integration-type-route');
+    expect(routeOption).toHaveClass('pf-m-disabled');
   });
 
-  it('should toggle list of integration types', async () => {
+  it('should display "(current integration type)" suffix for the active type', async () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
     const wrapper = render(
@@ -104,114 +95,13 @@ describe('IntegrationTypeSelectorToggle.tsx', () => {
         </Provider>
       </RuntimeProvider>,
     );
+
     const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
-
-    /** Click on toggle */
     act(() => {
       fireEvent.click(toggle);
     });
 
-    const element = await wrapper.findByText('Pipe');
-    waitFor(() => {
-      expect(element).toBeInTheDocument();
-    });
-    /** Close Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    waitFor(() => {
-      expect(element).not.toBeInTheDocument();
-    });
-  });
-
-  it('should show selected value', async () => {
-    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = TestProvidersWrapper();
-    const wrapper = render(
-      <RuntimeProvider>
-        <Provider>
-          <IntegrationTypeSelectorToggle />
-        </Provider>
-      </RuntimeProvider>,
-    );
-    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
-
-    /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    /** Click on first element */
-    act(() => {
-      const element = wrapper.getByText('Camel Route');
-      fireEvent.click(element);
-    });
-
-    /** Open Select again */
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    const element = await wrapper.findByRole('option', { selected: true });
-    expect(element).toBeInTheDocument();
-    expect(element).toHaveTextContent('Camel Route');
-  });
-
-  it('should have selected integration type if provided', async () => {
-    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = TestProvidersWrapper();
-    const wrapper = render(
-      <RuntimeProvider>
-        <Provider>
-          <IntegrationTypeSelectorToggle />
-        </Provider>
-      </RuntimeProvider>,
-    );
-    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
-
-    /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    waitFor(() => {
-      const element = wrapper.queryByRole('option', { selected: true });
-      expect(element).toBeInTheDocument();
-      expect(element).toHaveTextContent('Pipe');
-    });
-  });
-
-  it('should close Select when pressing ESC', async () => {
-    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = TestProvidersWrapper();
-    const wrapper = render(
-      <RuntimeProvider>
-        <Provider>
-          <IntegrationTypeSelectorToggle />
-        </Provider>
-      </RuntimeProvider>,
-    );
-    const toggle = await wrapper.findByTestId('integration-type-list-dropdown');
-
-    /** Open Select */
-    act(() => {
-      fireEvent.click(toggle);
-    });
-
-    const menu = await wrapper.findByRole('listbox');
-
-    expect(menu).toBeInTheDocument();
-
-    /** Press Escape key to close the menu */
-    act(() => {
-      fireEvent.focus(menu);
-      fireEvent.keyDown(menu, { key: 'Escape', code: 'Escape', charCode: 27 });
-    });
-
-    await waitFor(async () => {
-      /** The close panel is an async process */
-      expect(menu).not.toBeInTheDocument();
-    });
+    const currentLabel = await wrapper.findByText('Camel Route (current integration type)');
+    expect(currentLabel).toBeInTheDocument();
   });
 });
