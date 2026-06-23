@@ -1,24 +1,10 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { KaotoSchemaDefinition } from '../../../../models';
-import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { CamelRouteResource, SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
+import { configureSourceSchemaTypes } from '../../../../stubs';
 import { FlowTypeSelector } from './FlowTypeSelector';
-
-const config = sourceSchemaConfig;
-config.config[SourceSchemaType.Pipe].schema = {
-  name: 'Pipe',
-  schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Kamelet].schema = {
-  name: 'Kamelet',
-  schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Route].schema = {
-  name: 'route',
-  schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
 
 const onSelect = jest.fn();
 const FlowTypeSelectorWithContext: React.FunctionComponent<{
@@ -40,6 +26,10 @@ const FlowTypeSelectorWithContext: React.FunctionComponent<{
 };
 
 describe('FlowTypeSelector.tsx', () => {
+  beforeAll(() => {
+    configureSourceSchemaTypes();
+  });
+
   it('component renders', async () => {
     await act(async () => {
       render(<FlowTypeSelectorWithContext />);
