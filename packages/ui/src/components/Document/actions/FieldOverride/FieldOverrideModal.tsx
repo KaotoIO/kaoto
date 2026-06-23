@@ -16,6 +16,7 @@ import {
   Select,
   SelectList,
   SelectOption,
+  Spinner,
   Split,
   SplitItem,
 } from '@patternfly/react-core';
@@ -64,6 +65,7 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const [uploadedSchemas, setUploadedSchemas] = useState<Record<string, string>>({});
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const selectedCandidate = selectedKey ? (candidates[selectedKey] ?? null) : null;
 
@@ -144,17 +146,22 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
 
       if (newPaths.length === 0) return;
 
-      const newSchemas = await readSchemaFiles(newPaths);
-      if (!newSchemas || Object.keys(newSchemas).length === 0) return;
-
-      // Immediately attach schemas to document and reload types
+      setIsProcessing(true);
       try {
-        onAttach(newSchemas);
-        setUploadedSchemas((prev) => ({ ...prev, ...newSchemas }));
-        reloadCandidates(overrideMode);
-      } catch (attachError: unknown) {
-        const message = attachError instanceof Error ? attachError.message : String(attachError);
-        setUploadError(`Invalid schema: ${message}`);
+        const newSchemas = await readSchemaFiles(newPaths);
+        if (!newSchemas || Object.keys(newSchemas).length === 0) return;
+
+        // Immediately attach schemas to document and reload types
+        try {
+          onAttach(newSchemas);
+          setUploadedSchemas((prev) => ({ ...prev, ...newSchemas }));
+          reloadCandidates(overrideMode);
+        } catch (attachError: unknown) {
+          const message = attachError instanceof Error ? attachError.message : String(attachError);
+          setUploadError(`Invalid schema: ${message}`);
+        }
+      } finally {
+        setIsProcessing(false);
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
@@ -304,6 +311,14 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
             >
               Upload Schema
             </Button>
+            {isProcessing && (
+              <Split hasGutter style={{ marginTop: 'var(--pf-t--global--spacer--sm)' }}>
+                <SplitItem>
+                  <Spinner size="md" aria-label="Processing schema files" data-testid="field-override-loading" />
+                </SplitItem>
+                <SplitItem>Processing schema file(s)…</SplitItem>
+              </Split>
+            )}
             <FormHelperText>
               <HelperText>
                 <HelperTextItem variant={uploadError ? 'error' : undefined}>

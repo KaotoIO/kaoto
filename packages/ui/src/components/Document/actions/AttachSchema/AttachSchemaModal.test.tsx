@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, CreateDocumentResult, DocumentType } from '../../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { DocumentService } from '../../../../services/document/document.service';
 import { BrowserFilePickerMetadataProvider } from '../../../../stubs/BrowserFilePickerMetadataProvider';
@@ -69,6 +69,55 @@ describe('AttachSchemaModal', () => {
     await waitFor(() => {
       expect(mockReadFileAsString.mock.calls.length).toEqual(1);
     });
+  });
+
+  it('should show a loading spinner while schema files are being processed', async () => {
+    mockReadFileAsString.mockResolvedValue(getShipOrderXsd());
+    let resolveCreate!: (value: CreateDocumentResult) => void;
+    const createSpy = jest.spyOn(DocumentService, 'createDocument').mockReturnValue(
+      new Promise<CreateDocumentResult>((resolve) => {
+        resolveCreate = resolve;
+      }),
+    );
+
+    render(
+      <BrowserFilePickerMetadataProvider>
+        <DataMapperProvider>
+          <AttachSchemaModal
+            isModalOpen={true}
+            onModalClose={jest.fn()}
+            documentType={DocumentType.SOURCE_BODY}
+            documentId={BODY_DOCUMENT_ID}
+            documentReferenceId={BODY_DOCUMENT_ID}
+            actionName="Attach"
+            documentTypeLabel="Source"
+          />
+        </DataMapperProvider>
+      </BrowserFilePickerMetadataProvider>,
+    );
+
+    const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+    act(() => {
+      fireEvent.click(importButton);
+    });
+
+    const fileInput = await screen.findByTestId('attach-schema-file-input');
+    const fileContent = new File([new Blob([getShipOrderXsd()])], 'ShipOrder.xsd', { type: 'text/plain' });
+    act(() => {
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+    });
+
+    expect(await screen.findByTestId('attach-schema-loading')).toBeInTheDocument();
+
+    await act(async () => {
+      resolveCreate({ validationStatus: 'success' });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('attach-schema-loading')).not.toBeInTheDocument();
+    });
+
+    createSpy.mockRestore();
   });
 
   it('should import JSON schema', async () => {

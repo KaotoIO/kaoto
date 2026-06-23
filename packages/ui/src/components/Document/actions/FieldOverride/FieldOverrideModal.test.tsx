@@ -884,5 +884,31 @@ describe('FieldOverrideModal', () => {
         expect(onAttachMock).not.toHaveBeenCalled();
       });
     });
+
+    it('should show a loading spinner while the uploaded schema is being processed', async () => {
+      jest.spyOn(DataMapperMetadataService, 'selectDocumentSchema').mockResolvedValue(['types.xsd']);
+      let resolveRead!: (value: string) => void;
+      (mockApi.getResourceContent as jest.Mock).mockReturnValue(
+        new Promise<string>((resolve) => {
+          resolveRead = resolve;
+        }),
+      );
+
+      renderWithContext({ onAttach: jest.fn() });
+
+      act(() => {
+        fireEvent.click(screen.getByTestId('upload-schema-button'));
+      });
+
+      expect(await screen.findByTestId('field-override-loading')).toBeInTheDocument();
+
+      await act(async () => {
+        resolveRead('<xs:schema/>');
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('field-override-loading')).not.toBeInTheDocument();
+      });
+    });
   });
 });

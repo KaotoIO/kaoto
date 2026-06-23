@@ -9,6 +9,9 @@ import {
   ModalFooter,
   ModalHeader,
   Radio,
+  Spinner,
+  Split,
+  SplitItem,
   Stack,
   StackItem,
 } from '@patternfly/react-core';
@@ -57,6 +60,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   );
   const [filePaths, setFilePaths] = useState<string[]>([]);
   const [createDocumentResult, setCreateDocumentResult] = useState<CreateDocumentResult | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const fileNamePattern = useMemo(() => {
     if (documentType === DocumentType.SOURCE_BODY) {
@@ -84,16 +88,21 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
         ? DocumentDefinitionType.JSON_SCHEMA
         : DocumentDefinitionType.XML_SCHEMA;
 
-      const result = await DocumentService.createDocument(
-        api,
-        documentType,
-        schemaType,
-        documentId,
-        allPaths,
-        mappingTree.namespaceMap,
-      );
-      setCreateDocumentResult(result);
-      setSelectedSchemaType(schemaType);
+      setIsProcessing(true);
+      try {
+        const result = await DocumentService.createDocument(
+          api,
+          documentType,
+          schemaType,
+          documentId,
+          allPaths,
+          mappingTree.namespaceMap,
+        );
+        setCreateDocumentResult(result);
+        setSelectedSchemaType(schemaType);
+      } finally {
+        setIsProcessing(false);
+      }
     },
     [api, documentType, documentId, mappingTree.namespaceMap],
   );
@@ -264,7 +273,18 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
             <SchemaFileDataList items={allItems} onRemoveFile={onRemoveFile} />
           </StackItem>
 
-          {filePaths.length === 0 && (
+          {isProcessing && (
+            <StackItem>
+              <Split hasGutter>
+                <SplitItem>
+                  <Spinner size="md" aria-label="Processing schema files" data-testid="attach-schema-loading" />
+                </SplitItem>
+                <SplitItem>Processing schema file(s)…</SplitItem>
+              </Split>
+            </StackItem>
+          )}
+
+          {filePaths.length === 0 && !isProcessing && (
             <StackItem>
               <HelperText>
                 <HelperTextItem data-testid="attach-schema-no-files">No files selected</HelperTextItem>
