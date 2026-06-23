@@ -2,28 +2,18 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { CamelCatalogService, CatalogKind, KaotoSchemaDefinition } from '../../../../models';
-import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
-import { TestProvidersWrapper } from '../../../../stubs';
+import { CamelCatalogService, CatalogKind } from '../../../../models';
+import { CamelRouteResource } from '../../../../models/camel';
+import { configureSourceSchemaTypes, TestProvidersWrapper } from '../../../../stubs';
 import { camelRouteJson } from '../../../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../../../stubs/test-load-catalog';
 import { NewEntity } from './NewEntity';
 
-const config = sourceSchemaConfig;
-config.config[SourceSchemaType.Pipe].schema = {
-  name: 'Pipe',
-  schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Kamelet].schema = {
-  name: 'Kamelet',
-  schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Route].schema = {
-  name: 'route',
-  schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-
 describe('NewEntity', () => {
+  beforeAll(() => {
+    configureSourceSchemaTypes();
+  });
+
   beforeEach(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     CamelCatalogService.setCatalogKey(CatalogKind.Entity, catalogsMap.entitiesCatalog);

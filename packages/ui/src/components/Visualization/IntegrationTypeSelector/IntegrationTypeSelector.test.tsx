@@ -2,28 +2,10 @@ import { MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { Ref } from 'react';
 
-import { KaotoSchemaDefinition } from '../../../models';
 import { sourceSchemaConfig, SourceSchemaType } from '../../../models/camel';
 import { EntitiesContext, EntitiesContextResult } from '../../../providers/entities.provider';
+import { configureSourceSchemaTypes } from '../../../stubs';
 import { IntegrationTypeSelector } from './IntegrationTypeSelector';
-
-const config = sourceSchemaConfig;
-config.config[SourceSchemaType.Route].schema = {
-  name: 'route',
-  schema: { name: 'route', description: 'Camel Route desc' },
-} as unknown as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Kamelet].schema = {
-  name: 'Kamelet',
-  schema: { name: 'Kamelet', description: 'Kamelet desc' },
-} as unknown as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Pipe].schema = {
-  name: 'Pipe',
-  schema: { name: 'Pipe', description: 'Pipe desc' },
-} as unknown as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Test].schema = {
-  name: 'Test',
-  schema: { name: 'Test', description: 'Test desc' },
-} as unknown as KaotoSchemaDefinition;
 
 const makeToggle = (testId: string) => (toggleRef: Ref<MenuToggleElement>, isOpen: boolean, onToggle: () => void) => (
   <MenuToggle data-testid={testId} ref={toggleRef} onClick={onToggle} isExpanded={isOpen}>
@@ -61,6 +43,10 @@ const renderSelector = (
   );
 
 describe('IntegrationTypeSelector', () => {
+  beforeAll(() => {
+    configureSourceSchemaTypes();
+  });
+
   it('renders the toggle', () => {
     const wrapper = renderSelector();
     expect(wrapper.getByTestId('test-toggle')).toBeInTheDocument();

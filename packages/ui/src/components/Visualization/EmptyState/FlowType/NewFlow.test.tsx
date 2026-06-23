@@ -1,49 +1,32 @@
 import { CatalogLibrary, CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { act, fireEvent, render } from '@testing-library/react';
 
-import { KaotoSchemaDefinition } from '../../../../models';
-import { CamelRouteResource, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
+import { CamelRouteResource, SourceSchemaType } from '../../../../models/camel';
 import { CamelRouteVisualEntity } from '../../../../models/visualization/flows';
 import { VisibleFlowsProvider } from '../../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../../providers/entities.provider';
 import { IRuntimeContext, RuntimeContext } from '../../../../providers/runtime.provider';
+import { configureSourceSchemaTypes } from '../../../../stubs';
 import { NewFlow } from './NewFlow';
 
 describe('NewFlow.tsx', () => {
-  const config = sourceSchemaConfig;
-  config.config[SourceSchemaType.Integration].schema = {
-    schema: { name: 'Integration', description: 'desc' } as KaotoSchemaDefinition['schema'],
-  } as KaotoSchemaDefinition;
-  config.config[SourceSchemaType.Pipe].schema = {
-    schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
-  } as KaotoSchemaDefinition;
-  config.config[SourceSchemaType.Kamelet].schema = {
-    schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
-  } as KaotoSchemaDefinition;
-  config.config[SourceSchemaType.KameletBinding].schema = {
-    name: 'kameletBinding',
-    schema: { description: 'desc' },
-  } as KaotoSchemaDefinition;
-  config.config[SourceSchemaType.Route].schema = {
-    schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
-  } as KaotoSchemaDefinition;
-  config.config[SourceSchemaType.Test].schema = {
-    schema: { name: 'Test', description: 'desc' } as KaotoSchemaDefinition['schema'],
-  } as KaotoSchemaDefinition;
+  beforeAll(() => {
+    configureSourceSchemaTypes();
+  });
 
   const mockCamelCatalog: CatalogLibraryEntry = {
     name: 'Camel Main',
     runtime: 'Main',
     version: '4.0.0',
     fileName: 'camel-catalog-4.0.0.json',
-  } as CatalogLibraryEntry;
+  };
 
   const mockCitrusCatalog: CatalogLibraryEntry = {
     name: 'Citrus',
     runtime: 'Citrus',
     version: '4.0.0',
     fileName: 'citrus-catalog-4.0.0.json',
-  } as CatalogLibraryEntry;
+  };
 
   const mockCatalogLibrary: CatalogLibrary = {
     definitions: [mockCamelCatalog, mockCitrusCatalog],

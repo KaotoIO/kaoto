@@ -1,25 +1,13 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
-import { KaotoSchemaDefinition } from '../../../../../models';
-import { sourceSchemaConfig, SourceSchemaType } from '../../../../../models/camel';
-import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../../stubs';
+import { configureSourceSchemaTypes, TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../../../stubs';
 import { IntegrationTypeSelectorToggle } from './IntegrationTypeSelectorToggle';
 
-const config = sourceSchemaConfig;
-config.config[SourceSchemaType.Pipe].schema = {
-  name: 'Pipe',
-  schema: { name: 'Pipe', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Kamelet].schema = {
-  name: 'Kamelet',
-  schema: { name: 'Kamelet', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-config.config[SourceSchemaType.Route].schema = {
-  name: 'route',
-  schema: { name: 'route', description: 'desc' } as KaotoSchemaDefinition['schema'],
-} as KaotoSchemaDefinition;
-
 describe('IntegrationTypeSelectorToggle.tsx', () => {
+  beforeAll(() => {
+    configureSourceSchemaTypes();
+  });
+
   it('component renders with the integration-type-list-dropdown toggle', () => {
     const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const { Provider } = TestProvidersWrapper();
